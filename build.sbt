@@ -7,7 +7,7 @@ import sbt._
 
 name         := "address-index"
 scalaVersion := "2.11.7"
-scmInfo      := Some(ScmInfo(url("https://bitbucket.org/xz/z"), "scm:git:git@bitbucket.org:anomaly42/z.git"))
+scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"), "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git"))
 
 lazy val localCommonSettings = Seq(
   scalaVersion := "2.11.7"

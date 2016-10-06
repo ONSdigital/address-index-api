@@ -13,6 +13,6 @@ class SystemBootstrap @Inject()
   extends Bootstrap {
   //TODO: Elastic Server Connect
   def applicationStart(): Unit = {
-    Logger info "`SystemBootstrap` Complete"
+    Logger("address-index") info "`SystemBootstrap` complete"
   }
 }
