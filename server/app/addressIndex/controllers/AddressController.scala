@@ -1,6 +1,7 @@
 package addressIndex.controllers
 
 import javax.inject.{Inject, Singleton}
+import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.Future
 
@@ -9,9 +10,11 @@ class AddressController @Inject()
   extends AddressIndexController {
 
   def addressQuery(
-    format : String
+    format : String,
+    input  : String
   ): Action[AnyContent] = Action async { implicit req =>
-    Future successful NotImplemented
+    Logger("address-index:AddressController").info("#addressQuery called")
+    Future successful Ok
   }
 
 
@@ -19,7 +22,7 @@ class AddressController @Inject()
     uprn   : String,
     format : String
   ): Action[AnyContent] = Action async { implicit req =>
-    Future successful NotImplemented
+    Logger("address-index:AddressController").info("#uprnQuery called")
+    Future successful Ok
   }
-
 }
