@@ -58,10 +58,10 @@ case class Postcode(
 
 case class Unparsed(
   untokenised : String,
-  subString   : Index
+  subString   : SubString
 )
 
-case class Index(
+case class SubString(
   startIndex : Int,
   endIndex   : Int
 )
