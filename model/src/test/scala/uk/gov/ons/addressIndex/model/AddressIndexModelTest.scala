@@ -9,7 +9,7 @@ class AddressIndexModelTest
   with Matchers
   with OptionValues {
 
-  it should "produce the correct `AddressScheme` (`PostcodeAddressFile`) for the given string `paf`" in {
+ it should "produce the correct `AddressScheme` (`PostcodeAddressFile`) for the given string `paf`" in {
    val sample   = "paf"
    val expected = PostcodeAddressFile()
    val actual   = sample.toAddressScheme
