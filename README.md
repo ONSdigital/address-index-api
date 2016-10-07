@@ -6,7 +6,6 @@ SBT Run, Test.
 
 * Address Index is a Play Framework application which resolves address query strings to actual addresses.
 * Version 0.0.1
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
 
@@ -19,6 +18,7 @@ SBT Run, Test.
 * FlatSpec > FreeSpec
 * Infix > Not Infix
 * Scaladoc please!
+* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### Who do I talk to? ###
 
