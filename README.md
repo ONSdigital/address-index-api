@@ -5,7 +5,7 @@ SBT Run, Test.
 ### What is this repository for? ###
 
 * Address Index is a Play Framework application which resolves address query strings to actual addresses.
-* 0.0.1
+* Version 0.0.1
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
