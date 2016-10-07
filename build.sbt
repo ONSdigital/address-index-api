@@ -26,7 +26,6 @@ val customResolvers = Seq(
 
 val commonDeps = Seq(
    "org.scalatest" %% "scalatest" % "3.0.0" % Test
-)
 
 val modelDeps   = Seq.empty ++ commonDeps
 val utilsDeps   = Seq.empty ++ commonDeps
