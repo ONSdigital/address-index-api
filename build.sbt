@@ -20,49 +20,64 @@ lazy val Versions = new {
 
 val customResolvers = Seq(
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
-  "Twitter Repository"         at "http://maven.twttr.com"
+  "Twitter Repository"         at "http://maven.twttr.com",
+  "Artima Maven Repository"    at "http://repo.artima.com/releases"
 )
 
-val modelDeps = Seq.empty
-
-val clientDeps = Seq.empty
-
-val serverDeps = Seq(
-  "org.scalatest" %% "scalatest" % Versions.scalatest % "test"
+val commonDeps = Seq(
+   "org.scalatest" % "scalatest" % "3.0.0" % Test
 )
 
-val utilDeps = Seq.empty
+val modelDeps   = Seq.empty ++ commonDeps
+val utilsDeps   = Seq.empty ++ commonDeps
+val clientDeps  = Seq.empty ++ commonDeps
+val parsersDeps = Seq.empty ++ commonDeps
+val serverDeps  = Seq.empty ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
     publishLocal := {},
     publish      := {}
   ).aggregate(
-  `address-index-model`,
-  `address-index-client`,
-  `address-index-server`,
-  `address-index-utils`
-)
+    `address-index-model`,
+    `address-index-client`,
+    `address-index-server`,
+    `address-index-utils`,
+    `address-index-parsers`
+  )
 
 lazy val `address-index-model` = project.in(file("model"))
-  .settings(localCommonSettings)
-  .settings(libraryDependencies ++= modelDeps)
+  .settings(
+    localCommonSettings,
+    libraryDependencies ++= modelDeps,
+    resolvers           ++= customResolvers
+  )
 
 lazy val `address-index-client` = project.in(file("client"))
-  .settings(libraryDependencies ++= clientDeps)
-  .settings(localCommonSettings)
+  .settings(
+    localCommonSettings,
+    libraryDependencies ++= clientDeps
+  )
   .dependsOn(`address-index-model`)
 
 lazy val `address-index-server` = project.in(file("server"))
   .settings(
+    localCommonSettings,
     libraryDependencies ++= serverDeps,
     resolvers           ++= customResolvers,
     routesGenerator      := InjectedRoutesGenerator
   )
-  .settings(localCommonSettings)
   .dependsOn(`address-index-model`)
   .enablePlugins(PlayScala, SbtWeb, JavaAppPackaging)
 
 lazy val `address-index-utils` = project.in(file("utils"))
-  .settings(localCommonSettings)
-  .settings(libraryDependencies ++= modelDeps)
+  .settings(
+    localCommonSettings,
+    libraryDependencies ++= utilsDeps
+  )
+
+lazy val `address-index-parsers` = project.in(file("parsers"))
+  .settings(
+    localCommonSettings,
+    libraryDependencies ++= parsersDeps
+  )
