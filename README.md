@@ -15,10 +15,11 @@ SBT Run, Test.
 
 ### Contribution guidelines ###
 
-* FlatSpec > FreeSpec
-* Infix > Not Infix
-* Scaladoc please!
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Testing: FlatSpec > FreeSpec
+* Style: Infix > Not Infix
+* Scaladoc
+* GitFlow
+* Pull requests must have tests
 
 ### Who do I talk to? ###
 
