@@ -1,4 +1,4 @@
-package main.scala.uk.gov.ons.addressIndex.model
+package uk.gov.ons.addressIndex.model
 
 import java.util.UUID
 

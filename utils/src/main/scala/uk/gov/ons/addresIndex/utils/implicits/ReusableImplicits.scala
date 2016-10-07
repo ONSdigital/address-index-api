@@ -1,4 +1,4 @@
-package main.scala.uk.gov.ons.addresIndex.utils.implicits
+package uk.gov.ons.addresIndex.utils.implicits
 
 trait ReusableImplicits {
 }
