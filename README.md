@@ -1,4 +1,4 @@
-# `address-index` README #
+# README #
 
 
 
@@ -9,9 +9,12 @@
 
 ### How do I get set up? ###
 
-* Install Java
-* Install SBT
-* Run SBT
+* Install `java`
+* Install `sbt`
+* Run `sbt`
+* `project address-index-server`
+* `run`
+* Go to web browser [localhost:9000](localhost:9000)
 
 ### Contribution guidelines ###
 
