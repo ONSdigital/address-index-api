@@ -29,10 +29,16 @@ val commonDeps = Seq(
 )
 
 val modelDeps   = Seq.empty ++ commonDeps
-val utilsDeps   = Seq.empty ++ commonDeps
 val clientDeps  = Seq.empty ++ commonDeps
 val parsersDeps = Seq.empty ++ commonDeps
-val serverDeps  = Seq.empty ++ commonDeps
+val serverDeps  = Seq(
+  "com.sksamuel.elastic4s" %% "elastic4s-core" % "2.3.0"
+) ++ commonDeps
+
+val utilsDeps = Seq(
+  "com.typesafe"       %  "config"     % "1.3.0",
+  "com.github.melrief" %% "pureconfig" % "0.3.1.1"
+) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
