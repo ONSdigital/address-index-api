@@ -1,10 +1,11 @@
 package addressIndex.modules
 
 import javax.inject.{Inject, Singleton}
-import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s._
 import org.elasticsearch.common.settings._
+import com.google.inject.ImplementedBy
 
+@ImplementedBy(classOf[ElasticsearchRepositoryModule])
 trait ElasticsearchRepository {
   /**
     * An ElasticClient.
@@ -29,7 +30,6 @@ class ElasticsearchRepositoryModule @Inject()(
   val defaultClient : ElasticClient = {
     val esConf = conf.config.elasticSearch
     val esClientSettings = Settings.settingsBuilder.put("cluster" -> esConf.cluster).build
-
     if(esConf.local) {
       ElasticClient local esClientSettings
     } else {

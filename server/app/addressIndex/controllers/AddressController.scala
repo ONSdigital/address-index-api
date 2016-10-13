@@ -1,14 +1,14 @@
 package addressIndex.controllers
 
 import javax.inject.{Inject, Singleton}
-import addressIndex.modules.{AddressIndexConfigModule, ElasticsearchRepositoryModule}
+import addressIndex.modules.ElasticsearchRepository
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.Future
 
 @Singleton
 class AddressController @Inject()(
- esRepo: ElasticsearchRepositoryModule
+ esRepo: ElasticsearchRepository
 ) extends AddressIndexController {
 
   def addressQuery(
