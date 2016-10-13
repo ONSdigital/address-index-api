@@ -25,19 +25,24 @@ val customResolvers = Seq(
 )
 
 val commonDeps = Seq(
-   "org.scalatest" %% "scalatest" % "3.0.0" % Test
+  "org.scalatest"      %% "scalatest"  % "3.0.0" % Test,
+  "com.typesafe"       %  "config"     % "1.3.0",
+  "com.github.melrief" %% "pureconfig" % "0.3.1.1"
 )
 
-val modelDeps   = Seq.empty ++ commonDeps
+val modelDeps = Seq(
+  "com.sksamuel.elastic4s" %% "elastic4s-core" % "2.3.0"
+) ++ commonDeps
+
+
 val clientDeps  = Seq.empty ++ commonDeps
 val parsersDeps = Seq.empty ++ commonDeps
+
 val serverDeps  = Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-core" % "2.3.0"
 ) ++ commonDeps
 
 val utilsDeps = Seq(
-  "com.typesafe"       %  "config"     % "1.3.0",
-  "com.github.melrief" %% "pureconfig" % "0.3.1.1"
 ) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))

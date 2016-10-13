@@ -1,12 +1,12 @@
 package addressIndex.modules
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import pureconfig._
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import scala.util.Try
 
 @Singleton
-class AddressIndexConfigModule {
+class AddressIndexConfigModule @Inject()(){
   //TODO should we be defaulting here?
   //TODO use the `tryConfig` for errors later on?
   private val tryConfig: Try[AddressIndexConfig] = loadConfig[AddressIndexConfig]("addressIndex")
