@@ -24,7 +24,7 @@ class ElasticsearchRepositoryModule @Inject()(conf : AddressIndexConfigModule) e
   /**
     * The default ElasticClient.
     */
-  def client() : ElasticClient = {
+  lazy val client : ElasticClient = {
     val esConf = conf.config.elasticSearch
     logger.info(s"attempting to connect to elasticsearch. uri: ${esConf.uri} cluster: ${esConf.cluster}")
     val esClientSettings = Settings.settingsBuilder.put(
