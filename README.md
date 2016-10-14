@@ -11,7 +11,7 @@
 
 * Install `java`
 * Install `sbt`
-* Run `sbt`
+* Run `sbt -Des.path.home="location/to/store/es/data/if/local"` or just `sbt` if you're using a remote elasticsearch.
 * `project address-index-server`
 * `run`
 * Go to web browser [localhost:9000](localhost:9000)
@@ -19,7 +19,7 @@
 ### Contribution guidelines ###
 
 * Testing: FlatSpec > FreeSpec
-* Style: Infix > Not Infix
+* Style: Infix > Not Infix, named params when param count > 1
 * Scaladoc
 * GitFlow
 * Pull requests must have tests

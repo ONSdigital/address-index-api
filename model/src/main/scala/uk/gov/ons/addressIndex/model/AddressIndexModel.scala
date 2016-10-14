@@ -14,8 +14,8 @@ case class AddressIndexSearchRequest(
 )
 
 sealed trait AddressScheme
-case class PostcodeAddressFile()       extends AddressScheme
-case class BritishStandard7666()       extends AddressScheme
+case class PostcodeAddressFile() extends AddressScheme
+case class BritishStandard7666() extends AddressScheme
 case class UnrecognisedAddressScheme() extends AddressScheme
 
 object AddressScheme {
