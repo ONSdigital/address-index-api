@@ -30,9 +30,9 @@ val commonDeps = Seq(
   "com.github.melrief" %% "pureconfig" % "0.3.1.1"
 )
 
-val modelDeps   = Seq.empty ++ commonDeps
-val clientDeps  = Seq.empty ++ commonDeps
-val parsersDeps = Seq.empty ++ commonDeps
+val modelDeps   = commonDeps
+val clientDeps  = commonDeps
+val parsersDeps = commonDeps
 
 val serverDeps  = Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
