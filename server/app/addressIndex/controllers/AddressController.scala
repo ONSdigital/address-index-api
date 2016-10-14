@@ -8,12 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 
 @Singleton
-class AddressController @Inject()(
- esRepo : ElasticsearchRepository
-)(
-  implicit
-  ec : ExecutionContext
-) extends AddressIndexController {
+class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec : ExecutionContext) extends AddressIndexController {
 
   def elasticTest(): Action[AnyContent] = Action async { implicit req =>
     esRepo.client execute {

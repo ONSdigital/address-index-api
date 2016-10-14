@@ -9,9 +9,7 @@ trait Bootstrap {
 }
 
 @Singleton
-class SystemBootstrap @Inject()
-  extends Bootstrap {
-  //TODO: Elastic Server Connect
+class SystemBootstrap @Inject() extends Bootstrap {
   def applicationStart(): Unit = {
     Logger("address-index") info "`SystemBootstrap` complete"
   }

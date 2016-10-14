@@ -4,10 +4,7 @@ import uk.gov.ons.addressIndex.model.AddressScheme.StringToAddressSchemeAugmente
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile, UnrecognisedAddressScheme}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
-class AddressIndexModelTest
-  extends FlatSpec
-  with Matchers
-  with OptionValues {
+class AddressIndexModelTest extends FlatSpec with Matchers with OptionValues {
 
   it should "produce the correct `AddressScheme` (`PostcodeAddressFile`) for the given string `paf`" in {
    val sample   = "paf"

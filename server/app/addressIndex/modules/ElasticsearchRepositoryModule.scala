@@ -15,10 +15,10 @@ trait ElasticsearchRepository {
 }
 
 @Singleton
-class ElasticsearchRepositoryModule @Inject()(
-  conf : AddressIndexConfigModule
-) extends ElasticsearchRepository {
-
+class ElasticsearchRepositoryModule @Inject()(conf : AddressIndexConfigModule) extends ElasticsearchRepository {
+  /**
+    * A play logger.
+    */
   val logger = Logger("address-index:ElasticsearchRepositoryModule")
 
   /**

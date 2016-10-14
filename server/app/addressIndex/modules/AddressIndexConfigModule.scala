@@ -5,6 +5,9 @@ import pureconfig._
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import scala.util.Try
 
+/**
+  * Inject this into your controllers to access a type safe config.
+  */
 @Singleton
 class AddressIndexConfigModule() {
   //TODO should we be defaulting here?
