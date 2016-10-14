@@ -3,3 +3,4 @@
 GET     /               addressIndex.controllers.general.ApplicationController.index
 GET     /address        addressIndex.controllers.AddressController.addressQuery(format, input)
 GET     /uprn           addressIndex.controllers.AddressController.uprnQuery(uprn, format)
+GET     /es             addressIndex.controllers.AddressController.elasticTest
