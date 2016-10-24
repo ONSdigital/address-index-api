@@ -7,7 +7,7 @@ import play.api.mvc.{Action, AnyContent}
 @Singleton
 class ApplicationController @Inject() extends AddressIndexController {
 
-  def index(): Action[AnyContent] = Action { implicit req =>
-    Ok("hi")
+  def index() : Action[AnyContent] = Action { implicit req =>
+    Ok("hello world")
   }
 }
