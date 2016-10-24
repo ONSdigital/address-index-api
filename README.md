@@ -18,6 +18,7 @@
 
 ### Contribution guidelines ###
 
+* Standard Scala style
 * Testing: FlatSpec > FreeSpec
 * Style: Infix > Not Infix, named params when param count > 1
 * Scaladoc
