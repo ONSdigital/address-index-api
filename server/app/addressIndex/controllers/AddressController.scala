@@ -6,19 +6,12 @@ import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
-
 @Singleton
 class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec : ExecutionContext) extends AddressIndexController {
 
   val logger = Logger("address-index:AddressController")
 
   def elasticTest() : Action[AnyContent] = Action async { implicit req =>
-//
-//    esRepo.destroyAddressIndex flatMap { _ =>
-//      esRepo.createAddressIndex map { resp =>
-//        Ok(resp.toString)
-//      }
-//    }
     esRepo.client execute {
       get cluster health
     } map { resp =>
