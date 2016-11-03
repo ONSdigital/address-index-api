@@ -4,6 +4,9 @@ import javax.inject.{Inject, Singleton}
 import addressIndex.controllers.AddressIndexController
 import play.api.mvc.{Action, AnyContent}
 
+/**
+  * The main controller of the application.
+  */
 @Singleton
 class ApplicationController @Inject() extends AddressIndexController {
 

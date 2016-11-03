@@ -10,7 +10,6 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileIndex, PostcodeIndex}
 import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
@@ -65,14 +64,14 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit
     }
   }
 
-  def createAll(): Future[Seq[CreateIndexResponse]] = {
+  def createAll() : Future[Seq[CreateIndexResponse]] = {
     createIndex(
       PostcodeAddressFileIndex,
       PostcodeIndex
     )(client)
   }
 
-  def deleteAll(): Future[Seq[DeleteIndexResponse]] = {
+  def deleteAll() : Future[Seq[DeleteIndexResponse]] = {
     deleteIndex(
       PostcodeAddressFileIndex,
       PostcodeIndex
