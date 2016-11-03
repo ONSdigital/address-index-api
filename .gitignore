@@ -4,3 +4,4 @@
 logs
 *.log
 .DS_Store
+.history

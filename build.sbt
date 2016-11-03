@@ -10,6 +10,9 @@ name         := "address-index"
 scalaVersion := scalaV
 scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"), "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git"))
 
+mainClass in assembly := Some("play.core.server.NettyServer")
+assemblyJarName in assembly := "ons-ai-api.jar"
+
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
 )
@@ -40,7 +43,6 @@ val serverDeps  = Seq(
 //  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
 //  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
 ) ++ commonDeps
-
 
 lazy val `address-index` = project.in(file("."))
   .settings(
