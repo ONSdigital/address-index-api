@@ -1,0 +1,29 @@
+sudo: required
+dist: trusty
+language: scala
+script:
+  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION test; else travis_retry sbt ++$TRAVIS_SCALA_VERSION test; fi
+scala:
+  - 2.11.8
+jdk:
+  - oraclejdk8
+branches:
+  only:
+    # We're only building these branches and pull requests.
+    - master
+    - develop
+before_cache:
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
+addons:
+  # https://github.com/travis-ci/travis-ci/issues/5227#issuecomment-165131913
+  hosts:
+    - ons-ai
+  hostname: ons-ai
+notifications:
+  slack: valtech-ons:nLeAGETA8HsuIi5fMQCaLe2G
