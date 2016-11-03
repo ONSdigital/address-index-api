@@ -12,16 +12,16 @@ class PostcodeIndexTest extends FlatSpec with Matchers {
     expected shouldBe actual
   }
 
-  it should "have an expected fixed sequence of mappings" in {
-    val expected = Seq(
-      mapping(PostcodeIndexTest.name) fields (
-        "inCode" typed StringType,
-        "outCode" typed StringType
-      )
-    )
-    val actual = PostcodeIndex.mappingDefinitions
-    expected should contain theSameElementsAs actual
-  }
+//  it should "have an expected fixed sequence of mappings" in {
+//    val expected = Seq(
+//      mapping(PostcodeIndexTest.name) fields (
+//        "inCode" typed StringType,
+//        "outCode" typed StringType
+//      )
+//    )
+//    val actual = PostcodeIndex.mappingDefinitions
+//    expected should contain theSameElementsAs actual
+//  }
 }
 
 object PostcodeIndexTest {
