@@ -12,7 +12,7 @@ class PostcodeAddressFileIndexTest extends FlatSpec with Matchers {
     expected shouldBe actual
   }
 
-  it should "have an expected fixed sequence of mappings" in {
+  ignore should "have an expected fixed sequence of mappings" in {
     val expected = Seq(
       mapping(PostcodeAddressFileIndexTest.name) fields (
         "guid" typed StringType,

@@ -1,15 +1,16 @@
 package addressIndex.modules
 
 import javax.inject.{Inject, Singleton}
+
 import com.sksamuel.elastic4s._
 import org.elasticsearch.common.settings._
 import com.google.inject.ImplementedBy
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeIndex, PostcodeAddressFileIndex}
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileIndex, PostcodeIndex}
 import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository extends ElasticIndexSugar {
@@ -34,7 +35,7 @@ trait ElasticsearchRepository extends ElasticIndexSugar {
 }
 
 @Singleton
-class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule) extends ElasticsearchRepository {
+class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   val logger = Logger("address-index:ElasticsearchRepositoryModule")
   val esConf = conf.config.elasticSearch
@@ -42,7 +43,7 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule) extends 
   /**
     * The default ElasticClient.
     */
-    val client : ElasticClient = {
+  val client : ElasticClient = {
     logger info s"attempting to connect to elasticsearch uri: ${esConf.uri} cluster: ${esConf.cluster}"
     val esClientSettings = Settings.settingsBuilder.put(
       "cluster.name" -> esConf.cluster,
@@ -63,19 +64,17 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule) extends 
     }
   }
 
-  def createAll(): Future[Seq[CreateIndexResponse]] = {
-    implicit val c : ElasticClient = client
+  def createAll() : Future[Seq[CreateIndexResponse]] = {
     createIndex(
       PostcodeAddressFileIndex,
       PostcodeIndex
-    )
+    )(client)
   }
 
-  def deleteAll(): Future[Seq[DeleteIndexResponse]] = {
-    implicit val c : ElasticClient = client
+  def deleteAll() : Future[Seq[DeleteIndexResponse]] = {
     deleteIndex(
       PostcodeAddressFileIndex,
       PostcodeIndex
-    )
+    )(client)
   }
 }

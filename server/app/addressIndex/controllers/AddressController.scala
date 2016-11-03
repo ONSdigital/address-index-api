@@ -7,18 +7,22 @@ import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 
+/**
+  * Main API
+  *
+  * @param esRepo
+  * @param ec
+  */
 @Singleton
 class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec : ExecutionContext) extends AddressIndexController {
 
   val logger = Logger("address-index:AddressController")
 
+  /**
+    * Test elastic is connected
+    * @return
+    */
   def elasticTest() : Action[AnyContent] = Action async { implicit req =>
-//
-//    esRepo.destroyAddressIndex flatMap { _ =>
-//      esRepo.createAddressIndex map { resp =>
-//        Ok(resp.toString)
-//      }
-//    }
     esRepo.client execute {
       get cluster health
     } map { resp =>
@@ -26,6 +30,13 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     }
   }
 
+  /**
+    * Address query API
+    *
+    * @param format
+    * @param input
+    * @return
+    */
   def addressQuery(
     format : String,
     input  : String
@@ -34,6 +45,13 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     Future successful NotImplemented
   }
 
+  /**
+    * UPRN query api
+    *
+    * @param uprn
+    * @param format
+    * @return
+    */
   def uprnQuery(
     uprn   : String,
     format : String
