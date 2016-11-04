@@ -1,0 +1,18 @@
+@import uk.gov.ons.address.conf.OnsFrontendConfiguration
+@(conf: OnsFrontendConfiguration)
+<nav class="navbar navbar-default navbar-static-top sub-nav">
+    <ul class="nav navbar-nav">
+        <li>
+            <a href="/"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+        </li>
+        <li>
+            <a href="/addresses"><i class="fa fa-search" aria-hidden="true"></i> Single Match</a>
+        </li>
+  <!--      <li>
+            <a href="/addresses/bulk"><i class="fa fa-files-o" aria-hidden="true"></i> Bulk Match</a>
+        </li>
+        <li>
+            <a href="@(conf.onsApiProposeNewAddressUri)/addresses/propose/new/address/form"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Propose new Address</a>
+        </li>-->
+    </ul>
+</nav>
