@@ -29,13 +29,6 @@ lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
   assemblyJarName in assembly := "ons-ai-api.jar"
 )
 
-dependencyOverrides += "joda-time" % "joda-time" % "2.9.4"
-assemblyMergeStrategy in assembly := {
-  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first
-  case x =>
-    val oldStrategy = (assemblyMergeStrategy in assembly).value
-    oldStrategy(x)
-}
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
 ) ++ assemblySettings
