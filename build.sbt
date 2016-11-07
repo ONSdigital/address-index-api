@@ -4,6 +4,7 @@ import play.sbt.routes.RoutesKeys._
 import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 val scalaV    = "2.11.7"
 name         := "address-index"
@@ -12,6 +13,14 @@ scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-in
 
 mainClass in assembly := Some("play.core.server.NettyServer")
 assemblyJarName in assembly := "ons-ai-api.jar"
+
+assemblyMergeStrategy in assembly := {
+//  case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
+  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
 
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
@@ -42,25 +51,16 @@ val customResolvers = Seq(
 )
 
 val commonDeps = Seq(
-  "org.scalatest"      %% "scalatest"  % "3.0.0" % Test,
-  "com.typesafe"       %  "config"     % "1.3.0",
-  "com.github.melrief" %% "pureconfig" % "0.3.1.1"
+  "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
+  "com.typesafe"           %  "config"            % "1.3.0",
+  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1" exclude ("org.joda", "joda-time")
 )
 
-val modelDeps   = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-) ++ commonDeps
-
+val modelDeps   = commonDeps
 val clientDeps  = commonDeps
 val parsersDeps = commonDeps
-val serverDeps  = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-//  ,
-//  "com.databricks"         %% "spark-csv"           % "1.5.0",
-//  "org.apache.spark"       %% "spark-core"          % "1.6.2",
-//  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
-//  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
-) ++ commonDeps
+val serverDeps  = commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
