@@ -1,11 +1,15 @@
 package addressIndex.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import addressIndex.modules.ElasticsearchRepository
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
+import uk.gov.ons.addressIndex.model.AddressScheme._
+import uk.gov.ons.addressIndex.model.PostcodeAddressFile
 
 /**
   * Main API
@@ -38,8 +42,8 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     * @return
     */
   def addressQuery(
-    format : String,
-    input  : String
+    input  : String,
+    format : String
   ) : Action[AnyContent] = Action async {  implicit req =>
     logger info "#addressQuery called"
     Future successful NotImplemented
@@ -49,20 +53,17 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     * UPRN query api
     *
     * @param uprn
-    * @param format
+    * @param formatString
     * @return
     */
   def uprnQuery(
     uprn   : String,
-    format : String
+    formatString : String
   ) : Action[AnyContent] = Action async { implicit req =>
     logger info "#uprnQuery called"
-    //dummy data
-    val map : Map[(String, String), String] = Map(
-      "paf" -> "XXX" -> "SomeAddress"
-    )
-    Future successful Ok(
-      map getOrElse((format, uprn), s"UPRN '$uprn' for format '$format' not Found")
-    )
+
+    Future.fromTry(formatString.toAddressScheme()).map {
+      case PostcodeAddressFile() => Ok("postcode address file")
+    }
   }
 }
