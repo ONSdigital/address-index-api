@@ -14,14 +14,13 @@ scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-in
 mainClass in assembly := Some("play.core.server.NettyServer")
 assemblyJarName in assembly := "ons-ai-api.jar"
 
+dependencyOverrides += "joda-time" % "joda-time" % "2.9.4"
 assemblyMergeStrategy in assembly := {
-//  case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
-  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
+  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
 }
-
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
 )
@@ -54,7 +53,7 @@ val commonDeps = Seq(
   "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
   "com.typesafe"           %  "config"            % "1.3.0",
   "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1" exclude ("org.joda", "joda-time")
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
 )
 
 val modelDeps   = commonDeps
