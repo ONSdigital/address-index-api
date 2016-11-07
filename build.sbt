@@ -4,14 +4,43 @@ import play.sbt.routes.RoutesKeys._
 import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 val scalaV    = "2.11.7"
 name         := "address-index"
 scalaVersion := scalaV
 scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"), "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git"))
 
+mainClass in assembly := Some("play.core.server.NettyServer")
+assemblyJarName in assembly := "ons-ai-api.jar"
+
+dependencyOverrides += "joda-time" % "joda-time" % "2.9.4"
+assemblyMergeStrategy in assembly := {
+  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
+)
+
+scalacOptions in ThisBuild ++= Seq(
+  "-target:jvm-1.8",
+  "-encoding", "UTF-8",
+  "-deprecation", // warning and location for usages of deprecated APIs
+  "-feature", // warning and location for usages of features that should be imported explicitly
+  "-unchecked", // additional warnings where generated code depends on assumptions
+  "-Xlint", // recommended additional warnings
+  "-Xcheckinit", // runtime error when a val is not initialized due to trait hierarchies (instead of NPE somewhere else)
+  "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
+  //"-Yno-adapted-args", // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver
+  "-Ywarn-value-discard", // Warn when non-Unit expression results are unused
+  "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures
+  "-Ywarn-dead-code", // Warn when dead code is identified
+  "-Ywarn-unused", // Warn when local and private vals, vars, defs, and types are unused
+  "-Ywarn-unused-import", //  Warn when imports are unused (don't want IntelliJ to do it automatically)
+  "-Ywarn-numeric-widen" // Warn when numerics are widened
 )
 
 val customResolvers = Seq(
@@ -21,26 +50,16 @@ val customResolvers = Seq(
 )
 
 val commonDeps = Seq(
-  "org.scalatest"      %% "scalatest"  % "3.0.0" % Test,
-  "com.typesafe"       %  "config"     % "1.3.0",
-  "com.github.melrief" %% "pureconfig" % "0.3.1.1"
+  "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
+  "com.typesafe"           %  "config"            % "1.3.0",
+  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
 )
 
-val modelDeps   = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-) ++ commonDeps
-
+val modelDeps   = commonDeps
 val clientDeps  = commonDeps
 val parsersDeps = commonDeps
-val serverDeps  = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-//  ,
-//  "com.databricks"         %% "spark-csv"           % "1.5.0",
-//  "org.apache.spark"       %% "spark-core"          % "1.6.2",
-//  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
-//  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
-) ++ commonDeps
-
+val serverDeps  = commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
