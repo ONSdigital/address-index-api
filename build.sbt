@@ -9,8 +9,10 @@ val scalaV = "2.11.8"
   name := "address-index"
   scalaVersion := scalaV
   scmInfo := Some(
-  ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"),
-  "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git")
+  ScmInfo(
+    browseUrl = url("https://github.com/ONSdigital/address-index-api"),
+    connection = "https://github.com/ONSdigital/address-index-api"
+  )
 )
 
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
