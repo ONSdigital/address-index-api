@@ -4,6 +4,7 @@ import play.sbt.routes.RoutesKeys._
 import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 val scalaV = "2.11.8"
   name := "address-index"
@@ -28,6 +29,13 @@ lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
   assemblyJarName in assembly := "ons-ai-api.jar"
 )
 
+dependencyOverrides += "joda-time" % "joda-time" % "2.9.4"
+assemblyMergeStrategy in assembly := {
+  case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
 ) ++ assemblySettings
@@ -57,25 +65,16 @@ val customResolvers = Seq(
 )
 
 val commonDeps = Seq(
-  "org.scalatest"      %% "scalatest"  % "3.0.0" % Test,
-  "com.typesafe"       %  "config"     % "1.3.0",
-  "com.github.melrief" %% "pureconfig" % "0.3.1.1"
+  "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
+  "com.typesafe"           %  "config"            % "1.3.0",
+  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
 )
 
-val modelDeps   = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-) ++ commonDeps
-
+val modelDeps   = commonDeps
 val clientDeps  = commonDeps
 val parsersDeps = commonDeps
-val serverDeps  = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-//  ,
-//  "com.databricks"         %% "spark-csv"           % "1.5.0",
-//  "org.apache.spark"       %% "spark-core"          % "1.6.2",
-//  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
-//  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
-) ++ commonDeps
+val serverDeps  = commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
