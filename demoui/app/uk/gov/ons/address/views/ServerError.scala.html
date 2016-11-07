@@ -1,0 +1,15 @@
+@(throwable: Throwable)
+@main(title = "ONS-Address-Error") {
+
+<div class="container">
+        <h1>An Error Occurred </h1>
+        <h3>Please Contact System Administrator. </h3>
+        <h4>@throwable.getMessage</h4>
+    <a href="/">
+    <fieldset class="form-group text-left">
+        <button class="btn btn-success btn-search" type="submit" id="submit">
+            <i class="fa fa-home" aria-hidden="true"></i> Home
+        </button>
+    </fieldset></a>
+</div>
+}

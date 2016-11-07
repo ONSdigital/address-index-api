@@ -1,0 +1,169 @@
+@import uk.gov.ons.address.model.BulkMatchResponse
+@import uk.gov.ons.address.conf.OnsFrontendConfiguration
+@(bulkMatchResponse: Option[BulkMatchResponse], warningMessage : Option[String], fileName : Option[String], conf: OnsFrontendConfiguration)(implicit messages: Messages)
+
+@*
+ * Call the `main` template with two arguments. The first
+ * argument is a `String` with the title of the page, the second
+ * argument is an `Html` object containing the body of the page.
+ *@
+
+@main(title = "ONS-Address - Bulk match") {
+<div class="container">
+    <div class="panel panel-default ">
+        <div class="panel-heading sub-nav-heading">
+        @common.navigation(conf)
+        </div>
+        @warningMessage.map { message =>
+        <div class="panel panel-default address-panel">
+            <div class="result-content">
+                <div class="alert alert-danger" role="alert"><strong>@message</strong></div>
+            </div>
+        </div>
+        }
+        <div class="panel panel-default address-panel">
+            <h4 class="page-info">Match multiple addresses - <span class="sub-info">Please upload the batch file and upload.</span></h4>
+            <div class="page-description-row">
+                <div class="col-md-2 text-right"><a href="#"><i data-toggle="modal" data-target="#docModal" class="fa fa-info-circle fa-2x" aria-hidden="true"></i></a></div>
+            </div>
+            <div class="panel-body">
+                @helper.form(action = uk.gov.ons.address.controllers.routes.MultipleMatch.doBulkMatch, 'enctype -> "multipart/form-data") {
+                    <div class="input-group">
+                        <fieldset class="form-group">
+                            <label>Bulk Upload</label>
+                            <div class="fileinput fileinput-new input-group bulk-input" data-provides="fileinput">
+                                <div class="form-control" data-trigger="fileinput">
+                                    <i class="glyphicon glyphicon-file fileinput-exists"></i>
+                                    <span class="fileinput-filename"></span>
+                                </div>
+                                <span class="input-group-addon btn btn-default btn-file">
+                                    <span class="fileinput-new">
+                                        <i class="fa fa-upload"></i> Browse file</span>
+                                    <span class="fileinput-exists">
+                                        <i class="fa fa-minus-circle"></i> Change</span>
+                                    <input type="file" name="file">
+                                </span>
+                                <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">
+                                    <i class="fa fa-trash"></i> Remove</a>
+                            </div>
+                        </fieldset>
+                        <div class="row">
+                            <div class="col-md-12 text-right">
+                                <button class="btn btn-success btn-search" type="submit" id="submit">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @bulkMatchResponse.map { response =>
+        <div class="display-results">
+            <div class="panel  panel-default address-panel">
+                <div class="data-format">
+                    <h4>Out of <b>@response.totalNumberOfAddresses</b> addresses uploaded </h4>
+                </div>
+                <div class="row bulk-results">
+                    <div class="col-md-4 doughnut text-center">
+                        <section>
+                            <div id="matchFound-circle-1"></div>
+                        </section>
+                        <h3>Found Matches</h3>
+                    </div>
+                    <div class="col-md-4 doughnut text-center">
+                        <section>
+                            <div id="possibeMatch-circle-2"></div>
+                        </section>
+                        <h3>Possible Matches</h3>
+                    </div>
+                    <div class="col-md-4 doughnut text-center">
+                        <section>
+                            <div id="noMatch-circle-3"></div>
+                        </section>
+                        <h3>No Matches</h3>
+                    </div>
+                </div>
+                <div class="data-format">
+                    <div class="holder" hidden><p></p></div>
+                    <p>Full result set is available for download:
+                        <a id="url" href="/addresses/bulk/download?fileName=@fileName"><span class="label label-info"> CSV </span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        }
+
+    </div>
+</div>
+<div class="container">
+    <!-- Modal -->
+    <div class="modal fade" id="docModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Some text in the modal.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@bulkMatchResponse.map { response =>
+<link rel='stylesheet' href='@routes.Assets.versioned("stylesheets/circliful/jquery.circliful.css")'>
+<script type="text/javascript" src='@routes.Assets.versioned("javascript/circliful/jquery.circliful.js")'></script>
+<script>
+    $( document ).ready(function() { // 6,32 5,38 2,34
+        $("#matchFound-circle-1").circliful({
+            animation: 1,
+            animationStep: 5,
+            foregroundBorderWidth: 15,
+            backgroundBorderWidth: 15,
+            percent: @response.matchFound,
+            textSize: 28,
+            textStyle: 'font-size: 12px;',
+            textColor: '#666',
+            multiPercentage: 1,
+            totalRecords: @response.totalNumberOfAddresses,
+            percentages: [10, 20, 30, 200]
+        });
+        $("#possibeMatch-circle-2").circliful({
+            animation: 1,
+            animationStep: 5,
+            foregroundBorderWidth: 15,
+            backgroundBorderWidth: 15,
+            percent: @response.possibleMatches,
+            textSize: 28,
+            textStyle: 'font-size: 12px;',
+            textColor: '#666',
+            multiPercentage: 1,
+            totalRecords: @response.totalNumberOfAddresses,
+            percentages: [10, 20, 30, 200]
+        });
+        $("#noMatch-circle-3").circliful({
+            animation: 1,
+            animationStep: 5,
+            foregroundBorderWidth: 15,
+            backgroundBorderWidth: 15,
+            percent: @response.noMatch,
+            textSize: 28,
+            textStyle: 'font-size: 12px;',
+            textColor: '#666',
+            multiPercentage: 1,
+            totalRecords: @response.totalNumberOfAddresses,
+            percentages: [10, 20, 30, 200]
+        });
+    });
+</script>
+}
+}

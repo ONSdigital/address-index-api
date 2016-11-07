@@ -1,0 +1,136 @@
+@import uk.gov.ons.address.model.SingleMatchResponse
+@import uk.gov.ons.address.conf.OnsFrontendConfiguration
+@(singleMatchResponse: Option[SingleMatchResponse], singleSearchForm: Form[uk.gov.ons.address.model.SingleSearchForm], warningMessage : Option[String], conf: OnsFrontendConfiguration)(implicit messages: Messages)
+
+@*
+ * Call the `main` template with two arguments. The first
+ * argument is a `String` with the title of the page, the second
+ * argument is an `Html` object containing the body of the page.
+ *@
+
+@main(title = "ONS-Address - Single Search") {
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading sub-nav-heading">
+        @common.navigation(conf)
+        </div>
+        @warningMessage.map { message =>
+        <div class="panel panel-default address-panel">
+            <div class="result-content">
+                <div class="alert alert-danger" role="alert"><strong>@message</strong></div>
+            </div>
+        </div>
+        }
+        <div class="panel panel-default address-panel">
+            <h4 class="page-info">Find an address<span class="sub-info"></span></h4>
+            <div class="page-description-row">
+                <div class="col-md-2 text-right"><a href="#"><i data-toggle="modal" data-target="#docModal" class="fa fa-info-circle fa-2x" aria-hidden="true"></i></a></div>
+            </div>
+            <p class="page-info"></p>
+            <div class="panel-body">
+                @helper.form(action = uk.gov.ons.address.controllers.routes.SingleMatch.doSingleMatch) {
+                <div class="input-group">
+                    @forms.singleSearchForm(singleSearchForm)
+                </div>
+                }
+            </div>
+        </div>
+            @singleMatchResponse.map { response =>
+            @if(response.totalHits > 0){
+            <div class="panel panel-default address-panel">
+                <div class="result-content">
+                    <div class="form-group">
+                        <div class="alert alert-info">
+                            <h4> Total No. of Hits : @response.totalHits</h4>
+                            Your search criteria was run against the indexed AddressBase.
+                            The top 10 results are listed below.
+                        </div>
+                        @response.candidate.map{ address =>
+                        <div class="panel panel-default address-panel">
+                            <div class="result-content">
+                                <div class="alert alert-success" role="alert">
+                                    <p class="match-found-txt"><strong>Match found</strong></p>
+                                    <p class="match-score"><strong>Elasticsearch matching
+                                        score: @address.matchScore</strong></p>
+                                </div>
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Address details</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td class="col-md-2">UPRN</td>
+                                        <td class="col-md-8">
+                                            <a href="http://address.openregister.org/address/@address.uprn"
+                                               target="_blank"
+                                               title="Open Register"> @address.uprn
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Primary Address</td>
+                                        <td>@address.primaryAddress</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Secondary Address</td>
+                                        <td>@address.secondaryAddress</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Street</td>
+                                        <td>@address.streetDescription</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Postcode</td>
+                                        <td>@address.postcodeLocator</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Town</td>
+                                        <td>@address.town</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- <p>This data is available as: <a
+                                     href="http://localhost:8080/addresses/{{searchText}}.json">
+                                 <span class="label label-info"> Json </span></a>
+                             </p>-->
+                        </div>}
+                </div>
+                </div>
+            </div>}
+            @if(response.totalHits == 0){
+            <div class="panel panel-default address-panel">
+            <div class="result-content">
+                <div class="alert alert-danger" role="alert"><strong>No match found</strong></div>
+            </div>
+        </div>}
+        }
+
+    </div>
+</div>
+<div class="container">
+    <!-- Modal -->
+    <div class="modal fade" id="docModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Some text in the modal.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+}

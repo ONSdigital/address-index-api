@@ -1,0 +1,23 @@
+# Routes
+# Definition of all applications routes
+
+
+# ONS-Address Index home page
+GET     /                                       uk.gov.ons.address.controllers.ApplicationHome.indexPage
+
+# ONS-Address Index Single Search View
+GET     /addresses                              uk.gov.ons.address.controllers.SingleMatch.showSingleMatchPage
+
+# ONS-Address Index Multiple Search
+GET     /addresses/bulk                         uk.gov.ons.address.controllers.MultipleMatch.showMultipleMatchPage
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)
+
+# ONS-Address Index Single Search Request
+POST    /addresses/search                       uk.gov.ons.address.controllers.SingleMatch.doSingleMatch
+
+# ONS-Address Bulk Match Request
+POST    /addresses/bulk/summary                 uk.gov.ons.address.controllers.MultipleMatch.doBulkMatch
+
+GET   /addresses/bulk/download                  uk.gov.ons.address.controllers.MultipleMatch.downloadfile(fileName: String)

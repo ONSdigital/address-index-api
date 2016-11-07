@@ -5,7 +5,7 @@ import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 
-val scalaV    = "2.11.7"
+val scalaV    = "2.11.8"
 name         := "address-index"
 scalaVersion := scalaV
 scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"), "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git"))
@@ -13,6 +13,8 @@ scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-in
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
 )
+
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 val customResolvers = Seq(
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
@@ -34,11 +36,22 @@ val clientDeps  = commonDeps
 val parsersDeps = commonDeps
 val serverDeps  = Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-//  ,
-//  "com.databricks"         %% "spark-csv"           % "1.5.0",
-//  "org.apache.spark"       %% "spark-core"          % "1.6.2",
-//  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
-//  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
+  //  ,
+  //  "com.databricks"         %% "spark-csv"           % "1.5.0",
+  //  "org.apache.spark"       %% "spark-core"          % "1.6.2",
+  //  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
+  //  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
+) ++ commonDeps
+
+val uiDeps = Seq(
+  jdbc,
+  cache,
+  ws,
+  "org.webjars" %% "webjars-play" % "2.5.0",
+  "org.webjars" % "bootstrap" % "3.3.7",
+  "org.webjars" % "jquery" % "3.1.1",
+  "org.mockito" % "mockito-all" % "1.10.19" % "test",
+  "org.webjars" % "font-awesome" % "4.6.3"
 ) ++ commonDeps
 
 
@@ -47,11 +60,12 @@ lazy val `address-index` = project.in(file("."))
     publishLocal := {},
     publish      := {}
   ).aggregate(
-    `address-index-model`,
-    `address-index-client`,
-    `address-index-server`,
-    `address-index-parsers`
-  )
+  `address-index-model`,
+  `address-index-client`,
+  `address-index-server`,
+  `address-index-parsers`,
+  `address-index-demoui`
+)
 
 lazy val `address-index-model` = project.in(file("model"))
   .settings(
@@ -85,3 +99,16 @@ lazy val `address-index-parsers` = project.in(file("parsers"))
     localCommonSettings,
     libraryDependencies ++= parsersDeps
   )
+
+lazy val `address-index-demoui` = project.in(file("demoui"))
+  .settings(
+    localCommonSettings,
+    libraryDependencies ++= uiDeps,
+    resolvers           ++= customResolvers,
+    routesGenerator      := InjectedRoutesGenerator
+  )
+  .dependsOn(
+    `address-index-model`,
+    `address-index-parsers`
+  )
+  .enablePlugins(PlayScala, SbtWeb)
