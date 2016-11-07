@@ -33,10 +33,11 @@ class SingleMatch @Inject()(
 
   def doSingleMatch() = Action.async { implicit request =>
     val address  = request.body.asFormUrlEncoded.get("address").mkString
-    val street   = request.body.asFormUrlEncoded.get("street").mkString
-    val town     = request.body.asFormUrlEncoded.get("town").mkString
-    val postCode = request.body.asFormUrlEncoded.get("postcode").mkString
-    val inputAddress = address + " " + street + " " + town + " " + postCode
+ //   val street   = request.body.asFormUrlEncoded.get("street").mkString
+ //   val town     = request.body.asFormUrlEncoded.get("town").mkString
+ //   val postCode = request.body.asFormUrlEncoded.get("postcode").mkString
+  //  val inputAddress = address + " " + street + " " + town + " " + postCode
+   val inputAddress = address
     if (inputAddress.trim.isEmpty) {
       logger.debug("Empty input address")
       Future.successful(Ok(

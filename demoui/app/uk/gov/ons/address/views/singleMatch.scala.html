@@ -133,4 +133,80 @@
         </div>
     </div>
 </div>
+<script>
+        var lastadd = '';
+        document.getElementById('address').addEventListener('input', e => {
+            const features = parseAddressFeatures(e.target.value);
+            if (!features) {
+                return;
+            }
+            if  (features == lastadd){
+                return;
+            }
+            lastadd = features;
+            const username = 'demoui';
+            const password = 'qu8cb6tkphlmx8epgq';
+            const query = buildQuery(features.buildingNumber, features.postcode);
+            const queryOptions = buildQueryOptions(username, password, query);
+            const url = 'http://06aee33092e6d4a954130175b435d54b.eu-west-1.aws.found.io:9200/paf/address/_search';
+            fetch(url, queryOptions).then(response => response.json()).then(response => {
+                console.log(response);
+                const container = document.createElement('div');
+                const match = document.createElement('div');
+                const address = response.hits.hits[0]._source;
+                console.log(address);
+                match.innerText = `${address.buildingNumber}, ${address.thoroughfare} ${address.postTown} ${address.postcode}`;
+                document.body.appendChild(container);
+                container.appendChild(match);
+            });
+        });
+
+        function buildQuery(buildingNumber, postcode) {
+            return {
+                "query": {
+                    "bool": {
+                        "must": [{
+                            "match": {
+                                buildingNumber
+                            }
+                        }, {
+                            "match": {
+                                postcode
+                            }
+                        }]
+                    }
+                }
+            };
+        }
+
+        function buildCredentials(username, password) {
+            const credentials = btoa(`${username}:${password}`);
+            return credentials;
+        }
+
+        function buildQueryOptions(username, password, query) {
+            const credentials = buildCredentials(username, password);
+            const headers = {
+                authorization: `Basic ${credentials}`,
+            };
+            const options = {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(query)
+            };
+            return options;
+        }
+
+        function parseAddressFeatures(s) {
+            const regexp = /^(\d+).*([A-PR-UWYZ0-9][A-HK-Y0-9][AEHMNPRTVXY0-9]?[ABEHMNPRVWXY0-9]? {1,2}[0-9][ABD-HJLN-UW-Z]{2}|GIR 0AA)$/i
+            const matches = regexp.exec(s);
+            if (!matches) {
+                return;
+            }
+            return {
+                buildingNumber: matches[1],
+                postcode: matches[2]
+            }
+        }
+    </script>
 }
