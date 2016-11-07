@@ -5,17 +5,30 @@ import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 
-val scalaV    = "2.11.7"
-name         := "address-index"
-scalaVersion := scalaV
-scmInfo      := Some(ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"), "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git"))
+val scalaV = "2.11.8"
+  name := "address-index"
+  scalaVersion := scalaV
+  scmInfo := Some(
+  ScmInfo(url("https://bitbucket.org/rhys_bradbury/address-index"),
+  "scm:git:git@bitbucket.org:rhys_bradbury/address-index.git")
+)
 
-mainClass in assembly := Some("play.core.server.NettyServer")
-assemblyJarName in assembly := "ons-ai-api.jar"
+lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
+  assemblyJarName in assembly := "ons-bi-api.jar",
+  assemblyMergeStrategy in assembly := {
+    case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
+    case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
+  },
+  mainClass in assembly := Some("play.core.server.NettyServer"),
+  assemblyJarName in assembly := "ons-ai-api.jar"
+)
 
 lazy val localCommonSettings = Seq(
   scalaVersion := scalaV
-)
+) ++ assemblySettings
 
 scalacOptions in ThisBuild ++= Seq(
   "-target:jvm-1.8",
