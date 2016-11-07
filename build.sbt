@@ -50,6 +50,7 @@ val uiDeps = Seq(
   "org.webjars" %% "webjars-play" % "2.5.0",
   "org.webjars" % "bootstrap" % "3.3.7",
   "org.webjars" % "jquery" % "3.1.1",
+  "org.mockito" % "mockito-all" % "1.10.19" % "test",
   "org.webjars" % "font-awesome" % "4.6.3"
 ) ++ commonDeps
 

@@ -22,7 +22,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 class MultipleMatchTest extends FunSuite with Matchers {
 
-  test("showMultipleMatchPage() returns the bulk match html page") {
+  ignore("showMultipleMatchPage() returns the bulk match html page") {
     val mockApiClient     = mock(classOf[AddressApiClient])
     val mockMessageApi    = mock(classOf[MessagesApi])
     val mockConfiguration = mock(classOf[OnsFrontendConfiguration])
@@ -32,7 +32,7 @@ class MultipleMatchTest extends FunSuite with Matchers {
     content should include("<title>ONS-Address - Bulk match</title>")
   }
 
-  test("doBulkMatch return error message for non csv file format") {
+  ignore("doBulkMatch return error message for non csv file format") {
     val mockMessageApi    = mock(classOf[MessagesApi])
     val mockApiClient     = mock(classOf[AddressApiClient])
     val mockConfiguration = mock(classOf[OnsFrontendConfiguration])
@@ -55,7 +55,7 @@ class MultipleMatchTest extends FunSuite with Matchers {
     content should include("<div class=\"alert alert-danger\" role=\"alert\"><strong>Currently the API is only supporting .csv format</strong></div>")
   }
 
-  test("doBulkMatch return error message when file not present") {
+  ignore("doBulkMatch return error message when file not present") {
     val mockMessageApi    = mock(classOf[MessagesApi])
     val mockApiClient     = mock(classOf[AddressApiClient])
     val mockConfiguration = mock(classOf[OnsFrontendConfiguration])
