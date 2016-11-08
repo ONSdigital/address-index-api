@@ -134,7 +134,6 @@ lazy val `address-index-demoui` = project.in(file("demoui"))
     routesGenerator      := InjectedRoutesGenerator
   )
   .dependsOn(
-    `address-index-model`,
-    `address-index-parsers`
+    `address-index-model`
   )
   .enablePlugins(PlayScala, SbtWeb)

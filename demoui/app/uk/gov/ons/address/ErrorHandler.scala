@@ -4,10 +4,8 @@ import play.api.http.HttpErrorHandler
 import play.api.mvc._
 import play.api.mvc.Results._
 import scala.concurrent._
-import javax.inject.Singleton;
-/**
-  * Created by amits on 10/08/2016.
-  */
+import javax.inject.Singleton
+
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
   // called when a route is found, but it was not possible to bind the request parameters
