@@ -17,16 +17,15 @@ val scalaV = "2.11.8"
 )
 
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
-  assemblyJarName in assembly := "ons-bi-api.jar",
+  assemblyJarName in assembly := "ons-ai-api.jar",
+  mainClass in assembly := Some("play.core.server.NettyServer"),
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
     case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
     case x =>
       val oldStrategy = (assemblyMergeStrategy in assembly).value
       oldStrategy(x)
-  },
-  mainClass in assembly := Some("play.core.server.NettyServer"),
-  assemblyJarName in assembly := "ons-ai-api.jar"
+  }
 )
 
 lazy val localCommonSettings = Seq(
