@@ -9,8 +9,8 @@ case class ElasticSearchConfig(
 object ElasticSearchConfig {
   val default : ElasticSearchConfig = ElasticSearchConfig(
     uri = "elasticsearch://localhost:9200",
-    cluster = "ons-cluster",
-    local = true
+    cluster = "ONS-Valtech-test",
+    local = false
   )
 }
 

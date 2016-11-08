@@ -5,6 +5,8 @@ import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 
+logLevel := Level.Debug
+
 val scalaV    = "2.11.7"
 name         := "address-index"
 scalaVersion := scalaV
@@ -15,6 +17,7 @@ lazy val localCommonSettings = Seq(
 )
 
 val customResolvers = Seq(
+  "ElasticSearch" at "http://maven.elasticsearch.org/releases/",
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
   "Twitter Repository"         at "http://maven.twttr.com",
   "Artima Maven Repository"    at "http://repo.artima.com/releases"
@@ -27,20 +30,17 @@ val commonDeps = Seq(
 )
 
 val modelDeps   = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.4.0"
 ) ++ commonDeps
 
 val clientDeps  = commonDeps
 val parsersDeps = commonDeps
-val serverDeps  = Seq(
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
-//  ,
-//  "com.databricks"         %% "spark-csv"           % "1.5.0",
-//  "org.apache.spark"       %% "spark-core"          % "1.6.2",
-//  "org.apache.spark"       %% "spark-sql"           % "1.6.2",
-//  "org.elasticsearch"      %% "elasticsearch-spark" % "2.4.0"
-) ++ commonDeps
 
+val serverDeps  = Seq(
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.4.0",
+  "org.elasticsearch.plugin" % "shield" % "2.4.0"
+
+) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(

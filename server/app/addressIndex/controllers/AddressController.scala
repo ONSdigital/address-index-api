@@ -63,7 +63,7 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     logger info "#uprnQuery called"
 
     Future.fromTry(formatString.toAddressScheme()).map {
-      case PostcodeAddressFile() => Ok("postcode address file")
+      case PostcodeAddressFile() => Ok(esRepo.queryUprn(uprn).await.toString)
     }
   }
 }
