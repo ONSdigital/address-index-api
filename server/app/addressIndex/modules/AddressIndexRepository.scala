@@ -8,7 +8,6 @@ import org.elasticsearch.common.settings._
 import com.google.inject.ImplementedBy
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
-import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.plugins.Plugin
 import org.elasticsearch.shield.ShieldPlugin
 import play.api.Logger
@@ -52,14 +51,12 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit
     */
   val client : ElasticClient = {
     logger info s"attempting to connect to elasticsearch uri: ${esConf.uri} cluster: ${esConf.cluster}"
+
     val esClientSettings = Settings.settingsBuilder
-      .put("transport.ping_schedule", "5s")
       .put("cluster.name", esConf.cluster)
+      .put("shield.transport.ssl", esConf.shieldSsl)
       .put("request.headers.X-Found-Cluster", esConf.cluster)
-      .put("client", esConf.uri)
-      .put("shield.transport.ssl", true)
-      .put("shield.user", "admin:uswlhsrw60u62geph1")
-      .put("plugin.types", "org.elasticsearch.shield.ShieldPlugin")
+      .put("shield.user", esConf.shieldUser)
       .build()
 
     if(esConf.local) {
@@ -68,14 +65,13 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit
       client
     } else {
       val plugins: Class[_ <: Plugin] = classOf[ShieldPlugin]
-      val client = TransportClient.builder().addPlugin(plugins).settings(esClientSettings).build()
-//      val client = ElasticClient.transport(
-//        settings = esClientSettings,
-//        uri = ElasticsearchClientUri(esConf.uri),
-//        plugins = plugins
-//      )
+      val client = ElasticClient.transport(
+        settings = esClientSettings,
+        uri = ElasticsearchClientUri(esConf.uri),
+        plugins = plugins
+      )
       logger info "remote connection to elasticsearch established"
-      ElasticClient.fromClient(client)
+      client
     }
   }
 
@@ -94,6 +90,6 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit
   }
 
   def queryUprn(uprn: String): Future[Seq[PostcodeAddressFileAddress]] = client.execute{
-    search in "paf/address" query uprn
+    search in "paf/address" query { termQuery("uprn", uprn) }
   }.map(_.as[PostcodeAddressFileAddress])
 }

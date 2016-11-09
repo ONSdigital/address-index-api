@@ -8,6 +8,8 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
+
+
 /**
   * PAF Address
   */
@@ -43,6 +45,7 @@ case class PostcodeAddressFileAddress(recordIdentifier: String,
 
 
 object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
+
 
   implicit object PostcodeAddressFileAddressHitAs extends HitAs[PostcodeAddressFileAddress] {
     override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {

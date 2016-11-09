@@ -3,14 +3,18 @@ package uk.gov.ons.addressIndex.model.config
 case class ElasticSearchConfig(
   local : Boolean,
   cluster : String,
-  uri : String
+  uri : String,
+  shieldSsl : Boolean,
+  shieldUser : String
 )
 
 object ElasticSearchConfig {
   val default : ElasticSearchConfig = ElasticSearchConfig(
     uri = "elasticsearch://localhost:9200",
     cluster = "ONS-Valtech-test",
-    local = false
+    local = false,
+    shieldSsl = true,
+    shieldUser = "default:default"
   )
 }
 
