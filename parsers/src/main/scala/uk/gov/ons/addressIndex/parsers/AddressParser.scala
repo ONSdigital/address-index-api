@@ -194,11 +194,6 @@ case class Features(features : Feature[_]*) {
   }
 }
 
-
-trait CrfFeature {
-  
-}
-
 /**
   * scala wrapper on third_party.org.chokkan.crfsuite.Attribute
   *

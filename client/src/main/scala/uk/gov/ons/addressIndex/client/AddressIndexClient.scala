@@ -16,10 +16,9 @@ trait AddressIndexClient {
     * @return the host address of the address index server
     */
   def host: String
-
-  protected val applicationType : String = "application/json"
+  
   protected implicit lazy val iClient : WSClient = client
-  protected implicit lazy val iHost : AddressIndexServerHost = host
+  protected implicit lazy val iHost : AddressIndexServerHost = AddressIndexServerHost(host)
 
   /**
     * perform an address search query
@@ -29,6 +28,7 @@ trait AddressIndexClient {
     */
   def addressQuery(req : AddressIndexSearchRequest) : Future[_] = {
     AddressQuery
+      .toReq
       .withQueryString(
         Seq(
           "input" -> req.input,
@@ -46,6 +46,7 @@ trait AddressIndexClient {
     */
   def uprnQuery(req : AddressIndexUPRNRequest) : Future[_] = {
     UprnQuery(req.uprn.toString)
+      .toReq
       .withQueryString(Seq("format" -> req.format.toString))
       .get
   }
@@ -53,14 +54,15 @@ trait AddressIndexClient {
 
 object AddressIndexClient {
 
-  implicit def str2host(h : String) : AddressIndexServerHost = AddressIndexServerHost(h)
-
-  implicit def path2req(p : AddressIndexPath)(implicit client : WSClient, host : AddressIndexServerHost) : WSRequest =
-    client url s"${host.value}${p.path}" withMethod p.path
-
   sealed abstract class AddressIndexPath(val path : String, val method : String)
 
   case class AddressIndexServerHost(value : String)
+
+  implicit class AddressIndexPathToWsAugmenter(h : AddressIndexPath)(implicit client : WSClient) {
+    def toReq() : WSRequest = {
+      client url s"${host.value}${p.path}" withMethod p.path
+    }
+  }
 
   object UprnQuery extends AddressIndexPath("", "") {
     def apply(uprn : String) = {
