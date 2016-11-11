@@ -28,86 +28,43 @@
             </div>
             <p class="page-info"></p>
             <div class="panel-body">
+                <form id="search-form">
+                    <div class="input-group">
+                        <fieldset class="form-group text-right">
+                            <label>
+                                <input type="text" class="form-control" name="q" placeholder="E.g. 169 Portsmouth Road Southampton SO19 9BG"/>
+                            </label>
+                        </fieldset>
+                    </div>
+                    <div class="input-group">
+                        <fieldset class="form-group text-right">
+                            <button id="clearElasticSearchForm" class="btn btn-info btn-clean" type="button">
+                                Clear
+                            </button>
+                            <button class="btn btn-success btn-search" type="submit">
+                                <i class="fa fa-search"></i> Search
+                            </button>
+                        </fieldset>
+                    </div>
+                </form>
+                @**
                 @helper.form(action = uk.gov.ons.address.controllers.routes.SingleMatch.doSingleMatch) {
                 <div class="input-group">
                     @forms.singleSearchForm(singleSearchForm)
+
                 </div>
                 }
+                **@
             </div>
         </div>
-            @singleMatchResponse.map { response =>
-            @if(response.totalHits > 0){
-            <div class="panel panel-default address-panel">
-                <div class="result-content">
-                    <div class="form-group">
-                        <div class="alert alert-info">
-                            <h4> Total No. of Hits : @response.totalHits</h4>
-                            Your search criteria was run against the indexed AddressBase.
-                            The top 10 results are listed below.
-                        </div>
-                        @response.candidate.map{ address =>
-                        <div class="panel panel-default address-panel">
-                            <div class="result-content">
-                                <div class="alert alert-success" role="alert">
-                                    <p class="match-found-txt"><strong>Match found</strong></p>
-                                    <p class="match-score"><strong>Elasticsearch matching
-                                        score: @address.matchScore</strong></p>
-                                </div>
-                                <table class="table table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>Address details</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td class="col-md-2">UPRN</td>
-                                        <td class="col-md-8">
-                                            <a href="http://address.openregister.org/address/@address.uprn"
-                                               target="_blank"
-                                               title="Open Register"> @address.uprn
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Primary Address</td>
-                                        <td>@address.primaryAddress</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Secondary Address</td>
-                                        <td>@address.secondaryAddress</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Street</td>
-                                        <td>@address.streetDescription</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Postcode</td>
-                                        <td>@address.postcodeLocator</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Town</td>
-                                        <td>@address.town</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- <p>This data is available as: <a
-                                     href="http://localhost:8080/addresses/{{searchText}}.json">
-                                 <span class="label label-info"> Json </span></a>
-                             </p>-->
-                        </div>}
+        <div class="row bulk-results">
+            <div class="col-md-12 doughnut text-center">
+                <div class="hidden" id="results">
+                    <h3>Results</h3>
+
                 </div>
-                </div>
-            </div>}
-            @if(response.totalHits == 0){
-            <div class="panel panel-default address-panel">
-            <div class="result-content">
-                <div class="alert alert-danger" role="alert"><strong>No match found</strong></div>
             </div>
-        </div>}
-        }
+        </div>
 
     </div>
 </div>
@@ -115,7 +72,6 @@
     <!-- Modal -->
     <div class="modal fade" id="docModal" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -133,80 +89,24 @@
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
 <script>
-        var lastadd = '';
-        document.getElementById('address').addEventListener('input', e => {
-            const features = parseAddressFeatures(e.target.value);
-            if (!features) {
-                return;
-            }
-            if  (features == lastadd){
-                return;
-            }
-            lastadd = features;
-            const username = 'demoui';
-            const password = 'qu8cb6tkphlmx8epgq';
-            const query = buildQuery(features.buildingNumber, features.postcode);
-            const queryOptions = buildQueryOptions(username, password, query);
-            const url = 'http://06aee33092e6d4a954130175b435d54b.eu-west-1.aws.found.io:9200/paf/address/_search';
-            fetch(url, queryOptions).then(response => response.json()).then(response => {
-                console.log(response);
-                const container = document.createElement('div');
-                const match = document.createElement('div');
-                const address = response.hits.hits[0]._source;
-                console.log(address);
-                match.innerText = `${address.buildingNumber}, ${address.thoroughfare} ${address.postTown} ${address.postcode}`;
-                document.body.appendChild(container);
-                container.appendChild(match);
+      $(document).ready(function() {
+            var $form = $('#search-form');
+            $form.submit(function(evt) {
+                evt.preventDefault();
+                $('#results').empty();
+                $.get('/api/addresses?' + $form.serialize(), function(resp) {
+                    var $results = $('#results');
+                     $results.removeClass('hidden');
+                     $.each(JSON.parse(resp), function(i, e) {
+
+                        var item = $('<address class="pull-left">' + e.buildingNumber + ' ' + e.thoroughfare + ' ' + e.postcode + '</address>');
+
+                        $results.append(item);
+                     });
+                });
             });
         });
-
-        function buildQuery(buildingNumber, postcode) {
-            return {
-                "query": {
-                    "bool": {
-                        "must": [{
-                            "match": {
-                                buildingNumber
-                            }
-                        }, {
-                            "match": {
-                                postcode
-                            }
-                        }]
-                    }
-                }
-            };
-        }
-
-        function buildCredentials(username, password) {
-            const credentials = btoa(`${username}:${password}`);
-            return credentials;
-        }
-
-        function buildQueryOptions(username, password, query) {
-            const credentials = buildCredentials(username, password);
-            const headers = {
-                authorization: `Basic ${credentials}`,
-            };
-            const options = {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(query)
-            };
-            return options;
-        }
-
-        function parseAddressFeatures(s) {
-            const regexp = /^(\d+).*([A-PR-UWYZ0-9][A-HK-Y0-9][AEHMNPRTVXY0-9]?[ABEHMNPRVWXY0-9]? {1,2}[0-9][ABD-HJLN-UW-Z]{2}|GIR 0AA)$/i
-            const matches = regexp.exec(s);
-            if (!matches) {
-                return;
-            }
-            return {
-                buildingNumber: matches[1],
-                postcode: matches[2]
-            }
-        }
-    </script>
+</script>
 }

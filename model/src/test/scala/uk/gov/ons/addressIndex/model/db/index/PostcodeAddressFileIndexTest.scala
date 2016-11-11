@@ -1,10 +1,11 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import com.sksamuel.elastic4s.testkit.ElasticSugar
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 import org.scalatest.{FlatSpec, Matchers}
 
-class PostcodeAddressFileIndexTest extends FlatSpec with Matchers {
+class PostcodeAddressFileIndexTest extends FlatSpec with Matchers with ElasticSugar {
 
   it should "have an expected fixed name" in {
     val expected = PostcodeAddressFileIndexTest.name
@@ -36,7 +37,7 @@ class PostcodeAddressFileIndexTest extends FlatSpec with Matchers {
         "welshDoubleDependentLocality" typed StringType
       )
     )
-    val actual = PostcodeAddressFileIndex.mappingDefinitions
+    val actual = PostcodeAddressFileIndex.mappingDefinitions()
     expected should contain theSameElementsAs actual
   }
 }

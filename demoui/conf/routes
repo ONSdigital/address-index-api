@@ -21,3 +21,6 @@ POST    /addresses/search                       uk.gov.ons.address.controllers.S
 POST    /addresses/bulk/summary                 uk.gov.ons.address.controllers.MultipleMatch.doBulkMatch
 
 GET   /addresses/bulk/download                  uk.gov.ons.address.controllers.MultipleMatch.downloadfile(fileName: String)
+
+
+GET     /api/addresses                      uk.gov.ons.address.controllers.api.AddressIndexController.addressQuery(q : String)

@@ -14,8 +14,20 @@ object ElasticSearchConfig {
   )
 }
 
+//sealed trait RunMode
+//case object Development extends RunMode
+//case object Production extends RunMode
+
+//object RunMode {
+//  implicit def runMode(runMode : String) : RunMode  = runMode toLowerCase match {
+//    case "dev" | "development" => Development
+//    case "prod" | "production" => Production
+//  }
+//}
+
+
 case class AddressIndexConfig(
-  runMode : String,
+  runMode : String,// RunMode,
   elasticSearch : ElasticSearchConfig
 )
 

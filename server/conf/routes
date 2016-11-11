@@ -6,3 +6,5 @@ GET     /addresses          addressIndex.controllers.AddressController.addressQu
 #EG     /addresses/myUprn?format=myFormat
 GET     /addresses/:uprn    addressIndex.controllers.AddressController.uprnQuery(uprn, format)
 GET     /es                 addressIndex.controllers.AddressController.elasticTest
+#swagger play
+#GET     /api                controllers.ApiHelpController.getResources
