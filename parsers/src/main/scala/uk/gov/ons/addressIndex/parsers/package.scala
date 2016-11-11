@@ -1,8 +1,5 @@
 package uk.gov.ons.addressIndex
 
-/**
-  * Created by rhysbradbury on 11/11/2016.
-  */
 package object parsers {
   object Implicts {
     implicit class StringUtils(str : String) {
