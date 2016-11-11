@@ -74,7 +74,9 @@ val parsersDeps = Seq(
   "com.github.vinhkhuc" % "jcrfsuite" % "0.6"
 ) ++ commonDeps
 
-val serverDeps = Seq.empty ++ commonDeps
+val serverDeps = Seq(
+  "org.elasticsearch.plugin" % "shield" % Versions.elastic4s
+)++ commonDeps
 
 val uiDeps = Seq(
   jdbc,

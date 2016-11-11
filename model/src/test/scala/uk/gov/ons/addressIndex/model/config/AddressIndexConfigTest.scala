@@ -32,7 +32,9 @@ class ElasticSearchConfigTest extends FlatSpec with Matchers {
 object ElasticSearchConfigTest {
   val default = ElasticSearchConfig(
     uri = "elasticsearch://localhost:9200",
-    cluster = "ons-cluster",
-    local = true
+    cluster = "ONS-Valtech-test",
+    local = false,
+    shieldSsl = true,
+    shieldUser = "default:default"
   )
 }
