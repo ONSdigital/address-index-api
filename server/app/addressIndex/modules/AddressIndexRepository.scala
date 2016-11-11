@@ -9,7 +9,7 @@ import com.google.inject.ImplementedBy
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileIndex, PostcodeIndex}
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileIndex, PostcodeIndex}
 import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
 
 import scala.concurrent.{ExecutionContext, Future}
