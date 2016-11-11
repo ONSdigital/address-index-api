@@ -4,17 +4,17 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 import org.scalatest.{FlatSpec, Matchers}
 
-class PostcodeAddressFileIndexTest extends FlatSpec with Matchers {
+class PostcodeAddressFileAddressTest extends FlatSpec with Matchers {
 
   it should "have an expected fixed name" in {
-    val expected = PostcodeAddressFileIndexTest.name
-    val actual = PostcodeAddressFileIndex.name
+    val expected = PostcodeAddressFileAddressTest.name
+    val actual = PostcodeAddressFileAddress.name
     expected shouldBe actual
   }
 
   ignore should "have an expected fixed sequence of mappings" in {
     val expected = Seq(
-      mapping(PostcodeAddressFileIndexTest.name) fields (
+      mapping(PostcodeAddressFileAddressTest.name) fields (
         "guid" typed StringType,
         "startDate" typed DateType,
         "udprn" typed IntegerType,
@@ -36,11 +36,11 @@ class PostcodeAddressFileIndexTest extends FlatSpec with Matchers {
         "welshDoubleDependentLocality" typed StringType
       )
     )
-    val actual = PostcodeAddressFileIndex.mappingDefinitions
+    val actual = PostcodeAddressFileAddress.mappingDefinitions
     expected should contain theSameElementsAs actual
   }
 }
 
-object PostcodeAddressFileIndexTest {
+object PostcodeAddressFileAddressTest {
   val name = "PostcodeAddressFile"
 }
