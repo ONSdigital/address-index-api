@@ -19,7 +19,7 @@ scmInfo := Some(
 )
 
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
-  assemblyJarName in assembly := "ons-ai-api.jar",
+  assemblyJarName in assembly := "ons-bi-api.jar",
   mainClass in assembly := Some("play.core.server.NettyServer"),
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last

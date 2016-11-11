@@ -37,7 +37,22 @@ trait ElasticsearchRepository extends ElasticIndexSugar {
     */
   def deleteAll() : Future[Seq[_]]
 
-  def queryUprn(uprn: String) : Future[Seq[PostcodeAddressFileAddress]]
+  /**
+    * Query the addres index by UPRN.
+    *
+    * @param uprn
+    * @return
+    */
+  def queryUprn(uprn : String) : Future[Seq[PostcodeAddressFileAddress]]
+
+  /**
+    * Query the address index for addresses.
+    * Currently the query must be for building number and postcode.
+    *
+    * @param buildingNumber
+    * @param postcode
+    * @return
+    */
   def queryAddress(buildingNumber : Int, postcode : String) : Future[Seq[PostcodeAddressFileAddress]]
 }
 
@@ -65,11 +80,10 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit
       logger info "local connection to elasticsearch established"
       client
     } else {
-      val plugins: Class[_ <: Plugin] = classOf[ShieldPlugin]
       val client = ElasticClient.transport(
         settings = esClientSettings,
         uri = ElasticsearchClientUri(esConf.uri),
-        plugins = plugins
+        plugins = classOf[ShieldPlugin]
       )
       logger info "remote connection to elasticsearch established"
       client

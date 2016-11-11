@@ -1,51 +1,47 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import java.util.{Date, UUID}
-
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
 import com.sksamuel.elastic4s.mappings.FieldType._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
-
-
 /**
   * PAF Address
   */
-case class PostcodeAddressFileAddress(recordIdentifier: String,
-                                      changeType: String,
-                                      proOrder: String,
-                                      uprn: String,
-                                      udprn: String,
-                                      organizationName: String,
-                                      departmentName: String,
-                                      subBuildingName: String,
-                                      buildingName: String,
-                                      buildingNumber: String,
-                                      dependentThoroughfare: String,
-                                      thoroughfare: String,
-                                      doubleDependentLocality: String,
-                                      dependentLocality: String,
-                                      postTown: String,
-                                      postcode: String,
-                                      postcodeType: String,
-                                      deliveryPointSuffix: String,
-                                      welshDependentThoroughfare: String,
-                                      welshThoroughfare: String,
-                                      welshDoubleDependentLocality: String,
-                                      welshDependentLocality: String,
-                                      welshPostTown: String,
-                                      poBoxNumber: String,
-                                      processDate: String,
-                                      startDate: String,
-                                      endDate: String,
-                                      lastUpdateDate: String,
-                                      entryDate: String)
-
+case class PostcodeAddressFileAddress(
+  recordIdentifier: String,
+  changeType: String,
+  proOrder: String,
+  uprn: String,
+  udprn: String,
+  organizationName: String,
+  departmentName: String,
+  subBuildingName: String,
+  buildingName: String,
+  buildingNumber: String,
+  dependentThoroughfare: String,
+  thoroughfare: String,
+  doubleDependentLocality: String,
+  dependentLocality: String,
+  postTown: String,
+  postcode: String,
+  postcodeType: String,
+  deliveryPointSuffix: String,
+  welshDependentThoroughfare: String,
+  welshThoroughfare: String,
+  welshDoubleDependentLocality: String,
+  welshDependentLocality: String,
+  welshPostTown: String,
+  poBoxNumber: String,
+  processDate: String,
+  startDate: String,
+  endDate: String,
+  lastUpdateDate: String,
+  entryDate: String
+)
 
 object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
-
 
   implicit object PostcodeAddressFileAddressHitAs extends HitAs[PostcodeAddressFileAddress] {
     override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {
@@ -117,7 +113,7 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
         "endDate" typed StringType,
         "lastUpdateDate" typed StringType,
         "entryDate" typed StringType
-        )
+      )
     )
   }
 }
