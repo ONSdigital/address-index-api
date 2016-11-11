@@ -53,22 +53,25 @@ scalacOptions in ThisBuild ++= Seq(
 ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
 
 val customResolvers = Seq(
+  "ElasticSearch" at "http://maven.elasticsearch.org/releases/",
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
   "Twitter Repository"         at "http://maven.twttr.com",
   "Artima Maven Repository"    at "http://repo.artima.com/releases"
 )
 
 val commonDeps = Seq(
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.4.0",
   "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
   "com.typesafe"           %  "config"            % "1.3.0",
-  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.3.1"
+  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1"
 )
 
-val modelDeps = commonDeps
+val modelDeps   = Seq(
+  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % "2.4.0"
+) ++ commonDeps
+
 val clientDeps = commonDeps
 val parsersDeps = commonDeps
-val serverDeps = commonDeps
 val uiDeps = Seq(
   jdbc,
   cache,
@@ -80,6 +83,9 @@ val uiDeps = Seq(
   "org.webjars" % "font-awesome" % "4.6.3"
 ) ++ commonDeps
 
+val serverDeps  = Seq(
+  "org.elasticsearch.plugin" % "shield" % "2.4.0"
+) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
