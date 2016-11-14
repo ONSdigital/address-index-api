@@ -3,8 +3,11 @@ package uk.gov.ons.address
 import play.api.http.HttpErrorHandler
 import play.api.mvc._
 import play.api.mvc.Results._
+
 import scala.concurrent._
 import javax.inject.Singleton
+
+import play.api.Logger
 
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
@@ -20,6 +23,8 @@ class ErrorHandler extends HttpErrorHandler {
   }
 
   def onServerError(request: RequestHeader, exception: Throwable) = {
+    exception.printStackTrace()
+    Logger("onServerError").error(exception.getMessage)
     Future.successful(
       InternalServerError(views.html.ServerError(exception))
     )

@@ -20,4 +20,6 @@ POST    /addresses/search                       uk.gov.ons.address.controllers.S
 # ONS-Address Bulk Match Request
 POST    /addresses/bulk/summary                 uk.gov.ons.address.controllers.MultipleMatch.doBulkMatch
 
-GET   /addresses/bulk/download                  uk.gov.ons.address.controllers.MultipleMatch.downloadfile(fileName: String)
+GET     /addresses/bulk/download                  uk.gov.ons.address.controllers.MultipleMatch.downloadfile(fileName: String)
+
+GET     /api/addresses                      uk.gov.ons.address.controllers.api.AddressIndexController.addressQuery(q : String)

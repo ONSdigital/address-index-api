@@ -1,7 +1,6 @@
 package addressIndex.modules
 
 import javax.inject.{Inject, Singleton}
-
 import com.sksamuel.elastic4s._
 import org.elasticsearch.common.settings._
 import com.google.inject.ImplementedBy
@@ -77,4 +76,6 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule)(implicit
       PostcodeIndex
     )(client)
   }
+
+
 }
