@@ -4,6 +4,8 @@ import com.github.jcrfsuite.CrfTagger
 import third_party.org.chokkan.crfsuite.{Attribute, Item}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
+import scala.util.control.NonFatal
+
 /**
   * scala wrapper of crfsuite
   */
@@ -132,6 +134,9 @@ object CrfScala {
           } else {
             new Attribute(name, 0d)
           }
+
+        case NonFatal(e) =>
+          throw e
 
         case _ =>
           throw new UnsupportedOperationException(
