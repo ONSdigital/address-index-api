@@ -5,8 +5,10 @@ import uk.gov.ons.addressIndex.client.AddressIndexClient.{AddressIndexServerHost
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import AddressIndexClient._
-import play.api.Logger
 
+/**
+  *
+  */
 trait AddressIndexClient {
 
   /**
@@ -19,21 +21,20 @@ trait AddressIndexClient {
     */
   def host : String
 
-  protected val applicationType : String = "application/json"
   protected implicit lazy val iClient : WSClient = client
   protected implicit lazy val iHost : AddressIndexServerHost = host
 
   /**
     * perform an address search query
     *
-    * @param req the request
+    * @param request the request
     * @return a list of addresses
     */
-  def addressQuery(req : AddressIndexSearchRequest) : Future[WSResponse] = {
+  def addressQuery(request : AddressIndexSearchRequest) : Future[WSResponse] = {
     AddressQuery
       .withQueryString(
-        "input" -> req.input,
-        "format" -> req.format.toString
+        "input" -> request.input,
+        "format" -> request.format.toString
       )
       .get
   }
@@ -41,14 +42,13 @@ trait AddressIndexClient {
   /**
     * perform a uprn query
     *
-    * @param req the request
+    * @param request the request
     * @return an address
     */
-  def uprnQuery(req : AddressIndexUPRNRequest) : Future[WSResponse] = {
-    Logger("client").info("doing req")
-    UprnQuery(req.uprn.toString)
+  def uprnQuery(request : AddressIndexUPRNRequest) : Future[WSResponse] = {
+    UprnQuery(request.uprn.toString)
       .withQueryString(
-        "format" -> req.format.toString
+        "format" -> request.format.toString
       )
       .get
   }
