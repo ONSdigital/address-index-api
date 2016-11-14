@@ -45,12 +45,12 @@ object CrfScala {
     def parse(i : Input, fa : CrfFeatures) = {
       val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
       val tokens = Tokens(i)
-      val itemSeq = new FeatureSequence()
+      val fs = new FeatureSequence()
 
       for (token <- tokens) {
-        itemSeq.add(fa toItem token)
+        fs add(fa toItem token)
       }
-      tagger.tag(itemSeq)
+      tagger tag fs
     }
   }
 
