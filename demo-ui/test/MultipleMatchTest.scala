@@ -11,10 +11,10 @@ import play.api.i18n.MessagesApi
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.{MultipartFormData, Request}
 import play.api.mvc.MultipartFormData.FilePart
-import uk.gov.ons.address.client.AddressApiClient
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.controllers.{MultipleMatch, SingleMatch}
-import uk.gov.ons.address.model.BulkMatchResponse
+import uk.gov.ons.addressIndex.client.AddressApiClient
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.controllers.{MultipleMatch, SingleMatch}
+import uk.gov.ons.addressIndex.model.BulkMatchResponse
 import play.api.libs.Files.TemporaryFile
 
 import scala.concurrent.ExecutionContext.Implicits.global

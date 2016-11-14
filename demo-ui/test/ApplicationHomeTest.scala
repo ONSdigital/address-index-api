@@ -2,8 +2,8 @@ import org.scalatest.{FunSuite, Matchers}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import org.mockito.Mockito._
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.controllers.ApplicationHome
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.controllers.ApplicationHome
 
 class ApplicationHomeTest extends FunSuite with Matchers {
 

@@ -1,12 +1,12 @@
-package uk.gov.ons.address.controllers
+package uk.gov.ons.addressIndex.controllers
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import play.Logger
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.{Controller, _}
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.views
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.views
 import uk.gov.ons.addressIndex.client.AddressIndexClient
 import uk.gov.ons.addressIndex.model.{AddressIndexUPRNRequest, PostcodeAddressFile}
 import play.api.mvc.Action

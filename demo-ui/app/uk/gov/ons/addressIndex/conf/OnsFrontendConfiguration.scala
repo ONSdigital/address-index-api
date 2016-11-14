@@ -1,4 +1,4 @@
-package uk.gov.ons.address.conf
+package uk.gov.ons.addressIndex.conf
 
 import javax.inject.Inject
 

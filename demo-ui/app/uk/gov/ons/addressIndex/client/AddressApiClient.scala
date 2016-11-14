@@ -1,12 +1,12 @@
-package uk.gov.ons.address.client
+package uk.gov.ons.addressIndex.client
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 import play.api.Logger
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.model.{Address, BulkMatchResponse, SingleMatchResponse}
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.model.{Address, BulkMatchResponse, SingleMatchResponse}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressApiClient @Inject()(
     wsClient: WSClient,
     configuration: OnsFrontendConfiguration)(implicit exec: ExecutionContext) {
-import uk.gov.ons.address.model.JSONImplicit.addressRead
+import uk.gov.ons.addressIndex.model.JSONImplicit.addressRead
   val logger = Logger("app-log")
 
   def singleMatch(inputAddress: String): Future[SingleMatchResponse] = {

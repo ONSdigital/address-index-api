@@ -1,11 +1,11 @@
 import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.ws._
-import uk.gov.ons.address.client.AddressApiClient
+import uk.gov.ons.addressIndex.client.AddressApiClient
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import play.api.libs.json.{JsString, _}
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.model.{Address, BulkMatchResponse, SingleMatchResponse}
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.model.{Address, BulkMatchResponse, SingleMatchResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
 import play.api.test.FutureAwaits

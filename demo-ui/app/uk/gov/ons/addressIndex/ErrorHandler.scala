@@ -1,4 +1,4 @@
-package uk.gov.ons.address
+package uk.gov.ons.addressIndex
 
 import play.api.http.HttpErrorHandler
 import play.api.mvc._

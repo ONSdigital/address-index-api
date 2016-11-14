@@ -1,4 +1,4 @@
-package uk.gov.ons.address.model
+package uk.gov.ons.addressIndex.model
 
 import play.api.libs.json._
 

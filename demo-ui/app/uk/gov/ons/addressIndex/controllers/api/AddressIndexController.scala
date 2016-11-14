@@ -1,4 +1,4 @@
-package uk.gov.ons.address.controllers.api
+package uk.gov.ons.addressIndex.controllers.api
 
 import java.util.UUID
 
@@ -6,7 +6,7 @@ import play.api.mvc.{Action, AnyContent, Controller}
 import javax.inject.{Inject, Singleton}
 
 import play.Logger
-import uk.gov.ons.address.controllers.AddressIndexClientInstance
+import uk.gov.ons.addressIndex.controllers.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 
 import scala.concurrent.{ExecutionContext, Future}

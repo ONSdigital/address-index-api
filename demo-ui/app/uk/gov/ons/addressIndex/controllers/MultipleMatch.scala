@@ -1,13 +1,13 @@
-package uk.gov.ons.address.controllers
+package uk.gov.ons.addressIndex.controllers
 
 import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Controller, _}
-import uk.gov.ons.address.client.AddressApiClient
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.views
+import uk.gov.ons.addressIndex.client.AddressApiClient
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.views
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -6,14 +6,14 @@ import play.api.test.Helpers._
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import play.api.i18n.MessagesApi
-import uk.gov.ons.address.client.AddressApiClient
-import uk.gov.ons.address.controllers.SingleMatch
+import uk.gov.ons.addressIndex.client.AddressApiClient
+import uk.gov.ons.addressIndex.controllers.SingleMatch
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, ExecutionContext, Future}
 import play.api.libs.streams.Accumulator._
-import uk.gov.ons.address.conf.OnsFrontendConfiguration
-import uk.gov.ons.address.model.{Address, SingleMatchResponse}
+import uk.gov.ons.addressIndex.conf.OnsFrontendConfiguration
+import uk.gov.ons.addressIndex.model.{Address, SingleMatchResponse}
 
 class SingleMatchTest extends FunSuite with Matchers {
 
