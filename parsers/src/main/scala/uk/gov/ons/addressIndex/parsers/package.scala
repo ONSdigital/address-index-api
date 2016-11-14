@@ -5,7 +5,6 @@ import com.google.common.base.CharMatcher
 package object parsers {
   object Implicits {
     implicit class StringUtils(str : String) {
-
       def digitCount() : Int = CharMatcher.DIGIT.countIn(str)
 
       def containsDigitsBase() : Boolean = digitCount > 0

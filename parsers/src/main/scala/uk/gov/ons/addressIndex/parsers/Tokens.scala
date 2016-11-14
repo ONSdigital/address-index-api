@@ -6,11 +6,7 @@ object Tokens {
   type Token = String
   type Tokens = Array[Token]
 
-  /**
-    *
-    * @param input
-    * @return
-    */
+
   def apply(input : String) : Tokens = input.replaceAll(","," ").split(" ").filterNot(_.isEmpty)
 
   val ALL : Seq[Token] = Seq(
