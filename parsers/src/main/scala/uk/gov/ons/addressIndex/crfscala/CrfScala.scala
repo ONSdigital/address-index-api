@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.crfscala
 
 import com.github.jcrfsuite.CrfTagger
 import third_party.org.chokkan.crfsuite.{Attribute, Item}
+import uk.gov.ons.addressIndex.parsers.Tokens
 
 /**
   * scala wrapper of crfsuite
@@ -10,24 +11,45 @@ object CrfScala {
 
   type Input = String
   type FeatureName = String
-  type FeatureAnalyser[T] = (Input => T)
   type FeatureSequence = third_party.org.chokkan.crfsuite.ItemSequence
   type Tagger = CrfTagger
 
+  type FeatureAnalyser[T] = (Input => T)
   object FeatureAnalyser {
-
     /**
-      * For example:
+      * Helper apply method for better syntax.
+      * Constructs a function.
+      * Eg:
       *
-      * import FeatureAnalyser.Predef._
+      *    FeatureAnalyser[String]("SplitOnSpaceCountAsStr") { str =>
+      *       str.split(" ").length.toString
+      *    }
       *
-      * Feature[String](DIGITS)(digitsAnalyser())
+      * Or:
       *
-      * @param analyser
-      * @tparam T
-      * @return
+      *    FeatureAnalyser[Int]("lengthOfString") { str =>
+      *       str.length
+      *    }
+      *
       */
-    def apply[T](analyser: FeatureAnalyser[T]) = analyser
+    def apply[T](analyser : FeatureAnalyser[T]) : FeatureAnalyser[T] = analyser
+  }
+
+  /**
+    *
+    */
+  trait CrfParser {
+    //TODO still defining output
+    def parse(i : Input, fa : CrfFeatures) = {
+      val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
+      val tokens = Tokens(i)
+      val itemSeq = new FeatureSequence()
+
+      for (token <- tokens) {
+        itemSeq.add(fa toItem token)
+      }
+      tagger.tag(itemSeq)
+    }
   }
 
   /**
@@ -38,7 +60,7 @@ object CrfScala {
     /**
       * @return all the features
       */
-    def features : Seq[CrfFeature[_]]
+    def all : Seq[CrfFeature[_]]
 
     /**
       * @param i input
@@ -46,7 +68,7 @@ object CrfScala {
       */
     def toItem(i : Input) : Item = {
       val item = new Item()
-      for(feature <- features) {
+      for(feature <- all) {
         item.add(feature toAttribute i)
       }
       item
@@ -113,7 +135,7 @@ object CrfScala {
 
         case _ =>
           throw new UnsupportedOperationException(
-            s"Unsupported input to crf Attribute: ${analyse(i).getClass.toString} or Feature with key: $name")
+            s"Unsupported input to crf Attribute: ${analyse(i).getClass.toString} or Feature with name: $name")
       }
     }
   }

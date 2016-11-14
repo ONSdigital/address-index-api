@@ -6,13 +6,12 @@ object Tokens {
   type Token = String
   type Tokens = Array[Token]
 
+  /**
+    *
+    * @param input
+    * @return
+    */
   def apply(input : String) : Tokens = input.replaceAll(","," ").split(" ").filterNot(_.isEmpty)
-
-  type TokenAnalyser[T] = (String => T)
-
-  object TokenAnalyser {
-    def apply[T](analyser: TokenAnalyser[T]) = analyser
-  }
 
   val ALL : Seq[Token] = Seq(
     "OrganisationName",

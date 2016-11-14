@@ -1,119 +1,100 @@
 package uk.gov.ons.addressIndex.parsers
 
-import uk.gov.ons.addressIndex.parsers.Implicts._
-import com.github.jcrfsuite.CrfTagger
 import Tokens._
-import third_party.org.chokkan.crfsuite.{Attribute, Item, ItemSequence}
-import uk.gov.ons.addressIndex.parsers.AddressParser.{FeatureAnalyser, Input}
+import uk.gov.ons.addressIndex.crfscala.CrfScala._
+import uk.gov.ons.addressIndex.parsers.Implicts._
 
-object AddressParser {
+object AddressParser extends CrfParser {
 
-  type Input = String
-  type FeatureName = String
-  type FeatureAnalyser[T] = (Input => T)
-
-  object FeatureAnalyser {
-
-    /**
-      * For example:
-      *
-      *   import FeatureAnalyser.Predef._
-      *
-      *   Feature[String](DIGITS)(digitsAnalyser())
-      *
-      * @param analyser
-      * @tparam T
-      * @return
-      */
-    def apply[T](analyser : FeatureAnalyser[T]) = analyser
+  object FeatureAnalysers {
 
     object Predef {
 
       /**
         * @return all of the predefined features
         */
-      def features() : Features = {
+      def all() : Features = {
         Features(
-          Feature[String](DIGITS)(digitsAnalyser()),
-          Feature[Boolean](WORD)(wordAnalyser()),
-          Feature[String](LENGTH)(lengthAnalyser()),
-          Feature[Boolean](ENDS_IN_PUNCTUATION)(endsInPunctuationAnalyser()),
-          Feature[Boolean](DIRECTIONAL)(directionalAnalyser()),
-          Feature[Boolean](OUTCODE)(outcodeAnalyser()),
-          Feature[Boolean](POST_TOWN)(postTownAnalyser()),
-          Feature[Boolean](HAS_VOWELS)(hasVowelsAnalyser()),
-          Feature[Boolean](FLAT)(flatAnalyser()),
-          Feature[Boolean](COMPANY)(companyAnalyser()),
-          Feature[Boolean](ROAD)(roadAnalyser()),
-          Feature[Boolean](RESIDENTIAL)(residentialAnalyser()),
-          Feature[Boolean](BUSINESS)(businessAnalyser()),
-          Feature[Boolean](LOCATIONAL)(locationalAnalyser()),
-          Feature[Int](HYPHENATIONS)(hyphenationsAnalyser())
+          Feature[String](digits)(digitsAnalyser()),
+          Feature[Boolean](word)(wordAnalyser()),
+          Feature[String](length)(lengthAnalyser()),
+          Feature[Boolean](endsInPunctuation)(endsInPunctuationAnalyser()),
+          Feature[Boolean](directional)(directionalAnalyser()),
+          Feature[Boolean](outcode)(outcodeAnalyser()),
+          Feature[Boolean](postTown)(postTownAnalyser()),
+          Feature[Boolean](hasVowels)(hasVowelsAnalyser()),
+          Feature[Boolean](flat)(flatAnalyser()),
+          Feature[Boolean](company)(companyAnalyser()),
+          Feature[Boolean](road)(roadAnalyser()),
+          Feature[Boolean](residential)(residentialAnalyser()),
+          Feature[Boolean](business)(businessAnalyser()),
+          Feature[Boolean](locational)(locationalAnalyser()),
+          Feature[Int](hyphenations)(hyphenationsAnalyser())
         )
       }
 
-      val WORD : FeatureName = "word"
+      val word : FeatureName = "word"
       def wordAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.allDigits[Boolean](!_))
 
-      val LENGTH : FeatureName = "length"
+      val length : FeatureName = "length"
       def lengthAnalyser() : FeatureAnalyser[String] = FeatureAnalyser[String](_.length.toString)
 
-      val ENDS_IN_PUNCTUATION : FeatureName = "endsinpunc"
+      val endsInPunctuation : FeatureName = "endsinpunc"
       def endsInPunctuationAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.last == '.')
 
-      val DIRECTIONAL : FeatureName = "directional"
+      val directional : FeatureName = "directional"
       def directionalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.DIRECTIONS)
 
-      val OUTCODE : FeatureName = "outcode"
+      val outcode : FeatureName = "outcode"
       def outcodeAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.OUTCODES)
 
-      val POST_TOWN : FeatureName = "posttown"
+      val postTown : FeatureName = "posttown"
       def postTownAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.POST_TOWN)
 
-      val HAS_VOWELS : FeatureName = "has.vowels"
+      val hasVowels : FeatureName = "has.vowels"
       def hasVowelsAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.containsVowels[Boolean](identity))
 
-      val FLAT : FeatureName = "flat"
+      val flat : FeatureName = "flat"
       def flatAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.FLAT)
 
-      val COMPANY : FeatureName = "company"
+      val company : FeatureName = "company"
       def companyAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.COMPANY)
 
-      val ROAD : FeatureName = "road"
+      val road : FeatureName = "road"
       def roadAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ROAD)
 
-      val RESIDENTIAL : FeatureName = "residential"
+      val residential : FeatureName = "residential"
       def residentialAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.RESIDENTIAL)
 
-      val BUSINESS : FeatureName = "business"
+      val business : FeatureName = "business"
       def businessAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.BUSINESS)
 
-      val LOCATIONAL : FeatureName = "locational"
+      val locational : FeatureName = "locational"
       def locationalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.LOCATIONAL)
 
-      val ORDINAL : FeatureName = "ordinal"
+      val ordinal : FeatureName = "ordinal"
       def ordinalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ORIDINAL)
 
-      val HYPHENATIONS : FeatureName = "hyphenations"
-      def hyphenationsAnalyser() : FeatureAnalyser[Int] = FeatureAnalyser[Int](_ count(_ == '-'))
+      val hyphenations : FeatureName = "hyphenations"
+      def hyphenationsAnalyser(): FeatureAnalyser[Int] = FeatureAnalyser[Int](_ count(_ == '-'))
 
-      val DIGITS : FeatureName = "digits"
+      val digits : FeatureName = "digits"
 
       /**
         * @return a DigitLiteral String
         */
-      def digitsAnalyser(): FeatureAnalyser[String] = {
+      def digitsAnalyser() : FeatureAnalyser[String] = {
         import DigitsLiteral._
         FeatureAnalyser[String] { str =>
           str.allDigits[String] { rs =>
             if(rs) {
-              ALL_DIGITS
+              allDigits
             } else {
               str.containsDigits[String] { rs =>
                 if(rs) {
-                  CONTAINS_DIGITS
+                  containsDigits
                 } else {
-                  NO_DIGITS
+                  noDigits
                 }
               }
             }
@@ -125,33 +106,22 @@ object AddressParser {
         * ref digitsAnalyser
         */
       object DigitsLiteral {
-        val ALL_DIGITS = "all_digits"
-        val CONTAINS_DIGITS = "contains_digits"
-        val NO_DIGITS = "no_digits"
+        val allDigits = "all_digits"
+        val containsDigits = "contains_digits"
+        val noDigits = "no_digits"
       }
     }
-  }
 
-  object ContainsAnalyser {
-    def apply(tis : Seq[TokenIndicator]) : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](tis contains _)
-  }
-
-
-
-  def parse(i : Input) = {
-    val tagger = new CrfTagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
-    val tokens = Tokens(i)
-
-    val itemSeq = new ItemSequence()
-    val features = FeatureAnalyser.Predef.features
-
-    for (token <- tokens) {
-      itemSeq.add(features toItem token)
+    /**
+      * Helper FeatureAnalyser implementation
+      * Use this analyser for using contains on a Sequence
+      *
+      * Eg:
+      *     ContainsAnalyser(Seq("oneThingToLookFoor", "AnotherThingToLookFor"))
+      */
+    object ContainsAnalyser {
+      def apply(tis : Seq[TokenIndicator]) : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](tis contains _)
     }
-
-    val res = tagger.tag(itemSeq)
-
-    pprint.pprintln(res)
   }
 }
 
@@ -160,81 +130,17 @@ object AddressParser {
   *
   * scala wrapper on third_party.org.chokkan.crfsuite.Item
   *
-  * @param features the features of this feature collection
+  * @param all the features of this feature collection
   */
-case class Features(features : Feature[_]*) {
-
-  /**
-    * @param i
-    * @return the features as an Item
-    *
-    */
-  def toItem(i : Input) : Item = {
-    val item = new Item()
-    for(feature <- features) {
-      item.add(feature toAttribute i)
-    }
-    item
-  }
-}
+case class Features(override val all : Feature[_]*) extends CrfFeatures
 
 /**
   * scala wrapper on third_party.org.chokkan.crfsuite.Attribute
   *
-  * @param key the feature's key which is referenced in them jcrfsuite model
+  * @param name the feature's key which is referenced in them jcrfsuite model
   *
   * @param analyser feature analyser
   *
   * @tparam T the return type of this analyser; used for the conversion to an Item
   */
-case class Feature[T](key : String)(analyser : FeatureAnalyser[T]) {
-
-  /**
-    * The return type of this features analyser
-    */
-  type value = T
-
-  /**
-    * @param i input
-    * @return apply the analyser to i
-    */
-  def analyse(i : Input) : T = analyser apply i
-
-  /**
-    * Do not change this without speaking to Rhys Bradbury
-    * Please be aware that the Attribute source has no JavaDoc
-    *
-    * Depending on T (the return type fo the analyser) we construct
-    * the Attribute differently
-    *
-    * @param i input
-    * @return
-    */
-  def toAttribute(i : Input) : Attribute = {
-    val v = analyse(i)
-    v match {
-
-      case _ : String =>
-        new Attribute(s"$key=$v")
-
-      case _ : Double =>
-        new Attribute(key, v.asInstanceOf[Double])
-
-      case _ : Int =>
-        new Attribute(key, Int int2double v.asInstanceOf[Int])
-
-      case _ : Boolean =>
-        if(v.asInstanceOf[Boolean]) {
-          new Attribute(key, 1d)
-        } else {
-          new Attribute(key, 0d)
-        }
-
-      case _ =>
-        throw new UnsupportedOperationException(
-          s"Unsupported input to crf Attribute: ${analyse(i).getClass.toString} " +
-            s"for Feature with key $key"
-        )
-    }
-  }
-}
+case class Feature[T](override val name : String)(override val analyser : FeatureAnalyser[T]) extends CrfFeature[T]
