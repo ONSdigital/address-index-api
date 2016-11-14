@@ -16,13 +16,13 @@ import scala.util.{Failure, Success}
 class AddressIndexController @Inject()(aiClient: AddressIndexClientInstance)(implicit ec : ExecutionContext) extends Controller {
 
   def addressQuery(q : String) : Action[AnyContent] = Action.async { implicit request =>
-    Logger.info(s"address query called with q: $q")
+    Logger.debug(s"address query called with q: $q")
     aiClient.addressQuery(
       AddressIndexSearchRequest(
         format = PostcodeAddressFile("paf"),
         input = q,
         id = UUID.randomUUID
       )
-    ).map{x => Logger.info("got response"); Ok(x.body)}
+    ).map{x => Logger.debug("got response"); Ok(x.body)}
   }
 }

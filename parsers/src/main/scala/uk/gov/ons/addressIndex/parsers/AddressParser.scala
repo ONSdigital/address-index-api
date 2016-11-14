@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import Tokens._
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
-import uk.gov.ons.addressIndex.parsers.Implicts._
+import uk.gov.ons.addressIndex.parsers.Implicits._
 
 object AddressParser extends CrfParser {
 
