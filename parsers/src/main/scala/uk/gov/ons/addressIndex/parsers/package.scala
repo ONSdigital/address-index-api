@@ -13,9 +13,16 @@ package object parsers {
 
       def containsDigits[T](fn : (Boolean => T)) : T = fn(containsDigitsBase)
 
-      val VOWELS : List[Char] = List('a', 'e', 'i', 'o', 'u')
-
-      def containsVowels[T](fn : (Boolean => T)) : T = fn(VOWELS exists(str contains _))
+      def containsVowels[T](fn : (Boolean => T)) : T = {
+        fn(
+          CharMatcher.is('a')
+            .or(CharMatcher.is('e'))
+            .or(CharMatcher.is('i'))
+            .or(CharMatcher.is('o'))
+            .or(CharMatcher.is('u'))
+            .countIn(str) > 0
+        )
+      }
     }
   }
 }
