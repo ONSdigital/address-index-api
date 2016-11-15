@@ -6,6 +6,13 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 
 object AddressParser extends CrfParser {
 
+  override def parse(i : Input, fa : CrfFeatures) : List[(String, Double)]  = {
+    val r = super.parse(i.toUpperCase, fa)
+    println("AP.parse")
+    pprint.pprintln(r)
+    r
+  }
+
   object FeatureAnalysers {
 
     object Predef {

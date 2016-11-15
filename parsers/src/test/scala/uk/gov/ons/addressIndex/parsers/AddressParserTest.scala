@@ -320,9 +320,9 @@ class AddressParserTest extends FlatSpec with Matchers {
     expected shouldBe actual
   }
 
-  ignore should "produce the correct features output for the given input string `31 exeter close`" in {
-//    val input = "31 exeter close, watford, wd244re"
-//    val actual = AddressParser.parse(input, AddressParser.FeatureAnalysers.Predef.all)
+  it should "produce the correct features output for the given input string `31 exeter close`" in {
+    val input = "31 exeter close, watford, wd244re"
+    val actual = AddressParser.parse(input, AddressParser.FeatureAnalysers.Predef.all)
     assert(true)
   }
 }
