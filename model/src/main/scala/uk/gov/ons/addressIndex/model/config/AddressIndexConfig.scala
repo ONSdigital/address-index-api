@@ -15,13 +15,11 @@ object ElasticSearchConfig {
 }
 
 case class AddressIndexConfig(
-  runMode : String,
   elasticSearch : ElasticSearchConfig
 )
 
 object AddressIndexConfig {
   val default : AddressIndexConfig = AddressIndexConfig(
-    runMode = "dev",
     elasticSearch = ElasticSearchConfig.default
   )
 }

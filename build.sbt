@@ -98,7 +98,7 @@ lazy val `address-index` = project.in(file("."))
   `address-index-client`,
   `address-index-server`,
   `address-index-parsers`,
-  `address-index-demoui`
+  `address-index-demo-ui`
 )
 
 lazy val `address-index-model` = project.in(file("model"))
@@ -134,7 +134,7 @@ lazy val `address-index-parsers` = project.in(file("parsers"))
     libraryDependencies ++= parsersDeps
   )
 
-lazy val `address-index-demoui` = project.in(file("demoui"))
+lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(localCommonSettings: _*).settings(
     libraryDependencies ++= uiDeps,
     routesGenerator := InjectedRoutesGenerator
