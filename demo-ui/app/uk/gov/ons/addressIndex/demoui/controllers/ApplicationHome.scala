@@ -1,4 +1,4 @@
-package uk.gov.ons.addressIndex.controllers
+package uk.gov.ons.addressIndex.demoui.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.Logger
