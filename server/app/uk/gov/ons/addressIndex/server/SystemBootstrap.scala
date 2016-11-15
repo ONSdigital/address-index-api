@@ -1,9 +1,9 @@
-package addressIndex
+package uk.gov.ons.addressIndex.server
 
 import javax.inject.{Inject, Singleton}
-import addressIndex.modules.{AddressIndexConfigModule, ElasticsearchRepository}
 import com.google.inject.ImplementedBy
 import play.api.Logger
+import uk.gov.ons.addressIndex.server.modules.{AddressIndexConfigModule, ElasticsearchRepository}
 
 @ImplementedBy(classOf[SystemBootstrap])
 trait Bootstrap {

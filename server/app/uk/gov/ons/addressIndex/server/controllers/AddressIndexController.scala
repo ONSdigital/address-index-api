@@ -1,4 +1,4 @@
-package addressIndex.controllers
+package uk.gov.ons.addressIndex.server.controllers
 
 import play.api.mvc.Controller
 

@@ -1,7 +1,7 @@
-package addressIndex.controllers
+package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import addressIndex.modules.ElasticsearchRepository
+import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{ExecutionContext, Future}
