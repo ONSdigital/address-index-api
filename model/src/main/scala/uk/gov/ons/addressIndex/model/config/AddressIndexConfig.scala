@@ -5,7 +5,8 @@ case class ElasticSearchConfig(
   cluster : String,
   uri : String,
   shieldSsl : Boolean,
-  shieldUser : String
+  shieldUser : String,
+  indexes: IndexesConfig
 )
 
 object ElasticSearchConfig {
@@ -14,7 +15,8 @@ object ElasticSearchConfig {
     cluster = "ONS-Valtech-test",
     local = false,
     shieldSsl = true,
-    shieldUser = "default:default"
+    shieldUser = "default:default",
+    indexes = IndexesConfig("paf/address")
   )
 }
 
@@ -29,3 +31,5 @@ object AddressIndexConfig {
     elasticSearch = ElasticSearchConfig.default
   )
 }
+
+case class IndexesConfig(pafIndex: String)

@@ -88,5 +88,5 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     )
   }
 
-  private def asyncWrongFormatResponse() : Future[Result] = Future successful Ok("Wrong format")
+  private val asyncWrongFormatResponse : Future[Result] = Future successful Ok("Wrong format")
 }
