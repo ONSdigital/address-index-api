@@ -7,10 +7,9 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 object AddressParser extends CrfParser {
 
   def parse(i : Input, fa : CrfFeatures) : List[TokenResult] = {
+    //todo do something about this file ffs you noob
     implicit val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
-    val r = super.parse(i.toUpperCase, fa)
-    pprint.pprintln(r)
-    r
+    super.parse(i.toUpperCase, fa)
   }
 
   object FeatureAnalysers {
