@@ -1,4 +1,4 @@
-package addressIndex.modules
+package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.AbstractModule
 
@@ -8,7 +8,7 @@ import com.google.inject.AbstractModule
 class SystemBootstrapModule extends AbstractModule {
   def configure() = {
 //    bind(classOf[Bootstrap])
-//      .annotatedWith(Names named "addressIndex.SystemBootstrap")
+//      .annotatedWith(Names named "uk.gov.ons.addressIndex.server.SystemBootstrap")
 //      .to(classOf[SystemBootstrap])
 //      .asEagerSingleton
   }

@@ -1,4 +1,4 @@
-package addressIndex.modules
+package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.Singleton
 import pureconfig._

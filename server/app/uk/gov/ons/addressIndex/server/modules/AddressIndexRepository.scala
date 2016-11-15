@@ -1,4 +1,4 @@
-package addressIndex.modules
+package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
 import com.sksamuel.elastic4s._

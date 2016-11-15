@@ -1,7 +1,7 @@
-package addressIndex.controllers.general
+package uk.gov.ons.addressIndex.server.controllers.general
 
 import javax.inject.{Inject, Singleton}
-import addressIndex.controllers.AddressIndexController
+import uk.gov.ons.addressIndex.server.controllers.AddressIndexController
 import play.api.mvc.{Action, AnyContent}
 
 /**
