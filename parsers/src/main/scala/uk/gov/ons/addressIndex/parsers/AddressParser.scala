@@ -6,9 +6,9 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 
 object AddressParser extends CrfParser {
 
-  override def parse(i : Input, fa : CrfFeatures) : List[(String, Double)]  = {
+  def parse(i : Input, fa : CrfFeatures) : List[TokenResult] = {
+    implicit val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
     val r = super.parse(i.toUpperCase, fa)
-    println("AP.parse")
     pprint.pprintln(r)
     r
   }
@@ -60,69 +60,69 @@ object AddressParser extends CrfParser {
 
       val hasVowels : FeatureName = "has.vowels"
       /**
-        * @return true if the string is in the Tokens.POST_TOWN collection, false if not
+        * @return true if the string is in the Tokens.postTown collection, false if not
         */
       def hasVowelsAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.containsVowels[Boolean](identity))
 
       val directional : FeatureName = "directional"
       /**
-        * @return true if the string is in the Tokens.DIRECTIONS collection, false if not
+        * @return true if the string is in the Tokens.directions collection, false if not
         */
-      def directionalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.DIRECTIONS)
+      def directionalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.directions)
 
       val outcode : FeatureName = "outcode"
       /**
-        * @return true if the string is in the Tokens.OUTCODES collection, false if not
+        * @return true if the string is in the Tokens.outcodes collection, false if not
         */
-      def outcodeAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.OUTCODES)
+      def outcodeAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.outcodes)
 
       val postTown : FeatureName = "posttown"
       /**
-        * @return true if the string is in the Tokens.POST_TOWN collection, false if not
+        * @return true if the string is in the Tokens.postTown collection, false if not
         */
-      def postTownAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.POST_TOWN)
+      def postTownAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.postTown)
 
       val flat : FeatureName = "flat"
       /**
-        * @return true if the string is in the Tokens.FLAT collection, false if not
+        * @return true if the string is in the Tokens.flat collection, false if not
         */
-      def flatAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.FLAT)
+      def flatAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.flat)
 
       val company : FeatureName = "company"
       /**
-        * @return true if the string is in the Tokens.COMPANY collection, false if not
+        * @return true if the string is in the Tokens.company collection, false if not
         */
-      def companyAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.COMPANY)
+      def companyAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.company)
 
       val road : FeatureName = "road"
       /**
-        * @return true if the string is in the Tokens.ROAD collection, false if not
+        * @return true if the string is in the Tokens.road collection, false if not
         */
-      def roadAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ROAD)
+      def roadAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.road)
 
       val residential : FeatureName = "residential"
       /**
-        * @return true if the string is in the Tokens.RESIDENTIAL collection, false if not
+        * @return true if the string is in the Tokens.residential collection, false if not
         */
-      def residentialAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.RESIDENTIAL)
+      def residentialAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.residential)
 
       val business : FeatureName = "business"
       /**
-        * @return true if the string is in the Tokens.BUSINESS collection, false if not
+        * @return true if the string is in the Tokens.business collection, false if not
         */
-      def businessAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.BUSINESS)
+      def businessAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.business)
 
       val locational : FeatureName = "locational"
       /**
-        * @return true if the string is in the Tokens.LOCATIONAL collection, false if not
+        * @return true if the string is in the Tokens.locational collection, false if not
         */
-      def locationalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.LOCATIONAL)
+      def locationalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.locational)
 
       val ordinal : FeatureName = "ordinal"
       /**
-        * @return true if the string is in the Tokens.ORDINAL collection, false if not
+        * @return true if the string is in the Tokens.ordinal collection, false if not
         */
-      def ordinalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ORIDINAL)
+      def ordinalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ordinal)
 
       val hyphenations : FeatureName = "hyphenations"
       /**

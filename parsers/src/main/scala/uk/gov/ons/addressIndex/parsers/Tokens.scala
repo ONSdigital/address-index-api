@@ -1,14 +1,17 @@
 package uk.gov.ons.addressIndex.parsers
 
+import uk.gov.ons.addressIndex.crfscala.CrfScala.Input
+
 object Tokens {
 
   type TokenIndicator = String
   type Token = String
   type Tokens = Array[Token]
 
-  def apply(input : String) : Tokens = input.replaceAll(","," ").split(" ").filterNot(_.isEmpty)
+  def apply(input : Input) : Tokens = input.replaceAll(","," ").split(" ").filterNot(_.isEmpty)
 
-  val ALL : Seq[Token] = Seq(
+
+  val all : Seq[Token] = Seq(
     "OrganisationName",
     "DepartmentName",
     "SubBuildingName",
@@ -22,7 +25,7 @@ object Tokens {
 
   //TODO TokenIndicators encode to int for better computation of features. (All possible spelling permutations.)
 
-  val DIRECTIONS : Seq[TokenIndicator] = Seq(
+  val directions : Seq[TokenIndicator] = Seq(
     "N",
     "S",
     "E",
@@ -41,7 +44,7 @@ object Tokens {
     "SOUTHWEST"
   )
 
-  val FLAT : Seq[TokenIndicator] = Seq(
+  val flat : Seq[TokenIndicator] = Seq(
     "FLAT", "FLT",
     "APARTMENT", "APPTS", "APPT", "APTS", "APT",
     "ROOM",
@@ -50,7 +53,7 @@ object Tokens {
     "BLOCK", "BLK"
   )
 
-  val COMPANY : Seq[TokenIndicator] = Seq(
+  val company : Seq[TokenIndicator] = Seq(
     "CIC",
     "CIO",
     "LLP",
@@ -64,7 +67,7 @@ object Tokens {
     "ULTD"
   )
 
-  val ROAD : Seq[TokenIndicator] = Seq(
+  val road : Seq[TokenIndicator] = Seq(
     "ROAD", "RAOD", "RD",
     "DRIVE", "DR",
     "STREET", "STRT",
@@ -89,7 +92,7 @@ object Tokens {
     "HILL",
     "GREEN"
   )
-  val RESIDENTIAL : Seq[TokenIndicator] = Seq(
+  val residential : Seq[TokenIndicator] = Seq(
     "HOUSE", "HSE",
     "FARM",
     "LODGE",
@@ -99,7 +102,7 @@ object Tokens {
     "MEWS"
   )
 
-  val BUSINESS : Seq[TokenIndicator] = Seq(
+  val business : Seq[TokenIndicator] = Seq(
     "OFFICE",
     "HOSPITAL",
     "CARE",
@@ -119,14 +122,14 @@ object Tokens {
     "UNI", "UNIV", "UNIVERSITY", "UNIVERISTY"
   )
 
-  val LOCATIONAL : Seq[TokenIndicator] = Seq(
+  val locational : Seq[TokenIndicator] = Seq(
     "BASEMENT", "GROUND", "ATTIC",
     "UPPER", "ABOVE", "TOP", "LOWER", "FLOOR", "HIGHER",
     "LEFT", "RIGHT", "FRONT", "BACK", "REAR",
     "WHOLE", "PART", "SIDE"
   )
 
-  val ORIDINAL : Seq[TokenIndicator] = Seq(
+  val ordinal : Seq[TokenIndicator] = Seq(
     "FIRST", "1ST",
     "SECOND", "2ND",
     "THIRD", "3RD",
@@ -136,6 +139,6 @@ object Tokens {
     "SEVENTH", "7TH",
     "EIGHT", "8TH"
   )
-  val OUTCODES : Seq[TokenIndicator] = Seq.empty //TODO
-  val POST_TOWN : Seq[TokenIndicator] = Seq.empty //TODO
+  val outcodes : Seq[TokenIndicator] = Seq.empty //TODO
+  val postTown : Seq[TokenIndicator] = Seq.empty //TODO
 }

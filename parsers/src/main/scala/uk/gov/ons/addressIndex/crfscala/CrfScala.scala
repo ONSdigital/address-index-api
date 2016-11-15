@@ -3,6 +3,8 @@ package uk.gov.ons.addressIndex.crfscala
 import com.github.jcrfsuite.CrfTagger
 import third_party.org.chokkan.crfsuite.{Attribute, Item}
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.parsers.Tokens.Token
+
 import collection.JavaConverters._
 import scala.util.control.NonFatal
 
@@ -41,17 +43,28 @@ object CrfScala {
   //TODO scaladoc
   trait CrfParser {
     //TODO scaladoc
-    def parse(i : Input, fa : CrfFeatures) : List[(String, Double)] = {
-      val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
+    def parse(i : Input, fa : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
       val tokens = Tokens(i)
       val fs = new FeatureSequence()
       for (token <- tokens) {
         fs add(fa toItem token)
       }
       val r = tagger tag fs
-      r.asScala map(p => p.first -> p.second.doubleValue) toList
+      r.asScala.zipWithIndex.map { p =>
+        TokenResult(
+          token = p._1.first,
+          input = tokens(p._2)
+        )
+      } toList
     }
   }
+
+
+  /**
+    * @param token the token which the crfsuite identified
+    * @param input the input which produced this token
+    */
+  case class TokenResult(token : Token, input : Input)
 
   /**
     * scala wrapper of third_party.org.chokkan.crfsuite.Item
@@ -143,4 +156,5 @@ object CrfScala {
       }
     }
   }
+
 }

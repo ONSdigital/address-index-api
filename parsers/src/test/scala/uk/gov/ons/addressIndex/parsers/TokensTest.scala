@@ -1,14 +1,22 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.Input
 import uk.gov.ons.addressIndex.parsers.Tokens.{Token, TokenIndicator}
 
 class TokensTest extends FlatSpec with Matchers {
 
   it should "produce `Tokens` for the given string `31 exeter close` splitting on whitespace" in {
-    val input : String = "31 exeter close"
+    val input : Input = "31 exeter close"
     val expected : Seq[Token] = Seq("31", "exeter", "close")
     val actual : Seq[Token]  = Tokens(input)
+    expected should contain theSameElementsAs actual
+  }
+
+  it should "produce tokens, splitting the char `'`" in {
+    val input : Input = "a,b"
+    val expected : Seq[Token] = Seq("a", "b")
+    val actual : Seq[Token] = Tokens(input)
     expected should contain theSameElementsAs actual
   }
 
@@ -24,7 +32,7 @@ class TokensTest extends FlatSpec with Matchers {
       "TownName",
       "Postcode"
     )
-    val actual : Seq[Token]  = Tokens.ALL
+    val actual : Seq[Token]  = Tokens.all
     expected should contain theSameElementsAs actual
   }
 
@@ -47,7 +55,7 @@ class TokensTest extends FlatSpec with Matchers {
       "SOUTHEAST",
       "SOUTHWEST"
     )
-    val actual : Seq[TokenIndicator] = Tokens.DIRECTIONS
+    val actual : Seq[TokenIndicator] = Tokens.directions
     expected should contain theSameElementsAs actual
   }
 
@@ -60,7 +68,7 @@ class TokensTest extends FlatSpec with Matchers {
       "UNIT",
       "BLOCK", "BLK"
     )
-    val actual : Seq[TokenIndicator] = Tokens.FLAT
+    val actual : Seq[TokenIndicator] = Tokens.flat
     expected should contain theSameElementsAs actual
   }
 
@@ -78,7 +86,7 @@ class TokensTest extends FlatSpec with Matchers {
       "UNLTD",
       "ULTD"
     )
-    val actual : Seq[TokenIndicator] = Tokens.COMPANY
+    val actual : Seq[TokenIndicator] = Tokens.company
     expected should contain theSameElementsAs actual
   }
 
@@ -108,7 +116,7 @@ class TokensTest extends FlatSpec with Matchers {
       "HILL",
       "GREEN"
     )
-    val actual : Seq[TokenIndicator] = Tokens.ROAD
+    val actual : Seq[TokenIndicator] = Tokens.road
     expected should contain theSameElementsAs actual
   }
 
@@ -122,7 +130,7 @@ class TokensTest extends FlatSpec with Matchers {
       "MAISONETTE",
       "MEWS"
     )
-    val actual : Seq[TokenIndicator] = Tokens.RESIDENTIAL
+    val actual : Seq[TokenIndicator] = Tokens.residential
     expected should contain theSameElementsAs actual
   }
 
@@ -146,7 +154,7 @@ class TokensTest extends FlatSpec with Matchers {
       "UCL",
       "UNI", "UNIV", "UNIVERSITY", "UNIVERISTY"
     )
-    val actual : Seq[TokenIndicator] = Tokens.BUSINESS
+    val actual : Seq[TokenIndicator] = Tokens.business
     expected should contain theSameElementsAs actual
   }
 
@@ -157,7 +165,7 @@ class TokensTest extends FlatSpec with Matchers {
       "LEFT", "RIGHT", "FRONT", "BACK", "REAR",
       "WHOLE", "PART", "SIDE"
     )
-    val actual : Seq[TokenIndicator] = Tokens.LOCATIONAL
+    val actual : Seq[TokenIndicator] = Tokens.locational
     expected should contain theSameElementsAs actual
   }
 
@@ -172,19 +180,19 @@ class TokensTest extends FlatSpec with Matchers {
       "SEVENTH", "7TH",
       "EIGHT", "8TH"
     )
-    val actual : Seq[TokenIndicator] = Tokens.ORIDINAL
+    val actual : Seq[TokenIndicator] = Tokens.ordinal
     expected should contain theSameElementsAs actual
   }
 
   it should "produce all outcodes" in {
     val expected : Seq[TokenIndicator] = Seq.empty
-    val actual : Seq[TokenIndicator] = Tokens.OUTCODES
+    val actual : Seq[TokenIndicator] = Tokens.outcodes
     expected should contain theSameElementsAs actual
   }
 
   it should "produce all post towns" in {
     val expected : Seq[TokenIndicator] = Seq.empty
-    val actual : Seq[TokenIndicator] = Tokens.POST_TOWN
+    val actual : Seq[TokenIndicator] = Tokens.postTown
     expected should contain theSameElementsAs actual
   }
 }
