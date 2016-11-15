@@ -34,54 +34,99 @@ object AddressParser extends CrfParser {
       }
 
       val word : FeatureName = "word"
+      /**
+        * @return true if the string is all digits, false if not
+        */
       def wordAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.allDigits[Boolean](!_))
 
       val length : FeatureName = "length"
+      /**
+        * @return the length of the string as a string
+        */
       def lengthAnalyser() : FeatureAnalyser[String] = FeatureAnalyser[String](_.length.toString)
 
       val endsInPunctuation : FeatureName = "endsinpunc"
+      /**
+        * @return true if the last character of the string is a '.', false if not
+        */
       def endsInPunctuationAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.last == '.')
 
+      val hasVowels : FeatureName = "has.vowels"
+      /**
+        * @return true if the string is in the Tokens.POST_TOWN collection, false if not
+        */
+      def hasVowelsAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.containsVowels[Boolean](identity))
+
       val directional : FeatureName = "directional"
+      /**
+        * @return true if the string is in the Tokens.DIRECTIONS collection, false if not
+        */
       def directionalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.DIRECTIONS)
 
       val outcode : FeatureName = "outcode"
+      /**
+        * @return true if the string is in the Tokens.OUTCODES collection, false if not
+        */
       def outcodeAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.OUTCODES)
 
       val postTown : FeatureName = "posttown"
+      /**
+        * @return true if the string is in the Tokens.POST_TOWN collection, false if not
+        */
       def postTownAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.POST_TOWN)
 
-      val hasVowels : FeatureName = "has.vowels"
-      def hasVowelsAnalyser() : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](_.containsVowels[Boolean](identity))
-
       val flat : FeatureName = "flat"
+      /**
+        * @return true if the string is in the Tokens.FLAT collection, false if not
+        */
       def flatAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.FLAT)
 
       val company : FeatureName = "company"
+      /**
+        * @return true if the string is in the Tokens.COMPANY collection, false if not
+        */
       def companyAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.COMPANY)
 
       val road : FeatureName = "road"
+      /**
+        * @return true if the string is in the Tokens.ROAD collection, false if not
+        */
       def roadAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ROAD)
 
       val residential : FeatureName = "residential"
+      /**
+        * @return true if the string is in the Tokens.RESIDENTIAL collection, false if not
+        */
       def residentialAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.RESIDENTIAL)
 
       val business : FeatureName = "business"
+      /**
+        * @return true if the string is in the Tokens.BUSINESS collection, false if not
+        */
       def businessAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.BUSINESS)
 
       val locational : FeatureName = "locational"
+      /**
+        * @return true if the string is in the Tokens.LOCATIONAL collection, false if not
+        */
       def locationalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.LOCATIONAL)
 
       val ordinal : FeatureName = "ordinal"
+      /**
+        * @return true if the string is in the Tokens.ORDINAL collection, false if not
+        */
       def ordinalAnalyser() : FeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ORIDINAL)
 
       val hyphenations : FeatureName = "hyphenations"
+      /**
+        * @return the count of characters which are '-'
+        */
       def hyphenationsAnalyser(): FeatureAnalyser[Int] = FeatureAnalyser[Int](_ count(_ == '-'))
 
       val digits : FeatureName = "digits"
 
       /**
-        * @return a DigitLiteral String
+        * @return a DigitLiteral String, which indicates if the string has all digits, contains digits or no digits
         */
       def digitsAnalyser() : FeatureAnalyser[String] = {
         import DigitsLiteral._
