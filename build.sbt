@@ -53,6 +53,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   ),
   ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
   resolvers ++= Seq(
+    "elasticsearch-releases"     at "https://maven.elasticsearch.org/releases",
     "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
     "Twitter Repository"         at "http://maven.twttr.com",
     "Artima Maven Repository"    at "http://repo.artima.com/releases"
