@@ -7,7 +7,6 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 object AddressParser extends CrfParser {
 
   def parse(i : Input, fa : CrfFeatures) : List[TokenResult] = {
-    //todo do something about this file ffs you noob
     implicit val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
     super.parse(i.toUpperCase, fa)
   }
@@ -168,7 +167,7 @@ object AddressParser extends CrfParser {
       * Use this analyser for using contains on a Sequence
       *
       * Eg:
-      *     ContainsAnalyser(Seq("oneThingToLookFoor", "AnotherThingToLookFor"))
+      *     ContainsAnalyser(Seq("oneThingToLookFor", "AnotherThingToLookFor"))
       */
     object ContainsAnalyser {
       def apply(tis : Seq[TokenIndicator]) : FeatureAnalyser[Boolean] = FeatureAnalyser[Boolean](tis contains _)
