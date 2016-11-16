@@ -4,6 +4,10 @@ import Tokens._
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 import uk.gov.ons.addressIndex.parsers.Implicits._
 
+//TODO scaladoc
+/**
+  * AddressParser.
+  */
 object AddressParser extends CrfParser {
 
   def parse(i : Input, fa : CrfFeatures) : List[TokenResult] = {
@@ -11,8 +15,14 @@ object AddressParser extends CrfParser {
     super.parse(i.toUpperCase, fa)
   }
 
+  /**
+    * FeatureAnalyser implementations for the AddressParser.
+    */
   object FeatureAnalysers {
 
+    /**
+      * Predefined items.
+      */
     object Predef {
 
       /**
