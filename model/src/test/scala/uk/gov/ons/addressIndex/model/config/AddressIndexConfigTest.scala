@@ -29,6 +29,11 @@ object ElasticSearchConfigTest {
   val default = ElasticSearchConfig(
     uri = "elasticsearch://localhost:9200",
     cluster = "ons-cluster",
-    local = true
+    local = false,
+    shieldSsl = true,
+    shieldUser = "default:default",
+    indexes = IndexesConfig(
+      pafIndex = "paf/address"
+    )
   )
 }

@@ -2,8 +2,8 @@ import com.typesafe.sbt.web.SbtWeb
 import play.sbt.PlayScala
 import play.sbt.routes.RoutesKeys._
 import sbt.Keys._
-import sbt._
 import sbt.Resolver.{file => _, url => _, _}
+import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 
 lazy val Versions = new {
@@ -53,6 +53,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   ),
   ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
   resolvers ++= Seq(
+    "elasticsearch-releases"     at "https://maven.elasticsearch.org/releases",
     "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
     "Twitter Repository"         at "http://maven.twttr.com",
     "Artima Maven Repository"    at "http://repo.artima.com/releases"
@@ -76,7 +77,10 @@ val parsersDeps = Seq(
   "com.github.vinhkhuc" % "jcrfsuite" % "0.6"
 ) ++ commonDeps
 
-val serverDeps = Seq.empty ++ commonDeps
+val serverDeps = Seq(
+  "org.elasticsearch.plugin" % "shield" % Versions.elastic4s,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % "test"
+)++ commonDeps
 
 val uiDeps = Seq(
   jdbc,
@@ -103,44 +107,44 @@ lazy val `address-index` = project.in(file("."))
 
 lazy val `address-index-model` = project.in(file("model"))
   .settings(localCommonSettings: _*).settings(
-    libraryDependencies ++= modelDeps
-  )
+  libraryDependencies ++= modelDeps
+)
 
 lazy val `address-index-client` = project.in(file("client"))
   .settings(localCommonSettings: _*).settings(
-    libraryDependencies ++= clientDeps
-  ).dependsOn(
-    `address-index-model`
-  ).enablePlugins(
-    PlayScala,
-    SbtWeb
-  )
+  libraryDependencies ++= clientDeps
+).dependsOn(
+  `address-index-model`
+).enablePlugins(
+  PlayScala,
+  SbtWeb
+)
 
 lazy val `address-index-server` = project.in(file("server"))
   .settings(localCommonSettings: _*).settings(
-    libraryDependencies ++= serverDeps,
-    routesGenerator := InjectedRoutesGenerator
-  ).dependsOn(
-    `address-index-model`,
-    `address-index-parsers`
-  ).enablePlugins(
-    PlayScala,
-    SbtWeb,
-    JavaAppPackaging
-  )
+  libraryDependencies ++= serverDeps,
+  routesGenerator := InjectedRoutesGenerator
+).dependsOn(
+  `address-index-model`,
+  `address-index-parsers`
+).enablePlugins(
+  PlayScala,
+  SbtWeb,
+  JavaAppPackaging
+)
 
 lazy val `address-index-parsers` = project.in(file("parsers"))
   .settings(localCommonSettings: _*).settings(
-    libraryDependencies ++= parsersDeps
-  )
+  libraryDependencies ++= parsersDeps
+)
 
 lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(localCommonSettings: _*).settings(
-    libraryDependencies ++= uiDeps,
-    routesGenerator := InjectedRoutesGenerator
-  ).dependsOn(
-    `address-index-client`
-  ).enablePlugins(
-    PlayScala,
-    SbtWeb
-  )
+  libraryDependencies ++= uiDeps,
+  routesGenerator := InjectedRoutesGenerator
+).dependsOn(
+  `address-index-client`
+).enablePlugins(
+  PlayScala,
+  SbtWeb
+)

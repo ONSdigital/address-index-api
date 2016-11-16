@@ -7,6 +7,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 
+
 /**
   * Implement this trait and use ElasticIndexSugar.
   */
