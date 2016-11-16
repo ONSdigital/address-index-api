@@ -319,6 +319,4 @@ class AddressParserTest extends FlatSpec with Matchers {
     val actual = hyphenationsAnalyser apply input
     expected shouldBe actual
   }
-
-
 }
