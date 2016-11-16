@@ -1,7 +1,5 @@
 # README #
 
-
-
 ### What is this repository for? ###
 
 * Address Index is a Play Framework application which resolves address query strings to actual addresses.

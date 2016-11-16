@@ -2,13 +2,15 @@ import com.typesafe.sbt.web.SbtWeb
 import play.sbt.PlayScala
 import play.sbt.routes.RoutesKeys._
 import sbt.Keys._
-import sbt._
 import sbt.Resolver.{file => _, url => _, _}
+import sbt._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 lazy val Versions = new {
   val elastic4s = "2.4.0"
   val scala = "2.11.8"
 }
+
 
 name := "address-index"
 scmInfo := Some(
@@ -99,7 +101,7 @@ lazy val `address-index` = project.in(file("."))
   `address-index-client`,
   `address-index-server`,
   `address-index-parsers`,
-  `address-index-demoui`
+  `address-index-demo-ui`
 )
 
 lazy val `address-index-model` = project.in(file("model"))

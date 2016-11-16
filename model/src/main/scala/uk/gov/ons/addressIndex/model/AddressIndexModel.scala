@@ -4,21 +4,23 @@ import java.util.UUID
 import scala.util.{Failure, Success, Try}
 
 case class AddressIndexUPRNRequest(
+  format : AddressScheme,
   uprn   : BigInt,
-  format : AddressScheme
+  id     : UUID
 )
 
 case class AddressIndexSearchRequest(
+  format : AddressScheme,
   input  : String,
-  id     : UUID,
-  format : AddressScheme
+  id     : UUID
 )
 
-sealed trait AddressScheme
-case class PostcodeAddressFile() extends AddressScheme
-case class BritishStandard7666() extends AddressScheme
-case class InvalidAddressSchemeException(str: String) extends IllegalArgumentException(s"Invalid address scheme $str")
-
+sealed trait AddressScheme {
+  override def toString() : String
+}
+case class PostcodeAddressFile(override val toString : String) extends AddressScheme
+case class BritishStandard7666(override val toString : String) extends AddressScheme
+case class InvalidAddressSchemeException(str : String) extends IllegalArgumentException(s"Invalid address scheme $str")
 
 object AddressScheme {
 
@@ -27,12 +29,12 @@ object AddressScheme {
     * @param str - The string to be converted.
     */
   implicit class StringToAddressSchemeAugmenter(str: String) {
-    def toAddressScheme(): Try[AddressScheme] = str toLowerCase match {
-      case "paf"
-        => Success(PostcodeAddressFile())
+    def toAddressScheme() : Try[AddressScheme] = str toLowerCase match {
+      case "paf" | "postcodeaddressfile"
+        => Success(PostcodeAddressFile(str))
 
-      case "bs7666" | "britishstandard7666" | "bs"
-        => Success(BritishStandard7666())
+      case "bs" | "bs7666" | "britishstandard7666"
+        => Success(BritishStandard7666(str))
 
       case _
         => Failure(InvalidAddressSchemeException(str))

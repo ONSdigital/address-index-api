@@ -1,8 +1,10 @@
 #Highest Priority First
 
-GET     /                   addressIndex.controllers.general.ApplicationController.index
+GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index
 #EG     /addresses?format=myFormat&input=myInputString
 GET     /addresses          addressIndex.controllers.AddressController.addressQuery(input, format)
 #EG     /addresses/myUprn?format=myFormat
-GET     /addresses/:uprn    addressIndex.controllers.AddressController.uprnQuery(uprn, format)
-GET     /es                 addressIndex.controllers.AddressController.elasticTest
+GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, format)
+GET     /es                 uk.gov.ons.addressIndex.server.controllers.AddressController.elasticTest
+#swagger play
+#GET     /api                controllers.ApiHelpController.getResources
