@@ -1,5 +1,7 @@
 # README #
 
+[![Build Status](https://travis-ci.com/ONSdigital/address-index-api.svg?token=wrHpQMWmwL6kpsdmycnz&branch=develop)](https://travis-ci.com/ONSdigital/address-index-api)
+
 ### What is this repository for? ###
 
 * Address Index is a Play Framework application which resolves address query strings to actual addresses.
