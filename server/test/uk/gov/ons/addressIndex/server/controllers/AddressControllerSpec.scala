@@ -7,24 +7,16 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
 import org.scalatestplus.play._
 import play.api.test.Helpers._
-
 import scala.concurrent.Future
 
-class AddressControllerSpec extends PlaySpec with Results{
+class AddressControllerSpec extends PlaySpec with Results {
 
   // injected value, change implementations accordingly when needed
   val elasticRepositoryMock = new ElasticsearchRepository {
-
-    override def deleteAll(): Future[Seq[_]] = ???
-
-    override def queryAddress(buildingNumber: Int, postcode: String): Future[Seq[PostcodeAddressFileAddress]] = ???
-
-    override def client(): ElasticClient = ???
 
     override def queryUprn(uprn: String): Future[Seq[PostcodeAddressFileAddress]] =
       Future.successful(Seq(PostcodeAddressFileAddress(
@@ -33,7 +25,9 @@ class AddressControllerSpec extends PlaySpec with Results{
       )))
 
     override def createAll(): Future[Seq[_]] = ???
-
+    override def deleteAll(): Future[Seq[_]] = ???
+    override def queryAddress(buildingNumber: Int, postcode: String): Future[Seq[PostcodeAddressFileAddress]] = ???
+    override def client(): ElasticClient = ???
   }
 
   "Address Controller" should {
@@ -47,7 +41,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )))
 
       // When
-      val result  = controller.uprnQuery("4", "paf").apply(FakeRequest())
+      val result = controller.uprnQuery("4", "paf").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

@@ -16,7 +16,9 @@ object ElasticSearchConfig {
     local = false,
     shieldSsl = true,
     shieldUser = "default:default",
-    indexes = IndexesConfig("paf/address")
+    indexes = IndexesConfig(
+      pafIndex = "paf/address"
+    )
   )
 }
 

@@ -21,7 +21,7 @@ scmInfo := Some(
 )
 
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
-  assemblyJarName in assembly := "ons-bi-api.jar",
+  assemblyJarName in assembly := "ons-ai-api.jar",
   mainClass in assembly := Some("play.core.server.NettyServer"),
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
@@ -138,7 +138,7 @@ lazy val `address-index-parsers` = project.in(file("parsers"))
   libraryDependencies ++= parsersDeps
 )
 
-lazy val `address-index-demo-ui` = project.in(file("demoui"))
+lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(localCommonSettings: _*).settings(
   libraryDependencies ++= uiDeps,
   routesGenerator := InjectedRoutesGenerator

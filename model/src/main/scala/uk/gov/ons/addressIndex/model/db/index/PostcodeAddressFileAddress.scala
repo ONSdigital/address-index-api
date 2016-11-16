@@ -7,42 +7,49 @@ import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
 /**
-  * PAF Address
+  * PAF Address DTO
   */
 case class PostcodeAddressFileAddress(
-                                       recordIdentifier: String,
-                                       changeType: String,
-                                       proOrder: String,
-                                       uprn: String,
-                                       udprn: String,
-                                       organizationName: String,
-                                       departmentName: String,
-                                       subBuildingName: String,
-                                       buildingName: String,
-                                       buildingNumber: String,
-                                       dependentThoroughfare: String,
-                                       thoroughfare: String,
-                                       doubleDependentLocality: String,
-                                       dependentLocality: String,
-                                       postTown: String,
-                                       postcode: String,
-                                       postcodeType: String,
-                                       deliveryPointSuffix: String,
-                                       welshDependentThoroughfare: String,
-                                       welshThoroughfare: String,
-                                       welshDoubleDependentLocality: String,
-                                       welshDependentLocality: String,
-                                       welshPostTown: String,
-                                       poBoxNumber: String,
-                                       processDate: String,
-                                       startDate: String,
-                                       endDate: String,
-                                       lastUpdateDate: String,
-                                       entryDate: String
-                                     )
+  recordIdentifier: String,
+  changeType: String,
+  proOrder: String,
+  uprn: String,
+  udprn: String,
+  organizationName: String,
+  departmentName: String,
+  subBuildingName: String,
+  buildingName: String,
+  buildingNumber: String,
+  dependentThoroughfare: String,
+  thoroughfare: String,
+  doubleDependentLocality: String,
+  dependentLocality: String,
+  postTown: String,
+  postcode: String,
+  postcodeType: String,
+  deliveryPointSuffix: String,
+  welshDependentThoroughfare: String,
+  welshThoroughfare: String,
+  welshDoubleDependentLocality: String,
+  welshDependentLocality: String,
+  welshPostTown: String,
+  poBoxNumber: String,
+  processDate: String,
+  startDate: String,
+  endDate: String,
+  lastUpdateDate: String,
+  entryDate: String
+)
 
+/**
+  * PAF Address DTO companion object that also contains implicits needed for Elastic4s
+  */
 object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
 
+  /**
+    * This is needed to directly transform a collection of objects returned by Elastic
+    * request into a collection of PAF addresses
+    */
   implicit object PostcodeAddressFileAddressHitAs extends HitAs[PostcodeAddressFileAddress] {
     override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {
       PostcodeAddressFileAddress(
