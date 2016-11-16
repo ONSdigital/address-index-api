@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.model.dao
 
 import javax.inject.{Inject, Singleton}
 
+import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.shield.ShieldPlugin
@@ -13,6 +14,8 @@ import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
   * Provides access to Elastic client
   * Often used in injections
   */
+
+@ImplementedBy(classOf[AddressIndexElasticClientProvider])
 trait ElasticClientProvider {
   /**
     * Defines a getter for Elastic client
@@ -26,7 +29,7 @@ trait ElasticClientProvider {
   * @param conf injected configuration
   */
 @Singleton
-class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule){
+class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule) extends ElasticClientProvider{
 
   private val esConf = conf.config.elasticSearch
   private val logger = Logger("address-index:ElasticsearchRepositoryModule")
