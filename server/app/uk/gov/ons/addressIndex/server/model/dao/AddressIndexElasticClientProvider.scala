@@ -1,12 +1,12 @@
-package addressIndex.model.dao
+package uk.gov.ons.addressIndex.server.model.dao
 
 import javax.inject.{Inject, Singleton}
 
-import addressIndex.modules.AddressIndexConfigModule
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.shield.ShieldPlugin
 import play.api.Logger
+import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 
 
 /**
@@ -14,6 +14,10 @@ import play.api.Logger
   * Often used in injections
   */
 trait ElasticClientProvider {
+  /**
+    * Defines a getter for Elastic client
+    * @return
+    */
   def client: ElasticClient
 }
 

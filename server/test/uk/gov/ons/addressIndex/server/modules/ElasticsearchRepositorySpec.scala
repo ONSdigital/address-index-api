@@ -1,4 +1,4 @@
-package addressIndex.modules
+package uk.gov.ons.addressIndex.server.modules
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.ElasticClient
@@ -20,12 +20,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val index = config.config.elasticSearch.indexes.pafIndex
   val Array(indexName, mappings) = index.split("/")
   val testClient = client
-
-  testClient.execute {
-    createIndex(indexName).mappings(
-      mapping(mappings)
-    )
-  }
 
   testClient.execute {
     bulk(
@@ -96,13 +90,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   blockUntilCount(2, indexName)
 
-
   "search matchers" should {
 
     "find address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expectedAddress = PostcodeAddressFileAddress(
+      val expected = PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
         "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
       )
@@ -113,13 +106,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Then
       result.length shouldBe 1
 
-      result.head shouldBe expectedAddress
+      result.head shouldBe expected
     }
 
     "find address by building number and a postcode" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expectedAddress = PostcodeAddressFileAddress(
+      val expected = PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
         "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
       )
@@ -129,8 +122,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       // Then
       result.length shouldBe 1
-
-      result.head shouldBe expectedAddress
+      result.head shouldBe expected
     }
 
   }

@@ -1,15 +1,19 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Result}
+
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.PostcodeAddressFile
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.server.model.response.PostcodeAddressFileReplyUnit
+
 import scala.util.matching.Regex
 
 /**
@@ -55,7 +59,7 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     logger info s"#addressQuery parsed: postcode: $postcode , buildingNumber: $buildingNumber"
 
     Future fromTry format.toAddressScheme flatMap {
-      case PostcodeAddressFile() => esRepo.queryAddress(buildingNumber, postcode) map addressResponse
+      case PostcodeAddressFile(str) => esRepo.queryAddress(buildingNumber, postcode) map addressResponse
       case _ => asyncWrongFormatResponse
     }
   }
@@ -73,7 +77,7 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
   ) : Action[AnyContent] = Action async { implicit req =>
     logger info s"#uprnQuery called with uprn: $uprn , format: $format"
     Future fromTry format.toAddressScheme flatMap {
-      case PostcodeAddressFile() => esRepo queryUprn uprn map addressResponse
+      case PostcodeAddressFile(str) => esRepo queryUprn uprn map addressResponse
       case _ => asyncWrongFormatResponse
     }
   }

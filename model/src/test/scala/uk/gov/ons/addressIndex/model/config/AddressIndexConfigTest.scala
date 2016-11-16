@@ -31,6 +31,9 @@ object ElasticSearchConfigTest {
     cluster = "ONS-Valtech-test",
     local = false,
     shieldSsl = true,
-    shieldUser = "default:default"
+    shieldUser = "default:default",
+    indexes = IndexesConfig(
+      pafIndex = "paf/address"
+    )
   )
 }

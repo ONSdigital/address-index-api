@@ -1,4 +1,4 @@
-package addressIndex.model.response
+package uk.gov.ons.addressIndex.server.model.response
 
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress

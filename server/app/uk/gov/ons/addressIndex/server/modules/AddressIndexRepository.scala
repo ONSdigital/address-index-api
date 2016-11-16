@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
 
-import addressIndex.model.dao.ElasticClientProvider
+import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._

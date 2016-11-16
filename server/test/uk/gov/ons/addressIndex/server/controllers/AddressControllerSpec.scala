@@ -1,7 +1,7 @@
-package addressIndex.controllers
+package uk.gov.ons.addressIndex.server.controllers
 
 import uk.gov.ons.addressIndex.server.model.response.PostcodeAddressFileReplyUnit
-import addressIndex.modules.ElasticsearchRepository
+import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import com.sksamuel.elastic4s.ElasticClient
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
@@ -48,10 +48,11 @@ class AddressControllerSpec extends PlaySpec with Results{
 
       // When
       val result  = controller.uprnQuery("4", "paf").apply(FakeRequest())
-      val bodyText: JsValue = contentAsJson(result)
+      val actual: JsValue = contentAsJson(result)
 
       // Then
-      bodyText mustBe expected
+      status(result) mustBe OK
+      actual mustBe expected
     }
 
   }
