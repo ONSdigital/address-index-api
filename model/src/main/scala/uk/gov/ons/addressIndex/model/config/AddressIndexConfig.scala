@@ -12,7 +12,7 @@ case class ElasticSearchConfig(
 object ElasticSearchConfig {
   val default : ElasticSearchConfig = ElasticSearchConfig(
     uri = "elasticsearch://localhost:9200",
-    cluster = "ONS-Valtech-test",
+    cluster = "ons-cluster",
     local = false,
     shieldSsl = true,
     shieldUser = "default:default",
