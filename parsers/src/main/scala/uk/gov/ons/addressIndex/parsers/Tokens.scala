@@ -10,7 +10,6 @@ object Tokens {
 
   def apply(input : Input) : Tokens = input.replaceAll(","," ").split(" ").filterNot(_.isEmpty)
 
-
   val all : Seq[Token] = Seq(
     "OrganisationName",
     "DepartmentName",

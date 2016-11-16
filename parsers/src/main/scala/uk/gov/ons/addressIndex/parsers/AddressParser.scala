@@ -139,7 +139,6 @@ object AddressParser extends CrfParser {
       def hyphenationsAnalyser(): FeatureAnalyser[Int] = FeatureAnalyser[Int](_ count(_ == '-'))
 
       val digits : FeatureName = "digits"
-
       /**
         * @return a DigitLiteral String, which indicates if the string has all digits, contains digits or no digits
         */

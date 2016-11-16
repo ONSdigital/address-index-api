@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.Input
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{Input, TokenResult}
 import uk.gov.ons.addressIndex.parsers.Tokens.{Token, TokenIndicator}
 
 class TokensTest extends FlatSpec with Matchers {
@@ -194,5 +194,33 @@ class TokensTest extends FlatSpec with Matchers {
     val expected : Seq[TokenIndicator] = Seq.empty
     val actual : Seq[TokenIndicator] = Tokens.postTown
     expected should contain theSameElementsAs actual
+  }
+
+  it should "rename5" in {
+    val expected = List("one", "two", "three")
+    val input = expected.mkString(" ")
+    val actual = Tokens(input)
+    actual should contain theSameElementsAs expected
+  }
+
+  it should "rename4" in {
+    val expected = List("one", "two", "three")
+    val input = expected.mkString(",")
+    val actual = Tokens(input)
+    actual should contain theSameElementsAs expected
+  }
+
+  it should "rename2" in {
+    val input = "someInputWithSomeCrazyCase.;'[#][{}#~|\\£$%^&*()"
+    val actual = Tokens(input)
+    val expected = List(input)
+    actual should contain theSameElementsAs expected
+  }
+
+  it should "rename" in {
+    val input = "hello"
+    val actual = Tokens(input)
+    val expected = List(input)
+    actual shouldBe expected
   }
 }

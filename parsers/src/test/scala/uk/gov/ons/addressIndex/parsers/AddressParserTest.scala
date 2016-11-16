@@ -320,29 +320,5 @@ class AddressParserTest extends FlatSpec with Matchers {
     expected shouldBe actual
   }
 
-  it should "produce output in the correct order" in {
-    val one = "one"
-    val two = "two"
-    val three = "three"
-    val input = s"$one $two $three"
-    val actual = AddressParser.parse(input, AddressParser.FeatureAnalysers.Predef.all).map(_.input)
-    val expected = List(one, two, three)
-    actual should contain theSameElementsAs expected
-  }
 
-  it should "produce output which matches the input, except if there's `'` chars." in {
-    val input = "someInputWithSomeCrazyCase.;'[#][{}#~|\\£$%^&*()"
-    val actual = AddressParser.parse(input, AddressParser.FeatureAnalysers.Predef.all).map(_.input)
-    val expected = List(input)
-    actual should contain theSameElementsAs expected
-  }
-
-  it should "tokenis"
-
-  it should "produce the correct features output for the given input string `hello hello`" in {
-    val input = "hello"
-    val actual = AddressParser.parse(input, AddressParser.FeatureAnalysers.Predef.all)
-    val expected = List(TokenResult("OrganisationName", "hello hello"))
-    actual shouldBe expected
-  }
 }
