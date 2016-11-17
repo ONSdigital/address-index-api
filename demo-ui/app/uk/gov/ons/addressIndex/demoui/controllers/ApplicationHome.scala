@@ -11,6 +11,6 @@ class ApplicationHome @Inject()(implicit ec : ExecutionContext) extends Controll
 
   def indexPage() : Action[AnyContent] = Action { implicit req =>
     Logger.info("Rendering Index page")
-    Ok
+    Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
   }
 }
