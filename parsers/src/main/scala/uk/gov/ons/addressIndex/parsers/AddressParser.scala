@@ -31,4 +31,4 @@ case class Features(override val all : Feature[_]*) extends CrfFeatures
   *
   * @tparam T the return type of this analyser; used for the conversion to an Item
   */
-case class Feature[T](override val name : String)(override val analyser : FeatureAnalyser[T]) extends CrfFeature[T]
+case class Feature[T](override val name : String)(override val analyser : CrfFeatureAnalyser[T]) extends CrfFeature[T]

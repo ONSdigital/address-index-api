@@ -18,8 +18,8 @@ object CrfScala {
   type FeatureSequence = third_party.org.chokkan.crfsuite.ItemSequence
   type Tagger = CrfTagger
 
-  type FeatureAnalyser[T] = (Input => T)
-  object FeatureAnalyser {
+  type CrfFeatureAnalyser[T] = (Input => T)
+  object CrfFeatureAnalyser {
     /**
       * Helper apply method for better syntax.
       * Constructs a function.
@@ -36,7 +36,7 @@ object CrfScala {
       *    }
       *
       */
-    def apply[T](analyser : FeatureAnalyser[T]) : FeatureAnalyser[T] = analyser
+    def apply[T](analyser : CrfFeatureAnalyser[T]) : CrfFeatureAnalyser[T] = analyser
   }
 
   //TODO scaladoc
@@ -99,7 +99,7 @@ object CrfScala {
     /**
       * @return a function which returns an instance of T
       */
-    def analyser() : FeatureAnalyser[T]
+    def analyser() : CrfFeatureAnalyser[T]
 
     /**
       * @return name
