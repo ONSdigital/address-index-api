@@ -9,7 +9,14 @@ package object parsers {
 
       def containsDigitsBase() : Boolean = digitCount > 0
 
-      def allDigits[T](fn : (Boolean => T)) : T = fn(digitCount == str.length)
+      def allDigits[T](fn : (Boolean => T)) : T = {
+        val isAllDigits = if(str.length == 0) {
+          false
+        } else {
+          digitCount == str.length
+        }
+        fn(isAllDigits)
+      }
 
       def containsDigits[T](fn : (Boolean => T)) : T = fn(containsDigitsBase)
 

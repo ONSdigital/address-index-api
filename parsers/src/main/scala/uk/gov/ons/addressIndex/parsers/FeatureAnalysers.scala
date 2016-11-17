@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.parsers
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfFeatureAnalyser, _}
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import Tokens._
+import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.ADT.Root
 
 /**
   * FeatureAnalyser implementations for the AddressParser
@@ -15,7 +16,7 @@ object FeatureAnalysers {
   def allFeatures() : Features = {
     Features(
       Feature[String](digits)(digitsAnalyser()),
-      Feature[Boolean](word)(wordAnalyser()),
+      Feature[Root[_]](word)(wordAnalyser()),
       Feature[String](length)(lengthAnalyser()),
       Feature[Boolean](endsInPunctuation)(endsInPunctuationAnalyser()),
       Feature[Boolean](directional)(directionalAnalyser()),
@@ -32,17 +33,42 @@ object FeatureAnalysers {
     )
   }
 
+  object ADT {
+    trait Root[T] extends CrfType[T] {
+      def value : T
+    }
+    implicit class MyString(override val value : String) extends Root[String]
+    implicit class MyBoolean(override val value : Boolean) extends Root[Boolean]
+  }
+
   val word : FeatureName = "word"
   /**
     * @return true if the string is all digits, false if not
     */
-  def wordAnalyser() : CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](_.allDigits[Boolean](!_))
+  def wordAnalyser() : CrfFeatureAnalyser[Root[_]] = CrfFeatureAnalyser[Root[_]] { str =>
+    str.allDigits[Root[_]] { isAllDigits =>
+      if(isAllDigits) {
+        false
+      } else {
+        str
+      }
+    }
+  }
 
   val length : FeatureName = "length"
   /**
     * @return the length of the string as a string
     */
-  def lengthAnalyser() : CrfFeatureAnalyser[String] = CrfFeatureAnalyser[String](_.length.toString)
+  def lengthAnalyser() : CrfFeatureAnalyser[String] = CrfFeatureAnalyser[String] { str =>
+    val length = str.length
+    str.allDigits[String] { isAllDigits =>
+      if(isAllDigits) {
+        s"d:$length"
+      } else {
+        s"w:$length"
+      }
+    }
+  }
 
   val endsInPunctuation : FeatureName = "endsinpunc"
   /**

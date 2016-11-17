@@ -66,35 +66,35 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
 
   it should "produce the correct `word` feature output for token `Mansion`" in {
     val input = "Mansion"
-    val expected = true
+    val expected = input
     val actual = wordAnalyser apply input
-    expected shouldBe actual
+    expected shouldBe actual.value
   }
 
   it should "produce the correct `word` feature output for token `383`" in {
     val input = "383"
     val expected = false
     val actual = wordAnalyser apply input
-    expected shouldBe actual
+    expected shouldBe actual.value
   }
 
   it should "produce the correct `word` feature output for token `3a83`" in {
     val input = "3a83"
-    val expected = true
+    val expected = input
     val actual = wordAnalyser apply input
-    expected shouldBe actual
+    expected shouldBe actual.value
   }
 
   it should "produce the correct `length` feature output for token `Mansion`" in {
     val input = "Mansion"
-    val expected = "7"
+    val expected = "w:7"
     val actual = lengthAnalyser apply input
     expected shouldBe actual
   }
 
   it should "produce the correct `length` feature output for token ``" in {
     val input = ""
-    val expected = "0"
+    val expected = "w:0"
     val actual = lengthAnalyser apply input
     expected shouldBe actual
   }

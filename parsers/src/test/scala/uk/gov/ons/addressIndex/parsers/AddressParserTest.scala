@@ -41,7 +41,7 @@ class AddressParserTest extends FlatSpec with Matchers {
     expected should contain theSameElementsAs actual
   }
 
-  ignore should "create tokens and return the tokens with their results for `token1`" in {
+  it should "create tokens and return the tokens with their results for `token1`" in {
     val input = "token1"
     val token = "Postcode"
     val expected = List(

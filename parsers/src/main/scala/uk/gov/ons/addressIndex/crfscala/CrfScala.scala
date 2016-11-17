@@ -4,6 +4,7 @@ import com.github.jcrfsuite.CrfTagger
 import third_party.org.chokkan.crfsuite.{Attribute, Item}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
+
 import collection.JavaConverters._
 import scala.util.control.NonFatal
 
@@ -37,6 +38,11 @@ object CrfScala {
       *
       */
     def apply[T](analyser : CrfFeatureAnalyser[T]) : CrfFeatureAnalyser[T] = analyser
+  }
+
+  //todo scaladoc
+  abstract trait CrfType[T] {
+    def value : T
   }
 
   //TODO scaladoc
@@ -125,29 +131,36 @@ object CrfScala {
       */
     def toAttribute(i : Input) : Attribute = {
       val v = analyse(i)
-      v match {
+      createAttribute(v)
+    }
+
+    def createAttribute(someValue : Any) : Attribute = {
+      someValue match {
         case _ : String =>
-          new Attribute(s"$name=$v")
+          new Attribute(s"$name=$someValue")
 
         case _ : Double =>
-          new Attribute(name, v.asInstanceOf[Double])
+          new Attribute(name, someValue.asInstanceOf[Double])
 
         case _ : Int =>
-          new Attribute(name, Int int2double v.asInstanceOf[Int])
+          new Attribute(name, Int int2double someValue.asInstanceOf[Int])
 
         case _ : Boolean =>
-          if(v.asInstanceOf[Boolean]) {
+          if(someValue.asInstanceOf[Boolean]) {
             new Attribute(name, 1d)
           } else {
             new Attribute(name, 0d)
           }
+
+        case t : CrfType[_] =>
+          createAttribute(t.value)
 
         case NonFatal(e) =>
           throw e
 
         case _ =>
           throw new UnsupportedOperationException(
-            s"Unsupported input to crf Attribute: ${analyse(i).getClass.toString} or Feature with name: $name")
+            s"Unsupported input to crf Attribute: ${someValue.getClass.toString} or Feature with name: $name")
       }
     }
   }
