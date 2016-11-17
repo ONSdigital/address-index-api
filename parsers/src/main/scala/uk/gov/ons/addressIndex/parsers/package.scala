@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex
 
 import com.google.common.base.CharMatcher
-
+//TODO scaladoc
 package object parsers {
   object Implicits {
     implicit class StringUtils(str : String) {

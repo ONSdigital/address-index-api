@@ -107,11 +107,6 @@ object CrfScala {
     def name() : String
 
     /**
-      * The return type of this features analyser
-      */
-    type value = T
-
-    /**
       * @param i input
       * @return apply the analyser to i
       */
