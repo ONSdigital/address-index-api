@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
-import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.Predef._
+import uk.gov.ons.addressIndex.parsers.FeatureAnalysers._
 
 class FeatureAnalysersTest extends FlatSpec with Matchers {
 
@@ -46,7 +46,7 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
     val actual : Seq[FeatureName] = Seq[FeatureName](
       digits,
       word,
-      FeatureAnalysers.Predef.length, //clash with `org.scalatest.words.MatcherWords.length`
+      FeatureAnalysers.length, //clash with `org.scalatest.words.MatcherWords.length`
       endsInPunctuation,
       directional,
       outcode,
@@ -71,16 +71,16 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
     expected shouldBe actual
   }
 
-  ignore should "produce the correct `word` feature output for token `383`" in {
+  it should "produce the correct `word` feature output for token `383`" in {
     val input = "383"
-    val expected = true
+    val expected = false
     val actual = wordAnalyser apply input
     expected shouldBe actual
   }
 
-  ignore should "produce the correct `word` feature output for token `3a83`" in {
+  it should "produce the correct `word` feature output for token `3a83`" in {
     val input = "3a83"
-    val expected = false
+    val expected = true
     val actual = wordAnalyser apply input
     expected shouldBe actual
   }

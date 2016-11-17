@@ -15,7 +15,7 @@ class AddressParserTest extends FlatSpec with Matchers {
       TokenResult(token, "token1"),
       TokenResult(token, "token2")
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.Predef.all)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
   }
 
@@ -26,7 +26,7 @@ class AddressParserTest extends FlatSpec with Matchers {
       TokenResult(token, "token1"),
       TokenResult(token, "token2")
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.Predef.all)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
   }
 
@@ -37,7 +37,7 @@ class AddressParserTest extends FlatSpec with Matchers {
       TokenResult(token, "token1"),
       TokenResult(token, "token2")
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.Predef.all)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
   }
 
@@ -47,7 +47,7 @@ class AddressParserTest extends FlatSpec with Matchers {
     val expected = List(
       TokenResult(token, "token1")
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.Predef.all)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
   }
 }
