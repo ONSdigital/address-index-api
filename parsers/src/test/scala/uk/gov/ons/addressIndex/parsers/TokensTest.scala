@@ -203,7 +203,7 @@ class TokensTest extends FlatSpec with Matchers {
     actual should contain theSameElementsAs expected
   }
 
-  it should "convert a string to tokens separsating on `,`" in {
+  it should "convert a string to tokens separating on `,`" in {
     val expected = List("one", "two", "three")
     val input = expected.mkString(",")
     val actual = Tokens(input)
@@ -211,7 +211,7 @@ class TokensTest extends FlatSpec with Matchers {
   }
 
   it should "convert a string to tokens allowing special characters" in {
-    val input = "someInputWithSomeCrazyCase.;'[#][{}#~|\\£$%^&*()"
+    val input = "someInputWithSomeCrazyCase.;'[#][{}#~|\\£$%^&*()`"
     val actual = Tokens(input)
     val expected = List(input)
     actual should contain theSameElementsAs expected
