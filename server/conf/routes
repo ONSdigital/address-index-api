@@ -7,4 +7,4 @@ GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressCo
 GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, format)
 GET     /es                 uk.gov.ons.addressIndex.server.controllers.AddressController.elasticTest
 #swagger play
-#GET     /api                controllers.ApiHelpController.getResources
+#GET    /api                controllers.ApiHelpController.getResources
