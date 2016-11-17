@@ -2,13 +2,15 @@ package uk.gov.ons.addressIndex.parsers
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala.Input
 
+//todo scaladoc this whole thing
 object Tokens {
-
   type TokenIndicator = String
   type Token = String
   type Tokens = Array[Token]
 
-  def apply(input : Input) : Tokens = input.replaceAll(","," ").split(" ").filterNot(_.isEmpty)
+  def apply(input : Input) : Tokens = input replaceAll(","," ") split " " filterNot(_.isEmpty)
+
+  def normalise(tokens : Tokens) : Tokens = tokens map(_.toUpperCase)
 
   val all : Seq[Token] = Seq(
     "OrganisationName",

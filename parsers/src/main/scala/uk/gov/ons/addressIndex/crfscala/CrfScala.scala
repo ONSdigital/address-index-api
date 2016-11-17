@@ -4,14 +4,13 @@ import com.github.jcrfsuite.CrfTagger
 import third_party.org.chokkan.crfsuite.{Attribute, Item}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
-
 import collection.JavaConverters._
 import scala.util.control.NonFatal
 
 /**
   * scala wrapper of crfsuite
   *
-  * //todo describe this more
+  * todo describe this more
   */
 object CrfScala {
   type Input = String
@@ -46,7 +45,8 @@ object CrfScala {
     def parse(i : Input, fa : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
       val tokens = Tokens(i)
       val fs = new FeatureSequence()
-      for (token <- tokens) {
+      val preprocessedTokens = Tokens normalise tokens
+      for (token <- preprocessedTokens) {
         fs add(fa toItem token)
       }
       val r = tagger tag fs
