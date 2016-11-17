@@ -7,6 +7,11 @@ a {
   text-decoration: inherit; /* no underline */
 }
 
+p.toptext {
+  font-size: 0.8em;
+  margin-left: 20px;
+}
+
 .navbar {
   height: 80px;
   color: #525351;
@@ -30,7 +35,15 @@ a {
 
 .alpha-header {
     text-align: right;
-    margin-top: 25px;
+    margin-top: 0px;
+    font-size: 16px;
+}
+
+.beta-header {
+    float:right;
+    text-align: right;
+    margin-top: 2px;
+    margin-right: 4px;
     font-size: 16px;
 }
 
@@ -50,7 +63,8 @@ a {
 .panel-title {
     font-size: 22px !important;
     margin-bottom: 0px !important;
-    text-align: centre;
+    margin-left: 20px;
+    text-align: left;
 }
 
 .address-panel {
@@ -59,6 +73,13 @@ a {
 
 .panel-default {
     margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-width: 430px;
+    max-width: 430px;
+    border:1px solid #ddd;
+    padding: 10px;
 }
 
 .table-striped {
@@ -95,8 +116,10 @@ a {
 }
 
 .logo {
-    margin-top: 15px;
+    margin-top: 6px;
     text-align: left;
+    padding: 4px;
+    float:left;
 }
 
 .main-container {
@@ -208,7 +231,7 @@ input#address.form-control {
     margin: 20px 0px 20px 29px !important;
     width: 350px !important;
     border:1px solid #ddd;
-    padding-top: 21px;
+    padding: 10px;
 }
 
 .index-nav a:link {
