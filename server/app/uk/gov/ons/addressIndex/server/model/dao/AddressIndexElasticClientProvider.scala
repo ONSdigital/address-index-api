@@ -19,6 +19,7 @@ import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 trait ElasticClientProvider {
   /**
     * Defines a getter for Elastic client
+    *
     * @return
     */
   def client: ElasticClient
@@ -26,10 +27,11 @@ trait ElasticClientProvider {
 
 /**
   * Gets the information from the configuration file and then creates a corresponding client
+  *
   * @param conf injected configuration
   */
 @Singleton
-class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule) extends ElasticClientProvider{
+class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule) extends ElasticClientProvider {
 
   private val esConf = conf.config.elasticSearch
   private val logger = Logger("address-index:ElasticsearchRepositoryModule")
@@ -45,7 +47,10 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
     logger info "Connecting to local ES"
     ElasticClient local esClientSettings
   } else {
-    logger info "Connecting to remote ES"
+    logger info
+      s""" Connecting to remote ES (
+           uri: ${esConf.uri},
+           user: ${esConf.shieldUser.substring(0, esConf.shieldUser.indexOf(':'))})"""
     ElasticClient.transport(
       settings = esClientSettings,
       uri = ElasticsearchClientUri(esConf.uri),
