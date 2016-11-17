@@ -4,7 +4,6 @@ import com.github.jcrfsuite.CrfTagger
 import third_party.org.chokkan.crfsuite.{Attribute, Item}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
-
 import collection.JavaConverters._
 import scala.util.control.NonFatal
 
@@ -14,6 +13,7 @@ import scala.util.control.NonFatal
   * todo describe this more
   */
 object CrfScala {
+  
   type Input = String
   type FeatureName = String
   type FeatureSequence = third_party.org.chokkan.crfsuite.ItemSequence
