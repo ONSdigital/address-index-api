@@ -11,6 +11,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
 import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeIndex}
+import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,17 +42,16 @@ trait ElasticsearchRepository extends ElasticIndexSugar {
     * @param uprn
     * @return
     */
-  def queryUprn(uprn : String) : Future[Seq[PostcodeAddressFileAddress]]
+  def queryUprn(uprn : String) : Future[Option[PostcodeAddressFileAddress]]
 
   /**
     * Query the address index for addresses.
     * Currently the query must be for building number and postcode.
     *
-    * @param buildingNumber
-    * @param postcode
+    * @param tokens address tokens
     * @return
     */
-  def queryAddress(buildingNumber : Int, postcode : String) : Future[Seq[PostcodeAddressFileAddress]]
+  def queryAddress(tokens: AddressTokens) : Future[Seq[PostcodeAddressFileAddress]]
 }
 
 @Singleton
@@ -76,21 +76,21 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
     )(client)
   }
 
-  def queryUprn(uprn: String): Future[Seq[PostcodeAddressFileAddress]] = client.execute{
+  def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute{
     search in pafIndex query { termQuery("uprn", uprn) }
-  }.map(_.as[PostcodeAddressFileAddress])
+  }.map(_.as[PostcodeAddressFileAddress].headOption)
 
-  def queryAddress(buildingNumber : Int, postcode : String) : Future[Seq[PostcodeAddressFileAddress]] = client.execute {
+  def queryAddress(tokens: AddressTokens) : Future[Seq[PostcodeAddressFileAddress]] = client.execute {
     search in pafIndex query {
       bool(
         must(
           matchQuery(
             field = "buildingNumber",
-            value = buildingNumber
+            value = tokens.buildingNumber
           ),
           matchQuery(
             field = "postcode",
-            value = postcode
+            value = tokens.postcode
           )
         )
       )
