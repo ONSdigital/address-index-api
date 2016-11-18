@@ -1,0 +1,45 @@
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm])(implicit message: MessagesApi ,l: Lang)
+@import play.i18n._
+@import helper._
+
+@*
+ * Call the `main` template with two arguments. The first
+ * argument is a `String` with the title of the page, the second
+ * argument is an `Html` object containing the body of the page.
+ *@
+
+@main(title = "ONS-Address - Single Search") {
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading sub-nav-heading">
+        @navigation()
+        </div>
+        <div class="panel panel-default address-panel">
+            <div class="result-content">
+                <div class="alert alert-danger" role="alert"><strong>@message("single.pleasesupply")</strong></div>
+            </div>
+        </div>
+        <div class="panel panel-default address-panel">
+            <h4 class="page-info">Find an address<span class="sub-info"></span></h4>
+            <div class="page-description-row">
+                <div class="col-md-2 text-right"><a href="#"><i data-toggle="modal" data-target="#docModal" class="fa fa-info-circle fa-2x" aria-hidden="true"></i></a></div>
+            </div>
+            <p class="page-info"></p>
+            <div class="panel-body">
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatch.doSingleMatch) {
+                <div class="input-group">
+                    <fieldset class="form-group">
+                        <input class="inputs" type="text" value="" size="10" autocomplete="off" name="address" id="address" placeholder="E.g. 169 Portsmouth Road Southampton SO19 9BG" />
+                    </fieldset>
+                    <fieldset class="form-group text-right">
+                        <button class="btn btn-success btn-search" type="submit" id="submit">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </fieldset>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}
