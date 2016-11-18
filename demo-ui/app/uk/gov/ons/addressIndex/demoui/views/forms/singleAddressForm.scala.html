@@ -1,7 +1,7 @@
-  @(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm])(implicit messages: Messages)
-  @import helper._
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm])(implicit messages: Messages)
+@import helper._
 
-  <fieldset class="form-group">
+<fieldset class="form-group">
     @inputText(
     singleSearchForm("address"),
     args = '_id -> "numberOrName",
@@ -9,9 +9,52 @@
     '_label -> "Address Text",
     'placeholder -> "E.g. 169 Portsmouth Road Southampton SO19 9BG"
     )
-  </fieldset>
-  <fieldset class="form-group text-right">
-    <button class="btn btn-success btn-search" type="submit" id="submit">
-      <i class="fa fa-search"></i> Search
+</fieldset>
+<!--
+    <fieldset class="form-group">
+        @inputText(
+        singleSearchForm("street"),
+        args =
+        '_id -> "Street",
+        'class -> "form-control",
+        '_label -> "Street",
+        'placeholder -> "Street"
+        )
+    </fieldset>
+
+    <div class="row">
+        <div class="col-md-6">
+            <fieldset class="form-group">
+                @inputText(
+                singleSearchForm("town"),
+                args =
+                '_id -> "Town",
+                'placeholder -> "Town",
+                'class -> "form-control",
+                '_label -> "Town"
+                )
+            </fieldset>
+        </div>
+        <div class="col-md-6">
+            <fieldset class="form-group">
+                @inputText(
+                singleSearchForm("postcode"),
+                args =
+                '_id -> "Postcode",
+                'placeholder -> "Postcode",
+                'class -> "form-control",
+                '_label -> "Postcode"
+                )
+            </fieldset>
+        </div>
+
+    </div>
+      -->
+<fieldset class="form-group text-right">
+    <button id="clearElasticSearchForm" class="btn btn-info btn-clean" type="button">
+        Clear
     </button>
-  </fieldset>
+    <button class="btn btn-success btn-search" type="submit" id="submit">
+        <i class="fa fa-search"></i> Search
+    </button>
+</fieldset>

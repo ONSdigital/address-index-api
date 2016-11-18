@@ -1,3 +1,6 @@
+@()(implicit message: MessagesApi ,l: Lang)
+@import play.i18n._
+@import helper._
 @*
  * Call the `main` template with two arguments. The first
  * argument is a `String` with the title of the page, the second
@@ -7,11 +10,10 @@
 @main(title = "ONS-Address") {
     <div class="container">
         <div class="row">
-            <div class="col-md-10"><h2 class="panel-title">Address Matching Service <span class="beta">Beta</span></h2></div>
+            <div class="col-md-10"><h2 class="panel-title">@message("home.servicetext") <span class="beta">Beta</span></h2></div>
             <div class="col-md-2 text-right"><a href="#"><i data-toggle="modal" data-target="#myModal" class="fa fa-question-circle fa-2x" aria-hidden="true"></i></a></div>
         </div>
-        <p class="toptext">This service allows you to search for an individual address, match a batch of addresses from a selected file
-            or to extract address lists from the database.</p>
+        <p class="toptext">@message("home.headertext")</p>
         <div class="panel panel-default">
             <div class="row">
                 <div class="col-sm-6 col-md-4 index-nav">
@@ -25,16 +27,7 @@
                             <p>This feature allows you to match for a single address</p>
                         </a>
                     </article>
-               <!--     <div class="caption">
-                        <h4><a href="addresses">Find an address </a></h4>
-                        <p class="index-p text-left">
-                            <a href="addresses">
-                                This feature allows you to match for a single address.
-                            </a>
-                        </p>
-                    </div>-->
                 </div>
-
             </div>
         </div>
     </div>
