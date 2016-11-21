@@ -247,17 +247,17 @@ case class AddressResponseStatus(
 )
 
 object AddressResponseStatus {
-  val Ok = AddressResponseStatus(
+  val ok = AddressResponseStatus(
     code = Status.OK,
     message = "Ok"
   )
 
-  val NotFound = AddressResponseStatus(
+  val notFound = AddressResponseStatus(
     code = Status.NOT_FOUND,
     message = "Not Found"
   )
 
-  val BadRequest = AddressResponseStatus(
+  val badRequest = AddressResponseStatus(
     code = Status.BAD_REQUEST,
     message = "Bad request"
   )
@@ -275,17 +275,17 @@ case class AddressResponseError(
 )
 
 object AddressResponseError {
-  val EmptyQuery = AddressResponseError(
+  val emptyQuery = AddressResponseError(
     code = 1,
     message = "Empty query"
   )
 
-  val AddressFormatNotSupported = AddressResponseError(
+  val addressFormatNotSupported = AddressResponseError(
     code = 2,
     message = "Address format is not supported"
   )
 
-  val NotFound = AddressResponseError(
+  val notFound = AddressResponseError(
     code = 3,
     message = "UPRN request didn't yield a result"
   )

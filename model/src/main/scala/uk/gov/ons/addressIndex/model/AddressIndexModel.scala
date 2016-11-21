@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.model
 
 import java.util.UUID
+import scala.util.{Failure, Success, Try}
 
 case class AddressIndexUPRNRequest(
   format : AddressScheme,
@@ -28,7 +29,7 @@ object AddressScheme {
     * @param str - The string to be converted.
     */
   implicit class StringToAddressSchemeAugmenter(str: String) {
-    def toAddressScheme() : AddressScheme = str.toLowerCase match {
+    def stringToScheme() : AddressScheme = str.toLowerCase match {
       case "paf" | "postcodeaddressfile" => PostcodeAddressFile(str)
 
       case "bs" | "bs7666" | "britishstandard7666" => BritishStandard7666(str)

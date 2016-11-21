@@ -103,7 +103,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1
         ),
-        AddressResponseStatus.Ok,
+        AddressResponseStatus.ok,
         errors = Seq.empty
       ))
 
@@ -128,8 +128,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0
         ),
-        AddressResponseStatus.BadRequest,
-        errors = Seq(AddressResponseError.AddressFormatNotSupported)
+        AddressResponseStatus.badRequest,
+        errors = Seq(AddressResponseError.addressFormatNotSupported)
       ))
 
       // When
@@ -147,7 +147,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         address = Some(AddressResponseAddress.fromPafAddress(validPafAddress)),
-        AddressResponseStatus.Ok,
+        AddressResponseStatus.ok,
         errors = Seq.empty
       ))
 
@@ -166,8 +166,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         address = None,
-        AddressResponseStatus.NotFound,
-        errors = Seq(AddressResponseError.NotFound)
+        AddressResponseStatus.notFound,
+        errors = Seq(AddressResponseError.notFound)
       ))
 
       // When
@@ -185,8 +185,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         address = None,
-        AddressResponseStatus.BadRequest,
-        errors = Seq(AddressResponseError.AddressFormatNotSupported)
+        AddressResponseStatus.badRequest,
+        errors = Seq(AddressResponseError.addressFormatNotSupported)
       ))
 
       // When

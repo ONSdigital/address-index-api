@@ -61,7 +61,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
     logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
 
-    format.toAddressScheme() match {
+    format.stringToScheme() match {
       case PostcodeAddressFile(str) => searchPafAddresses(tokens)
       case BritishStandard7666(str) => searchUnsupportedFormatReply
       case UnsupportedScheme(str) => searchUnsupportedFormatReply
@@ -79,7 +79,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           offset = 0,
           total = addresses.size
         ),
-        AddressResponseStatus.Ok,
+        AddressResponseStatus.ok,
         errors = Seq()
       )))
     }
@@ -94,8 +94,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
         offset = 0,
         total = 0
       ),
-      AddressResponseStatus.BadRequest,
-      errors = Seq(AddressResponseError.AddressFormatNotSupported)
+      AddressResponseStatus.badRequest,
+      errors = Seq(AddressResponseError.addressFormatNotSupported)
     )
   )))
 
@@ -110,7 +110,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     */
   def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#uprnQuery request called with uprn: $uprn , format: $format"
-    format.toAddressScheme() match {
+    format.stringToScheme() match {
       case PostcodeAddressFile(str) => searchPafAddressByUprn(uprn)
       case BritishStandard7666(str) => searchByUprnUnsupportedFormatReply
       case UnsupportedScheme(str) => searchByUprnUnsupportedFormatReply
@@ -123,15 +123,15 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
       case Some(address) => Ok(Json.toJson(
         AddressByUprnResponseContainer(
           address = Some(AddressResponseAddress.fromPafAddress(address)),
-          AddressResponseStatus.Ok,
+          AddressResponseStatus.ok,
           errors = Seq.empty
         )
       ))
       case None => NotFound(Json.toJson(
         AddressByUprnResponseContainer(
           address = None,
-          AddressResponseStatus.NotFound,
-          errors = Seq(AddressResponseError.NotFound)
+          AddressResponseStatus.notFound,
+          errors = Seq(AddressResponseError.notFound)
         )
       ))
     }
@@ -140,8 +140,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
   private val searchByUprnUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressByUprnResponseContainer(
       address = None,
-      AddressResponseStatus.BadRequest,
-      errors = Seq(AddressResponseError.AddressFormatNotSupported)
+      AddressResponseStatus.badRequest,
+      errors = Seq(AddressResponseError.addressFormatNotSupported)
     )
   )))
 }
