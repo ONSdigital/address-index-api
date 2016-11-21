@@ -50,22 +50,26 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
 
-    val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Za-z\\d]\\d ?\\d[A-Za-z]{2})|" +
-      "(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|" +
-      "(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})").r
-    val tokens = AddressTokens(
-      uprn = "",
-      buildingNumber = input.substring(0, 2),
-      postcode = regex.findFirstIn(input).getOrElse("Not recognised")
-    )
+    if (input == "") searchEmptyQueryReply
+    else {
+      val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Za-z\\d]\\d ?\\d[A-Za-z]{2})|" +
+        "(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|" +
+        "(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})").r
+      val tokens = AddressTokens(
+        uprn = "",
+        buildingNumber = input.substring(0, 2),
+        postcode = regex.findFirstIn(input).getOrElse("Not recognised")
+      )
 
-    logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
+      logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
 
-    format.stringToScheme() match {
-      case PostcodeAddressFile(str) => searchPafAddresses(tokens)
-      case BritishStandard7666(str) => searchUnsupportedFormatReply
-      case UnsupportedScheme(str) => searchUnsupportedFormatReply
+      format.stringToScheme() match {
+        case PostcodeAddressFile(str) => searchPafAddresses(tokens)
+        case BritishStandard7666(str) => searchUnsupportedFormatReply
+        case UnsupportedScheme(str) => searchUnsupportedFormatReply
+      }
     }
+
   }
 
 
@@ -85,20 +89,29 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     }
   }
 
+  private val errorAddressResponse = AddressResponse(
+    AddressTokens.empty,
+    addresses = Seq.empty,
+    limit = 10,
+    offset = 0,
+    total = 0
+  )
+
   private val searchUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
-      AddressResponse(
-        AddressTokens.empty,
-        addresses = Seq.empty,
-        limit = 10,
-        offset = 0,
-        total = 0
-      ),
+      errorAddressResponse,
       AddressResponseStatus.badRequest,
       errors = Seq(AddressResponseError.addressFormatNotSupported)
     )
   )))
 
+  private val searchEmptyQueryReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
+    AddressBySearchResponseContainer(
+      errorAddressResponse,
+      AddressResponseStatus.badRequest,
+      errors = Seq(AddressResponseError.emptyQuery)
+    )
+  )))
 
 
   /**
