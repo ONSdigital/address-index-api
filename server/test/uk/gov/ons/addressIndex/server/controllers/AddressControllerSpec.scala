@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import uk.gov.ons.addressIndex.server.model.response._
 import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import com.sksamuel.elastic4s.ElasticClient
+import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
@@ -10,7 +11,7 @@ import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
-import uk.gov.ons.addressIndex.server.model.response.implicits._
+import uk.gov.ons.addressIndex.server.model.response.Implicits._
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 
@@ -34,7 +35,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     doubleDependentLocality = "13",
     dependentLocality = "14",
     postTown = "15",
-    postcode = "B16 18TH",
+    postcode = "B16 8TH",
     postcodeType = "17",
     deliveryPointSuffix = "18",
     welshDependentThoroughfare = "19",
@@ -51,25 +52,42 @@ class AddressControllerSpec extends PlaySpec with Results {
   )
 
   // injected value, change implementations accordingly when needed
+  // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
       Future.successful(Some(validPafAddress))
 
-    override def createAll(): Future[Seq[_]] = ???
+    override def createAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def deleteAll(): Future[Seq[_]] = ???
+    override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
     override def queryAddress(tokens: AddressTokens): Future[Seq[PostcodeAddressFileAddress]] =
       Future.successful(Seq(validPafAddress))
 
 
-    override def client(): ElasticClient = ???
+    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+  }
+
+  // mock that won't return any addresses
+  val emptyElasticRepositoryMock = new ElasticsearchRepository {
+
+    override def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
+
+    override def createAll(): Future[Seq[_]] = Future.successful(Seq.empty)
+
+    override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
+
+    override def queryAddress(tokens: AddressTokens): Future[Seq[PostcodeAddressFileAddress]] =
+      Future.successful(Seq.empty)
+
+
+    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
 
   "Address controller" should {
 
-    "provide a reply on a found address (by address query)" in {
+    "reply on a found address (by address query)" in {
       // Given
       val controller = new AddressController(elasticRepositoryMock)
 
@@ -85,11 +103,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1
         ),
-        AddressResponseStatus(
-          code = 200,
-          message = "Ok"
-        ),
-        errors = Seq()
+        AddressResponseStatus.Ok,
+        errors = Seq.empty
       ))
 
       // When
@@ -101,17 +116,39 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "provide a reply on a found address (by uprn)" in {
+    "reply on a 400 error if address format is not supported (by address query)" in {
+      // Given
+      val controller = new AddressController(elasticRepositoryMock)
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressResponse(
+          tokens = AddressTokens.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0
+        ),
+        AddressResponseStatus.BadRequest,
+        errors = Seq(AddressResponseError.AddressFormatNotSupported)
+      ))
+
+      // When
+      val result = controller.addressQuery("10 B16 8TH", "format is not supported").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a found address (by uprn)" in {
       // Given
       val controller = new AddressController(elasticRepositoryMock)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
-        address = AddressResponseAddress.fromPafAddress(validPafAddress),
-        AddressResponseStatus(
-          code = 200,
-          message = "Ok"
-        ),
-        errors = Seq()
+        address = Some(AddressResponseAddress.fromPafAddress(validPafAddress)),
+        AddressResponseStatus.Ok,
+        errors = Seq.empty
       ))
 
       // When
@@ -120,6 +157,44 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // Then
       status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply a 404 error if address was not found (by uprn)" in {
+      // Given
+      val controller = new AddressController(emptyElasticRepositoryMock)
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        address = None,
+        AddressResponseStatus.NotFound,
+        errors = Seq(AddressResponseError.NotFound)
+      ))
+
+      // When
+      val result = controller.uprnQuery("doesn't exist", "paf").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe NOT_FOUND
+      actual mustBe expected
+    }
+
+    "reply a 400 error if address format is not supported (by uprn)" in {
+      // Given
+      val controller = new AddressController(emptyElasticRepositoryMock)
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        address = None,
+        AddressResponseStatus.BadRequest,
+        errors = Seq(AddressResponseError.AddressFormatNotSupported)
+      ))
+
+      // When
+      val result = controller.uprnQuery("4", "format is not supported").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
 

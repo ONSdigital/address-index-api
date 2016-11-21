@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.server.model.response
 
+import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 
@@ -8,7 +9,7 @@ import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
   * When needed, do following:
   * `import uk.gov.ons.addressIndex.server.model.response.implicits._`
   */
-object implicits {
+object Implicits {
   implicit val addressResponseErrorFormat = Json.format[AddressResponseError]
   implicit val addressResponseStatusFormat = Json.format[AddressResponseStatus]
   implicit val addressResponseGeoFormat = Json.format[AddressResponseGeo]
@@ -30,7 +31,7 @@ object implicits {
   * @param errors  encountred errors (or an empty list if there is no errors)
   */
 case class AddressByUprnResponseContainer(
-  address: AddressResponseAddress,
+  address: Option[AddressResponseAddress],
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError]
 )
@@ -77,6 +78,17 @@ case class AddressTokens(
   buildingNumber: String,
   postcode: String
 )
+
+object AddressTokens {
+  /**
+    * Empty tokens (when needed before address tokenization)
+    */
+  val empty = AddressTokens(
+    uprn = "",
+    buildingNumber = "",
+    postcode = ""
+  )
+}
 
 /**
   * Contains address information retrieved in ES (PAF or NAG)
@@ -234,6 +246,23 @@ case class AddressResponseStatus(
   message: String
 )
 
+object AddressResponseStatus {
+  val Ok = AddressResponseStatus(
+    code = Status.OK,
+    message = "Ok"
+  )
+
+  val NotFound = AddressResponseStatus(
+    code = Status.NOT_FOUND,
+    message = "Not Found"
+  )
+
+  val BadRequest = AddressResponseStatus(
+    code = Status.BAD_REQUEST,
+    message = "Bad request"
+  )
+}
+
 /**
   * Contains one response error
   *
@@ -244,6 +273,23 @@ case class AddressResponseError(
   code: Int,
   message: String
 )
+
+object AddressResponseError {
+  val EmptyQuery = AddressResponseError(
+    code = 1,
+    message = "Empty query"
+  )
+
+  val AddressFormatNotSupported = AddressResponseError(
+    code = 2,
+    message = "Address format is not supported"
+  )
+
+  val NotFound = AddressResponseError(
+    code = 3,
+    message = "UPRN request didn't yield a result"
+  )
+}
 
 
 
