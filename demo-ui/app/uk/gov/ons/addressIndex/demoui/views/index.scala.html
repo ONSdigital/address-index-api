@@ -1,4 +1,4 @@
-@()(implicit message: MessagesApi ,l: Lang)
+@()(implicit messages: Messages)
 @import play.i18n._
 @import helper._
 @*
@@ -10,10 +10,10 @@
 @main(title = "ONS-Address") {
     <div class="container">
         <div class="row">
-            <div class="col-md-10"><h2 class="panel-title">@message("home.servicetext") <span class="beta">Beta</span></h2></div>
+            <div class="col-md-10"><h2 class="panel-title">@messages("home.servicetext") <span class="beta">Beta</span></h2></div>
             <div class="col-md-2 text-right"><a href="#"><i data-toggle="modal" data-target="#myModal" class="fa fa-question-circle fa-2x" aria-hidden="true"></i></a></div>
         </div>
-        <p class="toptext">@message("home.headertext")</p>
+        <p class="toptext">@messages("home.headertext")</p>
         <div class="panel panel-default">
             <div class="row">
                 <div class="col-sm-6 col-md-4 index-nav">

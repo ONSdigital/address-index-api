@@ -1,0 +1,150 @@
+
+p.toptext {
+  font-size: 0.8em;
+  margin-left: 20px;
+}
+
+.navbar {
+  height: 80px;
+  color: #525351;
+  margin-bottom:5px;
+}
+
+.navbar-default {
+    background-color: #fff;
+    margin-bottom:20px;
+}
+
+.index-heading {
+    margin: 25px;
+}
+
+.sub-nav {
+    height: 30px !important;
+    border: 0px;
+    background-color: transparent !important;
+}
+
+.beta-header {
+    float:right;
+    text-align: right;
+    margin-top: 2px;
+    margin-right: 4px;
+    font-size: 16px;
+}
+
+.panel-heading {
+    margin-bottom: 0px;
+}
+
+.sub-nav-heading {
+    padding: 0px !important;
+    height: 50px !important;
+}
+
+.panel-title {
+    font-size: 22px !important;
+    margin-bottom: 0px !important;
+    margin-left: 20px;
+    text-align: left;
+}
+
+.address-panel {
+    margin: 10px;
+}
+
+.panel-default {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-width: 430px;
+    max-width: 430px;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.beta-banner {
+    background-color: #FF9900;
+    color: #fff;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 4px;
+}
+
+.logo {
+    margin-top: 6px;
+    text-align: left;
+    padding: 4px;
+    float:left;
+}
+
+
+.btn-search {
+    height: 3em;
+    background-color: #BCC547;
+    border-color: #BCC547;
+}
+
+.btn-search:link,
+.btn-search:active,
+.btn-search:hover,
+.btn-search:visited {
+    height: 3em;
+    background-color: #353633 !important;
+    border-color: #353633 !important;
+}
+
+.btn-search:focus {
+    height: 3em;
+    background-color: #353633;
+    border-color: #353633;
+}
+
+.btn-clean {
+    height: 3em;
+}
+
+input#address.form-control {
+    width: 460px;
+}
+
+.btn-group.open .dropdown-toggle {
+    font-size: 20px !important;
+}
+
+
+.beta {
+    color: #FF9900;
+}
+
+.panel-body {
+    margin-top: 50px !important;
+}
+
+.thumbnail {
+    background-color: #F8F8F8;
+    border: none;
+}
+
+.index-nav {
+    margin: 20px 0px 20px 29px !important;
+    width: 350px !important;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.index-nav a:link {
+    text-decoration: none;
+}
+
+.index-nav-icon {
+    padding-top:40px;
+    padding-bottom: 40px;
+    color: #BCC547 !important;
+}
+
+.index-p {
+    margin-top: 10px;
+}

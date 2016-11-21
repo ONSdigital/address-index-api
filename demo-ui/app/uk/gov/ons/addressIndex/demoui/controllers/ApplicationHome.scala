@@ -11,10 +11,12 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi, Lang}
 @Singleton
 class ApplicationHome @Inject()(implicit ec : ExecutionContext, val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
-  def indexPage() : Action[AnyContent] = Action { implicit req =>
-    Logger.info("Rendering Index page")
-    req.getQueryString("lang") match{
-      case Some(lang) =>  messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.index()(messagesApi,Lang(lang))),Lang(lang))
-      case None => messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.index()(messagesApi,Lang("en"))),Lang("en"))
+    def indexPage() : Action[AnyContent] = Action { implicit req =>
+      Logger.info("Rendering Index page")
+      req.getQueryString("lang") match{
+        case Some(lang) =>  messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.index()),Lang(lang))
+        case None => messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.index()),Lang("en"))
+    }
   }
-}}
+
+}

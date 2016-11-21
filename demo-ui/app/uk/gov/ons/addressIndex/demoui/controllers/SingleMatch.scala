@@ -21,9 +21,9 @@ class SingleMatch @Inject()(implicit ec : ExecutionContext, val messagesApi: Mes
     Logger.info("Rendering Single Match Page")
     req.getQueryString("lang") match{
       case Some(lang) =>  messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-        SingleMatch.singleSearchForm)(messagesApi,Lang(lang))),Lang(lang))
+        SingleMatch.singleSearchForm)),Lang(lang))
       case None => messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-        SingleMatch.singleSearchForm)(messagesApi,Lang("en"))),Lang("en"))
+        SingleMatch.singleSearchForm)),Lang("en"))
     }
   }
 
@@ -41,37 +41,4 @@ object SingleMatch {
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }
-
-
-  /**
-  def doSingleMatch() = Action.async { implicit request =>
-  val address  = request.body.asFormUrlEncoded.get("address").mkString
-   val inputAddress = address
-    if (inputAddress.trim.isEmpty) {
-      logger.debug("Empty input address")
-      Future.successful(Ok(
-        views.html.singleMatch(
-          None,
-          SingleMatch.singleSearchForm,
-          Some("Please provide an address for matching!"),
-          onsFrontendConfiguration
-        )
-      )
-      )
-    } else {
-      logger.debug("Calling Single match api")
-      val result = addressApiClient.singleMatch(inputAddress)
-      result.map(a => Ok(
-        views.html.singleMatch(
-          Some(a),
-          SingleMatch.singleSearchForm,
-          None,
-          onsFrontendConfiguration
-        )
-      )
-      )
-    }
-  }
-}
-**/
 
