@@ -112,8 +112,8 @@ case class AddressResponseAddress(
   // geo from NAG, null if address only in PAF (i.e. not found in NAG)
   geo: Option[AddressResponseGeo],
 
-  underlyingScore: Float, // from Elastic
-  underlyingMaxScore: Float // from Elastic (repeated for each address)
+  underlyingScore: Double, // from Elastic
+  underlyingMaxScore: Double // from Elastic (repeated for each address)
 
 )
 
@@ -229,8 +229,8 @@ case class AddressResponseNag(
   * @param northing  northing
   */
 case class AddressResponseGeo(
-  latitude: Float,
-  longitude: Float,
+  latitude: Double,
+  longitude: Double,
   easting: Int,
   northing: Int
 )

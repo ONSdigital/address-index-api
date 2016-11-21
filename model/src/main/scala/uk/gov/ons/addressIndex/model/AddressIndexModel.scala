@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.model
 
 import java.util.UUID
-import scala.util.{Failure, Success, Try}
 
 case class AddressIndexUPRNRequest(
   format : AddressScheme,
