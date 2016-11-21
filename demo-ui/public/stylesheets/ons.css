@@ -1,3 +1,15 @@
+a:link {
+    color: #666666;
+}
+
+a:visited {
+    color: #666666;
+}
+
+a:hover {
+    color: #4c2c92 ;
+}
+
 
 p.toptext {
   font-size: 0.8em;
@@ -5,14 +17,14 @@ p.toptext {
 }
 
 .navbar {
-  height: 80px;
+  height: 64px;
   color: #525351;
-  margin-bottom:5px;
+  margin-bottom:2px;
 }
 
 .navbar-default {
     background-color: #fff;
-    margin-bottom:20px;
+    margin-bottom:2px;
 }
 
 .index-heading {
@@ -54,13 +66,24 @@ p.toptext {
 }
 
 .panel-default {
-    margin-top: 10px;
+    margin-top: 0px;
     margin-bottom: 10px;
     margin-left: 20px;
     margin-right: 20px;
     min-width: 430px;
     max-width: 430px;
     border:1px solid #ddd;
+    padding: 10px;
+}
+
+.panel-single {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-width: 490px;
+    max-width: 490px;
+    border:0px;
     padding: 10px;
 }
 
@@ -82,45 +105,48 @@ p.toptext {
 
 
 .btn-search {
-    height: 3em;
-    background-color: #BCC547;
-    border-color: #BCC547;
-}
+    height: 2em;
+    background-color: #00914E;
+    border-color: #00914E;
+    color: #FFFFFF;
+    font-size: 1.2em;
+    margin-left: 20px;
+    }
 
 .btn-search:link,
 .btn-search:active,
 .btn-search:hover,
 .btn-search:visited {
-    height: 3em;
+    height: 2em;
     background-color: #353633 !important;
     border-color: #353633 !important;
 }
 
 .btn-search:focus {
-    height: 3em;
+    height: 2em;
     background-color: #353633;
     border-color: #353633;
 }
 
 .btn-clean {
-    height: 3em;
+    height: 2em;
 }
 
 input#address.form-control {
-    width: 460px;
+    width: 380px;
+    height: 24px;
 }
 
 .btn-group.open .dropdown-toggle {
     font-size: 20px !important;
 }
 
-
 .beta {
     color: #FF9900;
 }
 
 .panel-body {
-    margin-top: 50px !important;
+    margin-top: 2px !important;
 }
 
 .thumbnail {
@@ -148,3 +174,40 @@ input#address.form-control {
 .index-p {
     margin-top: 10px;
 }
+
+
+nav.nav-container {
+    width:100%;
+    background-color: #DFE0E2 ;
+    clear:left;
+}
+
+nav {
+    margin:0 auto;
+}
+
+nav ul li {
+    float:left;
+    font-size:16px;
+    padding: 5px 20px;
+    background-color: #DFE0E2 ;
+    list-style-type: none;
+}
+nav ul li a {
+    color: #666666 ;
+    text-decoration: none;
+}
+nav ul li a:hover {
+    color: #4c2c92 ;
+    text-decoration: none;
+}
+
+dd {
+    -webkit-margin-start: 20px;
+}
+
+.label-danger {
+    background-color: #FFE3E3 !important;
+    margin-left:20px;
+}
+

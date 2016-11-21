@@ -10,27 +10,21 @@
 
 @main(title = "ONS-Address - Single Search") {
 <div class="container">
-    <div class="panel panel-default">
+    <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
         @navigation()
         </div>
-        <div class="panel panel-default address-panel">
+        <div class="panel panel-single address-panel">
             <div class="result-content">
-                <div class="alert alert-danger" role="alert"><strong>@messages("single.pleasesupply")</strong></div>
+                <div class="alert label-danger" role="alert">@messages("single.pleasesupply")</div>
             </div>
         </div>
-        <div class="panel panel-default address-panel">
-            <h4 class="page-info">Find an address<span class="sub-info"></span></h4>
-            <div class="page-description-row">
-                <div class="col-md-2 text-right"><a href="#"><i data-toggle="modal" data-target="#docModal" class="fa fa-info-circle fa-2x" aria-hidden="true"></i></a></div>
-            </div>
-            <p class="page-info"></p>
+        <div class="panel panel-single address-panel">
+            <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatch.doSingleMatch) {
-                <div class="input-group">
-                    <div class="input-group">
+                <div class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
-                    </div>
                 </div>
                 }
             </div>
