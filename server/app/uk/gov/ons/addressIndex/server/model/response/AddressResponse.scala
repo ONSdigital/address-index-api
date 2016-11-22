@@ -17,23 +17,32 @@ object Implicits {
   implicit val addressResponsePafFormat = Json.format[AddressResponsePaf]
   implicit val addressResponseAddressFormat = Json.format[AddressResponseAddress]
   implicit val addressTokensFormat = Json.format[AddressTokens]
-  implicit val addressResponseFormat = Json.format[AddressResponse]
+  implicit val addressBySearchResponseFormat = Json.format[AddressBySearchResponse]
   implicit val addressBySearchResponseContainerFormat = Json.format[AddressBySearchResponseContainer]
+  implicit val addressByUprnResponseFormat = Json.format[AddressByUprnResponse]
   implicit val addressByUprnResponseContainerFormat = Json.format[AddressByUprnResponseContainer]
-
 }
 
 /**
   * Contains the reply for address by uprn request
   *
-  * @param address found address
-  * @param status  response status / message
-  * @param errors  encountred errors (or an empty list if there is no errors)
+  * @param response found content
+  * @param status   response status / message
+  * @param errors   encountered errors (or an empty list if there is no errors)
   */
 case class AddressByUprnResponseContainer(
-  address: Option[AddressResponseAddress],
+  response: AddressByUprnResponse,
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError]
+)
+
+/**
+  * Contains relevant information to the requested address
+  *
+  * @param address found address
+  */
+case class AddressByUprnResponse(
+  address: Option[AddressResponseAddress]
 )
 
 /**
@@ -44,7 +53,7 @@ case class AddressByUprnResponseContainer(
   * @param errors   encountred errors (or an empty list if there is no errors)
   */
 case class AddressBySearchResponseContainer(
-  response: AddressResponse,
+  response: AddressBySearchResponse,
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError]
 )
@@ -58,7 +67,7 @@ case class AddressBySearchResponseContainer(
   * @param offset    offset of found addresses (for pagination)
   * @param total     total number of found addresses
   */
-case class AddressResponse(
+case class AddressBySearchResponse(
   tokens: AddressTokens,
   addresses: Seq[AddressResponseAddress],
   limit: Int,

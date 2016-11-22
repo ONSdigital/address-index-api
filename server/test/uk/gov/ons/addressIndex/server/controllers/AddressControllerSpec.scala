@@ -92,7 +92,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val controller = new AddressController(elasticRepositoryMock)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressResponse(
+        AddressBySearchResponse(
           tokens = AddressTokens(
             uprn = "",
             buildingNumber = "10",
@@ -121,7 +121,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val controller = new AddressController(elasticRepositoryMock)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressResponse(
+        AddressBySearchResponse(
           tokens = AddressTokens.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -146,7 +146,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val controller = new AddressController(elasticRepositoryMock)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressResponse(
+        AddressBySearchResponse(
           tokens = AddressTokens.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -171,7 +171,9 @@ class AddressControllerSpec extends PlaySpec with Results {
       val controller = new AddressController(elasticRepositoryMock)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
-        address = Some(AddressResponseAddress.fromPafAddress(validPafAddress)),
+        response = AddressByUprnResponse(
+          address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
+        ),
         AddressResponseStatus.ok,
         errors = Seq.empty
       ))
@@ -190,7 +192,9 @@ class AddressControllerSpec extends PlaySpec with Results {
       val controller = new AddressController(emptyElasticRepositoryMock)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
-        address = None,
+        response = AddressByUprnResponse(
+          address = None
+        ),
         AddressResponseStatus.notFound,
         errors = Seq(AddressResponseError.notFound)
       ))
@@ -209,7 +213,9 @@ class AddressControllerSpec extends PlaySpec with Results {
       val controller = new AddressController(emptyElasticRepositoryMock)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
-        address = None,
+        response = AddressByUprnResponse(
+          address = None
+        ),
         AddressResponseStatus.badRequest,
         errors = Seq(AddressResponseError.addressFormatNotSupported)
       ))
