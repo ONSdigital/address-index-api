@@ -158,7 +158,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.addressQuery("", "format is not supported").apply(FakeRequest())
+      val result = controller.addressQuery("", "paf").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
