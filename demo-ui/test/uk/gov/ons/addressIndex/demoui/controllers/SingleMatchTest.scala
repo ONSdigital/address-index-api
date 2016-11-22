@@ -64,5 +64,4 @@ class SingleMatchTest extends PlaySpec with Results {
     }
   }
 
-
 }

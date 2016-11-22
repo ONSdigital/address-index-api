@@ -87,13 +87,9 @@ val uiDeps = Seq(
   jdbc,
   cache,
   ws,
-  "org.webjars" %% "webjars-play" % "2.5.0",
-  "org.webjars" % "bootstrap"     % "3.3.7",
-  "org.webjars" % "jquery"        % "3.1.1",
   specs2 % Test,
   "com.typesafe.play"    %% "play-test"           % "2.5.9" % "test",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % "test",
-  "org.webjars" % "font-awesome"  % "4.6.3"
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % "test"
 ) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))

@@ -12,8 +12,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
     "include at least one link" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
-      val expectedString = "<h4><a href=\"addresses\">Find an address </a></h4>"
-
+      val expectedString = "Find an address"
       // When
       val response = new ApplicationHome(messagesApi).indexPage().apply(FakeRequest())
       val content = contentAsString(response)
