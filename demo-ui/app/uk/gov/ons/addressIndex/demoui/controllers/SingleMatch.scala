@@ -15,7 +15,7 @@ import uk.gov.ons.addressIndex.demoui.views
 
 
 @Singleton
-class SingleMatch @Inject()(implicit ec : ExecutionContext, val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class SingleMatch @Inject() (val messagesApi: MessagesApi)(implicit ec : ExecutionContext) extends Controller with I18nSupport {
 
   def showSingleMatchPage() : Action[AnyContent] = Action { implicit req =>
     Logger.info("Rendering Single Match Page")

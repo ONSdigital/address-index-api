@@ -1,4 +1,6 @@
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, match a batch of addresses from a selected file or to extract address lists from the database.
+home.singlehead=Find an address
+home.singlebody=This feature allows you to match for a single address
 single.pleasesupply=Please enter an address
 single.sfatext=Search for Addresses

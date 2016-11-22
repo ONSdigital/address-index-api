@@ -9,7 +9,7 @@ import scala.language.implicitConversions
 import play.api.i18n.{I18nSupport, Messages, MessagesApi, Lang}
 
 @Singleton
-class ApplicationHome @Inject()(implicit ec : ExecutionContext, val messagesApi: MessagesApi) extends Controller with I18nSupport {
+class ApplicationHome @Inject()(val messagesApi: MessagesApi)(implicit ec : ExecutionContext) extends Controller with I18nSupport {
 
     def indexPage() : Action[AnyContent] = Action { implicit req =>
       Logger.info("Rendering Index page")

@@ -1,23 +1,26 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import org.scalatest.{FunSuite, Matchers}
-import play.api.test.FakeRequest
+import org.scalatestplus.play.PlaySpec
+import play.api.i18n.MessagesApi
+import play.api.mvc.Results
 import play.api.test.Helpers._
-import org.mockito.Mockito._
+import play.api.test.{FakeRequest, WithApplication}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.i18n._
-import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
+class ApplicationHomeTest extends PlaySpec with Results {
+  "Application controller" should {
+    "include at least one link" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val expectedString = "<h4><a href=\"addresses\">Find an address </a></h4>"
 
-class ApplicationHomeTest extends FunSuite with Matchers {
-    val mockApiClient   = mock(classOf[AddressIndexClientInstance])
-    val mockMessageApi  = mock(classOf[MessagesApi])
-    val mockExecutionContext = mock(classOf[ExecutionContext])
+      // When
+      val response = new ApplicationHome(messagesApi).indexPage().apply(FakeRequest())
+      val content = contentAsString(response)
 
-    test("home page includes at least one link") {
-        val response = new ApplicationHome()(mockExecutionContext, mockMessageApi).indexPage()(FakeRequest())
-        val content  = contentAsString(response)
-        status(response) should be(200)
-        content should include("<h4><a href=\"addresses\">Find an address </a></h4>")
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
     }
+  }
 }
