@@ -141,6 +141,31 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply on a 400 error if query is empty (by address query)" in {
+      // Given
+      val controller = new AddressController(elasticRepositoryMock)
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressResponse(
+          tokens = AddressTokens.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0
+        ),
+        AddressResponseStatus.badRequest,
+        errors = Seq(AddressResponseError.emptyQuery)
+      ))
+
+      // When
+      val result = controller.addressQuery("", "paf").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply on a found address (by uprn)" in {
       // Given
       val controller = new AddressController(elasticRepositoryMock)
