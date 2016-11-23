@@ -6,10 +6,14 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticSugar {
+
+  // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
+  val testClient = client
 
   // injections
   val elasticClientProvider = new ElasticClientProvider {
@@ -19,7 +23,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val index = config.config.elasticSearch.indexes.pafIndex
   val Array(indexName, mappings) = index.split("/")
-  val testClient = client
 
   testClient.execute {
     bulk(
@@ -90,35 +93,39 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   blockUntilCount(2, indexName)
 
-  "search matchers" should {
+  "Elastic repository" should {
 
     "find address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = PostcodeAddressFileAddress(
+      val expected = Some(PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
         "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
-      )
+      ))
 
       // When
       val result = repository.queryUprn("4").await
 
       // Then
-      result.length shouldBe 1
 
-      result.head shouldBe expected
+      result shouldBe expected
     }
 
     "find address by building number and a postcode" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val tokens = AddressTokens(
+        uprn = "4",
+        buildingNumber = "10",
+        postcode = "16"
+      )
       val expected = PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
         "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
       )
 
       // When
-      val result = repository.queryAddress(10, "16").await
+      val result = repository.queryAddress(tokens).await
 
       // Then
       result.length shouldBe 1
