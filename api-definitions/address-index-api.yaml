@@ -31,6 +31,12 @@ paths:
          required: true
          description: Specifies the address UPRN.
 
+       - name: format
+         in: query
+         type: string
+         required: false
+         description: Specifies the response address format, either paf or bs7666 (defaults to paf).
+
       responses:
         200:
           description: OK
