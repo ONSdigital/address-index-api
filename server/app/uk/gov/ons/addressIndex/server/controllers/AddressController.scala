@@ -76,7 +76,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
   private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
     esRepo.queryAddress(tokens).map { addresses =>
       Ok(Json.toJson(AddressBySearchResponseContainer(
-        AddressResponse(
+        AddressBySearchResponse(
           tokens,
           addresses = addresses.map(AddressResponseAddress.fromPafAddress),
           limit = 10,
@@ -89,7 +89,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     }
   }
 
-  private val errorAddressResponse = AddressResponse(
+  private val errorAddressResponse = AddressBySearchResponse(
     AddressTokens.empty,
     addresses = Seq.empty,
     limit = 10,
@@ -135,14 +135,18 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     esRepo.queryUprn(uprn).map {
       case Some(address) => Ok(Json.toJson(
         AddressByUprnResponseContainer(
-          address = Some(AddressResponseAddress.fromPafAddress(address)),
+          response = AddressByUprnResponse(
+            address = Some(AddressResponseAddress.fromPafAddress(address))
+          ),
           AddressResponseStatus.ok,
           errors = Seq.empty
         )
       ))
       case None => NotFound(Json.toJson(
         AddressByUprnResponseContainer(
-          address = None,
+          response = AddressByUprnResponse(
+            address = None
+          ),
           AddressResponseStatus.notFound,
           errors = Seq(AddressResponseError.notFound)
         )
@@ -152,7 +156,9 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
   private val searchByUprnUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressByUprnResponseContainer(
-      address = None,
+      response = AddressByUprnResponse(
+        address = None
+      ),
       AddressResponseStatus.badRequest,
       errors = Seq(AddressResponseError.addressFormatNotSupported)
     )
