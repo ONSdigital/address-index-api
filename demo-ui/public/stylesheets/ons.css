@@ -19,12 +19,12 @@ p.toptext {
 .navbar {
   height: 64px;
   color: #525351;
-  margin-bottom:2px;
+  margin-bottom:0px;
 }
 
 .navbar-default {
     background-color: #fff;
-    margin-bottom:2px;
+    margin-bottom:0px;
 }
 
 .index-heading {
@@ -179,19 +179,23 @@ input#address.form-control {
 nav.nav-container {
     width:100%;
     background-color: #DFE0E2 ;
+    height:40px;
     clear:left;
+    margin-left:50px;
 }
 
 nav {
     margin:0 auto;
+    border:1px solid #ddd;
 }
 
 nav ul li {
     float:left;
-    font-size:16px;
-    padding: 5px 20px;
+    font-size:1.1em;
+    padding: 0px 20px;
     background-color: #DFE0E2 ;
     list-style-type: none;
+    margin-top: -8px;
 }
 nav ul li a {
     color: #666666 ;
@@ -207,7 +211,13 @@ dd {
 }
 
 .label-danger {
-    background-color: #FFE3E3 !important;
+    background-color: #FFFFFF !important;
+    color: #FFFFFF;
     margin-left:20px;
 }
+
+section.content {
+    margin-top: 10px;
+}
+
 

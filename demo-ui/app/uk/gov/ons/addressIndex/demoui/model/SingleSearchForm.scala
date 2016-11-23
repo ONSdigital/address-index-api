@@ -24,7 +24,7 @@ case class Candidate(matchScore: Int, matchingAddress: Address)
 
 case class BulkMatchResponse(matchFound: Option[Int], possibleMatches: Option[Int], noMatch: Option[Int], totalNumberOfAddresses: Option[Int])
 
-object JSONImplicit {
+object JSONImplicits {
   implicit val addressRead = Json.reads[Address]
   implicit val singleMatchResponseRead = Json.reads[SingleMatchResponse]
 }
