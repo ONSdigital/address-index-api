@@ -1,0 +1,18 @@
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm])(implicit messages: Messages)
+@import helper._
+
+<fieldset class="searchfield">
+    @inputText(
+    singleSearchForm("address"),
+    args = '_id -> "numberOrName",
+    'class -> "form-control",
+    '_label -> "",
+    'placeholder -> "E.g. 169 Portsmouth Road Southampton SO19 9BG"
+    )
+</fieldset>
+
+<fieldset class="form-group text-right">
+    <button class="btn btn-success btn-search" type="submit" id="submit">
+        <i class="fa fa-search"></i> @messages("single.searchbut")
+    </button>
+</fieldset>

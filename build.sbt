@@ -56,7 +56,8 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
     "elasticsearch-releases"     at "https://maven.elasticsearch.org/releases",
     "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
     "Twitter Repository"         at "http://maven.twttr.com",
-    "Artima Maven Repository"    at "http://repo.artima.com/releases"
+    "Artima Maven Repository"    at "http://repo.artima.com/releases",
+    "scalaz-bintray"             at "https://dl.bintray.com/scalaz/releases"
   )
 )
 
@@ -79,18 +80,16 @@ val parsersDeps = Seq(
 
 val serverDeps = Seq(
   "org.elasticsearch.plugin" % "shield" % Versions.elastic4s,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % "test"
+  "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % "test"
 )++ commonDeps
 
 val uiDeps = Seq(
   jdbc,
   cache,
   ws,
-  "org.webjars" %% "webjars-play" % "2.5.0",
-  "org.webjars" % "bootstrap"     % "3.3.7",
-  "org.webjars" % "jquery"        % "3.1.1",
-  "org.mockito" % "mockito-all"   % "1.10.19" % Test,
-  "org.webjars" % "font-awesome"  % "4.6.3"
+  specs2 % Test,
+  "com.typesafe.play"      %% "play-test"           % "2.5.9" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test
 ) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
