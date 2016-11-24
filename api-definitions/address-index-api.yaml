@@ -2,7 +2,7 @@ swagger: "2.0"
 
 info:
   title: ONS Address Index API
-  description: ONS Address Index API
+  description: ONS Address Index API.
   version: 0.0.1
 
 host: addressindex.api.ons.gov.uk
@@ -39,17 +39,17 @@ paths:
 
       responses:
         200:
-          description: OK
+          description: OK.
           schema:
               $ref: '#/definitions/AddressResponse'
 
         404:
-          description: Not found
+          description: Not found.
           schema:
               $ref: '#/definitions/Status'
 
         default:
-          description: One or more errors occurred
+          description: One or more errors occurred.
           schema:
               $ref: '#/definitions/Errors'
 
@@ -87,17 +87,17 @@ paths:
 
       responses:
         200:
-          description: OK
+          description: OK.
           schema:
               $ref: '#/definitions/AddressSearchResponse'
 
         404:
-          description: Not found
+          description: Not found.
           schema:
               $ref: '#/definitions/Status'
 
         default:
-          description: One or more errors occurred
+          description: One or more errors occurred.
           schema:
               $ref: '#/definitions/Errors'
 
