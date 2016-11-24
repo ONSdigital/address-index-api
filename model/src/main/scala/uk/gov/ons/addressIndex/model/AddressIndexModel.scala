@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.model
 
 import java.util.UUID
-import scala.util.{Failure, Success, Try}
 
 case class AddressIndexUPRNRequest(
   format : AddressScheme,
@@ -16,11 +15,11 @@ case class AddressIndexSearchRequest(
 )
 
 sealed trait AddressScheme {
-  override def toString() : String
+  override def toString: String
 }
 case class PostcodeAddressFile(override val toString : String) extends AddressScheme
 case class BritishStandard7666(override val toString : String) extends AddressScheme
-case class InvalidAddressSchemeException(str : String) extends IllegalArgumentException(s"Invalid address scheme $str")
+case class UnsupportedScheme(override val toString : String) extends AddressScheme
 
 object AddressScheme {
 
@@ -29,15 +28,12 @@ object AddressScheme {
     * @param str - The string to be converted.
     */
   implicit class StringToAddressSchemeAugmenter(str: String) {
-    def toAddressScheme() : Try[AddressScheme] = str toLowerCase match {
-      case "paf" | "postcodeaddressfile"
-        => Success(PostcodeAddressFile(str))
+    def stringToScheme() : AddressScheme = str.toLowerCase match {
+      case "paf" | "postcodeaddressfile" => PostcodeAddressFile(str)
 
-      case "bs" | "bs7666" | "britishstandard7666"
-        => Success(BritishStandard7666(str))
+      case "bs" | "bs7666" | "britishstandard7666" => BritishStandard7666(str)
 
-      case _
-        => Failure(InvalidAddressSchemeException(str))
+      case scheme => UnsupportedScheme(scheme)
     }
   }
 }

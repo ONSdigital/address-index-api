@@ -1,0 +1,223 @@
+a:link {
+    color: #666666;
+}
+
+a:visited {
+    color: #666666;
+}
+
+a:hover {
+    color: #4c2c92 ;
+}
+
+
+p.toptext {
+  font-size: 0.8em;
+  margin-left: 20px;
+}
+
+.navbar {
+  height: 64px;
+  color: #525351;
+  margin-bottom:0px;
+}
+
+.navbar-default {
+    background-color: #fff;
+    margin-bottom:0px;
+}
+
+.index-heading {
+    margin: 25px;
+}
+
+.sub-nav {
+    height: 30px !important;
+    border: 0px;
+    background-color: transparent !important;
+}
+
+.beta-header {
+    float:right;
+    text-align: right;
+    margin-top: 2px;
+    margin-right: 4px;
+    font-size: 16px;
+}
+
+.panel-heading {
+    margin-bottom: 0px;
+}
+
+.sub-nav-heading {
+    padding: 0px !important;
+    height: 50px !important;
+}
+
+.panel-title {
+    font-size: 22px !important;
+    margin-bottom: 0px !important;
+    margin-left: 20px;
+    text-align: left;
+}
+
+.address-panel {
+    margin: 10px;
+}
+
+.panel-default {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-width: 430px;
+    max-width: 430px;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.panel-single {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-width: 490px;
+    max-width: 490px;
+    border:0px;
+    padding: 10px;
+}
+
+.beta-banner {
+    background-color: #FF9900;
+    color: #fff;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 4px;
+}
+
+.logo {
+    margin-top: 6px;
+    text-align: left;
+    padding: 4px;
+    float:left;
+}
+
+
+.btn-search {
+    height: 2em;
+    background-color: #00914E;
+    border-color: #00914E;
+    color: #FFFFFF;
+    font-size: 1.2em;
+    margin-left: 20px;
+    }
+
+.btn-search:link,
+.btn-search:active,
+.btn-search:hover,
+.btn-search:visited {
+    height: 2em;
+    background-color: #353633 !important;
+    border-color: #353633 !important;
+}
+
+.btn-search:focus {
+    height: 2em;
+    background-color: #353633;
+    border-color: #353633;
+}
+
+.btn-clean {
+    height: 2em;
+}
+
+input#address.form-control {
+    width: 380px;
+    height: 24px;
+}
+
+.btn-group.open .dropdown-toggle {
+    font-size: 20px !important;
+}
+
+.beta {
+    color: #FF9900;
+}
+
+.panel-body {
+    margin-top: 2px !important;
+}
+
+.thumbnail {
+    background-color: #F8F8F8;
+    border: none;
+}
+
+.index-nav {
+    margin: 20px 0px 20px 29px !important;
+    width: 350px !important;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.index-nav a:link {
+    text-decoration: none;
+}
+
+.index-nav-icon {
+    padding-top:40px;
+    padding-bottom: 40px;
+    color: #BCC547 !important;
+}
+
+.index-p {
+    margin-top: 10px;
+}
+
+
+nav.nav-container {
+    width:100%;
+    background-color: #DFE0E2 ;
+    height:40px;
+    clear:left;
+    margin-left:50px;
+}
+
+nav {
+    margin:0 auto;
+    border:1px solid #ddd;
+}
+
+nav ul li {
+    float:left;
+    font-size:1.1em;
+    padding: 0px 20px;
+    background-color: #DFE0E2 ;
+    list-style-type: none;
+    margin-top: -8px;
+}
+nav ul li a {
+    color: #666666 ;
+    text-decoration: none;
+}
+nav ul li a:hover {
+    color: #4c2c92 ;
+    text-decoration: none;
+}
+
+dd {
+    -webkit-margin-start: 20px;
+}
+
+.label-danger {
+    background-color: #FFFFFF !important;
+    color: #FFFFFF;
+    margin-left:20px;
+}
+
+section.content {
+    margin-top: 10px;
+}
+
+
