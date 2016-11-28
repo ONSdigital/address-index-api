@@ -18,7 +18,7 @@ object CrfScala {
   type FeatureName = String
   type FeatureSequence = third_party.org.chokkan.crfsuite.ItemSequence
   type Tagger = CrfTagger
-
+  type FeaturesResult = Map[FeatureName, _]
   type CrfFeatureAnalyser[T] = (Input => T)
   object CrfFeatureAnalyser {
     /**
@@ -41,27 +41,31 @@ object CrfScala {
   }
 
   //todo scaladoc
-  abstract trait CrfType[T] {
+  trait CrfType[T] {
     def value : T
   }
 
   //TODO scaladoc
   trait CrfParser {
     //TODO scaladoc
-    def parse(i : Input, fa : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
+    def parse(i : Input, fas : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
       val tokens = Tokens(i)
       val fs = new FeatureSequence()
       val preprocessedTokens = Tokens normalise tokens
-      for (token <- preprocessedTokens) {
-        fs add(fa toItem token)
-      }
-      val r = tagger tag fs
-      r.asScala.zipWithIndex.map { p =>
-        TokenResult(
-          token = p._1.first,
-          input = tokens(p._2)
-        )
-      } toList
+
+      fas.analyse(i)
+
+//      for (token <- preprocessedTokens) {
+//        fs add(fa toItem token)
+//      }
+
+//      val r = tagger tag fs
+//      r.asScala.zipWithIndex.map { p =>
+//        TokenResult(
+//          token = p._1.first,
+//          input = tokens(p._2)
+//        )
+//      } toList
     }
   }
 
@@ -93,6 +97,8 @@ object CrfScala {
       }
       item
     }
+
+    def analyse(i : Input) : FeaturesResult = all.map(f => f.name -> f.analyse(i)).toMap
   }
 
   /**
@@ -164,5 +170,4 @@ object CrfScala {
       }
     }
   }
-
 }
