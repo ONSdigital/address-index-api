@@ -103,7 +103,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1
         ),
-        AddressResponseStatus.ok,
+        OkAddressResponseStatus,
         errors = Seq.empty
       ))
 
@@ -128,8 +128,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0
         ),
-        AddressResponseStatus.badRequest,
-        errors = Seq(AddressResponseError.addressFormatNotSupported)
+        BadRequestAddressResponseStatus,
+        errors = Seq(FormatNotSupportedAddressResponseError)
       ))
 
       // When
@@ -153,8 +153,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0
         ),
-        AddressResponseStatus.badRequest,
-        errors = Seq(AddressResponseError.emptyQuery)
+        BadRequestAddressResponseStatus,
+        errors = Seq(EmptyQueryAddressResponseError)
       ))
 
       // When
@@ -174,7 +174,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         response = AddressByUprnResponse(
           address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
         ),
-        AddressResponseStatus.ok,
+        OkAddressResponseStatus,
         errors = Seq.empty
       ))
 
@@ -195,8 +195,8 @@ class AddressControllerSpec extends PlaySpec with Results {
         response = AddressByUprnResponse(
           address = None
         ),
-        AddressResponseStatus.notFound,
-        errors = Seq(AddressResponseError.notFound)
+        NotFoundAddressResponseStatus,
+        errors = Seq(NotFoundAddressResponseError)
       ))
 
       // When
@@ -216,8 +216,8 @@ class AddressControllerSpec extends PlaySpec with Results {
         response = AddressByUprnResponse(
           address = None
         ),
-        AddressResponseStatus.badRequest,
-        errors = Seq(AddressResponseError.addressFormatNotSupported)
+        BadRequestAddressResponseStatus,
+        errors = Seq(FormatNotSupportedAddressResponseError)
       ))
 
       // When

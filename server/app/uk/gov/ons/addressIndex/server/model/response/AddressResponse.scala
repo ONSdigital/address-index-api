@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.model.response
 
 import play.api.http.Status
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 
 /**
@@ -10,17 +10,17 @@ import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
   * `import uk.gov.ons.addressIndex.server.model.response.implicits._`
   */
 object Implicits {
-  implicit val addressResponseErrorFormat = Json.format[AddressResponseError]
-  implicit val addressResponseStatusFormat = Json.format[AddressResponseStatus]
-  implicit val addressResponseGeoFormat = Json.format[AddressResponseGeo]
-  implicit val addressResponseNagFormat = Json.format[AddressResponseNag]
-  implicit val addressResponsePafFormat = Json.format[AddressResponsePaf]
-  implicit val addressResponseAddressFormat = Json.format[AddressResponseAddress]
-  implicit val addressTokensFormat = Json.format[AddressTokens]
-  implicit val addressBySearchResponseFormat = Json.format[AddressBySearchResponse]
-  implicit val addressBySearchResponseContainerFormat = Json.format[AddressBySearchResponseContainer]
-  implicit val addressByUprnResponseFormat = Json.format[AddressByUprnResponse]
-  implicit val addressByUprnResponseContainerFormat = Json.format[AddressByUprnResponseContainer]
+  implicit val addressResponseErrorFormat: OFormat[AddressResponseError] = Json.format[AddressResponseError]
+  implicit val addressResponseStatusFormat: OFormat[AddressResponseStatus] = Json.format[AddressResponseStatus]
+  implicit val addressResponseGeoFormat: OFormat[AddressResponseGeo] = Json.format[AddressResponseGeo]
+  implicit val addressResponseNagFormat: OFormat[AddressResponseNag] = Json.format[AddressResponseNag]
+  implicit val addressResponsePafFormat: OFormat[AddressResponsePaf] = Json.format[AddressResponsePaf]
+  implicit val addressResponseAddressFormat: OFormat[AddressResponseAddress] = Json.format[AddressResponseAddress]
+  implicit val addressTokensFormat: OFormat[AddressTokens] = Json.format[AddressTokens]
+  implicit val addressBySearchResponseFormat: OFormat[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
+  implicit val addressBySearchResponseContainerFormat: OFormat[AddressBySearchResponseContainer] = Json.format[AddressBySearchResponseContainer]
+  implicit val addressByUprnResponseFormat: OFormat[AddressByUprnResponse] = Json.format[AddressByUprnResponse]
+  implicit val addressByUprnResponseContainerFormat: OFormat[AddressByUprnResponseContainer] = Json.format[AddressByUprnResponseContainer]
 }
 
 /**
@@ -112,18 +112,12 @@ object AddressTokens {
   */
 case class AddressResponseAddress(
   uprn: String,
-
   formattedAddress: String,
-
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
-
-  // geo from NAG, null if address only in PAF (i.e. not found in NAG)
   geo: Option[AddressResponseGeo],
-
-  underlyingScore: Double, // from Elastic
-  underlyingMaxScore: Double // from Elastic (repeated for each address)
-
+  underlyingScore: Double,
+  underlyingMaxScore: Double
 )
 
 object AddressResponseAddress {
@@ -255,22 +249,21 @@ case class AddressResponseStatus(
   message: String
 )
 
-object AddressResponseStatus {
-  val ok = AddressResponseStatus(
-    code = Status.OK,
-    message = "Ok"
-  )
+object OkAddressResponseStatus extends AddressResponseStatus(
+  code = Status.OK,
+  message = "Ok"
+)
 
-  val notFound = AddressResponseStatus(
-    code = Status.NOT_FOUND,
-    message = "Not Found"
-  )
+object NotFoundAddressResponseStatus extends AddressResponseStatus(
+  code = Status.NOT_FOUND,
+  message = "Not Found"
+)
 
-  val badRequest = AddressResponseStatus(
-    code = Status.BAD_REQUEST,
-    message = "Bad request"
-  )
-}
+object BadRequestAddressResponseStatus extends AddressResponseStatus(
+  code = Status.BAD_REQUEST,
+  message = "Bad request"
+)
+
 
 /**
   * Contains one response error
@@ -283,22 +276,20 @@ case class AddressResponseError(
   message: String
 )
 
-object AddressResponseError {
-  val emptyQuery = AddressResponseError(
-    code = 1,
-    message = "Empty query"
-  )
+object EmptyQueryAddressResponseError extends AddressResponseError(
+  code = 1,
+  message = "Empty query"
+)
 
-  val addressFormatNotSupported = AddressResponseError(
-    code = 2,
-    message = "Address format is not supported"
-  )
+object FormatNotSupportedAddressResponseError extends AddressResponseError(
+  code = 2,
+  message = "Address format is not supported"
+)
 
-  val notFound = AddressResponseError(
-    code = 3,
-    message = "UPRN request didn't yield a result"
-  )
-}
+object NotFoundAddressResponseError extends AddressResponseError(
+  code = 3,
+  message = "UPRN request didn't yield a result"
+)
 
 
 

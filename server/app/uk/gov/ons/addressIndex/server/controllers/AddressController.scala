@@ -11,7 +11,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.server.model.response.Implicits._
-import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile, UnsupportedScheme}
+import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.server.model.response._
 
 import scala.util.matching.Regex
@@ -63,11 +63,10 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
       logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
 
-      format.stringToScheme() match {
-        case PostcodeAddressFile(str) => searchPafAddresses(tokens)
-        case BritishStandard7666(str) => searchUnsupportedFormatReply
-        case UnsupportedScheme(str) => searchUnsupportedFormatReply
-      }
+      format.stringToScheme().map {
+        case PostcodeAddressFile(_) => searchPafAddresses(tokens)
+        case BritishStandard7666(_) => searchUnsupportedFormatReply
+      }.getOrElse(searchUnsupportedFormatReply)
     }
 
   }
@@ -83,8 +82,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           offset = 0,
           total = addresses.size
         ),
-        AddressResponseStatus.ok,
-        errors = Seq()
+        OkAddressResponseStatus,
+        errors = Seq.empty
       )))
     }
   }
@@ -100,16 +99,16 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
   private val searchUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
       errorAddressResponse,
-      AddressResponseStatus.badRequest,
-      errors = Seq(AddressResponseError.addressFormatNotSupported)
+      BadRequestAddressResponseStatus,
+      errors = Seq(FormatNotSupportedAddressResponseError)
     )
   )))
 
   private val searchEmptyQueryReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
       errorAddressResponse,
-      AddressResponseStatus.badRequest,
-      errors = Seq(AddressResponseError.emptyQuery)
+      BadRequestAddressResponseStatus,
+      errors = Seq(EmptyQueryAddressResponseError)
     )
   )))
 
@@ -123,11 +122,10 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     */
   def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#uprnQuery request called with uprn: $uprn , format: $format"
-    format.stringToScheme() match {
-      case PostcodeAddressFile(str) => searchPafAddressByUprn(uprn)
-      case BritishStandard7666(str) => searchByUprnUnsupportedFormatReply
-      case UnsupportedScheme(str) => searchByUprnUnsupportedFormatReply
-    }
+    format.stringToScheme().map {
+      case PostcodeAddressFile(_) => searchPafAddressByUprn(uprn)
+      case BritishStandard7666(_) => searchByUprnUnsupportedFormatReply
+    }.getOrElse(searchByUprnUnsupportedFormatReply)
   }
 
 
@@ -138,7 +136,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           response = AddressByUprnResponse(
             address = Some(AddressResponseAddress.fromPafAddress(address))
           ),
-          AddressResponseStatus.ok,
+          OkAddressResponseStatus,
           errors = Seq.empty
         )
       ))
@@ -147,8 +145,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           response = AddressByUprnResponse(
             address = None
           ),
-          AddressResponseStatus.notFound,
-          errors = Seq(AddressResponseError.notFound)
+          NotFoundAddressResponseStatus,
+          errors = Seq(NotFoundAddressResponseError)
         )
       ))
     }
@@ -159,8 +157,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
       response = AddressByUprnResponse(
         address = None
       ),
-      AddressResponseStatus.badRequest,
-      errors = Seq(AddressResponseError.addressFormatNotSupported)
+      BadRequestAddressResponseStatus,
+      errors = Seq(FormatNotSupportedAddressResponseError)
     )
   )))
 }
