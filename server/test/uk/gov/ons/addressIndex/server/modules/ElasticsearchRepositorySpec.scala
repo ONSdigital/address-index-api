@@ -100,7 +100,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
+        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", 1.0f
       ))
 
       // When
@@ -121,15 +121,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
       val expected = PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
+        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", 1.4142135f
       )
 
       // When
-      val result = repository.queryAddress(tokens).await
+      val (results, maxScore) = repository.queryAddress(tokens).await
 
       // Then
-      result.length shouldBe 1
-      result.head shouldBe expected
+      results.length shouldBe 1
+      results.head shouldBe expected
+      maxScore shouldBe 1.4142135f
     }
 
   }

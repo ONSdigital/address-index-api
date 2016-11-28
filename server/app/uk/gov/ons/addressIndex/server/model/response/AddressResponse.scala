@@ -116,8 +116,8 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  underlyingScore: Double,
-  underlyingMaxScore: Double
+  underlyingScore: Float,
+  underlyingMaxScore: Float
 )
 
 object AddressResponseAddress {
@@ -126,10 +126,11 @@ object AddressResponseAddress {
   /**
     * Transforms Paf address from elastic search into the Response address
     *
+    * @param maxScore elastic's response maximum score
     * @param other
     * @return
     */
-  def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponseAddress =
+  def fromPafAddress(maxScore: Float)(other: PostcodeAddressFileAddress): AddressResponseAddress =
     AddressResponseAddress(
       uprn = other.uprn,
       formattedAddress = "",
@@ -159,9 +160,17 @@ object AddressResponseAddress {
       )),
       nag = None,
       geo = None,
-      underlyingScore = 1,
-      underlyingMaxScore = 1
+      underlyingScore = other.score,
+      underlyingMaxScore = maxScore
     )
+
+  /**
+    *
+    * @param other address in elastic's response form
+    * @return
+    */
+  def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponseAddress = fromPafAddress(1.0f)(other)
+
 }
 
 

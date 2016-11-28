@@ -49,18 +49,18 @@ trait ElasticsearchRepository extends ElasticIndexSugar {
     * Currently the query must be for building number and postcode.
     *
     * @param tokens address tokens
-    * @return
+    * @return Future with found addresses and the maximum score
     */
-  def queryAddress(tokens: AddressTokens) : Future[Seq[PostcodeAddressFileAddress]]
+  def queryAddress(tokens: AddressTokens) : Future[(Seq[PostcodeAddressFileAddress], Float)]
 }
 
 @Singleton
 class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticClientProvider: ElasticClientProvider)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
-  val logger = Logger("address-index:ElasticsearchRepositoryModule")
-  val esConf = conf.config.elasticSearch
-  val pafIndex = esConf.indexes.pafIndex
-  val client = elasticClientProvider.client
+  private val logger = Logger("address-index:ElasticsearchRepositoryModule")
+  private val esConf = conf.config.elasticSearch
+  private val pafIndex = esConf.indexes.pafIndex
+  val client: ElasticClient = elasticClientProvider.client
 
   def createAll() : Future[Seq[CreateIndexResponse]] = {
     createIndex(
@@ -80,7 +80,7 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
     search in pafIndex query { termQuery("uprn", uprn) }
   }.map(_.as[PostcodeAddressFileAddress].headOption)
 
-  def queryAddress(tokens: AddressTokens) : Future[Seq[PostcodeAddressFileAddress]] = client.execute {
+  def queryAddress(tokens: AddressTokens) : Future[(Seq[PostcodeAddressFileAddress], Float)] = client.execute {
     search in pafIndex query {
       bool(
         must(
@@ -95,5 +95,5 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
         )
       )
     }
-  }.map(_.as[PostcodeAddressFileAddress])
+  }.map(response => (response.as[PostcodeAddressFileAddress], response.maxScore))
 }

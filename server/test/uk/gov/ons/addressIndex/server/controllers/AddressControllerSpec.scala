@@ -47,7 +47,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29"
+    entryDate = "29",
+    score = 1.0f
   )
 
   // injected value, change implementations accordingly when needed
@@ -61,8 +62,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def queryAddress(tokens: AddressTokens): Future[Seq[PostcodeAddressFileAddress]] =
-      Future.successful(Seq(validPafAddress))
+    override def queryAddress(tokens: AddressTokens): Future[(Seq[PostcodeAddressFileAddress], Float)] =
+      Future.successful((Seq(validPafAddress), 1.0f))
 
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -77,8 +78,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def queryAddress(tokens: AddressTokens): Future[Seq[PostcodeAddressFileAddress]] =
-      Future.successful(Seq.empty)
+    override def queryAddress(tokens: AddressTokens): Future[(Seq[PostcodeAddressFileAddress], Float)] =
+      Future.successful((Seq.empty, 1.0f))
 
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -97,7 +98,7 @@ class AddressControllerSpec extends PlaySpec with Results {
             buildingNumber = "10",
             postcode = "B16 8TH"
           ),
-          addresses = Seq(AddressResponseAddress.fromPafAddress(validPafAddress)),
+          addresses = Seq(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress)),
           limit = 10,
           offset = 0,
           total = 1
@@ -170,7 +171,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
+          address = Some(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress))
         ),
         OkAddressResponseStatus
       ))

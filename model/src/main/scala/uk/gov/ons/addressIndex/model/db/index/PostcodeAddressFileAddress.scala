@@ -38,7 +38,8 @@ case class PostcodeAddressFileAddress(
   startDate: String,
   endDate: String,
   lastUpdateDate: String,
-  entryDate: String
+  entryDate: String,
+  score: Float
 )
 
 /**
@@ -81,7 +82,8 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
         hit.sourceAsMap("startDate").toString,
         hit.sourceAsMap("endDate").toString,
         hit.sourceAsMap("lastUpdateDate").toString,
-        hit.sourceAsMap("entryDate").toString
+        hit.sourceAsMap("entryDate").toString,
+        hit.score
       )
     }
   }

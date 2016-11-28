@@ -72,17 +72,18 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
 
   private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
-    esRepo.queryAddress(tokens).map { addresses =>
-      Ok(Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
-          tokens,
-          addresses = addresses.map(AddressResponseAddress.fromPafAddress),
-          limit = 10,
-          offset = 0,
-          total = addresses.size
-        ),
-        OkAddressResponseStatus
-      )))
+    esRepo.queryAddress(tokens).map {
+      case (addresses, maxScore) =>
+        Ok(Json.toJson(AddressBySearchResponseContainer(
+          AddressBySearchResponse(
+            tokens,
+            addresses = addresses.map(AddressResponseAddress.fromPafAddress(maxScore)),
+            limit = 10,
+            offset = 0,
+            total = addresses.size
+          ),
+          OkAddressResponseStatus
+        )))
     }
   }
 
