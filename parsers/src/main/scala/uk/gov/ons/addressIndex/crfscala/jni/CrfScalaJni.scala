@@ -29,7 +29,7 @@ object Implicits {
     }
   }
   implicit class CRFSuiteSpecificStringToScalaAugmenter(taggingResult : String) {
-    implicit def toTagInput() : Seq[TokenResult] = {
+    implicit def toTokenResult() : Seq[TokenResult] = {
       Seq(
         TokenResult(
           token = "exampleToken",
