@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.crfscala.jni
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{FeaturesResult, TokenResult}
 
+//todo scaladoc
 trait CrfScalaJni {
   /**
     * @param location url of the .crfsuite file
@@ -40,6 +41,7 @@ object Implicits {
   }
 }
 
+//todo scaladoc
 class CrfScalaJniImpl extends CrfScalaJni {
   @native def modelOpen(location : String) : Boolean
   @native def tag(input : String) : String
