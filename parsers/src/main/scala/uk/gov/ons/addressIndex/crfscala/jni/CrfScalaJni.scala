@@ -8,7 +8,7 @@ trait CrfScalaJni {
     * @return true if the model file was successfully opened,
     *         false if not.
     */
-  def modelOpen(location: String) : Boolean
+  def modelOpen(location : String) : Boolean
 
   /**
     * @param input the input to tag
