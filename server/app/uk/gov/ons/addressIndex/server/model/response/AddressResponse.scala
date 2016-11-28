@@ -5,25 +5,6 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 
 /**
-  * Contains implicit readers/writers to convert response models into json (play standard).
-  * When needed, do following:
-  * `import uk.gov.ons.addressIndex.server.model.response.implicits._`
-  */
-object Implicits {
-  implicit val addressResponseErrorFormat: OFormat[AddressResponseError] = Json.format[AddressResponseError]
-  implicit val addressResponseStatusFormat: OFormat[AddressResponseStatus] = Json.format[AddressResponseStatus]
-  implicit val addressResponseGeoFormat: OFormat[AddressResponseGeo] = Json.format[AddressResponseGeo]
-  implicit val addressResponseNagFormat: OFormat[AddressResponseNag] = Json.format[AddressResponseNag]
-  implicit val addressResponsePafFormat: OFormat[AddressResponsePaf] = Json.format[AddressResponsePaf]
-  implicit val addressResponseAddressFormat: OFormat[AddressResponseAddress] = Json.format[AddressResponseAddress]
-  implicit val addressTokensFormat: OFormat[AddressTokens] = Json.format[AddressTokens]
-  implicit val addressBySearchResponseFormat: OFormat[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
-  implicit val addressBySearchResponseContainerFormat: OFormat[AddressBySearchResponseContainer] = Json.format[AddressBySearchResponseContainer]
-  implicit val addressByUprnResponseFormat: OFormat[AddressByUprnResponse] = Json.format[AddressByUprnResponse]
-  implicit val addressByUprnResponseContainerFormat: OFormat[AddressByUprnResponseContainer] = Json.format[AddressByUprnResponseContainer]
-}
-
-/**
   * Contains the reply for address by uprn request
   *
   * @param response found content
@@ -33,8 +14,13 @@ object Implicits {
 case class AddressByUprnResponseContainer(
   response: AddressByUprnResponse,
   status: AddressResponseStatus,
-  errors: Seq[AddressResponseError]
+  errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
 )
+
+object AddressByUprnResponseContainer {
+  implicit val addressByUprnResponseContainerFormat: OFormat[AddressByUprnResponseContainer] =
+    Json.format[AddressByUprnResponseContainer]
+}
 
 /**
   * Contains relevant information to the requested address
@@ -44,6 +30,10 @@ case class AddressByUprnResponseContainer(
 case class AddressByUprnResponse(
   address: Option[AddressResponseAddress]
 )
+
+object AddressByUprnResponse {
+  implicit lazy val addressByUprnResponseFormat: OFormat[AddressByUprnResponse] = Json.format[AddressByUprnResponse]
+}
 
 /**
   * Contains the reply for the address search request
@@ -55,8 +45,13 @@ case class AddressByUprnResponse(
 case class AddressBySearchResponseContainer(
   response: AddressBySearchResponse,
   status: AddressResponseStatus,
-  errors: Seq[AddressResponseError]
+  errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
 )
+
+object AddressBySearchResponseContainer {
+  implicit lazy val addressBySearchResponseContainerFormat: OFormat[AddressBySearchResponseContainer] =
+    Json.format[AddressBySearchResponseContainer]
+}
 
 /**
   * Contains relevant, to the address request, data
@@ -75,6 +70,10 @@ case class AddressBySearchResponse(
   total: Int
 )
 
+object AddressBySearchResponse {
+  implicit lazy val addressBySearchResponseFormat: OFormat[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
+}
+
 /**
   * Contains tokens that build that the address can be splitted onto
   *
@@ -89,6 +88,7 @@ case class AddressTokens(
 )
 
 object AddressTokens {
+  implicit lazy val addressTokensFormat: OFormat[AddressTokens] = Json.format[AddressTokens]
   /**
     * Empty tokens (when needed before address tokenization)
     */
@@ -121,6 +121,8 @@ case class AddressResponseAddress(
 )
 
 object AddressResponseAddress {
+  implicit lazy val addressResponseAddressFormat: OFormat[AddressResponseAddress] = Json.format[AddressResponseAddress]
+
   /**
     * Transforms Paf address from elastic search into the Response address
     *
@@ -128,38 +130,38 @@ object AddressResponseAddress {
     * @return
     */
   def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponseAddress =
-  AddressResponseAddress(
-    uprn = other.uprn,
-    formattedAddress = "",
-    paf = Some(AddressResponsePaf(
-      other.udprn,
-      other.organizationName,
-      other.departmentName,
-      other.subBuildingName,
-      other.buildingName,
-      other.buildingNumber,
-      other.dependentThoroughfare,
-      other.thoroughfare,
-      other.doubleDependentLocality,
-      other.dependentLocality,
-      other.postTown,
-      other.postcode,
-      other.postcodeType,
-      other.deliveryPointSuffix,
-      other.welshDependentThoroughfare,
-      other.welshThoroughfare,
-      other.welshDoubleDependentLocality,
-      other.welshDependentLocality,
-      other.welshPostTown,
-      other.poBoxNumber,
-      other.startDate,
-      other.endDate
-    )),
-    nag = None,
-    geo = None,
-    underlyingScore = 1,
-    underlyingMaxScore = 1
-  )
+    AddressResponseAddress(
+      uprn = other.uprn,
+      formattedAddress = "",
+      paf = Some(AddressResponsePaf(
+        other.udprn,
+        other.organizationName,
+        other.departmentName,
+        other.subBuildingName,
+        other.buildingName,
+        other.buildingNumber,
+        other.dependentThoroughfare,
+        other.thoroughfare,
+        other.doubleDependentLocality,
+        other.dependentLocality,
+        other.postTown,
+        other.postcode,
+        other.postcodeType,
+        other.deliveryPointSuffix,
+        other.welshDependentThoroughfare,
+        other.welshThoroughfare,
+        other.welshDoubleDependentLocality,
+        other.welshDependentLocality,
+        other.welshPostTown,
+        other.poBoxNumber,
+        other.startDate,
+        other.endDate
+      )),
+      nag = None,
+      geo = None,
+      underlyingScore = 1,
+      underlyingMaxScore = 1
+    )
 }
 
 
@@ -214,6 +216,10 @@ case class AddressResponsePaf(
   endDate: String
 )
 
+object AddressResponsePaf {
+  implicit lazy val addressResponsePafFormat: OFormat[AddressResponsePaf] = Json.format[AddressResponsePaf]
+}
+
 /**
   * Nag data on the address
   *
@@ -222,6 +228,10 @@ case class AddressResponsePaf(
 case class AddressResponseNag(
   postcode: String
 )
+
+object AddressResponseNag {
+  implicit lazy val addressResponseNagFormat: OFormat[AddressResponseNag] = Json.format[AddressResponseNag]
+}
 
 /**
   * Contains address geo position
@@ -238,6 +248,10 @@ case class AddressResponseGeo(
   northing: Int
 )
 
+object AddressResponseGeo {
+  implicit lazy val addressResponseGeoFormat: OFormat[AddressResponseGeo] = Json.format[AddressResponseGeo]
+}
+
 /**
   * Contains response status
   *
@@ -248,6 +262,10 @@ case class AddressResponseStatus(
   code: Int,
   message: String
 )
+
+object AddressResponseStatus {
+  implicit lazy val addressResponseStatusFormat: OFormat[AddressResponseStatus] = Json.format[AddressResponseStatus]
+}
 
 object OkAddressResponseStatus extends AddressResponseStatus(
   code = Status.OK,
@@ -275,6 +293,10 @@ case class AddressResponseError(
   code: Int,
   message: String
 )
+
+object AddressResponseError {
+  implicit lazy val addressResponseErrorFormat: OFormat[AddressResponseError] = Json.format[AddressResponseError]
+}
 
 object EmptyQueryAddressResponseError extends AddressResponseError(
   code = 1,

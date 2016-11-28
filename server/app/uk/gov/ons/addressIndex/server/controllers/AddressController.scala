@@ -10,7 +10,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
-import uk.gov.ons.addressIndex.server.model.response.Implicits._
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.server.model.response._
 
@@ -82,8 +81,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           offset = 0,
           total = addresses.size
         ),
-        OkAddressResponseStatus,
-        errors = Seq.empty
+        OkAddressResponseStatus
       )))
     }
   }
@@ -136,8 +134,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           response = AddressByUprnResponse(
             address = Some(AddressResponseAddress.fromPafAddress(address))
           ),
-          OkAddressResponseStatus,
-          errors = Seq.empty
+          OkAddressResponseStatus
         )
       ))
       case None => NotFound(Json.toJson(

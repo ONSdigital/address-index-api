@@ -11,7 +11,6 @@ import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
-import uk.gov.ons.addressIndex.server.model.response.Implicits._
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 
@@ -103,8 +102,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1
         ),
-        OkAddressResponseStatus,
-        errors = Seq.empty
+        OkAddressResponseStatus
       ))
 
       // When
@@ -174,8 +172,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         response = AddressByUprnResponse(
           address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
         ),
-        OkAddressResponseStatus,
-        errors = Seq.empty
+        OkAddressResponseStatus
       ))
 
       // When
