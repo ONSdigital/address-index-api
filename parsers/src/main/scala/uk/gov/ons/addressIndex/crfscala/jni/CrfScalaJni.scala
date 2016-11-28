@@ -24,12 +24,12 @@ trait CrfScalaJni {
 
 object Implicits {
   implicit class FeaturesResultToInputAugmenter(res : FeaturesResult) {
-    def toTagInput() : String = {
+    implicit def toTagInput() : String = {
       res.keys.mkString(" ")
     }
   }
   implicit class CRFSuiteSpecificStringToScalaAugmenter(taggingResult : String) {
-    def toTagInput() : Seq[TokenResult] = {
+    implicit def toTagInput() : Seq[TokenResult] = {
       Seq(
         TokenResult(
           token = "exampleToken",

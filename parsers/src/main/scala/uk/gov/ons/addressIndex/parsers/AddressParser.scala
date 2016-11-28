@@ -27,7 +27,7 @@ case class Features(override val all : Feature[_]*) extends CrfFeatures
   *
   * @param name the feature's key which is referenced in them jcrfsuite model
   *
-  * @param analyser feature analyserx
+  * @param analyser feature analyser
   *
   * @tparam T the return type of this analyser; used for the conversion to an Item
   */

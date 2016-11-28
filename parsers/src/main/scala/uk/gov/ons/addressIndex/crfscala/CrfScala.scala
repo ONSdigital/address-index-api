@@ -53,7 +53,8 @@ object CrfScala {
       val fs = new FeatureSequence()
       val preprocessedTokens = Tokens normalise tokens
 
-      fas.analyse(i)
+      val res = preprocessedTokens.map(fas.analyse)
+      res
 
 //      for (token <- preprocessedTokens) {
 //        fs add(fa toItem token)
@@ -98,7 +99,11 @@ object CrfScala {
       item
     }
 
-    def analyse(i : Input) : FeaturesResult = all.map(f => f.name -> f.analyse(i)).toMap
+    /**
+      * @param i the token to run against all feature analysers
+      * @return the token and its results, as a pair
+      */
+    def analyse(i : Token) : (Token, FeaturesResult) = i -> all.map(f => f.name -> f.analyse(i)).toMap
   }
 
   /**
