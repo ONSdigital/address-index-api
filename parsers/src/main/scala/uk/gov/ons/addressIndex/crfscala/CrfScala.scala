@@ -50,11 +50,11 @@ object CrfScala {
     //TODO scaladoc
     def parse(i : Input, fas : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
       val tokens = Tokens(i)
-      val fs = new FeatureSequence()
       val preprocessedTokens = Tokens normalise tokens
-
-      val res = preprocessedTokens.map(fas.analyse)
+      val res : Map[Token, FeaturesResult] = (preprocessedTokens map fas.analyse).toMap
       res
+
+
 
 //      for (token <- preprocessedTokens) {
 //        fs add(fa toItem token)

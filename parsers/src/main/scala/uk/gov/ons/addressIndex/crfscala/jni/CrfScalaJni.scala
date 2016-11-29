@@ -2,7 +2,9 @@ package uk.gov.ons.addressIndex.crfscala.jni
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{FeaturesResult, TokenResult}
 
-//todo scaladoc
+/**
+  * CrfScalaJni is an interface which should be implemented with native methods.
+  */
 trait CrfScalaJni {
   /**
     * @param location url of the .crfsuite file
@@ -41,7 +43,9 @@ object Implicits {
   }
 }
 
-//todo scaladoc
+/**
+  * This is the native implementation of CrfScalaJni.
+  */
 class CrfScalaJniImpl extends CrfScalaJni {
   @native def modelOpen(location : String) : Boolean
   @native def tag(input : String) : String
