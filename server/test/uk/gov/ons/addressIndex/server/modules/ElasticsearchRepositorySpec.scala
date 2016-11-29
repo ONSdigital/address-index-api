@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -100,7 +100,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
+        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", 1.0f
       ))
 
       // When
@@ -121,15 +121,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
       val expected = PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"
+        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", 1.4142135f
       )
+      val expectedScore = 1.4142135f
 
       // When
-      val result = repository.queryAddress(tokens).await
+      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryAddress(tokens).await
 
       // Then
-      result.length shouldBe 1
-      result.head shouldBe expected
+      results.length shouldBe 1
+      results.head shouldBe expected
+      maxScore shouldBe expectedScore
     }
 
   }

@@ -6,6 +6,17 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
+
+/**
+ * Data structure containing addresses with the maximum address
+ * @param addresses fetched addresses
+ * @param maxScore maximum score
+ */
+case class PostcodeAddressFileAddresses(
+  addresses: Seq[PostcodeAddressFileAddress],
+  maxScore: Float
+)
+
 /**
   * PAF Address DTO
   */
@@ -38,7 +49,8 @@ case class PostcodeAddressFileAddress(
   startDate: String,
   endDate: String,
   lastUpdateDate: String,
-  entryDate: String
+  entryDate: String,
+  score: Float
 )
 
 /**
@@ -81,7 +93,8 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
         hit.sourceAsMap("startDate").toString,
         hit.sourceAsMap("endDate").toString,
         hit.sourceAsMap("lastUpdateDate").toString,
-        hit.sourceAsMap("entryDate").toString
+        hit.sourceAsMap("entryDate").toString,
+        hit.score
       )
     }
   }

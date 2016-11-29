@@ -37,7 +37,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         startDate = "26",
         endDate = "27",
         lastUpdateDate = "28",
-        entryDate = "29"
+        entryDate = "29",
+        score = 1.0f
       )
 
       val expected = AddressResponseAddress(

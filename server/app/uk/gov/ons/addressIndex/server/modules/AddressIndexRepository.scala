@@ -10,7 +10,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeIndex}
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses, PostcodeIndex}
 import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,18 +49,18 @@ trait ElasticsearchRepository extends ElasticIndexSugar {
     * Currently the query must be for building number and postcode.
     *
     * @param tokens address tokens
-    * @return
+    * @return Future with found addresses and the maximum score
     */
-  def queryAddress(tokens: AddressTokens) : Future[Seq[PostcodeAddressFileAddress]]
+  def queryAddress(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses]
 }
 
 @Singleton
 class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticClientProvider: ElasticClientProvider)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
-  val logger = Logger("address-index:ElasticsearchRepositoryModule")
-  val esConf = conf.config.elasticSearch
-  val pafIndex = esConf.indexes.pafIndex
-  val client = elasticClientProvider.client
+  private val logger = Logger("address-index:ElasticsearchRepositoryModule")
+  private val esConf = conf.config.elasticSearch
+  private val pafIndex = esConf.indexes.pafIndex
+  val client: ElasticClient = elasticClientProvider.client
 
   def createAll() : Future[Seq[CreateIndexResponse]] = {
     createIndex(
@@ -80,7 +80,7 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
     search in pafIndex query { termQuery("uprn", uprn) }
   }.map(_.as[PostcodeAddressFileAddress].headOption)
 
-  def queryAddress(tokens: AddressTokens) : Future[Seq[PostcodeAddressFileAddress]] = client.execute {
+  def queryAddress(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses] = client.execute {
     search in pafIndex query {
       bool(
         must(
@@ -95,5 +95,5 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
         )
       )
     }
-  }.map(_.as[PostcodeAddressFileAddress])
+  }.map(response => PostcodeAddressFileAddresses(response.as[PostcodeAddressFileAddress], response.maxScore))
 }
