@@ -28,7 +28,7 @@ trait AddressIndexClient {
     */
   def addressQuery(request : AddressIndexSearchRequest) : Future[WSResponse] = {
     AddressQuery
-      .toReq()
+      .toReq
       .withQueryString(
         "input" -> request.input,
         "format" -> request.format.toString
@@ -44,7 +44,7 @@ trait AddressIndexClient {
     */
   def uprnQuery(request : AddressIndexUPRNRequest) : Future[WSResponse] = {
     UprnQuery(request.uprn.toString)
-      .toReq()
+      .toReq
       .withQueryString(
         "format" -> request.format.toString
       )
