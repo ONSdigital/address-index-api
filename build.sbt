@@ -72,7 +72,7 @@ val commonDeps = Seq(
 
 val modelDeps = Seq(ws) ++ commonDeps
 
-val clientDeps = Seq(ws)++ commonDeps
+val clientDeps = Seq(ws) ++ commonDeps
 
 val parsersDeps = Seq(
   "com.github.vinhkhuc" % "jcrfsuite" % "0.6"

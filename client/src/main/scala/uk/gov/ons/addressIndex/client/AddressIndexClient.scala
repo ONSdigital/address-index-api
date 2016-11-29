@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.client
 import scala.concurrent.Future
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, ImageQuery, UprnQuery}
 
 trait AddressIndexClient {
 
@@ -28,6 +28,7 @@ trait AddressIndexClient {
     */
   def addressQuery(request : AddressIndexSearchRequest) : Future[WSResponse] = {
     AddressQuery
+      .toReq()
       .withQueryString(
         "input" -> request.input,
         "format" -> request.format.toString
@@ -43,6 +44,7 @@ trait AddressIndexClient {
     */
   def uprnQuery(request : AddressIndexUPRNRequest) : Future[WSResponse] = {
     UprnQuery(request.uprn.toString)
+      .toReq()
       .withQueryString(
         "format" -> request.format.toString
       )
@@ -54,10 +56,13 @@ object AddressIndexClientHelper {
 
   implicit def str2host(h : String) : AddressIndexServerHost = AddressIndexServerHost(h)
 
-  implicit def path2req(p : AddressIndexPath)(implicit client : WSClient, host : AddressIndexServerHost) : WSRequest =
-    client url s"${host.value}${p.path}" withMethod p.method
-
   sealed abstract class AddressIndexPath(val path : String, val method : String)
+
+  implicit class AddressIndexPathToWsAugmenter(p : AddressIndexPath)(implicit client : WSClient, host : AddressIndexServerHost) {
+    def toReq() : WSRequest = {
+      client url s"${host.value}${p.path}" withMethod p.path
+    }
+  }
 
   case class AddressIndexServerHost(value : String)
 
