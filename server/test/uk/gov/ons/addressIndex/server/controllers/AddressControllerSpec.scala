@@ -7,7 +7,7 @@ import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
@@ -62,8 +62,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def queryAddress(tokens: AddressTokens): Future[(Seq[PostcodeAddressFileAddress], Float)] =
-      Future.successful((Seq(validPafAddress), 1.0f))
+    override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
+      Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
 
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -78,8 +78,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def queryAddress(tokens: AddressTokens): Future[(Seq[PostcodeAddressFileAddress], Float)] =
-      Future.successful((Seq.empty, 1.0f))
+    override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
+      Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
 
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
