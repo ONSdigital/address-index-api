@@ -115,7 +115,6 @@ lazy val `address-index-client` = project.in(file("client"))
 ).dependsOn(
   `address-index-model`
 ).enablePlugins(
-  PlayScala,
   SbtWeb
 )
 
