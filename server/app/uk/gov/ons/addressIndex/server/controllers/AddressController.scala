@@ -10,6 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
+import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddresses
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.server.model.response._
 
@@ -73,7 +74,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
   private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
     esRepo.queryAddress(tokens).map {
-      case (addresses, maxScore) =>
+      case PostcodeAddressFileAddresses(addresses, maxScore) =>
         Ok(Json.toJson(AddressBySearchResponseContainer(
           AddressBySearchResponse(
             tokens,

@@ -30,7 +30,7 @@ class AddressIndexModelTest extends FlatSpec with Matchers {
     sample.stringToScheme shouldBe Some(BritishStandard7666(sample))
   }
 
-  it should "produce the correct `AddressScheme` (`UnsupportedScheme`) for the given string `unsupported scheme`" in {
+  it should "produce None for the given string `unsupported scheme`" in {
     val sample = "unsupported scheme"
     sample.stringToScheme shouldBe None
   }

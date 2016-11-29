@@ -6,6 +6,17 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
+
+/**
+ * Data structure containing addresses with the maximum address
+ * @param addresses fetched addresses
+ * @param maxScore maximum score
+ */
+case class PostcodeAddressFileAddresses(
+  addresses: Seq[PostcodeAddressFileAddress],
+  maxScore: Float
+)
+
 /**
   * PAF Address DTO
   */
