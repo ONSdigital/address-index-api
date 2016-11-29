@@ -7,11 +7,10 @@ import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
-import uk.gov.ons.addressIndex.server.model.response.Implicits._
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 
@@ -48,7 +47,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29"
+    entryDate = "29",
+    score = 1.0f
   )
 
   // injected value, change implementations accordingly when needed
@@ -62,8 +62,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def queryAddress(tokens: AddressTokens): Future[Seq[PostcodeAddressFileAddress]] =
-      Future.successful(Seq(validPafAddress))
+    override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
+      Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
 
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -78,8 +78,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
-    override def queryAddress(tokens: AddressTokens): Future[Seq[PostcodeAddressFileAddress]] =
-      Future.successful(Seq.empty)
+    override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
+      Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
 
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -98,13 +98,12 @@ class AddressControllerSpec extends PlaySpec with Results {
             buildingNumber = "10",
             postcode = "B16 8TH"
           ),
-          addresses = Seq(AddressResponseAddress.fromPafAddress(validPafAddress)),
+          addresses = Seq(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress)),
           limit = 10,
           offset = 0,
           total = 1
         ),
-        AddressResponseStatus.ok,
-        errors = Seq.empty
+        OkAddressResponseStatus
       ))
 
       // When
@@ -128,8 +127,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0
         ),
-        AddressResponseStatus.badRequest,
-        errors = Seq(AddressResponseError.addressFormatNotSupported)
+        BadRequestAddressResponseStatus,
+        errors = Seq(FormatNotSupportedAddressResponseError)
       ))
 
       // When
@@ -153,8 +152,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0
         ),
-        AddressResponseStatus.badRequest,
-        errors = Seq(AddressResponseError.emptyQuery)
+        BadRequestAddressResponseStatus,
+        errors = Seq(EmptyQueryAddressResponseError)
       ))
 
       // When
@@ -172,10 +171,9 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
+          address = Some(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress))
         ),
-        AddressResponseStatus.ok,
-        errors = Seq.empty
+        OkAddressResponseStatus
       ))
 
       // When
@@ -195,8 +193,8 @@ class AddressControllerSpec extends PlaySpec with Results {
         response = AddressByUprnResponse(
           address = None
         ),
-        AddressResponseStatus.notFound,
-        errors = Seq(AddressResponseError.notFound)
+        NotFoundAddressResponseStatus,
+        errors = Seq(NotFoundAddressResponseError)
       ))
 
       // When
@@ -216,8 +214,8 @@ class AddressControllerSpec extends PlaySpec with Results {
         response = AddressByUprnResponse(
           address = None
         ),
-        AddressResponseStatus.badRequest,
-        errors = Seq(AddressResponseError.addressFormatNotSupported)
+        BadRequestAddressResponseStatus,
+        errors = Seq(FormatNotSupportedAddressResponseError)
       ))
 
       // When

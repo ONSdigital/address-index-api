@@ -19,7 +19,6 @@ sealed trait AddressScheme {
 }
 case class PostcodeAddressFile(override val toString : String) extends AddressScheme
 case class BritishStandard7666(override val toString : String) extends AddressScheme
-case class UnsupportedScheme(override val toString : String) extends AddressScheme
 
 object AddressScheme {
 
@@ -28,12 +27,12 @@ object AddressScheme {
     * @param str - The string to be converted.
     */
   implicit class StringToAddressSchemeAugmenter(str: String) {
-    def stringToScheme() : AddressScheme = str.toLowerCase match {
-      case "paf" | "postcodeaddressfile" => PostcodeAddressFile(str)
+    def stringToScheme() : Option[AddressScheme] = str.toLowerCase match {
+      case "paf" | "postcodeaddressfile" => Some(PostcodeAddressFile(str))
 
-      case "bs" | "bs7666" | "britishstandard7666" => BritishStandard7666(str)
+      case "bs" | "bs7666" | "britishstandard7666" => Some(BritishStandard7666(str))
 
-      case scheme => UnsupportedScheme(scheme)
+      case _ => None
     }
   }
 }
