@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfParserResult, CrfTokenResult}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfParserResult
 /**
   * This test file's expected values were created by using a Python Prototype.
   */

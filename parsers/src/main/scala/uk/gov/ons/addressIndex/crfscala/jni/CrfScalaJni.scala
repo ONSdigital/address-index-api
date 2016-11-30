@@ -7,24 +7,12 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.{FeaturesResult, CrfTokenResult
   */
 trait CrfScalaJni {
   /**
-    * @param location url of the .crfsuite file
-    * @return true if the model file was successfully opened,
-    *         false if not.
-    */
-  def modelOpen(location : String) : Boolean
-
-  /**
     * @param input the input to tag
     * @return a crfsuite specific string which we can interpret as the results of tagging.
     */
   def tag(input : String) : String
-
-  /**
-    * @return all the labels available in the crfsuite model.
-    */
-  def modelLabels() : Array[String]
 }
-
+//todo scaladoc
 object Implicits {
   implicit class FeaturesResultToInputAugmenter(res : FeaturesResult) {
     implicit def toTagInput() : String = {
@@ -38,6 +26,7 @@ object Implicits {
   }
 }
 
+//todo scaladoc
 object CrfScalaJni {
   val tab = "\t"
   val newLine = "\n"
@@ -52,7 +41,5 @@ object CrfScalaJni {
   * This is the native implementation of CrfScalaJni.
   */
 class CrfScalaJniImpl extends CrfScalaJni {
-  @native def modelOpen(location : String) : Boolean
   @native def tag(input : String) : String
-  @native def modelLabels() : Array[String]
 }
