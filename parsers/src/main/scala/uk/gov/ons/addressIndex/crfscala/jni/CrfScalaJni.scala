@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.crfscala.jni
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{FeaturesResult, TokenResult}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{FeaturesResult, CrfTokenResult}
 
 /**
   * CrfScalaJni is an interface which should be implemented with native methods.
@@ -32,12 +32,11 @@ object Implicits {
     }
   }
   implicit class CRFSuiteSpecificStringToScalaAugmenter(taggingResult : String) {
-    implicit def toTokenResult() : Seq[TokenResult] = {
-      Seq.empty[TokenResult]
+    implicit def toTokenResult() : Seq[CrfTokenResult] = {
+      Seq.empty[CrfTokenResult]
     }
   }
 }
-
 
 object CrfScalaJni {
   val tab = "\t"

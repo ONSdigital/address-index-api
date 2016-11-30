@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.TokenResult
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 
 /**
   * This test file's expected values were created by using a Python Prototype.
@@ -12,8 +12,8 @@ class AddressParserTest extends FlatSpec with Matchers {
     val input = "token1 token2"
     val token = "Postcode"
     val expected = List(
-      TokenResult(token, "token1"),
-      TokenResult(token, "token2")
+      CrfTokenResult(token, "token1"),
+      CrfTokenResult(token, "token2")
     )
     val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
@@ -23,8 +23,8 @@ class AddressParserTest extends FlatSpec with Matchers {
     val input = "token1,token2"
     val token = "Postcode"
     val expected = List(
-      TokenResult(token, "token1"),
-      TokenResult(token, "token2")
+      CrfTokenResult(token, "token1"),
+      CrfTokenResult(token, "token2")
     )
     val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
@@ -34,8 +34,8 @@ class AddressParserTest extends FlatSpec with Matchers {
     val input = "token1, token2"
     val token = "Postcode"
     val expected = List(
-      TokenResult(token, "token1"),
-      TokenResult(token, "token2")
+      CrfTokenResult(token, "token1"),
+      CrfTokenResult(token, "token2")
     )
     val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual
@@ -45,7 +45,7 @@ class AddressParserTest extends FlatSpec with Matchers {
     val input = "token1"
     val token = "Postcode"
     val expected = List(
-      TokenResult(token, "token1")
+      CrfTokenResult(token, "token1")
     )
     val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
     expected should contain theSameElementsAs actual

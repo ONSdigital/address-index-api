@@ -13,10 +13,16 @@ import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni._
   */
 object CrfScala {
 
+  type ItemWithAttribute = String
   type Input = String
   type FeatureName = String
   type FeaturesResult = Map[FeatureName, _]
   type CrfFeatureAnalyser[T] = (Input => T)
+  type CrfJniInput = ItemWithAttribute
+
+  case class CrfTokenResult(token: Token, results: FeaturesResult)
+  case class CrfParserResult(originalInput: Token, crfLabel: String)
+
   object CrfFeatureAnalyser {
     /**
       * Helper apply method for better syntax.
@@ -45,7 +51,7 @@ object CrfScala {
   //TODO scaladoc
   trait CrfParser {
     //TODO scaladoc
-    def parse(i : Input, fas : CrfFeatures): List[ParseResult] = {
+    def parse(i : Input, fas : CrfFeatures): List[CrfParserResult] = {
       val tokens = Tokens(i)
       val preprocessedTokens = Tokens normalise tokens
 
@@ -54,11 +60,10 @@ object CrfScala {
       val crfJniIput = ""
       val tokenResults = new CrfScalaJniImpl tag crfJniIput split CrfScalaJni.newLine
       x
-      tokenResults.toList map { tr => ParseResult(tr, tr)}
+      tokenResults.toList map { tr => CrfParserResult(tr, tr)}
     }
   }
 
-  case class ParseResult(originalInput: Token, crfLabel: String)
 
   /**
     * scala wrapper of third_party.org.chokkan.crfsuite.Item
@@ -70,7 +75,7 @@ object CrfScala {
       */
     def all : Seq[CrfFeature[_]]
 
-    def toCrfJniInput(input: Token, next: Token, previous: Option[Token]): CrfJniInput = {
+    def toCrfJniInput(input: Token, next: Option[Token] = None, previous: Option[Token] = None): CrfJniInput = {
       all map(_.toCrfJniInput(input, next, previous)) mkString CrfScalaJni.lineEnd
     }
 
@@ -78,14 +83,11 @@ object CrfScala {
       * @param i the token to run against all feature analysers
       * @return the token and its results, as a pair
       */
-    def analyse(i : Token) : TokenResult = TokenResult(
+    def analyse(i : Token) : CrfTokenResult = CrfTokenResult(
       token = i,
       results = all.map(f => f.name -> f.analyse(i)).toMap
     )
   }
-
-  type CrfJniInput = String
-  case class TokenResult(token: Token, results: FeaturesResult)
 
   /**
     * scala wrapper of third_party.org.chokkan.crfsuite.Attribute
@@ -110,6 +112,14 @@ object CrfScala {
       */
     def analyse(i : Input) : T = analyser apply i
 
+    //TODO scaladoc
+    /**
+      *
+      * @param input
+      * @param next
+      * @param previous
+      * @return
+      */
     def toCrfJniInput(input: Token, next: Option[Token] = None, previous: Option[Token] = None): CrfJniInput = {
       new StringBuilder()
         .append(
@@ -119,24 +129,35 @@ object CrfScala {
           )
         )
         .append(
-          createCrfJniInput(
-            prefix = CrfScalaJni.next,
-            someValue = analyse(next.getOrElse(""))//TODO
-          )
+          next map { next =>
+            createCrfJniInput(
+              prefix = CrfScalaJni.next,
+              someValue = analyse(next)
+            )
+          } getOrElse ""
         )
         .append(
-          createCrfJniInput(
-            prefix = CrfScalaJni.previous,
-            someValue = analyse(previous.getOrElse(""))//TODO
-          )
+          previous map { previous =>
+            createCrfJniInput(
+              prefix = CrfScalaJni.previous,
+              someValue = analyse(previous)
+            )
+          } getOrElse ""
         )
         .toString
     }
 
+    //TODO scaladoc
+    /**
+      *
+      * @param prefix
+      * @param someValue
+      * @return
+      */
     def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
       someValue match {
         case _: String =>
-          s"$name:$delimiter" //complicated TODO
+          s"$name:$delimiter" //complicated TODO finsh this, some qualifications needed on certain chars
 
         case _: Int =>
           s"$name:$someValue.0$delimiter"

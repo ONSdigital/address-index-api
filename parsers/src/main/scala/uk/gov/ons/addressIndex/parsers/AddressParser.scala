@@ -7,7 +7,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
   * AddressParser
   */
 object AddressParser extends CrfParser {
-  override def parse(i: Input, fa: CrfFeatures): List[ParseResult] = {
+  override def parse(i: Input, fa: CrfFeatures): List[CrfParserResult] = {
     super.parse(i, fa)
   }
 }

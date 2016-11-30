@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{Input, TokenResult}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{Input, CrfTokenResult}
 import uk.gov.ons.addressIndex.parsers.Tokens.{Token, TokenIndicator}
 
 class TokensTest extends FlatSpec with Matchers {
