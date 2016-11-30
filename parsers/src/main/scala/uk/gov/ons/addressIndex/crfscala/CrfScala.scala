@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.crfscala
 
-import com.github.jcrfsuite.CrfTagger
 import uk.gov.ons.addressIndex.crfscala.jni.{CrfScalaJni, CrfScalaJniImpl}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
@@ -54,7 +53,7 @@ object CrfScala {
       val x = preprocessedTokens map fas.analyse
       val crfJniIput = ""
       val tokenResults = new CrfScalaJniImpl tag crfJniIput split CrfScalaJni.newLine
-
+      x
       tokenResults.toList map { tr => ParseResult(tr, tr)}
     }
   }
@@ -111,7 +110,7 @@ object CrfScala {
       */
     def analyse(i : Input) : T = analyser apply i
 
-    def toCrfJniInput(input: Token, next: Token, previous: Option[Token]): CrfJniInput = {
+    def toCrfJniInput(input: Token, next: Option[Token] = None, previous: Option[Token] = None): CrfJniInput = {
       new StringBuilder()
         .append(
           createCrfJniInput(
@@ -122,13 +121,13 @@ object CrfScala {
         .append(
           createCrfJniInput(
             prefix = CrfScalaJni.next,
-            someValue = analyse(next)
+            someValue = analyse(next.getOrElse(""))//TODO
           )
         )
         .append(
           createCrfJniInput(
             prefix = CrfScalaJni.previous,
-            someValue = analyse(previous.get)//TODO
+            someValue = analyse(previous.getOrElse(""))//TODO
           )
         )
         .toString
