@@ -1,0 +1,326 @@
+swagger: "2.0"
+
+info:
+  title: ONS Address Index API
+  description: ONS Address Index API.
+  version: 0.0.1
+
+host: addressindex.api.ons.gov.uk
+
+schemes:
+  - https
+
+basePath: /v1
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+paths:
+  /address/{uprn}:
+    get:
+      summary: Gets an address by UPRN.
+      description: Returns a single address, identified by its UPRN.
+
+      parameters:
+       - name: uprn
+         in: path
+         type: string
+         required: true
+         description: Specifies the address UPRN.
+
+       - name: format
+         in: query
+         type: string
+         required: false
+         description: Specifies the response address format, either paf or bs7666 (defaults to paf).
+
+      responses:
+        200:
+          description: OK.
+          schema:
+              $ref: '#/definitions/AddressResponse'
+
+        404:
+          description: Not found.
+          schema:
+              $ref: '#/definitions/Status'
+
+        default:
+          description: One or more errors occurred.
+          schema:
+              $ref: '#/definitions/Errors'
+
+  /addresses:
+    get:
+      summary: Search for an address.
+      description: Returns a ranked list of addresses matching the search query in the specified format.
+
+      parameters:
+       - name: q
+         in: query
+         type: string
+         required: true
+         description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
+
+       - name: offset
+         in: query
+         type: integer
+         format: int32
+         required: false
+         description: Specifies the offset from zero, used for pagination (default 0).
+
+       - name: limit
+         in: query
+         type: integer
+         format: int32
+         required: false
+         description: Specifies the number of addresses to return (defaults to 20, maximum 100).
+
+       - name: format
+         in: query
+         type: string
+         required: false
+         description: Specifies the response address format, either paf or bs7666 (defaults to paf).
+
+      responses:
+        200:
+          description: OK.
+          schema:
+              $ref: '#/definitions/AddressSearchResponse'
+
+        404:
+          description: Not found.
+          schema:
+              $ref: '#/definitions/Status'
+
+        default:
+          description: One or more errors occurred.
+          schema:
+              $ref: '#/definitions/Errors'
+
+definitions:
+  AddressResponse:
+    type: object
+    properties:
+      response:
+        type: object
+  
+        properties:
+          address:
+            $ref: '#/definitions/Address'
+
+      status:
+        $ref: '#/definitions/Status'        
+
+      errors:
+        $ref: '#/definitions/Errors'        
+
+  AddressSearchResponse:
+    type: object
+    properties:
+      response:
+        type: object
+  
+        properties:
+          addressTokens:
+            $ref: '#/definitions/AddressTokens'
+
+          addresses:
+            $ref: '#/definitions/Addresses'
+
+          offset:
+            type: integer
+
+          limit:
+            type: integer
+
+      status:
+        $ref: '#/definitions/Status'        
+
+      errors:
+        $ref: '#/definitions/Errors'        
+
+  AddressTokens:
+    type: object
+
+    properties:
+      organisationName:
+        type: string
+
+      departmentName:
+        type: string
+
+      subBuildingName:
+        type: string
+
+      buildingName:
+        type: string
+
+      buildingNumber:
+        type: string
+
+      streetName:
+        type: string
+
+      locality:
+        type: string
+
+      postTown:
+        type: string
+
+      postcode:
+        type: string
+
+  Addresses:
+    type: array
+    items:
+      $ref: '#/definitions/Address'        
+
+  Address:
+    type: object
+    properties:
+      uprn:
+        type: string
+
+      formattedAddress:
+        type: string
+
+      paf:
+        $ref: '#/definitions/PafAddress'        
+
+      nag:
+        $ref: '#/definitions/NagAddress'        
+
+      geo:
+        $ref: '#/definitions/Geo'        
+
+      underlyingScore:
+        type: number        
+        format: double        
+
+      underlyingMaxScore:
+        type: number        
+        format: double        
+
+  PafAddress:
+    type: object
+    properties:
+      udprn:
+        type: string
+
+      organisationName:
+        type: string
+
+      departmentName:
+        type: string
+
+      subBuildingName:
+        type: string
+
+      buildingName:
+        type: string
+
+      buildingNumber:
+        type: string
+
+      dependentThoroughfare:
+        type: string
+
+      thoroughfare:
+        type: string
+
+      doubleDependentLocality:
+        type: string
+
+      dependentLocality:
+        type: string
+
+      postTown:
+        type: string
+
+      postcode:
+        type: string
+
+      postcodeType:
+        type: string
+
+      deliveryPointSuffix:
+        type: string
+
+      welshDependentThoroughfare:
+        type: string
+
+      welshThoroughfare:
+        type: string
+
+      welshDoubleDependentLocality:
+        type: string
+
+      welshDependentLocality:
+        type: string
+
+      welshPostTown:
+        type: string
+        
+      poBoxNumber:
+        type: string
+
+      startDate:
+        type: string
+        format: date
+
+      endDate:
+        type: string
+        format: date
+
+  NagAddress:
+    type: object
+    properties:
+      postcode:
+        type: string
+
+  Geo:
+    type: object
+    properties:
+      latitude:
+        type: number
+        format: double
+
+      longitude:
+        type: number
+        format: double
+
+      easting:
+        type: number
+        format: integer
+
+      northing:
+        type: number
+        format: integer
+
+  Status:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+
+      message:
+        type: string
+
+  Errors:
+    type: array
+    items:
+      $ref: '#/definitions/Error'
+
+  Error:
+    type: object            
+    properties:
+      code:
+        type: string
+
+      message:
+        type: string
