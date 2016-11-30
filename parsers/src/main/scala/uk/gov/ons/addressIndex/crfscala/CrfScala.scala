@@ -13,7 +13,7 @@ import scala.util.control.NonFatal
   * todo describe this more
   */
 object CrfScala {
-  
+
   type Input = String
   type FeatureName = String
   type FeatureSequence = third_party.org.chokkan.crfsuite.ItemSequence
@@ -51,10 +51,9 @@ object CrfScala {
     def parse(i : Input, fas : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
       val tokens = Tokens(i)
       val preprocessedTokens = Tokens normalise tokens
-      val res : Map[Token, FeaturesResult] = (preprocessedTokens map fas.analyse).toMap
-      res
+      val x = preprocessedTokens map fas.analyse
 
-
+      x.map {x => println(x)}
 
 //      for (token <- preprocessedTokens) {
 //        fs add(fa toItem token)
@@ -103,8 +102,42 @@ object CrfScala {
       * @param i the token to run against all feature analysers
       * @return the token and its results, as a pair
       */
-    def analyse(i : Token) : (Token, FeaturesResult) = i -> all.map(f => f.name -> f.analyse(i)).toMap
+    def analyse(i : Token) : TokenResult = TokenResult(
+      token = i,
+      results = all.map(f => f.name -> f.analyse(i)).toMap
+    )
   }
+
+  type CrfJniInput = String
+  case class TokenResult(token: Token, results: FeaturesResult) {
+    def toCrfJniInput(): CrfJniInput = {
+      val sb        = new StringBuilder
+      val tab       = "\t"
+      val newLine   = "\n"
+      val lineStart = tab
+      val delimiter = tab
+      val lineEnd   = newLine
+
+      sb.append(lineStart)
+
+      val x = results map { case (n, v) =>
+        v match {
+          case String =>
+            s"$n:$delimiter" //complicated
+          case Int =>
+            s"$n:$v.0$delimiter"
+          case Double =>
+            s"$n:$v$delimiter"
+          case Boolean =>
+            s"$v:${if(v.asInstanceOf[Boolean]) "1.0" else "0.0"}$delimiter"
+        }
+      }
+      x
+      sb.append(lineEnd)
+      sb.toString
+    }
+  }
+
 
   /**
     * scala wrapper of third_party.org.chokkan.crfsuite.Attribute
