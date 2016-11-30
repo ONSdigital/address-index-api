@@ -33,14 +33,20 @@ object Implicits {
   }
   implicit class CRFSuiteSpecificStringToScalaAugmenter(taggingResult : String) {
     implicit def toTokenResult() : Seq[TokenResult] = {
-      Seq(
-        TokenResult(
-          token = "exampleToken",
-          input = "exampleInput"
-        )
-      )
+      Seq.empty[TokenResult]
     }
   }
+}
+
+
+object CrfScalaJni {
+  val tab = "\t"
+  val newLine = "\n"
+  val lineStart = tab
+  val delimiter = tab
+  val lineEnd = newLine
+  val previous = "previous\\:"
+  val next = "next\\:"
 }
 
 /**

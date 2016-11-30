@@ -7,8 +7,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
   * AddressParser
   */
 object AddressParser extends CrfParser {
-  def parse(i : Input, fa : CrfFeatures) : List[TokenResult] = {
-    implicit val tagger = new Tagger("/Users/rhysbradbury/Downloads/addressCRF.crfsuite")
+  override def parse(i: Input, fa: CrfFeatures): List[ParseResult] = {
     super.parse(i, fa)
   }
 }

@@ -1,11 +1,11 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import com.github.jcrfsuite.CrfTagger
-import third_party.org.chokkan.crfsuite.{Attribute, Item}
+import uk.gov.ons.addressIndex.crfscala.jni.{CrfScalaJni, CrfScalaJniImpl}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
-import collection.JavaConverters._
 import scala.util.control.NonFatal
+import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni._
 
 /**
   * scala wrapper of crfsuite
@@ -16,8 +16,6 @@ object CrfScala {
 
   type Input = String
   type FeatureName = String
-  type FeatureSequence = third_party.org.chokkan.crfsuite.ItemSequence
-  type Tagger = CrfTagger
   type FeaturesResult = Map[FeatureName, _]
   type CrfFeatureAnalyser[T] = (Input => T)
   object CrfFeatureAnalyser {
@@ -48,33 +46,20 @@ object CrfScala {
   //TODO scaladoc
   trait CrfParser {
     //TODO scaladoc
-    def parse(i : Input, fas : CrfFeatures)(implicit tagger : Tagger) : List[TokenResult] = {
+    def parse(i : Input, fas : CrfFeatures): List[ParseResult] = {
       val tokens = Tokens(i)
       val preprocessedTokens = Tokens normalise tokens
+
+      //TODO
       val x = preprocessedTokens map fas.analyse
+      val crfJniIput = ""
+      val tokenResults = new CrfScalaJniImpl tag crfJniIput split CrfScalaJni.newLine
 
-      x.map {x => println(x)}
-
-//      for (token <- preprocessedTokens) {
-//        fs add(fa toItem token)
-//      }
-
-//      val r = tagger tag fs
-//      r.asScala.zipWithIndex.map { p =>
-//        TokenResult(
-//          token = p._1.first,
-//          input = tokens(p._2)
-//        )
-//      } toList
+      tokenResults.toList map { tr => ParseResult(tr, tr)}
     }
   }
 
-
-  /**
-    * @param token the token which the crfsuite identified
-    * @param input the input which produced this token
-    */
-  case class TokenResult(token : Token, input : Input)
+  case class ParseResult(originalInput: Token, crfLabel: String)
 
   /**
     * scala wrapper of third_party.org.chokkan.crfsuite.Item
@@ -86,16 +71,8 @@ object CrfScala {
       */
     def all : Seq[CrfFeature[_]]
 
-    /**
-      * @param i input
-      * @return the features as an Item
-      */
-    def toItem(i : Input) : Item = {
-      val item = new Item()
-      for(feature <- all) {
-        item.add(feature toAttribute i)
-      }
-      item
+    def toCrfJniInput(input: Token, next: Token, previous: Option[Token]): CrfJniInput = {
+      all map(_.toCrfJniInput(input, next, previous)) mkString CrfScalaJni.lineEnd
     }
 
     /**
@@ -109,35 +86,7 @@ object CrfScala {
   }
 
   type CrfJniInput = String
-  case class TokenResult(token: Token, results: FeaturesResult) {
-    def toCrfJniInput(): CrfJniInput = {
-      val sb        = new StringBuilder
-      val tab       = "\t"
-      val newLine   = "\n"
-      val lineStart = tab
-      val delimiter = tab
-      val lineEnd   = newLine
-
-      sb.append(lineStart)
-
-      val x = results map { case (n, v) =>
-        v match {
-          case String =>
-            s"$n:$delimiter" //complicated
-          case Int =>
-            s"$n:$v.0$delimiter"
-          case Double =>
-            s"$n:$v$delimiter"
-          case Boolean =>
-            s"$v:${if(v.asInstanceOf[Boolean]) "1.0" else "0.0"}$delimiter"
-        }
-      }
-      x
-      sb.append(lineEnd)
-      sb.toString
-    }
-  }
-
+  case class TokenResult(token: Token, results: FeaturesResult)
 
   /**
     * scala wrapper of third_party.org.chokkan.crfsuite.Attribute
@@ -162,49 +111,53 @@ object CrfScala {
       */
     def analyse(i : Input) : T = analyser apply i
 
-    /**
-      * scala wrapper of third_party.org.chokkan.crfsuite.Attribute
-      *
-      * do not change this without speaking to Rhys Bradbury
-      * please be aware that the Attribute source has no JavaDoc
-      *
-      * depending on T (the return type fo the analyser) we construct Attribute differently
-      *
-      * @param i input
-      * @return wrapper of third_party.org.chokkan.crfsuite.Attribute
-      */
-    def toAttribute(i : Input) : Attribute = {
-      val v = analyse(i)
-      createAttribute(v)
+    def toCrfJniInput(input: Token, next: Token, previous: Option[Token]): CrfJniInput = {
+      new StringBuilder()
+        .append(
+          createCrfJniInput(
+            prefix = name,
+            someValue = analyse(input)
+          )
+        )
+        .append(
+          createCrfJniInput(
+            prefix = CrfScalaJni.next,
+            someValue = analyse(next)
+          )
+        )
+        .append(
+          createCrfJniInput(
+            prefix = CrfScalaJni.previous,
+            someValue = analyse(previous.get)//TODO
+          )
+        )
+        .toString
     }
 
-    def createAttribute(someValue : Any) : Attribute = {
+    def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
       someValue match {
-        case _ : String =>
-          new Attribute(s"$name=$someValue")
+        case _: String =>
+          s"$name:$delimiter" //complicated TODO
 
-        case _ : Double =>
-          new Attribute(name, someValue.asInstanceOf[Double])
+        case _: Int =>
+          s"$name:$someValue.0$delimiter"
 
-        case _ : Int =>
-          new Attribute(name, Int int2double someValue.asInstanceOf[Int])
+        case _: Double =>
+          s"$name:$someValue$delimiter"
 
-        case _ : Boolean =>
-          if(someValue.asInstanceOf[Boolean]) {
-            new Attribute(name, 1d)
-          } else {
-            new Attribute(name, 0d)
-          }
+        case _: Boolean =>
+          s"$name:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}$delimiter"
 
         case t : CrfType[_] =>
-          createAttribute(t.value)
+          createCrfJniInput(prefix, t.value)
 
         case NonFatal(e) =>
           throw e
 
         case _ =>
           throw new UnsupportedOperationException(
-            s"Unsupported input to crf Attribute: ${someValue.getClass.toString} or Feature with name: $name")
+            s"Unsupported input to CrfJniInput: ${someValue.getClass.toString} or Feature with name: $name"
+          )
       }
     }
   }

@@ -17,7 +17,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[Boolean]("name")(str => true)
     val expected = new Item()
-    expected.add(feature toAttribute input)
+    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
     val actual = test toItem input
     actual.size shouldBe expected.size
@@ -27,7 +27,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[Int]("name")(str => 0)
     val expected = new Item()
-    expected.add(feature toAttribute input)
+    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
     val actual = test toItem input
     actual.size shouldBe expected.size
@@ -37,7 +37,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[Double]("name")(str => 0d)
     val expected = new Item()
-    expected.add(feature toAttribute input)
+    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
     val actual = test toItem input
     actual.size shouldBe expected.size
@@ -47,7 +47,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[String]("name")(str => "")
     val expected = new Item()
-    expected.add(feature toAttribute input)
+    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
     val actual = test toItem input
     actual.size shouldBe expected.size
@@ -60,10 +60,10 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val feature3 = CrfFeatureTestImpl[Double]("name")(str => 0d)
     val feature4 = CrfFeatureTestImpl[Int]("name")(str => 0)
     val expected = new Item()
-    expected.add(feature1 toAttribute input)
-    expected.add(feature2 toAttribute input)
-    expected.add(feature3 toAttribute input)
-    expected.add(feature4 toAttribute input)
+    expected.add(feature1 toCrfJniInput input)
+    expected.add(feature2 toCrfJniInput input)
+    expected.add(feature3 toCrfJniInput input)
+    expected.add(feature4 toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))
     val actual = test toItem input
     actual.size shouldBe expected.size
