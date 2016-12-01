@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
+import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni
 
 /**
   * scala wrapper of third_party.org.chokkan.crfsuite.Item
@@ -14,7 +15,7 @@ trait CrfFeatures {
 
   //TODO scaladoc
   def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
-    all map(_.toCrfJniInput(input, next, previous)) mkString
+    (all map(_.toCrfJniInput(input, next, previous)) mkString) + CrfScalaJni.lineEnd
   }
 
   /**

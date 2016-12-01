@@ -13,7 +13,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
 
   it should "return the expected amount of `Item`s for input `arbitrary` (String, Boolean, Double, Int)" in {
     val input = "arbitrary"
-    val feature1 = CrfFeatureTestImpl[String]("name1")(str => "")
+    val feature1 = CrfFeatureTestImpl[String]("name1")(str => str)
     val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
     val feature3 = CrfFeatureTestImpl[Double]("name3")(str => 0d)
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
