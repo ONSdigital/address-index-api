@@ -3,7 +3,6 @@ package uk.gov.ons.addressIndex.crfscala
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni
-
 import scala.util.control.NonFatal
 
 /** todo scaladoc
