@@ -1,16 +1,17 @@
 package uk.gov.ons.addressIndex.parsers
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.Input
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfToken, CrfTokenable, CrfTokens, Input}
 
 //todo scaladoc this whole thing
-object Tokens {
+object Tokens extends CrfTokenable {
+
   type TokenIndicator = String
-  type Token = String
-  type Tokens = Array[Token]
+  type Token = CrfToken
+  type Tokens = CrfTokens
 
-  def apply(input : Input) : Tokens = input replaceAll(","," ") split " " filterNot(_.isEmpty)
+  override def apply(input : Input) : Tokens = input replaceAll(","," ") split " " filterNot(_.isEmpty)
 
-  def normalise(tokens : Tokens) : Tokens = tokens map(_.toUpperCase)
+  override def normalise(tokens : Tokens) : Tokens = tokens map(_.toUpperCase)
 
   val all : Seq[Token] = Seq(
     "OrganisationName",

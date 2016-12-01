@@ -9,12 +9,21 @@ object CrfScala {
 
   type Input = String
   type CrfToken = String
+  type CrfTokens = Array[CrfToken]
   type FeatureName = String
   type CrfJniInput = String
   type FeaturesResult = Map[FeatureName, _]
   type CrfParserResults = Seq[CrfParserResult]
 
   case class CrfParserResult(originalInput: CrfToken, crfLabel: String)
+
+  /**
+    * todo scaladoc
+    */
+  trait CrfTokenable {
+    def apply(input : CrfToken) : CrfTokens
+    def normalise(tokens : CrfTokens): CrfTokens
+  }
 
   case class CrfTokenResult(
     token: CrfToken,

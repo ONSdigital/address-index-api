@@ -20,7 +20,7 @@ class AddressParserTest extends FlatSpec with Matchers {
         crfLabel = token
       )
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures, Tokens)
     expected should contain theSameElementsAs actual
   }
 
@@ -37,7 +37,7 @@ class AddressParserTest extends FlatSpec with Matchers {
         crfLabel = token
       )
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures, Tokens)
     expected should contain theSameElementsAs actual
   }
 
@@ -54,7 +54,7 @@ class AddressParserTest extends FlatSpec with Matchers {
         crfLabel = token
       )
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures, Tokens)
     expected should contain theSameElementsAs actual
   }
 
@@ -67,7 +67,7 @@ class AddressParserTest extends FlatSpec with Matchers {
         crfLabel = token
       )
     )
-    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures)
+    val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures, Tokens)
     expected should contain theSameElementsAs actual
   }
 }

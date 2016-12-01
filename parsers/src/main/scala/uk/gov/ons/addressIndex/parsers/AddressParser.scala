@@ -9,8 +9,9 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
   * AddressParser
   */
 object AddressParser extends CrfParser {
-  override def parse(i: Input, fa: CrfFeatures): CrfParserResults = {
-    super.parse(i, fa)
+  //can remove
+  def parse(i: Input, fa: Features, tokenable: CrfTokenable): CrfParserResults = {
+    super.parse(i, fa, tokenable)
   }
 }
 
@@ -32,4 +33,4 @@ case class Features(override val all : Feature[_]*) extends CrfFeatures
   *
   * @tparam T the return type of this analyser; used for the conversion to an Item
   */
-case class Feature[T](override val name : String)(override val analyser : CrfFeatureAnalyser[T]) extends CrfFeature[T]
+case class Feature[T](override val name: String)(override val analyser: CrfFeatureAnalyser[T]) extends CrfFeature[T]

@@ -11,7 +11,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     actual should contain theSameElementsAs expected
   }
 
-  it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types))" in {
+  it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for input `arbitrary`" in {
     val input = "arbitrary"
     val feature1 = CrfFeatureTestImpl[String]("name1")(str => str)
     val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
@@ -20,6 +20,18 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val test = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))
     val actual = test toCrfJniInput input
     val expected = s"\t${feature1.name}\\:$input:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
+    actual shouldBe expected
+  }
+
+  it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for input `arbitrary:arbitrary`" in {
+    val input = "arbitrary:arbitrary"
+    val feature1 = CrfFeatureTestImpl[String]("name1")(str => str)
+    val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
+    val feature3 = CrfFeatureTestImpl[Double]("name3")(str => 0d)
+    val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
+    val test = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))
+    val actual = test toCrfJniInput input
+    val expected = s"\t${feature1.name}\\:${input.replace(":", "\\:")}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
     actual shouldBe expected
   }
 }
