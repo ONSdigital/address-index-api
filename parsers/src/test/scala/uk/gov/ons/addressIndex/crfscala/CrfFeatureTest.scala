@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfFeature, CrfFeatureAnalyser}
+import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
 import scala.util.Try
 
 class CrfFeatureTest extends FlatSpec with Matchers  {

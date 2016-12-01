@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
+import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
+import uk.gov.ons.addressIndex.crfscala.{CrfFeature, CrfFeatures, CrfParser}
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
 //TODO scaladoc

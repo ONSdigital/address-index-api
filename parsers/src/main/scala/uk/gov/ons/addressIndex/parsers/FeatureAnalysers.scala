@@ -1,8 +1,10 @@
 package uk.gov.ons.addressIndex.parsers
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfFeatureAnalyser, _}
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import Tokens._
+import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser
+import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfType, FeatureName}
 import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.ADT.Root
 
 /**
