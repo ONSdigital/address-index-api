@@ -164,8 +164,8 @@ object CrfScala {
       */
     def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
       def qualify(str: String): String = str.replace(":", "\\:")
-
       val qName = qualify(name)
+
       someValue match {
         case _: String =>
           s"$qName\\:${qualify(someValue.asInstanceOf[String])}:1.0"
