@@ -93,6 +93,21 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
+  it should "qualify any feature analyser's name with a `:` in it across all supported return types" in {
+    val input = "arbitrary"
+    val actual = TestInstanceQualifyName.feature.toCrfJniInput(input)
+    val expected = s"\t${TestInstanceQualifyName.name.replace(":", "\\:")}:0.0\n"
+    actual shouldBe expected
+  }
+
+  object TestInstanceQualifyName {
+    type tType = Double
+    val output: tType = 0d
+    val analyser = CrfFeatureAnalyser[tType](_ => output)
+    val name = "name:WithSomethingtoQualify"
+    val feature = CrfFeatureTestImpl[tType](name)(analyser)
+  }
+
   it should "throw an `UnsupportedOperationException` for any type other than `Boolean`, `String`, `Int`, `Double` for input `arbitrary`" in {
     val input = "arbitrary"
     Try[String](TestInstanceArbType.feature.toCrfJniInput(input)) recover {

@@ -163,18 +163,19 @@ object CrfScala {
       * @return
       */
     def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
+      val qName = name.replace(":", "\\:")
       someValue match {
         case _: String =>
-          s"$name\\:${someValue.asInstanceOf[String].replace(":", "\\:")}:1.0"
+          s"$qName\\:${someValue.asInstanceOf[String].replace(":", "\\:")}:1.0"
 
         case _: Int =>
-          s"$name:$someValue.0"
+          s"$qName:$someValue.0"
 
         case _: Double =>
-          s"$name:$someValue"
+          s"$qName:$someValue"
 
         case _: Boolean =>
-          s"$name:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
+          s"$qName:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
 
         case t : CrfType[_] =>
           createCrfJniInput(prefix, t.value)
