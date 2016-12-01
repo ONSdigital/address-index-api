@@ -39,7 +39,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val input = "arbitrary"
     val actual = TestInstanceString.feature.toCrfJniInput(input)
     val attribute: String = s"${TestInstanceString.feature.name}=$input"
-    val expected = new Attribute(attribute)
+//    val expected = new Attribute(attribute)
 //    actual.getAttr shouldBe expected.getAttr
   }
 
@@ -55,7 +55,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
   ignore should "return the expected attribute for type `Int` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceInt.feature.toCrfJniInput(input)
-    val expected = new Attribute(TestInstanceInt.feature.name, Int int2double TestInstanceInt.output)
+//    val expected = new Attribute(TestInstanceInt.feature.name, Int int2double TestInstanceInt.output)
 //    actual.getAttr shouldBe expected.getAttr
   }
 
@@ -71,7 +71,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
   ignore should "return the expected attribute for type `Double` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceDouble.feature.toCrfJniInput(input)
-    val expected =  new Attribute(TestInstanceInt.feature.name, TestInstanceInt.output)
+//    val expected =  new Attribute(TestInstanceInt.feature.name, TestInstanceInt.output)
 //    actual.getAttr shouldBe expected.getAttr
   }
 
