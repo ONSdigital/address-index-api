@@ -88,7 +88,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     type tType = Double
     val output: tType = 0d
     val analyser = CrfFeatureAnalyser[tType](_ => output)
-    val name = "name:WithSomethingtoQualify"
+    val name = "name:WithSomethingToQualify"
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
