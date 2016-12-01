@@ -7,10 +7,11 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.{FeaturesResult, CrfTokenResult
   */
 trait CrfScalaJni {
   /**
-    * @param input the input to tag
+    * @param modelPath String path to model
+    * @param items the input to tag
     * @return a crfsuite specific string which we can interpret as the results of tagging.
     */
-  def tag(input : String) : String
+  def tag(modelPath: String, items : String) : String
 }
 //todo scaladoc
 object Implicits {
@@ -41,5 +42,5 @@ object CrfScalaJni {
   * This is the native implementation of CrfScalaJni.
   */
 class CrfScalaJniImpl extends CrfScalaJni {
-  @native def tag(input : String) : String
+  @native def tag(modelPath: String, items : String) : String
 }
