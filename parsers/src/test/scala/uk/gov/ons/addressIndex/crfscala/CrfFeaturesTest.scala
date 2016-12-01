@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import org.scalatest.{FlatSpec, Matchers}
-import third_party.org.chokkan.crfsuite.Item
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfFeature, CrfFeatures}
 
 class CrfFeaturesTest extends FlatSpec with Matchers {
@@ -16,7 +15,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
   ignore should "return the expected amount of `Item`s for input `arbitrary` (Boolean)" in {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[Boolean]("name")(str => true)
-    val expected = new Item()
+//    val expected = new Item()
 //    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
 //    val actual = test toItem input
@@ -26,7 +25,6 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
   ignore should "return the expected amount of `Item`s for input `arbitrary` (Int)" in {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[Int]("name")(str => 0)
-    val expected = new Item()
 //    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
 //    val actual = test toItem input
@@ -36,7 +34,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
   ignore should "return the expected amount of `Item`s for input `arbitrary` (Double)" in {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[Double]("name")(str => 0d)
-    val expected = new Item()
+//    val expected = new Item()
 //    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
 //    val actual = test toItem input
@@ -46,7 +44,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
   ignore should "return the expected amount of `Item`s for input `arbitrary` (String)" in {
     val input = "arbitrary"
     val feature = CrfFeatureTestImpl[String]("name")(str => "")
-    val expected = new Item()
+//    val expected = new Item()
 //    expected.add(feature toCrfJniInput input)
     val test = CrfFeaturesImpl(Seq(feature))
 //    val actual = test toItem input
@@ -59,7 +57,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val feature2 = CrfFeatureTestImpl[Boolean]("name")(str => true)
     val feature3 = CrfFeatureTestImpl[Double]("name")(str => 0d)
     val feature4 = CrfFeatureTestImpl[Int]("name")(str => 0)
-    val expected = new Item()
+//    val expected = new Item()
 //    expected.add(feature1 toCrfJniInput input)
 //    expected.add(feature2 toCrfJniInput input)
 //    expected.add(feature3 toCrfJniInput input)

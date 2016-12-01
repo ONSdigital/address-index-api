@@ -85,10 +85,12 @@ object CrfScala {
       * @param i the token to run against all feature analysers
       * @return the token and its results, as a pair
       */
-    def analyse(i : Token) : CrfTokenResult = CrfTokenResult(
-      token = i,
-      results = all.map(f => f.name -> f.analyse(i)).toMap
-    )
+    def analyse(i : Token) : CrfTokenResult = {
+      CrfTokenResult(
+        token = i,
+        results = all.map(f => f.name -> f.analyse(i)).toMap
+      )
+    }
   }
 
   /**
