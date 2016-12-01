@@ -10,13 +10,13 @@ object CrfFeatureAnalyser {
     * Constructs a function.
     * Eg:
     *
-    *    FeatureAnalyser[String]("SplitOnSpaceCountAsStr") { str =>
+    *    CrfFeatureAnalyser[String]("SplitOnSpaceCountAsStr") { str =>
     *       str.split(" ").length.toString
     *    }
     *
     * Or:
     *
-    *    FeatureAnalyser[Int]("lengthOfString") { str =>
+    *    CrfFeatureAnalyser[Int]("lengthOfString") { str =>
     *       str.length
     *    }
     *
