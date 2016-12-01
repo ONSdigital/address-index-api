@@ -13,36 +13,46 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  ignore should "return the same type as the type which is returned from its analyser for input `arbitrary`" in {
+  it should "return the same type as the type which is returned from its analyser for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceBoolean.feature.analyse(input)
     assert(actual.isInstanceOf[TestInstanceBoolean.tType])
   }
 
-  ignore should "return the expected attribute for type `Boolean` for input `arbitrary`" in {
+  it should "return the expected attribute for type `Boolean` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceBoolean.feature.toCrfJniInput(input)
-    val attributesValue: Double = if(TestInstanceBoolean.feature.analyse(input)) 1d else 0d
-    val expected = s"\t${TestInstanceBoolean.name}:1.0"
+    val expected = s"\t${TestInstanceBoolean.name}:1.0\n"
     expected shouldBe actual
   }
 
-
-  object TestInstanceString {
+  object TestInstanceStringA {
     type tType = String
     val analyser = CrfFeatureAnalyser[tType](identity)
     val name = "name"
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  ignore should "return the expected attribute for type `String` for input `arbitrary`" in {
+  it should "return the expected attribute for type `String` for input `arbitrary`" in {
     val input = "arbitrary"
-    val actual = TestInstanceString.feature.toCrfJniInput(input)
-    val attribute: String = s"${TestInstanceString.feature.name}=$input"
-//    val expected = new Attribute(attribute)
-//    actual.getAttr shouldBe expected.getAttr
+    val actual = TestInstanceStringA.feature.toCrfJniInput(input)
+    val expected = s"\t${TestInstanceStringA.name}\\:$input:1.0\n"
+    expected shouldBe actual
   }
 
+  object TestInstanceStringB {
+    type tType = String
+    val analyser = CrfFeatureAnalyser[tType](identity)
+    val name = "name"
+    val feature = CrfFeatureTestImpl[tType](name)(analyser)
+  }
+
+  it should "return the expected attribute for type `String` for input `arbitrary:arbitrary`" in {
+    val input = "arbitrary:arbitrary"
+    val actual = TestInstanceStringB.feature.toCrfJniInput(input)
+    val expected = s"\t${TestInstanceStringB.name}\\:${input.replace(":", "\\:")}:1.0\n"
+    expected shouldBe actual
+  }
 
   object TestInstanceInt {
     type tType = Int
@@ -52,29 +62,27 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  ignore should "return the expected attribute for type `Int` for input `arbitrary`" in {
+  it should "return the expected attribute for type `Int` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceInt.feature.toCrfJniInput(input)
-//    val expected = new Attribute(TestInstanceInt.feature.name, Int int2double TestInstanceInt.output)
-//    actual.getAttr shouldBe expected.getAttr
+    val expected = s"\t${TestInstanceInt.name}:0.0\n"
+    expected shouldBe actual
   }
-
 
   object TestInstanceDouble {
     type tType = Double
-    val output: tType = 0
+    val output: tType = 0d
     val analyser = CrfFeatureAnalyser[tType](_ => output)
     val name = "name"
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  ignore should "return the expected attribute for type `Double` for input `arbitrary`" in {
+  it should "return the expected attribute for type `Double` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceDouble.feature.toCrfJniInput(input)
-//    val expected =  new Attribute(TestInstanceInt.feature.name, TestInstanceInt.output)
-//    actual.getAttr shouldBe expected.getAttr
+    val expected = s"\t${TestInstanceDouble.name}:0.0\n"
+    actual shouldBe expected
   }
-
 
   object TestInstanceArbType {
     case class ArbType()
@@ -85,12 +93,12 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  ignore should "throw an `UnsupportedOperationException` for any type other than `Boolean`, `String`, `Int`, `Double` for input `arbitrary`" in {
+  it should "throw an `UnsupportedOperationException` for any type other than `Boolean`, `String`, `Int`, `Double` for input `arbitrary`" in {
     val input = "arbitrary"
-//    Try[Attribute](TestInstanceArbType.feature.toCrfJniInput(input)) recover {
-//      case _: UnsupportedOperationException => assert(true)
-//      case _ => assert(false)
-//    }
+    Try[String](TestInstanceArbType.feature.toCrfJniInput(input)) recover {
+      case _: UnsupportedOperationException => assert(true)
+      case _ => assert(false)
+    }
   }
 }
 

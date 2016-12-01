@@ -4,7 +4,6 @@ import uk.gov.ons.addressIndex.crfscala.jni.{CrfScalaJni, CrfScalaJniImpl}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
 import scala.util.control.NonFatal
-import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni._
 
 /**
   * scala wrapper of crfsuite
@@ -13,17 +12,20 @@ import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni._
   */
 object CrfScala {
 
-  type ItemWithAttribute = String
   type Input = String
   type FeatureName = String
+  type CrfJniInput = String
   type FeaturesResult = Map[FeatureName, _]
   type CrfFeatureAnalyser[T] = (Input => T)
-  type CrfJniInput = ItemWithAttribute
+  type CrfParserResults = Seq[CrfParserResult]
 
-  case class CrfTokenResult(token: Token, results: FeaturesResult)
   case class CrfParserResult(originalInput: Token, crfLabel: String)
 
-  type CrfParserResults = Seq[CrfParserResult]
+  case class CrfTokenResult(token: Token, results: FeaturesResult) {
+    def toCrfJniInput(): CrfJniInput = {
+      ""
+    }
+  }
 
   object CrfFeatureAnalyser {
     /**
@@ -126,6 +128,7 @@ object CrfScala {
       */
     def toCrfJniInput(input: Token, next: Option[Token] = None, previous: Option[Token] = None): CrfJniInput = {
       new StringBuilder()
+        .append(CrfScalaJni.lineStart)
         .append(
           createCrfJniInput(
             prefix = name,
@@ -148,6 +151,7 @@ object CrfScala {
             )
           } getOrElse ""
         )
+        .append(CrfScalaJni.lineEnd)
         .toString
     }
 
@@ -161,16 +165,16 @@ object CrfScala {
     def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
       someValue match {
         case _: String =>
-          s"$name:$delimiter" //complicated TODO finish this, some qualifications needed on certain chars
+          s"$name\\:${someValue.asInstanceOf[String].replace(":", "\\:")}:1.0"
 
         case _: Int =>
-          s"$name:$someValue.0$delimiter"
+          s"$name:$someValue.0"
 
         case _: Double =>
-          s"$name:$someValue$delimiter"
+          s"$name:$someValue"
 
         case _: Boolean =>
-          s"$name:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}$delimiter"
+          s"$name:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
 
         case t : CrfType[_] =>
           createCrfJniInput(prefix, t.value)
