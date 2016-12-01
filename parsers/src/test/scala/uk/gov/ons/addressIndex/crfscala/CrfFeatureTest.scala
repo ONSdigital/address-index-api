@@ -84,12 +84,11 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     actual shouldBe expected
   }
 
-  object TestInstanceArbType {
-    case class ArbType()
-    type tType = ArbType
-    val output: tType = ArbType()
+  object TestInstanceQualifyName {
+    type tType = Double
+    val output: tType = 0d
     val analyser = CrfFeatureAnalyser[tType](_ => output)
-    val name = "name"
+    val name = "name:WithSomethingtoQualify"
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
@@ -100,11 +99,12 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     actual shouldBe expected
   }
 
-  object TestInstanceQualifyName {
-    type tType = Double
-    val output: tType = 0d
+  object TestInstanceArbType {
+    case class ArbType()
+    type tType = ArbType
+    val output: tType = ArbType()
     val analyser = CrfFeatureAnalyser[tType](_ => output)
-    val name = "name:WithSomethingtoQualify"
+    val name = "name"
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
