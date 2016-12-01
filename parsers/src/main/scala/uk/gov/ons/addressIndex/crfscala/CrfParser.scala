@@ -12,8 +12,7 @@ trait CrfParser {
     val preprocessedTokens = Tokens normalise tokens
 
     //TODO
-    val x = preprocessedTokens map fas.analyse
-    x
+//    val x = preprocessedTokens map fas.analyse
     val crfJniInput = ""
     val tokenResults = new CrfScalaJniImpl tag crfJniInput split CrfScalaJni.newLine
     tokenResults map { tr => CrfParserResult(tr, tr)}

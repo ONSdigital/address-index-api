@@ -60,7 +60,6 @@ trait CrfFeature[T] {
           )
         } getOrElse ""
       )
-      .append(CrfScalaJni.lineEnd)
       .toString
   }
 

@@ -19,10 +19,10 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     assert(actual.isInstanceOf[TestInstanceBoolean.tType])
   }
 
-  it should "return the expected attribute for type `Boolean` for input `arbitrary`" in {
+  it should "return the expected `CrfJniInput` for type `Boolean` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceBoolean.feature.toCrfJniInput(input)
-    val expected = s"\t${TestInstanceBoolean.name}:1.0\n"
+    val expected = s"\t${TestInstanceBoolean.name}:1.0"
     expected shouldBe actual
   }
 
@@ -33,10 +33,10 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  it should "return the expected attribute for type `String` for input `arbitrary`" in {
+  it should "return the expected `CrfJniInput` for type `String` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceStringA.feature.toCrfJniInput(input)
-    val expected = s"\t${TestInstanceStringA.name}\\:$input:1.0\n"
+    val expected = s"\t${TestInstanceStringA.name}\\:$input:1.0"
     expected shouldBe actual
   }
 
@@ -47,10 +47,10 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  it should "return the expected attribute for type `String` for input `arbitrary:arbitrary`" in {
+  it should "return the expected `CrfJniInput` for type `String` for input `arbitrary:arbitrary`" in {
     val input = "arbitrary:arbitrary"
     val actual = TestInstanceStringB.feature.toCrfJniInput(input)
-    val expected = s"\t${TestInstanceStringB.name}\\:${input.replace(":", "\\:")}:1.0\n"
+    val expected = s"\t${TestInstanceStringB.name}\\:${input.replace(":", "\\:")}:1.0"
     expected shouldBe actual
   }
 
@@ -62,10 +62,10 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  it should "return the expected attribute for type `Int` for input `arbitrary`" in {
+  it should "return the expected `CrfJniInput` for type `Int` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceInt.feature.toCrfJniInput(input)
-    val expected = s"\t${TestInstanceInt.name}:0.0\n"
+    val expected = s"\t${TestInstanceInt.name}:0.0"
     expected shouldBe actual
   }
 
@@ -77,10 +77,10 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     val feature = CrfFeatureTestImpl[tType](name)(analyser)
   }
 
-  it should "return the expected attribute for type `Double` for input `arbitrary`" in {
+  it should "return the expected `CrfJniInput` for type `Double` for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceDouble.feature.toCrfJniInput(input)
-    val expected = s"\t${TestInstanceDouble.name}:0.0\n"
+    val expected = s"\t${TestInstanceDouble.name}:0.0"
     actual shouldBe expected
   }
 
@@ -95,7 +95,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
   it should "qualify any feature analyser's name with a `:` in it across all supported return types" in {
     val input = "arbitrary"
     val actual = TestInstanceQualifyName.feature.toCrfJniInput(input)
-    val expected = s"\t${TestInstanceQualifyName.name.replace(":", "\\:")}:0.0\n"
+    val expected = s"\t${TestInstanceQualifyName.name.replace(":", "\\:")}:0.0"
     actual shouldBe expected
   }
 

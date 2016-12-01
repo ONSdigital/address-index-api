@@ -16,7 +16,12 @@ object CrfScala {
 
   case class CrfParserResult(originalInput: CrfToken, crfLabel: String)
 
-  case class CrfTokenResult(token: CrfToken, results: FeaturesResult) {
+  case class CrfTokenResult(
+    token: CrfToken,
+    next: Option[CrfToken] = None,
+    previous: Option[CrfToken] = None,
+    results: FeaturesResult
+  ) {
     def toCrfJniInput(): CrfJniInput = {
       ""
     }
@@ -24,6 +29,6 @@ object CrfScala {
 
   //todo scaladoc
   trait CrfType[T] {
-    def value : T
+    def value: T
   }
 }
