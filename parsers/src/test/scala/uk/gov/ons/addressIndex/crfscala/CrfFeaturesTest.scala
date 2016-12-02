@@ -7,7 +7,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
   it should "return all feature analysers" in {
     val expected = Seq(CrfFeatureTestImpl[Boolean]("name")(str => true))
     val test = CrfFeaturesImpl(expected)
-    val actual = test.all
+    val actual = test.features
     actual should contain theSameElementsAs expected
   }
 
@@ -36,4 +36,4 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
   }
 }
 
-case class CrfFeaturesImpl(override val all : Seq[CrfFeature[_]]) extends CrfFeatures
+case class CrfFeaturesImpl(override val features : Seq[CrfFeature[_]]) extends CrfFeatures

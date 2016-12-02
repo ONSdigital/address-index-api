@@ -25,6 +25,8 @@ object CrfScala {
     def normalise(tokens : CrfTokens): CrfTokens
   }
 
+  trait CrfFeaturable
+
   case class CrfTokenResult(
     token: CrfToken,
     next: Option[CrfToken] = None,
@@ -32,7 +34,7 @@ object CrfScala {
     results: FeaturesResult
   ) {
     def toCrfJniInput(): CrfJniInput = {
-      ""
+      "" //TODO
     }
   }
 

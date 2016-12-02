@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.CrfAggregateFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
-import uk.gov.ons.addressIndex.crfscala.{CrfFeature, CrfFeatures, CrfParser}
+import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeature, CrfFeature, CrfFeatures, CrfParser}
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
 //TODO scaladoc
@@ -21,9 +21,9 @@ object AddressParser extends CrfParser {
   *
   * scala wrapper on third_party.org.chokkan.crfsuite.Item
   *
-  * @param all the features of this feature collection
+  * @param features the features of this feature collection
   */
-case class Features(override val all : Feature[_]*) extends CrfFeatures
+case class Features(override val features : Feature[_]*)(override val aggregateFeatures: FeatureAggregate[_]*) extends CrfFeatures
 
 /**
   * scala wrapper on third_party.org.chokkan.crfsuite.Attribute

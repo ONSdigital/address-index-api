@@ -8,7 +8,7 @@ object CrfAggregateFeatureAnalyser {
     * An aggregate analyser
     * @tparam T
     */
-  type CrfAggregateFeatureAnalyser[T] = (((CrfTokens, CrfToken)) => T)
+  type CrfAggregateFeatureAnalyser[T] = ((CrfTokens, CrfToken) => T)
 
   /**
     * Helper apply method for better syntax.

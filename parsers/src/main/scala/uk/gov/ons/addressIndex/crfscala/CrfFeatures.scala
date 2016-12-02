@@ -3,19 +3,19 @@ package uk.gov.ons.addressIndex.crfscala
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni
 
-/**
-  * scala wrapper of third_party.org.chokkan.crfsuite.Item
-  */
+//TODO scaladoc
 trait CrfFeatures {
 
   /**
     * @return all the features
     */
-  def all: Seq[CrfFeature[_]]
+  def features: Seq[CrfFeature[_]]
+
+  def aggregateFeatures: Seq[CrfAggregateFeature[_]]
 
   //TODO scaladoc
   def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
-    (all map(_.toCrfJniInput(input, next, previous)) mkString) + CrfScalaJni.lineEnd
+    (features map(_.toCrfJniInput(input, next, previous)) mkString) + CrfScalaJni.lineEnd
   }
 
   /**
@@ -27,7 +27,7 @@ trait CrfFeatures {
       token = i,
       next = next,
       previous = previous,
-      results = all.map(f => f.name -> f.analyse(i)).toMap
+      results = features.map(f => f.name -> f.analyse(i)).toMap
     )
   }
 }
