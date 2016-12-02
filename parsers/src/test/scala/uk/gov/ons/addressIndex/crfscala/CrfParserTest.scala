@@ -12,7 +12,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
     val feature3 = CrfFeatureTestImpl[Double]("name3")(str => 0d)
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
-    val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))
+    val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
     val actual = features toCrfJniInput token1
     val expected = s"\t${feature1.name}\\:${token1.replace(":", "\\:")}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
     actual shouldBe expected
@@ -26,7 +26,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
     val feature3 = CrfFeatureTestImpl[Double]("name3")(str => 0d)
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
-    val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))
+    val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
     val actual = features toCrfJniInput token1
 
     val expected1 = s"\t${feature1.name}\\:${token1.replace(":", "\\:")}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0"
