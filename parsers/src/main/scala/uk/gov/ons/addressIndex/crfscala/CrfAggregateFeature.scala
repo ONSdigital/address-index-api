@@ -20,6 +20,6 @@ trait CrfAggregateFeature[T] {
     * @param i input
     * @return apply the analyser to i
     */
-  def analyse(i: CrfToken, is: CrfTokens): T = analyser.apply(is -> i)
+  def analyse(i: CrfToken, is: CrfTokens): T = analyser apply is -> i
 
 }
