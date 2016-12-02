@@ -60,7 +60,7 @@ trait CrfFeature[T] {
           )
         } getOrElse ""
       )
-      .toString
+      .toString : CrfJniInput
   }
 
   //TODO scaladoc
