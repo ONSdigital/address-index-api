@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponsePaf}
 
 class AddressResponseAddressSpec extends WordSpec with Matchers {
 

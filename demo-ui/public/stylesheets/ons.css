@@ -13,7 +13,8 @@ a:hover {
 
 p.toptext {
   font-size: 0.8em;
-  margin-left: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .navbar {
@@ -47,6 +48,8 @@ p.toptext {
 
 .panel-heading {
     margin-bottom: 0px;
+    margin-right: 7px;
+    margin-left: 2px;
 }
 
 .sub-nav-heading {
@@ -57,7 +60,7 @@ p.toptext {
 .panel-title {
     font-size: 22px !important;
     margin-bottom: 0px !important;
-    margin-left: 20px;
+    margin-left: 10px;
     text-align: left;
 }
 
@@ -68,23 +71,41 @@ p.toptext {
 .panel-default {
     margin-top: 0px;
     margin-bottom: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    min-width: 310px;
+    max-width: 310px;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.panel-match {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    min-width: 302px;
+    max-width: 600px;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.panel-warning {
+    margin-top: 0px;
+    margin-bottom: 10px;
     margin-left: 20px;
     margin-right: 20px;
-    min-width: 430px;
-    max-width: 430px;
-    border:1px solid #ddd;
+    border:0px solid #ddd;
+    vertical-align: middle;
+    line-height: 50px;
     padding: 10px;
 }
 
 .panel-single {
     margin-top: 0px;
     margin-bottom: 10px;
-    margin-left: 20px;
-    margin-right: 20px;
-    min-width: 490px;
-    max-width: 490px;
+    margin-left: 0px;
+    margin-right: 0px;
     border:0px;
-    padding: 10px;
+    padding: 2px;
 }
 
 .beta-banner {
@@ -110,7 +131,7 @@ p.toptext {
     border-color: #00914E;
     color: #FFFFFF;
     font-size: 1.2em;
-    margin-left: 20px;
+    margin-left: 10px;
     }
 
 .btn-search:link,
@@ -133,8 +154,10 @@ p.toptext {
 }
 
 input#address.form-control {
-    width: 380px;
-    height: 24px;
+    width: 320px;
+    height: 40px;
+    font-size: 1.1em;
+ //   border-color: #849BC4;
 }
 
 .btn-group.open .dropdown-toggle {
@@ -155,8 +178,8 @@ input#address.form-control {
 }
 
 .index-nav {
-    margin: 20px 0px 20px 29px !important;
-    width: 350px !important;
+    margin: 5px 5px 5px 5px !important;
+    width: 280px !important;
     border:1px solid #ddd;
     padding: 10px;
 }
@@ -181,7 +204,8 @@ nav.nav-container {
     background-color: #DFE0E2 ;
     height:40px;
     clear:left;
-    margin-left:50px;
+    margin-left:2px;
+    margin-right:2px;
 }
 
 nav {
@@ -206,18 +230,68 @@ nav ul li a:hover {
     text-decoration: none;
 }
 
-dd {
-    -webkit-margin-start: 20px;
+div.container {
+//    display: flex;
+//    justify-content: center; /* for horizontal alignment */
+ //   align-items: center; /* for vertical alignment */
 }
 
-.label-danger {
-    background-color: #FFFFFF !important;
-    color: #FFFFFF;
-    margin-left:20px;
+dd {
+    margin-left: 10px;
+}
+
+.alert-danger {
+    background-color: #ffe6e6 !important;
+    color: #0066ff;
+  //  color: #849BC4;
+    text-decoration: underline;
+    margin-left:0px;
+    height:50px;
+    padding-left: 10px;
 }
 
 section.content {
     margin-top: 10px;
+    margin-bottom: 8%;
+}
+
+#footer {
+ //   position:absolute;
+ //   bottom:0;
+}
+
+#footer .footer-wrapper {
+    padding-top: 10px;
+ //   position:absolute;
+  //  bottom:0;
+}
+
+p.pad{
+    height:90px;
+}
+
+span.error:before {
+    content:"• ";
+}
+
+span.error   {
+    cursor: pointer;
+}
+
+//h3 {
+//    padding-left:6px;
+//}
+
+h3.green {
+    margin-top:20px;
+    color: #00914E;
+    font-size:1.2em;
+    padding-top:4px;
+    padding-left:7px;
+}
+
+table.matchResults{
+width: 100%;
 }
 
 

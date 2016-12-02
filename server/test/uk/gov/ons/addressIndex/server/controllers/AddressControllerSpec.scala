@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import uk.gov.ons.addressIndex.server.model.response._
+import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import com.sksamuel.elastic4s.ElasticClient
 import org.elasticsearch.common.settings.Settings
@@ -8,12 +8,10 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
 import org.scalatestplus.play._
 import play.api.test.Helpers._
-
 import scala.concurrent.Future
 
 class AddressControllerSpec extends PlaySpec with Results {

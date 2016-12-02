@@ -20,7 +20,7 @@ class ErrorHandler extends HttpErrorHandler {
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
     logger error s"client error: $message"
     Future.successful(
-      NotFound
+         NotFound
     )
   }
 

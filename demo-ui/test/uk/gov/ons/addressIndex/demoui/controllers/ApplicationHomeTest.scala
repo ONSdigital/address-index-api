@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import org.scalatestplus.play.PlaySpec
-import play.Configuration
+import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import play.api.i18n.MessagesApi
 import play.api.mvc.Results
 import play.api.test.Helpers._
@@ -14,7 +14,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
     "include at least one link" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
-      val configuration = app.injector.instanceOf[Configuration]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
       val expectedString = "Find an address"
 
       // When

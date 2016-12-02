@@ -1,10 +1,10 @@
+@(title: String)(content: Html)(implicit messages: Messages)
 @*
  * This template is called from the `index` template. This template
  * handles the rendering of the page header and body tags. It takes
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String)(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,11 +40,11 @@
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-2 logo">
+                <div class="logo">
                     <img alt="ONS" src="/assets/images/ons-logo.png" width="204" height="auto">
                 </div>
-                <div class="col-md-10 beta-header">
-                    <p><strong class="beta-banner">BETA</strong></p>
+                <div class="beta-header">
+                    <p><strong class="beta-banner">@messages("main.beta")</strong></p>
                 </div>
             </div>
         </div>
@@ -62,13 +62,13 @@
                     <div class="open-government-licence">
                         <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence</a></p>
 
-                        <p>All content is available under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence v3.0</a>, except where otherwise stated</p>
+                        <p>@messages("main.licence1") <a href='@messages("main.licenceurl")' rel="license">@messages("main.licence2") v3.0</a>, @messages("main.licence3")</p>
 
                     </div>
                 </div>
 
                 <div class="copyright">
-                    <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">© Crown copyright</a>
+                    <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">© @messages("main.copyright")</a>
                 </div>
             </div>
         </div>

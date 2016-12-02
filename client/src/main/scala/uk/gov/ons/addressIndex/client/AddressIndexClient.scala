@@ -1,9 +1,10 @@
 package uk.gov.ons.addressIndex.client
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
+import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
 trait AddressIndexClient {
 
@@ -26,7 +27,7 @@ trait AddressIndexClient {
     * @param request the request
     * @return a list of addresses
     */
-  def addressQuery(request: AddressIndexSearchRequest): Future[WSResponse] = {
+  def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     AddressQuery
       .toReq
       .withQueryString(
@@ -34,7 +35,8 @@ trait AddressIndexClient {
         "format" -> request.format.toString
       )
       .get
-  }
+      .map(_.json.as[AddressBySearchResponseContainer])
+}
 
   /**
     * perform a uprn query

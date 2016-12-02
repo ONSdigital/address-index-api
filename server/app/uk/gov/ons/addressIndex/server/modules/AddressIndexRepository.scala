@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
@@ -11,8 +10,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
 import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses, PostcodeIndex}
-import uk.gov.ons.addressIndex.server.model.response.AddressTokens
-
+import uk.gov.ons.addressIndex.model.server.response.AddressTokens
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])

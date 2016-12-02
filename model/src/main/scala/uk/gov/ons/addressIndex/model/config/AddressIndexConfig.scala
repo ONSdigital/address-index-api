@@ -33,3 +33,15 @@ object AddressIndexConfig {
 }
 
 case class IndexesConfig(pafIndex: String)
+
+case class DemouiConfig (
+   defaultLanguage: String,
+   apiURL: String
+)
+
+object DemouiConfig {
+  val default : DemouiConfig = DemouiConfig(
+    defaultLanguage = "en",
+    apiURL = "https://addressindexapitest.cfapps.io"
+  )
+}
