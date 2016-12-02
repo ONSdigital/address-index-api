@@ -5,7 +5,7 @@ import Tokens._
 import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.{apply => _, _}
 import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeatureAnalyser, CrfFeatureAnalyser}
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfToken, CrfTokens, CrfType, FeatureName}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokens, CrfType, FeatureName}
 import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.ADT.Root
 
 /**
@@ -211,6 +211,7 @@ object FeatureAnalysers {
     def apply(tis: Seq[TokenIndicator]): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](tis contains _)
   }
 
+  //TODO Scaladoc
   object IndexAggregateFeatureAnalyser {
     def apply(fn: CrfTokens => Int): CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
       tokens.indexOf(token) == fn(tokens)
