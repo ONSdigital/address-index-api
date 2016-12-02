@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.parsers
 
+import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.CrfAggregateFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.{CrfFeature, CrfFeatures, CrfParser}
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
@@ -34,3 +35,4 @@ case class Features(override val all : Feature[_]*) extends CrfFeatures
   * @tparam T the return type of this analyser; used for the conversion to an Item
   */
 case class Feature[T](override val name: String)(override val analyser: CrfFeatureAnalyser[T]) extends CrfFeature[T]
+case class FeatureAggregate[T](override val name: String)(override val analyser: CrfAggregateFeatureAnalyser[T]) extends CrfAggregateFeature[T]
