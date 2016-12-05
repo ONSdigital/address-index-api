@@ -9,14 +9,12 @@ trait CrfParser {
   def parse(i: Input, fas: CrfFeatures, tokenable: CrfTokenable): CrfJniInput = {
     val tokens                      = tokenable(i)
     val preprocessedTokens          = tokenable normalise tokens
-    val preprocessedTokensWithIndex = preprocessedTokens.zipWithIndex
-    val onlyOneToken                = preprocessedTokensWithIndex.length == 1
-    val onlyTwoTokens               = preprocessedTokensWithIndex.length == 2
-    val multipleTokens              = preprocessedTokensWithIndex.length > 2
+    val onlyOneToken                = preprocessedTokens.length == 1
+    val onlyTwoTokens               = preprocessedTokens.length == 2
+    val multipleTokens              = preprocessedTokens.length > 2
     val sb                          = StringBuilder.newBuilder
 
     if(onlyOneToken) {
-      println("only 1")
       sb
         .append(
           fas.toCrfJniInput(
@@ -25,30 +23,22 @@ trait CrfParser {
           )
         )
     } else if(onlyTwoTokens) {
-      println("only 2")
-
-      val one = fas.toCrfJniInput(
-        input = preprocessedTokens(0),
-        next = Some(preprocessedTokens(1))
-      )
-      println(one)
-
-      val two = fas.toCrfJniInput(
-        input = preprocessedTokens(1),
-        previous = Some(preprocessedTokens(0))
-      )
-      println(two)
-
       sb
         .append(
-          one
+          fas.toCrfJniInput(
+            input = preprocessedTokens(0),
+            next = Some(preprocessedTokens(1))
+          )
         )
         .append(
-          two
+          fas.toCrfJniInput(
+            input = preprocessedTokens(1),
+            previous = Some(preprocessedTokens(0))
+          )
         )
     } else if (multipleTokens) {
       println("multiple")
-      for((preprocessedToken, i) <- preprocessedTokensWithIndex) {
+      for((preprocessedToken, i) <- preprocessedTokens.zipWithIndex) {
         if(i == 0) {
           sb
             .append(
