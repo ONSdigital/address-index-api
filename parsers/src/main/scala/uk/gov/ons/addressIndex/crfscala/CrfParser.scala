@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
-import uk.gov.ons.addressIndex.crfscala.jni.{CrfScalaJni, CrfScalaJniImpl}
 
 //TODO scaladoc
 trait CrfParser {
@@ -18,9 +17,11 @@ trait CrfParser {
       sb
         .append(
           fas.toCrfJniInput(
-            input = preprocessedTokens(0),
-            next = Some(preprocessedTokens(1))
-          )
+            input = preprocessedTokens(0)
+          ).replace("\n", "") //todo remove when aggr impl done
+        )
+        .append(//todo impl AggregateFeatureAnalysers
+          "\tsingleton:1.0\n"
         )
     } else if(onlyTwoTokens) {
       sb
@@ -28,13 +29,15 @@ trait CrfParser {
           fas.toCrfJniInput(
             input = preprocessedTokens(0),
             next = Some(preprocessedTokens(1))
-          )
+          ).replace("\n", "") //todo remove when aggr impl done
+          + "\trawstring.start:1.0\n"//todo impl AggregateFeatureAnalysers
         )
         .append(
           fas.toCrfJniInput(
             input = preprocessedTokens(1),
             previous = Some(preprocessedTokens(0))
-          )
+          ) .replace("\n", "") //todo remove when aggr impl done
+          + "\trawstring.end:1.0\n"//todo impl AggregateFeatureAnalysers
         )
     } else if (multipleTokens) {
       for((preprocessedToken, i) <- preprocessedTokens.zipWithIndex) {
@@ -44,7 +47,8 @@ trait CrfParser {
               fas.toCrfJniInput(
                 input = preprocessedTokens(i),
                 next = Some(preprocessedTokens(i + 1))
-              )
+              ).replace("\n", "") //todo remove when aggr impl done
+              + "\trawstring.start:1.0\n"//todo impl AggregateFeatureAnalysers
             )
         } else if(i != preprocessedTokens.length - 1) {
           sb
@@ -62,7 +66,8 @@ trait CrfParser {
               fas.toCrfJniInput(
                 input = preprocessedTokens(i),
                 previous = Some(preprocessedTokens(i - 1))
-              )
+              ).replace("\n", "") //todo remove when aggr impl done
+              + "\trawstring.end:1.0\n"//todo impl AggregateFeatureAnalysers
             )
         }
       }

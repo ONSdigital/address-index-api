@@ -1,21 +1,20 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokens
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 class CrfParserTest extends FlatSpec with Matchers {
 
   it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for `CrfTokens` size 1" in {
     val token1 = "token1"
-    val input: CrfTokens = Array(token1)
+    val input = token1
     val feature1 = CrfFeatureTestImpl[String]("name1")(identity)
     val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
     val feature3 = CrfFeatureTestImpl[Double]("name3")(str => 0d)
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
     val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
-    val actual = features toCrfJniInput token1
-    val expected = s"\t${feature1.name}\\:${token1.replace(":", "\\:")}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
+    val actual = CrfParserImpl.parse(input, features, Tokens)
+    val expected = s"\t${feature1.name}\\:${token1.replace(":", "\\:").toUpperCase}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\tsingleton:1.0\n"
     actual shouldBe expected
   }
 
@@ -32,7 +31,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     val token1Expectedf1 = s"\t${feature1.name}\\:${token1.replace(":", "\\:").toUpperCase}:1.0\tnext\\:${feature1.name}\\:${token2.replace(":", "\\:").toUpperCase}:1.0"
     val token1Expectedf2 = s"\t${feature2.name}:1.0\tnext\\:${feature2.name}:1.0"
     val token1Expectedf3 = s"\t${feature3.name}:3.0\tnext\\:${feature3.name}:3.0"
-    val token1Expectedf4 = s"\t${feature4.name}:7.0\tnext\\:${feature4.name}:7.0\n"
+    val token1Expectedf4 = s"\t${feature4.name}:7.0\tnext\\:${feature4.name}:7.0\trawstring.\n"
     val token2Expectedf1 = s"\t${feature1.name}\\:${token2.replace(":", "\\:").toUpperCase}:1.0\tprevious\\:${feature1.name}\\:${token1.replace(":", "\\:").toUpperCase}:1.0"
     val token2Expectedf2 = s"\t${feature2.name}:1.0\tprevious\\:${feature2.name}:1.0"
     val token2Expectedf3 = s"\t${feature3.name}:3.0\tprevious\\:${feature3.name}:3.0"
@@ -40,6 +39,10 @@ class CrfParserTest extends FlatSpec with Matchers {
     val expected =
       token1Expectedf1 + token1Expectedf2 + token1Expectedf3 + token1Expectedf4 +
       token2Expectedf1 + token2Expectedf2 + token2Expectedf3 + token2Expectedf4
+
+    println(s"Actual:\n$actual")
+    println(s"Expected:\n$expected")
+
     actual shouldBe expected
   }
 
