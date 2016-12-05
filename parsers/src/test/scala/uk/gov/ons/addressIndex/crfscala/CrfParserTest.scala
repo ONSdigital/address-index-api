@@ -23,10 +23,10 @@ class CrfParserTest extends FlatSpec with Matchers {
     val token1 = "token1"
     val token2 = "token2"
     val input = s"$token1, $token2"
-    val feature1 = CrfFeatureTestImpl[String]("name1")(identity)
-    val feature2 = CrfFeatureTestImpl[Boolean]("name2")(str => true)
-    val feature3 = CrfFeatureTestImpl[Double]("name3")(str => 0d)
-    val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
+    val feature1 = CrfFeatureTestImpl[String]("f1")(identity)
+    val feature2 = CrfFeatureTestImpl[Boolean]("f2")(str => true)
+    val feature3 = CrfFeatureTestImpl[Double]("f3")(str => 0d)
+    val feature4 = CrfFeatureTestImpl[Int]("f4")(str => 0)
     val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
     val actual = CrfParserImpl.parse(input, features, Tokens)
 
