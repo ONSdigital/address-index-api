@@ -7,12 +7,12 @@ import uk.gov.ons.addressIndex.crfscala.jni.{CrfScalaJni, CrfScalaJniImpl}
 trait CrfParser {
   //TODO scaladoc
   def parse(i: Input, fas: CrfFeatures, tokenable: CrfTokenable): CrfJniInput = {
-    val tokens                      = tokenable(i)
-    val preprocessedTokens          = tokenable normalise tokens
-    val onlyOneToken                = preprocessedTokens.length == 1
-    val onlyTwoTokens               = preprocessedTokens.length == 2
-    val multipleTokens              = preprocessedTokens.length > 2
-    val sb                          = StringBuilder.newBuilder
+    val tokens = tokenable(i)
+    val preprocessedTokens = tokenable normalise tokens
+    val onlyOneToken = preprocessedTokens.length == 1
+    val onlyTwoTokens = preprocessedTokens.length == 2
+    val multipleTokens = preprocessedTokens.length > 2
+    val sb = StringBuilder.newBuilder
 
     if(onlyOneToken) {
       sb
@@ -37,7 +37,6 @@ trait CrfParser {
           )
         )
     } else if (multipleTokens) {
-      println("multiple")
       for((preprocessedToken, i) <- preprocessedTokens.zipWithIndex) {
         if(i == 0) {
           sb
