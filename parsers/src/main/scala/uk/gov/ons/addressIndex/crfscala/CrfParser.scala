@@ -30,14 +30,14 @@ trait CrfParser {
             input = preprocessedTokens(0),
             next = Some(preprocessedTokens(1))
           ).replace("\n", "") //todo remove when aggr impl done
-          + "\trawstring.start:1.0\n"//todo impl AggregateFeatureAnalysers
+          + "\trawstring.start:1.0\tnext\\:rawstring.end:1.0\n"//todo impl AggregateFeatureAnalysers
         )
         .append(
           fas.toCrfJniInput(
             input = preprocessedTokens(1),
             previous = Some(preprocessedTokens(0))
           ) .replace("\n", "") //todo remove when aggr impl done
-          + "\trawstring.end:1.0\n"//todo impl AggregateFeatureAnalysers
+          + "\trawstring.end:1.0\tnext\\:rawstring.start:1.0\n"//todo impl AggregateFeatureAnalysers
         )
     } else if (multipleTokens) {
       for((preprocessedToken, i) <- preprocessedTokens.zipWithIndex) {
