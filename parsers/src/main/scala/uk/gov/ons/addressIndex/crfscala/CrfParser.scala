@@ -34,8 +34,8 @@ trait CrfParser {
       println(one)
 
       val two = fas.toCrfJniInput(
-        input = preprocessedTokens(0),
-        next = Some(preprocessedTokens(1))
+        input = preprocessedTokens(1),
+        previous = Some(preprocessedTokens(0))
       )
       println(two)
 
