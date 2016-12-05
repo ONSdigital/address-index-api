@@ -181,7 +181,7 @@ object FeatureAnalysers {
         } else {
           str.containsDigits[String] { rs =>
             if(rs) {
-              containsDigits
+              someDigits
             } else {
               noDigits
             }
@@ -196,7 +196,7 @@ object FeatureAnalysers {
     */
   object DigitsLiteral {
     val allDigits = "all_digits"
-    val containsDigits = "contains_digits"
+    val someDigits = "some_digits"
     val noDigits = "no_digits"
   }
 

@@ -13,8 +13,8 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
   }
 
   it should "have a `DigitsLiteral` for `containsDigits` of `contains_digits`" in {
-    val expected = "contains_digits"
-    val actual = DigitsLiteral.containsDigits
+    val expected = "some_digits"
+    val actual = DigitsLiteral.someDigits
     expected shouldBe actual
   }
 
