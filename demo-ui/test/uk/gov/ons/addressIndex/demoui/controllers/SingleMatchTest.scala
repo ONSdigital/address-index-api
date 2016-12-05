@@ -36,7 +36,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
-      val expectedString = "btn btn-success btn-search"
+      val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
 
       // When
       val response = new SingleMatchController(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
@@ -47,7 +47,7 @@ class SingleMatchTest extends PlaySpec with Results {
       content must include(expectedString)
     }
 
-    "return a page including a no content error message" in new WithApplication {
+    "return a page including a no content error message when empty address posted" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
@@ -68,7 +68,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
-      val expectedString = "GATE REACH"
+      val expectedString = "<h3 class=\"green\">10 addresses found</h3>"
 
       // When
       val response = new SingleMatchController(configuration, messagesApi, apiClient).doMatchWithInput("7 EX2 6GA").apply(FakeRequest())

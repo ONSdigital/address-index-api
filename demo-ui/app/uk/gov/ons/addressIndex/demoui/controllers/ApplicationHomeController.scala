@@ -15,9 +15,8 @@ class ApplicationHomeController @Inject()(conf : DemouiConfigModule, val message
       Logger.info("ApplicationHome: Rendering Index page")
       // Get language from Config file rather than req.acceptLanguages
       val defaultLanguage = conf.config.defaultLanguage
-      Logger.info("ApplicationHome: Default Language =  " + defaultLanguage)
-    //  val lang = req.getQueryString("lang").getOrElse(defaultLanguage)
       val lang = language.getOrElse(defaultLanguage)
+      Logger.info("ApplicationHome: Language =  " + defaultLanguage)
       messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.index()),Lang(lang))
   }
 

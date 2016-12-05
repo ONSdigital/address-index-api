@@ -15,10 +15,26 @@ class ApplicationHomeTest extends PlaySpec with Results {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val expectedString = "Find an address"
+      val expectedString = "<h4><a href=\"/addresses\">Find an address</a></h4>"
 
       // When
       val response = new ApplicationHomeController(configuration, messagesApi).indexPage(None).apply(FakeRequest())
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+    "return at least one link with language set" in new WithApplication {
+      // returns English first time, need to fix this
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val expectedString = "<h4><a href=\"/addresses\">Find an address</a></h4>"
+      val langOption = Some("cy")
+
+      // When
+      val response = new ApplicationHomeController(configuration, messagesApi).indexPage(langOption).apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
