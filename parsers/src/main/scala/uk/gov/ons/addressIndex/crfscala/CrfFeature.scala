@@ -74,19 +74,20 @@ trait CrfFeature[T] {
   def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
     def qualify(str: String): String = str.replace(":", "\\:")
     val qName = qualify(name)
+    val qPrefix = if (prefix == name) "" else prefix
 
     someValue match {
       case _: String =>
-        s"$qName\\:${qualify(someValue.asInstanceOf[String])}:1.0"
+        s"$qPrefix$qName\\:${qualify(someValue.asInstanceOf[String])}:1.0"
 
       case _: Int =>
-        s"$qName:$someValue.0"
+        s"$qPrefix$qName:$someValue.0"
 
       case _: Double =>
-        s"$qName:$someValue"
+        s"$qPrefix$qName:$someValue"
 
       case _: Boolean =>
-        s"$qName:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
+        s"$qPrefix$qName:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
 
       case t : CrfType[_] =>
         createCrfJniInput(prefix, t.value)
