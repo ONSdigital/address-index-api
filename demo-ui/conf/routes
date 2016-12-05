@@ -3,19 +3,19 @@
 # Routes are called in priority order
 
 # ONS-Address Index home page
-GET     /                                       uk.gov.ons.addressIndex.demoui.controllers.ApplicationHome.indexPage
+GET     /                                       uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.indexPage(lang: Option[String])
 
 # ONS-Address Index Single Search View
-GET     /addresses                              uk.gov.ons.addressIndex.demoui.controllers.SingleMatch.showSingleMatchPage
+GET     /addresses                              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)
 
 # ONS-Address Index Single Search Request
-POST    /addresses/search                       uk.gov.ons.addressIndex.demoui.controllers.SingleMatch.doMatch
+POST    /addresses/search                       uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatch
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search                        uk.gov.ons.addressIndex.demoui.controllers.SingleMatch.showSingleMatchPage
+GET    /addresses/search                        uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatch.doMatchQS(input : String)
+GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input : String)

@@ -42,6 +42,6 @@ case class DemouiConfig (
 object DemouiConfig {
   val default : DemouiConfig = DemouiConfig(
     defaultLanguage = "en",
-    apiURL = "https://addressindexapitest.cfapps.io"
+    apiURL = ""
   )
 }

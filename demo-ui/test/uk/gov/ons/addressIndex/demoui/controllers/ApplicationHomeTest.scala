@@ -18,7 +18,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
       val expectedString = "Find an address"
 
       // When
-      val response = new ApplicationHome(configuration, messagesApi).indexPage().apply(FakeRequest())
+      val response = new ApplicationHomeController(configuration, messagesApi).indexPage(None).apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then

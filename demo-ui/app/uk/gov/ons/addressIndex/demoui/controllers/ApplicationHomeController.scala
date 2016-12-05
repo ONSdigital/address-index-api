@@ -9,14 +9,15 @@ import scala.language.implicitConversions
 import play.api.i18n.{I18nSupport, Messages, MessagesApi, Lang}
 
 @Singleton
-class ApplicationHome @Inject()(conf : DemouiConfigModule, val messagesApi: MessagesApi)(implicit ec : ExecutionContext) extends Controller with I18nSupport {
+class ApplicationHomeController @Inject()(conf : DemouiConfigModule, val messagesApi: MessagesApi)(implicit ec : ExecutionContext) extends Controller with I18nSupport {
 
-    def indexPage() : Action[AnyContent] = Action { implicit req =>
+    def indexPage(language: Option[String]) : Action[AnyContent] = Action { implicit req =>
       Logger.info("ApplicationHome: Rendering Index page")
       // Get language from Config file rather than req.acceptLanguages
       val defaultLanguage = conf.config.defaultLanguage
       Logger.info("ApplicationHome: Default Language =  " + defaultLanguage)
-      val lang = req.getQueryString("lang").getOrElse(defaultLanguage)
+    //  val lang = req.getQueryString("lang").getOrElse(defaultLanguage)
+      val lang = language.getOrElse(defaultLanguage)
       messagesApi.setLang(Ok(uk.gov.ons.addressIndex.demoui.views.html.index()),Lang(lang))
   }
 

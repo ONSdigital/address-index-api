@@ -36,7 +36,11 @@
         <link rel="shortcut icon" type="image/png" href='@routes.Assets.versioned("images/favicon.ico")'>
     </head>
     <body>
-    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
+    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+            function setFocus (elem) {
+            document.getElementById(elem).focus();
+            }
+    </script>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="row">
@@ -68,7 +72,7 @@
                 </div>
 
                 <div class="copyright">
-                    <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">© @messages("main.copyright")</a>
+                    <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">&copy; @messages("main.copyright")</a>
                 </div>
             </div>
         </div>

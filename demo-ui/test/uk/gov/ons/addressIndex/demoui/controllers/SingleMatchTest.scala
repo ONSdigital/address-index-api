@@ -6,30 +6,13 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.Results
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import org.mockito.Mockito._
-import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.demoui.model.{Address, SingleSearchForm}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SingleMatchTest extends PlaySpec with Results {
-
-  val mockApiClient   = mock(classOf[AddressIndexClientInstance])
-  val expectedAddress = Address(
-    "123",
-    "postcode",
-    "primaryAddress",
-    "secondyAddress",
-    "street",
-    "town",
-    1.0f,
-    "fullAddress"
-    )
 
   "Single match controller" should {
     "return an html page" in new WithApplication {
@@ -40,7 +23,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val expectedString = "Search for Addresses"
 
       // When
-      val response = new SingleMatch(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
@@ -56,7 +39,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val expectedString = "btn btn-success btn-search"
 
       // When
-      val response = new SingleMatch(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
@@ -72,7 +55,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val expectedString = "Please enter an address"
 
       // When
-      val response = new SingleMatch(configuration, messagesApi, apiClient).doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> ""))
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -88,7 +71,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val expectedString = "GATE REACH"
 
       // When
-      val response = new SingleMatch(configuration, messagesApi, apiClient).doMatchQS("7 EX2 6GA").apply(FakeRequest())
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).doMatchWithInput("7 EX2 6GA").apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then

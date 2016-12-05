@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String],addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse])(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse])(implicit messages: Messages)
 @import helper._
 
 @*
@@ -16,14 +16,14 @@
         @warningMessage.map { message =>
         <div class="panel panel-warning address-panel">
             <div class="result-content">
-                <div class="alert alert-danger" role="alert"><span class="error" onclick="document.getElementById('address').focus();">@message</span></span></div>
+                <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></span></div>
             </div>
         </div>
         }
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
-                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatch.doMatch) {
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
                 </div>
@@ -31,7 +31,7 @@
             </div>
             @addressBySearchResponse.map { aresponse =>
             <div class="panel panel-single address-panel">
-                <h3 class="green">@aresponse.total addresses found</h3>
+                <h3 class="green">@aresponse.total @messages("single.found")</h3>
             </div>
             @aresponse.addresses.map{ address =>
             <div class="panel panel-match address-panel">
@@ -40,10 +40,10 @@
                         <table class="matchResults">
                             <tr>
                                 <td class="match-found-txt"><strong>Residential</strong></td>
-                                <td style="text-align:right" class="match-score">Matching Score: @address.underlyingScore</td>
+                                <td style="text-align:right" class="match-score">@messages("single.matchscore"): @address.underlyingScore</td>
                             </tr>
                             <tr>
-                                <td colspan="2" class="formatted-address-txt"><strong>Address: </strong>
+                                <td colspan="2" class="formatted-address-txt"><strong>@messages("single.found"): </strong>
                                     @address.paf.map{ paf =>
                                         @paf.buildingName &nbsp;
                                         @paf.buildingNumber,
@@ -55,7 +55,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="uprn-txt"><strong>UPRN: </strong>&nbsp;@address.uprn</td>
+                                <td class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</td>
                                 <td style="text-align:right" class="map-link-txt">
                                     <a href="https://www.google.co.uk/maps/place/@address.paf.map{paf=>@paf.buildingNumber+@paf.thoroughfare+@paf.postTown+@paf.postcode.replace(' ','+')}" target="_blank">Open Map</a></td>
                             </tr>
