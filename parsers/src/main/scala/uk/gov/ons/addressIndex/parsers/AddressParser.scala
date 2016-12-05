@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
   */
 object AddressParser extends CrfParser {
   //can remove
-  def parse(i: Input, fa: Features, tokenable: CrfTokenable): CrfParserResults = {
+  def parse(i: Input, fa: Features, tokenable: CrfTokenable): CrfJniInput = {
     super.parse(i, fa, tokenable)
   }
 }

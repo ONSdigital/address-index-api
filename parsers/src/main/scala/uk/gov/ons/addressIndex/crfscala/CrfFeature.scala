@@ -36,7 +36,8 @@ trait CrfFeature[T] {
     * @return
     */
   def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
-    new StringBuilder()
+    StringBuilder
+      .newBuilder
       .append(CrfScalaJni.lineStart)
       .append(
         createCrfJniInput(
