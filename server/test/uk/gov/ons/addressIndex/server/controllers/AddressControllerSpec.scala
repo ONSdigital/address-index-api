@@ -58,10 +58,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
       Future.successful(Some(validPafAddress))
 
-    override def createAll(): Future[Seq[_]] = Future.successful(Seq.empty)
-
-    override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
-
     override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
 
@@ -73,10 +69,6 @@ class AddressControllerSpec extends PlaySpec with Results {
   val emptyElasticRepositoryMock = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
-
-    override def createAll(): Future[Seq[_]] = Future.successful(Seq.empty)
-
-    override def deleteAll(): Future[Seq[_]] = Future.successful(Seq.empty)
 
     override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))

@@ -6,35 +6,18 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses, PostcodeIndex}
+import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
-trait ElasticsearchRepository extends ElasticIndexSugar {
+trait ElasticsearchRepository {
   /**
     * An ElasticClient.
     */
   def client() : ElasticClient
-
-  /**
-    * Create the repository.
-    *
-    * @return
-    */
-  def createAll() : Future[Seq[_]]
-
-  /**
-    * Delete the repository.
-    *
-    * @return
-    */
-  def deleteAll() : Future[Seq[_]]
 
   /**
     * Query the addres index by UPRN.
@@ -61,20 +44,6 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
   private val esConf = conf.config.elasticSearch
   private val pafIndex = esConf.indexes.pafIndex
   val client: ElasticClient = elasticClientProvider.client
-
-  def createAll() : Future[Seq[CreateIndexResponse]] = {
-    createIndex(
-      PostcodeAddressFileAddress,
-      PostcodeIndex
-    )(client)
-  }
-
-  def deleteAll() : Future[Seq[DeleteIndexResponse]] = {
-    deleteIndex(
-      PostcodeAddressFileAddress,
-      PostcodeIndex
-    )(client)
-  }
 
   def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute{
     search in pafIndex query { termQuery("uprn", uprn) }

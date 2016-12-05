@@ -21,12 +21,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   }
   val config = new AddressIndexConfigModule
 
-  val index = config.config.elasticSearch.indexes.pafIndex
-  val Array(indexName, mappings) = index.split("/")
+  val pafIndex = config.config.elasticSearch.indexes.pafIndex
+  val Array(pafIndexName, pafMappings) = pafIndex.split("/")
+
+  val nagIndex = config.config.elasticSearch.indexes.nagIndex
+  val Array(nagIndexName, nagMappings) = nagIndex.split("/")
 
   testClient.execute {
     bulk(
-      indexInto(indexName / mappings).fields(
+      indexInto(pafIndexName / pafMappings).fields(
         "recordIdentifier" -> "1",
         "changeType" -> "2",
         "proOrder" -> "3",
@@ -57,7 +60,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "lastUpdateDate" -> "28",
         "entryDate" -> "29"
       ),
-      indexInto(indexName / mappings).fields(
+      indexInto(pafIndexName / pafMappings).fields(
         "recordIdentifier" -> "a1",
         "changeType" -> "a2",
         "proOrder" -> "a3",
@@ -87,11 +90,65 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "endDate" -> "a27",
         "lastUpdateDate" -> "a28",
         "entryDate" -> "a29"
+      ),
+      indexInto(nagIndex / nagMappings). fields(
+        "uprn" -> "n1",
+        "postcodeLocator" -> "n2",
+        "addressBasePostal" -> "n3",
+        "ursn" -> "n4",
+        "lpiKey" -> "n5",
+        "paoText" -> "n6",
+        "paoStartNumber" -> "n7",
+        "paoStartSuffix" -> "n8",
+        "paoEndNumber" -> "n9",
+        "paoEndSuffix" -> "n10",
+        "saoText" -> "n11",
+        "saoStartNumber" -> "n12",
+        "saoStartSuffix" -> "n13",
+        "saoEndNumber" -> "n14",
+        "saoEndSuffix" -> "n15",
+        "level" -> "n16",
+        "officialFlag" -> "n17",
+        "logicalStatus" -> "n18",
+        "streetDescriptor" -> "n19",
+        "townName" -> "n20",
+        "locality" -> "n21",
+        "organisation" -> "n22",
+        "legalName" -> "n23",
+        "lat" -> "1.0000000",
+        "lon" -> "2.0000000"
+      ),
+      indexInto(nagIndex / nagMappings). fields(
+        "uprn" -> "1n1",
+        "postcodeLocator" -> "1n2",
+        "addressBasePostal" -> "1n3",
+        "ursn" -> "1n4",
+        "lpiKey" -> "1n5",
+        "paoText" -> "1n6",
+        "paoStartNumber" -> "1n7",
+        "paoStartSuffix" -> "1n8",
+        "paoEndNumber" -> "1n9",
+        "paoEndSuffix" -> "1n10",
+        "saoText" -> "1n11",
+        "saoStartNumber" -> "1n12",
+        "saoStartSuffix" -> "1n13",
+        "saoEndNumber" -> "1n14",
+        "saoEndSuffix" -> "1n15",
+        "level" -> "1n16",
+        "officialFlag" -> "1n17",
+        "logicalStatus" -> "1n18",
+        "streetDescriptor" -> "1n19",
+        "townName" -> "1n20",
+        "locality" -> "1n21",
+        "organisation" -> "1n22",
+        "legalName" -> "1n23",
+        "lat" -> "1.0000000",
+        "lon" -> "2.0000000"
       )
     )
   }.await
 
-  blockUntilCount(2, indexName)
+  blockUntilCount(2, pafIndexName)
 
   "Elastic repository" should {
 

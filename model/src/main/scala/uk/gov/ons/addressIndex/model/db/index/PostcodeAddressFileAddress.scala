@@ -1,9 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import com.sksamuel.elastic4s.mappings.FieldType._
-import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
 
@@ -58,6 +55,8 @@ case class PostcodeAddressFileAddress(
   */
 object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
 
+  val name = "PostcodeAddressFile"
+
   /**
     * This is needed to directly transform a collection of objects returned by Elastic
     * request into a collection of PAF addresses
@@ -97,43 +96,5 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
         hit.score
       )
     }
-  }
-
-  val name = "PostcodeAddressFile"
-
-  def mappingDefinitions(): Seq[MappingDefinition] = {
-    Seq(
-      mapping(name) fields(
-        field("recordIdentifier", StringType),
-        field("changeType", StringType),
-        field("proOrder", StringType),
-        field("uprn", StringType),
-        field("udprn", StringType),
-        field("organizationName", StringType),
-        field("departmentName", StringType),
-        field("subBuildingName", StringType),
-        field("buildingName", StringType),
-        field("buildingNumber", StringType),
-        field("dependentThoroughfare", StringType),
-        field("thoroughfare", StringType),
-        field("doubleDependentLocality", StringType),
-        field("dependentLocality", StringType),
-        field("postTown", StringType),
-        field("postcode", StringType),
-        field("postcodeType", StringType),
-        field("deliveryPointSuffix", StringType),
-        field("welshDependentThoroughfare", StringType),
-        field("welshThoroughfare", StringType),
-        field("welshDoubleDependentLocality", StringType),
-        field("welshDependentLocality", StringType),
-        field("welshPostTown", StringType),
-        field("poBoxNumber", StringType),
-        field("processDate", StringType),
-        field("startDate", StringType),
-        field("endDate", StringType),
-        field("lastUpdateDate", StringType),
-        field("entryDate", StringType)
-        )
-    )
   }
 }
