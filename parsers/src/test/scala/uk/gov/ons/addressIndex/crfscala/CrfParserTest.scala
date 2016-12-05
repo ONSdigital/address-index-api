@@ -106,11 +106,6 @@ class CrfParserTest extends FlatSpec with Matchers {
       token2Expectedf1 + token2Expectedf2 + token2Expectedf3 + token2Expectedf4 +
       token3Expectedf1 + token3Expectedf2 + token3Expectedf3 + token3Expectedf4 +
       token4Expectedf1 + token4Expectedf2 + token4Expectedf3 + token4Expectedf4
-
-
-    println(s"Expected:\n$expected")
-    println(s"Actual:\n$actual")
-
     actual shouldBe expected
   }
 }
