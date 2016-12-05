@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfToken, CrfTokenable, CrfTokens, Input}
 
-//todo scaladoc this whole thing
+//todo scaladoc this thing
 object Tokens extends CrfTokenable {
 
   type TokenIndicator = String
@@ -24,8 +24,6 @@ object Tokens extends CrfTokenable {
     "TownName",
     "Postcode"
   )
-
-  //TODO TokenIndicators encode to int for better computation of features. (All possible spelling permutations.)
 
   val directions: Seq[TokenIndicator] = Seq(
     "N",
