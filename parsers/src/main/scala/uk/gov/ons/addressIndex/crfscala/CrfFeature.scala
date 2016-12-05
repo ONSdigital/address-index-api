@@ -47,6 +47,7 @@ trait CrfFeature[T] {
       )
       .append(
         next map { next =>
+          CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.next,
             someValue = analyse(next)
@@ -55,6 +56,7 @@ trait CrfFeature[T] {
       )
       .append(
         previous map { previous =>
+          CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.previous,
             someValue = analyse(previous)
