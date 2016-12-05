@@ -1,13 +1,7 @@
 package uk.gov.ons.addressIndex
 
 import java.io.File
-
-import uk.gov.ons.addressIndex.crfscala.CrfScala._
-import uk.gov.ons.addressIndex.parsers.{Feature, FeatureAnalysers, Features}
-
-/*
-This whole file should be removed before pushing to dev
- */
+import uk.gov.ons.addressIndex.parsers._
 
 class CrfScalaJniImpl {
   // @native def modelOpen(location : String) : Boolean
@@ -16,10 +10,7 @@ class CrfScalaJniImpl {
 }
 
 object Main extends App {
-
-
   val libbackend = new File("parsers/src/main/resources/libbackend.so").getAbsolutePath
-
   System.load(libbackend)
 
   val currentDirectory = new java.io.File(".").getCanonicalPath
@@ -28,16 +19,12 @@ object Main extends App {
   val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
 
 //  val items = Source.fromFile(inputPath).mkString
-  val token1 = "wd24"
-  val actual = FeatureAnalysers.allFeatures toCrfJniInput token1
+  val input = "14 Acacia Avenue, Surbiton, SU567AU"
+  println(s"address input string :\n$input")
 
-  println(actual)
+  val actual = AddressParser.parse(input, FeatureAnalysers.allFeatures, Tokens)
+  println(s"address input string to CrfJniInput(IWA) :\n$actual ")
 
-  val items : String = actual.replace("\n", "") + "\tsingleton:1.0\n"
-
-  println(items.replace("\n", "N").replace("\t", "T"))
-
-  val tags = new CrfScalaJniImpl().tag(modelPath, items)
-
-  println(tags)
+  val tags = new CrfScalaJniImpl().tag(modelPath, actual)
+  println(s"tags produced :\n$tags")
 }
