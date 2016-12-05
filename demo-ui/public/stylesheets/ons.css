@@ -270,4 +270,12 @@ table.matchResults{
     width: 100%;
 }
 
+td.match-conf{
+    text-align:right;
+}
+
+td.map-link-txt{
+    text-align:right;
+}
+
 

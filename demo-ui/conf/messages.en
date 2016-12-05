@@ -19,5 +19,6 @@ single.notyet=Matching not yet implemented
 single.uprn=UPRN
 single.address=Address
 single.matchscore=Matching Score
+single.confidence=Confidence
 single.found=addresses found
 singlesearchform.placeholder=E.g. 7 Gate Reach Exeter EX2 6GA

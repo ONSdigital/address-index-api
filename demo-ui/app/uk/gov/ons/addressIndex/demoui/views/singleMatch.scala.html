@@ -39,11 +39,16 @@
                     <div class="alert alert-success" role="alert">
                         <table class="matchResults">
                             <tr>
-                                <td class="match-found-txt"><strong>Residential</strong></td>
-                                <td style="text-align:right" class="match-score">@messages("single.matchscore"): @address.underlyingScore</td>
+                                <td class="match-score">@messages("single.matchscore"): @address.underlyingScore</td>
+                                <td class="match-conf">
+                                    @messages("single.confidence"):
+                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 50) "#c6ffb3" else "#ffcccc") { color =>
+                                <span style="background-color: @color">
+                                    }
+                                    @{(address.underlyingScore / address.underlyingMaxScore) * 100}</span></td>
                             </tr>
                             <tr>
-                                <td colspan="2" class="formatted-address-txt"><strong>@messages("single.found"): </strong>
+                                <td colspan="2" class="formatted-address-txt"><strong>@messages("single.address"): </strong>
                                     @address.paf.map{ paf =>
                                         @paf.buildingName &nbsp;
                                         @paf.buildingNumber,
@@ -56,7 +61,7 @@
                             </tr>
                             <tr>
                                 <td class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</td>
-                                <td style="text-align:right" class="map-link-txt">
+                                <td class="map-link-txt">
                                     <a href="https://www.google.co.uk/maps/place/@address.paf.map{paf=>@paf.buildingNumber+@paf.thoroughfare+@paf.postTown+@paf.postcode.replace(' ','+')}" target="_blank">Open Map</a></td>
                             </tr>
                         </table>

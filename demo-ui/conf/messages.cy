@@ -19,5 +19,6 @@ single.notyet=Paru heb ei weithredu eto
 single.uprn=UPRN
 single.address=cyfeiriad
 single.matchscore=Cyfateb Sgôr
+single.confidence=hyder
 single.found=dod o hyd i gyfeiriadau
 singlesearchform.placeholder=E.g. 7 Gate Reach Exeter EX2 6GA
