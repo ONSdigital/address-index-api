@@ -21,6 +21,7 @@ object FeatureAnalysers {
       Feature[String](digits)(digitsAnalyser()),
       Feature[Root[_]](word)(wordAnalyser()),
       Feature[String](length)(lengthAnalyser()),
+      Feature[Boolean](ordinal)(ordinalAnalyser()),
       Feature[Boolean](endsInPunctuation)(endsInPunctuationAnalyser()),
       Feature[Boolean](directional)(directionalAnalyser()),
       Feature[Boolean](outcode)(outcodeAnalyser()),
