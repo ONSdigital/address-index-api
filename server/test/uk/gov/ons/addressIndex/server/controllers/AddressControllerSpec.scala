@@ -7,7 +7,7 @@ import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.test._
@@ -55,12 +55,15 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
+    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
       Future.successful(Some(validPafAddress))
 
-    override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
+    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = ???
+
+    override def queryPafAddresses(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
 
+    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] = ???
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
@@ -68,11 +71,14 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that won't return any addresses
   val emptyElasticRepositoryMock = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
+    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
 
-    override def queryAddress(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
+    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = ???
+
+    override def queryPafAddresses(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
 
+    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] = ???
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }

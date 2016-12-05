@@ -15,7 +15,7 @@ case class NationalAddressGazetteerAddresses(
 )
 
 /**
-  * PAF Address DTO
+  * NAG Address DTO
   */
 case class NationalAddressGazetteerAddress(
   uprn: String,
@@ -47,7 +47,7 @@ case class NationalAddressGazetteerAddress(
 )
 
 /**
-  * PAF Address DTO companion object that also contains implicits needed for Elastic4s
+  * NAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
 object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazetteerAddress] {
 
@@ -55,7 +55,7 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
 
   /**
     * This is needed to directly transform a collection of objects returned by Elastic
-    * request into a collection of PAF addresses
+    * request into a collection of NAF addresses
     */
   implicit object NationalAddressGazetteerAddessHitAs extends HitAs[NationalAddressGazetteerAddress] {
     override def as(hit: RichSearchHit): NationalAddressGazetteerAddress = {

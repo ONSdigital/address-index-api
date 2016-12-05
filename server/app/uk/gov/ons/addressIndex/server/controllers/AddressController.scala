@@ -73,7 +73,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
 
   private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
-    esRepo.queryAddress(tokens).map {
+    esRepo.queryPafAddresses(tokens).map {
       case PostcodeAddressFileAddresses(addresses, maxScore) =>
         Ok(Json.toJson(AddressBySearchResponseContainer(
           AddressBySearchResponse(
@@ -130,7 +130,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
 
   private def searchPafAddressByUprn(uprn: String): Future[Result] = {
-    esRepo.queryUprn(uprn).map {
+    esRepo.queryPafUprn(uprn).map {
       case Some(address) => Ok(Json.toJson(
         AddressByUprnResponseContainer(
           response = AddressByUprnResponse(
