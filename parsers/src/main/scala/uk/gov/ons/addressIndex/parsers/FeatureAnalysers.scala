@@ -98,7 +98,7 @@ object FeatureAnalysers {
 
   val hasVowels: FeatureName = "has.vowels"
   /**
-    * @return true if the string is in the Tokens.postTown collection, false if not
+    * @return true if the string contains vowels, false if not
     */
   def hasVowelsAnalyser(): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](_.containsVowels[Boolean](identity))
 

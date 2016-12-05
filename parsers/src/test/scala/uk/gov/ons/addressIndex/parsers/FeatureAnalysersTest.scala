@@ -158,13 +158,18 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
     expected should contain theSameElementsAs actual
   }
 
-  it should "produce the correct `has vowels` feature output for expected inputs" in {
-    val inputs = Seq(
-      "a", "e", "i", "o", "u"
-    )
-    val expected = Seq.fill(inputs.length)(true)
-    val actual = inputs map hasVowelsAnalyser.apply
-    expected should contain theSameElementsAs actual
+  it should "produce the correct `has.vowels` feature output (true) for expected input" in {
+    val input = "hello"
+    val expected = true
+    val actual = hasVowelsAnalyser.apply(input)
+    expected shouldBe actual
+  }
+
+  it should "produce the correct `has.vowels` feature output (false) for expected input" in {
+    val input = "hll"
+    val expected = false
+    val actual = hasVowelsAnalyser.apply(input)
+    expected shouldBe actual
   }
 
   it should "produce the correct `flat` feature output for expected inputs" in {
