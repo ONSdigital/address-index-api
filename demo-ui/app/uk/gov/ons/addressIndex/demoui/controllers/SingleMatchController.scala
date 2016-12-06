@@ -26,19 +26,20 @@ class SingleMatchController @Inject()(
    apiClient: AddressIndexClientInstance
 )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
-  def showSingleMatchPage() : Action[AnyContent] = Action.async { implicit req =>
+  def showSingleMatchPage() : Action[AnyContent] = Action.async { implicit request =>
     Logger.info("SingleMatch: Rendering Single Match Page")
     // Get language from Config file rather than req.acceptLanguages
     val defaultLanguage = conf.config.defaultLanguage
-    Logger.info("SingleMatch: Default Language =  " + defaultLanguage)
-    val lang = req.getQueryString("lang").getOrElse(defaultLanguage)
+    val lang = request.session.get("userlang").getOrElse {defaultLanguage}
+    val qlang = request.getQueryString("lang").getOrElse(lang)
+    Logger.info("SingleMatch: Language =  " + qlang)
     Logger.debug("Empty input address")
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
       addressBySearchResponse = None)
     Future.successful(
-      messagesApi.setLang(Ok(viewToRender), Lang(lang))
+      messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
     )
   }
 
@@ -46,15 +47,17 @@ class SingleMatchController @Inject()(
     // todo try (parse.tolerantJson)
     val addressText = request.body.asFormUrlEncoded.get("address").mkString
     val defaultLanguage = conf.config.defaultLanguage
-    val lang = request.getQueryString("lang").getOrElse(defaultLanguage)
-    if (addressText.trim.isEmpty) {
+    val lang = request.session.get("userlang").getOrElse {defaultLanguage}
+    val qlang = request.getQueryString("lang").getOrElse(lang)
+    Logger.info("SingleMatch: Language =  " + qlang)
+        if (addressText.trim.isEmpty) {
       Logger.debug("Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         addressBySearchResponse = None)
       Future.successful(
-        messagesApi.setLang(Ok(viewToRender), Lang(lang))
+        messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
       )
     } else {
       Future.successful(
@@ -66,7 +69,9 @@ class SingleMatchController @Inject()(
   def doMatchWithInput(input : String) : Action[AnyContent] = Action.async { implicit request =>
     val addressText = input
     val defaultLanguage = conf.config.defaultLanguage
-    val lang = request.getQueryString("lang").getOrElse(defaultLanguage)
+    val lang = request.session.get("userlang").getOrElse {defaultLanguage}
+    val qlang = request.getQueryString("lang").getOrElse(lang)
+    Logger.info("SingleMatch: Language =  " + qlang)
     if (addressText.trim.isEmpty) {
       Logger.debug("Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -74,7 +79,7 @@ class SingleMatchController @Inject()(
         warningMessage = Some(messagesApi("single.pleasesupply")),
         addressBySearchResponse = None)
         Future.successful(
-          messagesApi.setLang(Ok(viewToRender), Lang(lang))
+          messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
       )
     } else {
       apiClient.addressQuery(
@@ -89,7 +94,7 @@ class SingleMatchController @Inject()(
           singleSearchForm = filledForm,
           warningMessage = None,
           addressBySearchResponse = Some(resp.response))
-        messagesApi.setLang(Ok(viewToRender), Lang(lang))
+        messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
       }
     }
   }

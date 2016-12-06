@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SingleMatchTest extends PlaySpec with Results {
 
   "Single match controller" should {
-    "return an html page" in new WithApplication {
+    "return a page containing a heading" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
@@ -47,12 +47,12 @@ class SingleMatchTest extends PlaySpec with Results {
       content must include(expectedString)
     }
 
-    "return a page including a no content error message when empty address posted" in new WithApplication {
+    "return a page including an appropriate error message when empty address posted" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
-      val expectedString = "Please enter an address"
+      val expectedString = "<span class=\"error\" onclick=\"setFocus('address');\">Please enter an address</span>"
 
       // When
       val response = new SingleMatchController(configuration, messagesApi, apiClient).doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> ""))
