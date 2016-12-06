@@ -41,8 +41,8 @@ case class NationalAddressGazetteerAddress(
   locality: String,
   organisation: String,
   legalName: String,
-  lat: String,
-  lon: String,
+  latitude: String,
+  longitude: String,
   score: Float
 )
 

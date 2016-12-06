@@ -2,7 +2,9 @@ package uk.gov.ons.addressIndex.server.model.response
 
 import play.api.http.Status
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+
+import scala.util.Try
 
 /**
   * Contains the reply for address by uprn request
@@ -171,6 +173,56 @@ object AddressResponseAddress {
     */
   def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponseAddress = fromPafAddress(1.0f)(other)
 
+  /**
+    * Transforms Paf address from elastic search into the Response address
+    *
+    * @param maxScore elastic's response maximum score
+    * @param other
+    * @return
+    */
+  def fromNagAddress(maxScore: Float)(other: NationalAddressGazetteerAddress): AddressResponseAddress = {
+
+    val geo: Try[AddressResponseGeo] = for {
+      latitude <- Try(other.latitude.toDouble)
+      longitude <- Try(other.longitude.toDouble)
+    } yield AddressResponseGeo(latitude, longitude, 0, 0)
+
+    AddressResponseAddress(
+      uprn = other.uprn,
+      formattedAddress = "",
+      paf = None,
+      nag = Some(AddressResponseNag(
+        other.uprn,
+        other.postcodeLocator,
+        other.addressBasePostal,
+        other.ursn,
+        other.lpiKey,
+        other.paoText,
+        other.paoStartNumber,
+        other.paoStartSuffix,
+        other.paoEndNumber,
+        other.paoEndSuffix,
+        other.saoText,
+        other.saoStartNumber,
+        other.saoStartSuffix,
+        other.saoEndNumber,
+        other.saoEndSuffix,
+        other.level,
+        other.logicalStatus,
+        other.streetDescriptor,
+        other.townName,
+        other.locality,
+        other.organisation,
+        other.legalName
+      )),
+      geo = geo.toOption,
+      underlyingScore = other.score,
+      underlyingMaxScore = maxScore
+    )
+  }
+
+  def fromNagAddress(other: NationalAddressGazetteerAddress): AddressResponseAddress = fromNagAddress(1.0f)(other)
+
 }
 
 
@@ -230,12 +282,54 @@ object AddressResponsePaf {
 }
 
 /**
-  * Nag data on the address
-  *
-  * @param postcode postcode
+  * @param uprn uprn
+  * @param postcodeLocator postcode
+  * @param addressBasePostal
+  * @param ursn ursn
+  * @param lpiKey lpi key
+  * @param paoText building name
+  * @param paoStartNumber building number
+  * @param paoStartSuffix
+  * @param paoEndNumber
+  * @param paoEndSuffix
+  * @param saoText sub building name
+  * @param saoStartNumber sub building number
+  * @param saoStartSuffix
+  * @param saoEndNumber
+  * @param saoEndSuffix
+  * @param level ground and first floor
+  * // The following one is removed until further notice
+  * @param officialFlag
+  * @param logicalStatus
+  * @param streetDescriptor
+  * @param townName
+  * @param locality
+  * @param organisation
+  * @param legalName
   */
 case class AddressResponseNag(
-  postcode: String
+  uprn: String,
+  postcodeLocator: String,
+  addressBasePostal: String,
+  ursn: String,
+  lpiKey: String,
+  paoText: String,
+  paoStartNumber: String,
+  paoStartSuffix: String,
+  paoEndNumber: String,
+  paoEndSuffix: String,
+  saoText: String,
+  saoStartNumber: String,
+  saoStartSuffix: String,
+  saoEndNumber: String,
+  saoEndSuffix: String,
+  level: String,
+  logicalStatus: String,
+  streetDescriptor: String,
+  townName: String,
+  locality: String,
+  organisation: String,
+  legalName: String
 )
 
 object AddressResponseNag {

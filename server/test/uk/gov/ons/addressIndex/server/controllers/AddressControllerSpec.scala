@@ -51,6 +51,35 @@ class AddressControllerSpec extends PlaySpec with Results {
     score = 1.0f
   )
 
+  val validNagAddress = NationalAddressGazetteerAddress(
+    uprn = "1",
+    postcodeLocator = "B16 8TH",
+    addressBasePostal = "3",
+    ursn = "4",
+    lpiKey = "5",
+    paoText = "6",
+    paoStartNumber = "72",
+    paoStartSuffix = "8",
+    paoEndNumber = "9",
+    paoEndSuffix = "10",
+    saoText = "11",
+    saoStartNumber = "12",
+    saoStartSuffix = "13",
+    saoEndNumber = "14",
+    saoEndSuffix = "15",
+    level = "16",
+    officialFlag = "17",
+    logicalStatus = "18",
+    streetDescriptor = "19",
+    townName = "20",
+    locality = "21",
+    organisation = "22",
+    legalName = "23",
+    latitude = "24",
+    longitude = "25",
+    score = 1.0f
+  )
+
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
@@ -58,12 +87,14 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
       Future.successful(Some(validPafAddress))
 
-    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = ???
+    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] =
+      Future.successful(Some(validNagAddress))
 
     override def queryPafAddresses(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
 
-    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] = ???
+    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] =
+      Future.successful(NationalAddressGazetteerAddresses(Seq(validNagAddress), 1.0f))
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
@@ -73,19 +104,20 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
 
-    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = ???
+    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = Future.successful(None)
 
     override def queryPafAddresses(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
 
-    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] = ???
+    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] =
+      Future.successful(NationalAddressGazetteerAddresses(Seq.empty, 1.0f))
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
 
   "Address controller" should {
 
-    "reply on a found address (by address query)" in {
+    "reply with a found PAF address (by address query)" in {
       // Given
       val controller = new AddressController(elasticRepositoryMock)
 
@@ -106,6 +138,34 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.addressQuery("10 B16 8TH", "paf").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found NAG address (by address query)" in {
+      // Given
+      val controller = new AddressController(elasticRepositoryMock)
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = AddressTokens(
+            uprn = "",
+            buildingNumber = "72",
+            postcode = "B16 8TH"
+          ),
+          addresses = Seq(AddressResponseAddress.fromNagAddress(1.0f)(validNagAddress)),
+          limit = 10,
+          offset = 0,
+          total = 1
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.addressQuery("72 B16 8TH", "bs").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -163,19 +223,39 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a found address (by uprn)" in {
+    "reply on a found PAF address (by uprn)" in {
       // Given
       val controller = new AddressController(elasticRepositoryMock)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress))
+          address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
         ),
         OkAddressResponseStatus
       ))
 
       // When
       val result = controller.uprnQuery("4", "paf").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply on a found NAG address (by uprn)" in {
+      // Given
+      val controller = new AddressController(elasticRepositoryMock)
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        response = AddressByUprnResponse(
+          address = Some(AddressResponseAddress.fromNagAddress(validNagAddress))
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.uprnQuery("1", "bs").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
