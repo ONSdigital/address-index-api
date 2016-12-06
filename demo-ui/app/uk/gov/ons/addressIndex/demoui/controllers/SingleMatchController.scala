@@ -3,20 +3,18 @@ package uk.gov.ons.addressIndex.demoui.controllers
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import play.{Configuration, Logger}
+import play.{Logger}
 import play.api.mvc.{Action, AnyContent, Controller}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
-import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.data.Forms._
 import play.api.data._
-import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, PostcodeAddressFile}
-import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
 @Singleton
@@ -28,36 +26,25 @@ class SingleMatchController @Inject()(
 
   def showSingleMatchPage() : Action[AnyContent] = Action.async { implicit request =>
     Logger.info("SingleMatch: Rendering Single Match Page")
-    // Get language from Config file rather than req.acceptLanguages
-    val defaultLanguage = conf.config.defaultLanguage
-    val lang = request.session.get("userlang").getOrElse {defaultLanguage}
-    val qlang = request.getQueryString("lang").getOrElse(lang)
-    Logger.info("SingleMatch: Language =  " + qlang)
-    Logger.debug("Empty input address")
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
       addressBySearchResponse = None)
     Future.successful(
-      messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
+        Ok(viewToRender)
     )
   }
 
   def doMatch() : Action[AnyContent] = Action.async { implicit request =>
-    // todo try (parse.tolerantJson)
     val addressText = request.body.asFormUrlEncoded.get("address").mkString
-    val defaultLanguage = conf.config.defaultLanguage
-    val lang = request.session.get("userlang").getOrElse {defaultLanguage}
-    val qlang = request.getQueryString("lang").getOrElse(lang)
-    Logger.info("SingleMatch: Language =  " + qlang)
-        if (addressText.trim.isEmpty) {
-      Logger.debug("Empty input address")
+    if (addressText.trim.isEmpty) {
+      Logger.info("Single Match with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         addressBySearchResponse = None)
       Future.successful(
-        messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
+        Ok(viewToRender)
       )
     } else {
       Future.successful(
@@ -68,20 +55,17 @@ class SingleMatchController @Inject()(
 
   def doMatchWithInput(input : String) : Action[AnyContent] = Action.async { implicit request =>
     val addressText = input
-    val defaultLanguage = conf.config.defaultLanguage
-    val lang = request.session.get("userlang").getOrElse {defaultLanguage}
-    val qlang = request.getQueryString("lang").getOrElse(lang)
-    Logger.info("SingleMatch: Language =  " + qlang)
     if (addressText.trim.isEmpty) {
-      Logger.debug("Empty input address")
+      Logger.info("Single Match with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         addressBySearchResponse = None)
         Future.successful(
-          messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
+          Ok(viewToRender)
       )
     } else {
+      Logger.info("Single Match with supplied input address")
       apiClient.addressQuery(
         AddressIndexSearchRequest(
           format = PostcodeAddressFile("paf"),
@@ -94,7 +78,7 @@ class SingleMatchController @Inject()(
           singleSearchForm = filledForm,
           warningMessage = None,
           addressBySearchResponse = Some(resp.response))
-        messagesApi.setLang(Ok(viewToRender), Lang(qlang)).withSession("userlang" -> qlang)
+        Ok(viewToRender)
       }
     }
   }

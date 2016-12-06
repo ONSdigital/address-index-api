@@ -18,7 +18,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
       val expectedString = "<h4><a href=\"/addresses\">Find an address</a></h4>"
 
       // When
-      val response = new ApplicationHomeController(configuration, messagesApi).indexPage(None).apply(FakeRequest())
+      val response = new ApplicationHomeController(configuration, messagesApi).indexPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
@@ -26,7 +26,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
       content must include(expectedString)
     }
     "return at least one link with language set" in new WithApplication {
-      // returns English first time, need to fix this
+      // can we set the acceptlanguage Seq in the fake request so that cy is top?
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
@@ -34,7 +34,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
       val langOption = Some("cy")
 
       // When
-      val response = new ApplicationHomeController(configuration, messagesApi).indexPage(langOption).apply(FakeRequest())
+      val response = new ApplicationHomeController(configuration, messagesApi).indexPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then

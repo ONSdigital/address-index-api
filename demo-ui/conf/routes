@@ -3,10 +3,10 @@
 # Routes are called in priority order
 
 # ONS-Address Index home page
-GET     /                                       uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.indexPage(lang: Option[String])
+GET     /                                       uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.indexPage
 
 # ONS-Address Index Single Search View
-GET     /addresses                              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage()
+GET     /addresses                              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)
