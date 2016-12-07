@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,12 +21,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   }
   val config = new AddressIndexConfigModule
 
-  val index = config.config.elasticSearch.indexes.pafIndex
-  val Array(indexName, mappings) = index.split("/")
+  val pafIndex = config.config.elasticSearch.indexes.pafIndex
+  val Array(pafIndexName, pafMappings) = pafIndex.split("/")
+
+  val nagIndex = config.config.elasticSearch.indexes.nagIndex
+  val Array(nagIndexName, nagMappings) = nagIndex.split("/")
+  println(nagIndex)
 
   testClient.execute {
     bulk(
-      indexInto(indexName / mappings).fields(
+      indexInto(pafIndexName / pafMappings).fields(
         "recordIdentifier" -> "1",
         "changeType" -> "2",
         "proOrder" -> "3",
@@ -57,7 +61,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "lastUpdateDate" -> "28",
         "entryDate" -> "29"
       ),
-      indexInto(indexName / mappings).fields(
+      indexInto(pafIndexName / pafMappings).fields(
         "recordIdentifier" -> "a1",
         "changeType" -> "a2",
         "proOrder" -> "a3",
@@ -87,15 +91,70 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "endDate" -> "a27",
         "lastUpdateDate" -> "a28",
         "entryDate" -> "a29"
+      ),
+      indexInto(nagIndexName / nagMappings). fields(
+        "uprn" -> "n1",
+        "postcodeLocator" -> "n2",
+        "addressBasePostal" -> "n3",
+        "ursn" -> "n4",
+        "lpiKey" -> "n5",
+        "paoText" -> "n6",
+        "paoStartNumber" -> "n7",
+        "paoStartSuffix" -> "n8",
+        "paoEndNumber" -> "n9",
+        "paoEndSuffix" -> "n10",
+        "saoText" -> "n11",
+        "saoStartNumber" -> "n12",
+        "saoStartSuffix" -> "n13",
+        "saoEndNumber" -> "n14",
+        "saoEndSuffix" -> "n15",
+        "level" -> "n16",
+        "officialFlag" -> "n17",
+        "logicalStatus" -> "n18",
+        "streetDescriptor" -> "n19",
+        "townName" -> "n20",
+        "locality" -> "n21",
+        "organisation" -> "n22",
+        "legalName" -> "n23",
+        "lat" -> "1.0000000",
+        "lon" -> "2.0000000"
+      ),
+      indexInto(nagIndexName / nagMappings). fields(
+        "uprn" -> "1n1",
+        "postcodeLocator" -> "1n2",
+        "addressBasePostal" -> "1n3",
+        "ursn" -> "1n4",
+        "lpiKey" -> "1n5",
+        "paoText" -> "1n6",
+        "paoStartNumber" -> "1n7",
+        "paoStartSuffix" -> "1n8",
+        "paoEndNumber" -> "1n9",
+        "paoEndSuffix" -> "1n10",
+        "saoText" -> "1n11",
+        "saoStartNumber" -> "1n12",
+        "saoStartSuffix" -> "1n13",
+        "saoEndNumber" -> "1n14",
+        "saoEndSuffix" -> "1n15",
+        "level" -> "1n16",
+        "officialFlag" -> "1n17",
+        "logicalStatus" -> "1n18",
+        "streetDescriptor" -> "1n19",
+        "townName" -> "1n20",
+        "locality" -> "1n21",
+        "organisation" -> "1n22",
+        "legalName" -> "1n23",
+        "lat" -> "1.0000000",
+        "lon" -> "2.0000000"
       )
     )
   }.await
 
-  blockUntilCount(2, indexName)
+  blockUntilCount(2, pafIndexName)
+  blockUntilCount(2, nagIndexName)
 
   "Elastic repository" should {
 
-    "find address by UPRN" in {
+    "find PAF address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(PostcodeAddressFileAddress(
@@ -104,14 +163,28 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       ))
 
       // When
-      val result = repository.queryUprn("4").await
+      val result = repository.queryPafUprn("4").await
 
       // Then
-
       result shouldBe expected
     }
 
-    "find address by building number and a postcode" in {
+    "find NAG address by UPRN" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Some(NationalAddressGazetteerAddress(
+        "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n14", "n15",
+        "n16", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "1.0000000", "2.0000000", 1.0f
+      ))
+
+      // When
+      val result = repository.queryNagUprn("n1").await
+
+      // Then
+      result shouldBe expected
+    }
+
+    "find PAF addresses by building number and a postcode" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val tokens = AddressTokens(
@@ -119,14 +192,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         buildingNumber = "10",
         postcode = "16"
       )
+      val expectedScore = 1.4142135f
       val expected = PostcodeAddressFileAddress(
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", 1.4142135f
+        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", expectedScore
       )
-      val expectedScore = 1.4142135f
 
       // When
-      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryAddress(tokens).await
+      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(tokens).await
+
+      // Then
+      results.length shouldBe 1
+      results.head shouldBe expected
+      maxScore shouldBe expectedScore
+    }
+
+    "find NAG addresses by building number and a postcode" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val tokens = AddressTokens(
+        uprn = "n1",
+        buildingNumber = "n7",
+        postcode = "n2"
+      )
+      val expectedScore = 1.4142135f
+      val expected = NationalAddressGazetteerAddress(
+        "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n14", "n15",
+        "n16", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "1.0000000", "2.0000000", expectedScore
+      )
+
+      // When
+      val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(tokens).await
 
       // Then
       results.length shouldBe 1

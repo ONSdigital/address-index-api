@@ -6,81 +6,71 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.db.ElasticIndexSugar
-import uk.gov.ons.addressIndex.model.db.index.{PostcodeAddressFileAddress, PostcodeAddressFileAddresses, PostcodeIndex}
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.server.model.response.AddressTokens
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
-trait ElasticsearchRepository extends ElasticIndexSugar {
+trait ElasticsearchRepository {
   /**
     * An ElasticClient.
     */
   def client() : ElasticClient
 
   /**
-    * Create the repository.
+    * Query the PAF addres index by UPRN.
     *
-    * @return
+    * @param uprn the identificator of the address
+    * @return Fucture containing a PAF address or `None` if not in the index
     */
-  def createAll() : Future[Seq[_]]
+  def queryPafUprn(uprn : String) : Future[Option[PostcodeAddressFileAddress]]
 
   /**
-    * Delete the repository.
+    * Query the NAG addres index by UPRN.
     *
-    * @return
+    * @param uprn the identificator of the address
+    * @return Fucture containing a NAG address or `None` if not in the index
     */
-  def deleteAll() : Future[Seq[_]]
+  def queryNagUprn(uprn : String) : Future[Option[NationalAddressGazetteerAddress]]
 
   /**
-    * Query the addres index by UPRN.
-    *
-    * @param uprn
-    * @return
-    */
-  def queryUprn(uprn : String) : Future[Option[PostcodeAddressFileAddress]]
-
-  /**
-    * Query the address index for addresses.
+    * Query the address index for PAF addresses.
     * Currently the query must be for building number and postcode.
     *
     * @param tokens address tokens
-    * @return Future with found addresses and the maximum score
+    * @return Future with found PAF addresses and the maximum score
     */
-  def queryAddress(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses]
+  def queryPafAddresses(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses]
+
+  /**
+    * Query the address index for NAG addresses.
+    * Currently the query must be for building number and postcode.
+    *
+    * @param tokens address tokens
+    * @return Future with found PAF addresses and the maximum score
+    */
+  def queryNagAddresses(tokens: AddressTokens) : Future[NationalAddressGazetteerAddresses]
 }
 
 @Singleton
 class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticClientProvider: ElasticClientProvider)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
-  private val logger = Logger("address-index:ElasticsearchRepositoryModule")
   private val esConf = conf.config.elasticSearch
   private val pafIndex = esConf.indexes.pafIndex
+  private val nagIndex = esConf.indexes.nagIndex
   val client: ElasticClient = elasticClientProvider.client
 
-  def createAll() : Future[Seq[CreateIndexResponse]] = {
-    createIndex(
-      PostcodeAddressFileAddress,
-      PostcodeIndex
-    )(client)
-  }
-
-  def deleteAll() : Future[Seq[DeleteIndexResponse]] = {
-    deleteIndex(
-      PostcodeAddressFileAddress,
-      PostcodeIndex
-    )(client)
-  }
-
-  def queryUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute{
+  def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute{
     search in pafIndex query { termQuery("uprn", uprn) }
   }.map(_.as[PostcodeAddressFileAddress].headOption)
 
-  def queryAddress(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses] = client.execute {
+  def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = client.execute{
+    search in nagIndex query { termQuery("uprn", uprn) }
+  }.map(_.as[NationalAddressGazetteerAddress].headOption)
+
+  def queryPafAddresses(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses] = client.execute {
     search in pafIndex query {
       bool(
         must(
@@ -96,4 +86,21 @@ class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticC
       )
     }
   }.map(response => PostcodeAddressFileAddresses(response.as[PostcodeAddressFileAddress], response.maxScore))
+
+  def queryNagAddresses(tokens: AddressTokens) : Future[NationalAddressGazetteerAddresses] = client.execute {
+    search in nagIndex query {
+      bool(
+        must(
+          matchQuery(
+            field = "paoStartNumber",
+            value = tokens.buildingNumber
+          ),
+          matchQuery(
+            field = "postcodeLocator",
+            value = tokens.postcode
+          )
+        )
+      )
+    }
+  }.map(response => NationalAddressGazetteerAddresses(response.as[NationalAddressGazetteerAddress], response.maxScore))
 }
