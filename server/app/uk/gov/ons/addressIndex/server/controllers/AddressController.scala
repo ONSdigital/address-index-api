@@ -74,33 +74,35 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
   private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
     esRepo.queryPafAddresses(tokens).map {
-      case PostcodeAddressFileAddresses(addresses, maxScore) =>
-        Ok(Json.toJson(AddressBySearchResponseContainer(
-          AddressBySearchResponse(
-            tokens,
+      case PostcodeAddressFileAddresses(addresses, maxScore) => Ok(Json.toJson(
+        AddressBySearchResponseContainer(
+          response = AddressBySearchResponse(
+            tokens = tokens,
             addresses = addresses.map(AddressResponseAddress.fromPafAddress(maxScore)),
             limit = 10,
             offset = 0,
             total = addresses.size
           ),
-          OkAddressResponseStatus
-        )))
+          status = OkAddressResponseStatus
+        )
+      ))
     }
   }
 
   private def searchNagAddresses(tokens: AddressTokens): Future[Result] = {
     esRepo.queryNagAddresses(tokens).map {
-      case NationalAddressGazetteerAddresses(addresses, maxScore) =>
-        Ok(Json.toJson(AddressBySearchResponseContainer(
-          AddressBySearchResponse(
-            tokens,
+      case NationalAddressGazetteerAddresses(addresses, maxScore) => Ok(Json.toJson(
+        AddressBySearchResponseContainer(
+          response = AddressBySearchResponse(
+            tokens = tokens,
             addresses = addresses.map(AddressResponseAddress.fromNagAddress(maxScore)),
             limit = 10,
             offset = 0,
             total = addresses.size
           ),
-          OkAddressResponseStatus
-        )))
+          status = OkAddressResponseStatus
+        )
+      ))
     }
   }
 
@@ -114,16 +116,16 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
   private val searchUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
-      errorAddressResponse,
-      BadRequestAddressResponseStatus,
+      response = errorAddressResponse,
+      status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
     )
   )))
 
   private val searchEmptyQueryReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
-      errorAddressResponse,
-      BadRequestAddressResponseStatus,
+      response = errorAddressResponse,
+      status = BadRequestAddressResponseStatus,
       errors = Seq(EmptyQueryAddressResponseError)
     )
   )))
@@ -152,7 +154,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           response = AddressByUprnResponse(
             address = Some(AddressResponseAddress.fromPafAddress(address))
           ),
-          OkAddressResponseStatus
+          status = OkAddressResponseStatus
         )
       ))
       case None => notFoundReply
@@ -164,7 +166,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
       response = AddressByUprnResponse(
         address = None
       ),
-      NotFoundAddressResponseStatus,
+      status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
     )
   ))
@@ -176,7 +178,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
           response = AddressByUprnResponse(
             address = Some(AddressResponseAddress.fromNagAddress(address))
           ),
-          OkAddressResponseStatus
+          status = OkAddressResponseStatus
         )
       ))
       case None => notFoundReply
@@ -188,7 +190,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
       response = AddressByUprnResponse(
         address = None
       ),
-      BadRequestAddressResponseStatus,
+      status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
     )
   )))

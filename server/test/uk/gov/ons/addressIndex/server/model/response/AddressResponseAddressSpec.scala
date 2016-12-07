@@ -158,7 +158,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe expected
     }
 
-    "be creatable from Elastic PAF response with wrong latitude" in {
+    "be creatable from Elastic NAG response with invalid latitude" in {
       // Given
       val givenNag = NationalAddressGazetteerAddress(
         uprn = "n1",
@@ -229,7 +229,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe expected
     }
 
-    "be creatable from Elastic PAF response with wrong longitude" in {
+    "be creatable from Elastic NAG response with invalid longitude" in {
       // Given
       val givenNag = NationalAddressGazetteerAddress(
         uprn = "n1",
