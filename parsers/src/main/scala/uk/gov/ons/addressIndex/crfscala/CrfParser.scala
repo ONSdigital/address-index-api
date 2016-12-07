@@ -1,36 +1,27 @@
 package uk.gov.ons.addressIndex.crfscala
 
-import java.io.File
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
-import uk.gov.ons.addressIndex.parsers.{AddressParser, FeatureAnalysers, Tokens}
 
 //TODO scaladoc
 trait CrfParser {
 
-  /**
-    * @param i
-    * @param fas
-    * @param tokenable
-    * @return
-    */
-  def tag(i: Input, fas: CrfFeatures, tokenable: CrfTokenable): String = {
-    val libbackend = new File("parsers/src/main/resources/libbackend.so").getAbsolutePath
-    System.load(libbackend)
+  //TODO scaladoc
+  val crfScala: CrfScalaJniImpl = new CrfScalaJniImpl()
 
+  //TODO scaladoc
+  def tag(i: Input, fas: CrfFeatures, tokenable: CrfTokenable): String = {
     val currentDirectory = new java.io.File(".").getCanonicalPath
     val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
-    val actual = AddressParser.parse(i, FeatureAnalysers.allFeatures, Tokens)
-
-    println("ACTUAL:")
-    println(actual)
-
-    val augmentedActual = actual.split("\n").map(_.split("\t").sorted.mkString("\t")).mkString("\n") + "\n"
-
-    println(s"address input string to CrfJniInput(IWA) AUGMENTED::: :\n$augmentedActual ")
-
-    val tagsaug = new CrfScalaJniImpl().tag(modelPath, augmentedActual)
-    println(s"aug tags produced :\n$tagsaug")
-    tagsaug
+    val actual = parse(i, fas, tokenable)
+    val augmentedActual = actual
+      .split(CrfScalaJni.lineEnd)
+      .map(
+        _.split(CrfScalaJni.delimiter)
+         .sorted
+         .mkString(CrfScalaJni.delimiter)
+      )
+      .mkString(CrfScalaJni.lineEnd) + CrfScalaJni.lineEnd
+    crfScala.tag(modelPath, augmentedActual)
   }
 
   //TODO scaladoc
