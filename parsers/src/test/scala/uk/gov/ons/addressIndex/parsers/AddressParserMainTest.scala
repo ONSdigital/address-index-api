@@ -12,8 +12,7 @@ object AddressParserMainTest extends App {
   val libbackend = new File("parsers/src/main/resources/libbackend.so").getAbsolutePath
   System.load(libbackend)
 
-  val addressInputFile = new File("parsers/src/test/resources/ParserProbabilities.xml")
-
+  val addressInputFile = new File("parsers/src/test/resources/smallerTestSet.xml")
 
   val xml = XML.loadFile(addressInputFile)
 
@@ -25,9 +24,10 @@ object AddressParserMainTest extends App {
   val results = inputs.map(i => AddressParser.tag(i, FeatureAnalysers.allFeatures, Tokens))
   val x = inputs.zip(results).map { x =>
     val input = x._1
+    println("input")
     val tokens = Tokens(input)
     val preprocessedTokens = Tokens normalise tokens
-    
+
     val tagsWithProbs = x._2
       .split("\n")
       .map { r =>
