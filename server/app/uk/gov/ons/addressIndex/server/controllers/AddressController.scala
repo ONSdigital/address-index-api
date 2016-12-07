@@ -45,7 +45,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     *
     * @param input  the address query
     * @param format requested format of the query (paf/nag)
-    * @return
+    * @return Json response with addresses information
     */
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
