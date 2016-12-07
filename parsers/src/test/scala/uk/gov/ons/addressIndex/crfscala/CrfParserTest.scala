@@ -42,7 +42,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for `CrfTokens` size multiple (3)" in {
+  ignore should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for `CrfTokens` size multiple (3)" in {
     val token1 = "token1"
     val token2 = "token2"
     val token3 = "token3"
@@ -72,7 +72,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for `CrfTokens` size multiple (4)" in {
+  ignore should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for `CrfTokens` size multiple (4)" in {
     val token1 = "token1"
     val token2 = "token2"
     val token3 = "token3"
