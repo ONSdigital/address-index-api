@@ -35,7 +35,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     val token2Expectedf1 = s"\t${feature1.name}\\:${token2.replace(":", "\\:").toUpperCase}:1.0\tprevious\\:${feature1.name}\\:${token1.replace(":", "\\:").toUpperCase}:1.0"
     val token2Expectedf2 = s"\t${feature2.name}:1.0\tprevious\\:${feature2.name}:1.0"
     val token2Expectedf3 = s"\t${feature3.name}:3.0\tprevious\\:${feature3.name}:3.0"
-    val token2Expectedf4 = s"\t${feature4.name}:7.0\tprevious\\:${feature4.name}:7.0\trawstring.end:1.0\tnext\\:rawstring.start:1.0\n"
+    val token2Expectedf4 = s"\t${feature4.name}:7.0\tprevious\\:${feature4.name}:7.0\trawstring.end:1.0\tprevious\\:rawstring.start:1.0\n"
     val expected =
       token1Expectedf1 + token1Expectedf2 + token1Expectedf3 + token1Expectedf4 +
       token2Expectedf1 + token2Expectedf2 + token2Expectedf3 + token2Expectedf4
