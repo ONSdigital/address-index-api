@@ -17,32 +17,54 @@ object AddressParserMainTest extends App {
 
   val xml = XML.loadFile(addressInputFile)
 
-  val addressStrings = (xml \\ "AddressCollection" \\ "AddressString")
+  val addressStrings = xml \\ "AddressCollection" \\ "AddressString"
 
   val inputs = addressStrings map { addressString =>
     (addressString \\ "Input" ) text
   }
-  println(s"created inputs")
-
-  println("Making results start: " + DateTime.now.toString())
   val results = inputs.map(i => AddressParser.tag(i, FeatureAnalysers.allFeatures, Tokens))
-  val end=  DateTime.now.toString()
+  val x = inputs.zip(results).map { x =>
+    val input = x._1
+    val tokens = Tokens(input)
+    val preprocessedTokens = Tokens normalise tokens
+    
+    val tagsWithProbs = x._2
+      .split("\n")
+      .map { r =>
+        val tagAtZeroProbAtOne = r.split(": ")
+        tagAtZeroProbAtOne(0) -> tagAtZeroProbAtOne(1)
+      }
+    val xmlInput = addressStrings(inputs.indexOf(input))
 
-  println("meshing results")
-  val mesh = inputs.zip(results)
+    val results = tagsWithProbs.zipWithIndex map { tagWithProb =>
+      val tag = tagWithProb._1._1
+      val prob = tagWithProb._1._2
+      val index = tagWithProb._2
 
-  println("Mesh")
-  pprint.pprintln(mesh)
+      val originalToken = preprocessedTokens(index)
+      val originalNodes = xmlInput.filter(_ == originalToken)
+      val originalNode = originalNodes.head
 
-  println("Making results end: " + end)
+      val pred_label = originalNode.attribute("pred_label").get.head.text
+      val pred_prob = originalNode.attribute("pred_prob").get.head.text
 
-//
-//  xml.child.map { addressString =>
-//    addressString.child.filter { part =>
-//      part.nameToString(StringBuilder.newBuilder).toString == "Input"
-//    } map { input =>
-//      val address = input.text
-//      val res = AddressParser.tag(address, FeatureAnalysers.allFeatures, Tokens)
-//    }
-//  }
+      Helper(
+        scalaPredLabel = tag,
+        scalaPredProb = prob,
+        token = originalToken,
+        pyPredLabel = pred_label,
+        pyPredProb = pred_prob
+      )
+    }
+    results
+
+  }
+
+  case class Helper(
+    scalaPredLabel: String,
+    scalaPredProb: String,
+    token: String,
+    pyPredLabel: String,
+    pyPredProb: String
+  )
 }

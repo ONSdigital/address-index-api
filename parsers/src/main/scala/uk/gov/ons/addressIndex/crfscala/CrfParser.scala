@@ -22,6 +22,7 @@ trait CrfParser {
       )
       .mkString(CrfScalaJni.lineEnd) + CrfScalaJni.lineEnd
     crfScala.tag(modelPath, augmentedActual)
+
   }
 
   //TODO scaladoc
