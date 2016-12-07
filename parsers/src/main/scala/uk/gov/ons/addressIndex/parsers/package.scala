@@ -27,7 +27,7 @@ package object parsers {
             .or(CharMatcher.is('i'))
             .or(CharMatcher.is('o'))
             .or(CharMatcher.is('u'))
-            .countIn(str) > 0
+            .countIn(str.toLowerCase) > 0
         )
       }
     }
