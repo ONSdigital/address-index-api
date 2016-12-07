@@ -18,24 +18,26 @@ object FeatureAnalysers {
     */
   def allFeatures(): Features = {
     Features(
-      Feature[String](digits)(digitsAnalyser()),
-      Feature[Root[_]](word)(wordAnalyser()),
-      Feature[String](length)(lengthAnalyser()),
-      Feature[Boolean](ordinal)(ordinalAnalyser()),
-      Feature[Boolean](outcode)(outcodeAnalyser()),
-      Feature[Boolean](endsInPunctuation)(endsInPunctuationAnalyser()),
-      Feature[Boolean](directional)(directionalAnalyser()),
-      Feature[Boolean](outcode)(outcodeAnalyser()),
-      Feature[Boolean](postTown)(postTownAnalyser()),
-      Feature[Boolean](hasVowels)(hasVowelsAnalyser()),
-      Feature[Boolean](flat)(flatAnalyser()),
-      Feature[Boolean](company)(companyAnalyser()),
-      Feature[Boolean](road)(roadAnalyser()),
-      Feature[Boolean](residential)(residentialAnalyser()),
-      Feature[Boolean](business)(businessAnalyser()),
-      Feature[Boolean](locational)(locationalAnalyser()),
-      Feature[Int](hyphenations)(hyphenationsAnalyser())
+      Seq(
+        Feature[String](digits)(digitsAnalyser()),
+        Feature[Root[_]](word)(wordAnalyser()),
+        Feature[String](length)(lengthAnalyser()),
+        Feature[Boolean](ordinal)(ordinalAnalyser()),
+        Feature[Boolean](endsInPunctuation)(endsInPunctuationAnalyser()),
+        Feature[Boolean](directional)(directionalAnalyser()),
+        Feature[Boolean](outcode)(outcodeAnalyser()),
+        Feature[Boolean](postTown)(postTownAnalyser()),
+        Feature[Boolean](hasVowels)(hasVowelsAnalyser()),
+        Feature[Boolean](flat)(flatAnalyser()),
+        Feature[Boolean](company)(companyAnalyser()),
+        Feature[Boolean](road)(roadAnalyser()),
+        Feature[Boolean](residential)(residentialAnalyser()),
+        Feature[Boolean](business)(businessAnalyser()),
+        Feature[Boolean](locational)(locationalAnalyser()),
+        Feature[Int](hyphenations)(hyphenationsAnalyser())
+      ).sortBy(_.name):_*
     )(
+      //TODO Impl aggr feature to crfJniInput
       FeatureAggregate[Boolean](rawStringStart)(rawStringStartAggrAnalyser()),
       FeatureAggregate[Boolean](rawStringEnd)(rawStringEndAggrAnalyser()),
       FeatureAggregate[Boolean](singleton)(singletonAggr())
