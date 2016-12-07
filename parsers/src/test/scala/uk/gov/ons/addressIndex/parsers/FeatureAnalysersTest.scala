@@ -144,14 +144,14 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
     expected should contain theSameElementsAs actual
   }
 
-  it should "produce the correct `outcode` feature output for expected inputs" in {
+  ignore should "produce the correct `outcode` feature output for expected inputs" in {
     val inputs = Seq.empty
     val expected = Seq.fill(inputs.length)(true)
     val actual = inputs map outcodeAnalyser.apply
     expected should contain theSameElementsAs actual
   }
 
-  it should "produce the correct `post town` feature output for expected inputs" in {
+  ignore should "produce the correct `post town` feature output for expected inputs" in {
     val inputs = Seq.empty
     val expected = Seq.fill(inputs.length)(true)
     val actual = inputs map postTownAnalyser.apply
@@ -168,6 +168,13 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
   it should "produce the correct `has.vowels` feature output (false) for expected input" in {
     val input = "hll"
     val expected = false
+    val actual = hasVowelsAnalyser.apply(input)
+    expected shouldBe actual
+  }
+
+  it should "produce the correct `has.vowels` feature output (true) for expected input (Surbiton)" in {
+    val input = "Surbiton"
+    val expected = true
     val actual = hasVowelsAnalyser.apply(input)
     expected shouldBe actual
   }
