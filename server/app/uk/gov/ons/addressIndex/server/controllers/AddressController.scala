@@ -1,19 +1,16 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Result}
-
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
-import uk.gov.ons.addressIndex.server.model.response._
-
+import uk.gov.ons.addressIndex.model.server.response._
 import scala.util.matching.Regex
 
 /**

@@ -37,3 +37,15 @@ case class IndexesConfig(
   pafIndex: String,
   nagIndex: String
 )
+
+case class DemouiConfig (
+   defaultLanguage: String,
+   apiURL: String
+)
+
+object DemouiConfig {
+  val default : DemouiConfig = DemouiConfig(
+    defaultLanguage = "en",
+    apiURL = ""
+  )
+}

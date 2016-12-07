@@ -6,39 +6,24 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.Results
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import org.mockito.Mockito._
-import play.Configuration
+import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
-import uk.gov.ons.addressIndex.demoui.model.{Address, SingleMatchResponse}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SingleMatchTest extends PlaySpec with Results {
 
-  val mockApiClient   = mock(classOf[AddressIndexClientInstance])
-  val expectedAddress = Address(
-    "123",
-    "postcode",
-    "primaryAddress",
-    "secondyAddress",
-    "street",
-    "town",
-    1.0f,
-    "fullAddress"
-    )
-
   "Single match controller" should {
-    "return an html page" in new WithApplication {
+    "return a page containing a heading" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
-      val configuration = app.injector.instanceOf[Configuration]
-      val expectedString = "<title>ONS-Address - Single Search</title>"
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val expectedString = "Search for Addresses"
 
       // When
-      val response = new SingleMatch(configuration, messagesApi).showSingleMatchPage().apply(FakeRequest())
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
@@ -49,17 +34,51 @@ class SingleMatchTest extends PlaySpec with Results {
     "return a page including a single match form" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
-      val configuration = app.injector.instanceOf[Configuration]
-      val expectedString = "<button class=\"btn btn-success btn-search\" type=\"submit\" id=\"submit\">"
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
 
       // When
-      val response = new SingleMatch(configuration, messagesApi).showSingleMatchPage().apply(FakeRequest())
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).showSingleMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
       status(response) mustBe OK
       content must include(expectedString)
     }
+
+    "return a page including an appropriate error message when empty address posted" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val expectedString = "<span class=\"error\" onclick=\"setFocus('address');\">Please enter an address</span>"
+
+      // When
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+
+    "return a page including some search results" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val expectedString = "<h3 class=\"green\">10 addresses found</h3>"
+
+      // When
+      val response = new SingleMatchController(configuration, messagesApi, apiClient).doMatchWithInput("7 EX2 6GA").apply(FakeRequest())
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+
   }
 
 }

@@ -107,23 +107,23 @@ definitions:
     properties:
       response:
         type: object
-  
+
         properties:
           address:
             $ref: '#/definitions/Address'
 
       status:
-        $ref: '#/definitions/Status'        
+        $ref: '#/definitions/Status'
 
       errors:
-        $ref: '#/definitions/Errors'        
+        $ref: '#/definitions/Errors'
 
   AddressSearchResponse:
     type: object
     properties:
       response:
         type: object
-  
+
         properties:
           addressTokens:
             $ref: '#/definitions/AddressTokens'
@@ -138,10 +138,10 @@ definitions:
             type: integer
 
       status:
-        $ref: '#/definitions/Status'        
+        $ref: '#/definitions/Status'
 
       errors:
-        $ref: '#/definitions/Errors'        
+        $ref: '#/definitions/Errors'
 
   AddressTokens:
     type: object
@@ -177,7 +177,7 @@ definitions:
   Addresses:
     type: array
     items:
-      $ref: '#/definitions/Address'        
+      $ref: '#/definitions/Address'
 
   Address:
     type: object
@@ -189,21 +189,21 @@ definitions:
         type: string
 
       paf:
-        $ref: '#/definitions/PafAddress'        
+        $ref: '#/definitions/PafAddress'
 
       nag:
-        $ref: '#/definitions/NagAddress'        
+        $ref: '#/definitions/NagAddress'
 
       geo:
-        $ref: '#/definitions/Geo'        
+        $ref: '#/definitions/Geo'
 
       underlyingScore:
-        type: number        
-        format: double        
+        type: number
+        format: double
 
       underlyingMaxScore:
-        type: number        
-        format: double        
+        type: number
+        format: double
 
   PafAddress:
     type: object
@@ -264,7 +264,7 @@ definitions:
 
       welshPostTown:
         type: string
-        
+
       poBoxNumber:
         type: string
 
@@ -317,7 +317,7 @@ definitions:
       $ref: '#/definitions/Error'
 
   Error:
-    type: object            
+    type: object
     properties:
       code:
         type: string

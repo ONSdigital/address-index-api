@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm])(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse])(implicit messages: Messages)
 @import helper._
 
 @*
@@ -7,26 +7,71 @@
  * argument is an `Html` object containing the body of the page.
  *@
 
-@main(title = "ONS-Address - Single Search") {
+@main(title = messages("single.title")) {
 <div class="container">
     <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
         @navigation()
         </div>
-        <div class="panel panel-single address-panel">
+        @warningMessage.map { message =>
+        <div class="panel panel-warning address-panel">
             <div class="result-content">
-                <div class="alert label-danger" role="alert">@messages("single.pleasesupply")</div>
+                <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
             </div>
         </div>
+        }
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
-                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatch.doMatch) {
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
                 </div>
                 }
             </div>
+            @addressBySearchResponse.map { aresponse =>
+            <div class="panel panel-single address-panel">
+                <h3 class="green">@aresponse.total @messages("single.found")</h3>
+            </div>
+            @aresponse.addresses.map{ address =>
+            <div class="panel panel-match address-panel">
+                <div class="result-content">
+                    <div class="alert alert-success" role="alert">
+                        <table class="matchResults">
+                            <tr>
+                                <td class="match-score">@messages("single.matchscore"): @address.underlyingScore</td>
+                                <td class="match-conf">
+                                    @messages("single.confidence"):
+                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 50) "#c6ffb3" else "#ffcccc") { color =>
+                                <span style="background-color: @color">
+                                    }
+                                    @{(address.underlyingScore / address.underlyingMaxScore) * 100}</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="formatted-address-txt"><strong>@messages("single.address"): </strong>
+                                    @address.paf.map{ paf =>
+                                        @paf.buildingName &nbsp;
+                                        @paf.buildingNumber,
+                                        @paf.thoroughfare,
+                                        @paf.dependentLocality
+                                        @paf.postTown,
+                                        @paf.postcode
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</td>
+                                <td class="map-link-txt">
+                                    <a href="https://www.google.co.uk/maps/place/@address.paf.map{paf=>@paf.buildingNumber+@paf.thoroughfare+@paf.postTown+@paf.postcode.replace(' ','+')}" target="_blank">Open Map</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>}
+            }
+        </div>
+        <div class="panel panel-single address-panel">
+            <p class="pad">&nbsp;</p>
         </div>
     </div>
 </div>

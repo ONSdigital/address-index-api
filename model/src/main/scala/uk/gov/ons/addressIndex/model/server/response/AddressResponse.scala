@@ -1,4 +1,4 @@
-package uk.gov.ons.addressIndex.server.model.response
+package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Json, OFormat}
