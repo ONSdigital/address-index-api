@@ -1,4 +1,4 @@
-package uk.gov.ons.addressIndex
+package uk.gov.ons.addressIndex.crfscala
 
 //todo scaladoc
 trait CrfScalaJni {
