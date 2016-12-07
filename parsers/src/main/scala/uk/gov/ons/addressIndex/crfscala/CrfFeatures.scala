@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
-import uk.gov.ons.addressIndex.crfscala.jni.CrfScalaJni
 
 //TODO scaladoc
 trait CrfFeatures {
@@ -11,11 +10,12 @@ trait CrfFeatures {
     */
   def features: Seq[CrfFeature[_]]
 
+  //todo scaladoc
   def aggregateFeatures: Seq[CrfAggregateFeature[_]]
 
   //TODO scaladoc
   def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
-    (features map(_.toCrfJniInput(input, next, previous)) mkString) + CrfScalaJni.lineEnd
+    (features map(_.toCrfJniInput(input, next, previous)) mkString CrfScalaJni.delimiter) + CrfScalaJni.lineEnd
   }
 
   /**
