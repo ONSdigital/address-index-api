@@ -8,7 +8,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
-import uk.gov.ons.addressIndex.server.model.response.AddressTokens
+import uk.gov.ons.addressIndex.model.server.response.AddressTokens
 
 import scala.concurrent.{ExecutionContext, Future}
 
