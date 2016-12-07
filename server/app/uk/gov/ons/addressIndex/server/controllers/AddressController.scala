@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddresses
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response._
 import scala.util.matching.Regex
@@ -42,7 +42,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     *
     * @param input  the address query
     * @param format requested format of the query (paf/nag)
-    * @return
+    * @return Json response with addresses information
     */
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
@@ -62,7 +62,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
       format.stringToScheme().map {
         case PostcodeAddressFile(_) => searchPafAddresses(tokens)
-        case BritishStandard7666(_) => searchUnsupportedFormatReply
+        case BritishStandard7666(_) => searchNagAddresses(tokens)
       }.getOrElse(searchUnsupportedFormatReply)
     }
 
@@ -70,18 +70,36 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
 
   private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
-    esRepo.queryAddress(tokens).map {
-      case PostcodeAddressFileAddresses(addresses, maxScore) =>
-        Ok(Json.toJson(AddressBySearchResponseContainer(
-          AddressBySearchResponse(
-            tokens,
+    esRepo.queryPafAddresses(tokens).map {
+      case PostcodeAddressFileAddresses(addresses, maxScore) => Ok(Json.toJson(
+        AddressBySearchResponseContainer(
+          response = AddressBySearchResponse(
+            tokens = tokens,
             addresses = addresses.map(AddressResponseAddress.fromPafAddress(maxScore)),
             limit = 10,
             offset = 0,
             total = addresses.size
           ),
-          OkAddressResponseStatus
-        )))
+          status = OkAddressResponseStatus
+        )
+      ))
+    }
+  }
+
+  private def searchNagAddresses(tokens: AddressTokens): Future[Result] = {
+    esRepo.queryNagAddresses(tokens).map {
+      case NationalAddressGazetteerAddresses(addresses, maxScore) => Ok(Json.toJson(
+        AddressBySearchResponseContainer(
+          response = AddressBySearchResponse(
+            tokens = tokens,
+            addresses = addresses.map(AddressResponseAddress.fromNagAddress(maxScore)),
+            limit = 10,
+            offset = 0,
+            total = addresses.size
+          ),
+          status = OkAddressResponseStatus
+        )
+      ))
     }
   }
 
@@ -95,16 +113,16 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
 
   private val searchUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
-      errorAddressResponse,
-      BadRequestAddressResponseStatus,
+      response = errorAddressResponse,
+      status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
     )
   )))
 
   private val searchEmptyQueryReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
     AddressBySearchResponseContainer(
-      errorAddressResponse,
-      BadRequestAddressResponseStatus,
+      response = errorAddressResponse,
+      status = BadRequestAddressResponseStatus,
       errors = Seq(EmptyQueryAddressResponseError)
     )
   )))
@@ -121,30 +139,46 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
     logger info s"#uprnQuery request called with uprn: $uprn , format: $format"
     format.stringToScheme().map {
       case PostcodeAddressFile(_) => searchPafAddressByUprn(uprn)
-      case BritishStandard7666(_) => searchByUprnUnsupportedFormatReply
+      case BritishStandard7666(_) => searchNagAddressByUprn(uprn)
     }.getOrElse(searchByUprnUnsupportedFormatReply)
   }
 
 
   private def searchPafAddressByUprn(uprn: String): Future[Result] = {
-    esRepo.queryUprn(uprn).map {
+    esRepo.queryPafUprn(uprn).map {
       case Some(address) => Ok(Json.toJson(
         AddressByUprnResponseContainer(
           response = AddressByUprnResponse(
             address = Some(AddressResponseAddress.fromPafAddress(address))
           ),
-          OkAddressResponseStatus
+          status = OkAddressResponseStatus
         )
       ))
-      case None => NotFound(Json.toJson(
+      case None => notFoundReply
+    }
+  }
+
+  private val notFoundReply = NotFound(Json.toJson(
+    AddressByUprnResponseContainer(
+      response = AddressByUprnResponse(
+        address = None
+      ),
+      status = NotFoundAddressResponseStatus,
+      errors = Seq(NotFoundAddressResponseError)
+    )
+  ))
+
+  private def searchNagAddressByUprn(uprn: String): Future[Result] = {
+    esRepo.queryNagUprn(uprn).map {
+      case Some(address) => Ok(Json.toJson(
         AddressByUprnResponseContainer(
           response = AddressByUprnResponse(
-            address = None
+            address = Some(AddressResponseAddress.fromNagAddress(address))
           ),
-          NotFoundAddressResponseStatus,
-          errors = Seq(NotFoundAddressResponseError)
+          status = OkAddressResponseStatus
         )
       ))
+      case None => notFoundReply
     }
   }
 
@@ -153,7 +187,7 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
       response = AddressByUprnResponse(
         address = None
       ),
-      BadRequestAddressResponseStatus,
+      status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
     )
   )))

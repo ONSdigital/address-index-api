@@ -17,7 +17,8 @@ object ElasticSearchConfig {
     shieldSsl = true,
     shieldUser = "default:default",
     indexes = IndexesConfig(
-      pafIndex = "paf/address"
+      pafIndex = "paf/address",
+      nagIndex = "nag/address"
     )
   )
 }
@@ -32,7 +33,10 @@ object AddressIndexConfig {
   )
 }
 
-case class IndexesConfig(pafIndex: String)
+case class IndexesConfig(
+  pafIndex: String,
+  nagIndex: String
+)
 
 case class DemouiConfig (
    defaultLanguage: String,
