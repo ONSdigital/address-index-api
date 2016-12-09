@@ -7,34 +7,32 @@ class AddressIndexModelTest extends FlatSpec with Matchers {
 
   it should "produce the correct `AddressScheme` (`PostcodeAddressFile`) for the given string `paf`" in {
     val sample = "paf"
-    sample.toAddressScheme map (_ shouldBe a [PostcodeAddressFile])
+    sample.stringToScheme shouldBe Some(PostcodeAddressFile(sample))
   }
 
   it should "produce the correct `AddressScheme` (`PostcodeAddressFile`) for the given string `postcodeAddressFile`" in {
     val sample = "postcodeAddressFile"
-    sample.toAddressScheme map (_ shouldBe a [PostcodeAddressFile])
+    sample.stringToScheme shouldBe Some(PostcodeAddressFile(sample))
   }
 
   it should "produce the correct `AddressScheme` (`BritishStandard7666`) for the given string `britishstandard7666`" in {
     val sample = "britishstandard7666"
-    sample.toAddressScheme map(_ shouldBe a [BritishStandard7666])
+    sample.stringToScheme shouldBe Some(BritishStandard7666(sample))
   }
 
   it should "produce the correct `AddressScheme` (`BritishStandard7666`) for the given string `bs7666`" in {
     val sample = "bs7666"
-    sample.toAddressScheme map(_ shouldBe a [BritishStandard7666])
+    sample.stringToScheme shouldBe Some(BritishStandard7666(sample))
   }
 
   it should "produce the correct `AddressScheme` (`BritishStandard7666`) for the given string `bs`" in {
     val sample = "bs"
-    sample.toAddressScheme map(_ shouldBe a [BritishStandard7666])
+    sample.stringToScheme shouldBe Some(BritishStandard7666(sample))
   }
 
-  it should "produce a `InvalidAddressSchemeException` for the given string `someRandomString`" in {
-    val sample = "someRandomString"
-    sample.toAddressScheme recover {
-      case InvalidAddressSchemeException(msg) => assert(true)
-      case _ => assert(false)
-    }
+  it should "produce None for the given string `unsupported scheme`" in {
+    val sample = "unsupported scheme"
+    sample.stringToScheme shouldBe None
   }
+
 }

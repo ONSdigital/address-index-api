@@ -1,37 +1,35 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Result}
-
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.AddressScheme._
-import uk.gov.ons.addressIndex.model.PostcodeAddressFile
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
-import uk.gov.ons.addressIndex.server.model.response.PostcodeAddressFileReplyUnit
-
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.model.server.response._
 import scala.util.matching.Regex
 
 /**
   * Main API
   *
-  * @param esRepo
-  * @param ec
+  * @param esRepo injected elastic dao
+  * @param ec     execution context
   */
 @Singleton
-class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec : ExecutionContext) extends AddressIndexController {
+class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: ExecutionContext) extends AddressIndexController {
 
   val logger = Logger("address-index-server:AddressController")
 
   /**
     * Test elastic is connected
+    *
     * @return
     */
-  def elasticTest() : Action[AnyContent] = Action async { implicit req =>
+  def elasticTest(): Action[AnyContent] = Action async { implicit req =>
     esRepo.client execute {
       get cluster health
     } map { resp =>
@@ -42,27 +40,93 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
   /**
     * Address query API
     *
-    * @param format
-    * @param input
-    * @return
+    * @param input  the address query
+    * @param format requested format of the query (paf/nag)
+    * @return Json response with addresses information
     */
-  def addressQuery(
-    input : String,
-    format : String
-  ) : Action[AnyContent] = Action async {  implicit req =>
+  def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
 
-    val regex : Regex = "(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Za-z\\d]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})".r
-    val postcode : String = regex findFirstIn input getOrElse "Not recognised"
-    val buildingNumber : Int = input substring(0, 1) toInt
+    if (input == "") searchEmptyQueryReply
+    else {
+      val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Za-z\\d]\\d ?\\d[A-Za-z]{2})|" +
+        "(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|" +
+        "(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})").r
+      val tokens = AddressTokens(
+        uprn = "",
+        buildingNumber = input.substring(0, 2),
+        postcode = regex.findFirstIn(input).getOrElse("Not recognised")
+      )
 
-    logger info s"#addressQuery parsed: postcode: $postcode , buildingNumber: $buildingNumber"
+      logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
 
-    Future fromTry format.toAddressScheme flatMap {
-      case PostcodeAddressFile(str) => esRepo.queryAddress(buildingNumber, postcode) map addressResponse
-      case _ => asyncWrongFormatResponse
+      format.stringToScheme().map {
+        case PostcodeAddressFile(_) => searchPafAddresses(tokens)
+        case BritishStandard7666(_) => searchNagAddresses(tokens)
+      }.getOrElse(searchUnsupportedFormatReply)
+    }
+
+  }
+
+
+  private def searchPafAddresses(tokens: AddressTokens): Future[Result] = {
+    esRepo.queryPafAddresses(tokens).map {
+      case PostcodeAddressFileAddresses(addresses, maxScore) => Ok(Json.toJson(
+        AddressBySearchResponseContainer(
+          response = AddressBySearchResponse(
+            tokens = tokens,
+            addresses = addresses.map(AddressResponseAddress.fromPafAddress(maxScore)),
+            limit = 10,
+            offset = 0,
+            total = addresses.size
+          ),
+          status = OkAddressResponseStatus
+        )
+      ))
     }
   }
+
+  private def searchNagAddresses(tokens: AddressTokens): Future[Result] = {
+    esRepo.queryNagAddresses(tokens).map {
+      case NationalAddressGazetteerAddresses(addresses, maxScore) => Ok(Json.toJson(
+        AddressBySearchResponseContainer(
+          response = AddressBySearchResponse(
+            tokens = tokens,
+            addresses = addresses.map(AddressResponseAddress.fromNagAddress(maxScore)),
+            limit = 10,
+            offset = 0,
+            total = addresses.size
+          ),
+          status = OkAddressResponseStatus
+        )
+      ))
+    }
+  }
+
+  private val errorAddressResponse = AddressBySearchResponse(
+    AddressTokens.empty,
+    addresses = Seq.empty,
+    limit = 10,
+    offset = 0,
+    total = 0
+  )
+
+  private val searchUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
+    AddressBySearchResponseContainer(
+      response = errorAddressResponse,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(FormatNotSupportedAddressResponseError)
+    )
+  )))
+
+  private val searchEmptyQueryReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
+    AddressBySearchResponseContainer(
+      response = errorAddressResponse,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(EmptyQueryAddressResponseError)
+    )
+  )))
+
 
   /**
     * UPRN query API
@@ -71,25 +135,60 @@ class AddressController @Inject()(esRepo : ElasticsearchRepository)(implicit ec 
     * @param format
     * @return
     */
-  def uprnQuery(
-    uprn : String,
-    format : String
-  ) : Action[AnyContent] = Action async { implicit req =>
-    logger info s"#uprnQuery called with uprn: $uprn , format: $format"
-    Future fromTry format.toAddressScheme flatMap {
-      case PostcodeAddressFile(str) => esRepo queryUprn uprn map addressResponse
-      case _ => asyncWrongFormatResponse
+  def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
+    logger info s"#uprnQuery request called with uprn: $uprn , format: $format"
+    format.stringToScheme().map {
+      case PostcodeAddressFile(_) => searchPafAddressByUprn(uprn)
+      case BritishStandard7666(_) => searchNagAddressByUprn(uprn)
+    }.getOrElse(searchByUprnUnsupportedFormatReply)
+  }
+
+
+  private def searchPafAddressByUprn(uprn: String): Future[Result] = {
+    esRepo.queryPafUprn(uprn).map {
+      case Some(address) => Ok(Json.toJson(
+        AddressByUprnResponseContainer(
+          response = AddressByUprnResponse(
+            address = Some(AddressResponseAddress.fromPafAddress(address))
+          ),
+          status = OkAddressResponseStatus
+        )
+      ))
+      case None => notFoundReply
     }
   }
 
-  private def addressResponse(addresses : Seq[PostcodeAddressFileAddress]) : Result = {
-    logger info "#addressQuery got a response from es"
-    Ok(
-      Json toJson(
-        addresses map PostcodeAddressFileReplyUnit.fromPostcodeAddressFileAddress
-      )
+  private val notFoundReply = NotFound(Json.toJson(
+    AddressByUprnResponseContainer(
+      response = AddressByUprnResponse(
+        address = None
+      ),
+      status = NotFoundAddressResponseStatus,
+      errors = Seq(NotFoundAddressResponseError)
     )
+  ))
+
+  private def searchNagAddressByUprn(uprn: String): Future[Result] = {
+    esRepo.queryNagUprn(uprn).map {
+      case Some(address) => Ok(Json.toJson(
+        AddressByUprnResponseContainer(
+          response = AddressByUprnResponse(
+            address = Some(AddressResponseAddress.fromNagAddress(address))
+          ),
+          status = OkAddressResponseStatus
+        )
+      ))
+      case None => notFoundReply
+    }
   }
 
-  private val asyncWrongFormatResponse : Future[Result] = Future successful Ok("Wrong format")
+  private val searchByUprnUnsupportedFormatReply: Future[Result] = Future.successful(BadRequest(Json.toJson(
+    AddressByUprnResponseContainer(
+      response = AddressByUprnResponse(
+        address = None
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(FormatNotSupportedAddressResponseError)
+    )
+  )))
 }

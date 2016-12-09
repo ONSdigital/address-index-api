@@ -33,7 +33,8 @@ object ElasticSearchConfigTest {
     shieldSsl = true,
     shieldUser = "default:default",
     indexes = IndexesConfig(
-      pafIndex = "paf/address"
+      pafIndex = "paf/address",
+      nagIndex = "nag/address"
     )
   )
 }

@@ -1,0 +1,281 @@
+a:link {
+    color: #666666;
+}
+
+a:visited {
+    color: #666666;
+}
+
+a:hover {
+    color: #4c2c92 ;
+}
+
+p.toptext {
+  font-size: 0.8em;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.navbar {
+  height: 64px;
+  color: #525351;
+  margin-bottom:0px;
+}
+
+.navbar-default {
+    background-color: #fff;
+    margin-bottom:0px;
+}
+
+.index-heading {
+    margin: 25px;
+}
+
+.sub-nav {
+    height: 30px ;
+    border: 0px;
+    background-color: transparent ;
+}
+
+.beta-header {
+    float:right;
+    text-align: right;
+    margin-top: 2px;
+    margin-right: 4px;
+    font-size: 16px;
+}
+
+.panel-heading {
+    margin-bottom: 0px;
+    margin-right: 7px;
+    margin-left: 2px;
+}
+
+.sub-nav-heading {
+    padding: 0px ;
+    height: 50px ;
+}
+
+.panel-title {
+    font-size: 22px ;
+    margin-bottom: 0px ;
+    margin-left: 10px;
+    text-align: left;
+}
+
+.address-panel {
+    margin: 10px;
+}
+
+.panel-default {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    min-width: 310px;
+    max-width: 310px;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.panel-match {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    min-width: 302px;
+    max-width: 600px;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.panel-warning {
+    margin: 0px 20px 10px 20px;
+    border: 0px solid #ddd;
+    vertical-align: middle;
+    line-height: 50px;
+    padding: 10px;
+}
+
+.panel-single {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    border:0px;
+    padding: 2px;
+}
+
+.beta-banner {
+    background-color: #FF9900;
+    color: #fff;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 4px;
+}
+
+.logo {
+    margin-top: 6px;
+    text-align: left;
+    padding: 4px;
+    float:left;
+}
+
+.btn-search {
+    height: 2em;
+    background-color: #00914E;
+    border-color: #00914E;
+    color: #FFFFFF;
+    font-size: 1.2em;
+    margin-left: 10px;
+    }
+
+.btn-search:link,
+.btn-search:active,
+.btn-search:hover,
+.btn-search:visited {
+    height: 2em;
+    background-color: #353633 ;
+    border-color: #353633 ;
+}
+
+.btn-search:focus {
+    height: 2em;
+    background-color: #353633;
+    border-color: #353633;
+}
+
+.btn-clean {
+    height: 2em;
+}
+
+input#address.form-control {
+    width: 320px;
+    height: 40px;
+    font-size: 1.1em;
+}
+
+.btn-group.open .dropdown-toggle {
+    font-size: 20px ;
+}
+
+.beta {
+    color: #FF9900;
+}
+
+.panel-body {
+    margin-top: 2px ;
+}
+
+.thumbnail {
+    background-color: #F8F8F8;
+    border: none;
+}
+
+.index-nav {
+    margin: 5px 5px 5px 5px ;
+    width: 280px ;
+    border:1px solid #ddd;
+    padding: 10px;
+}
+
+.index-nav a:link {
+    text-decoration: none;
+}
+
+.index-nav-icon {
+    padding-top:40px;
+    padding-bottom: 40px;
+    color: #BCC547 ;
+}
+
+.index-p {
+    margin-top: 10px;
+}
+
+
+nav.nav-container {
+    width:100%;
+    background-color: #DFE0E2 ;
+    height:40px;
+    clear:left;
+    margin-left:2px;
+    margin-right:2px;
+}
+
+nav {
+    margin:0 auto;
+    border:1px solid #ddd;
+}
+
+nav ul li {
+    float:left;
+    font-size:1.1em;
+    padding: 0px 20px;
+    background-color: #DFE0E2 ;
+    list-style-type: none;
+    margin-top: -8px;
+}
+nav ul li a {
+    color: #666666 ;
+    text-decoration: none;
+}
+nav ul li a:hover {
+    color: #4c2c92 ;
+    text-decoration: none;
+}
+
+dd {
+    margin-left: 10px;
+}
+
+.alert-danger {
+    background-color: #ffe6e6 ;
+    color: #0066ff;
+    text-decoration: underline;
+    margin-left:0px;
+    height:50px;
+    padding-left: 10px;
+}
+
+section.content {
+    margin-top: 10px;
+    margin-bottom: 8%;
+}
+
+#footer .footer-wrapper {
+    padding-top: 10px;
+}
+
+p.pad{
+    height:90px;
+}
+
+span.error:before {
+    content:"• ";
+}
+
+span.error   {
+    cursor: pointer;
+}
+
+h3.green {
+    margin-top:20px;
+    color: #00914E;
+    font-size:1.2em;
+    padding-top:4px;
+    padding-left:7px;
+}
+
+table.matchResults{
+    width: 100%;
+}
+
+td.match-conf{
+    text-align:right;
+}
+
+td.map-link-txt{
+    text-align:right;
+}
+
+

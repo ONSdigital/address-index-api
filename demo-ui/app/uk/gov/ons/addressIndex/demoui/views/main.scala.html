@@ -1,0 +1,87 @@
+@(title: String)(content: Html)(implicit messages: Messages)
+@*
+ * This template is called from the `index` template. This template
+ * handles the rendering of the page header and body tags. It takes
+ * two arguments, a `String` for the title of the page and an `Html`
+ * object to insert into the body of the page.
+ *@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>@title</title>
+        <meta charset="utf-8" />
+
+        <!--[if gt IE 8]><!--><link href='@routes.Assets.versioned("stylesheets/govuk-template.css")' media="screen" rel="stylesheet" /><!--<![endif]-->
+        <!--[if IE 6]><link href='@routes.Assets.versioned("stylesheets/govuk-template-ie6.css")' media="screen" rel="stylesheet" /><![endif]-->
+        <!--[if IE 7]><link href='@routes.Assets.versioned("stylesheets/govuk-template-ie7.css")' media="screen" rel="stylesheet" /><![endif]-->
+        <!--[if IE 8]><link href='@routes.Assets.versioned("stylesheets/govuk-template-ie8.css")' media="screen" rel="stylesheet" /><![endif]-->
+        <link href='@routes.Assets.versioned("stylesheets/govuk-template-print.css")' media="print" rel="stylesheet" />
+
+        <!--[if IE 8]><link href='@routes.Assets.versioned("stylesheets/fonts-ie8.css")' media="all" rel="stylesheet" /><![endif]-->
+        <!--[if gte IE 9]><!--><link href='@routes.Assets.versioned("stylesheets/fonts.css")' media="all" rel="stylesheet" /><!--<![endif]-->
+        <!--[if lt IE 9]><script src='@routes.Assets.versioned("javascripts/ie.js")'></script><![endif]-->
+
+        <link rel="shortcut icon" href='@routes.Assets.versioned("images/favicon.ico")' type="image/x-icon" />
+        <link rel="mask-icon" href='@routes.Assets.versioned("images/gov.uk_logotype_crown.svg")' color="#0b0c0c">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href='@routes.Assets.versioned("images/apple-touch-icon-152x152.png")'>
+        <link rel="apple-touch-icon-precomposed" sizes="120x120" href='@routes.Assets.versioned("images/apple-touch-icon-120x120.png")'>
+        <link rel="apple-touch-icon-precomposed" sizes="76x76" href='@routes.Assets.versioned("images/apple-touch-icon-76x76.png")'>
+        <link rel="apple-touch-icon-precomposed" href='@routes.Assets.versioned("images/apple-touch-icon-60x60.png")'>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta property="og:image" content='@routes.Assets.versioned("images/opengraph-image.png")'>
+
+        <link rel="stylesheet" media="screen" href='@routes.Assets.versioned("stylesheets/ons.css")'>
+        <link rel="shortcut icon" type="image/png" href='@routes.Assets.versioned("images/favicon.ico")'>
+    </head>
+    <body>
+    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+            function setFocus (elem) {
+            document.getElementById(elem).focus();
+            }
+    </script>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="logo">
+                    <img alt="ONS" src="/assets/images/ons-logo.png" width="204" height="auto">
+                </div>
+                <div class="beta-header">
+                    <p><strong class="beta-banner">@messages("main.beta")</strong></p>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="content">@content</section>
+    <footer class="group js-footer" id="footer" role="contentinfo">
+
+        <div class="footer-wrapper">
+
+
+            <div class="footer-meta">
+                <div class="footer-meta-inner">
+
+
+                    <div class="open-government-licence">
+                        <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence</a></p>
+
+                        <p>@messages("main.licence1") <a href='@messages("main.licenceurl")' rel="license">@messages("main.licence2") v3.0</a>, @messages("main.licence3")</p>
+
+                    </div>
+                </div>
+
+                <div class="copyright">
+                    <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">&copy; @messages("main.copyright")</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="global-app-error" class="app-error hidden"></div>
+
+    <script src="/assets/javascripts/govuk-template.js"></script>
+
+    <script>if (typeof window.GOVUK === 'undefined') document.body.className = document.body.className.replace('js-enabled', '');</script>
+    </body>
+</html>

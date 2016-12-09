@@ -1,10 +1,18 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import com.sksamuel.elastic4s.mappings.FieldType._
-import com.sksamuel.elastic4s.mappings.MappingDefinition
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
+
+
+/**
+ * Data structure containing addresses with the maximum address
+ * @param addresses fetched addresses
+ * @param maxScore maximum score
+ */
+case class PostcodeAddressFileAddresses(
+  addresses: Seq[PostcodeAddressFileAddress],
+  maxScore: Float
+)
 
 /**
   * PAF Address DTO
@@ -38,13 +46,16 @@ case class PostcodeAddressFileAddress(
   startDate: String,
   endDate: String,
   lastUpdateDate: String,
-  entryDate: String
+  entryDate: String,
+  score: Float
 )
 
 /**
   * PAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
 object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
+
+  val name = "PostcodeAddressFile"
 
   /**
     * This is needed to directly transform a collection of objects returned by Elastic
@@ -81,46 +92,9 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
         hit.sourceAsMap("startDate").toString,
         hit.sourceAsMap("endDate").toString,
         hit.sourceAsMap("lastUpdateDate").toString,
-        hit.sourceAsMap("entryDate").toString
+        hit.sourceAsMap("entryDate").toString,
+        hit.score
       )
     }
-  }
-
-  val name = "PostcodeAddressFile"
-
-  def mappingDefinitions(): Seq[MappingDefinition] = {
-    Seq(
-      mapping(name) fields(
-        field("recordIdentifier", StringType),
-        field("changeType", StringType),
-        field("proOrder", StringType),
-        field("uprn", StringType),
-        field("udprn", StringType),
-        field("organizationName", StringType),
-        field("departmentName", StringType),
-        field("subBuildingName", StringType),
-        field("buildingName", StringType),
-        field("buildingNumber", StringType),
-        field("dependentThoroughfare", StringType),
-        field("thoroughfare", StringType),
-        field("doubleDependentLocality", StringType),
-        field("dependentLocality", StringType),
-        field("postTown", StringType),
-        field("postcode", StringType),
-        field("postcodeType", StringType),
-        field("deliveryPointSuffix", StringType),
-        field("welshDependentThoroughfare", StringType),
-        field("welshThoroughfare", StringType),
-        field("welshDoubleDependentLocality", StringType),
-        field("welshDependentLocality", StringType),
-        field("welshPostTown", StringType),
-        field("poBoxNumber", StringType),
-        field("processDate", StringType),
-        field("startDate", StringType),
-        field("endDate", StringType),
-        field("lastUpdateDate", StringType),
-        field("entryDate", StringType)
-        )
-    )
   }
 }
