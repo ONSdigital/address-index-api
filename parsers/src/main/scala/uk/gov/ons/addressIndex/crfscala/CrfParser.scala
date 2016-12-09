@@ -13,16 +13,16 @@ trait CrfParser {
     val currentDirectory = new java.io.File(".").getCanonicalPath
     val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
     val actual = parse(i, fas, tokenable)
-    val augmentedActual = actual
-      .split(CrfScalaJni.lineEnd)
-      .map(
-        _.split(CrfScalaJni.delimiter)
-         .sorted
-         .mkString(CrfScalaJni.delimiter)
-      )
-      .mkString(CrfScalaJni.lineEnd) + CrfScalaJni.lineEnd
+    val augmentedActual =
+      actual
+        .split(CrfScalaJni.lineEnd)
+        .map(
+          _.split(CrfScalaJni.delimiter)
+           .sorted
+           .mkString(CrfScalaJni.delimiter)
+        )
+        .mkString(CrfScalaJni.lineEnd) + CrfScalaJni.lineEnd
     crfScala.tag(modelPath, augmentedActual)
-
   }
 
   //TODO scaladoc
