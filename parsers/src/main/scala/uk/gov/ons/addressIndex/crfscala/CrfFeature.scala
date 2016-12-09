@@ -28,7 +28,6 @@ trait CrfFeature[T] {
 
   //TODO scaladoc
   /**
-    *
     * @param input
     * @param next
     * @param previous
