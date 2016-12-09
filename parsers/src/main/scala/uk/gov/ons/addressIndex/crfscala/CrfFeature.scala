@@ -24,7 +24,7 @@ trait CrfFeature[T] {
     * @param input
     * @return apply the analyser to i
     */
-  def analyse(input : Input): T = analyser apply input
+  def analyse(input: Input): T = analyser apply input
 
   //TODO scaladoc
   /**
