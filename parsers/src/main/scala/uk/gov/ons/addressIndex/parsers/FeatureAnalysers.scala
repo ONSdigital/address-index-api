@@ -194,12 +194,12 @@ object FeatureAnalysers {
   def digitsAnalyser: CrfFeatureAnalyser[String] = {
     import DigitsLiteral._
     CrfFeatureAnalyser[String] { str =>
-      str.allDigits[String] { rs =>
-        if (rs) {
+      str.allDigits[String] { isAllDigits =>
+        if (isAllDigits) {
           allDigits
         } else {
-          str.containsDigits[String] { rs =>
-            if (rs) {
+          str.containsDigits[String] { hasSomeDigits =>
+            if (hasSomeDigits) {
               someDigits
             } else {
               noDigits
