@@ -292,7 +292,7 @@ class AddressParserTest extends FlatSpec with Matchers {
       "FIFTH", "5TH",
       "SIXTH", "6TH",
       "SEVENTH", "7TH",
-      "EIGHT", "8TH"
+      "EIGHTH", "8TH"
     )
     val expected = Seq.fill(inputs.length)(true)
     val actual = inputs map ordinalAnalyser.apply
