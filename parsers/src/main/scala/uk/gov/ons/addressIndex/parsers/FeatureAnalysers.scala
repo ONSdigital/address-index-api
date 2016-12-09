@@ -7,6 +7,7 @@ import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeatureAnalyser, CrfFeature
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokens, CrfType, FeatureName}
 import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.ADT.Root
+import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.DigitsLiteral._
 
 /**
   * FeatureAnalyser implementations for the AddressParser
@@ -192,7 +193,6 @@ object FeatureAnalysers {
     * @return a DigitLiteral String, which indicates if the string has all digits, contains digits or no digits
     */
   def digitsAnalyser: CrfFeatureAnalyser[String] = {
-    import DigitsLiteral._
     CrfFeatureAnalyser[String] { str =>
       str.allDigits[String] { isAllDigits =>
         if (isAllDigits) {
