@@ -16,7 +16,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
   it should "return the same type as the type which is returned from its analyser for input `arbitrary`" in {
     val input = "arbitrary"
     val actual = TestInstanceBoolean.feature.analyse(input)
-    assert(actual.isInstanceOf[TestInstanceBoolean.tType])
+    actual shouldBe a [java.lang.Boolean]
   }
 
   it should "return the expected `CrfJniInput` for type `Boolean` for input `arbitrary`" in {
