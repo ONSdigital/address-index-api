@@ -212,7 +212,7 @@ object FeatureAnalysers {
   }
 
   /**
-    * Helper FeatureAnalyser implementation
+    * Helper CrfFeatureAnalyser implementation
     * Use this analyser for using contains on a Sequence
     *
     * Eg:
@@ -222,7 +222,13 @@ object FeatureAnalysers {
     def apply(seq: Seq[TokenIndicator]): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](seq contains _)
   }
 
-  //TODO Scaladoc
+  /**
+    * Helper CrfAggregateFeatureAnalyser implementation
+    * Use this analyser for aggregates.
+    *
+    * Eg:
+    *    IndexAggregateFeatureAnalyser(_ => 0)
+    */
   object IndexAggregateFeatureAnalyser {
     def apply(fn: CrfTokens => Int): CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
       tokens.indexOf(token) == fn(tokens)

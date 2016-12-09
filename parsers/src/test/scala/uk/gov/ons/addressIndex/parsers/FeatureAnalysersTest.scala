@@ -292,7 +292,7 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
     )
     val expected = Seq.fill(inputs.length)(true)
     val actual = inputs map locationalAnalyser.apply
-    expected should contain theSameElementsAs actual
+    expected shouldBe actual
   }
 
   it should "produce the correct `ordinal` feature output for expected inputs" in {
