@@ -37,14 +37,16 @@ object FeatureAnalysers {
         Feature[Int](hyphenations)(hyphenationsAnalyser)
       ).sortBy(_.name):_*
     )(
-      //TODO Impl aggr feature to crfJniInput
       FeatureAggregate[Boolean](rawStringStart)(rawStringStartAggrAnalyser),
       FeatureAggregate[Boolean](rawStringEnd)(rawStringEndAggrAnalyser),
-      FeatureAggregate[Boolean](singleton)(singletonAggr)
+      FeatureAggregate[Boolean](singleton)(singletonAggrAnalyser)
     )
   }
 
-  //TODO scaladoc
+  /**
+    * Implementation of CrfType type class, which allows mix return types.
+    * This is needed to generate CrfJniInput.
+    */
   object ADT {
     trait Root[T] extends CrfType[T] {
       def value: T
@@ -53,17 +55,23 @@ object FeatureAnalysers {
     implicit class BooleanWrapper(override val value: Boolean) extends Root[Boolean]
   }
 
-  //TODO scaladoc
   val rawStringStart: FeatureName  = "rawstring.start"
+  /**
+    * @return true if the token is the first in the sequence.
+    */
   def rawStringStartAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_ => 0)
-  //TODO scaladoc
 
   val rawStringEnd: FeatureName  = "rawstring.end"
+  /**
+    * @return true is the token is the last in the sequence.
+    */
   def rawStringEndAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_.length - 1)
 
-  //TODO scaladoc
   val singleton: FeatureName  = "singleton"
-  def singletonAggr: CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
+  /**
+    * @return true if the token is the only token.
+    */
+  def singletonAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
     tokens.length == 1 && tokens(0) == token
   }
 
