@@ -9,16 +9,12 @@ trait CrfAggregateFeature[T] {
   /**
     * @return a function which returns an instance of T
     */
-  def analyser(): CrfAggregateFeatureAnalyser[T]
+  def analyser: CrfAggregateFeatureAnalyser[T]
 
   /**
     * @return name
     */
-  def name(): String
+  def name: String
 
-  /**
-    * @param i input
-    * @return apply the analyser to i
-    */
-  def analyse(i: CrfToken, is: CrfTokens): T = analyser apply(is, i)
+  def analyse(token: CrfToken, tokens: CrfTokens): T = analyser apply(tokens, token)
 }

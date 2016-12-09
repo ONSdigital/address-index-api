@@ -13,18 +13,18 @@ trait CrfFeature[T] {
   /**
     * @return a function which returns an instance of T
     */
-  def analyser() : CrfFeatureAnalyser[T]
+  def analyser: CrfFeatureAnalyser[T]
 
   /**
     * @return name
     */
-  def name() : String
+  def name: String
 
   /**
-    * @param i input
+    * @param input
     * @return apply the analyser to i
     */
-  def analyse(i : Input) : T = analyser apply i
+  def analyse(input : Input): T = analyser apply input
 
   //TODO scaladoc
   /**
@@ -88,7 +88,7 @@ trait CrfFeature[T] {
         s"$qPrefix$qName:$someValue"
 
       case _: Boolean =>
-        s"$qPrefix$qName:${if(someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
+        s"$qPrefix$qName:${if (someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
 
       case t : CrfType[_] =>
         createCrfJniInput(prefix, t.value)

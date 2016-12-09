@@ -16,7 +16,7 @@ object FeatureAnalysers {
   /**
     * @return all of the predefined features
     */
-  def allFeatures(): Features = {
+  def allFeatures: Features = {
     Features(
       Seq(
         Feature[String](digits)(digitsAnalyser),
@@ -70,7 +70,7 @@ object FeatureAnalysers {
     */
   def wordAnalyser: CrfFeatureAnalyser[Root[_]] = CrfFeatureAnalyser[Root[_]] { str =>
     str.allDigits[Root[_]] { isAllDigits =>
-      if(isAllDigits) {
+      if (isAllDigits) {
         false
       } else {
         str
@@ -99,7 +99,10 @@ object FeatureAnalysers {
   /**
     * @return true if the last character of the string is a '.', false if not
     */
-  def endsInPunctuationAnalyser: CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](_.last == '.')
+  def endsInPunctuationAnalyser: CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean]{ str =>
+    val arbitrary: Char = 'x'
+    str.lastOption.getOrElse(arbitrary) == '.'
+  }
 
   val hasVowels: FeatureName = "has.vowels"
   /**
@@ -181,11 +184,11 @@ object FeatureAnalysers {
     import DigitsLiteral._
     CrfFeatureAnalyser[String] { str =>
       str.allDigits[String] { rs =>
-        if(rs) {
+        if (rs) {
           allDigits
         } else {
           str.containsDigits[String] { rs =>
-            if(rs) {
+            if (rs) {
               someDigits
             } else {
               noDigits
