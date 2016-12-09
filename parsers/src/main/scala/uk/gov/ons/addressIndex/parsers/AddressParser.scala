@@ -8,7 +8,14 @@ import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeature, CrfFeature, CrfFea
 /**
   * AddressParser
   */
-object AddressParser extends CrfParser
+object AddressParser extends CrfParser {
+  def tag(i: String): String = {
+    super.tag(i, FeatureAnalysers.allFeatures, Tokens)
+  }
+  def parse(i: String): String = {
+    super.parse(i, FeatureAnalysers.allFeatures, Tokens)
+  }
+}
 
 case class Features(override val features : Feature[_]*)(override val aggregateFeatures: FeatureAggregate[_]*) extends CrfFeatures
 
