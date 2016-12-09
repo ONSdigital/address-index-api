@@ -54,13 +54,13 @@ object FeatureAnalysers {
 
 
   //TODO scaladoc
-  val rawStringStart = "rawstring.start"
+  val rawStringStart: FeatureName  = "rawstring.start"
   def rawStringStartAggrAnalyser(): CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_ => 0)
 
-  val rawStringEnd = "rawstring.end"
+  val rawStringEnd: FeatureName  = "rawstring.end"
   def rawStringEndAggrAnalyser(): CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_.length - 1)
 
-  val singleton = "singleton"
+  val singleton: FeatureName  = "singleton"
   def singletonAggr(): CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
     tokens.length == 1 && tokens(0) == token
   }
