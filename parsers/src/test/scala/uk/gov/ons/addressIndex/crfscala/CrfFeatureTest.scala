@@ -110,10 +110,7 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
 
   it should "throw an `UnsupportedOperationException` for any type other than `Boolean`, `String`, `Int`, `Double` for input `arbitrary`" in {
     val input = "arbitrary"
-    Try[String](TestInstanceArbType.feature.toCrfJniInput(input)) recover {
-      case _: UnsupportedOperationException => assert(true)
-      case _ => assert(false)
-    }
+    an [UnsupportedOperationException] should be thrownBy TestInstanceArbType.feature.toCrfJniInput(input)
   }
 }
 
