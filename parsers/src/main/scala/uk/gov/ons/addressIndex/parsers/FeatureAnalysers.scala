@@ -219,7 +219,7 @@ object FeatureAnalysers {
     *     ContainsAnalyser(Seq("oneThingToLookFor", "AnotherThingToLookFor"))
     */
   object ContainsAnalyser {
-    def apply(tis: Seq[TokenIndicator]): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](tis contains _)
+    def apply(seq: Seq[TokenIndicator]): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](seq contains _)
   }
 
   //TODO Scaladoc
