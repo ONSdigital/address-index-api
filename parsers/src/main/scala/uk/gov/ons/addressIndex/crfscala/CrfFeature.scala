@@ -41,7 +41,7 @@ trait CrfFeature[T] {
       .append(
         createCrfJniInput(
           prefix = name,
-          someValue = analyse(input)
+          value = analyse(input)
         )
       )
       .append(
@@ -49,7 +49,7 @@ trait CrfFeature[T] {
           CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.next,
-            someValue = analyse(next)
+            value = analyse(next)
           )
         } getOrElse ""
       )
@@ -58,7 +58,7 @@ trait CrfFeature[T] {
           CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.previous,
-            someValue = analyse(previous)
+            value = analyse(previous)
           )
         } getOrElse ""
       )
@@ -69,26 +69,26 @@ trait CrfFeature[T] {
   /**
     *
     * @param prefix
-    * @param someValue
+    * @param value
     * @return
     */
-  def createCrfJniInput(prefix: String, someValue: Any): CrfJniInput = {
+  def createCrfJniInput(prefix: String, value: Any): CrfJniInput = {
     def qualify(str: String): String = str.replace(":", "\\:")
     val qName = qualify(name)
     val qPrefix = if (prefix == name) "" else prefix
 
-    someValue match {
+    value match {
       case _: String =>
-        s"$qPrefix$qName\\:${qualify(someValue.asInstanceOf[String])}:1.0"
+        s"$qPrefix$qName\\:${qualify(value.asInstanceOf[String])}:1.0"
 
       case _: Int =>
-        s"$qPrefix$qName:$someValue.0"
+        s"$qPrefix$qName:$value.0"
 
       case _: Double =>
-        s"$qPrefix$qName:$someValue"
+        s"$qPrefix$qName:$value"
 
       case _: Boolean =>
-        s"$qPrefix$qName:${if (someValue.asInstanceOf[Boolean]) "1.0" else "0.0"}"
+        s"$qPrefix$qName:${if (value.asInstanceOf[Boolean]) "1.0" else "0.0"}"
 
       case t : CrfType[_] =>
         createCrfJniInput(prefix, t.value)
@@ -98,7 +98,7 @@ trait CrfFeature[T] {
 
       case _ =>
         throw new UnsupportedOperationException(
-          s"Unsupported input to CrfJniInput: ${someValue.getClass.toString} or Feature with name: $name"
+          s"Unsupported input to CrfJniInput: ${value.getClass.toString} or Feature with name: $name"
         )
     }
   }

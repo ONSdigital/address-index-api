@@ -44,21 +44,24 @@ object FeatureAnalysers {
     )
   }
 
+  //TODO scaladoc
   object ADT {
     trait Root[T] extends CrfType[T] {
       def value: T
     }
-    implicit class MyString(override val value: String) extends Root[String]
-    implicit class MyBoolean(override val value: Boolean) extends Root[Boolean]
+    implicit class StringWrapper(override val value: String) extends Root[String]
+    implicit class BooleanWrapper(override val value: Boolean) extends Root[Boolean]
   }
 
   //TODO scaladoc
   val rawStringStart: FeatureName  = "rawstring.start"
   def rawStringStartAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_ => 0)
+  //TODO scaladoc
 
   val rawStringEnd: FeatureName  = "rawstring.end"
   def rawStringEndAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_.length - 1)
 
+  //TODO scaladoc
   val singleton: FeatureName  = "singleton"
   def singletonAggr: CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
     tokens.length == 1 && tokens(0) == token
