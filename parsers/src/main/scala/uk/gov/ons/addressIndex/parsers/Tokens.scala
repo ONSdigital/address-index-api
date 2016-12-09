@@ -135,7 +135,7 @@ object Tokens {
     "FIFTH", "5TH",
     "SIXTH", "6TH",
     "SEVENTH", "7TH",
-    "EIGHT", "8TH"
+    "EIGHTH", "8TH"
   )
   val OUTCODES : Seq[TokenIndicator] = Seq.empty //TODO
   val POST_TOWN : Seq[TokenIndicator] = Seq.empty //TODO
