@@ -170,7 +170,7 @@ class TokensTest extends FlatSpec with Matchers {
       "FIFTH", "5TH",
       "SIXTH", "6TH",
       "SEVENTH", "7TH",
-      "EIGHT", "8TH"
+      "EIGHTH", "8TH"
     )
     val actual : Seq[TokenIndicator] = Tokens.ORIDINAL
     expected should contain theSameElementsAs actual
