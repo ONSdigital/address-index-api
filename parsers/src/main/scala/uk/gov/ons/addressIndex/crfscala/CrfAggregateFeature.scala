@@ -16,5 +16,6 @@ trait CrfAggregateFeature[T] {
     */
   def name: String
 
+  //todo scaladoc
   def analyse(token: CrfToken, tokens: CrfTokens): T = analyser apply(tokens, token)
 }

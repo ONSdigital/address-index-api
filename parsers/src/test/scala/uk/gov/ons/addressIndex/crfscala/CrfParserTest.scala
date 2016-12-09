@@ -5,6 +5,14 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 
 class CrfParserTest extends FlatSpec with Matchers {
 
+  /**
+    * The expected for these tests have changed.
+    * Context:
+    *   We have to make a large string to interface with the C JNI layer.
+    *   These tests hold knowledge.
+    *   Ignore for now but address later.
+    */
+
   it should "return the expected `CrfJniInput` for a combination of feature analysers (String, Boolean, Double, Int - (all supported types)) for `CrfTokens` size 1" in {
     val token1 = "token1"
     val input = token1
