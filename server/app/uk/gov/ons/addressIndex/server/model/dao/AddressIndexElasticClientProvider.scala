@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.model.dao
 
 import javax.inject.{Inject, Singleton}
-
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import org.elasticsearch.common.settings.Settings
@@ -9,10 +8,8 @@ import org.elasticsearch.shield.ShieldPlugin
 import play.api.Logger
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 
-
 /**
   * Provides access to Elastic client
-  * Often used in injections
   */
 
 @ImplementedBy(classOf[AddressIndexElasticClientProvider])
@@ -27,7 +24,7 @@ trait ElasticClientProvider {
 
 /**
   * Gets the information from the configuration file and then creates a corresponding client
-  *
+  * Often used in injections
   * @param conf injected configuration
   */
 @Singleton

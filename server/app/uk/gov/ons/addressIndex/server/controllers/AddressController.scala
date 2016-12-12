@@ -47,8 +47,9 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
 
-    if (input == "") searchEmptyQueryReply
-    else {
+    if (input.isEmpty) {
+      searchEmptyQueryReply
+    } else {
       val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Za-z\\d]\\d ?\\d[A-Za-z]{2})|" +
         "(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|" +
         "(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})").r
@@ -65,7 +66,6 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
         case BritishStandard7666(_) => searchNagAddresses(tokens)
       }.getOrElse(searchUnsupportedFormatReply)
     }
-
   }
 
 
