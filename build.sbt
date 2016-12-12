@@ -77,7 +77,7 @@ val clientDeps = Seq(ws) ++ commonDeps
 val parsersDeps = commonDeps
 
 val serverDeps = Seq(
-  "org.elasticsearch.plugin" % "shield" % Versions.elastic4s,
+  "org.elasticsearch.plugin" % "shield"              % Versions.elastic4s,
   "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % "test"
 )++ commonDeps
 
@@ -86,7 +86,7 @@ val uiDeps = Seq(
   cache,
   ws,
   specs2 % Test,
-  "com.typesafe.play"      %% "play-test"           % "2.5.9" % Test,
+  "com.typesafe.play"      %% "play-test"          % "2.5.9" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test
 ) ++ commonDeps
 
