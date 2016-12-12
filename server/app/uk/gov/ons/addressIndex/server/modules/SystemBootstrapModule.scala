@@ -1,15 +1,13 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.google.inject.AbstractModule
+import com.google.inject.{AbstractModule, Singleton}
 
 /**
   * Application Play Module as EagerSingleton.
   */
+@Singleton
 class SystemBootstrapModule extends AbstractModule {
   def configure() = {
-//    bind(classOf[Bootstrap])
-//      .annotatedWith(Names named "uk.gov.ons.addressIndex.server.SystemBootstrap")
-//      .to(classOf[SystemBootstrap])
-//      .asEagerSingleton
+    bind(classOf[SystemBootstrap]).asEagerSingleton
   }
 }
