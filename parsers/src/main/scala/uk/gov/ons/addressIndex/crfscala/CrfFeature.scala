@@ -29,17 +29,17 @@ trait CrfFeature[T] {
   //TODO scaladoc
   /**
     * @param input
-    * @param next
-    * @param previous
+    * @param opNext
+    * @param opPrevious
     * @return
     */
-  def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
+  def toCrfJniInput(input: CrfToken, opNext: Option[CrfToken] = None, opPrevious: Option[CrfToken] = None): CrfJniInput = {
     val currentCrfJni: CrfJniInput = createCrfJniInput(
       prefix = name,
       value = analyse(input)
     )
     val nextCrfJni: CrfJniInput = {
-      next map { next =>
+      opNext map { next =>
         CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.next,
@@ -48,7 +48,7 @@ trait CrfFeature[T] {
       } getOrElse ""
     }
     val previousCrfJni: CrfJniInput = {
-      previous map { previous =>
+      opPrevious map { previous =>
         CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.previous,
