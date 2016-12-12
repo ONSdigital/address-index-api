@@ -21,7 +21,14 @@ case class NationalAddressGazetteerAddress(
   uprn: String,
   postcodeLocator: String,
   addressBasePostal: String,
-  ursn: String,
+  latitude: String,
+  longitude: String,
+  easting: String,
+  northing: String,
+  organisation: String,
+  legalName: String,
+  classificationCode: String,
+  usrn: String,
   lpiKey: String,
   paoText: String,
   paoStartNumber: String,
@@ -39,10 +46,6 @@ case class NationalAddressGazetteerAddress(
   streetDescriptor: String,
   townName: String,
   locality: String,
-  organisation: String,
-  legalName: String,
-  latitude: String,
-  longitude: String,
   score: Float
 )
 
@@ -63,6 +66,13 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
         hit.sourceAsMap("uprn").toString,
         hit.sourceAsMap("postcodeLocator").toString,
         hit.sourceAsMap("addressBasePostal").toString,
+        hit.sourceAsMap("latitude").toString,
+        hit.sourceAsMap("longitude").toString,
+        hit.sourceAsMap("easting").toString,
+        hit.sourceAsMap("northing").toString,
+        hit.sourceAsMap("organisation").toString,
+        hit.sourceAsMap("legalName").toString,
+        hit.sourceAsMap("classificationCode").toString,
         hit.sourceAsMap("ursn").toString,
         hit.sourceAsMap("lpiKey").toString,
         hit.sourceAsMap("paoText").toString,
@@ -81,10 +91,6 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
         hit.sourceAsMap("streetDescriptor").toString,
         hit.sourceAsMap("townName").toString,
         hit.sourceAsMap("locality").toString,
-        hit.sourceAsMap("organisation").toString,
-        hit.sourceAsMap("legalName").toString,
-        hit.sourceAsMap("lat").toString,
-        hit.sourceAsMap("lon").toString,
         hit.score
       )
     }

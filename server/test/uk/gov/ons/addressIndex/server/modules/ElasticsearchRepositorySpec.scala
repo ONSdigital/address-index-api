@@ -116,8 +116,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "locality" -> "n21",
         "organisation" -> "n22",
         "legalName" -> "n23",
-        "lat" -> "1.0000000",
-        "lon" -> "2.0000000"
+        "latitude" -> "1.0000000",
+        "longitude" -> "2.0000000",
+        "northing" -> "3",
+        "easting" -> "4",
+        "classificationCode" -> "n24"
+
       ),
       indexInto(nagIndexName / nagMappings). fields(
         "uprn" -> "1n1",
@@ -144,7 +148,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "organisation" -> "1n22",
         "legalName" -> "1n23",
         "lat" -> "1.0000000",
-        "lon" -> "2.0000000"
+        "lon" -> "2.0000000",
+        "northing" -> "3",
+        "easting" -> "4",
+        "classificationCode" -> "n24"
       )
     )
   }.await
@@ -173,8 +180,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(NationalAddressGazetteerAddress(
-        "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n14", "n15",
-        "n16", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "1.0000000", "2.0000000", 1.0f
+        "n1", "n2", "n3", "1.0000000", "2.0000000", "4", "3", "n22", "n23", "n24", "n4", "n5", "n6", "n7", "n8", "n9",
+        "n10", "n11", "n12", "n13", "n14", "n15", "n16", "n17", "n18", "n19", "n20", "n21", 1.0f
       ))
 
       // When
@@ -217,8 +224,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
       val expectedScore = 1.4142135f
       val expected = NationalAddressGazetteerAddress(
-        "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n14", "n15",
-        "n16", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "1.0000000", "2.0000000", expectedScore
+        "n1", "n2", "n3", "1.0000000", "2.0000000", "4", "3", "n22", "n23", "n24", "n4", "n5", "n6", "n7", "n8", "n9",
+        "n10", "n11", "n12", "n13", "n14", "n15", "n16", "n17", "n18", "n19", "n20", "n21",expectedScore
       )
 
       // When
