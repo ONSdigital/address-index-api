@@ -1,10 +1,20 @@
 package uk.gov.ons.addressIndex.server.modules
 
-trait AddressParserModuleSpec {
-//  def
-}
+import javax.inject.Singleton
+
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.parsers.AddressParser
 
 @Singleton
-class AddressParserModule extends AddressParserModuleSpec {
+class AddressParserModule {
+  /**
+    *
+    * @param input
+    * @return
+    */
+  def tag(input: String): Seq[CrfTokenResult] = {
+    (AddressParser tag input split("\n")).toSeq map { str =>
 
+    }
+  }
 }

@@ -1,9 +1,11 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
+
+import uk.gov.ons.addressIndex.server.modules.{AddressParserModule, ElasticsearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Result}
+
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
@@ -11,6 +13,7 @@ import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response._
+
 import scala.util.matching.Regex
 
 /**
@@ -20,7 +23,10 @@ import scala.util.matching.Regex
   * @param ec     execution context
   */
 @Singleton
-class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: ExecutionContext) extends AddressIndexController {
+class AddressController @Inject()(
+  esRepo: ElasticsearchRepository,
+  parser: AddressParserModule
+)(implicit ec: ExecutionContext) extends AddressIndexController {
 
   val logger = Logger("address-index-server:AddressController")
 
@@ -47,6 +53,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
 
+    logger info parser.tag(input)
+
     if (input.isEmpty) {
       searchEmptyQueryReply
     } else {
@@ -58,6 +66,8 @@ class AddressController @Inject()(esRepo: ElasticsearchRepository)(implicit ec: 
         buildingNumber = input.substring(0, 2),
         postcode = regex.findFirstIn(input).getOrElse("Not recognised")
       )
+
+      parser.tag(input)
 
       logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
 

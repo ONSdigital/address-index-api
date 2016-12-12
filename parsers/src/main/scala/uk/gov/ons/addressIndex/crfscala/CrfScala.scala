@@ -12,7 +12,6 @@ object CrfScala {
   type CrfTokens = Array[CrfToken]
   type FeatureName = String
   type CrfJniInput = String
-  type FeaturesResult = Map[FeatureName, _]
   type CrfParserResults = Seq[CrfParserResult]
 
   case class CrfParserResult(originalInput: CrfToken, crfLabel: String)
@@ -28,15 +27,9 @@ object CrfScala {
   trait CrfFeaturable
 
   case class CrfTokenResult(
-    token: CrfToken,
-    next: Option[CrfToken] = None,
-    previous: Option[CrfToken] = None,
-    results: FeaturesResult
-  ) {
-    def toCrfJniInput(): CrfJniInput = {
-      "" //TODO
-    }
-  }
+    value: CrfToken,
+    label: FeatureName
+  )
 
   //todo scaladoc
   trait CrfType[T] {

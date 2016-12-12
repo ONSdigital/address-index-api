@@ -55,7 +55,10 @@ trait ElasticsearchRepository {
 }
 
 @Singleton
-class AddressIndexRepository @Inject()(conf : AddressIndexConfigModule, elasticClientProvider: ElasticClientProvider)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
+class AddressIndexRepository @Inject()(
+  conf: AddressIndexConfigModule,
+  elasticClientProvider: ElasticClientProvider
+)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
   private val pafIndex = esConf.indexes.pafIndex
