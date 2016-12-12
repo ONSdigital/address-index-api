@@ -74,9 +74,7 @@ val modelDeps = Seq(ws) ++ commonDeps
 
 val clientDeps = Seq(ws) ++ commonDeps
 
-val parsersDeps = Seq(
-  "com.github.vinhkhuc" % "jcrfsuite" % "0.6"
-) ++ commonDeps
+val parsersDeps = commonDeps
 
 val serverDeps = Seq(
   "org.elasticsearch.plugin" % "shield" % Versions.elastic4s,

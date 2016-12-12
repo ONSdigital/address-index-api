@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex
 
 import com.google.common.base.CharMatcher
-
+//TODO scaladoc
 package object parsers {
   object Implicits {
     implicit class StringUtils(str : String) {
@@ -9,7 +9,14 @@ package object parsers {
 
       def containsDigitsBase() : Boolean = digitCount > 0
 
-      def allDigits[T](fn : (Boolean => T)) : T = fn(digitCount == str.length)
+      def allDigits[T](fn : (Boolean => T)) : T = {
+        val isAllDigits = if(str.length == 0) {
+          false
+        } else {
+          digitCount == str.length
+        }
+        fn(isAllDigits)
+      }
 
       def containsDigits[T](fn : (Boolean => T)) : T = fn(containsDigitsBase)
 
@@ -20,7 +27,7 @@ package object parsers {
             .or(CharMatcher.is('i'))
             .or(CharMatcher.is('o'))
             .or(CharMatcher.is('u'))
-            .countIn(str) > 0
+            .countIn(str.toLowerCase) > 0
         )
       }
     }

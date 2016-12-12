@@ -46,4 +46,34 @@ class StringUtilsTest extends FlatSpec with Matchers {
     val actual = "hll".containsVowels[Boolean](identity)
     actual shouldBe expected
   }
+
+  it should "return true for `a` when invoking `containsVowels`" in {
+    val expected = true
+    val actual = "a".containsVowels[Boolean](identity)
+    actual shouldBe expected
+  }
+
+  it should "return true for `e` when invoking `containsVowels`" in {
+    val expected = true
+    val actual = "e".containsVowels[Boolean](identity)
+    actual shouldBe expected
+  }
+
+  it should "return true for `i` when invoking `containsVowels`" in {
+    val expected = true
+    val actual = "i".containsVowels[Boolean](identity)
+    actual shouldBe expected
+  }
+
+  it should "return true for `o` when invoking `containsVowels`" in {
+    val expected = true
+    val actual = "o".containsVowels[Boolean](identity)
+    actual shouldBe expected
+  }
+
+  it should "return true for `u` when invoking `containsVowels`" in {
+    val expected = true
+    val actual = "u".containsVowels[Boolean](identity)
+    actual shouldBe expected
+  }
 }
