@@ -34,34 +34,29 @@ trait CrfFeature[T] {
     * @return
     */
   def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
-    StringBuilder
-      .newBuilder
-      .append(CrfScalaJni.lineStart)
-      .append(
-        createCrfJniInput(
-          prefix = name,
-          value = analyse(input)
-        )
-      )
-      .append(
-        next map { next =>
-          CrfScalaJni.delimiter +
+    val currentCrfJni: CrfJniInput = createCrfJniInput(
+      prefix = name,
+      value = analyse(input)
+    )
+    val nextCrfJni: CrfJniInput = {
+      next map { next =>
+        CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.next,
             value = analyse(next)
           )
-        } getOrElse ""
-      )
-      .append(
-        previous map { previous =>
-          CrfScalaJni.delimiter +
+      } getOrElse ""
+    }
+    val previousCrfJni: CrfJniInput = {
+      previous map { previous =>
+        CrfScalaJni.delimiter +
           createCrfJniInput(
             prefix = CrfScalaJni.previous,
             value = analyse(previous)
           )
-        } getOrElse ""
-      )
-      .toString: CrfJniInput
+      } getOrElse ""
+    }
+    CrfScalaJni.lineStart + currentCrfJni + nextCrfJni + previousCrfJni
   }
 
   //TODO scaladoc
