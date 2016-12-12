@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{Input, CrfTokenResult}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.Input
 import uk.gov.ons.addressIndex.parsers.Tokens.{Token, TokenIndicator}
 
 class TokensTest extends FlatSpec with Matchers {
@@ -69,7 +69,6 @@ class TokensTest extends FlatSpec with Matchers {
       "BLOCK", "BLK"
     )
     val actual: Seq[TokenIndicator] = Tokens.flat
-
     expected shouldBe actual
   }
 
