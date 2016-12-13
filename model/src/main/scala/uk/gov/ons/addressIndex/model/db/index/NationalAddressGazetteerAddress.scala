@@ -73,7 +73,7 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
         hit.sourceAsMap("organisation").toString,
         hit.sourceAsMap("legalName").toString,
         hit.sourceAsMap("classificationCode").toString,
-        hit.sourceAsMap("ursn").toString,
+        hit.sourceAsMap("usrn").toString,
         hit.sourceAsMap("lpiKey").toString,
         hit.sourceAsMap("paoText").toString,
         hit.sourceAsMap("paoStartNumber").toString,

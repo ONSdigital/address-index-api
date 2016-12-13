@@ -26,40 +26,99 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val nagIndex = config.config.elasticSearch.indexes.nagIndex
   val Array(nagIndexName, nagMappings) = nagIndex.split("/")
-  println(nagIndex)
+
+  val pafRecordIdentifier = "1"
+  val pafChangeType = "2"
+  val pafProOrder = "3"
+  val pafUprn = "4"
+  val pafUdprn = "5"
+  val pafOrganizationName = "6"
+  val pafDepartmentName = "7"
+  val pafSubBuildingName = "8"
+  val pafBuildingName = "9"
+  val pafBuildingNumber = "10"
+  val pafDependentThoroughfare = "11"
+  val pafThoroughfare = "12"
+  val pafDoubleDependentLocality = "13"
+  val pafDependentLocality = "14"
+  val pafPostTown = "15"
+  val pafPostcode = "16"
+  val pafPostcodeType = "17"
+  val pafDeliveryPointSuffix = "18"
+  val pafWelshDependentThoroughfare = "19"
+  val pafWelshThoroughfare = "20"
+  val pafWelshDoubleDependentLocality = "21"
+  val pafWelshDependentLocality = "22"
+  val pafWelshPostTown = "23"
+  val pafPoBoxNumber = "24"
+  val pafProcessDate = "25"
+  val pafStartDate = "26"
+  val pafEndDate = "27"
+  val pafLastUpdateDate = "28"
+  val pafEntryDate = "29"
+
+
+  val nagUprn = "n1"
+  val nagPostcodeLocator = "n2"
+  val nagAddressBasePostal = "n3"
+  val nagUsrn = "n4"
+  val nagLpiKey = "n5"
+  val nagPaoText = "n6"
+  val nagPaoStartNumber = "n7"
+  val nagPaoStartSuffix = "n8"
+  val nagPaoEndNumber = "n9"
+  val nagPaoEndSuffix = "n10"
+  val nagSaoText = "n11"
+  val nagSaoStartNumber = "n12"
+  val nagSaoStartSuffix = "n13"
+  val nagSaoEndNumber = "n14"
+  val nagSaoEndSuffix = "n15"
+  val nagLevel = "n16"
+  val nagOfficialFlag = "n17"
+  val nagLogicalStatus = "n18"
+  val nagStreetDescriptor = "n19"
+  val nagTownName = "n20"
+  val nagLocality = "n21"
+  val nagOrganisation = "n22"
+  val nagLegalName = "n23"
+  val nagLatitude = "1.0000000"
+  val nagLongitude = "2.0000000"
+  val nagNorthing = "3"
+  val nagEasting = "4"
+  val nagClassificationCode = "n24"
 
   testClient.execute {
     bulk(
       indexInto(pafIndexName / pafMappings).fields(
-        "recordIdentifier" -> "1",
-        "changeType" -> "2",
-        "proOrder" -> "3",
-        "uprn" -> "4",
-        "udprn" -> "5",
-        "organizationName" -> "6",
-        "departmentName" -> "7",
-        "subBuildingName" -> "8",
-        "buildingName" -> "9",
-        "buildingNumber" -> "10",
-        "dependentThoroughfare" -> "11",
-        "thoroughfare" -> "12",
-        "doubleDependentLocality" -> "13",
-        "dependentLocality" -> "14",
-        "postTown" -> "15",
-        "postcode" -> "16",
-        "postcodeType" -> "17",
-        "deliveryPointSuffix" -> "18",
-        "welshDependentThoroughfare" -> "19",
-        "welshThoroughfare" -> "20",
-        "welshDoubleDependentLocality" -> "21",
-        "welshDependentLocality" -> "22",
-        "welshPostTown" -> "23",
-        "poBoxNumber" -> "24",
-        "processDate" -> "25",
-        "startDate" -> "26",
-        "endDate" -> "27",
-        "lastUpdateDate" -> "28",
-        "entryDate" -> "29"
+        "recordIdentifier" -> pafRecordIdentifier,
+        "changeType" -> pafChangeType,
+        "proOrder" -> pafProOrder,
+        "uprn" -> pafUprn,
+        "udprn" -> pafUdprn,
+        "organizationName" -> pafOrganizationName,
+        "departmentName" -> pafDepartmentName,
+        "subBuildingName" -> pafSubBuildingName,
+        "buildingName" -> pafBuildingName,
+        "buildingNumber" -> pafBuildingNumber,
+        "dependentThoroughfare" -> pafDependentThoroughfare,
+        "thoroughfare" -> pafThoroughfare,
+        "doubleDependentLocality" -> pafDoubleDependentLocality,
+        "dependentLocality" -> pafDependentLocality,
+        "postTown" -> pafPostTown,
+        "postcode" -> pafPostcode,
+        "postcodeType" -> pafPostcodeType,
+        "deliveryPointSuffix" -> pafDeliveryPointSuffix,
+        "welshDependentThoroughfare" -> pafWelshDependentThoroughfare,
+        "welshThoroughfare" -> pafWelshThoroughfare,
+        "welshDoubleDependentLocality" -> pafWelshDoubleDependentLocality,
+        "welshDependentLocality" -> pafWelshDependentLocality,
+        "welshPostTown" -> pafWelshPostTown,
+        "poBoxNumber" -> pafPoBoxNumber,
+        "processDate" -> pafProcessDate,
+        "startDate" -> pafStartDate,
+        "endDate" -> pafEndDate,
+        "lastUpdateDate" -> pafLastUpdateDate,
+        "entryDate" ->pafEntryDate
       ),
       indexInto(pafIndexName / pafMappings).fields(
         "recordIdentifier" -> "a1",
@@ -93,41 +152,41 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         "entryDate" -> "a29"
       ),
       indexInto(nagIndexName / nagMappings). fields(
-        "uprn" -> "n1",
-        "postcodeLocator" -> "n2",
-        "addressBasePostal" -> "n3",
-        "ursn" -> "n4",
-        "lpiKey" -> "n5",
-        "paoText" -> "n6",
-        "paoStartNumber" -> "n7",
-        "paoStartSuffix" -> "n8",
-        "paoEndNumber" -> "n9",
-        "paoEndSuffix" -> "n10",
-        "saoText" -> "n11",
-        "saoStartNumber" -> "n12",
-        "saoStartSuffix" -> "n13",
-        "saoEndNumber" -> "n14",
-        "saoEndSuffix" -> "n15",
-        "level" -> "n16",
-        "officialFlag" -> "n17",
-        "logicalStatus" -> "n18",
-        "streetDescriptor" -> "n19",
-        "townName" -> "n20",
-        "locality" -> "n21",
-        "organisation" -> "n22",
-        "legalName" -> "n23",
-        "latitude" -> "1.0000000",
-        "longitude" -> "2.0000000",
-        "northing" -> "3",
-        "easting" -> "4",
-        "classificationCode" -> "n24"
+        "uprn" -> nagUprn,
+        "postcodeLocator" -> nagPostcodeLocator,
+        "addressBasePostal" -> nagAddressBasePostal,
+        "usrn" -> nagUsrn,
+        "lpiKey" -> nagLpiKey,
+        "paoText" -> nagPaoText,
+        "paoStartNumber" -> nagPaoStartNumber,
+        "paoStartSuffix" -> nagPaoStartSuffix,
+        "paoEndNumber" -> nagPaoEndNumber,
+        "paoEndSuffix" -> nagPaoEndSuffix,
+        "saoText" -> nagSaoText,
+        "saoStartNumber" -> nagSaoStartNumber,
+        "saoStartSuffix" -> nagSaoStartSuffix,
+        "saoEndNumber" -> nagSaoEndNumber,
+        "saoEndSuffix" -> nagSaoEndSuffix,
+        "level" -> nagLevel,
+        "officialFlag" -> nagOfficialFlag,
+        "logicalStatus" -> nagLogicalStatus,
+        "streetDescriptor" -> nagStreetDescriptor,
+        "townName" -> nagTownName,
+        "locality" -> nagLocality,
+        "organisation" -> nagOrganisation,
+        "legalName" -> nagLegalName,
+        "latitude" -> nagLatitude,
+        "longitude" -> nagLongitude,
+        "northing" -> nagNorthing,
+        "easting" -> nagEasting,
+        "classificationCode" -> nagClassificationCode
 
       ),
       indexInto(nagIndexName / nagMappings). fields(
         "uprn" -> "1n1",
         "postcodeLocator" -> "1n2",
         "addressBasePostal" -> "1n3",
-        "ursn" -> "1n4",
+        "usrn" -> "1n4",
         "lpiKey" -> "1n5",
         "paoText" -> "1n6",
         "paoStartNumber" -> "1n7",
@@ -159,15 +218,77 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   blockUntilCount(2, pafIndexName)
   blockUntilCount(2, nagIndexName)
 
+  val expectedPaf = PostcodeAddressFileAddress(
+    pafRecordIdentifier,
+    pafChangeType,
+    pafProOrder,
+    pafUprn,
+    pafUdprn,
+    pafOrganizationName,
+    pafDepartmentName,
+    pafSubBuildingName,
+    pafBuildingName,
+    pafBuildingNumber,
+    pafDependentThoroughfare,
+    pafThoroughfare,
+    pafDoubleDependentLocality,
+    pafDependentLocality,
+    pafPostTown,
+    pafPostcode,
+    pafPostcodeType,
+    pafDeliveryPointSuffix,
+    pafWelshDependentThoroughfare,
+    pafWelshThoroughfare,
+    pafWelshDoubleDependentLocality,
+    pafWelshDependentLocality,
+    pafWelshPostTown,
+    pafPoBoxNumber,
+    pafProcessDate,
+    pafStartDate,
+    pafEndDate,
+    pafLastUpdateDate,
+    pafEntryDate,
+    1.0f
+  )
+
+  val expectedNag = NationalAddressGazetteerAddress(
+    nagUprn,
+    nagPostcodeLocator,
+    nagAddressBasePostal,
+    nagLatitude,
+    nagLongitude,
+    nagEasting,
+    nagNorthing,
+    nagOrganisation,
+    nagLegalName,
+    nagClassificationCode,
+    nagUsrn,
+    nagLpiKey,
+    nagPaoText,
+    nagPaoStartNumber,
+    nagPaoStartSuffix,
+    nagPaoEndNumber,
+    nagPaoEndSuffix,
+    nagSaoText,
+    nagSaoStartNumber,
+    nagSaoStartSuffix,
+    nagSaoEndNumber,
+    nagSaoEndSuffix,
+    nagLevel,
+    nagOfficialFlag,
+    nagLogicalStatus,
+    nagStreetDescriptor,
+    nagTownName,
+    nagLocality,
+    1.0f
+  )
+
   "Elastic repository" should {
 
     "find PAF address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = Some(PostcodeAddressFileAddress(
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", 1.0f
-      ))
+      val expected = Some(expectedPaf)
 
       // When
       val result = repository.queryPafUprn("4").await
@@ -179,10 +300,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find NAG address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = Some(NationalAddressGazetteerAddress(
-        "n1", "n2", "n3", "1.0000000", "2.0000000", "4", "3", "n22", "n23", "n24", "n4", "n5", "n6", "n7", "n8", "n9",
-        "n10", "n11", "n12", "n13", "n14", "n15", "n16", "n17", "n18", "n19", "n20", "n21", 1.0f
-      ))
+      val expected = Some(expectedNag)
 
       // When
       val result = repository.queryNagUprn("n1").await
@@ -200,10 +318,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         postcode = "16"
       )
       val expectedScore = 1.4142135f
-      val expected = PostcodeAddressFileAddress(
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-        "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", expectedScore
-      )
+      val expected = expectedPaf.copy(score = expectedScore)
 
       // When
       val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(tokens).await
@@ -223,10 +338,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         postcode = "n2"
       )
       val expectedScore = 1.4142135f
-      val expected = NationalAddressGazetteerAddress(
-        "n1", "n2", "n3", "1.0000000", "2.0000000", "4", "3", "n22", "n23", "n24", "n4", "n5", "n6", "n7", "n8", "n9",
-        "n10", "n11", "n12", "n13", "n14", "n15", "n16", "n17", "n18", "n19", "n20", "n21",expectedScore
-      )
+      val expected = expectedNag.copy(score = expectedScore)
 
       // When
       val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(tokens).await

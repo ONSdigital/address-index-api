@@ -4,6 +4,9 @@ import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseGeo, AddressResponsePaf}
 
+/**
+  * Test conversion between ES reply and the model that will be send in the response
+  */
 class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   val givenNag = NationalAddressGazetteerAddress(
@@ -42,7 +45,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Elastic PAF response" in {
       // Given
-      val givenPaf = PostcodeAddressFileAddress(
+      val paf = PostcodeAddressFileAddress(
         recordIdentifier = "1",
         changeType = "2",
         proOrder = "3",
@@ -76,31 +79,31 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       val expected = AddressResponseAddress(
-        uprn = "4",
+        uprn = paf.uprn,
         formattedAddress = "",
         paf = Some(AddressResponsePaf(
-          udprn = "5",
-          organisationName = "6",
-          departmentName = "7",
-          subBuildingName = "8",
-          buildingName = "9",
-          buildingNumber = "10",
-          dependentThoroughfare = "11",
-          thoroughfare = "12",
-          doubleDependentLocality = "13",
-          dependentLocality = "14",
-          postTown = "15",
-          postcode = "16",
-          postcodeType = "17",
-          deliveryPointSuffix = "18",
-          welshDependentThoroughfare = "19",
-          welshThoroughfare = "20",
-          welshDoubleDependentLocality = "21",
-          welshDependentLocality = "22",
-          welshPostTown = "23",
-          poBoxNumber = "24",
-          startDate = "26",
-          endDate = "27"
+          udprn = paf.udprn,
+          organisationName = paf.organizationName,
+          departmentName = paf.departmentName,
+          subBuildingName = paf.subBuildingName,
+          buildingName = paf.buildingName,
+          buildingNumber = paf.buildingNumber,
+          dependentThoroughfare = paf.dependentThoroughfare,
+          thoroughfare = paf.thoroughfare,
+          doubleDependentLocality = paf.doubleDependentLocality,
+          dependentLocality = paf.dependentLocality,
+          postTown = paf.postTown,
+          postcode = paf.postcode,
+          postcodeType = paf.postcodeType,
+          deliveryPointSuffix = paf.deliveryPointSuffix,
+          welshDependentThoroughfare = paf.welshDependentThoroughfare,
+          welshThoroughfare = paf.welshThoroughfare,
+          welshDoubleDependentLocality = paf.welshDoubleDependentLocality,
+          welshDependentLocality = paf.welshDependentLocality,
+          welshPostTown = paf.welshPostTown,
+          poBoxNumber = paf.poBoxNumber,
+          startDate = paf.startDate,
+          endDate = paf.endDate
         )),
         nag = None,
         geo = None,
@@ -109,7 +112,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddress.fromPafAddress(givenPaf)
+      val result = AddressResponseAddress.fromPafAddress(paf)
 
       // Then
       result shouldBe expected
@@ -133,7 +136,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe expected
     }
 
-    "be creatable from Elastic NAG response with invalid latitude" in {
+    "be creatable (with empty geo field) from Elastic NAG response with invalid latitude" in {
       // Given
       val nag = givenNag.copy(latitude = "invalid")
 
@@ -144,7 +147,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe None
     }
 
-    "be creatable from Elastic NAG response with invalid longitude" in {
+    "be creatable (with empty geo field) from Elastic NAG response with invalid longitude" in {
       // Given
       val nag = givenNag.copy(longitude = "invalid")
 
@@ -155,7 +158,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe None
     }
 
-    "be creatable from Elastic NAG response with invalid easting" in {
+    "be creatable (with empty geo field) from Elastic NAG response with invalid easting" in {
       // Given
       val nag = givenNag.copy(easting = "invalid")
 
@@ -166,7 +169,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe None
     }
 
-    "be creatable from Elastic NAG response with invalid northing" in {
+    "be creatable (with empty geo field) from Elastic NAG response with invalid northing" in {
       // Given
       val nag = givenNag.copy(northing = "invalid")
 
