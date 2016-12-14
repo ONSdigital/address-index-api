@@ -27,7 +27,6 @@ class AddressController @Inject()(
 
   val logger = Logger("address-index-server:AddressController")
 
-
   def parserTest(): Action[AnyContent] = Action { implicit req =>
     val test = parser.tag("31 exeter close wd24 4re")
     test.map(i => logger.info(i.label))
