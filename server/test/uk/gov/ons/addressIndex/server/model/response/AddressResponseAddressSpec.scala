@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseGeo, AddressResponsePaf}
+import uk.gov.ons.addressIndex.model.server.response._
 
 /**
   * Test conversion between ES reply and the model that will be send in the response
@@ -80,7 +80,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       val expected = AddressResponseAddress(
         uprn = paf.uprn,
-        formattedAddress = "",
+        formattedAddress = "7 6 8 9 10 PO BOX 24 11 12 13 14 15 16",
         paf = Some(AddressResponsePaf(
           udprn = paf.udprn,
           organisationName = paf.organizationName,
@@ -122,15 +122,51 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       // Given
       val nag = givenNag
 
-      val expected =  Some(AddressResponseGeo(
+      val expected = AddressResponseAddress(
+        uprn = nag.uprn,
+        formattedAddress = "n22 n12n13-n14n15 n11 n6 n7n8-n9n10 n19 n21 n20 n2",
+        paf = None,
+        nag = Some(AddressResponseNag(
+          nag.uprn,
+          nag.postcodeLocator,
+          nag.addressBasePostal,
+          nag.usrn,
+          nag.lpiKey,
+          pao = AddressResponsePao(
+            nag.paoText,
+            nag.paoStartNumber,
+            nag.paoStartSuffix,
+            nag.paoEndNumber,
+            nag.paoEndSuffix
+          ),
+          sao = AddressResponseSao(
+            nag.saoText,
+            nag.saoStartNumber,
+            nag.saoStartSuffix,
+            nag.saoEndNumber,
+            nag.saoEndSuffix
+          ),
+          nag.level,
+          nag.officialFlag,
+          nag.logicalStatus,
+          nag.streetDescriptor,
+          nag.townName,
+          nag.locality,
+          nag.organisation,
+          nag.legalName,
+          nag.classificationCode
+        )),
+        geo = Some(AddressResponseGeo(
           latitude = 1.0d,
           longitude = 2.0d,
           easting = 3,
           northing = 4
-        ))
+        )),
+        underlyingScore = 1,
+        underlyingMaxScore = 1)
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).geo
+      val result = AddressResponseAddress.fromNagAddress(1)(nag)
 
       // Then
       result shouldBe expected

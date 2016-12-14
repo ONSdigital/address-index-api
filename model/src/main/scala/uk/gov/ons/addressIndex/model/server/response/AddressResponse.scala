@@ -132,10 +132,18 @@ object AddressResponseAddress {
     * @param other
     * @return
     */
-  def fromPafAddress(maxScore: Float)(other: PostcodeAddressFileAddress): AddressResponseAddress =
+  def fromPafAddress(maxScore: Float)(other: PostcodeAddressFileAddress): AddressResponseAddress = {
+
+    val poBoxNumber = if (other.poBoxNumber == "") "" else s"PO BOX ${other.poBoxNumber}"
+
+    val formattedAddress = Seq(other.departmentName, other.organizationName, other.subBuildingName,
+      other.buildingName, other.buildingNumber, poBoxNumber, other.dependentThoroughfare,
+      other.thoroughfare, other.doubleDependentLocality, other.dependentLocality, other.postTown,
+      other.postcode).mkString(" ")
+
     AddressResponseAddress(
       uprn = other.uprn,
-      formattedAddress = "",
+      formattedAddress = formattedAddress,
       paf = Some(AddressResponsePaf(
         other.udprn,
         other.organizationName,
@@ -165,6 +173,7 @@ object AddressResponseAddress {
       underlyingScore = other.score,
       underlyingMaxScore = maxScore
     )
+  }
 
   /**
     *
@@ -189,9 +198,22 @@ object AddressResponseAddress {
       northing <- Try(other.northing.toInt)
     } yield AddressResponseGeo(latitude, longitude, easting, northing)
 
+    val saoHyphen = if ((other.saoStartNumber != "" || other.saoStartSuffix != "")
+      && (other.saoEndNumber != "" || other.saoEndSuffix != "")) "-" else ""
+    val saoNumbers = Seq(other.saoStartNumber, other.saoStartSuffix, saoHyphen, other.saoEndNumber, other.saoEndSuffix).mkString("")
+    val sao = if (other.saoText == other.organisation) saoNumbers else s"$saoNumbers ${other.saoText}"
+
+    val paoHyphen = if ((other.paoStartNumber != "" || other.paoStartSuffix != "")
+      && (other.paoEndNumber != "" || other.paoEndSuffix != "")) "-" else ""
+    val paoNumbers = Seq(other.paoStartNumber, other.paoStartSuffix, paoHyphen, other.paoEndNumber, other.paoEndSuffix).mkString("")
+    val pao = if (other.paoText == other.organisation) paoNumbers else s"${other.paoText} $paoNumbers"
+
+    val formattedAddress = Seq(other.organisation, sao, pao, other.streetDescriptor, other.locality,
+      other.townName, other.postcodeLocator).mkString(" ")
+
     AddressResponseAddress(
       uprn = other.uprn,
-      formattedAddress = "",
+      formattedAddress = formattedAddress,
       paf = None,
       nag = Some(AddressResponseNag(
         other.uprn,
