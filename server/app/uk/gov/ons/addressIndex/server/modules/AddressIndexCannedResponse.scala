@@ -4,18 +4,25 @@ import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
 
-  def searchContainerTemplate(tokens: AddressTokens, addresses: Seq[AddressResponseAddress], total: Int): AddressBySearchResponseContainer = {
+  val Limit: Int = 10
+
+  def searchContainerTemplate(
+    tokens: AddressTokens,
+    addresses: Seq[AddressResponseAddress],
+    total: Int
+  ): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = AddressBySearchResponse(
         tokens = tokens,
         addresses = addresses,
-        limit = 10,
+        limit = Limit,
         offset = 0,
         total = addresses.size
       ),
       status = OkAddressResponseStatus
     )
   }
+
   def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
@@ -25,7 +32,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val NoAddressFoundUprn = {
+  val NoAddressFoundUprn: AddressByUprnResponseContainer= {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
         address = None
@@ -35,7 +42,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val UnsupportedFormatUprn = {
+  val UnsupportedFormatUprn: AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
         address = None
@@ -45,7 +52,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val UnsupportedFormat = {
+  val UnsupportedFormat: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
       status = BadRequestAddressResponseStatus,
@@ -53,7 +60,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val EmptySearch = {
+  val EmptySearch: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
       status = BadRequestAddressResponseStatus,
@@ -61,11 +68,11 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val Error = {
+  val Error: AddressBySearchResponse = {
     AddressBySearchResponse(
       AddressTokens.empty,
       addresses = Seq.empty,
-      limit = 10,
+      limit = Limit,
       offset = 0,
       total = 0
     )
