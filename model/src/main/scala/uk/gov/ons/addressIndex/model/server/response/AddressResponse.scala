@@ -198,14 +198,14 @@ object AddressResponseAddress {
       northing <- Try(other.northing.toInt)
     } yield AddressResponseGeo(latitude, longitude, easting, northing)
 
-    val saoLeftRangeExists = other.saoStartNumber != "" || other.saoStartSuffix != ""
-    val saoRightRangeExists = other.saoEndNumber != "" || other.saoEndSuffix != ""
+    val saoLeftRangeExists = other.saoStartNumber.nonEmpty || other.saoStartSuffix.nonEmpty
+    val saoRightRangeExists = other.saoEndNumber.nonEmpty || other.saoEndSuffix.nonEmpty
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
     val saoNumbers = Seq(other.saoStartNumber, other.saoStartSuffix, saoHyphen, other.saoEndNumber, other.saoEndSuffix).mkString("")
     val sao = if (other.saoText == other.organisation) saoNumbers else s"$saoNumbers ${other.saoText}"
 
-    val paoLeftRangeExists = other.paoStartNumber != "" || other.paoStartSuffix != ""
-    val paoRightRangeExists = other.paoEndNumber != "" || other.paoEndSuffix != ""
+    val paoLeftRangeExists = other.paoStartNumber.nonEmpty || other.paoStartSuffix.nonEmpty
+    val paoRightRangeExists = other.paoEndNumber.nonEmpty || other.paoEndSuffix.nonEmpty
     val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
     val paoNumbers = Seq(other.paoStartNumber, other.paoStartSuffix, paoHyphen, other.paoEndNumber, other.paoEndSuffix).mkString("")
     val pao = if (other.paoText == other.organisation) paoNumbers else s"${other.paoText} $paoNumbers"
