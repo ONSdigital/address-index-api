@@ -13,8 +13,6 @@ class AddressParserModule {
     * @return
     */
   def tag(input: String): Seq[CrfTokenResult] = {
-    (AddressParser tag input split("\n")).toSeq map { str =>
-
-    }
+    AddressParser tag input
   }
 }
