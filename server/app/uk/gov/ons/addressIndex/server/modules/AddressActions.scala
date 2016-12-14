@@ -1,8 +1,67 @@
 package uk.gov.ons.addressIndex.server.modules
 
-/**
-  * Created by rhysbradbury on 14/12/2016.
-  */
-class AddressActions {
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.server.response._
+import scala.concurrent.{ExecutionContext, Future}
 
+trait AddressActions {
+  self: AddressIndexCannedResponse =>
+
+  def esRepo: ElasticsearchRepository
+
+  def pafSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+    esRepo queryPafAddresses tokens map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
+      AddressBySearchResponseContainer(
+        response = AddressBySearchResponse(
+          tokens = tokens,
+          addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
+          limit = 10,
+          offset = 0,
+          total = addresses.size
+        ),
+        status = OkAddressResponseStatus
+      )
+    }
+  }
+
+  def nagSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+    esRepo queryNagAddresses tokens map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
+      AddressBySearchResponseContainer(
+        response = AddressBySearchResponse(
+          tokens = tokens,
+          addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
+          limit = 10,
+          offset = 0,
+          total = addresses.size
+        ),
+        status = OkAddressResponseStatus
+      )
+    }
+  }
+
+  def uprnPafSearch(uprn: String)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
+    esRepo queryPafUprn uprn map {
+      _.map { address =>
+        AddressByUprnResponseContainer(
+          response = AddressByUprnResponse(
+            address = Some(AddressResponseAddress.fromPafAddress(address))
+          ),
+          status = OkAddressResponseStatus
+        )
+      } getOrElse NoAddressFoundUprn
+    }
+  }
+
+  def uprnNagSearch(uprn: String)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
+    esRepo queryNagUprn uprn map {
+      _.map { address =>
+        AddressByUprnResponseContainer(
+          response = AddressByUprnResponse(
+            address = Some(AddressResponseAddress fromNagAddress address)
+          ),
+          status = OkAddressResponseStatus
+        )
+      } getOrElse NoAddressFoundUprn
+    }
+  }
 }
