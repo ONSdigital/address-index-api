@@ -40,7 +40,7 @@ class AddressController @Inject()(
     * @return Json response with addresses information
     */
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
-    logger info s"#addressQuery called with input $input , format: $format"
+    logger info s"#addressQuery: input $input , format: $format"
     input.toOption map { actualInput =>
       val tokens = parser tag actualInput
       logger info s"#addressQuery parsed: ${tokens.mkString(" ")}"
@@ -60,7 +60,7 @@ class AddressController @Inject()(
     * @return
     */
   def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
-    logger info s"#uprnQuery request called with uprn: $uprn , format: $format"
+    logger info s"#uprnQuery: uprn: $uprn , format: $format"
     val futureResp = format.stringToScheme map {
       case PostcodeAddressFile(_) => uprnPafSearch(uprn)
       case BritishStandard7666(_) => uprnNagSearch(uprn)
