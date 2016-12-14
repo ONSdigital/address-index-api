@@ -19,15 +19,10 @@ trait AddressActions {
     */
   def pafSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     esRepo queryPafAddresses tokens map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
-      AddressBySearchResponseContainer(
-        response = AddressBySearchResponse(
-          tokens = tokens,
-          addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
-          limit = 10,
-          offset = 0,
-          total = addresses.size
-        ),
-        status = OkAddressResponseStatus
+      searchContainerTemplate(
+        tokens = tokens,
+        addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
+        total = addresses.size
       )
     }
   }
@@ -39,15 +34,10 @@ trait AddressActions {
     */
   def nagSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     esRepo queryNagAddresses tokens map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
-      AddressBySearchResponseContainer(
-        response = AddressBySearchResponse(
-          tokens = tokens,
-          addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
-          limit = 10,
-          offset = 0,
-          total = addresses.size
-        ),
-        status = OkAddressResponseStatus
+      searchContainerTemplate(
+        tokens = tokens,
+        addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
+        total = addresses.size
       )
     }
   }
@@ -60,11 +50,8 @@ trait AddressActions {
   def uprnPafSearch(uprn: String)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
     esRepo queryPafUprn uprn map {
       _.map { address =>
-        AddressByUprnResponseContainer(
-          response = AddressByUprnResponse(
-            address = Some(AddressResponseAddress.fromPafAddress(address))
-          ),
-          status = OkAddressResponseStatus
+        searchUprnContainerTemplate(
+          Some(AddressResponseAddress fromPafAddress address)
         )
       } getOrElse NoAddressFoundUprn
     }
@@ -78,11 +65,8 @@ trait AddressActions {
   def uprnNagSearch(uprn: String)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
     esRepo queryNagUprn uprn map {
       _.map { address =>
-        AddressByUprnResponseContainer(
-          response = AddressByUprnResponse(
-            address = Some(AddressResponseAddress fromNagAddress address)
-          ),
-          status = OkAddressResponseStatus
+        searchUprnContainerTemplate(
+          Some(AddressResponseAddress fromNagAddress address)
         )
       } getOrElse NoAddressFoundUprn
     }
