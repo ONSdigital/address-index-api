@@ -65,7 +65,7 @@ object AddressBySearchResponseContainer {
   * @param total     total number of found addresses
   */
 case class AddressBySearchResponse(
-  tokens: AddressTokens,
+  tokens: Seq[CrfTokenResult],
   addresses: Seq[AddressResponseAddress],
   limit: Int,
   offset: Int,

@@ -10,7 +10,6 @@ import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
-import scala.util.matching.Regex
 
 @Singleton
 class AddressController @Inject()(
@@ -43,16 +42,8 @@ class AddressController @Inject()(
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
     input.toOption map { actualInput =>
-      parser.tag(actualInput)
-      val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Z-z\\d]\\d ?\\d[A-Za-z]{2})|" +
-        "(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|" +
-        "(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})").r
-      val tokens = AddressTokens(
-        uprn = "",
-        buildingNumber = input.substring(0, 2),
-        postcode = regex.findFirstIn(actualInput).getOrElse("Not recognised")
-      )
-      logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
+      val tokens = parser tag actualInput
+      logger info s"#addressQuery parsed: ${tokens.mkString(" ")}"
       val futureResp = format.stringToScheme map {
         case PostcodeAddressFile(_) => pafSearch(tokens)
         case BritishStandard7666(_) => nagSearch(tokens)

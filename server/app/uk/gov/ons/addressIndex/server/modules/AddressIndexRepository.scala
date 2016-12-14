@@ -5,8 +5,8 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
-import uk.gov.ons.addressIndex.model.server.response.AddressTokens
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
@@ -39,7 +39,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryPafAddresses(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses]
+  def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses]
 
   /**
     * Query the address index for NAG addresses.
@@ -48,7 +48,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryNagAddresses(tokens: AddressTokens) : Future[NationalAddressGazetteerAddresses]
+  def queryNagAddresses(tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses]
 }
 
 @Singleton
@@ -70,7 +70,7 @@ class AddressIndexRepository @Inject()(
     search in nagIndex query { termQuery("uprn", uprn) }
   }.map(_.as[NationalAddressGazetteerAddress].headOption)
 
-  def queryPafAddresses(tokens: AddressTokens) : Future[PostcodeAddressFileAddresses] = client.execute {
+  def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses] = client.execute {
     search in pafIndex query {
       bool(
         must(
@@ -87,7 +87,7 @@ class AddressIndexRepository @Inject()(
     }
   }.map(response => PostcodeAddressFileAddresses(response.as[PostcodeAddressFileAddress], response.maxScore))
 
-  def queryNagAddresses(tokens: AddressTokens) : Future[NationalAddressGazetteerAddresses] = client.execute {
+  def queryNagAddresses(tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses] = client.execute {
     search in nagIndex query {
       bool(
         must(

@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
@@ -7,7 +8,7 @@ trait AddressIndexCannedResponse {
   val Limit: Int = 10
 
   def searchContainerTemplate(
-    tokens: AddressTokens,
+    tokens: Seq[CrfTokenResult],
     addresses: Seq[AddressResponseAddress],
     total: Int
   ): AddressBySearchResponseContainer = {

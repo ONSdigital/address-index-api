@@ -1,7 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressActions {
@@ -17,7 +19,7 @@ trait AddressActions {
     * @param ec
     * @return
     */
-  def pafSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+  def pafSearch(tokens:  Seq[CrfTokenResult])(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     esRepo queryPafAddresses tokens map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
       searchContainerTemplate(
         tokens = tokens,
@@ -32,7 +34,7 @@ trait AddressActions {
     * @param ec
     * @return
     */
-  def nagSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+  def nagSearch(tokens: Seq[CrfTokenResult])(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     esRepo queryNagAddresses tokens map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
       searchContainerTemplate(
         tokens = tokens,
