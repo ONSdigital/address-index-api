@@ -20,14 +20,9 @@
 
 ### Contribution guidelines ###
 
-* Standard Scala style
-* Testing: FlatSpec > FreeSpec
-* Style: Infix > Not Infix, named params when param count > 1
 * Scaladoc
-* GitFlow
 * Pull requests must have tests
 
 ### Who do I talk to? ###
 
 * Rhys Bradbury
-* Flavian Alexandru

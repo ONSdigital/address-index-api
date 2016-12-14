@@ -44,7 +44,7 @@ class AddressController @Inject()(
     logger info s"#addressQuery called with input $input , format: $format"
     input.toOption map { actualInput =>
       parser.tag(actualInput)
-      val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Za-z\\d]\\d ?\\d[A-Za-z]{2})|" +
+      val regex: Regex = ("(?:[A-Za-z]\\d ?\\d[A-Za-z]{2})|(?:[A-Za-z][A-Zar-z\\d]\\d ?\\d[A-Za-z]{2})|" +
         "(?:[A-Za-z]{2}\\d{2} ?\\d[A-Za-z]{2})|(?:[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]{2})|" +
         "(?:[A-Za-z]{2}\\d[A-Za-z] ?\\d[A-Za-z]{2})").r
       val tokens = AddressTokens(
