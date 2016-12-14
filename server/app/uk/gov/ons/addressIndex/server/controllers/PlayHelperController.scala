@@ -4,7 +4,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Controller, Result}
 import scala.concurrent.Future
 
-abstract class PlayHelperController extends Controller {
+class PlayHelperController extends Controller {
 
   /**
     *

@@ -7,8 +7,16 @@ import scala.concurrent.{ExecutionContext, Future}
 trait AddressActions {
   self: AddressIndexCannedResponse =>
 
+  /**
+    * @return
+    */
   def esRepo: ElasticsearchRepository
 
+  /**
+    * @param tokens
+    * @param ec
+    * @return
+    */
   def pafSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     esRepo queryPafAddresses tokens map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
       AddressBySearchResponseContainer(
@@ -24,6 +32,11 @@ trait AddressActions {
     }
   }
 
+  /**
+    * @param tokens
+    * @param ec
+    * @return
+    */
   def nagSearch(tokens: AddressTokens)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     esRepo queryNagAddresses tokens map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
       AddressBySearchResponseContainer(
@@ -39,6 +52,11 @@ trait AddressActions {
     }
   }
 
+  /**
+    * @param uprn
+    * @param ec
+    * @return
+    */
   def uprnPafSearch(uprn: String)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
     esRepo queryPafUprn uprn map {
       _.map { address =>
@@ -52,6 +70,11 @@ trait AddressActions {
     }
   }
 
+  /**
+    * @param uprn
+    * @param ec
+    * @return
+    */
   def uprnNagSearch(uprn: String)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
     esRepo queryNagUprn uprn map {
       _.map { address =>
