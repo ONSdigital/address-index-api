@@ -139,7 +139,7 @@ object AddressResponseAddress {
     val formattedAddress = Seq(other.departmentName, other.organizationName, other.subBuildingName,
       other.buildingName, other.buildingNumber, poBoxNumber, other.dependentThoroughfare,
       other.thoroughfare, other.doubleDependentLocality, other.dependentLocality, other.postTown,
-      other.postcode).mkString(" ")
+      other.postcode).filter(_ != "").mkString(" ")
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -209,7 +209,7 @@ object AddressResponseAddress {
     val pao = if (other.paoText == other.organisation) paoNumbers else s"${other.paoText} $paoNumbers"
 
     val formattedAddress = Seq(other.organisation, sao, pao, other.streetDescriptor, other.locality,
-      other.townName, other.postcodeLocator).mkString(" ")
+      other.townName, other.postcodeLocator).filter(_ != "").mkString(" ")
 
     AddressResponseAddress(
       uprn = other.uprn,
