@@ -62,11 +62,11 @@ class AddressIndexRepository @Inject()(
   private val nagIndex = esConf.indexes.nagIndex
   val client: ElasticClient = elasticClientProvider.client
 
-  def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute{
+  def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute {
     search in pafIndex query { termQuery("uprn", uprn) }
   }.map(_.as[PostcodeAddressFileAddress].headOption)
 
-  def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = client.execute{
+  def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = client.execute {
     search in nagIndex query { termQuery("uprn", uprn) }
   }.map(_.as[NationalAddressGazetteerAddress].headOption)
 

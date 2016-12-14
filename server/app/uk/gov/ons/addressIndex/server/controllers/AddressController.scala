@@ -53,10 +53,11 @@ class AddressController @Inject()(
         postcode = regex.findFirstIn(actualInput).getOrElse("Not recognised")
       )
       logger info s"#addressQuery parsed: postcode: ${tokens.postcode} , buildingNumber: ${tokens.buildingNumber}"
-      format.stringToScheme map {
-        case PostcodeAddressFile(_) => pafSearch(tokens) map(jsonOk[AddressBySearchResponseContainer])
-        case BritishStandard7666(_) => nagSearch(tokens) map(jsonOk[AddressBySearchResponseContainer])
-      } getOrElse futureJsonBadRequest(UnsupportedFormat)
+      val futureResp = format.stringToScheme map {
+        case PostcodeAddressFile(_) => pafSearch(tokens)
+        case BritishStandard7666(_) => nagSearch(tokens)
+      }
+      futureResp map(_.map(jsonOk[AddressBySearchResponseContainer])) getOrElse futureJsonBadRequest(UnsupportedFormat)
     } getOrElse futureJsonBadRequest(EmptySearch)
   }
 
@@ -69,9 +70,10 @@ class AddressController @Inject()(
     */
   def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#uprnQuery request called with uprn: $uprn , format: $format"
-    format.stringToScheme map {
-      case PostcodeAddressFile(_) => uprnPafSearch(uprn) map(jsonOk[AddressByUprnResponseContainer])
-      case BritishStandard7666(_) => uprnNagSearch(uprn) map(jsonOk[AddressByUprnResponseContainer])
-    } getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
+    val futureResp = format.stringToScheme map {
+      case PostcodeAddressFile(_) => uprnPafSearch(uprn)
+      case BritishStandard7666(_) => uprnNagSearch(uprn)
+    }
+    futureResp map(_.map(jsonOk[AddressByUprnResponseContainer])) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
   }
 }
