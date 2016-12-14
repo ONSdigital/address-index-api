@@ -63,7 +63,7 @@ class SingleMatchTest extends PlaySpec with Results {
       content must include(expectedString)
     }
 
-    "return a page including some search results" in new WithApplication {
+    "return a page including some search results" ignore new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
