@@ -1,11 +1,9 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.modules.{AddressParserModule, ElasticsearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Result}
-
 import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
@@ -13,7 +11,6 @@ import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response._
-
 import scala.util.matching.Regex
 
 /**
@@ -29,6 +26,13 @@ class AddressController @Inject()(
 )(implicit ec: ExecutionContext) extends AddressIndexController {
 
   val logger = Logger("address-index-server:AddressController")
+
+
+  def parserTest(): Action[AnyContent] = Action { implicit req =>
+    val test = parser.tag("31 exeter close wd24 4re")
+    test.map(i => logger.info(i.label))
+    Ok
+  }
 
   /**
     * Test elastic is connected
@@ -53,7 +57,7 @@ class AddressController @Inject()(
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#addressQuery called with input $input , format: $format"
 
-    logger info parser.tag(input)
+    parser.tag(input)
 
     if (input.isEmpty) {
       searchEmptyQueryReply
