@@ -54,7 +54,14 @@ class AddressControllerSpec extends PlaySpec with Results {
     uprn = "1",
     postcodeLocator = "B16 8TH",
     addressBasePostal = "3",
-    ursn = "4",
+    latitude = "24",
+    longitude = "25",
+    easting = "27",
+    northing = "28",
+    organisation = "22",
+    legalName = "23",
+    classificationCode = "29",
+    usrn = "4",
     lpiKey = "5",
     paoText = "6",
     paoStartNumber = "72",
@@ -72,10 +79,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     streetDescriptor = "19",
     townName = "20",
     locality = "21",
-    organisation = "22",
-    legalName = "23",
-    latitude = "24",
-    longitude = "25",
     score = 1.0f
   )
 

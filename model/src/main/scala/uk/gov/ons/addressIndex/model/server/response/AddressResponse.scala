@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 
 import scala.util.Try
@@ -20,7 +20,7 @@ case class AddressByUprnResponseContainer(
 )
 
 object AddressByUprnResponseContainer {
-  implicit val addressByUprnResponseContainerFormat: OFormat[AddressByUprnResponseContainer] =
+  implicit val addressByUprnResponseContainerFormat: Format[AddressByUprnResponseContainer] =
     Json.format[AddressByUprnResponseContainer]
 }
 
@@ -34,7 +34,7 @@ case class AddressByUprnResponse(
 )
 
 object AddressByUprnResponse {
-  implicit lazy val addressByUprnResponseFormat: OFormat[AddressByUprnResponse] = Json.format[AddressByUprnResponse]
+  implicit lazy val addressByUprnResponseFormat: Format[AddressByUprnResponse] = Json.format[AddressByUprnResponse]
 }
 
 /**
@@ -51,7 +51,7 @@ case class AddressBySearchResponseContainer(
 )
 
 object AddressBySearchResponseContainer {
-  implicit lazy val addressBySearchResponseContainerFormat: OFormat[AddressBySearchResponseContainer] =
+  implicit lazy val addressBySearchResponseContainerFormat: Format[AddressBySearchResponseContainer] =
     Json.format[AddressBySearchResponseContainer]
 }
 
@@ -73,7 +73,7 @@ case class AddressBySearchResponse(
 )
 
 object AddressBySearchResponse {
-  implicit lazy val addressBySearchResponseFormat: OFormat[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
+  implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
 }
 
 /**
@@ -90,7 +90,7 @@ case class AddressTokens(
 )
 
 object AddressTokens {
-  implicit lazy val addressTokensFormat: OFormat[AddressTokens] = Json.format[AddressTokens]
+  implicit lazy val addressTokensFormat: Format[AddressTokens] = Json.format[AddressTokens]
   /**
     * Empty tokens (when needed before address tokenization)
     */
@@ -123,7 +123,7 @@ case class AddressResponseAddress(
 )
 
 object AddressResponseAddress {
-  implicit lazy val addressResponseAddressFormat: OFormat[AddressResponseAddress] = Json.format[AddressResponseAddress]
+  implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
 
   /**
     * Transforms Paf address from elastic search into the Response address
@@ -185,7 +185,9 @@ object AddressResponseAddress {
     val geo: Try[AddressResponseGeo] = for {
       latitude <- Try(other.latitude.toDouble)
       longitude <- Try(other.longitude.toDouble)
-    } yield AddressResponseGeo(latitude, longitude, 0, 0)
+      easting <- Try(other.easting.toInt)
+      northing <- Try(other.northing.toInt)
+    } yield AddressResponseGeo(latitude, longitude, easting, northing)
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -195,25 +197,31 @@ object AddressResponseAddress {
         other.uprn,
         other.postcodeLocator,
         other.addressBasePostal,
-        other.ursn,
+        other.usrn,
         other.lpiKey,
-        other.paoText,
-        other.paoStartNumber,
-        other.paoStartSuffix,
-        other.paoEndNumber,
-        other.paoEndSuffix,
-        other.saoText,
-        other.saoStartNumber,
-        other.saoStartSuffix,
-        other.saoEndNumber,
-        other.saoEndSuffix,
+        pao = AddressResponsePao(
+          other.paoText,
+          other.paoStartNumber,
+          other.paoStartSuffix,
+          other.paoEndNumber,
+          other.paoEndSuffix
+        ),
+        sao = AddressResponseSao(
+          other.saoText,
+          other.saoStartNumber,
+          other.saoStartSuffix,
+          other.saoEndNumber,
+          other.saoEndSuffix
+        ),
         other.level,
+        other.officialFlag,
         other.logicalStatus,
         other.streetDescriptor,
         other.townName,
         other.locality,
         other.organisation,
-        other.legalName
+        other.legalName,
+        other.classificationCode
       )),
       geo = geo.toOption,
       underlyingScore = other.score,
@@ -278,27 +286,16 @@ case class AddressResponsePaf(
 )
 
 object AddressResponsePaf {
-  implicit lazy val addressResponsePafFormat: OFormat[AddressResponsePaf] = Json.format[AddressResponsePaf]
+  implicit lazy val addressResponsePafFormat: Format[AddressResponsePaf] = Json.format[AddressResponsePaf]
 }
 
 /**
   * @param uprn uprn
   * @param postcodeLocator postcode
   * @param addressBasePostal
-  * @param ursn ursn
+  * @param usrn ursn
   * @param lpiKey lpi key
-  * @param paoText building name
-  * @param paoStartNumber building number
-  * @param paoStartSuffix
-  * @param paoEndNumber
-  * @param paoEndSuffix
-  * @param saoText sub building name
-  * @param saoStartNumber sub building number
-  * @param saoStartSuffix
-  * @param saoEndNumber
-  * @param saoEndSuffix
   * @param level ground and first floor
-  * // The following one is removed until further notice
   * @param officialFlag
   * @param logicalStatus
   * @param streetDescriptor
@@ -306,34 +303,70 @@ object AddressResponsePaf {
   * @param locality
   * @param organisation
   * @param legalName
+  * @param classificationCode
   */
 case class AddressResponseNag(
   uprn: String,
   postcodeLocator: String,
   addressBasePostal: String,
-  ursn: String,
+  usrn: String,
   lpiKey: String,
-  paoText: String,
-  paoStartNumber: String,
-  paoStartSuffix: String,
-  paoEndNumber: String,
-  paoEndSuffix: String,
-  saoText: String,
-  saoStartNumber: String,
-  saoStartSuffix: String,
-  saoEndNumber: String,
-  saoEndSuffix: String,
+  pao: AddressResponsePao,
+  sao: AddressResponseSao,
   level: String,
+  officialFlag:String,
   logicalStatus: String,
   streetDescriptor: String,
   townName: String,
   locality: String,
   organisation: String,
-  legalName: String
+  legalName: String,
+  classificationCode: String
 )
 
 object AddressResponseNag {
-  implicit lazy val addressResponseNagFormat: OFormat[AddressResponseNag] = Json.format[AddressResponseNag]
+  implicit lazy val addressResponseNagFormat: Format[AddressResponseNag] = Json.format[AddressResponseNag]
+}
+
+/**
+  *
+  * @param paoText building name
+  * @param paoStartNumber building number
+  * @param paoStartSuffix
+  * @param paoEndNumber
+  * @param paoEndSuffix
+  */
+case class AddressResponsePao(
+  paoText: String,
+  paoStartNumber: String,
+  paoStartSuffix: String,
+  paoEndNumber: String,
+  paoEndSuffix: String
+)
+
+object AddressResponsePao {
+  implicit lazy val addressResponsePaoFormat: Format[AddressResponsePao] = Json.format[AddressResponsePao]
+}
+
+
+/**
+  *
+  * @param saoText sub building name
+  * @param saoStartNumber sub building number
+  * @param saoStartSuffix
+  * @param saoEndNumber
+  * @param saoEndSuffix
+  */
+case class AddressResponseSao(
+  saoText: String,
+  saoStartNumber: String,
+  saoStartSuffix: String,
+  saoEndNumber: String,
+  saoEndSuffix: String
+)
+
+object AddressResponseSao {
+  implicit lazy val addressResponseSaoFormat: Format[AddressResponseSao] = Json.format[AddressResponseSao]
 }
 
 /**
@@ -352,7 +385,7 @@ case class AddressResponseGeo(
 )
 
 object AddressResponseGeo {
-  implicit lazy val addressResponseGeoFormat: OFormat[AddressResponseGeo] = Json.format[AddressResponseGeo]
+  implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
 }
 
 /**
@@ -367,7 +400,7 @@ case class AddressResponseStatus(
 )
 
 object AddressResponseStatus {
-  implicit lazy val addressResponseStatusFormat: OFormat[AddressResponseStatus] = Json.format[AddressResponseStatus]
+  implicit lazy val addressResponseStatusFormat: Format[AddressResponseStatus] = Json.format[AddressResponseStatus]
 }
 
 object OkAddressResponseStatus extends AddressResponseStatus(
@@ -398,7 +431,7 @@ case class AddressResponseError(
 )
 
 object AddressResponseError {
-  implicit lazy val addressResponseErrorFormat: OFormat[AddressResponseError] = Json.format[AddressResponseError]
+  implicit lazy val addressResponseErrorFormat: Format[AddressResponseError] = Json.format[AddressResponseError]
 }
 
 object EmptyQueryAddressResponseError extends AddressResponseError(
