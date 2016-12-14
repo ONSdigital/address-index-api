@@ -4,7 +4,6 @@ import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
 
-
   val NoAddressFoundUprn = {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
@@ -15,7 +14,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val unsupportedFormatUprn = {
+  val UnsupportedFormatUprn = {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
         address = None
