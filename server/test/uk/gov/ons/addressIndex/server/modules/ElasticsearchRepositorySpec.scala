@@ -312,11 +312,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find PAF addresses by building number and a postcode" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = AddressTokens(
-        uprn = "4",
-        buildingNumber = "10",
-        postcode = "16"
-      )
+      val tokens = Seq.empty
+
+//        AddressTokens(
+//        uprn = "4",
+//        buildingNumber = "10",
+//        postcode = "16"
+//      )
       val expectedScore = 1.4142135f
       val expected = expectedPaf.copy(score = expectedScore)
 
@@ -332,11 +334,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find NAG addresses by building number and a postcode" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = AddressTokens(
-        uprn = "n1",
-        buildingNumber = "n7",
-        postcode = "n2"
-      )
+      val tokens = Seq.empty
+//        AddressTokens(
+//        uprn = "n1",
+//        buildingNumber = "n7",
+//        postcode = "n2"
+//      )
       val expectedScore = 1.4142135f
       val expected = expectedNag.copy(score = expectedScore)
 
