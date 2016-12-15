@@ -1,14 +1,9 @@
 package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
-<<<<<<< HEAD
-import play.api.libs.json.{Format, Json}
-=======
 import play.api.libs.json.{Format, Json, OFormat}
->>>>>>> adding implicit formats fot CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-
 import scala.util.Try
 
 /**

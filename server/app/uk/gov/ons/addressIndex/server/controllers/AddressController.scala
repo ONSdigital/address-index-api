@@ -1,9 +1,11 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressIndexCannedResponse, AddressParserModule, ElasticsearchRepository}
-import play.api.Logger
+import play.api.{Logger, Mode}
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.ElasticDsl._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
