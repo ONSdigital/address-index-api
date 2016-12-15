@@ -16,9 +16,7 @@ class AddressController @Inject()(
   parser: AddressParserModule
 )(
   implicit override val ec: ExecutionContext
-) extends PlayHelperController
-  with AddressIndexActions
-  with AddressIndexCannedResponse {
+) extends AddressIndexController with AddressIndexActions {
 
   val logger = Logger("address-index-server:AddressController")
 
