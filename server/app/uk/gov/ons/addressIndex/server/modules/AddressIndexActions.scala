@@ -88,9 +88,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * This is a PAF or NAG switch helper which can be used for creating a Future[Ok[Json]]
     *
     * @param formatStr the input format String
-    * @param pafInputForFn the input for pafFn
+    * @param inputForPafFn the input for pafFn
     * @param pafFn the function which will be called if the formatStr resolves to `PostcodeAddressFile`
-    * @param nagInputForFn  the input for nagFn
+    * @param inputForNagFn  the input for nagFn
     * @param nagFn the function which will be called if the formatStr resolves to `BritishStandard7666`
     * @tparam T the return type of the object which will be "PlayJson'd"
     * @tparam QueryInputType the input type for the Query
@@ -99,15 +99,15 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     */
   def formatQuery[T, QueryInputType](
     formatStr: String,
-    pafInputForFn: QueryInput[QueryInputType],
+    inputForPafFn: QueryInput[QueryInputType],
     pafFn: QueryInput[QueryInputType] => Future[T],
-    nagInputForFn: QueryInput[QueryInputType],
+    inputForNagFn: QueryInput[QueryInputType],
     nagFn: QueryInput[QueryInputType] => Future[T]
   )(implicit writes: Writes[T]): Option[Future[Result]] = {
     (
       formatStr.stringToScheme map {
-        case _: PostcodeAddressFile => pafFn(pafInputForFn)
-        case _: BritishStandard7666 => nagFn(nagInputForFn)
+        case _: PostcodeAddressFile => pafFn(inputForPafFn)
+        case _: BritishStandard7666 => nagFn(inputForNagFn)
       }
     ) map(_.map(jsonOk[T]))
   }

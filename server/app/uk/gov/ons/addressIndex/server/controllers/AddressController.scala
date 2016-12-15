@@ -49,9 +49,9 @@ class AddressController @Inject()(
       logger info s"#addressQuery parsed: ${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
       formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
         formatStr = format,
-        pafInputForFn = AddressQueryInput(tokens),
+        inputForPafFn = AddressQueryInput(tokens),
         pafFn = pafSearch,
-        nagInputForFn = AddressQueryInput(tokens),
+        inputForNagFn = AddressQueryInput(tokens),
         nagFn = nagSearch
       ) getOrElse futureJsonBadRequest(UnsupportedFormat)
     } getOrElse futureJsonBadRequest(EmptySearch)
@@ -68,9 +68,9 @@ class AddressController @Inject()(
     logger info s"#uprnQuery: uprn: $uprn , format: $format"
     formatQuery[AddressByUprnResponseContainer, String](
       formatStr = format,
-      pafInputForFn = UprnQueryInput(uprn),
+      inputForPafFn = UprnQueryInput(uprn),
       pafFn = uprnPafSearch,
-      nagInputForFn = UprnQueryInput(uprn),
+      inputForNagFn = UprnQueryInput(uprn),
       nagFn = uprnNagSearch
     ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
   }
