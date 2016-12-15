@@ -4,7 +4,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Controller, Result}
 import scala.concurrent.Future
 
-class PlayHelperController extends Controller {
+trait PlayHelperController extends Controller {
 
   /**
     * Use this instead of Future.successful(BadRequest(Json.toJson(toJsonable)))
