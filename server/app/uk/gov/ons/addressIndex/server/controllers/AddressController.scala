@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 class AddressController @Inject()(
   override val esRepo: ElasticsearchRepository,
   parser: AddressParserModule
-)(implicit ec: ExecutionContext) extends AddressIndexController with AddressIndexActions {
+)(implicit override val ec: ExecutionContext) extends AddressIndexController with AddressIndexActions {
 
   val logger = Logger("address-index-server:AddressController")
 
@@ -45,9 +45,9 @@ class AddressController @Inject()(
       logger info s"#addressQuery parsed: ${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
       formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
         formatStr = format,
-        pafInputForFn = tokens,
+        pafInputForFn = AddressQueryInput(tokens),
         pafFn = pafSearch,
-        nagInputForFn = tokens,
+        nagInputForFn = AddressQueryInput(tokens),
         nagFn = nagSearch
       ) getOrElse futureJsonBadRequest(UnsupportedFormat)
     } getOrElse futureJsonBadRequest(EmptySearch)
@@ -64,9 +64,9 @@ class AddressController @Inject()(
     logger info s"#uprnQuery: uprn: $uprn , format: $format"
     formatQuery[AddressByUprnResponseContainer, String](
       formatStr = format,
-      pafInputForFn = uprn,
+      pafInputForFn = UprnQueryInput(uprn),
       pafFn = uprnPafSearch,
-      nagInputForFn = uprn,
+      nagInputForFn = UprnQueryInput(uprn),
       nagFn = uprnNagSearch
     ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
   }
