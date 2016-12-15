@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import play.api.libs.json.Writes
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
@@ -7,6 +8,7 @@ import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -14,20 +16,24 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
   def esRepo: ElasticsearchRepository
 
   /**
+    * required for handing of Futures.
+    */
+  implicit def ec: ExecutionContext
+
+  /**
     * A simple type class which is used for distinction between query input types
     */
   sealed trait QueryInput[T] {
     def input: T
   }
-  implicit case class UprnQueryInput(override val input: String) extends QueryInput[String]
-  implicit case class AddressQueryInput(override val input: Seq[CrfTokenResult]) extends QueryInput[Seq[CrfTokenResult]]
+  case class UprnQueryInput(override val input: String) extends QueryInput[String]
+  case class AddressQueryInput(override val input: Seq[CrfTokenResult]) extends QueryInput[Seq[CrfTokenResult]]
 
   /**
     * @param tokens
-    * @param ec
     * @return
     */
-  def pafSearch(tokens: QueryInput[Seq[CrfTokenResult]])(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+  def pafSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
     esRepo queryPafAddresses tokens.input map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
       searchContainerTemplate(
         tokens = tokens.input,
@@ -39,10 +45,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
 
   /**
     * @param tokens
-    * @param ec
     * @return
     */
-  def nagSearch(tokens: QueryInput[Seq[CrfTokenResult]])(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+  def nagSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
     esRepo queryNagAddresses tokens.input map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
       searchContainerTemplate(
         tokens = tokens.input,
@@ -54,10 +59,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
 
   /**
     * @param uprn
-    * @param ec
     * @return
     */
-  def uprnPafSearch(uprn: QueryInput[String])(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
+  def uprnPafSearch(uprn: QueryInput[String]): Future[AddressByUprnResponseContainer] = {
     esRepo queryPafUprn uprn.input map {
       _.map { address =>
         searchUprnContainerTemplate(
@@ -69,10 +73,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
 
   /**
     * @param uprn
-    * @param ec
     * @return
     */
-  def uprnNagSearch(uprn: QueryInput[String])(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
+  def uprnNagSearch(uprn: QueryInput[String]): Future[AddressByUprnResponseContainer] = {
     esRepo queryNagUprn uprn.input map {
       _.map { address =>
         searchUprnContainerTemplate(
@@ -102,7 +105,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     pafFn: QueryInput[QueryInputType] => Future[T],
     nagInputForFn: QueryInput[QueryInputType],
     nagFn: QueryInput[QueryInputType] => Future[T]
-  ): Option[Future[Result]] = {
+  )(implicit writes: Writes[T]): Option[Future[Result]] = {
     (
       formatStr.stringToScheme map {
         case _: PostcodeAddressFile => pafFn(pafInputForFn)
