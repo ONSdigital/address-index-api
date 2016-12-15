@@ -5,6 +5,7 @@ import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
+import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 lazy val Versions = new {
   val elastic4s = "2.4.0"
@@ -121,7 +122,10 @@ lazy val `address-index-client` = project.in(file("client"))
 lazy val `address-index-server` = project.in(file("server"))
   .settings(localCommonSettings: _*).settings(
   libraryDependencies ++= serverDeps,
-  routesGenerator := InjectedRoutesGenerator
+  routesGenerator := InjectedRoutesGenerator,
+  Revolver.settings ++ Seq(
+    mainClass in reStart := Some("play.core.server.NettyServer")
+  )
 ).dependsOn(
   `address-index-model`
 //  ,`address-index-parsers`
