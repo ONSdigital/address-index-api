@@ -105,8 +105,8 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
   ): Option[Future[Result]] = {
     (
       formatStr.stringToScheme map {
-        case PostcodeAddressFile(_) => pafFn(pafInputForFn)
-        case BritishStandard7666(_) => nagFn(nagInputForFn)
+        case _: PostcodeAddressFile => pafFn(pafInputForFn)
+        case _: BritishStandard7666 => nagFn(nagInputForFn)
       }
     ) map(_.map(jsonOk[T]))
   }
