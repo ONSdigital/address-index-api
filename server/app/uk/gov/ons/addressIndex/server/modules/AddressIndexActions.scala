@@ -13,6 +13,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
 
   def esRepo: ElasticsearchRepository
 
+  /**
+    * A simple type class which is used for distinction between query input types
+    */
   sealed trait QueryInput[T] {
     def input: T
   }
@@ -81,7 +84,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
 
 
   /**
-    * This is a PAF or NAG switch helper which can be used for
+    * This is a PAF or NAG switch helper which can be used for creating a Future[Ok[Json]]
     *
     * @param formatStr the input format String
     * @param pafInputForFn the input for pafFn
