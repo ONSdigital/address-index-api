@@ -1,13 +1,12 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.ons.addressIndex.server.modules.{AddressActions, AddressParserModule, ElasticsearchRepository}
+import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticsearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.ElasticDsl._
-import uk.gov.ons.addressIndex.model.AddressScheme._
-import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
 
@@ -15,7 +14,7 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 class AddressController @Inject()(
   override val esRepo: ElasticsearchRepository,
   parser: AddressParserModule
-)(implicit ec: ExecutionContext) extends AddressIndexController with AddressActions {
+)(implicit ec: ExecutionContext) extends AddressIndexController with AddressIndexActions {
 
   val logger = Logger("address-index-server:AddressController")
 
@@ -44,11 +43,13 @@ class AddressController @Inject()(
     input.toOption map { actualInput =>
       val tokens = parser tag actualInput
       logger info s"#addressQuery parsed: ${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
-      val futureResp = format.stringToScheme map {
-        case PostcodeAddressFile(_) => pafSearch(tokens)
-        case BritishStandard7666(_) => nagSearch(tokens)
-      }
-      futureResp map(_.map(jsonOk[AddressBySearchResponseContainer])) getOrElse futureJsonBadRequest(UnsupportedFormat)
+      formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
+        formatStr = format,
+        pafInputForFn = tokens,
+        pafFn = pafSearch,
+        nagInputForFn = tokens,
+        nagFn = nagSearch
+      ) getOrElse futureJsonBadRequest(UnsupportedFormat)
     } getOrElse futureJsonBadRequest(EmptySearch)
   }
 
@@ -61,10 +62,12 @@ class AddressController @Inject()(
     */
   def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#uprnQuery: uprn: $uprn , format: $format"
-    val futureResp = format.stringToScheme map {
-      case PostcodeAddressFile(_) => uprnPafSearch(uprn)
-      case BritishStandard7666(_) => uprnNagSearch(uprn)
-    }
-    futureResp map(_.map(jsonOk[AddressByUprnResponseContainer])) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
+    formatQuery[AddressByUprnResponseContainer, String](
+      formatStr = format,
+      pafInputForFn = uprn,
+      pafFn = uprnPafSearch,
+      nagInputForFn = uprn,
+      nagFn = uprnNagSearch
+    ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
   }
 }
