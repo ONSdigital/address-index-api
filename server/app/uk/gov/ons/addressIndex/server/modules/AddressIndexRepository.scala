@@ -91,7 +91,10 @@ class AddressIndexRepository @Inject()(
         )
       }
     } map { response =>
-      PostcodeAddressFileAddresses(response.as[PostcodeAddressFileAddress], response.maxScore)
+      PostcodeAddressFileAddresses(
+        addresses = response.as[PostcodeAddressFileAddress],
+        maxScore = response.maxScore
+      )
     }
   }
 
@@ -112,7 +115,10 @@ class AddressIndexRepository @Inject()(
         )
       }
     } map { response =>
-      NationalAddressGazetteerAddresses(response.as[NationalAddressGazetteerAddress], response.maxScore)
+      NationalAddressGazetteerAddresses(
+        addresses = response.as[NationalAddressGazetteerAddress],
+        maxScore = response.maxScore
+      )
     }
   }
 }
