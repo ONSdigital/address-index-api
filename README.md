@@ -16,7 +16,7 @@
 * For Windows put double quotes around complete args string e.g. `sbt "-Des.path.home=C:\\\es\\\data"`
 * `project address-index-server`
 * `re-start` utilise sbt-revolver, we have some eager singletons which load share objects
-* Go to web browser [localhost:9000](localhost:9000)
+* Go to web browser `localhost:9000`
 
 ### Contribution guidelines ###
 
