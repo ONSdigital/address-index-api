@@ -7,11 +7,12 @@ import scala.concurrent.Future
 class PlayHelperController extends Controller {
 
   /**
+    * Use this instead of Future.successful(BadRequest(Json.toJson(toJsonable)))
     *
-    * @param toJsonable
-    * @param writes
-    * @tparam T
-    * @return
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a Future BadRequest with a Json body
     */
   def futureJsonBadRequest[T](toJsonable: T)(implicit writes: Writes[T]): Future[Result] = {
     futureJson[T](
@@ -21,11 +22,12 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Use this instead of BadRequest(Json.toJson(toJsonable))
     *
-    * @param toJsonable
-    * @param writes
-    * @tparam T
-    * @return
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a BadRequest with a Json body
     */
   def jsonBadRequest[T](toJsonable: T)(implicit writes: Writes[T]): Result = {
     json[T](
@@ -35,11 +37,12 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Use this instead of Future.successful(NotFound(Json.toJson(toJsonable)))
     *
-    * @param toJsonable
-    * @param writes
-    * @tparam T
-    * @return
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a Future NotFound with a Json body
     */
   def futureJsonNotFound[T](toJsonable: T)(implicit writes: Writes[T]): Future[Result] = {
     futureJson[T](
@@ -49,11 +52,12 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Use this instead of NotFound(Json.toJson(toJsonable))
     *
-    * @param toJsonable
-    * @param writes
-    * @tparam T
-    * @return
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a NotFound with a Json body
     */
   def jsonNotFound[T](toJsonable: T)(implicit writes: Writes[T]): Result = {
     json[T](
@@ -63,11 +67,12 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Use this instead of Future.successful(Ok(Json.toJson(toJsonable)))
     *
-    * @param toJsonable
-    * @param writes
-    * @tparam T
-    * @return
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a Future Ok with a Json body
     */
   def futureJsonOk[T](toJsonable: T)(implicit writes: Writes[T]): Future[Result] = {
     futureJson[T](
@@ -77,11 +82,12 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Use this instead of Ok(Json.toJson(toJsonable))
     *
-    * @param toJsonable
-    * @param writes
-    * @tparam T
-    * @return
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a Ok with a Json body
     */
   def jsonOk[T](toJsonable: T)(implicit writes: Writes[T]): Result = {
     json[T](
@@ -91,6 +97,7 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Helper for creating Future.successful(Status(Json.toJson(toJsonable)))
     *
     * @param status
     * @param toJsonable
@@ -103,6 +110,7 @@ class PlayHelperController extends Controller {
   }
 
   /**
+    * Helper for creating Status(Json.toJson(toJsonable))
     *
     * @param status
     * @param toJsonable
