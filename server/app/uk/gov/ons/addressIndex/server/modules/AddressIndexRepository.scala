@@ -76,11 +76,11 @@ class AddressIndexRepository @Inject()(
         must(
           matchQuery(
             field = "buildingNumber",
-            value = tokens.buildingNumber
+            value = ""//tokens.buildingNumber
           ),
           matchQuery(
             field = "postcode",
-            value = tokens.postcode
+            value = ""//tokens.postcode
           )
         )
       )
@@ -93,11 +93,11 @@ class AddressIndexRepository @Inject()(
         must(
           matchQuery(
             field = "paoStartNumber",
-            value = tokens.buildingNumber
+            value = ""//okens.buildingNumber
           ),
           matchQuery(
             field = "postcodeLocator",
-            value = tokens.postcode
+            value = ""//tokens.postcode
           )
         )
       )
