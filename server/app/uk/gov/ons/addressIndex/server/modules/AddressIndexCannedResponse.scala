@@ -71,7 +71,7 @@ trait AddressIndexCannedResponse {
 
   val Error: AddressBySearchResponse = {
     AddressBySearchResponse(
-      AddressTokens.empty,
+      Seq.empty,
       addresses = Seq.empty,
       limit = Limit,
       offset = 0,
