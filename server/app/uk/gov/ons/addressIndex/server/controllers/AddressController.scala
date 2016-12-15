@@ -43,7 +43,7 @@ class AddressController @Inject()(
     logger info s"#addressQuery: input $input , format: $format"
     input.toOption map { actualInput =>
       val tokens = parser tag actualInput
-      logger info s"#addressQuery parsed: ${tokens.mkString(" ")}"
+      logger info s"#addressQuery parsed: ${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
       val futureResp = format.stringToScheme map {
         case PostcodeAddressFile(_) => pafSearch(tokens)
         case BritishStandard7666(_) => nagSearch(tokens)
