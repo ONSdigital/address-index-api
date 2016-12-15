@@ -62,45 +62,57 @@ class AddressIndexRepository @Inject()(
   private val nagIndex = esConf.indexes.nagIndex
   val client: ElasticClient = elasticClientProvider.client
 
-  def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = client.execute {
-    search in pafIndex query { termQuery("uprn", uprn) }
-  }.map(_.as[PostcodeAddressFileAddress].headOption)
+  def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = {
+    client execute {
+      search in pafIndex query { termQuery("uprn", uprn) }
+    } map(_.as[PostcodeAddressFileAddress].headOption)
+  }
 
-  def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = client.execute {
-    search in nagIndex query { termQuery("uprn", uprn) }
-  }.map(_.as[NationalAddressGazetteerAddress].headOption)
+  def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = {
+    client execute {
+      search in nagIndex query { termQuery("uprn", uprn) }
+    } map(_.as[NationalAddressGazetteerAddress].headOption)
+  }
 
-  def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses] = client.execute {
-    search in pafIndex query {
-      bool(
-        must(
-          matchQuery(
-            field = "buildingNumber",
-            value = ""//tokens.buildingNumber
-          ),
-          matchQuery(
-            field = "postcode",
-            value = ""//tokens.postcode
+  def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses] = {
+    client execute {
+      search in pafIndex query {
+        bool(
+          must(
+            matchQuery(
+              field = "buildingNumber",
+              value = ""//tokens.buildingNumber
+            ),
+            matchQuery(
+              field = "postcode",
+              value = ""//tokens.postcode
+            )
           )
         )
-      )
+      }
+    } map { response =>
+      PostcodeAddressFileAddresses(response.as[PostcodeAddressFileAddress], response.maxScore)
     }
-  }.map(response => PostcodeAddressFileAddresses(response.as[PostcodeAddressFileAddress], response.maxScore))
+  }
 
-  def queryNagAddresses(tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses] = client.execute {
-    search in nagIndex query {
-      bool(
-        must(
-          matchQuery(
-            field = "paoStartNumber",
-            value = ""//okens.buildingNumber
-          ),
-          matchQuery(
-            field = "postcodeLocator",
-            value = ""//tokens.postcode
+  def queryNagAddresses(tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses] = {
+    client execute {
+      search in nagIndex query {
+        bool(
+          must(
+            matchQuery(
+              field = "paoStartNumber",
+              value = ""//okens.buildingNumber
+            ),
+            matchQuery(
+              field = "postcodeLocator",
+              value = ""//tokens.postcode
+            )
           )
         )
-      )
+      }
+    } map { response =>
+      NationalAddressGazetteerAddresses(response.as[NationalAddressGazetteerAddress], response.maxScore)
     }
-  }.map(response => NationalAddressGazetteerAddresses(response.as[NationalAddressGazetteerAddress], response.maxScore))
+  }
 }
