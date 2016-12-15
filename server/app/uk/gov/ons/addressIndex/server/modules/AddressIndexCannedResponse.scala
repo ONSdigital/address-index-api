@@ -5,7 +5,7 @@ import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
 
-  val Limit: Int = 10
+  def Limit: Int = 10
 
   def searchContainerTemplate(
     tokens: Seq[CrfTokenResult],
@@ -33,7 +33,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val NoAddressFoundUprn: AddressByUprnResponseContainer= {
+  def NoAddressFoundUprn: AddressByUprnResponseContainer= {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
         address = None
@@ -43,7 +43,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val UnsupportedFormatUprn: AddressByUprnResponseContainer = {
+  def UnsupportedFormatUprn: AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       response = AddressByUprnResponse(
         address = None
@@ -53,7 +53,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val UnsupportedFormat: AddressBySearchResponseContainer = {
+  def UnsupportedFormat: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
       status = BadRequestAddressResponseStatus,
@@ -61,7 +61,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val EmptySearch: AddressBySearchResponseContainer = {
+  def EmptySearch: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
       status = BadRequestAddressResponseStatus,
@@ -69,7 +69,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  val Error: AddressBySearchResponse = {
+  def Error: AddressBySearchResponse = {
     AddressBySearchResponse(
       Seq.empty,
       addresses = Seq.empty,
