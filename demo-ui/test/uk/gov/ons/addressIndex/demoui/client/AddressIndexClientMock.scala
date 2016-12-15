@@ -1,0 +1,82 @@
+package uk.gov.ons.addressIndex.demoui.client
+
+import javax.inject.{Inject, Singleton}
+
+import play.api.libs.ws.WSClient
+import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
+import uk.gov.ons.addressIndex.model.server.response._
+
+import scala.concurrent.{ExecutionContext, Future}
+
+@Singleton
+class AddressIndexClientMock @Inject()(override val client : WSClient,
+                                           conf : DemouiConfigModule) extends AddressIndexClientInstance(client,conf) {
+  //  set config entry to "http://localhost:9001" to run locally
+  //  set config entry to "https://addressindexapitest.cfapps.io" to run from cloud
+  override def host: String = conf.config.apiURL
+
+  val mockAddressResponseStatus = AddressResponseStatus(
+    code = 200,
+    message = "OK"
+  )
+
+  val mockAddressTokens = AddressTokens(
+    uprn = "",
+    buildingNumber = "7",
+    postcode = "EX2 9GA"
+  )
+
+  val mockPafAddress1 = AddressResponsePaf(
+    udprn = "",
+    organisationName = "",
+    departmentName = "",
+    subBuildingName = "",
+    buildingName = "",
+    buildingNumber = "7",
+    dependentThoroughfare = "GATE REACH",
+    thoroughfare = "",
+    doubleDependentLocality = "",
+    dependentLocality = "",
+    postTown = "EXETER",
+    postcode = "PO7 6GA",
+    postcodeType = "",
+    deliveryPointSuffix = "",
+    welshDependentThoroughfare = "",
+    welshThoroughfare = "",
+    welshDoubleDependentLocality = "",
+    welshDependentLocality = "",
+    welshPostTown = "",
+    poBoxNumber = "",
+    startDate = "",
+    endDate = ""
+  )
+
+  val mockAddressResponseAddress = AddressResponseAddress(
+    uprn = "",
+    formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
+    paf = Some(mockPafAddress1),
+    nag = None,
+    geo = None,
+    underlyingScore = 1.0f,
+    underlyingMaxScore =  1.0f
+  )
+
+  val mockAddressBySearchResponse =  AddressBySearchResponse (
+    tokens = mockAddressTokens,
+    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    limit = 1,
+    offset = 1,
+    total = 1
+  )
+
+  val mockSearchResponseContainer = AddressBySearchResponseContainer (
+    response = mockAddressBySearchResponse,
+    status = mockAddressResponseStatus,
+    errors = Seq.empty[AddressResponseError]
+  )
+
+
+  override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
+    Future.successful(mockSearchResponseContainer)
+}

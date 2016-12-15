@@ -65,7 +65,7 @@ class SingleMatchController @Inject()(
           Ok(viewToRender)
       )
     } else {
-      Logger.info("Single Match with supplied input address" + addressText)
+      Logger.info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
           format = PostcodeAddressFile("paf"),

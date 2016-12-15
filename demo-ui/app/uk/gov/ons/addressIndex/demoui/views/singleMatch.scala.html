@@ -36,35 +36,56 @@
             @aresponse.addresses.map{ address =>
             <div class="panel panel-match address-panel">
                 <div class="result-content">
-                    <div class="alert alert-success" role="alert">
-                        <table class="matchResults">
-                            <tr>
-                                <td class="match-score">@messages("single.matchscore"): @address.underlyingScore</td>
-                                <td class="match-conf">
-                                    @messages("single.confidence"):
-                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 50) "#c6ffb3" else "#ffcccc") { color =>
-                                <span style="background-color: @color">
+                    <div class="alert alert-success">
+                        <div class="matchResults">
+                            <div class="resultRow">
+                                  <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                    (
+                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
+                                    <span style="background-color: @color">
                                     }
-                                    @{(address.underlyingScore / address.underlyingMaxScore) * 100}</span></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="formatted-address-txt"><strong>@messages("single.address"): </strong>
+                                    @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
+                            </div>
+                            <div class="resultRow">
+                                <div class=formattedAdress"><strong>@messages("single.address"): </strong>
+                                @if(address.formattedAddress isEmpty){
                                     @address.paf.map{ paf =>
-                                        @paf.buildingName &nbsp;
-                                        @paf.buildingNumber,
-                                        @paf.thoroughfare,
-                                        @paf.dependentLocality
-                                        @paf.postTown,
-                                        @paf.postcode
+                                    @paf.buildingName &nbsp;
+                                    @paf.buildingNumber,
+                                    @paf.thoroughfare,
+                                    @paf.dependentLocality
+                                    @paf.postTown,
+                                    @paf.postcode
                                     }
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</td>
-                                <td class="map-link-txt">
-                                    <a href="https://www.google.co.uk/maps/place/@address.paf.map{paf=>@paf.buildingNumber+@paf.thoroughfare+@paf.postTown+@paf.postcode.replace(' ','+')}" target="_blank">Open Map</a></td>
-                            </tr>
-                        </table>
+                                } else {
+                                    @address.formattedAddress
+                                }
+                                </div>
+                            </div>
+                            <div class="resultRow">
+                                <div class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+                                @if(address.geo.isEmpty){
+                                    <div class="map-link-txt">
+                                        <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>
+                                    </div>
+                                } else {
+                                    <div class="map-link-txt">
+                                        <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">Open Map</a></td>
+                                    </div>
+                                }
+                            </div>
+                            <div class="resultRow">
+                                <div class="classification"><strong>Classification: </strong>
+                                    @if(address.nag.isEmpty){
+                                        @messages("category.R")
+                                    } else {
+                                        @address.nag.map{ nag =>
+                                        @nag.classificationCode
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>}

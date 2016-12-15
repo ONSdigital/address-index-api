@@ -39,13 +39,17 @@ case class IndexesConfig(
 )
 
 case class DemouiConfig (
-   defaultLanguage: String,
-   apiURL: String
+  customErrorDev: Boolean,
+  customErrorTest: Boolean,
+  customErrorProd: Boolean,
+  apiURL: String
 )
 
 object DemouiConfig {
   val default : DemouiConfig = DemouiConfig(
-    defaultLanguage = "en",
+    customErrorDev = false,
+    customErrorTest = false,
+    customErrorProd = true,
     apiURL = ""
   )
 }
