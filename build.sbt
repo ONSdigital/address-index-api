@@ -105,6 +105,8 @@ lazy val `address-index` = project.in(file("."))
 lazy val `address-index-model` = project.in(file("model"))
   .settings(localCommonSettings: _*).settings(
   libraryDependencies ++= modelDeps
+).dependsOn(
+  `address-index-parsers`
 )
 
 lazy val `address-index-client` = project.in(file("client"))
@@ -121,8 +123,8 @@ lazy val `address-index-server` = project.in(file("server"))
   libraryDependencies ++= serverDeps,
   routesGenerator := InjectedRoutesGenerator
 ).dependsOn(
-  `address-index-model`,
-  `address-index-parsers`
+  `address-index-model`
+//  ,`address-index-parsers`
 ).enablePlugins(
   PlayScala,
   SbtWeb,
