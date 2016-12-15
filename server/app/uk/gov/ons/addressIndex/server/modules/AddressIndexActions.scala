@@ -8,7 +8,6 @@ import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -84,7 +83,6 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
       } getOrElse NoAddressFoundUprn
     }
   }
-
 
   /**
     * This is a PAF or NAG switch helper which can be used for creating a Future[Ok[Json]]
