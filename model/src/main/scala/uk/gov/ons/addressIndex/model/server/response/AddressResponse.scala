@@ -174,7 +174,7 @@ object AddressResponseAddress {
     Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
       paf.buildingNumber, poBoxNumber, paf.dependentThoroughfare, paf.thoroughfare,
       paf.doubleDependentLocality, paf.dependentLocality, paf.postTown, paf.postcode
-    ).filter(_.nonEmpty).mkString(" ")
+    ).map(_.trim).filter(_.nonEmpty).mkString(" ")
   }
 
   /**
@@ -245,17 +245,19 @@ object AddressResponseAddress {
     val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
     val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
-    val saoNumbers = s"${nag.saoStartNumber}${nag.saoStartSuffix}$saoHyphen${nag.saoEndNumber}${nag.saoEndSuffix}"
+    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
+      .map(_.trim).mkString
     val sao = if (nag.saoText == nag.organisation) saoNumbers else s"$saoNumbers ${nag.saoText}"
 
     val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
     val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
     val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
-    val paoNumbers = s"${nag.paoStartNumber}${nag.paoStartSuffix}$paoHyphen${nag.paoEndNumber}${nag.paoEndSuffix}"
+    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
+      .map(_.trim).mkString
     val pao = if (nag.paoText == nag.organisation) paoNumbers else s"${nag.paoText} $paoNumbers"
 
     Seq(nag.organisation, sao, pao, nag.streetDescriptor, nag.locality,
-      nag.townName, nag.postcodeLocator).filter(_.nonEmpty).mkString(" ")
+      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(" ")
   }
 
   def fromNagAddress(other: NationalAddressGazetteerAddress): AddressResponseAddress = fromNagAddress(1.0f)(other)
