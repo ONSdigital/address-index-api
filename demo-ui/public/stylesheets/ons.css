@@ -63,6 +63,15 @@ p.toptext {
     text-align: left;
 }
 
+.panel-title-error {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 120px;
+    text-align: left;
+    color: darkred;
+}
+
 .address-panel {
     margin: 10px;
 }
@@ -81,10 +90,16 @@ p.toptext {
 .panel-match {
     margin-top: 0px;
     margin-bottom: 10px;
-    min-width: 302px;
+    min-width: 300px;
     max-width: 600px;
-    border:1px solid #ddd;
-    padding: 10px;
+    border-bottom:2px solid #ddd;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    padding-bottom: 20px;
+    padding-top: 2px;
+    padding-left: 2px;
+    padding-right: 2px
 }
 
 .panel-warning {
@@ -266,16 +281,63 @@ h3.green {
     padding-left:7px;
 }
 
-table.matchResults{
+div.matchResults{
     width: 100%;
 }
 
-td.match-conf{
-    text-align:right;
+div.classification{
+    text-align:left;
+    float: left;
+    width: 100%;
 }
 
-td.map-link-txt{
+div.match-conf{
     text-align:right;
+    white-space:nowrap;
+    float: left;
+    width: 100%;
 }
 
+div.formattedAddress{
+    float: left;
+    width: 100%;
+}
+
+div.uprn-txt{
+    white-space:nowrap;
+    text-align:left;
+    float: left;
+    width: 70%;
+}
+
+div.map-link-txt{
+    text-align:right;
+    float: left;
+    width: 30%;
+}
+
+div.resultRow{
+    padding-top: 4px;
+    padding-bottom: 4px;
+    clear: both;
+    min-height:24px;
+}
+
+.map-link-txt a:link {
+    color: #489DC4;
+}
+
+.map-link-txt a:hover {
+    color: #4c2c92 ;
+}
+
+p.messageDetail{
+    margin-top:0px;
+    -webkit-margin-before: 0em;
+    color:darkred;
+}
+
+p.errorBody{
+    color: darkred;
+}
 

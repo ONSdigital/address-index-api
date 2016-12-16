@@ -38,14 +38,30 @@ case class IndexesConfig(
   nagIndex: String
 )
 
+case class ApiConfig(
+  host: String,
+  port: Int
+)
+
+object ApiConfig{
+  val default: ApiConfig = ApiConfig(
+  host = "http://localhost",
+  port = 9001
+  )
+}
+
 case class DemouiConfig (
-   defaultLanguage: String,
-   apiURL: String
+  customErrorDev: Boolean,
+  customErrorTest: Boolean,
+  customErrorProd: Boolean,
+apiURL: ApiConfig
 )
 
 object DemouiConfig {
   val default : DemouiConfig = DemouiConfig(
-    defaultLanguage = "en",
-    apiURL = ""
+    customErrorDev = false,
+    customErrorTest = false,
+    customErrorProd = true,
+    apiURL = ApiConfig.default
   )
 }
