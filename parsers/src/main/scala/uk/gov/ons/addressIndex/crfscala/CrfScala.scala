@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.crfscala
 
+import uk.gov.ons.addressIndex.parsers.Tokens.Token
+
 /**
   * scala wrapper of crfsuite
   *
@@ -27,8 +29,8 @@ object CrfScala {
   trait CrfFeaturable
 
   case class CrfTokenResult(
-    value: CrfToken,
-    label: FeatureName
+    value: Input,
+    label: Token
   )
 
   //todo scaladoc

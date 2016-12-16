@@ -6,7 +6,7 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, Input}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
@@ -82,23 +82,31 @@ class AddressIndexRepository @Inject()(
     tokens.filter(_.label == token).map(_.value).mkString(" ")
   }
 
+  private def collapseTokens(tokens: Seq[CrfTokenResult]): Map[Token, Input] = {
+    tokens.groupBy(_.label).map(e => e._1 -> e._2.mkString(" "))
+  }
+
+  def tokensToMatchQueries(tokens: Seq[CrfTokenResult], tokenFieldMap: Map[Token, String]): Iterable[QueryDefinition] = {
+    collapseTokens(tokens) flatMap { case (tkn, input) =>
+      tokenFieldMap get tkn map { pafField =>
+        matchQuery(
+          field = pafField,
+          value = input
+        )
+      }
+    }
+  }
+
   def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses] = {
     client execute {
       search in pafIndex query {
         bool(
           must(
-            matchQuery(
-              field = "buildingNumber",
-              value = getTokenValue(
-                token = Tokens.BuildingNumber,
-                tokens = tokens
-              )
-            ),
-            matchQuery(
-              field = "postcode",
-              value = getTokenValue(
-                token = Tokens.Postcode,
-                tokens = tokens
+            tokensToMatchQueries(
+              tokens = tokens,
+              tokenFieldMap = Map(
+                Tokens.BuildingNumber -> "buildingNumber",
+                Tokens.Postcode -> "postCode"
               )
             )
           )
@@ -117,13 +125,12 @@ class AddressIndexRepository @Inject()(
       search in nagIndex query {
         bool(
           must(
-            matchQuery(
-              field = "paoStartNumber",
-              value = ""//okens.buildingNumber
-            ),
-            matchQuery(
-              field = "postcodeLocator",
-              value = ""//tokens.postcode
+            tokensToMatchQueries(
+              tokens = tokens,
+              tokenFieldMap = Map(
+                Tokens.BuildingNumber -> "paoStartNumber",
+                Tokens.Postcode -> "postcodeLocator"
+              )
             )
           )
         )

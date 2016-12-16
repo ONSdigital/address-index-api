@@ -14,7 +14,7 @@ trait AddressIndexCannedResponse {
   ): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = AddressBySearchResponse(
-        tokens = tokens,
+        tokens = tokens.groupBy(_.label).map(x => x._1 -> x._2.map(_.value).mkString(" ")).map(p => CrfTokenResult(p._2, p._1)).toSeq,
         addresses = addresses,
         limit = Limit,
         offset = 0,
