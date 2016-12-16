@@ -9,12 +9,23 @@ trait CrfParser {
   val crfScala: CrfScalaJniImpl = new CrfScalaJniImpl()
 
   //TODO scaladoc
-  def tag(i: Input, features: CrfFeatures, tokenable: CrfTokenable): String = {
+  def tag(input: Input, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
+    //todo optimise file
     val currentDirectory = new java.io.File(".").getCanonicalPath
     val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
-    val actual = parse(i, features, tokenable)
+    val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
-    crfScala.tag(modelPath, augmentedActual)
+    val resp = crfScala.tag(modelPath, augmentedActual)
+    val tokenResults = resp.split(CrfScalaJni.lineEnd)
+    val tokens = tokenable(input).toSeq
+
+    tokens.zipWithIndex.map { case (token, i) =>
+      val result = tokenResults(i)
+      CrfTokenResult(
+        value = token,
+        label = result.split(": ")(0)
+      )
+    }
   }
 
   def augmentCrfJniInput(crfJniInput: CrfJniInput): CrfJniInput = {
