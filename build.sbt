@@ -127,7 +127,7 @@ lazy val `address-index-server` = project.in(file("server"))
     libraryDependencies ++= serverDeps,
     routesGenerator := InjectedRoutesGenerator,
     Revolver.settings ++ Seq(
-      mainClass in reStart := Some("play.core.server.NettyServer")
+      mainClass in reStart := Some("play.core.server.ProdServerStart")
     )
   )
   .dependsOn(

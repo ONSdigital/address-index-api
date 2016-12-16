@@ -1,12 +1,16 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.parsers.Tokens.Token
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
@@ -74,6 +78,10 @@ class AddressIndexRepository @Inject()(
     } map(_.as[NationalAddressGazetteerAddress].headOption)
   }
 
+  private def getTokenValue(token: Token, tokens: Seq[CrfTokenResult]): String = {
+    tokens.filter(_.label == token).map(_.value).mkString(" ")
+  }
+
   def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses] = {
     client execute {
       search in pafIndex query {
@@ -81,11 +89,17 @@ class AddressIndexRepository @Inject()(
           must(
             matchQuery(
               field = "buildingNumber",
-              value = ""//tokens.buildingNumber
+              value = getTokenValue(
+                token = Tokens.BuildingNumber,
+                tokens = tokens
+              )
             ),
             matchQuery(
               field = "postcode",
-              value = ""//tokens.postcode
+              value = getTokenValue(
+                token = Tokens.Postcode,
+                tokens = tokens
+              )
             )
           )
         )

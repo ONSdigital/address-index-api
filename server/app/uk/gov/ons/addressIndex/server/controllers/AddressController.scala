@@ -1,11 +1,9 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
-import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressIndexCannedResponse, AddressParserModule, ElasticsearchRepository}
-import play.api.{Logger, Mode}
+import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticsearchRepository}
+import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-
 import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.ElasticDsl._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
@@ -43,10 +41,10 @@ class AddressController @Inject()(
     * @return Json response with addresses information
     */
   def addressQuery(input: String, format: String): Action[AnyContent] = Action async { implicit req =>
-    logger info s"#addressQuery: input $input , format: $format"
+    logger info s"#addressQuery:\ninput $input , format: $format"
     input.toOption map { actualInput =>
       val tokens = parser tag actualInput
-      logger info s"#addressQuery parsed: ${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
+      logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
       formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
         formatStr = format,
         inputForPafFn = AddressQueryInput(tokens),
