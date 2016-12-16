@@ -14,7 +14,7 @@
         @navigation()
         </div>
         @warningMessage.map { message =>
-        <div class="panel panel-warning address-panel">
+        <div id="warning-message" class="panel panel-warning address-panel">
             <div class="result-content">
                 <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
             </div>
@@ -24,22 +24,22 @@
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
-                <div class="search-bar-active">
+                <div id="search-form" class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
                 </div>
                 }
             </div>
             @addressBySearchResponse.map { aresponse =>
-            <div class="panel panel-single address-panel">
+            <div id="match-count" class="panel panel-single address-panel">
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
             </div>
             @aresponse.addresses.map{ address =>
-            <div class="panel panel-match address-panel">
+            <div id = "match-results" class="panel panel-match address-panel">
                 <div class="result-content">
                     <div class="alert alert-success">
                         <div class="matchResults">
                             <div class="resultRow">
-                                  <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
                                     (
                                     @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
                                     <span style="background-color: @color">
@@ -47,7 +47,7 @@
                                     @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
                             </div>
                             <div class="resultRow">
-                                <div class=formattedAdress"><strong>@messages("single.address"): </strong>
+                                <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
                                 @if(address.formattedAddress isEmpty){
                                     @address.paf.map{ paf =>
                                     @paf.buildingName &nbsp;
@@ -63,13 +63,13 @@
                                 </div>
                             </div>
                             <div class="resultRow">
-                                <div class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+                                <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
                                 @if(address.geo.isEmpty){
-                                    <div class="map-link-txt">
+                                    <div id="maplink-dummy" class="map-link-txt">
                                         <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>
                                     </div>
                                 } else {
-                                    <div class="map-link-txt">
+                                    <div id="maplink-real" class="map-link-txt">
                                         <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">Open Map</a></td>
                                     </div>
                                 }
