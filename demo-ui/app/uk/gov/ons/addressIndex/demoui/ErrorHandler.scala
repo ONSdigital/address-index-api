@@ -13,16 +13,25 @@ import play.api.mvc.Results._
 import play.api.Mode.Mode
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
+/**
+  * Error Handler class for Demo UI - creates tidy error pages
+  * and allows default error handler to be used instead as required
+  * @param messagesApi
+  * @param environment
+  * @param conf
+  * @param defaultHttpErrorHandler
+  */
 @Singleton
-class ErrorHandler @Inject() (val messagesApi: MessagesApi,
-                                  environment: Environment,
-                                  conf : DemouiConfigModule,
-                                  defaultHttpErrorHandler: DefaultHttpErrorHandler
-                              ) extends HttpErrorHandler with I18nSupport {
+class ErrorHandler @Inject() (
+  val messagesApi: MessagesApi,
+  environment: Environment,
+  conf : DemouiConfigModule,
+  defaultHttpErrorHandler: DefaultHttpErrorHandler
+) extends HttpErrorHandler with I18nSupport {
 
   val logger = Logger("ErrorHandler")
 
-  val mode : Mode = environment.mode
+  val mode: Mode = environment.mode
 
   // Boolean to determine whether or not to use custom error processing
   // Settings for each mode come from application.conf file
@@ -30,17 +39,29 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi,
     case Mode.Dev => conf.config.customErrorDev
     case Mode.Test => conf.config.customErrorTest
     case Mode.Prod => conf.config.customErrorProd
-    case _ => false
   }
-  Logger.info("custom error = " + processError)
+  logger info("custom error = " + processError)
 
-   def onBadRequest(request: RequestHeader, error: String) = {
-      logger error s"bad request: $error"
-      BadRequest(uk.gov.ons.addressIndex.demoui.views.html.error(400, error))
+  /**
+    * Handle bad request errors which are not sent to an explicit view in the controller
+    * @param request
+    * @param error
+    * @return
+    */
+  def onBadRequest(request: RequestHeader, error: String): Result = {
+    logger error s"bad request: $error"
+    BadRequest(uk.gov.ons.addressIndex.demoui.views.html.error(400, error))
   }
 
-  def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
-    if (processError){
+  /**
+    * Handle client error such as 404
+    * @param request
+    * @param statusCode
+    * @param message
+    * @return
+    */
+  def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
+    if (processError) {
       logger error s"client error: $message"
       Future.successful(
         NotFound(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
@@ -50,10 +71,15 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi,
     }
   }
 
-  def onServerError(request: RequestHeader, exception: Throwable) = {
-    if (processError){
+  /**
+    * Handle server error such as 500
+    * @param request
+    * @param exception
+    * @return
+    */
+  def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
+    if (processError) {
       logger error s"server error: ${exception.getMessage}"
-      Logger("onServerError").error(exception.getMessage)
       Future.successful(
         InternalServerError(uk.gov.ons.addressIndex.demoui.views.html.error(500, exception.getMessage))
       )

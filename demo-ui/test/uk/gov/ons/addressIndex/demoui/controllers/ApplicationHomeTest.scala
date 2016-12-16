@@ -9,6 +9,9 @@ import play.api.test.{FakeRequest, WithApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+/**
+  * Tests for home page
+  */
 class ApplicationHomeTest extends PlaySpec with Results {
   "Application controller" should {
     "include at least one link" in new WithApplication {

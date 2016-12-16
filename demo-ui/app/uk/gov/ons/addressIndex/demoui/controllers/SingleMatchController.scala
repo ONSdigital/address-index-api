@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.demoui.controllers
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import play.{Logger}
+import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Controller}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,6 +17,13 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
+/**
+  * Controller class for a single address to be matched
+  * @param conf
+  * @param messagesApi
+  * @param apiClient
+  * @param ec
+  */
 @Singleton
 class SingleMatchController @Inject()(
    conf : DemouiConfigModule,
@@ -24,8 +31,14 @@ class SingleMatchController @Inject()(
    apiClient: AddressIndexClientInstance
 )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
+  val logger = Logger("SingleMatchController")
+
+  /**
+    * Present empty form for user to input address
+    * @return result to view
+    */
   def showSingleMatchPage() : Action[AnyContent] = Action.async { implicit request =>
-    Logger.info("SingleMatch: Rendering Single Match Page")
+    logger info("SingleMatch: Rendering Single Match Page")
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
@@ -35,10 +48,14 @@ class SingleMatchController @Inject()(
     )
   }
 
+  /**
+    * Accept posted form, deal with empty address or pass on to MatchWithInput
+    * @return result to view or redirect
+    */
   def doMatch() : Action[AnyContent] = Action.async { implicit request =>
     val addressText = request.body.asFormUrlEncoded.get("address").mkString
     if (addressText.trim.isEmpty) {
-      Logger.info("Single Match with Empty input address")
+      logger info("Single Match with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
@@ -53,10 +70,15 @@ class SingleMatchController @Inject()(
     }
   }
 
+  /**
+    * Perform match by calling API with address string. Can be called directly via get or redirect from form
+    * @param input
+    * @return result to view
+    */
   def doMatchWithInput(input : String) : Action[AnyContent] = Action.async { implicit request =>
     val addressText = input
     if (addressText.trim.isEmpty) {
-      Logger.info("Single Match with expected input address missing")
+      logger info("Single Match with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
@@ -65,7 +87,7 @@ class SingleMatchController @Inject()(
           Ok(viewToRender)
       )
     } else {
-      Logger.info("Single Match with supplied input address " + addressText)
+      logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
           format = PostcodeAddressFile("paf"),

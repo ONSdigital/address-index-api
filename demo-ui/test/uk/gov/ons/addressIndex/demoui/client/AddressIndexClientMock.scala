@@ -9,12 +9,17 @@ import uk.gov.ons.addressIndex.model.server.response._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * Mock client class for tests - returns precanned results
+  * @param client
+  * @param conf
+  */
 @Singleton
 class AddressIndexClientMock @Inject()(override val client : WSClient,
                                            conf : DemouiConfigModule) extends AddressIndexClientInstance(client,conf) {
   //  set config entry to "http://localhost:9001" to run locally
   //  set config entry to "https://addressindexapitest.cfapps.io" to run from cloud
-  override def host: String = conf.config.apiURL
+  override def host: String = s"${conf.config.apiURL.host}:${conf.config.apiURL.port}"
 
   val mockAddressResponseStatus = AddressResponseStatus(
     code = 200,

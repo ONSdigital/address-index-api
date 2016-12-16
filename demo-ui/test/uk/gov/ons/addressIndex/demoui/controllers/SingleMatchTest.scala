@@ -11,6 +11,9 @@ import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, Addres
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+/**
+  * Tests for single match controleer
+  */
 class SingleMatchTest extends PlaySpec with Results {
 
   "Single match controller" should {
@@ -71,12 +74,14 @@ class SingleMatchTest extends PlaySpec with Results {
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val expectedString = "<h3 class=\"green\">1 addresses found</h3>"
+      val inputAddress = "7 EX2 6GA"
 
       // When
-      val response = new SingleMatchController(configuration,
-                                               messagesApi,
-                                               apiClient.asInstanceOf[AddressIndexClientInstance])
-        .doMatchWithInput("7 EX2 6GA").apply(FakeRequest())
+      val response = new SingleMatchController(
+        configuration,
+        messagesApi,
+        apiClient.asInstanceOf[AddressIndexClientInstance])
+      .doMatchWithInput(inputAddress).apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
