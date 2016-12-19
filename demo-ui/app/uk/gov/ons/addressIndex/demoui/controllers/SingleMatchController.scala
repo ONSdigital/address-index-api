@@ -14,7 +14,7 @@ import play.api.data._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, PostcodeAddressFile, AddressScheme}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
 /**
@@ -54,6 +54,8 @@ class SingleMatchController @Inject()(
     */
   def doMatch() : Action[AnyContent] = Action.async { implicit request =>
     val addressText = request.body.asFormUrlEncoded.get("address").mkString
+    val addressFormat = request.body.asFormUrlEncoded.get("format").mkString
+    logger info("Single Match with address format = " + addressFormat)
     if (addressText.trim.isEmpty) {
       logger info("Single Match with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -65,7 +67,7 @@ class SingleMatchController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText,addressFormat))
       )
     }
   }
@@ -75,7 +77,7 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doMatchWithInput(input : String) : Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input : String, formatText: String) : Action[AnyContent] = Action.async { implicit request =>
     val addressText = input
     if (addressText.trim.isEmpty) {
       logger info("Single Match with expected input address missing")
@@ -90,12 +92,12 @@ class SingleMatchController @Inject()(
       logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
-          format = PostcodeAddressFile("paf"),
+          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().get,
           input = addressText,
           id = UUID.randomUUID
         )
       ) map { resp: AddressBySearchResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,"paf"))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
           warningMessage = None,

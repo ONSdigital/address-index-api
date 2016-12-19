@@ -169,6 +169,40 @@ input#address.form-control {
     font-size: 1.1em;
 }
 
+input[type="radio"].form-control {
+     border: 0px;
+     width: 1.5em;
+     height: 1.5em;
+}
+
+fieldset.radio {
+    margin-bottom: 15px;
+}
+
+input[type="radio"].form-control + label {
+    width: 100px;
+    height: 40px;
+    font-size: 1.2em;
+    margin-right: 40px;
+    border: 0px;
+    padding: 10px;
+    background-color:#DFE0E2;
+}
+
+input[type="radio"]#format-paf.form-control {
+    width: 100px;
+    height: 40px;
+    font-size: 2em;
+    background-color:gray;
+}
+
+input[type="radio"]#format.form-control {
+    width: 100px;
+    height: 40px;
+    font-size: 2em;
+    background-color:gray;
+}
+
 .btn-group.open .dropdown-toggle {
     font-size: 20px ;
 }
