@@ -64,15 +64,12 @@ class ErrorHandler @Inject() (
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     if (processError) {
       logger error s"client error: $statusCode $message"
-      if (statusCode == 404) {
-        Future.successful(
-          NotFound(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
-        )
+      val response = if (statusCode == 404) {
+        NotFound(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
       } else {
-        Future.successful(
-          Ok(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
-        )
+        Ok(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
       }
+      Future.successful(response)
     } else {
       defaultHttpErrorHandler.onClientError(request, statusCode, message)
     }
