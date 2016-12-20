@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import play.api.mvc.Controller
+import uk.gov.ons.addressIndex.server.modules.AddressIndexCannedResponse
 
-abstract class AddressIndexController extends Controller
+abstract class AddressIndexController
+  extends PlayHelperController
+  with AddressIndexCannedResponse

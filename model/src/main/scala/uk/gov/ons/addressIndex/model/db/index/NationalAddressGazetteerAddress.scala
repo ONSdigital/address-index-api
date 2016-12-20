@@ -54,43 +54,79 @@ case class NationalAddressGazetteerAddress(
   */
 object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazetteerAddress] {
 
-  val name = "NationalAddressGazetteer"
+  val Name = "NationalAddressGazetteer"
+
+  object Fields {
+
+    /**
+      * Document Fields
+      */
+    val Uprn: String = "uprn"
+    val PostcodeLocator: String = "postcodeLocator"
+    val AddressBasePostal: String = "addressBasePostal"
+    val Latitude: String = "latitude"
+    val Longitude: String = "longitude"
+    val Easting: String = "easting"
+    val Northing: String = "northing"
+    val Organisation: String = "organisation"
+    val LegalName: String = "legalName"
+    val ClassificationCode: String = "classificationCode"
+    val Usrn: String = "usrn"
+    val LpiKey: String = "lpiKey"
+    val PaoText: String = "paoText"
+    val PaoStartNumber: String = "paoStartNumber"
+    val PaoStartSuffix: String = "paoStartSuffix"
+    val PaoEndNumber: String = "paoEndNumber"
+    val PaoEndSuffix: String = "paoEndSuffix"
+    val SaoText: String = "saoText"
+    val SaoStartNumber: String = "saoStartNumber"
+    val SaoStartSuffix: String = "saoStartSuffix"
+    val SaoEndNumber: String = "saoEndNumber"
+    val SaoEndSuffix: String = "saoEndSuffix"
+    val Level: String = "level"
+    val OfficialFlag: String = "officialFlag"
+    val LogicalStatus: String = "logicalStatus"
+    val StreetDescriptor: String = "streetDescriptor"
+    val TownName: String = "townName"
+    val Locality: String = "locality"
+  }
 
   /**
     * This is needed to directly transform a collection of objects returned by Elastic
     * request into a collection of NAF addresses
     */
-  implicit object NationalAddressGazetteerAddessHitAs extends HitAs[NationalAddressGazetteerAddress] {
+  implicit object NationalAddressGazetteerAddressHitAs extends HitAs[NationalAddressGazetteerAddress] {
+    import Fields._
     override def as(hit: RichSearchHit): NationalAddressGazetteerAddress = {
       NationalAddressGazetteerAddress(
-        hit.sourceAsMap("uprn").toString,
-        hit.sourceAsMap("postcodeLocator").toString,
-        hit.sourceAsMap("addressBasePostal").toString,
-        hit.sourceAsMap("latitude").toString,
-        hit.sourceAsMap("longitude").toString,
-        hit.sourceAsMap("easting").toString,
-        hit.sourceAsMap("northing").toString,
-        hit.sourceAsMap("organisation").toString,
-        hit.sourceAsMap("legalName").toString,
-        hit.sourceAsMap("classificationCode").toString,
-        hit.sourceAsMap("usrn").toString,
-        hit.sourceAsMap("lpiKey").toString,
-        hit.sourceAsMap("paoText").toString,
-        hit.sourceAsMap("paoStartNumber").toString,
-        hit.sourceAsMap("paoStartSuffix").toString,
-        hit.sourceAsMap("paoEndNumber").toString,
-        hit.sourceAsMap("paoEndSuffix").toString,
-        hit.sourceAsMap("saoText").toString,
-        hit.sourceAsMap("saoStartNumber").toString,
-        hit.sourceAsMap("saoStartSuffix").toString,
-        hit.sourceAsMap("saoEndNumber").toString,
-        hit.sourceAsMap("saoEndSuffix").toString,
-        hit.sourceAsMap("level").toString,
-        hit.sourceAsMap("officialFlag").toString,
-        hit.sourceAsMap("logicalStatus").toString,
-        hit.sourceAsMap("streetDescriptor").toString,
-        hit.sourceAsMap("townName").toString,
-        hit.sourceAsMap("locality").toString,
+        hit.sourceAsMap(Uprn).toString,
+        hit.sourceAsMap(PostcodeLocator).toString,
+        hit.sourceAsMap(AddressBasePostal).toString,
+        hit.sourceAsMap(Latitude).toString,
+        hit.sourceAsMap(Longitude).toString,
+        hit.sourceAsMap(Easting).toString,
+        hit.sourceAsMap(Northing).toString,
+        hit.sourceAsMap(Organisation).toString,
+        hit.sourceAsMap(LegalName).toString,
+        hit.sourceAsMap(ClassificationCode).toString,
+        hit.sourceAsMap(Usrn).toString,
+        hit.sourceAsMap(LpiKey).toString,
+        hit.sourceAsMap(PaoText).toString,
+        hit.sourceAsMap(PaoStartNumber).toString,
+        hit.sourceAsMap(PaoStartSuffix).toString,
+        hit.sourceAsMap(PaoEndNumber).toString,
+        hit.sourceAsMap(PaoEndSuffix).toString,
+        hit.sourceAsMap(SaoText).toString,
+        hit.sourceAsMap(SaoStartNumber).toString,
+        hit.sourceAsMap(SaoStartSuffix).toString,
+        hit.sourceAsMap(SaoEndNumber).toString,
+        hit.sourceAsMap(SaoEndSuffix).toString,
+        hit.sourceAsMap(Level).toString,
+        hit.sourceAsMap(OfficialFlag).toString,
+        hit.sourceAsMap(LogicalStatus).toString,
+        hit.sourceAsMap(StreetDescriptor).toString,
+        hit.sourceAsMap(TownName).toString,
+        hit.sourceAsMap(Locality).toString,
         hit.score
       )
     }

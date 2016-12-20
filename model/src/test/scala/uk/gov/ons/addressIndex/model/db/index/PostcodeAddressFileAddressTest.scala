@@ -6,7 +6,7 @@ class PostcodeAddressFileAddressTest extends FlatSpec with Matchers {
 
   it should "have an expected fixed name" in {
     val expected = PostcodeAddressFileAddressTest.name
-    val actual = PostcodeAddressFileAddress.name
+    val actual = PostcodeAddressFileAddress.Name
     expected shouldBe actual
   }
 }
