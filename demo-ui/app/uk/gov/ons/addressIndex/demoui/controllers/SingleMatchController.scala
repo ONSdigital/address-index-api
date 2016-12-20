@@ -14,8 +14,10 @@ import play.api.data._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, PostcodeAddressFile, AddressScheme}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+
+import scala.util.Try
 
 /**
   * Controller class for a single address to be matched
@@ -54,13 +56,7 @@ class SingleMatchController @Inject()(
     */
   def doMatch() : Action[AnyContent] = Action.async { implicit request =>
     val addressText = Option(request.body.asFormUrlEncoded.get("address").mkString).getOrElse("")
-    val optFormat: Option[String] = {
-      try {
-        Some(request.body.asFormUrlEncoded.get("format").mkString)
-      } catch {
-        case e: NoSuchElementException => None
-      }
-    }
+    val optFormat: Option[String] = Try(request.body.asFormUrlEncoded.get("format").mkString).toOption
     val addressFormat = optFormat.getOrElse("paf")
     logger info("Single Match with address format = " + addressFormat)
     if (addressText.trim.isEmpty) {
