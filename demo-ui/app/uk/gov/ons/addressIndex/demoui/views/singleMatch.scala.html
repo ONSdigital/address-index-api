@@ -48,26 +48,21 @@
                             </div>
                             <div class="resultRow">
                                 <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
-                                @if(address.formattedAddress isEmpty){
-                                    @address.paf.map{ paf =>
-                                    @paf.buildingName &nbsp;
-                                    @paf.buildingNumber,
-                                    @paf.thoroughfare,
-                                    @paf.dependentLocality
-                                    @paf.postTown,
-                                    @paf.postcode
-                                    }
-                                } else {
                                     @address.formattedAddress
-                                }
                                 </div>
                             </div>
                             <div class="resultRow">
                                 <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
                                 @if(address.geo.isEmpty){
-                                    <div id="maplink-dummy" class="map-link-txt">
-                                        <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>
+                                    @if(address.nag.isEmpty){
+                                    <div id="maplink-dummy-paf" class="map-link-txt">
+                                       <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>
                                     </div>
+                                    } else {
+                                    <div id="maplink-dummy-nag" class="map-link-txt">
+                                       <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">Open Map</a></td>
+                                    </div>
+                                    }
                                 } else {
                                     <div id="maplink-real" class="map-link-txt">
                                         <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">Open Map</a></td>

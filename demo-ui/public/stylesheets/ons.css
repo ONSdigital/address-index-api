@@ -171,21 +171,24 @@ input#address.form-control {
 
 input[type="radio"].form-control {
      border: 0px;
-     width: 1.5em;
-     height: 1.5em;
+     width: 1.8em;
+     height: 1.8em;
 }
 
 fieldset.radio {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 input[type="radio"].form-control + label {
     width: 100px;
     height: 40px;
     font-size: 1.2em;
-    margin-right: 40px;
+    margin-right: 10px;
     border: 0px;
-    padding: 10px;
+    padding-left:24px;
+    padding-right:24px;
+    padding-top:10px;
+    padding-bottom:10px;
     background-color:#DFE0E2;
 }
 
@@ -275,6 +278,14 @@ nav ul li a:hover {
 
 dd {
     margin-left: 10px;
+}
+
+dl {
+    display: block;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .alert-danger {
