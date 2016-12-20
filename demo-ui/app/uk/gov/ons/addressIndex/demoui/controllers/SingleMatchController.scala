@@ -58,7 +58,7 @@ class SingleMatchController @Inject()(
       try {
         Some(request.body.asFormUrlEncoded.get("format").mkString)
       } catch {
-        case e: Exception => None
+        case e: NoSuchElementException => None
       }
     }
     val addressFormat = optFormat.getOrElse("paf")
@@ -99,7 +99,7 @@ class SingleMatchController @Inject()(
       logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
-          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().get,
+          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().getOrElse(PostcodeAddressFile("paf")),
           input = addressText,
           id = UUID.randomUUID
         )
