@@ -44,12 +44,13 @@ class ErrorHandler @Inject() (
 
   /**
     * Handle bad request errors which are not sent to an explicit view in the controller
+    *  For example, when a route is found, but it was not possible to bind the request parameters
     * @param request
     * @param error
     * @return
     */
   def onBadRequest(request: RequestHeader, error: String): Result = {
-    logger error s"bad request: $error"
+    logger error s"bad request: 400 $error"
     BadRequest(uk.gov.ons.addressIndex.demoui.views.html.error(400, error))
   }
 
@@ -62,10 +63,13 @@ class ErrorHandler @Inject() (
     */
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     if (processError) {
-      logger error s"client error: $message"
-      Future.successful(
+      logger error s"client error: $statusCode $message"
+      val response = if (statusCode == 404) {
         NotFound(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
-      )
+      } else {
+        Ok(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
+      }
+      Future.successful(response)
     } else {
       defaultHttpErrorHandler.onClientError(request, statusCode, message)
     }
@@ -79,7 +83,7 @@ class ErrorHandler @Inject() (
     */
   def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
     if (processError) {
-      logger error s"server error: ${exception.getMessage}"
+      logger error s"server error: 500 ${exception.getMessage}"
       Future.successful(
         InternalServerError(uk.gov.ons.addressIndex.demoui.views.html.error(500, exception.getMessage))
       )
