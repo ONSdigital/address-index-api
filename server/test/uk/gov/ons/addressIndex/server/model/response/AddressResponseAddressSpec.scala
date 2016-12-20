@@ -13,10 +13,10 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     uprn = "n1",
     postcodeLocator = "n2",
     addressBasePostal = "n3",
-    latitude = "1.0000000",
-    longitude = "2.0000000",
-    easting = "3",
-    northing = "4",
+    latitude = "50.7341677",
+    longitude = "-3.540302",
+    easting = "291398.00",
+    northing = "093861.00",
     organisation = "n22",
     legalName = "n23",
     classificationCode = "n24",
@@ -157,10 +157,10 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           nag.classificationCode
         )),
         geo = Some(AddressResponseGeo(
-          latitude = 1.0d,
-          longitude = 2.0d,
-          easting = 3,
-          northing = 4
+          latitude = 50.7341677d,
+          longitude = -3.540302d,
+          easting = 291398,
+          northing = 93861
         )),
         underlyingScore = 1,
         underlyingMaxScore = 1)
