@@ -70,7 +70,7 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
     val Uprn: String = "uprn"
     val Udprn: String = "udprn"
     val OrganizationName: String = "organizationName"
-    val departmentName: String = "departmentName"
+    val DepartmentName: String = "departmentName"
     val SubBuildingName: String = "subBuildingName"
     val BuildingName: String = "buildingName"
     val BuildingNumber: String = "buildingNumber"
@@ -109,7 +109,7 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
         hit.sourceAsMap(Uprn).toString,
         hit.sourceAsMap(Udprn).toString,
         hit.sourceAsMap(OrganizationName).toString,
-        hit.sourceAsMap(departmentName).toString,
+        hit.sourceAsMap(DepartmentName).toString,
         hit.sourceAsMap(SubBuildingName).toString,
         hit.sourceAsMap(BuildingName).toString,
         hit.sourceAsMap(BuildingNumber).toString,
