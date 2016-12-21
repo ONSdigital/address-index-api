@@ -3,7 +3,6 @@ package uk.gov.ons.addressIndex.model.db.index
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
-
 /**
  * Data structure containing addresses with the maximum address
  * @param addresses fetched addresses
