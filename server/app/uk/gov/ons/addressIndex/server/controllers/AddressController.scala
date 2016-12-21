@@ -14,9 +14,7 @@ import uk.gov.ons.addressIndex.parsers.Implicits._
 class AddressController @Inject()(
   override val esRepo: ElasticsearchRepository,
   parser: AddressParserModule
-)(
-  implicit override val ec: ExecutionContext
-) extends AddressIndexController with AddressIndexActions {
+)(implicit override val ec: ExecutionContext) extends AddressIndexController with AddressIndexActions {
 
   val logger = Logger("address-index-server:AddressController")
 

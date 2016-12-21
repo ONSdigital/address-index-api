@@ -23,7 +23,7 @@ trait CrfParser {
       val result = tokenResults(i)
       CrfTokenResult(
         value = token,
-        label = result.split(": ")(0)
+        label = result.split(": ").head
       )
     }
   }

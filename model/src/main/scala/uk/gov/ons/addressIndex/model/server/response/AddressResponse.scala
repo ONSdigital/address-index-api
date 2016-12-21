@@ -73,7 +73,7 @@ case class AddressBySearchResponse(
 )
 
 object AddressBySearchResponse {
-  implicit lazy val addressBySearchResponseFormat: OFormat[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
+  implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
   implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
 }
 
