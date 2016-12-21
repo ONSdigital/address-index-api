@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
@@ -10,6 +11,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, Input}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
@@ -107,16 +109,15 @@ class AddressIndexRepository @Inject()(
               tokenFieldMap = Map(
                 Tokens.BuildingNumber -> PostcodeAddressFileAddress.Fields.BuildingNumber,
                 Tokens.Postcode -> PostcodeAddressFileAddress.Fields.Postcode,
-                Tokens.Locality -> "",
-                Tokens.OrganisationName -> "",
-                Tokens.DepartmentName -> "",
-                Tokens.SubBuildingName -> "",
-                Tokens.BuildingName -> "",
-                Tokens.BuildingNumber -> "",
-                Tokens.StreetName -> "",
-                Tokens.Locality -> "",
-                Tokens.TownName -> "",
-                Tokens.Postcode -> ""
+                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality welsh == //DoubleDependentlocality,
+                Tokens.OrganisationName -> PostcodeAddressFileAddress.Fields.OrganizationName,
+//                Tokens.DepartmentName -> PostcodeAddressFileAddress.Fields.Dep, ???
+                Tokens.SubBuildingName -> PostcodeAddressFileAddress.Fields.SubBuildingName,
+                Tokens.BuildingName -> PostcodeAddressFileAddress.Fields.BuildingName,
+                Tokens.BuildingNumber -> PostcodeAddressFileAddress.Fields.BuildingNumber, // String of 5a-9x, 5a - 5c
+                Tokens.StreetName -> PostcodeAddressFileAddress.Fields.Thoroughfare,
+                Tokens.TownName -> PostcodeAddressFileAddress.Fields.PostTown,
+                Tokens.Postcode -> PostcodeAddressFileAddress.Fields.Postcode
               )
             )
           )
@@ -143,15 +144,15 @@ class AddressIndexRepository @Inject()(
                 Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields.PaoStartNumber,
                 Tokens.Postcode -> NationalAddressGazetteerAddress.Fields.PostcodeLocator,
                 Tokens.Locality -> NationalAddressGazetteerAddress.Fields.Locality,
-                Tokens.OrganisationName -> "",
-                Tokens.DepartmentName -> "",
-                Tokens.SubBuildingName -> "",
-                Tokens.BuildingName -> "",
-                Tokens.BuildingNumber -> "",
-                Tokens.StreetName -> "",
-                Tokens.Locality -> "",
-                Tokens.TownName -> "",
-                Tokens.Postcode -> ""
+                Tokens.OrganisationName -> NationalAddressGazetteerAddress.Fields.Organisation,
+                Tokens.DepartmentName -> NationalAddressGazetteerAddress.Fields.LegalName,
+                Tokens.SubBuildingName -> NationalAddressGazetteerAddress.Fields.SaoText,
+                Tokens.BuildingName -> NationalAddressGazetteerAddress.Fields.PaoText,
+//                Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields., StartPrefix EndPrefix,
+                Tokens.StreetName -> NationalAddressGazetteerAddress.Fields.StreetDescriptor,
+                Tokens.Locality -> NationalAddressGazetteerAddress.Fields.Locality,
+                Tokens.TownName -> NationalAddressGazetteerAddress.Fields.TownName,
+                Tokens.Postcode -> NationalAddressGazetteerAddress.Fields.PostcodeLocator
               )
             )
           )
