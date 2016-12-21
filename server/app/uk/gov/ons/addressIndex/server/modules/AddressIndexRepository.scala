@@ -111,7 +111,7 @@ class AddressIndexRepository @Inject()(
                 Tokens.Postcode -> PostcodeAddressFileAddress.Fields.Postcode,
 //                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
                 Tokens.OrganisationName -> PostcodeAddressFileAddress.Fields.OrganizationName,
-//                Tokens.DepartmentName -> PostcodeAddressFileAddress.Fields.Dep, ???
+                Tokens.DepartmentName -> PostcodeAddressFileAddress.Fields.DepartmentName,
                 Tokens.SubBuildingName -> PostcodeAddressFileAddress.Fields.SubBuildingName,
                 Tokens.BuildingName -> PostcodeAddressFileAddress.Fields.BuildingName,
                 Tokens.BuildingNumber -> PostcodeAddressFileAddress.Fields.BuildingNumber, // String of 5a-9x, 5a - 5c
