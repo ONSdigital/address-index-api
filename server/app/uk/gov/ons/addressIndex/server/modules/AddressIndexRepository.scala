@@ -109,7 +109,7 @@ class AddressIndexRepository @Inject()(
               tokenFieldMap = Map(
                 Tokens.BuildingNumber -> PostcodeAddressFileAddress.Fields.BuildingNumber,
                 Tokens.Postcode -> PostcodeAddressFileAddress.Fields.Postcode,
-                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality welsh == //DoubleDependentlocality,
+//                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
                 Tokens.OrganisationName -> PostcodeAddressFileAddress.Fields.OrganizationName,
 //                Tokens.DepartmentName -> PostcodeAddressFileAddress.Fields.Dep, ???
                 Tokens.SubBuildingName -> PostcodeAddressFileAddress.Fields.SubBuildingName,
