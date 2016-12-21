@@ -66,7 +66,6 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
     val Recordidentifier: String = "recordIdentifier"
     val ChangeType: String = "changeType"
     val PostTown: String = "postTown"
-    val Dependentlocality: String = "dependentLocality"
     val ProOrder: String = "proOrder"
     val Uprn: String = "uprn"
     val Udprn: String = "udprn"
