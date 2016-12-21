@@ -63,7 +63,7 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
       * Document Fields
       */
     val Postcode: String = "postcode"
-    val Recordidentifier: String = "recordIdentifier"
+    val RecordIdentifier: String = "recordIdentifier"
     val ChangeType: String = "changeType"
     val PostTown: String = "postTown"
     val ProOrder: String = "proOrder"
@@ -103,7 +103,7 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
 
     override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {
       PostcodeAddressFileAddress(
-        hit.sourceAsMap(Recordidentifier).toString,
+        hit.sourceAsMap(RecordIdentifier).toString,
         hit.sourceAsMap(ChangeType).toString,
         hit.sourceAsMap(ProOrder).toString,
         hit.sourceAsMap(Uprn).toString,
