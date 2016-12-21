@@ -16,9 +16,10 @@ trait AddressIndexCannedResponse {
       response = AddressBySearchResponse(
         tokens = tokens
           .groupBy(_.label).map { case (tkn, seqTknRslt) =>
-            tkn -> seqTknRslt.map(_.value).mkString(" ")
-          }.map { case (tkn, input) =>
-            CrfTokenResult(tkn, input)
+            CrfTokenResult(
+              value = tkn,
+              label = seqTknRslt.map(_.value).mkString(" ")
+            )
           }.toSeq,
         addresses = addresses,
         limit = Limit,
