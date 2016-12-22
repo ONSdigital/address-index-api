@@ -54,41 +54,41 @@ case class NationalAddressGazetteerAddress(
   */
 object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazetteerAddress] {
 
-  val Name = "NationalAddressGazetteer"
+  val name = "NationalAddressGazetteer"
 
   object Fields {
 
     /**
       * Document Fields
       */
-    val Uprn: String = "uprn"
-    val PostcodeLocator: String = "postcodeLocator"
-    val AddressBasePostal: String = "addressBasePostal"
-    val Latitude: String = "latitude"
-    val Longitude: String = "longitude"
-    val Easting: String = "easting"
-    val Northing: String = "northing"
-    val Organisation: String = "organisation"
-    val LegalName: String = "legalName"
-    val ClassificationCode: String = "classificationCode"
-    val Usrn: String = "usrn"
-    val LpiKey: String = "lpiKey"
-    val PaoText: String = "paoText"
-    val PaoStartNumber: String = "paoStartNumber"
-    val PaoStartSuffix: String = "paoStartSuffix"
-    val PaoEndNumber: String = "paoEndNumber"
-    val PaoEndSuffix: String = "paoEndSuffix"
-    val SaoText: String = "saoText"
-    val SaoStartNumber: String = "saoStartNumber"
-    val SaoStartSuffix: String = "saoStartSuffix"
-    val SaoEndNumber: String = "saoEndNumber"
-    val SaoEndSuffix: String = "saoEndSuffix"
-    val Level: String = "level"
-    val OfficialFlag: String = "officialFlag"
-    val LogicalStatus: String = "logicalStatus"
-    val StreetDescriptor: String = "streetDescriptor"
-    val TownName: String = "townName"
-    val Locality: String = "locality"
+    val uprn: String = "uprn"
+    val postcodeLocator: String = "postcodeLocator"
+    val addressBasePostal: String = "addressBasePostal"
+    val latitude: String = "latitude"
+    val longitude: String = "longitude"
+    val easting: String = "easting"
+    val northing: String = "northing"
+    val organisation: String = "organisation"
+    val legalName: String = "legalName"
+    val classificationCode: String = "classificationCode"
+    val usrn: String = "usrn"
+    val lpiKey: String = "lpiKey"
+    val paoText: String = "paoText"
+    val paoStartNumber: String = "paoStartNumber"
+    val paoStartSuffix: String = "paoStartSuffix"
+    val paoEndNumber: String = "paoEndNumber"
+    val paoEndSuffix: String = "paoEndSuffix"
+    val saoText: String = "saoText"
+    val saoStartNumber: String = "saoStartNumber"
+    val saoStartSuffix: String = "saoStartSuffix"
+    val saoEndNumber: String = "saoEndNumber"
+    val saoEndSuffix: String = "saoEndSuffix"
+    val level: String = "leveal"
+    val officialFlag: String = "officialFlag"
+    val logicalStatus: String = "logicalStatus"
+    val streetDescriptor: String = "streetDescriptor"
+    val townName: String = "townName"
+    val locality: String = "locality"
   }
 
   /**
@@ -99,34 +99,34 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
     import Fields._
     override def as(hit: RichSearchHit): NationalAddressGazetteerAddress = {
       NationalAddressGazetteerAddress(
-        hit.sourceAsMap(Uprn).toString,
-        hit.sourceAsMap(PostcodeLocator).toString,
-        hit.sourceAsMap(AddressBasePostal).toString,
-        hit.sourceAsMap(Latitude).toString,
-        hit.sourceAsMap(Longitude).toString,
-        hit.sourceAsMap(Easting).toString,
-        hit.sourceAsMap(Northing).toString,
-        hit.sourceAsMap(Organisation).toString,
-        hit.sourceAsMap(LegalName).toString,
-        hit.sourceAsMap(ClassificationCode).toString,
-        hit.sourceAsMap(Usrn).toString,
-        hit.sourceAsMap(LpiKey).toString,
-        hit.sourceAsMap(PaoText).toString,
-        hit.sourceAsMap(PaoStartNumber).toString,
-        hit.sourceAsMap(PaoStartSuffix).toString,
-        hit.sourceAsMap(PaoEndNumber).toString,
-        hit.sourceAsMap(PaoEndSuffix).toString,
-        hit.sourceAsMap(SaoText).toString,
-        hit.sourceAsMap(SaoStartNumber).toString,
-        hit.sourceAsMap(SaoStartSuffix).toString,
-        hit.sourceAsMap(SaoEndNumber).toString,
-        hit.sourceAsMap(SaoEndSuffix).toString,
-        hit.sourceAsMap(Level).toString,
-        hit.sourceAsMap(OfficialFlag).toString,
-        hit.sourceAsMap(LogicalStatus).toString,
-        hit.sourceAsMap(StreetDescriptor).toString,
-        hit.sourceAsMap(TownName).toString,
-        hit.sourceAsMap(Locality).toString,
+        hit.sourceAsMap(uprn).toString,
+        hit.sourceAsMap(postcodeLocator).toString,
+        hit.sourceAsMap(addressBasePostal).toString,
+        hit.sourceAsMap(latitude).toString,
+        hit.sourceAsMap(longitude).toString,
+        hit.sourceAsMap(easting).toString,
+        hit.sourceAsMap(northing).toString,
+        hit.sourceAsMap(organisation).toString,
+        hit.sourceAsMap(legalName).toString,
+        hit.sourceAsMap(classificationCode).toString,
+        hit.sourceAsMap(usrn).toString,
+        hit.sourceAsMap(lpiKey).toString,
+        hit.sourceAsMap(paoText).toString,
+        hit.sourceAsMap(paoStartNumber).toString,
+        hit.sourceAsMap(paoStartSuffix).toString,
+        hit.sourceAsMap(paoEndNumber).toString,
+        hit.sourceAsMap(paoEndSuffix).toString,
+        hit.sourceAsMap(saoText).toString,
+        hit.sourceAsMap(saoStartNumber).toString,
+        hit.sourceAsMap(saoStartSuffix).toString,
+        hit.sourceAsMap(saoEndNumber).toString,
+        hit.sourceAsMap(saoEndSuffix).toString,
+        hit.sourceAsMap(level).toString,
+        hit.sourceAsMap(officialFlag).toString,
+        hit.sourceAsMap(logicalStatus).toString,
+        hit.sourceAsMap(streetDescriptor).toString,
+        hit.sourceAsMap(townName).toString,
+        hit.sourceAsMap(locality).toString,
         hit.score
       )
     }

@@ -54,42 +54,42 @@ case class PostcodeAddressFileAddress(
   */
 object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
 
-  val Name: String = "PostcodeAddressFile"
+  val name: String = "PostcodeAddressFile"
 
   object Fields {
 
     /**
       * Document Fields
       */
-    val Postcode: String = "postcode"
-    val RecordIdentifier: String = "recordIdentifier"
-    val ChangeType: String = "changeType"
-    val PostTown: String = "postTown"
-    val ProOrder: String = "proOrder"
-    val Uprn: String = "uprn"
-    val Udprn: String = "udprn"
-    val OrganizationName: String = "organizationName"
-    val DepartmentName: String = "departmentName"
-    val SubBuildingName: String = "subBuildingName"
-    val BuildingName: String = "buildingName"
-    val BuildingNumber: String = "buildingNumber"
-    val DependentThoroughfare: String = "dependentThoroughfare"
-    val Thoroughfare: String = "thoroughfare"
-    val DoubleDependentLocality: String = "doubleDependentLocality"
-    val DependentLocality: String = "dependentLocality"
-    val PostcodeType: String = "postcodeType"
-    val DeliveryPointSuffix: String = "deliveryPointSuffix"
-    val WelshDependentThoroughfare: String = "welshDependentThoroughfare"
-    val WelshThoroughfare: String = "welshThoroughfare"
-    val WelshDoubleDependentLocality: String = "welshDoubleDependentLocality"
-    val WelshDependentLocality: String = "welshDependentLocality"
-    val WelshPostTown: String = "welshPostTown"
-    val PoBoxNumber: String = "poBoxNumber"
-    val ProcessDate: String = "processDate"
-    val StartDate: String = "startDate"
-    val EndDate: String = "endDate"
-    val LastUpdateDate: String = "lastUpdateDate"
-    val EntryDate: String = "entryDate"
+    val postcode: String = "postcode"
+    val recordIdentifier: String = "recordIdentifier"
+    val changeType: String = "changeType"
+    val postTown: String = "postTown"
+    val proOrder: String = "proOrder"
+    val uprn: String = "uprn"
+    val udprn: String = "udprn"
+    val organizationName: String = "organizationName"
+    val departmentName: String = "departmentName"
+    val subBuildingName: String = "subBuildingName"
+    val buildingName: String = "buildingName"
+    val buildingNumber: String = "buildingNumber"
+    val dependentThoroughfare: String = "dependentThoroughfare"
+    val thoroughfare: String = "thoroughfare"
+    val doubleDependentLocality: String = "doubleDependentLocality"
+    val dependentLocality: String = "dependentLocality"
+    val postcodeType: String = "postcodeType"
+    val deliveryPointSuffix: String = "deliveryPointSuffix"
+    val welshDependentThoroughfare: String = "welshDependentThoroughfare"
+    val welshThoroughfare: String = "welshThoroughfare"
+    val welshDoubleDependentLocality: String = "welshDoubleDependentLocality"
+    val welshDependentLocality: String = "welshDependentLocality"
+    val welshPostTown: String = "welshPostTown"
+    val poBoxNumber: String = "poBoxNumber"
+    val processDate: String = "processDate"
+    val startDate: String = "startDate"
+    val endDate: String = "endDate"
+    val lastUpdateDate: String = "lastUpdateDate"
+    val entryDate: String = "entryDate"
   }
 
 
@@ -102,35 +102,35 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
 
     override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {
       PostcodeAddressFileAddress(
-        hit.sourceAsMap(RecordIdentifier).toString,
-        hit.sourceAsMap(ChangeType).toString,
-        hit.sourceAsMap(ProOrder).toString,
-        hit.sourceAsMap(Uprn).toString,
-        hit.sourceAsMap(Udprn).toString,
-        hit.sourceAsMap(OrganizationName).toString,
-        hit.sourceAsMap(DepartmentName).toString,
-        hit.sourceAsMap(SubBuildingName).toString,
-        hit.sourceAsMap(BuildingName).toString,
-        hit.sourceAsMap(BuildingNumber).toString,
-        hit.sourceAsMap(DependentThoroughfare).toString,
-        hit.sourceAsMap(Thoroughfare).toString,
-        hit.sourceAsMap(DoubleDependentLocality).toString,
-        hit.sourceAsMap(DependentLocality).toString,
-        hit.sourceAsMap(PostTown).toString,
-        hit.sourceAsMap(Postcode).toString,
-        hit.sourceAsMap(PostcodeType).toString,
-        hit.sourceAsMap(DeliveryPointSuffix).toString,
-        hit.sourceAsMap(WelshDependentThoroughfare).toString,
-        hit.sourceAsMap(WelshThoroughfare).toString,
-        hit.sourceAsMap(WelshDoubleDependentLocality).toString,
-        hit.sourceAsMap(WelshDependentLocality).toString,
-        hit.sourceAsMap(WelshPostTown).toString,
-        hit.sourceAsMap(PoBoxNumber).toString,
-        hit.sourceAsMap(ProcessDate).toString,
-        hit.sourceAsMap(StartDate).toString,
-        hit.sourceAsMap(EndDate).toString,
-        hit.sourceAsMap(LastUpdateDate).toString,
-        hit.sourceAsMap(EntryDate).toString,
+        hit.sourceAsMap(recordIdentifier).toString,
+        hit.sourceAsMap(changeType).toString,
+        hit.sourceAsMap(proOrder).toString,
+        hit.sourceAsMap(uprn).toString,
+        hit.sourceAsMap(udprn).toString,
+        hit.sourceAsMap(organizationName).toString,
+        hit.sourceAsMap(departmentName).toString,
+        hit.sourceAsMap(subBuildingName).toString,
+        hit.sourceAsMap(buildingName).toString,
+        hit.sourceAsMap(buildingNumber).toString,
+        hit.sourceAsMap(dependentThoroughfare).toString,
+        hit.sourceAsMap(thoroughfare).toString,
+        hit.sourceAsMap(doubleDependentLocality).toString,
+        hit.sourceAsMap(dependentLocality).toString,
+        hit.sourceAsMap(postTown).toString,
+        hit.sourceAsMap(postcode).toString,
+        hit.sourceAsMap(postcodeType).toString,
+        hit.sourceAsMap(deliveryPointSuffix).toString,
+        hit.sourceAsMap(welshDependentThoroughfare).toString,
+        hit.sourceAsMap(welshThoroughfare).toString,
+        hit.sourceAsMap(welshDoubleDependentLocality).toString,
+        hit.sourceAsMap(welshDependentLocality).toString,
+        hit.sourceAsMap(welshPostTown).toString,
+        hit.sourceAsMap(poBoxNumber).toString,
+        hit.sourceAsMap(processDate).toString,
+        hit.sourceAsMap(startDate).toString,
+        hit.sourceAsMap(endDate).toString,
+        hit.sourceAsMap(lastUpdateDate).toString,
+        hit.sourceAsMap(entryDate).toString,
         hit.score
       )
     }

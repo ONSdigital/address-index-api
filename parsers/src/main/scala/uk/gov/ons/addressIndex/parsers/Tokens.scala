@@ -13,26 +13,26 @@ object Tokens extends CrfTokenable {
 
   override def normalise(tokens: Tokens): Tokens = tokens map (_.toUpperCase)
 
-  val OrganisationName: Token = "OrganisationName"
-  val DepartmentName: Token = "DepartmentName"
-  val SubBuildingName: Token = "SubBuildingName"
-  val BuildingName: Token = "BuildingName"
-  val BuildingNumber: Token = "BuildingNumber"
-  val StreetName: Token = "StreetName"
-  val Locality: Token = "Locality"
-  val TownName: Token = "TownName"
-  val Postcode: Token = "Postcode"
+  val organisationName: Token = "OrganisationName"
+  val departmentName: Token = "DepartmentName"
+  val subBuildingName: Token = "SubBuildingName"
+  val buildingName: Token = "BuildingName"
+  val buildingNumber: Token = "BuildingNumber"
+  val streetName: Token = "StreetName"
+  val locality: Token = "Locality"
+  val townName: Token = "TownName"
+  val postcode: Token = "Postcode"
 
   val all: Seq[Token] = Seq(
-    OrganisationName,
-    DepartmentName,
-    SubBuildingName,
-    BuildingName,
-    BuildingNumber,
-    StreetName,
-    Locality,
-    TownName,
-    Postcode
+    organisationName,
+    departmentName,
+    subBuildingName,
+    buildingName,
+    buildingNumber,
+    streetName,
+    locality,
+    townName,
+    postcode
   )
 
   val directions: Seq[TokenIndicator] = Seq(

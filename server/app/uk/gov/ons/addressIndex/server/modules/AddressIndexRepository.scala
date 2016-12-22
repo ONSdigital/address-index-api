@@ -107,17 +107,15 @@ class AddressIndexRepository @Inject()(
             tokensToMatchQueries(
               tokens = tokens,
               tokenFieldMap = Map(
-                Tokens.BuildingNumber -> PostcodeAddressFileAddress.Fields.BuildingNumber,
-                Tokens.Postcode -> PostcodeAddressFileAddress.Fields.Postcode,
+                Tokens.buildingNumber -> PostcodeAddressFileAddress.Fields.buildingNumber,
 //                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
-                Tokens.OrganisationName -> PostcodeAddressFileAddress.Fields.OrganizationName,
-                Tokens.DepartmentName -> PostcodeAddressFileAddress.Fields.DepartmentName,
-                Tokens.SubBuildingName -> PostcodeAddressFileAddress.Fields.SubBuildingName,
-                Tokens.BuildingName -> PostcodeAddressFileAddress.Fields.BuildingName,
-                Tokens.BuildingNumber -> PostcodeAddressFileAddress.Fields.BuildingNumber, // String of 5a-9x, 5a - 5c
-                Tokens.StreetName -> PostcodeAddressFileAddress.Fields.Thoroughfare,
-                Tokens.TownName -> PostcodeAddressFileAddress.Fields.PostTown,
-                Tokens.Postcode -> PostcodeAddressFileAddress.Fields.Postcode
+                Tokens.organisationName -> PostcodeAddressFileAddress.Fields.organizationName,
+                Tokens.departmentName -> PostcodeAddressFileAddress.Fields.departmentName,
+                Tokens.subBuildingName -> PostcodeAddressFileAddress.Fields.subBuildingName,
+                Tokens.buildingName -> PostcodeAddressFileAddress.Fields.buildingName,
+                Tokens.streetName -> PostcodeAddressFileAddress.Fields.thoroughfare,
+                Tokens.townName -> PostcodeAddressFileAddress.Fields.postTown,
+                Tokens.postcode -> PostcodeAddressFileAddress.Fields.postcode
               )
             )
           )
@@ -141,18 +139,17 @@ class AddressIndexRepository @Inject()(
             tokensToMatchQueries(
               tokens = tokens,
               tokenFieldMap = Map(
-                Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields.PaoStartNumber,
-                Tokens.Postcode -> NationalAddressGazetteerAddress.Fields.PostcodeLocator,
-                Tokens.Locality -> NationalAddressGazetteerAddress.Fields.Locality,
-                Tokens.OrganisationName -> NationalAddressGazetteerAddress.Fields.Organisation,
-                Tokens.DepartmentName -> NationalAddressGazetteerAddress.Fields.LegalName,
-                Tokens.SubBuildingName -> NationalAddressGazetteerAddress.Fields.SaoText,
-                Tokens.BuildingName -> NationalAddressGazetteerAddress.Fields.PaoText,
+                Tokens.buildingNumber -> NationalAddressGazetteerAddress.Fields.paoStartNumber,
+                Tokens.postcode -> NationalAddressGazetteerAddress.Fields.postcodeLocator,
+                Tokens.locality -> NationalAddressGazetteerAddress.Fields.locality,
+                Tokens.organisationName -> NationalAddressGazetteerAddress.Fields.organisation,
+                Tokens.departmentName -> NationalAddressGazetteerAddress.Fields.legalName,
+                Tokens.subBuildingName -> NationalAddressGazetteerAddress.Fields.saoText,
+                Tokens.buildingName -> NationalAddressGazetteerAddress.Fields.paoText,
 //                Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields., StartPrefix EndPrefix,
-                Tokens.StreetName -> NationalAddressGazetteerAddress.Fields.StreetDescriptor,
-                Tokens.Locality -> NationalAddressGazetteerAddress.Fields.Locality,
-                Tokens.TownName -> NationalAddressGazetteerAddress.Fields.TownName,
-                Tokens.Postcode -> NationalAddressGazetteerAddress.Fields.PostcodeLocator
+                Tokens.streetName -> NationalAddressGazetteerAddress.Fields.streetDescriptor,
+                Tokens.townName -> NationalAddressGazetteerAddress.Fields.townName,
+                Tokens.postcode -> NationalAddressGazetteerAddress.Fields.postcodeLocator
               )
             )
           )
