@@ -9,6 +9,9 @@ import play.api.test.{FakeRequest, WithApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+/**
+  * Tests for home page
+  */
 class ApplicationHomeTest extends PlaySpec with Results {
   "Application controller" should {
     "include at least one link" in new WithApplication {
@@ -31,7 +34,6 @@ class ApplicationHomeTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val expectedString = "<h4><a href=\"/addresses\">Find an address</a></h4>"
-      val langOption = Some("cy")
 
       // When
       val response = new ApplicationHomeController(configuration, messagesApi).indexPage().apply(FakeRequest())

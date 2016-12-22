@@ -1,12 +1,11 @@
 package uk.gov.ons.addressIndex.model.config
 
 case class ElasticSearchConfig(
-  local : Boolean,
-  cluster : String,
-  uri : String,
-  shieldSsl : Boolean,
-  shieldUser : String,
-  indexes: IndexesConfig
+  local: Boolean,
+  cluster: String,
+  uri: String,
+  indexes: IndexesConfig,
+  shield: ShieldConfig
 )
 
 object ElasticSearchConfig {
@@ -14,21 +13,31 @@ object ElasticSearchConfig {
     uri = "elasticsearch://localhost:9200",
     cluster = "ons-cluster",
     local = false,
-    shieldSsl = true,
-    shieldUser = "default:default",
     indexes = IndexesConfig(
       pafIndex = "paf/address",
       nagIndex = "nag/address"
+    ),
+    shield = ShieldConfig(
+      ssl = true,
+      user = "admin",
+      password = ""
     )
   )
 }
 
+case class ShieldConfig(
+  ssl: Boolean,
+  user: String,
+  password: String
+)
+
+
 case class AddressIndexConfig(
-  elasticSearch : ElasticSearchConfig
+  elasticSearch: ElasticSearchConfig
 )
 
 object AddressIndexConfig {
-  val default : AddressIndexConfig = AddressIndexConfig(
+  val default: AddressIndexConfig = AddressIndexConfig(
     elasticSearch = ElasticSearchConfig.default
   )
 }
@@ -38,14 +47,30 @@ case class IndexesConfig(
   nagIndex: String
 )
 
+case class ApiConfig(
+  host: String,
+  port: Int
+)
+
+object ApiConfig{
+  val default: ApiConfig = ApiConfig(
+  host = "http://localhost",
+  port = 9001
+  )
+}
+
 case class DemouiConfig (
-   defaultLanguage: String,
-   apiURL: String
+  customErrorDev: Boolean,
+  customErrorTest: Boolean,
+  customErrorProd: Boolean,
+  apiURL: ApiConfig
 )
 
 object DemouiConfig {
   val default : DemouiConfig = DemouiConfig(
-    defaultLanguage = "en",
-    apiURL = ""
+    customErrorDev = false,
+    customErrorTest = false,
+    customErrorProd = true,
+    apiURL = ApiConfig.default
   )
 }
