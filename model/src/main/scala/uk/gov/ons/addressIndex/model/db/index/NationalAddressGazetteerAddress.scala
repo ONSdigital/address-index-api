@@ -83,7 +83,7 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
     val saoStartSuffix: String = "saoStartSuffix"
     val saoEndNumber: String = "saoEndNumber"
     val saoEndSuffix: String = "saoEndSuffix"
-    val level: String = "leveal"
+    val level: String = "level"
     val officialFlag: String = "officialFlag"
     val logicalStatus: String = "logicalStatus"
     val streetDescriptor: String = "streetDescriptor"
