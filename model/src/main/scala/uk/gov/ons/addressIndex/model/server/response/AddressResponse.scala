@@ -198,8 +198,8 @@ object AddressResponseAddress {
     val geo: Try[AddressResponseGeo] = for {
       latitude <- Try(other.latitude.toDouble)
       longitude <- Try(other.longitude.toDouble)
-      easting <- Try(other.easting.toInt)
-      northing <- Try(other.northing.toInt)
+      easting <- Try(other.easting.split("\\.").head.toInt)
+      northing <- Try(other.northing.split("\\.").head.toInt)
     } yield AddressResponseGeo(latitude, longitude, easting, northing)
 
     AddressResponseAddress(
