@@ -1,9 +1,9 @@
 package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
-
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import scala.util.Try
 
 /**
@@ -65,7 +65,7 @@ object AddressBySearchResponseContainer {
   * @param total     total number of found addresses
   */
 case class AddressBySearchResponse(
-  tokens: AddressTokens,
+  tokens: Seq[CrfTokenResult],
   addresses: Seq[AddressResponseAddress],
   limit: Int,
   offset: Int,
@@ -74,7 +74,9 @@ case class AddressBySearchResponse(
 
 object AddressBySearchResponse {
   implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
+  implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
 }
+
 
 /**
   * Contains tokens that build that the address can be splitted onto

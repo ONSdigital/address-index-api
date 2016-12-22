@@ -22,12 +22,13 @@ trait CrfFeatures {
     * @param i the token to run against all feature analysers
     * @return the token and its results, as a pair
     */
-  def analyse(i : CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfTokenResult = {
-    CrfTokenResult(
-      token = i,
-      next = next,
-      previous = previous,
-      results = features.map(f => f.name -> f.analyse(i)).toMap
-    )
+  def analyse(i : CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): Unit = {
+//    CrfTokenResult(
+//      token = i,
+//      next = next,
+//      previous = previous,
+//      results = features.map(f => f.name -> f.analyse(i)).toMap
+//    )
+    ()
   }
 }

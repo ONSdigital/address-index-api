@@ -3,22 +3,22 @@ package uk.gov.ons.addressIndex.model
 import java.util.UUID
 
 case class AddressIndexUPRNRequest(
-  format : AddressScheme,
-  uprn   : BigInt,
-  id     : UUID
+  format: AddressScheme,
+  uprn: BigInt,
+  id: UUID
 )
 
 case class AddressIndexSearchRequest(
-  format : AddressScheme,
-  input  : String,
-  id     : UUID
+  format: AddressScheme,
+  input: String,
+  id: UUID
 )
 
 sealed trait AddressScheme {
   override def toString: String
 }
-case class PostcodeAddressFile(override val toString : String) extends AddressScheme
-case class BritishStandard7666(override val toString : String) extends AddressScheme
+case class PostcodeAddressFile(override val toString: String) extends AddressScheme
+case class BritishStandard7666(override val toString: String) extends AddressScheme
 
 object AddressScheme {
 

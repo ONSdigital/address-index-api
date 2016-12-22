@@ -26,11 +26,12 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     message = "OK"
   )
 
-  val mockAddressTokens = AddressTokens(
-    uprn = "",
-    buildingNumber = "7",
-    postcode = "EX2 9GA"
-  )
+  val mockAddressTokens = Seq.empty
+//  AddressTokens(
+//    uprn = "",
+//    buildingNumber = "7",
+//    postcode = "EX2 9GA"
+//  )
 
   val mockPafAddress1 = AddressResponsePaf(
     udprn = "",
@@ -67,7 +68,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     underlyingMaxScore =  1.0f
   )
 
-  val mockAddressBySearchResponse =  AddressBySearchResponse (
+  val mockAddressBySearchResponse = AddressBySearchResponse (
     tokens = mockAddressTokens,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,

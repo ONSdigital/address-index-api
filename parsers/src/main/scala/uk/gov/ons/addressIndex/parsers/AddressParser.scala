@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.CrfAggregateFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeature, CrfFeature, CrfFeatures, CrfParser}
 
 //TODO scaladoc
@@ -9,7 +10,7 @@ import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeature, CrfFeature, CrfFea
   * AddressParser
   */
 object AddressParser extends CrfParser {
-  def tag(input: String): String = {
+  def tag(input: String): Seq[CrfTokenResult]  = {
     super.tag(input, FeatureAnalysers.allFeatures, Tokens)
   }
   def parse(input: String): String = {

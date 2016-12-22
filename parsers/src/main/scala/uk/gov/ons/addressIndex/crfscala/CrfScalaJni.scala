@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.crfscala
 
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+
 //todo scaladoc
 trait CrfScalaJni {
   /**
