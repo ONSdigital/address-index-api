@@ -5,6 +5,7 @@ import sbt.Keys._
 import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
+import NativePackagerHelper._
 
 lazy val Versions = new {
   val elastic4s = "2.4.0"
@@ -21,6 +22,7 @@ scmInfo := Some(
 )
 
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
+  mappings in Universal ++= directory("parsers/src/main/resources"),
   assemblyJarName in assembly := "ons-ai-api.jar",
   mainClass in assembly := Some("play.core.server.NettyServer"),
   assemblyMergeStrategy in assembly := {
