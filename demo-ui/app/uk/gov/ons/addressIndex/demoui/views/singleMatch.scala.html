@@ -10,8 +10,6 @@
 @main(title = messages("single.title")) {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <div class="container">
-    <div id="fileContents"></div>
-
     <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
         @navigation()
@@ -101,29 +99,22 @@
         if (file) {
             var reader = new FileReader();
             reader.readAsText(file, "UTF-8");
-            reader.onload = function (evt) {
-                console.log(evt)
-                document.getElementById("fileContents").innerHTML = evt.target.result;
-
-                var postBody = { inputs: evt.target.result.split("\n") };
-
+            reader.onload = function(evt) {
                 $.ajax({
                     url: '/addresses/search/mimicBulk',
                     contentType: 'application/json',
                     type: 'GET',
-                    body: JSON.stringify(postBody)
+                    body: JSON.stringify({ inputs: evt.target.result.split("\n") })
                 }).success(function(resp) {
                         console.log(resp);
                 }).error(function(err) {
                         console.error(err);
                 });
-
             }
-            reader.onerror = function (evt) {
-                document.getElementById("fileContents").innerHTML = "error reading file";
+            reader.onerror = function(evt) {
+                console.error(evt);
             }
         }
-
     }
 </script>
 }
