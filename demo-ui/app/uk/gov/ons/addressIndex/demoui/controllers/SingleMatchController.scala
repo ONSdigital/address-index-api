@@ -2,22 +2,25 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Controller}
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.data.Forms._
 import play.api.data._
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
-
 import scala.util.Try
+
+case class BulkRequest(inputs: Seq[String])
+object BulkRequest {
+  implicit lazy val fmts = Json.format[BulkRequest]
+}
 
 /**
   * Controller class for a single address to be matched
@@ -109,9 +112,19 @@ class SingleMatchController @Inject()(
       }
     }
   }
+
+  def doMatchWithBulk(): Action[BulkRequest] = Action.async(parse.json[BulkRequest]) { implicit request =>
+    apiClient.addressQueriesBulkMimic(
+      requests = request.body.inputs map { input =>
+        AddressIndexSearchRequest(
+          format = PostcodeAddressFile("paf"),
+          input = input,
+          id = UUID.randomUUID
+        )
+      }
+    ).map(resp => Ok(Json toJson resp))
+  }
 }
-
-
 
 object SingleMatchController {
   val form = Form(
