@@ -36,7 +36,17 @@ trait AddressIndexClient {
       )
       .get
       .map(_.json.as[AddressBySearchResponseContainer])
-}
+  }
+
+  /**
+    * perform a `bulk` address search query
+    *
+    * @param requests the requests
+    * @return a list of addresses for each request, in order of the requests.
+    */
+  def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])(implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
+    Future.sequence(requests map addressQuery)
+  }
 
   /**
     * perform a uprn query
