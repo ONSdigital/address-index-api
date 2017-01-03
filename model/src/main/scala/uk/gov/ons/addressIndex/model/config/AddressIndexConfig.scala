@@ -53,8 +53,8 @@ case class ApiConfig(
 
 object ApiConfig{
   val default: ApiConfig = ApiConfig(
-  host = "http://localhost",
-  port = 9001
+    host = "http://localhost",
+    port = 9001
   )
 }
 
