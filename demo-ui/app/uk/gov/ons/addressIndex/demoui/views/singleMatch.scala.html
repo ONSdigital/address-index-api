@@ -8,6 +8,7 @@
  *@
 
 @main(title = messages("single.title")) {
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <div class="container">
     <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
@@ -23,6 +24,7 @@
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
+                <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)"> <button type="button" onclick="mimicBulk()">Do Upload</button>
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
@@ -91,4 +93,28 @@
         </div>
     </div>
 </div>
+<script>
+    function mimicBulk() {
+        var file = document.getElementById('file-bulk-mimic').files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function(evt) {
+                $.ajax({
+                    url: '/addresses/search/mimicBulk',
+                    contentType: 'application/json',
+                    type: 'GET',
+                    body: JSON.stringify({ inputs: evt.target.result.split("\n") })
+                }).success(function(resp) {
+                    console.log(resp);
+                }).error(function(err) {
+                    console.error(err);
+                });
+            }
+            reader.onerror = function(evt) {
+                console.error(evt);
+            }
+        }
+    }
+</script>
 }
