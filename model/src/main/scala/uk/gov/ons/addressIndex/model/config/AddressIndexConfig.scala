@@ -9,7 +9,7 @@ case class ElasticSearchConfig(
 )
 
 object ElasticSearchConfig {
-  val default : ElasticSearchConfig = ElasticSearchConfig(
+  val default: ElasticSearchConfig = ElasticSearchConfig(
     uri = "elasticsearch://localhost:9200",
     cluster = "ons-cluster",
     local = false,
@@ -30,7 +30,6 @@ case class ShieldConfig(
   user: String,
   password: String
 )
-
 
 case class AddressIndexConfig(
   elasticSearch: ElasticSearchConfig
@@ -54,8 +53,8 @@ case class ApiConfig(
 
 object ApiConfig{
   val default: ApiConfig = ApiConfig(
-  host = "http://localhost",
-  port = 9001
+    host = "http://localhost",
+    port = 9001
   )
 }
 
@@ -67,7 +66,7 @@ case class DemouiConfig (
 )
 
 object DemouiConfig {
-  val default : DemouiConfig = DemouiConfig(
+  val default: DemouiConfig = DemouiConfig(
     customErrorDev = false,
     customErrorTest = false,
     customErrorProd = true,

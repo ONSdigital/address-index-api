@@ -27,7 +27,8 @@ trait AddressIndexClient {
     * @param request the request
     * @return a list of addresses
     */
-  def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+  def addressQuery(request: AddressIndexSearchRequest)
+    (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     AddressQuery
       .toReq
       .withQueryString(
@@ -36,7 +37,18 @@ trait AddressIndexClient {
       )
       .get
       .map(_.json.as[AddressBySearchResponseContainer])
-}
+  }
+
+  /**
+    * perform a `bulk` address search query
+    *
+    * @param requests the requests
+    * @return a list of addresses for each request, in order of the requests
+    */
+  def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])
+    (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
+    Future sequence(requests map addressQuery)
+  }
 
   /**
     * perform a uprn query
@@ -60,7 +72,8 @@ object AddressIndexClientHelper {
 
   sealed abstract class AddressIndexPath(val path: String, val method: String)
 
-  implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)(implicit client: WSClient, host: AddressIndexServerHost) {
+  implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)
+    (implicit client: WSClient, host: AddressIndexServerHost) {
     def toReq(): WSRequest = {
       client url s"${host.value}${p.path}" withMethod p.path
     }

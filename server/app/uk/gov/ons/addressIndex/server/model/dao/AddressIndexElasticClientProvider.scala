@@ -41,7 +41,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
       .put("shield.transport.ssl", shieldConf.ssl)
       .put("request.headers.X-Found-Cluster", esConf.cluster)
       .put("shield.user", s"${shieldConf.user}:${shieldConf.password}")
-      .build()
+      .build
   }
 
   val client: ElasticClient = {
