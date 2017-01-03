@@ -106,9 +106,9 @@
                     type: 'GET',
                     body: JSON.stringify({ inputs: evt.target.result.split("\n") })
                 }).success(function(resp) {
-                        console.log(resp);
+                    console.log(resp);
                 }).error(function(err) {
-                        console.error(err);
+                    console.error(err);
                 });
             }
             reader.onerror = function(evt) {
