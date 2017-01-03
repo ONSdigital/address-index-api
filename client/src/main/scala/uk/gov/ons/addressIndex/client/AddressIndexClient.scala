@@ -45,7 +45,7 @@ trait AddressIndexClient {
     * @return a list of addresses for each request, in order of the requests.
     */
   def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])(implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
-    Future.sequence(requests map addressQuery)
+    Future sequence(requests map addressQuery)
   }
 
   /**
