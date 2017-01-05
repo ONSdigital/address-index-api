@@ -80,7 +80,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       val expected = AddressResponseAddress(
         uprn = paf.uprn,
-        formattedAddress = "7 6 8 9 10 PO BOX 24 11 12 13 14 15 16",
+        formattedAddress = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",
         paf = Some(AddressResponsePaf(
           udprn = paf.udprn,
           organisationName = paf.organizationName,
@@ -124,7 +124,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       val expected = AddressResponseAddress(
         uprn = nag.uprn,
-        formattedAddress = "n22 n12n13-n14n15 n11 n6 n7n8-n9n10 n19 n21 n20 n2",
+        formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         paf = None,
         nag = Some(AddressResponseNag(
           nag.uprn,
