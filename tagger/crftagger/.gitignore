@@ -1,0 +1,6 @@
+.deps/
+.DS_Store
+*.class
+*.d
+*.o
+*.so
