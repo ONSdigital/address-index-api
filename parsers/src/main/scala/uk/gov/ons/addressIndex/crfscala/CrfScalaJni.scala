@@ -1,26 +1,26 @@
 package uk.gov.ons.addressIndex.crfscala
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-
 //todo scaladoc
 trait CrfScalaJni {
   /**
     *
-    * @param modelPath
     * @param items
     * @return
     */
-  def tag(modelPath: String, items : String) : String
+  def tag(items: String): String
+  def loadModel(modelPath: String): Integer
+  def unloadModel(): Void
 }
 
 class CrfScalaJniImpl extends CrfScalaJni {
   /**
     *
     * @param modelPath
-    * @param items
     * @return
     */
-  @native def tag(modelPath: String, items : String) : String
+  @native def loadModel(modelPath: String): Integer
+  @native def tag(items: String): String
+  @native def unloadModel(): Void
 }
 
 object CrfScalaJni {
