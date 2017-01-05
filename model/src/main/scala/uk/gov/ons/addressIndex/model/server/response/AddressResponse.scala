@@ -177,17 +177,17 @@ object AddressResponseAddress {
     val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
     val trimmedThoroughfare = paf.thoroughfare.trim
 
-    val buildingNumberWithStreetName = if (trimmedDependentThoroughfare.isEmpty) {
-      s"$trimmedBuildingNumber $trimmedThoroughfare"
-    } else {
-      s"$trimmedBuildingNumber $trimmedDependentThoroughfare, $trimmedThoroughfare"
-    }
+    val buildingNumberWithStreetName =
+      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
 
-    Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
+    val parts = Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
       poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
-      paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
+      paf.postTown, paf.postcode)
+
+    delimitByComma(parts)
   }
 
+  private def delimitByComma(parts: Seq[String]) = parts.map(_.trim).filter(_.nonEmpty).mkString(", ")
   /**
     *
     * @param other address in elastic's response form
@@ -270,8 +270,10 @@ object AddressResponseAddress {
     val trimmedStreetDescriptor = nag.streetDescriptor.trim
     val buildingNumberWithStreetDescription = s"$pao $trimmedStreetDescriptor"
 
-    Seq(nag.organisation, sao, buildingNumberWithStreetDescription, nag.locality,
-      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
+    val parts = Seq(nag.organisation, sao, buildingNumberWithStreetDescription, nag.locality,
+      nag.townName, nag.postcodeLocator)
+
+    delimitByComma(parts)
   }
 
   def fromNagAddress(other: NationalAddressGazetteerAddress): AddressResponseAddress = fromNagAddress(1.0f)(other)
