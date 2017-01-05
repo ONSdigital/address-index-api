@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
-import play.api.libs.json.{Format, Json, OFormat}
+import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import scala.util.Try
@@ -173,12 +173,19 @@ object AddressResponseAddress {
 
     val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
 
-    Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
-      paf.buildingNumber, poBoxNumber, paf.dependentThoroughfare, paf.thoroughfare,
-      paf.doubleDependentLocality, paf.dependentLocality, paf.postTown, paf.postcode
-    ).map(_.trim).filter(_.nonEmpty).mkString(" ")
+    val trimmedBuildingNumber = paf.buildingNumber.trim
+    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
+    val trimmedThoroughfare = paf.thoroughfare.trim
+
+    val buildingNumberWithStreetName =
+      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
+
+    delimitByComma(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
+      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
+      paf.postTown, paf.postcode)
   }
 
+  private def delimitByComma(parts: String*) = parts.map(_.trim).filter(_.nonEmpty).mkString(", ")
   /**
     *
     * @param other address in elastic's response form
@@ -249,17 +256,20 @@ object AddressResponseAddress {
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
     val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
       .map(_.trim).mkString
-    val sao = if (nag.saoText == nag.organisation) saoNumbers else s"$saoNumbers ${nag.saoText}"
+    val sao = if (nag.saoText == nag.organisation) saoNumbers else s"$saoNumbers, ${nag.saoText}"
 
     val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
     val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
     val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
     val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
       .map(_.trim).mkString
-    val pao = if (nag.paoText == nag.organisation) paoNumbers else s"${nag.paoText} $paoNumbers"
+    val pao = if (nag.paoText == nag.organisation) paoNumbers else s"${nag.paoText}, $paoNumbers"
 
-    Seq(nag.organisation, sao, pao, nag.streetDescriptor, nag.locality,
-      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(" ")
+    val trimmedStreetDescriptor = nag.streetDescriptor.trim
+    val buildingNumberWithStreetDescription = s"$pao $trimmedStreetDescriptor"
+
+    delimitByComma(nag.organisation, sao, buildingNumberWithStreetDescription, nag.locality,
+      nag.townName, nag.postcodeLocator)
   }
 
   def fromNagAddress(other: NationalAddressGazetteerAddress): AddressResponseAddress = fromNagAddress(1.0f)(other)
@@ -347,7 +357,7 @@ case class AddressResponseNag(
   pao: AddressResponsePao,
   sao: AddressResponseSao,
   level: String,
-  officialFlag:String,
+  officialFlag: String,
   logicalStatus: String,
   streetDescriptor: String,
   townName: String,
