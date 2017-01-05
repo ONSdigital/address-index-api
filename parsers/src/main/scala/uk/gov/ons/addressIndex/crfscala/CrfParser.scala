@@ -6,7 +6,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
 trait CrfParser {
 
   //TODO scaladoc
-  val crfScala: CrfScalaJniImpl = new CrfScalaJniImpl()
+  val tagger: CrfScalaJniImpl = new CrfScalaJniImpl
 
   //TODO scaladoc
   def tag(input: Input, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
@@ -15,7 +15,10 @@ trait CrfParser {
     val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
     val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
-    val resp = crfScala.tag(modelPath, augmentedActual)
+
+    tagger.loadModel(modelPath)
+    val resp = tagger.tag(augmentedActual)
+    
     val tokenResults = resp.split(CrfScalaJni.lineEnd)
     val tokens = tokenable(input).toSeq
 
