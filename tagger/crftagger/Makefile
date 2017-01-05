@@ -21,7 +21,7 @@ else
 		export CPATH=$(HOME)/local/include:/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
 	else
 		OSNAME=Linux
-		TARGET=libcrftagger-linux.dll
+		TARGET=libcrftagger-linux.so
 		OBJ=crftagger.o crfjni.o iwa.o
 		LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
