@@ -29,7 +29,7 @@ static char* duplicate_string(const char *src)
     return dst;
 }
 
-JNIEXPORT int JNICALL Java_CrfScalaJniImpl_loadModel(JNIEnv *env, jobject obj, jstring modelPath)
+JNIEXPORT int JNICALL Java_uk_gov_ons_addressIndex_crfscala_CrfScalaJniImpl_loadModel(JNIEnv *env, jobject obj, jstring modelPath)
 {
     int ret;
 
@@ -57,7 +57,7 @@ JNIEXPORT int JNICALL Java_CrfScalaJniImpl_loadModel(JNIEnv *env, jobject obj, j
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_CrfScalaJniImpl_unloadModel(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_uk_gov_ons_addressIndex_crfscala_CrfScalaJniImpl_unloadModel(JNIEnv *env, jobject obj)
 {
     if (!model) {
         return;
@@ -68,7 +68,7 @@ JNIEXPORT void JNICALL Java_CrfScalaJniImpl_unloadModel(JNIEnv *env, jobject obj
     }
 }
 
-JNIEXPORT jstring JNICALL Java_CrfScalaJniImpl_tag(JNIEnv *env, jobject obj, jstring items)
+JNIEXPORT jstring JNICALL Java_uk_gov_ons_addressIndex_crfscala_CrfScalaJniImpl_tag(JNIEnv *env, jobject obj, jstring items)
 {
     if (!model) {
         // TODO: throw
