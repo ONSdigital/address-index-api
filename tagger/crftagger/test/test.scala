@@ -1,11 +1,7 @@
 import scala.io.Source
 import java.util.concurrent.atomic.AtomicInteger
 
-class CrfScalaJniImpl {
-  @native def loadModel(modelPath : String) : Integer
-  @native def tag(items : String) : String
-  @native def unloadModel() : Void
-}
+import uk.gov.ons.addressIndex.crfscala._
 
 object Test extends App {
     val pwd = System.getProperty("user.dir");
