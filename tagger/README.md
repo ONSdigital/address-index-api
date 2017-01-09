@@ -38,13 +38,13 @@ $ cd /path/to/address-index-api/tagger/crftagger
 # build libbfgs first
 $ cd libbfgs
 $ ./configure --prefix=$HOME/local
-$ make
+$ make clean && make
 $ make install
 
 # then build crfsuite (depends on libbfgs)
 $ cd ../crfsuite
 $ ./configure --prefix=$HOME/local --with-liblbfgs=$HOME/local
-$ make
+$ make clean && make # you will see some warnings re inline assignments but these can be ignored
 $ make install
 
 # finally, build the tagger (depends on crfsuite and libbfgs)
