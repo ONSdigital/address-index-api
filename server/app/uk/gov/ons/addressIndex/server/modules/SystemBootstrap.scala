@@ -8,7 +8,7 @@ import play.api.Logger
 class SystemBootstrap @Inject()() {
   System.load(
     new File(
-      "parsers/src/main/resources/libbackend.so"
+      "parsers/src/main/resources/libcrftagger.so"
     ).getAbsolutePath
   )
   Logger("address-index") info "`SystemBootstrap` complete"

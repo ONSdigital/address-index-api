@@ -41,46 +41,48 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     score = 1.0f
   )
 
+  val givenPaf = PostcodeAddressFileAddress(
+    recordIdentifier = "1",
+    changeType = "2",
+    proOrder = "3",
+    uprn = "4",
+    udprn = "5",
+    organizationName = "6",
+    departmentName = "7",
+    subBuildingName = "8",
+    buildingName = "9",
+    buildingNumber = "10",
+    dependentThoroughfare = "11",
+    thoroughfare = "12",
+    doubleDependentLocality = "13",
+    dependentLocality = "14",
+    postTown = "15",
+    postcode = "16",
+    postcodeType = "17",
+    deliveryPointSuffix = "18",
+    welshDependentThoroughfare = "19",
+    welshThoroughfare = "20",
+    welshDoubleDependentLocality = "21",
+    welshDependentLocality = "22",
+    welshPostTown = "23",
+    poBoxNumber = "24",
+    processDate = "25",
+    startDate = "26",
+    endDate = "27",
+    lastUpdateDate = "28",
+    entryDate = "29",
+    score = 1.0f
+  )
+
   "Address response Address model" should {
 
     "be creatable from Elastic PAF response" in {
       // Given
-      val paf = PostcodeAddressFileAddress(
-        recordIdentifier = "1",
-        changeType = "2",
-        proOrder = "3",
-        uprn = "4",
-        udprn = "5",
-        organizationName = "6",
-        departmentName = "7",
-        subBuildingName = "8",
-        buildingName = "9",
-        buildingNumber = "10",
-        dependentThoroughfare = "11",
-        thoroughfare = "12",
-        doubleDependentLocality = "13",
-        dependentLocality = "14",
-        postTown = "15",
-        postcode = "16",
-        postcodeType = "17",
-        deliveryPointSuffix = "18",
-        welshDependentThoroughfare = "19",
-        welshThoroughfare = "20",
-        welshDoubleDependentLocality = "21",
-        welshDependentLocality = "22",
-        welshPostTown = "23",
-        poBoxNumber = "24",
-        processDate = "25",
-        startDate = "26",
-        endDate = "27",
-        lastUpdateDate = "28",
-        entryDate = "29",
-        score = 1.0f
-      )
+      val paf = givenPaf
 
       val expected = AddressResponseAddress(
         uprn = paf.uprn,
-        formattedAddress = "7 6 8 9 10 PO BOX 24 11 12 13 14 15 16",
+        formattedAddress = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",
         paf = Some(AddressResponsePaf(
           udprn = paf.udprn,
           organisationName = paf.organizationName,
@@ -118,13 +120,39 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe expected
     }
 
+    "handle absent dependentThoroughfare in the formatted address" in {
+      // Given
+      val paf = givenPaf.copy(dependentThoroughfare = "")
+
+      val expected = "7, 6, 8, 9, PO BOX 24, 10 12, 13, 14, 15, 16"
+
+      // When
+      val result = AddressResponseAddress.fromPafAddress(paf)
+
+      // Then
+      result.formattedAddress shouldBe expected
+    }
+
+    "handle absent PO box in the formatted address" in {
+      // Given
+      val paf = givenPaf.copy(poBoxNumber = "")
+
+      val expected = "7, 6, 8, 9, 10 11, 12, 13, 14, 15, 16"
+
+      // When
+      val result = AddressResponseAddress.fromPafAddress(paf)
+
+      // Then
+      result.formattedAddress shouldBe expected
+    }
+
     "be creatable from Elastic NAG response" in {
       // Given
       val nag = givenNag
 
       val expected = AddressResponseAddress(
         uprn = nag.uprn,
-        formattedAddress = "n22 n12n13-n14n15 n11 n6 n7n8-n9n10 n19 n21 n20 n2",
+        formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         paf = None,
         nag = Some(AddressResponseNag(
           nag.uprn,
