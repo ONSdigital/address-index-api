@@ -1,12 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
-#include<pthread.h>
 
 #include <jni.h>
 
 #include "crftagger.h"
 
-static pthread_mutex_t lock;
 static crfsuite_model_t *model = NULL;
 
 static char* make_buffer(int size)
@@ -33,8 +31,6 @@ JNIEXPORT int JNICALL Java_uk_gov_ons_addressIndex_crfscala_CrfScalaJniImpl_load
 {
     int ret;
 
-    pthread_mutex_lock(&lock);
-
     if (model) {
         SAFE_RELEASE(model);        
     }
@@ -51,8 +47,6 @@ JNIEXPORT int JNICALL Java_uk_gov_ons_addressIndex_crfscala_CrfScalaJniImpl_load
     if (ret) {
         return 2;
     }
-
-    pthread_mutex_unlock(&lock);
 
     return 0;
 }
