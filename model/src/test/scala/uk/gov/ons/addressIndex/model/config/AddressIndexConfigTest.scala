@@ -38,6 +38,10 @@ object ElasticSearchConfigTest {
     indexes = IndexesConfig(
       pafIndex = "paf/address",
       nagIndex = "nag/address"
-    )
+    ),
+    defaultLimit=10,
+    defaultOffset=0,
+    maximumLimit=100,
+    maximumOffset=1000
   )
 }

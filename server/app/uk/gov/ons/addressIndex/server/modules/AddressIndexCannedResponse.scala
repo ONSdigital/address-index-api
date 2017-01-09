@@ -59,6 +59,54 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def LimitNotNumeric: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(LimitNotNumericAddressResponseError)
+    )
+  }
+
+  def OffsetNotNumeric: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(OffsetNotNumericAddressResponseError)
+    )
+  }
+
+  def LimitTooSmall: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(LimitTooSmallAddressResponseError)
+    )
+  }
+
+  def OffsetTooSmall: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(OffsetTooSmallAddressResponseError)
+    )
+  }
+
+  def LimitTooLarge: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(LimitTooLargeAddressResponseError)
+    )
+  }
+
+  def OffsetTooLarge: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(OffsetTooLargeAddressResponseError)
+    )
+  }
+
   def UnsupportedFormat: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
