@@ -54,7 +54,7 @@ class AddressController @Inject()(
     val limval = limit.getOrElse(defLimit.toString())
     val offval = offset.getOrElse(defOffset.toString())
     val limitInvalid = Try(limval.toInt).isFailure
-    val offsetInvalid = Try(limval.toInt).isFailure
+    val offsetInvalid = Try(offval.toInt).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 // Check the offset and limit parameters before proceeding with the request

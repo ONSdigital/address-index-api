@@ -39,7 +39,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
       searchContainerTemplate(
         tokens = tokens.input,
         addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
-        total = addresses.size
+        total = addresses.size,
+        limit = tokens.limit,
+        offset = tokens.offset - 1
       )
     }
   }
@@ -53,7 +55,9 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
       searchContainerTemplate(
         tokens = tokens.input,
         addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
-        total = addresses.size
+        total = addresses.size,
+        limit = tokens.limit,
+        offset = tokens.offset - 1
       )
     }
   }

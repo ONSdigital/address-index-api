@@ -5,12 +5,12 @@ import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
 
-  def Limit: Int = 10
-
   def searchContainerTemplate(
     tokens: Seq[CrfTokenResult],
     addresses: Seq[AddressResponseAddress],
-    total: Int
+    total: Int,
+    limit: Int,
+    offset: Int
   ): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = AddressBySearchResponse(
@@ -22,8 +22,8 @@ trait AddressIndexCannedResponse {
             )
           }.toSeq,
         addresses = addresses,
-        limit = Limit,
-        offset = 0,
+        limit = limit,
+        offset = offset,
         total = addresses.size
       ),
       status = OkAddressResponseStatus
@@ -127,7 +127,7 @@ trait AddressIndexCannedResponse {
     AddressBySearchResponse(
       Seq.empty,
       addresses = Seq.empty,
-      limit = Limit,
+      limit = 10,
       offset = 0,
       total = 0
     )
