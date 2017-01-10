@@ -100,16 +100,28 @@
             var reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = function(evt) {
-                $.ajax({
+
+                var inputs = evt.target.result.split("\n");
+                console.log('inputs', inputs);
+
+                var postBody = { inputs: inputs };
+                console.log('postBody', postBody);
+
+                var ajaxObj = {
+                    type: 'POST',
                     url: '/addresses/search/mimicBulk',
                     contentType: 'application/json',
-                    type: 'GET',
-                    body: JSON.stringify({ inputs: evt.target.result.split("\n") })
-                }).success(function(resp) {
-                    console.log(resp);
-                }).error(function(err) {
-                    console.error(err);
-                });
+                    body: '{ \\"inputs\" : [\\"t1\\", \\"t2\\"]}',
+                    success: function(resp) {
+                        console.log(resp);
+                    },
+                    error: function(err) {
+                        console.error(err);
+                    }
+                };
+                console.log(ajaxObj);
+
+                $.ajax(ajaxObj);
             }
             reader.onerror = function(evt) {
                 console.error(evt);
