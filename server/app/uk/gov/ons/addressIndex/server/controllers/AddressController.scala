@@ -51,6 +51,7 @@ class AddressController @Inject()(
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
+// TODO Look at refactoring to use types
     val limval = limit.getOrElse(defLimit.toString())
     val offval = offset.getOrElse(defOffset.toString())
     val limitInvalid = Try(limval.toInt).isFailure
@@ -101,5 +102,11 @@ class AddressController @Inject()(
       inputForNagFn = UprnQueryInput(uprn),
       nagFn = uprnNagSearch
     ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
+  }
+}
+
+case class MyType(message: String) {
+  def validate (opt: Option[Int]): MyType = {
+    opt.map { number => if(number > 10) { MyType("something1")} else {MyType("something2")} }.getOrElse(MyType("default"))
   }
 }

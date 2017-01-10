@@ -59,68 +59,44 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  def LimitNotNumeric: AddressBySearchResponseContainer = {
+  private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
       status = BadRequestAddressResponseStatus,
-      errors = Seq(LimitNotNumericAddressResponseError)
+      errors = errors
     )
   }
 
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(OffsetNotNumericAddressResponseError)
-    )
+    BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  }
+
+  def LimitNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LimitNotNumericAddressResponseError)
   }
 
   def LimitTooSmall: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(LimitTooSmallAddressResponseError)
-    )
+      BadRequestTemplate(LimitTooSmallAddressResponseError)
   }
 
   def OffsetTooSmall: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(OffsetTooSmallAddressResponseError)
-    )
+      BadRequestTemplate(OffsetTooSmallAddressResponseError)
   }
 
   def LimitTooLarge: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(LimitTooLargeAddressResponseError)
-    )
+      BadRequestTemplate(LimitTooLargeAddressResponseError)
   }
 
   def OffsetTooLarge: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(OffsetTooLargeAddressResponseError)
-    )
+      BadRequestTemplate(OffsetTooLargeAddressResponseError)
   }
 
   def UnsupportedFormat: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(FormatNotSupportedAddressResponseError)
-    )
+      BadRequestTemplate(FormatNotSupportedAddressResponseError)
   }
 
   def EmptySearch: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(EmptyQueryAddressResponseError)
-    )
+      BadRequestTemplate(EmptyQueryAddressResponseError)
   }
 
   def Error: AddressBySearchResponse = {
