@@ -437,7 +437,7 @@ object AddressResponseGeo {
   * @param code    http code
   * @param message response description
   */
-case class AddressResponseStatus(
+case class AddressResponseStatus (
   code: Int,
   message: String
 )
@@ -492,6 +492,35 @@ object NotFoundAddressResponseError extends AddressResponseError(
   message = "UPRN request didn't yield a result"
 )
 
+object LimitNotNumericAddressResponseError extends AddressResponseError(
+  code = 4,
+  message = "Limit parameter not numeric"
+)
+
+object OffsetNotNumericAddressResponseError extends AddressResponseError(
+  code = 5,
+  message = "Offset parameter not numeric"
+)
+
+object LimitTooSmallAddressResponseError extends AddressResponseError(
+  code = 6,
+  message = "Limit parameter too small, minimum = 1"
+)
+
+object OffsetTooSmallAddressResponseError extends AddressResponseError(
+  code = 7,
+  message = "Offset parameter too small, minimum = 0"
+)
+
+object LimitTooLargeAddressResponseError extends AddressResponseError(
+  code = 8,
+  message = "Limit parameter too large (maximum configurable)"
+)
+
+object OffsetTooLargeAddressResponseError extends AddressResponseError(
+  code = 9,
+  message = "Offset parameter too large (maximum configurable)"
+)
 
 
 

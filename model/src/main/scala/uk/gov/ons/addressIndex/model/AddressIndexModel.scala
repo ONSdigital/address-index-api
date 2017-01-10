@@ -11,6 +11,8 @@ case class AddressIndexUPRNRequest(
 case class AddressIndexSearchRequest(
   format: AddressScheme,
   input: String,
+  limit: String,
+  offset: String,
   id: UUID
 )
 

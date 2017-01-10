@@ -33,7 +33,9 @@ trait AddressIndexClient {
       .toReq
       .withQueryString(
         "input" -> request.input,
-        "format" -> request.format.toString
+        "format" -> request.format.toString,
+        "limit" -> request.limit,
+        "offset" -> request.offset
       )
       .get
       .map(_.json.as[AddressBySearchResponseContainer])
