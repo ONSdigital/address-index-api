@@ -104,9 +104,3 @@ class AddressController @Inject()(
     ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
   }
 }
-
-case class MyType(message: String) {
-  def validate (opt: Option[Int]): MyType = {
-    opt.map { number => if(number > 10) { MyType("something1")} else {MyType("something2")} }.getOrElse(MyType("default"))
-  }
-}
