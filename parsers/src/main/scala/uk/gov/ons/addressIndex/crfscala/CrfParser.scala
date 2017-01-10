@@ -12,7 +12,7 @@ trait CrfParser {
   def tag(input: Input, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
     //todo optimise file
     val currentDirectory = new java.io.File(".").getCanonicalPath
-    val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
+    val modelPath = s"$currentDirectory/../addressCRFA.crfsuite"
     val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
 
