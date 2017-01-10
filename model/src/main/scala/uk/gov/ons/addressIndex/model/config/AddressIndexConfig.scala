@@ -5,7 +5,11 @@ case class ElasticSearchConfig(
   cluster: String,
   uri: String,
   indexes: IndexesConfig,
-  shield: ShieldConfig
+  shield: ShieldConfig,
+  defaultLimit: Int,
+  defaultOffset: Int,
+  maximumLimit: Int,
+  maximumOffset: Int
 )
 
 object ElasticSearchConfig {
@@ -21,7 +25,11 @@ object ElasticSearchConfig {
       ssl = true,
       user = "admin",
       password = ""
-    )
+    ),
+    defaultLimit=10,
+    defaultOffset=0,
+    maximumLimit=100,
+    maximumOffset=1000
   )
 }
 
