@@ -114,6 +114,7 @@ class SingleMatchController @Inject()(
   }
 
   def doMatchWithBulk(): Action[BulkRequest] = Action.async(parse.json[BulkRequest]) { implicit request =>
+    logger info "doMatchWithBulk"
     apiClient.addressQueriesBulkMimic(
       requests = request.body.inputs map { input =>
         AddressIndexSearchRequest(
