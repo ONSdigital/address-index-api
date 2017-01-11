@@ -24,7 +24,7 @@
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
-                <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)"> <button type="button" onclick="mimicBulk()">Do Upload</button>
+                <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
@@ -107,19 +107,21 @@
                 var postBody = { inputs: inputs };
                 console.log('postBody', postBody);
 
+
                 var ajaxObj = {
                     type: 'POST',
-                    url: '/addresses/search/mimicBulk',
+                    url: '/addresses/mimicBulk',
                     contentType: 'application/json',
-                    body: '{ \\"inputs\" : [\\"t1\\", \\"t2\\"]}',
+                    dataType: 'json',
+                    data: JSON.stringify(postBody),
                     success: function(resp) {
-                        console.log(resp);
+                        console.log('success', resp);
                     },
                     error: function(err) {
                         console.error(err);
                     }
                 };
-                console.log(ajaxObj);
+                console.log('ajaxObj', ajaxObj);
 
                 $.ajax(ajaxObj);
             }
