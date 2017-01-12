@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "iwa.h"
-#include "fmemopen.h"
 #include "crftagger.h"
 
 static int format_result(
