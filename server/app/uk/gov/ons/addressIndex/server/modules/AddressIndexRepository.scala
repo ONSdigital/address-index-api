@@ -11,8 +11,15 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, Input}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
-
+import uk.gov.ons.addressIndex.server.modules.Model._
 import scala.concurrent.{ExecutionContext, Future}
+
+object Model {
+  case class Pagination(start: Int, limit: Int)
+  implicit class AutoPaginate(searchDefinition: SearchDefinition) {
+    def paginate(implicit p: Pagination): SearchDefinition = searchDefinition start p.start limit p.limit
+  }
+}
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -44,7 +51,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryPafAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses]
+  def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses]
 
   /**
     * Query the address index for NAG addresses.
@@ -53,10 +60,9 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryNagAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses]
+  def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses]
 
-
-  def queryHybrid(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[_]
+  def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_]
 }
 
 @Singleton
@@ -69,8 +75,8 @@ class AddressIndexRepository @Inject()(
   private val pafIndex = esConf.indexes.pafIndex
   private val nagIndex = esConf.indexes.nagIndex
   private val hybridIndex = esConf.indexes.hybridIndex
-  private val client: ElasticClient = elasticClientProvider.client
   private val logger = Logger("AddressIndexRepository")
+  val client: ElasticClient = elasticClientProvider.client
 
   def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = {
     client execute {
@@ -103,9 +109,9 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryPafAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses] = {
+  def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] = {
     client execute {
-      val s = search in pafIndex start start limit limit query {
+      val s = search.in(pafIndex).paginate query {
         bool(
           must(
             tokensToMatchQueries(
@@ -135,9 +141,9 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryNagAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses] = {
+  def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] = {
     client execute {
-      val s = search in nagIndex start start limit limit query {
+      val s = search.in(nagIndex).paginate query {
         bool(
           must(
             tokensToMatchQueries(
@@ -169,13 +175,12 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  override def queryHybrid(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[_] = {
+  override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
     client execute {
-      val s = search in hybridIndex start start limit limit
+      val s = search.in(hybridIndex).paginate
       logger info s"Raw Elastic Query:\n${s.toString}"
       s
     } map { resp =>
-
       logger info "success"
       "success"
       //undefined
