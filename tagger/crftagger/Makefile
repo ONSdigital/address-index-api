@@ -20,15 +20,15 @@ else
 		$(LIB)/libcrfsuite*.dylib $(LIB)/libcrfsuite*.la \
 		$(LIB)/liblbfgs*.dylib $(LIB)/liblbfgs*.la
 
+	OBJ=crftagger.o crfjni.o iwa.o
+
 	ifeq ($(UNAME),Darwin)
 		TARGET=libcrftagger-osx.so
-		OBJ=crftagger.o crfjni.o iwa.o
 		LIB_OPTIONS=-lcrfsuite -lcqdb -llbfgs
 
 		export CPATH=$(HOME)/local/include:/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
 	else
 		TARGET=libcrftagger.so
-		OBJ=crftagger.o crfjni.o iwa.o
 		LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
 		export CPATH=$(HOME)/local/include:/usr/java/latest/include:/usr/java/latest/include/linux
