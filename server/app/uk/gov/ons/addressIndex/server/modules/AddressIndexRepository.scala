@@ -79,14 +79,14 @@ class AddressIndexRepository @Inject()(
   val client: ElasticClient = elasticClientProvider.client
 
   def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = {
-    client execute {
+    logExecute("Query Paf UPRN Raw") {
       search in pafIndex query { termQuery("uprn", uprn) }
     } map(_.as[PostcodeAddressFileAddress].headOption)
   }
 
   def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = {
-    client execute {
-      search in nagIndex query { termQuery("uprn", uprn) }
+    logExecute("Query Nag UPRN Raw") {
+      search in nagIndex query { termQuery("uprn", uprn)}
     } map(_.as[NationalAddressGazetteerAddress].headOption)
   }
 
@@ -110,15 +110,15 @@ class AddressIndexRepository @Inject()(
   }
 
   def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] = {
-    client execute {
-      val s = search.in(pafIndex).paginate query {
+    logExecute("Query Paf Addresses Raw") {
+      search.in(pafIndex).paginate query {
         bool(
           must(
             tokensToMatchQueries(
               tokens = tokens,
               tokenFieldMap = Map(
                 Tokens.buildingNumber -> PostcodeAddressFileAddress.Fields.buildingNumber,
-//                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
+                //                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
                 Tokens.organisationName -> PostcodeAddressFileAddress.Fields.organizationName,
                 Tokens.departmentName -> PostcodeAddressFileAddress.Fields.departmentName,
                 Tokens.subBuildingName -> PostcodeAddressFileAddress.Fields.subBuildingName,
@@ -131,8 +131,6 @@ class AddressIndexRepository @Inject()(
           )
         )
       }
-      logger info s"Raw Elastic Query:\n${s.toString}"
-      s
     } map { response =>
       PostcodeAddressFileAddresses(
         addresses = response.as[PostcodeAddressFileAddress],
@@ -141,9 +139,10 @@ class AddressIndexRepository @Inject()(
     }
   }
 
+
   def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] = {
-    client execute {
-      val s = search.in(nagIndex).paginate query {
+    logExecute("Query Nag Addresses Raw") {
+      search.in(nagIndex).paginate query {
         bool(
           must(
             tokensToMatchQueries(
@@ -156,7 +155,7 @@ class AddressIndexRepository @Inject()(
                 Tokens.departmentName -> NationalAddressGazetteerAddress.Fields.legalName,
                 Tokens.subBuildingName -> NationalAddressGazetteerAddress.Fields.saoText,
                 Tokens.buildingName -> NationalAddressGazetteerAddress.Fields.paoText,
-//                Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields., StartPrefix EndPrefix,
+                //                Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields., StartPrefix EndPrefix,
                 Tokens.streetName -> NationalAddressGazetteerAddress.Fields.streetDescriptor,
                 Tokens.townName -> NationalAddressGazetteerAddress.Fields.townName,
                 Tokens.postcode -> NationalAddressGazetteerAddress.Fields.postcodeLocator
@@ -165,8 +164,6 @@ class AddressIndexRepository @Inject()(
           )
         )
       }
-      logger info s"Raw Elastic Query:\n${s.toString}"
-      s
     } map { response =>
       NationalAddressGazetteerAddresses(
         addresses = response.as[NationalAddressGazetteerAddress],
@@ -176,14 +173,15 @@ class AddressIndexRepository @Inject()(
   }
 
   override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
-    client execute {
-      val s = search.in(hybridIndex).paginate
-      logger info s"Raw Elastic Query:\n${s.toString}"
-      s
-    } map { resp =>
+    logExecute("Query Hybrid Addresses Raw")(search.in(hybridIndex).paginate) map { resp =>
       logger info "success"
       "success"
       //undefined
     }
+  }
+
+  private def logExecute[T, R, Q](info: String)(t: T)(implicit executable: Executable[T, R, Q]): Future[Q] = {
+    logger info s"$info: ${t.toString}"
+    client execute t
   }
 }
