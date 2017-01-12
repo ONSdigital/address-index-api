@@ -24,4 +24,4 @@ GET    /addresses/search/:input/:format         uk.gov.ons.addressIndex.demoui.c
 GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, format: String = "paf")
 
 # ONS-Address Index Bulk Mimic Upload
-POST    /addresses/search/mimicBulk             uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithBulk
+POST    /addresses/mimicBulk                    uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithBulk
