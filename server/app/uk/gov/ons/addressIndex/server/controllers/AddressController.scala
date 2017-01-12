@@ -44,13 +44,22 @@ class AddressController @Inject()(
     * @param format requested format of the query (paf/nag)
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, format: String, offset: Option[String] = None, limit: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
-    logger info s"#addressQuery:\ninput $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"
+  def addressQuery(
+    input: String,
+    format: Option[String] = None,
+    offset: Option[String] = None,
+    limit: Option[String] = None
+  ): Action[AnyContent] = Action async { implicit req =>
+
+    logger info s"#addressQuery:\n" +
+      s"input $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"
+
    // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
+
 // TODO Look at refactoring to use types
     val limval = limit.getOrElse(defLimit.toString())
     val offval = offset.getOrElse(defOffset.toString())
@@ -74,14 +83,28 @@ class AddressController @Inject()(
     } else {
       input.toOption map { actualInput =>
         val tokens = parser tag actualInput
-        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} , label:${t.label}").mkString("\n")}"
-        formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
-          formatStr = format,
-          inputForPafFn = AddressQueryInput(tokens, offsetInt + 1, limitInt),
-          pafFn = pafSearch,
-          inputForNagFn = AddressQueryInput(tokens, offsetInt + 1, limitInt),
-          nagFn = nagSearch
-        ) getOrElse futureJsonBadRequest(UnsupportedFormat)
+        val input = AddressQueryInput(
+          tokens = tokens,
+          offset = offsetInt + 1,
+          limit = limitInt
+        )
+
+        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label:${t.label}").mkString("\n")}"
+
+        format.map { formatStr =>
+          formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
+            formatStr = formatStr,
+            inputForPafFn = input,
+            pafFn = pafSearch,
+            inputForNagFn = input,
+            nagFn = nagSearch
+          ) getOrElse futureJsonBadRequest(UnsupportedFormat)
+        } getOrElse {
+          hybridQuery(
+            input = input
+          )
+          futureJsonBadRequest(UnsupportedFormat)
+        }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
   }

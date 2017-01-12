@@ -23,21 +23,34 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * A simple type class which is used for distinction between query input types
     */
   sealed trait QueryInput[T] {
-    def input: T
+    def tokens: T
     def offset: Int
     def limit: Int
   }
-  case class UprnQueryInput(override val input: String, val offset: Int = 0, val limit: Int = 1) extends QueryInput[String]
-  case class AddressQueryInput(override val input: Seq[CrfTokenResult], val offset: Int, val limit: Int) extends QueryInput[Seq[CrfTokenResult]]
+  case class UprnQueryInput(
+   override val tokens: String,
+   offset: Int = 0,
+   limit: Int = 1
+  ) extends QueryInput[String]
+
+  case class AddressQueryInput(
+    override val tokens: Seq[CrfTokenResult],
+    offset: Int,
+    limit: Int
+  ) extends QueryInput[Seq[CrfTokenResult]]
 
   /**
     * @param tokens
     * @return
     */
   def pafSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
-    esRepo queryPafAddresses(tokens.offset, tokens.limit, tokens.input) map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
+    esRepo queryPafAddresses(
+      start = tokens.offset,
+      limit = tokens.limit,
+      tokens = tokens.tokens
+      ) map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
       searchContainerTemplate(
-        tokens = tokens.input,
+        tokens = tokens.tokens,
         addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
         total = addresses.size,
         limit = tokens.limit,
@@ -51,9 +64,13 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @return
     */
   def nagSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
-    esRepo queryNagAddresses (tokens.offset, tokens.limit, tokens.input) map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
+    esRepo queryNagAddresses (
+      start = tokens.offset,
+      limit = tokens.limit,
+      tokens = tokens.tokens
+    ) map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
       searchContainerTemplate(
-        tokens = tokens.input,
+        tokens = tokens.tokens,
         addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
         total = addresses.size,
         limit = tokens.limit,
@@ -67,7 +84,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @return
     */
   def uprnPafSearch(uprn: QueryInput[String]): Future[AddressByUprnResponseContainer] = {
-    esRepo queryPafUprn uprn.input map {
+    esRepo queryPafUprn uprn.tokens map {
       _.map { address =>
         searchUprnContainerTemplate(
           Some(AddressResponseAddress fromPafAddress address)
@@ -81,7 +98,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @return
     */
   def uprnNagSearch(uprn: QueryInput[String]): Future[AddressByUprnResponseContainer] = {
-    esRepo queryNagUprn uprn.input map {
+    esRepo queryNagUprn uprn.tokens map {
       _.map { address =>
         searchUprnContainerTemplate(
           Some(AddressResponseAddress fromNagAddress address)
@@ -116,5 +133,17 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
         case _: BritishStandard7666 => nagFn(inputForNagFn)
       }
     ) map(_.map(jsonOk[T]))
+  }
+
+  /**
+    * @param input
+    * @return
+    */
+  def hybridSearch(input: AddressQueryInput): Option[Future[_]] = {
+    esRepo queryHybrid(
+      start = input.offset,
+      limit = input.limit,
+      tokens = input.tokens
+    )
   }
 }

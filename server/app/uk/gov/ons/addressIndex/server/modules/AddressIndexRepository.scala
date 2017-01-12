@@ -19,7 +19,7 @@ trait ElasticsearchRepository {
   /**
     * An ElasticClient.
     */
-  def client() : ElasticClient
+  def client(): ElasticClient
 
   /**
     * Query the PAF addres index by UPRN.
@@ -27,7 +27,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Fucture containing a PAF address or `None` if not in the index
     */
-  def queryPafUprn(uprn : String) : Future[Option[PostcodeAddressFileAddress]]
+  def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]]
 
   /**
     * Query the NAG addres index by UPRN.
@@ -35,7 +35,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Fucture containing a NAG address or `None` if not in the index
     */
-  def queryNagUprn(uprn : String) : Future[Option[NationalAddressGazetteerAddress]]
+  def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]]
 
   /**
     * Query the address index for PAF addresses.
@@ -44,7 +44,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryPafAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses]
+  def queryPafAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses]
 
   /**
     * Query the address index for NAG addresses.
@@ -53,7 +53,10 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryNagAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses]
+  def queryNagAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses]
+
+
+  def queryHybrid(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[_]
 }
 
 @Singleton
@@ -65,7 +68,8 @@ class AddressIndexRepository @Inject()(
   private val esConf = conf.config.elasticSearch
   private val pafIndex = esConf.indexes.pafIndex
   private val nagIndex = esConf.indexes.nagIndex
-  val client: ElasticClient = elasticClientProvider.client
+  private val hybridIndex = esConf.indexes.hybridIndex
+  private val client: ElasticClient = elasticClientProvider.client
   private val logger = Logger("AddressIndexRepository")
 
   def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = {
@@ -162,6 +166,19 @@ class AddressIndexRepository @Inject()(
         addresses = response.as[NationalAddressGazetteerAddress],
         maxScore = response.maxScore
       )
+    }
+  }
+
+  override def queryHybrid(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[_] = {
+    client execute {
+      val s = search in hybridIndex start start limit limit
+      logger info s"Raw Elastic Query:\n${s.toString}"
+      s
+    } map { resp =>
+
+      logger info "success"
+      "success"
+      //undefined
     }
   }
 }
