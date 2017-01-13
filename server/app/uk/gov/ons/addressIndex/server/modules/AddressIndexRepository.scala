@@ -14,9 +14,9 @@ import uk.gov.ons.addressIndex.server.modules.Model._
 import scala.concurrent.{ExecutionContext, Future}
 
 object Model {
-  case class Pagination(start: Int, limit: Int)
+  case class Pagination(offset: Int, limit: Int)
   implicit class AutoPaginate(searchDefinition: SearchDefinition) {
-    def paginate(implicit p: Pagination): SearchDefinition = searchDefinition start p.start limit p.limit
+    def paginate(implicit p: Pagination): SearchDefinition = searchDefinition start p.offset limit p.limit
   }
 }
 
@@ -117,7 +117,7 @@ class AddressIndexRepository @Inject()(
               tokens = tokens,
               tokenFieldMap = Map(
                 Tokens.buildingNumber -> PostcodeAddressFileAddress.Fields.buildingNumber,
-                //                Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
+                //Tokens.Locality -> "",//PostcodeAddressFileAddress.Fields.Dependentlocality OR q welsh == //DoubleDependentlocality,
                 Tokens.organisationName -> PostcodeAddressFileAddress.Fields.organizationName,
                 Tokens.departmentName -> PostcodeAddressFileAddress.Fields.departmentName,
                 Tokens.subBuildingName -> PostcodeAddressFileAddress.Fields.subBuildingName,
