@@ -12,6 +12,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
+import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
 import scala.util.Try
 
@@ -61,8 +62,8 @@ class AddressController @Inject()(
     val maxOffset = conf.config.elasticSearch.maximumOffset
 
 // TODO Look at refactoring to use types
-    val limval = limit.getOrElse(defLimit.toString())
-    val offval = offset.getOrElse(defOffset.toString())
+    val limval = limit.getOrElse(defLimit.toString)
+    val offval = offset.getOrElse(defOffset.toString)
     val limitInvalid = Try(limval.toInt).isFailure
     val offsetInvalid = Try(offval.toInt).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -81,12 +82,19 @@ class AddressController @Inject()(
     } else if (offsetInt > maxOffset) {
       futureJsonBadRequest(OffsetTooLarge)
     } else {
-      input.toOption map { actualInput =>
+      //pagination passing
+      val pagination = Pagination(
+        offset = offsetInt,
+        limit = limitInt
+      )
+
+
+
+        input.toOption map { actualInput =>
         val tokens = parser tag actualInput
         val input = AddressQueryInput(
           tokens = tokens,
-          offset = offsetInt + 1,
-          limit = limitInt
+          pagination = pagination
         )
 
         logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label:${t.label}").mkString("\n")}"
@@ -100,10 +108,16 @@ class AddressController @Inject()(
             nagFn = nagSearch
           ) getOrElse futureJsonBadRequest(UnsupportedFormat)
         } getOrElse {
-          hybridQuery(
+          hybridSearch(
             input = input
+          ).map(
+            _.map { fx =>
+              jsonOk(
+                fx
+              )
+            }
           )
-          futureJsonBadRequest(UnsupportedFormat)
+          futureJsonBadRequest(EmptySearch)
         }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
