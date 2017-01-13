@@ -38,7 +38,7 @@ endif
 	$(CC) $(CCFLAGS) $< -o $@
 
 $(TARGET): $(OBJ)
-	$(RM_DYNAMIC_LIBS)
+	$(RMF_DYNAMIC_LIBS)
 	$(CC) $^ -shared -o $@ -L$(LIB) $(LIB_OPTIONS)
 
 all: $(TARGET)
