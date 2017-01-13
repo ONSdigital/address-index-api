@@ -4,6 +4,7 @@ RMF=rm -f
 
 LIB=$(HOME)/local/lib
 CCFLAGS=-fPIC -DHAVE_CONFIG_H -mfpmath=sse -msse2 -DUSE_SSE -O3 -fomit-frame-pointer -ffast-math -Winline -std=c99 -MT crftagger.o -MD -MP -c
+OBJ=crftagger.o crfjni.o iwa.o
 
 ifeq ($(OS),Windows)
 	CC=x86_64-w64-mingw32-gcc
@@ -19,8 +20,6 @@ else
 		$(LIB)/libcqdb*.dylib $(LIB)/libcqdb*.la \
 		$(LIB)/libcrfsuite*.dylib $(LIB)/libcrfsuite*.la \
 		$(LIB)/liblbfgs*.dylib $(LIB)/liblbfgs*.la
-
-	OBJ=crftagger.o crfjni.o iwa.o
 
 	ifeq ($(UNAME),Darwin)
 		TARGET=libcrftagger-osx.so
