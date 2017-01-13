@@ -5,6 +5,7 @@ RMF=rm -f
 LIB=$(HOME)/local/lib
 CCFLAGS=-fPIC -DHAVE_CONFIG_H -mfpmath=sse -msse2 -DUSE_SSE -O3 -fomit-frame-pointer -ffast-math -Winline -std=c99 -MT crftagger.o -MD -MP -c
 OBJ=crftagger.o crfjni.o iwa.o
+LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
 ifeq ($(OS),Windows)
 	CC=x86_64-w64-mingw32-gcc
