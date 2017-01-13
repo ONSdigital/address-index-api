@@ -27,9 +27,8 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
   sealed trait QueryInput[T] {
     def tokens: T
     def pagination: Pagination
-    def offset: Int
-    def limit: Int
   }
+
   case class UprnQueryInput(
    override val tokens: String,
    pagination: Pagination
@@ -41,41 +40,35 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
   ) extends QueryInput[Seq[CrfTokenResult]]
 
   /**
-    * @param tokens
+    * @param input
     * @return
     */
-  def pafSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
+  def pafSearch(input: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
+    implicit val pagination = input.pagination
     esRepo queryPafAddresses(
-      start = tokens.offset,
-      limit = tokens.limit,
-      tokens = tokens.tokens
+      tokens = input.tokens
       ) map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
       searchContainerTemplate(
-        tokens = tokens.tokens,
+        tokens = input.tokens,
         addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
-        total = addresses.size,
-        limit = tokens.limit,
-        offset = tokens.offset - 1
+        total = addresses.size
       )
     }
   }
 
   /**
-    * @param tokens
+    * @param input
     * @return
     */
-  def nagSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
+  def nagSearch(input: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
+    implicit val pagination = input.pagination
     esRepo queryNagAddresses (
-      start = tokens.offset,
-      limit = tokens.limit,
-      tokens = tokens.tokens
+      tokens = input.tokens
     ) map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
       searchContainerTemplate(
-        tokens = tokens.tokens,
+        tokens = input.tokens,
         addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
-        total = addresses.size,
-        limit = tokens.limit,
-        offset = tokens.offset - 1
+        total = addresses.size
       )
     }
   }
@@ -141,10 +134,11 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @return
     */
   def hybridSearch(input: AddressQueryInput): Option[Future[_]] = {
-    esRepo queryHybrid(
-      start = input.offset,
-      limit = input.limit,
-      tokens = input.tokens
+    implicit val implPag = input.pagination
+    Some(
+      esRepo queryHybrid(
+        tokens = input.tokens
+      )
     )
   }
 }
