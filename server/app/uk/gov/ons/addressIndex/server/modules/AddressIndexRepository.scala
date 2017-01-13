@@ -44,7 +44,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryPafAddresses(tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses]
+  def queryPafAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]) : Future[PostcodeAddressFileAddresses]
 
   /**
     * Query the address index for NAG addresses.
@@ -53,7 +53,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found PAF addresses and the maximum score
     */
-  def queryNagAddresses(tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses]
+  def queryNagAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]) : Future[NationalAddressGazetteerAddresses]
 }
 
 @Singleton
@@ -99,9 +99,9 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryPafAddresses(tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses] = {
+  def queryPafAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses] = {
     client execute {
-      val s = search in pafIndex query {
+      val s = search in pafIndex start start limit limit query {
         bool(
           must(
             tokensToMatchQueries(
@@ -131,9 +131,9 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryNagAddresses(tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses] = {
+  def queryNagAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses] = {
     client execute {
-      val s = search in nagIndex query {
+      val s = search in nagIndex start start limit limit query {
         bool(
           must(
             tokensToMatchQueries(

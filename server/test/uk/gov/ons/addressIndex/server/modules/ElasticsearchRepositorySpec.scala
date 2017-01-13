@@ -323,7 +323,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = expectedPaf.copy(score = expectedScore)
 
       // When
-      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(tokens).await
+      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(1,10,tokens).await
 
       // Then
       results.length shouldBe 1
@@ -344,7 +344,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = expectedNag.copy(score = expectedScore)
 
       // When
-      val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(tokens).await
+      val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(1,10,tokens).await
 
       // Then
       results.length shouldBe 1

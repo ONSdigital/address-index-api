@@ -5,12 +5,12 @@ import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
 
-  def Limit: Int = 10
-
   def searchContainerTemplate(
     tokens: Seq[CrfTokenResult],
     addresses: Seq[AddressResponseAddress],
-    total: Int
+    total: Int,
+    limit: Int,
+    offset: Int
   ): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = AddressBySearchResponse(
@@ -22,8 +22,8 @@ trait AddressIndexCannedResponse {
             )
           }.toSeq,
         addresses = addresses,
-        limit = Limit,
-        offset = 0,
+        limit = limit,
+        offset = offset,
         total = addresses.size
       ),
       status = OkAddressResponseStatus
@@ -59,27 +59,51 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  def UnsupportedFormat: AddressBySearchResponseContainer = {
+  private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = Error,
       status = BadRequestAddressResponseStatus,
-      errors = Seq(FormatNotSupportedAddressResponseError)
+      errors = errors
     )
   }
 
+  def OffsetNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  }
+
+  def LimitNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LimitNotNumericAddressResponseError)
+  }
+
+  def LimitTooSmall: AddressBySearchResponseContainer = {
+      BadRequestTemplate(LimitTooSmallAddressResponseError)
+  }
+
+  def OffsetTooSmall: AddressBySearchResponseContainer = {
+      BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  }
+
+  def LimitTooLarge: AddressBySearchResponseContainer = {
+      BadRequestTemplate(LimitTooLargeAddressResponseError)
+  }
+
+  def OffsetTooLarge: AddressBySearchResponseContainer = {
+      BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  }
+
+  def UnsupportedFormat: AddressBySearchResponseContainer = {
+      BadRequestTemplate(FormatNotSupportedAddressResponseError)
+  }
+
   def EmptySearch: AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(EmptyQueryAddressResponseError)
-    )
+      BadRequestTemplate(EmptyQueryAddressResponseError)
   }
 
   def Error: AddressBySearchResponse = {
     AddressBySearchResponse(
       Seq.empty,
       addresses = Seq.empty,
-      limit = Limit,
+      limit = 10,
       offset = 0,
       total = 0
     )

@@ -24,20 +24,24 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     */
   sealed trait QueryInput[T] {
     def input: T
+    def offset: Int
+    def limit: Int
   }
-  case class UprnQueryInput(override val input: String) extends QueryInput[String]
-  case class AddressQueryInput(override val input: Seq[CrfTokenResult]) extends QueryInput[Seq[CrfTokenResult]]
+  case class UprnQueryInput(override val input: String, val offset: Int = 0, val limit: Int = 1) extends QueryInput[String]
+  case class AddressQueryInput(override val input: Seq[CrfTokenResult], val offset: Int, val limit: Int) extends QueryInput[Seq[CrfTokenResult]]
 
   /**
     * @param tokens
     * @return
     */
   def pafSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
-    esRepo queryPafAddresses tokens.input map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
+    esRepo queryPafAddresses(tokens.offset, tokens.limit, tokens.input) map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
       searchContainerTemplate(
         tokens = tokens.input,
         addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
-        total = addresses.size
+        total = addresses.size,
+        limit = tokens.limit,
+        offset = tokens.offset - 1
       )
     }
   }
@@ -47,11 +51,13 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @return
     */
   def nagSearch(tokens: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
-    esRepo queryNagAddresses tokens.input map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
+    esRepo queryNagAddresses (tokens.offset, tokens.limit, tokens.input) map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
       searchContainerTemplate(
         tokens = tokens.input,
         addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
-        total = addresses.size
+        total = addresses.size,
+        limit = tokens.limit,
+        offset = tokens.offset - 1
       )
     }
   }

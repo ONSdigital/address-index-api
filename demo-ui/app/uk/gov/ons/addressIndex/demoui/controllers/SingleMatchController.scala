@@ -100,6 +100,8 @@ class SingleMatchController @Inject()(
         AddressIndexSearchRequest(
           format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().getOrElse(PostcodeAddressFile("paf")),
           input = addressText,
+          limit = "10",
+          offset = "0",
           id = UUID.randomUUID
         )
       ) map { resp: AddressBySearchResponseContainer =>
@@ -114,11 +116,14 @@ class SingleMatchController @Inject()(
   }
 
   def doMatchWithBulk(): Action[BulkRequest] = Action.async(parse.json[BulkRequest]) { implicit request =>
+    logger info "doMatchWithBulk"
     apiClient.addressQueriesBulkMimic(
       requests = request.body.inputs map { input =>
         AddressIndexSearchRequest(
           format = PostcodeAddressFile("paf"),
           input = input,
+          limit = "10",
+          offset = "0",
           id = UUID.randomUUID
         )
       }
