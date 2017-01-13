@@ -1,28 +1,34 @@
 CC=gcc
 ECHO=@echo
-RM=rm
+RMF=rm -f
 
 LIB=$(HOME)/local/lib
 CCFLAGS=-fPIC -DHAVE_CONFIG_H -mfpmath=sse -msse2 -DUSE_SSE -O3 -fomit-frame-pointer -ffast-math -Winline -std=c99 -MT crftagger.o -MD -MP -c
+OBJ=crftagger.o crfjni.o iwa.o
+LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
-ifeq ($(OS),Windows_NT)
-	OSNAME=Windows
+ifeq ($(OS),Windows)
+	CC=x86_64-w64-mingw32-gcc
 	TARGET=libcrftagger.dll
-	RM=del
+	LIB=$(HOME)/local/win/lib
+
+	export CPATH=$(HOME)/local/win/include:/usr/java/latest/include:/usr/java/latest/include/linux
 else
 	UNAME=$(shell uname -s)
+	
+	# NOTE: on OSX / Linux, dynamic CRFSuite libs can get in the way so we remove them.
+	RMF_DYNAMIC_LIBS= $(RMF) \
+		$(LIB)/libcqdb*.dylib $(LIB)/libcqdb*.la \
+		$(LIB)/libcrfsuite*.dylib $(LIB)/libcrfsuite*.la \
+		$(LIB)/liblbfgs*.dylib $(LIB)/liblbfgs*.la
 
 	ifeq ($(UNAME),Darwin)
-		OSNAME=MacOS
 		TARGET=libcrftagger-osx.so
-		OBJ=crftagger.o crfjni.o fmemopen.o iwa.o
 		LIB_OPTIONS=-lcrfsuite -lcqdb -llbfgs
 
 		export CPATH=$(HOME)/local/include:/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
 	else
-		OSNAME=Linux
-		TARGET=libcrftagger-linux.so
-		OBJ=crftagger.o crfjni.o iwa.o
+		TARGET=libcrftagger.so
 		LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
 		export CPATH=$(HOME)/local/include:/usr/java/latest/include:/usr/java/latest/include/linux
@@ -33,13 +39,10 @@ endif
 	$(CC) $(CCFLAGS) $< -o $@
 
 $(TARGET): $(OBJ)
-	@rm -f $(LIB)/libcqdb*.dylib $(LIB)/libcqdb*.la
-	@rm -f $(LIB)/libcrfsuite*.dylib $(LIB)/libcrfsuite*.la
-	@rm -f $(LIB)/liblbfgs*.dylib $(LIB)/liblbfgs*.la
-
+	$(RMF_DYNAMIC_LIBS)
 	$(CC) $^ -shared -o $@ -L$(LIB) $(LIB_OPTIONS)
 
 all: $(TARGET)
 
 clean:
-	$(RM) -f *.so *.o *.d
+	$(RMF) *.so *.dll *.o *.d
