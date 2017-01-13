@@ -4,7 +4,7 @@
 GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index
 
 #EG     /addresses?format=myFormat&input=myInputString
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, format, offset: Option[String], limit: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, format: Option[String], offset: Option[String], limit: Option[String])
 
 #EG     /addresses/myUprn?format=myFormat
 GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, format)
