@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
@@ -79,13 +78,13 @@ class AddressIndexRepository @Inject()(
   val client: ElasticClient = elasticClientProvider.client
 
   def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = {
-    logExecute("Query Paf UPRN Raw") {
+    logExecute("Query Paf UPRN") {
       search in pafIndex query { termQuery("uprn", uprn) }
     } map(_.as[PostcodeAddressFileAddress].headOption)
   }
 
   def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = {
-    logExecute("Query Nag UPRN Raw") {
+    logExecute("Query Nag UPRN") {
       search in nagIndex query { termQuery("uprn", uprn)}
     } map(_.as[NationalAddressGazetteerAddress].headOption)
   }
@@ -110,7 +109,7 @@ class AddressIndexRepository @Inject()(
   }
 
   def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] = {
-    logExecute("Query Paf Addresses Raw") {
+    logExecute("Query Paf Addresses") {
       search.in(pafIndex).paginate query {
         bool(
           must(
@@ -141,7 +140,7 @@ class AddressIndexRepository @Inject()(
 
 
   def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] = {
-    logExecute("Query Nag Addresses Raw") {
+    logExecute("Query Nag Addresses") {
       search.in(nagIndex).paginate query {
         bool(
           must(
@@ -155,7 +154,7 @@ class AddressIndexRepository @Inject()(
                 Tokens.departmentName -> NationalAddressGazetteerAddress.Fields.legalName,
                 Tokens.subBuildingName -> NationalAddressGazetteerAddress.Fields.saoText,
                 Tokens.buildingName -> NationalAddressGazetteerAddress.Fields.paoText,
-                //                Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields., StartPrefix EndPrefix,
+                //Tokens.BuildingNumber -> NationalAddressGazetteerAddress.Fields., StartPrefix EndPrefix,
                 Tokens.streetName -> NationalAddressGazetteerAddress.Fields.streetDescriptor,
                 Tokens.townName -> NationalAddressGazetteerAddress.Fields.townName,
                 Tokens.postcode -> NationalAddressGazetteerAddress.Fields.postcodeLocator
@@ -173,7 +172,7 @@ class AddressIndexRepository @Inject()(
   }
 
   override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
-    logExecute("Query Hybrid Addresses Raw")(search.in(hybridIndex).paginate) map { resp =>
+    logExecute("Query Hybrid Addresses")(search.in(hybridIndex).paginate) map { resp =>
       logger info "success"
       "success"
       //undefined
