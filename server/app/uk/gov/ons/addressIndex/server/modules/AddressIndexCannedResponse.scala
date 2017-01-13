@@ -2,16 +2,15 @@ package uk.gov.ons.addressIndex.server.modules
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
 trait AddressIndexCannedResponse {
 
   def searchContainerTemplate(
     tokens: Seq[CrfTokenResult],
     addresses: Seq[AddressResponseAddress],
-    total: Int,
-    limit: Int,
-    offset: Int
-  ): AddressBySearchResponseContainer = {
+    total: Int
+  )(implicit p: Pagination): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       response = AddressBySearchResponse(
         tokens = tokens
@@ -22,8 +21,8 @@ trait AddressIndexCannedResponse {
             )
           }.toSeq,
         addresses = addresses,
-        limit = limit,
-        offset = offset,
+        limit = p.limit,
+        offset = p.offset,
         total = addresses.size
       ),
       status = OkAddressResponseStatus
@@ -76,27 +75,27 @@ trait AddressIndexCannedResponse {
   }
 
   def LimitTooSmall: AddressBySearchResponseContainer = {
-      BadRequestTemplate(LimitTooSmallAddressResponseError)
+    BadRequestTemplate(LimitTooSmallAddressResponseError)
   }
 
   def OffsetTooSmall: AddressBySearchResponseContainer = {
-      BadRequestTemplate(OffsetTooSmallAddressResponseError)
+    BadRequestTemplate(OffsetTooSmallAddressResponseError)
   }
 
   def LimitTooLarge: AddressBySearchResponseContainer = {
-      BadRequestTemplate(LimitTooLargeAddressResponseError)
+    BadRequestTemplate(LimitTooLargeAddressResponseError)
   }
 
   def OffsetTooLarge: AddressBySearchResponseContainer = {
-      BadRequestTemplate(OffsetTooLargeAddressResponseError)
+    BadRequestTemplate(OffsetTooLargeAddressResponseError)
   }
 
   def UnsupportedFormat: AddressBySearchResponseContainer = {
-      BadRequestTemplate(FormatNotSupportedAddressResponseError)
+    BadRequestTemplate(FormatNotSupportedAddressResponseError)
   }
 
   def EmptySearch: AddressBySearchResponseContainer = {
-      BadRequestTemplate(EmptyQueryAddressResponseError)
+    BadRequestTemplate(EmptyQueryAddressResponseError)
   }
 
   def Error: AddressBySearchResponse = {
