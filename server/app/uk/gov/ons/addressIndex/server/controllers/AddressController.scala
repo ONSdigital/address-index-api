@@ -66,7 +66,7 @@ class AddressController @Inject()(
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 // Check the offset and limit parameters before proceeding with the request
-    if (limitInvalid){
+    if (limitInvalid) {
       futureJsonBadRequest(LimitNotNumeric)
     } else if (limitInt < 1) {
       futureJsonBadRequest(LimitTooSmall)
@@ -113,7 +113,7 @@ class AddressController @Inject()(
         }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
-
+    //todo rmeove below
     futureJsonBadRequest(EmptySearch)
   }
 
