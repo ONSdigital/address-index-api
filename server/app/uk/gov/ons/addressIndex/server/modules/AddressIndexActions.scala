@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import play.api.libs.json.Writes
+import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
@@ -8,6 +8,7 @@ import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -38,6 +39,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     override val tokens: Seq[CrfTokenResult],
     override val pagination: Model.Pagination
   ) extends QueryInput[Seq[CrfTokenResult]] with Pagination
+
 
   /**
     * @param input
@@ -114,12 +116,12 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @return If None, the formatStr failed to resole.
     *         If Some, the appropriate object for the given function and resolved format.
     */
-  def formatQuery[T, QueryInputType](
+  def formatQuery[T, X, QueryInputType <: QueryInput[X]](
     formatStr: String,
-    inputForPafFn: QueryInput[QueryInputType],
-    pafFn: QueryInput[QueryInputType] => Future[T],
-    inputForNagFn: QueryInput[QueryInputType],
-    nagFn: QueryInput[QueryInputType] => Future[T]
+    inputForPafFn: QueryInputType,
+    pafFn: QueryInputType => Future[T],
+    inputForNagFn: QueryInputType,
+    nagFn: QueryInputType => Future[T]
   )(implicit writes: Writes[T]): Option[Future[Result]] = {
     (
       formatStr.stringToScheme map {
@@ -129,16 +131,23 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     ) map(_.map(jsonOk[T]))
   }
 
+  case class HybridResults(something: String)
+  object HybridResults {
+    implicit lazy val fmt = Json.format[HybridResults]
+  }
+
   /**
     * @param input
     * @return
     */
-  def hybridSearch(input: AddressQueryInput): Option[Future[_]] = {
+  def hybridSearch(input: AddressQueryInput): Option[Future[HybridResults]] = {
     implicit val implPag = input.pagination
     Some(
       esRepo queryHybrid(
         tokens = input.tokens
-      )
+      ) map { r =>
+        HybridResults("success")
+      }
     )
   }
 }

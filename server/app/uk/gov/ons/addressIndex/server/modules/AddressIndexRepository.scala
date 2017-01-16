@@ -175,7 +175,6 @@ class AddressIndexRepository @Inject()(
     logExecute("Query Hybrid Addresses")(search.in(hybridIndex).paginate) map { resp =>
       logger info "success"
       "success"
-      //undefined
     }
   }
 

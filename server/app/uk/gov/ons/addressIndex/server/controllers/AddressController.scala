@@ -72,7 +72,7 @@ class AddressController @Inject()(
       futureJsonBadRequest(LimitTooSmall)
     } else if (limitInt > maxLimit) {
       futureJsonBadRequest(LimitTooLarge)
-    } else if (offsetInvalid){
+    } else if (offsetInvalid) {
       futureJsonBadRequest(OffsetNotNumeric)
     } else if (offsetInt < 0) {
       futureJsonBadRequest(OffsetTooSmall)
@@ -96,25 +96,24 @@ class AddressController @Inject()(
         )
 
         format.map { formatStr =>
-          formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
+          formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult], AddressQueryInput](
             formatStr = formatStr,
             inputForPafFn = input,
             pafFn = pafSearch,
             inputForNagFn = input,
             nagFn = nagSearch
-          ).getOrElse(futureJsonBadRequest(UnsupportedFormat))
+          ) getOrElse futureJsonBadRequest(UnsupportedFormat)
         } getOrElse {
-//          hybridSearch(
-//            input = input
-//          ).map(
-//            _.map(x => jsonOk(x))
-//          )
-          futureJsonBadRequest(EmptySearch)
+          hybridSearch(
+            input = input
+          ).map(
+            _.map(r => jsonOk(r))
+          ).getOrElse(
+            futureJsonBadRequest(EmptySearch) // maybe different error
+          )
         }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
-    //todo rmeove below
-    futureJsonBadRequest(EmptySearch)
   }
 
   /**
@@ -126,7 +125,7 @@ class AddressController @Inject()(
     */
   def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
     logger info s"#uprnQuery: uprn: $uprn , format: $format"
-    formatQuery[AddressByUprnResponseContainer, String](
+    formatQuery[AddressByUprnResponseContainer, String, UprnQueryInput](
       formatStr = format,
       inputForPafFn = UprnQueryInput(uprn),
       pafFn = uprnPafSearch,
