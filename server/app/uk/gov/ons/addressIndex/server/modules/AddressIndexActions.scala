@@ -8,8 +8,6 @@ import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
-import uk.gov.ons.addressIndex.server.modules.Model.Pagination
-
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -26,24 +24,26 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     */
   sealed trait QueryInput[T] {
     def tokens: T
-    def pagination: Pagination
+  }
+
+  trait Pagination {
+    def pagination: Model.Pagination
   }
 
   case class UprnQueryInput(
-   override val tokens: String,
-   pagination: Pagination
+   override val tokens: String
   ) extends QueryInput[String]
 
   case class AddressQueryInput(
     override val tokens: Seq[CrfTokenResult],
-    pagination: Pagination
-  ) extends QueryInput[Seq[CrfTokenResult]]
+    override val pagination: Model.Pagination
+  ) extends QueryInput[Seq[CrfTokenResult]] with Pagination
 
   /**
     * @param input
     * @return
     */
-  def pafSearch(input: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
+  def pafSearch(input: AddressQueryInput): Future[AddressBySearchResponseContainer] = {
     implicit val pagination = input.pagination
     esRepo queryPafAddresses(
       tokens = input.tokens
@@ -60,7 +60,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param input
     * @return
     */
-  def nagSearch(input: QueryInput[Seq[CrfTokenResult]]): Future[AddressBySearchResponseContainer] = {
+  def nagSearch(input: AddressQueryInput): Future[AddressBySearchResponseContainer] = {
     implicit val pagination = input.pagination
     esRepo queryNagAddresses (
       tokens = input.tokens
@@ -77,7 +77,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param uprn
     * @return
     */
-  def uprnPafSearch(uprn: QueryInput[String]): Future[AddressByUprnResponseContainer] = {
+  def uprnPafSearch(uprn: UprnQueryInput): Future[AddressByUprnResponseContainer] = {
     esRepo queryPafUprn uprn.tokens map {
       _.map { address =>
         searchUprnContainerTemplate(
@@ -91,7 +91,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param uprn
     * @return
     */
-  def uprnNagSearch(uprn: QueryInput[String]): Future[AddressByUprnResponseContainer] = {
+  def uprnNagSearch(uprn: UprnQueryInput): Future[AddressByUprnResponseContainer] = {
     esRepo queryNagUprn uprn.tokens map {
       _.map { address =>
         searchUprnContainerTemplate(

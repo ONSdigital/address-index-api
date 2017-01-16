@@ -1,11 +1,9 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticsearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-
 import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.ElasticDsl._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
@@ -13,7 +11,6 @@ import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
-
 import scala.util.Try
 
 @Singleton
@@ -82,22 +79,21 @@ class AddressController @Inject()(
     } else if (offsetInt > maxOffset) {
       futureJsonBadRequest(OffsetTooLarge)
     } else {
+
       //pagination passing
       val pagination = Pagination(
         offset = offsetInt,
         limit = limitInt
       )
 
-
-
-        input.toOption map { actualInput =>
+      input.toOption map { actualInput =>
         val tokens = parser tag actualInput
+        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label:${t.label}").mkString("\n")}"
+
         val input = AddressQueryInput(
           tokens = tokens,
           pagination = pagination
         )
-
-        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label:${t.label}").mkString("\n")}"
 
         format.map { formatStr =>
           formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult]](
@@ -106,21 +102,19 @@ class AddressController @Inject()(
             pafFn = pafSearch,
             inputForNagFn = input,
             nagFn = nagSearch
-          ) getOrElse futureJsonBadRequest(UnsupportedFormat)
+          ).getOrElse(futureJsonBadRequest(UnsupportedFormat))
         } getOrElse {
-          hybridSearch(
-            input = input
-          ).map(
-            _.map { fx =>
-              jsonOk(
-                fx
-              )
-            }
-          )
+//          hybridSearch(
+//            input = input
+//          ).map(
+//            _.map(x => jsonOk(x))
+//          )
           futureJsonBadRequest(EmptySearch)
         }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
+
+    futureJsonBadRequest(EmptySearch)
   }
 
   /**
