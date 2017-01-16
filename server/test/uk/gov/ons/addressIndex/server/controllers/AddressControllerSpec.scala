@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.Inject
-
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexCannedResponse, AddressParserModule, ElasticsearchRepository}
 import com.sksamuel.elastic4s.ElasticClient
@@ -15,7 +14,6 @@ import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
