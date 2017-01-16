@@ -14,6 +14,7 @@ import org.scalatestplus.play._
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
+import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -95,12 +96,15 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
     override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] =
       Future.successful(Some(validNagAddress))
 
-    override def queryPafAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses] =
+    override def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
 
-    override def queryNagAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses] =
+    override def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] =
       Future.successful(NationalAddressGazetteerAddresses(Seq(validNagAddress), 1.0f))
 
+    override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
+      Future.successful(())
+    }
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
 
@@ -111,12 +115,15 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
 
     override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = Future.successful(None)
 
-    def queryPafAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses] =
+    def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] =
       Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
 
-    def queryNagAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses] =
+    def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] =
       Future.successful(NationalAddressGazetteerAddresses(Seq.empty, 1.0f))
 
+    override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
+      Future.successful(())
+    }
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
 
@@ -147,7 +154,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf").apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -176,7 +183,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("72 B16 8TH", "bs").apply(FakeRequest())
+      val result = controller.addressQuery("72 B16 8TH", Some("bs")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -201,7 +208,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "format is not supported").apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("format is not supported")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -226,7 +233,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf", Some("thing"), Some("1")).apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("thing"), Some("1")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -251,7 +258,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf", Some("1"), Some("thing")).apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("1"), Some("thing")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -276,7 +283,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf", Some("-1"), Some("1")).apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("-1"), Some("1")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -301,7 +308,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf", Some("0"), Some("0")).apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("0"), Some("0")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -326,7 +333,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf", Some("9999999"), Some("1")).apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("9999999"), Some("1")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -351,7 +358,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf", Some("0"), Some("999999")).apply(FakeRequest())
+      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("0"), Some("999999")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -376,7 +383,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.addressQuery("", "paf").apply(FakeRequest())
+      val result = controller.addressQuery("", Some("paf")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

@@ -37,7 +37,8 @@ object ElasticSearchConfigTest {
     ),
     indexes = IndexesConfig(
       pafIndex = "paf/address",
-      nagIndex = "nag/address"
+      nagIndex = "nag/address",
+      hybridIndex = "hybrid/address"
     ),
     defaultLimit=10,
     defaultOffset=0,

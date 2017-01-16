@@ -7,6 +7,7 @@ import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.server.response.AddressTokens
+import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -285,6 +286,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   "Elastic repository" should {
 
+    implicit val pagination = Pagination(
+      offset = 1,
+      limit = 10
+    )
+
     "find PAF address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -322,8 +328,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expectedScore = 1.4142135f
       val expected = expectedPaf.copy(score = expectedScore)
 
+
+
       // When
-      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(1,10,tokens).await
+      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(tokens).await
 
       // Then
       results.length shouldBe 1
@@ -344,7 +352,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = expectedNag.copy(score = expectedScore)
 
       // When
-      val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(1,10,tokens).await
+      val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(tokens).await
 
       // Then
       results.length shouldBe 1
