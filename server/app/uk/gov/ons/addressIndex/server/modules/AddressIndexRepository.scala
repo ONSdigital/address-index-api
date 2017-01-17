@@ -6,6 +6,7 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import play.api.Logger
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, Input}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -61,7 +62,7 @@ trait ElasticsearchRepository {
     */
   def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses]
 
-  def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_]
+  def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[HybridResults]
 }
 
 @Singleton
@@ -171,10 +172,17 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
-    logExecute("Query Hybrid Addresses")(search.in(hybridIndex).paginate) map { resp =>
-      logger info "success"
-      "success"
+  override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[HybridResults] = {
+    logExecute("Query Hybrid Addresses") {
+      search.in(hybridIndex).paginate query {
+        query(tokens.mkString(" "))
+      }
+    } map { resp =>
+      HybridResults(
+
+      )
+      logger info resp.toString
+      HybridResults("success")
     }
   }
 

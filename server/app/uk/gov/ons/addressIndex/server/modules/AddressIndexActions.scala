@@ -4,7 +4,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{HybridResults, NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
@@ -131,11 +131,6 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     ) map(_.map(jsonOk[T]))
   }
 
-  case class HybridResults(something: String)
-  object HybridResults {
-    implicit lazy val fmt = Json.format[HybridResults]
-  }
-
   /**
     * @param input
     * @return
@@ -145,9 +140,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     Some(
       esRepo queryHybrid(
         tokens = input.tokens
-      ) map { r =>
-        HybridResults("success")
-      }
+      )
     )
   }
 }
