@@ -249,6 +249,9 @@ object AddressResponseAddress {
     )
   }
 
+  /**
+    * Formatted address should contain commas between all fields except after digits
+    */
   private def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
 
     val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
@@ -258,7 +261,8 @@ object AddressResponseAddress {
       .map(_.trim).mkString
     val sao =
       if (nag.saoText == nag.organisation || nag.saoText.isEmpty) saoNumbers
-      else s"$saoNumbers, ${nag.saoText}"
+      else if (saoNumbers.isEmpty) s"${nag.saoText},"
+      else s"$saoNumbers, ${nag.saoText},"
 
     val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
     val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
@@ -267,13 +271,15 @@ object AddressResponseAddress {
       .map(_.trim).mkString
     val pao =
       if (nag.paoText == nag.organisation || nag.paoText.isEmpty) paoNumbers
+      else if (paoNumbers.isEmpty) s"${nag.paoText},"
       else s"${nag.paoText}, $paoNumbers"
 
     val trimmedStreetDescriptor = nag.streetDescriptor.trim
     val buildingNumberWithStreetDescription =
       if (pao.isEmpty) s"$sao $trimmedStreetDescriptor"
       else if (sao.isEmpty) s"$pao $trimmedStreetDescriptor"
-      else s"$sao, $pao $trimmedStreetDescriptor"
+      else if (pao.isEmpty && sao.isEmpty) trimmedStreetDescriptor
+      else s"$sao $pao $trimmedStreetDescriptor"
 
     delimitByComma(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
       nag.townName, nag.postcodeLocator)
