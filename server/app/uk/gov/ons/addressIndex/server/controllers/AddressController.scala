@@ -1,16 +1,21 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticsearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.RichSearchResponse
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
+
 import scala.util.Try
 
 @Singleton
@@ -48,6 +53,8 @@ class AddressController @Inject()(
     offset: Option[String] = None,
     limit: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
+
+    implicit lazy val fmt = Json.format[RichSearchResponse]
 
     logger info s"#addressQuery:\n" +
       s"input $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"

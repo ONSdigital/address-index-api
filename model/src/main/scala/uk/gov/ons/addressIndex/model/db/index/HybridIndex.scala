@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
+import org.elasticsearch.search.SearchHit
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
@@ -37,8 +38,9 @@ object HybridResult extends ElasticIndex[HybridResult] {
     import Fields._
 
     override def as(hit: RichSearchHit): HybridResult = {
-      val dataMap = hit.sourceAsMap
-      def map(key: String) = dataMap(key).toString
+      def map(key: String): String = hit.stringValue(key)
+      pprint.pprintln(hit.sourceAsMap(lpi))
+      hit.sourceAsMap(lpi)
 
       HybridResult(
         uprn = map(uprn),

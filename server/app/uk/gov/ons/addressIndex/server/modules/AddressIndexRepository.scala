@@ -64,7 +64,7 @@ trait ElasticsearchRepository {
     */
   def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses]
 
-  def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[HybridResults]
+  def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[RichSearchResponse]
 }
 
 @Singleton
@@ -174,16 +174,11 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[HybridResults] = {
+  override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[RichSearchResponse] = {
     logExecute("Query Hybrid Addresses") {
       search.in(hybridIndex).paginate query {
-        query(tokens.mkString(" "))
+        query(tokens.map(_.value).mkString(" "))
       }
-    } map { resp =>
-      HybridResults(
-        addresses = resp.as[HybridResult],
-        maxScore = resp.maxScore
-      )
     }
   }
 

@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import com.sksamuel.elastic4s.{RichSearchHit, RichSearchResponse}
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
@@ -135,7 +136,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param input
     * @return
     */
-  def hybridSearch(input: AddressQueryInput): Option[Future[HybridResults]] = {
+  def hybridSearch(input: AddressQueryInput): Option[Future[RichSearchResponse]] = {
     implicit val implPag = input.pagination
     Some(
       esRepo queryHybrid(
