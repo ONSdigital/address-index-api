@@ -1,19 +1,16 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import play.api.Logger
-import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, Input}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.parsers.Tokens.Token
 import uk.gov.ons.addressIndex.server.modules.Model._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 object Model {
@@ -140,7 +137,6 @@ class AddressIndexRepository @Inject()(
       )
     }
   }
-
 
   def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] = {
     logExecute("Query Nag Addresses") {
