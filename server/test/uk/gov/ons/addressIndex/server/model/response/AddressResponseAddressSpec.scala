@@ -41,6 +41,27 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     score = 1.0f
   )
 
+  val givenRealisticNag = givenNag.copy(
+    postcodeLocator = "EXO 808",
+    addressBasePostal = "D",
+    organisation = "MAJESTIC",
+    legalName = "",
+    paoText = "",
+    paoStartNumber = "1",
+    paoStartSuffix = "",
+    paoEndNumber = "",
+    paoEndSuffix = "",
+    saoText = "",
+    saoStartNumber = "1",
+    saoStartSuffix = "",
+    saoEndNumber = "",
+    saoEndSuffix = "",
+    level = "",
+    streetDescriptor = "BRIBERY ROAD",
+    townName = "EXTER",
+    locality = ""
+  )
+
   val givenPaf = PostcodeAddressFileAddress(
     recordIdentifier = "1",
     changeType = "2",
@@ -195,6 +216,30 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       // When
       val result = AddressResponseAddress.fromNagAddress(1)(nag)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create NAG with expected formatted address (sao empty)" in {
+      // Given
+      val nag = givenRealisticNag.copy(saoStartNumber = "")
+      val expected = "MAJESTIC, 1 BRIBERY ROAD, EXTER, EXO 808"
+
+      // When
+      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create NAG with expected formatted address (pao empty)" in {
+      // Given
+      val nag = givenRealisticNag.copy(paoStartNumber = "")
+      val expected = "MAJESTIC, 1 BRIBERY ROAD, EXTER, EXO 808"
+
+      // When
+      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
 
       // Then
       result shouldBe expected

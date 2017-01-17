@@ -256,19 +256,26 @@ object AddressResponseAddress {
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
     val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
       .map(_.trim).mkString
-    val sao = if (nag.saoText == nag.organisation) saoNumbers else s"$saoNumbers, ${nag.saoText}"
+    val sao =
+      if (nag.saoText == nag.organisation || nag.saoText.isEmpty) saoNumbers
+      else s"$saoNumbers, ${nag.saoText}"
 
     val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
     val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
     val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
     val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
       .map(_.trim).mkString
-    val pao = if (nag.paoText == nag.organisation) paoNumbers else s"${nag.paoText}, $paoNumbers"
+    val pao =
+      if (nag.paoText == nag.organisation || nag.paoText.isEmpty) paoNumbers
+      else s"${nag.paoText}, $paoNumbers"
 
     val trimmedStreetDescriptor = nag.streetDescriptor.trim
-    val buildingNumberWithStreetDescription = s"$pao $trimmedStreetDescriptor"
+    val buildingNumberWithStreetDescription =
+      if (pao.isEmpty) s"$sao $trimmedStreetDescriptor"
+      else if (sao.isEmpty) s"$pao $trimmedStreetDescriptor"
+      else s"$sao, $pao $trimmedStreetDescriptor"
 
-    delimitByComma(nag.organisation, sao, buildingNumberWithStreetDescription, nag.locality,
+    delimitByComma(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
       nag.townName, nag.postcodeLocator)
   }
 
