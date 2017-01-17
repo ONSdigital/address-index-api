@@ -245,6 +245,55 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe expected
     }
 
+    "create NAG with expected formatted address (saoText field)" in {
+      // Given
+      val nag = givenRealisticNag.copy(
+        paoStartNumber = "",
+        saoText = "UNIT",
+        saoStartNumber = ""
+      )
+      val expected = "MAJESTIC, UNIT, BRIBERY ROAD, EXTER, EXO 808"
+
+      // When
+      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create NAG with expected formatted address (paoText field)" in {
+      // Given
+      val nag = givenRealisticNag.copy(
+        paoStartNumber = "",
+        paoText = "UNIT",
+        saoStartNumber = ""
+      )
+      val expected = "MAJESTIC, UNIT, BRIBERY ROAD, EXTER, EXO 808"
+
+      // When
+      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create NAG with expected formatted address (saoText and paoText fields)" in {
+      // Given
+      val nag = givenRealisticNag.copy(
+        paoStartNumber = "",
+        saoText = "UNIT",
+        paoText = "BUNIT",
+        saoStartNumber = ""
+      )
+      val expected = "MAJESTIC, UNIT, BUNIT, BRIBERY ROAD, EXTER, EXO 808"
+
+      // When
+      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+
+      // Then
+      result shouldBe expected
+    }
+
     "be creatable (with empty geo field) from Elastic NAG response with invalid latitude" in {
       // Given
       val nag = givenNag.copy(latitude = "invalid")
