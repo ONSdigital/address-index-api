@@ -33,6 +33,8 @@ class AddressController @Inject()(
     offset: Option[String] = None,
     limit: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
+
+
     logger info s"#addressQuery:\n" +
       s"input $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"
 
@@ -42,7 +44,7 @@ class AddressController @Inject()(
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
 
-    //TODO REMOVE THIS 
+    //TODO REMOVE THIS
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
     val limitInvalid = Try(limval.toInt).isFailure

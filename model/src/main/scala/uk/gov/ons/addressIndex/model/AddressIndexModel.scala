@@ -3,13 +3,13 @@ package uk.gov.ons.addressIndex.model
 import java.util.UUID
 
 case class AddressIndexUPRNRequest(
-  format: AddressScheme,
+  format: Option[AddressScheme],
   uprn: BigInt,
   id: UUID
 )
 
 case class AddressIndexSearchRequest(
-  format: AddressScheme,
+  format: Option[AddressScheme],
   input: String,
   limit: String,
   offset: String,
