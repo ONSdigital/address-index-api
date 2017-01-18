@@ -71,7 +71,7 @@ class AddressController @Inject()(
       )
       input.toOption map { actualInput =>
         val tokens = parser tag actualInput
-        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label:${t.label}").mkString("\n")}"
+        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label: ${t.label}").mkString("\n")}"
         val input = AddressQueryInput(
           tokens = tokens,
           pagination = pagination
