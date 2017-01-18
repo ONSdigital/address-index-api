@@ -1,21 +1,16 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticsearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-
 import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.RichSearchResponse
 import play.api.libs.json.Json
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
-
 import scala.util.Try
 
 @Singleton
@@ -102,42 +97,8 @@ class AddressController @Inject()(
           pagination = pagination
         )
 
-        format.map { formatStr =>
-          formatQuery[AddressBySearchResponseContainer, Seq[CrfTokenResult], AddressQueryInput](
-            formatStr = formatStr,
-            inputForPafFn = input,
-            pafFn = pafSearch,
-            inputForNagFn = input,
-            nagFn = nagSearch
-          ) getOrElse futureJsonBadRequest(UnsupportedFormat)
-        } getOrElse {
-          hybridSearch(
-            input = input
-          ).map(
-            _.map(r => jsonOk(r))
-          ).getOrElse(
-            futureJsonBadRequest(EmptySearch) // maybe different error
-          )
-        }
+        addressSearch(input).map(_.map(r => jsonOk(r))).getOrElse(futureJsonBadRequest(EmptySearch))
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
-  }
-
-  /**
-    * UPRN query API
-    *
-    * @param uprn
-    * @param format
-    * @return
-    */
-  def uprnQuery(uprn: String, format: String): Action[AnyContent] = Action async { implicit req =>
-    logger info s"#uprnQuery: uprn: $uprn , format: $format"
-    formatQuery[AddressByUprnResponseContainer, String, UprnQueryInput](
-      formatStr = format,
-      inputForPafFn = UprnQueryInput(uprn),
-      pafFn = uprnPafSearch,
-      inputForNagFn = UprnQueryInput(uprn),
-      nagFn = uprnNagSearch
-    ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
   }
 }

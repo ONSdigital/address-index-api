@@ -1,15 +1,12 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.{RichSearchHit, RichSearchResponse}
-import play.api.libs.json.{Json, Writes}
+import com.sksamuel.elastic4s.RichSearchResponse
+import play.api.libs.json.Writes
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
-import uk.gov.ons.addressIndex.model.db.index.{HybridResults, NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -43,68 +40,6 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
 
 
   /**
-    * @param input
-    * @return
-    */
-  def pafSearch(input: AddressQueryInput): Future[AddressBySearchResponseContainer] = {
-    implicit val pagination = input.pagination
-    esRepo queryPafAddresses(
-      tokens = input.tokens
-      ) map { case PostcodeAddressFileAddresses(addresses, maxScore) =>
-      searchContainerTemplate(
-        tokens = input.tokens,
-        addresses = addresses map(AddressResponseAddress fromPafAddress maxScore),
-        total = addresses.size
-      )
-    }
-  }
-
-  /**
-    * @param input
-    * @return
-    */
-  def nagSearch(input: AddressQueryInput): Future[AddressBySearchResponseContainer] = {
-    implicit val pagination = input.pagination
-    esRepo queryNagAddresses (
-      tokens = input.tokens
-    ) map { case NationalAddressGazetteerAddresses(addresses, maxScore) =>
-      searchContainerTemplate(
-        tokens = input.tokens,
-        addresses = addresses map(AddressResponseAddress fromNagAddress maxScore),
-        total = addresses.size
-      )
-    }
-  }
-
-  /**
-    * @param uprn
-    * @return
-    */
-  def uprnPafSearch(uprn: UprnQueryInput): Future[AddressByUprnResponseContainer] = {
-    esRepo queryPafUprn uprn.tokens map {
-      _.map { address =>
-        searchUprnContainerTemplate(
-          Some(AddressResponseAddress fromPafAddress address)
-        )
-      } getOrElse NoAddressFoundUprn
-    }
-  }
-
-  /**
-    * @param uprn
-    * @return
-    */
-  def uprnNagSearch(uprn: UprnQueryInput): Future[AddressByUprnResponseContainer] = {
-    esRepo queryNagUprn uprn.tokens map {
-      _.map { address =>
-        searchUprnContainerTemplate(
-          Some(AddressResponseAddress fromNagAddress address)
-        )
-      } getOrElse NoAddressFoundUprn
-    }
-  }
-
-  /**
     * This is a PAF or NAG switch helper which can be used for creating a Future[Ok[Json]]
     *
     * @param formatStr the input format String
@@ -136,10 +71,10 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param input
     * @return
     */
-  def hybridSearch(input: AddressQueryInput): Option[Future[RichSearchResponse]] = {
+  def addressSearch(input: AddressQueryInput): Option[Future[RichSearchResponse]] = {
     implicit val implPag = input.pagination
     Some(
-      esRepo queryHybrid(
+      esRepo queryAddress(
         tokens = input.tokens
       )
     )
