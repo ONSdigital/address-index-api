@@ -49,8 +49,6 @@ class AddressController @Inject()(
     limit: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
 
-    implicit lazy val fmt = Json.format[RichSearchResponse]
-
     logger info s"#addressQuery:\n" +
       s"input $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"
 
