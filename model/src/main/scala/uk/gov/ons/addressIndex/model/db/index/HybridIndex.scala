@@ -8,17 +8,17 @@ import uk.gov.ons.addressIndex.model.db.ElasticIndex
 /**
   * PAF Address DTO
   */
-case class HybridResult(
+case class HybridIndex(
   uprn: String,
   lpi: JsValue,
   paf: JsValue
 )
 
-object HybridResult extends ElasticIndex[HybridResult] {
+object HybridIndex extends ElasticIndex[HybridIndex] {
 
-  val name: String = "HybridResponse"
+  val name: String = "hybrid"
 
-  implicit lazy val fmt = Json.format[HybridResult]
+  implicit lazy val fmt = Json.format[HybridIndex]
 
   object Fields {
 
@@ -34,15 +34,14 @@ object HybridResult extends ElasticIndex[HybridResult] {
     * This is needed to directly transform a collection of objects returned by Elastic
     * request into a collection of PAF addresses
     */
-  implicit object HybridResponseHitAs extends HitAs[HybridResult] {
+  implicit object HybridResponseHitAs extends HitAs[HybridIndex] {
     import Fields._
 
-    override def as(hit: RichSearchHit): HybridResult = {
+    override def as(hit: RichSearchHit): HybridIndex = {
       def map(key: String): String = hit.stringValue(key)
-      pprint.pprintln(hit.sourceAsMap(lpi))
       hit.sourceAsMap(lpi)
 
-      HybridResult(
+      HybridIndex(
         uprn = map(uprn),
         lpi = Json.parse(map(lpi)),
         paf = Json.parse(map(paf))
@@ -57,7 +56,7 @@ object HybridResult extends ElasticIndex[HybridResult] {
   * @param maxScore maximum score
   */
 case class HybridResults(
-  addresses: Seq[HybridResult],
+  addresses: Seq[HybridIndex],
   maxScore: Float
 )
 
