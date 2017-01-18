@@ -9,6 +9,7 @@ import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 import scala.util.Try
+import uk.gov.ons.addressIndex.model.AddressScheme._
 
 @Singleton
 class AddressController @Inject()(
@@ -32,25 +33,24 @@ class AddressController @Inject()(
     offset: Option[String] = None,
     limit: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
-
     logger info s"#addressQuery:\n" +
       s"input $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"
 
-   // get the defaults and maxima for the paging parameters from the config
+    //get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
 
-// TODO Look at refactoring to use types.... lazy.
-    //TODO look at play filters
+    //TODO REMOVE THIS 
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
     val limitInvalid = Try(limval.toInt).isFailure
     val offsetInvalid = Try(offval.toInt).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
-// Check the offset and limit parameters before proceeding with the request
+
+    //Check the offset and limit parameters before proceeding with the request
     if (limitInvalid) {
       futureJsonBadRequest(LimitNotNumeric)
     } else if (limitInt < 1) {
@@ -76,7 +76,10 @@ class AddressController @Inject()(
           tokens = tokens,
           pagination = pagination
         )
-        addressSearch(input).map(_.map(r => jsonOk(r))).getOrElse(futureJsonBadRequest(EmptySearch))
+        addressSearch(
+          input = input,
+          format = format.flatMap(_.stringToScheme)
+        ).map(_.map(r => jsonOk(r.toString))).getOrElse(futureJsonBadRequest(EmptySearch))
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
   }

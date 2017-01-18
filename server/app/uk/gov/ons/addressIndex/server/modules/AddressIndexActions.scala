@@ -4,9 +4,10 @@ import com.sksamuel.elastic4s.RichSearchResponse
 import play.api.libs.json.Writes
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -71,7 +72,7 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param input
     * @return
     */
-  def addressSearch(input: AddressQueryInput): Option[Future[RichSearchResponse]] = {
+  def addressSearch(input: AddressQueryInput, format: Option[AddressScheme]): Option[Future[RichSearchResponse]] = {
     implicit val implPag = input.pagination
     Some(
       esRepo queryAddress(
