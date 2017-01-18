@@ -72,12 +72,10 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     * @param input
     * @return
     */
-  def addressSearch(input: AddressQueryInput, format: Option[AddressScheme]): Option[Future[RichSearchResponse]] = {
+  def addressSearch(input: AddressQueryInput, format: Option[AddressScheme]): Future[RichSearchResponse] = {
     implicit val implPag = input.pagination
-    Some(
-      esRepo queryAddress(
-        tokens = input.tokens
-      )
+    esRepo queryAddress(
+      tokens = input.tokens
     )
   }
 }
