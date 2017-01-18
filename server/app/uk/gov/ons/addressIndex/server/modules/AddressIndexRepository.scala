@@ -35,8 +35,6 @@ class AddressIndexRepository @Inject()(
 )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
-  private val pafIndex = esConf.indexes.pafIndex
-  private val nagIndex = esConf.indexes.nagIndex
   private val hybridIndex = esConf.indexes.hybridIndex
   private val logger = Logger("AddressIndexRepository")
   val client: ElasticClient = elasticClientProvider.client
@@ -64,6 +62,7 @@ class AddressIndexRepository @Inject()(
   override def queryAddress(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[RichSearchResponse] = {
     logExecute("Query Hybrid Addresses") {
       search.in(hybridIndex).paginate query {
+        source
         query(tokens.map(_.value).mkString(" "))
       }
     }
