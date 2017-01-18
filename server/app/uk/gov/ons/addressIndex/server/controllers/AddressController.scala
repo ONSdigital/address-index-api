@@ -21,11 +21,28 @@ class AddressController @Inject()(
   val logger = Logger("address-index-server:AddressController")
 
   /**
-    * Address query API
     *
-    * @param input  the address query
-    * @param format requested format of the query (paf/nag)
-    * @return Json response with addresses information
+    * @param uprn
+    * @param format
+    * @return
+    */
+  def uprnQuery(uprn: String, format: Option[String]): Action[AnyContent] = Action async { implicit req =>
+
+    logger info s"#addressQuery:\nuprn $uprn , format: ${format.getOrElse("no format supplied")}"
+
+    uprnSearch(
+      uprn = uprn,
+      format = format flatMap(_.stringToScheme)
+    ) map(r => jsonOk(r.toString))
+  }
+
+  /**
+    *
+    * @param input
+    * @param format
+    * @param offset
+    * @param limit
+    * @return
     */
   def addressQuery(
     input: String,
@@ -33,6 +50,7 @@ class AddressController @Inject()(
     offset: Option[String] = None,
     limit: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
+
     logger info s"#addressQuery:\n" +
       s"input $input , format: $format , offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}"
 
@@ -71,15 +89,17 @@ class AddressController @Inject()(
       )
       input.toOption map { actualInput =>
         val tokens = parser tag actualInput
-        logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label: ${t.label}").mkString("\n")}"
-        val input = AddressQueryInput(
-          tokens = tokens,
-          pagination = pagination
-        )
+
+        logger info s"#addressQuery parsed:" +
+          s"\n${tokens.map(t => s"value: ${t.value} - label: ${t.label}").mkString("\n")}"
+
         addressSearch(
-          input = input,
-          format = format.flatMap(_.stringToScheme)
-        ).map(r => jsonOk(r.toString))
+          input = AddressQueryInput(
+            tokens = tokens,
+            pagination = pagination
+          ),
+          format = format flatMap(_.stringToScheme)
+        ) map(r => jsonOk(r.toString))
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
   }

@@ -6,5 +6,8 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #EG     /addresses?format=myFormat&input=myInputString
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, format: Option[String], offset: Option[String], limit: Option[String])
 
+#EG     /addresses/10019?format=myFormat
+GET     /addresse/:uprn     uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, format: Option[String])
+
 #EG     /es
 GET     /es                 uk.gov.ons.addressIndex.server.controllers.ElasticController.clusterHealth

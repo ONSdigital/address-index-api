@@ -46,8 +46,13 @@ trait ElasticSearchRepository {
   def queryAddress(tokens: Seq[CrfTokenResult])
     (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse]
 
-  def queryUprn(uprn: String)
-    (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse]
+  /**
+    *
+    * @param uprn
+    * @param fmt
+    * @return
+    */
+  def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse]
 }
 
 @Singleton
@@ -59,10 +64,9 @@ class AddressIndexRepository @Inject()(
   private val logger = Logger("AddressIndexRepository")
   val client: ElasticClient = elasticClientProvider.client
 
-  override def queryUprn(uprn: String)
-    (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+  override def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
     logExecute("UPRN") {
-      search.in(conf.config.elasticSearch.indexes.hybridIndex).format.paginate query {
+      search.in(conf.config.elasticSearch.indexes.hybridIndex).format query {
         bool(
           must(
             matchQuery(
@@ -84,8 +88,21 @@ class AddressIndexRepository @Inject()(
     }
   }
 
+  /**
+    * Helper which logs an ElasticSearch Query before executing it.
+    *
+    * @param info
+    * @param t
+    * @param executable
+    * @tparam T
+    * @tparam R
+    * @tparam Q
+    * @return
+    */
   private def logExecute[T, R, Q](info: String)(t: T)(implicit executable: Executable[T, R, Q]): Future[Q] = {
+
     logger info s"$info: ${t.toString}"
+
     client execute t
   }
 }
