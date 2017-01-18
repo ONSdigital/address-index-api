@@ -21,7 +21,7 @@ object Model {
   }
 
   implicit class AutoSource(searchDefinition: SearchDefinition) {
-    def source(implicit optFmt: Option[AddressScheme]) = {
+    def format(implicit optFmt: Option[AddressScheme]) = {
       optFmt map { fmt =>
         searchDefinition sourceInclude fmt.toString
       } getOrElse searchDefinition
@@ -62,7 +62,7 @@ class AddressIndexRepository @Inject()(
   override def queryUprn(uprn: String)
     (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
     logExecute("UPRN") {
-      search.in(conf.config.elasticSearch.indexes.hybridIndex).source.paginate query {
+      search.in(conf.config.elasticSearch.indexes.hybridIndex).format.paginate query {
         bool(
           must(
             matchQuery(
@@ -78,7 +78,7 @@ class AddressIndexRepository @Inject()(
   override def queryAddress(tokens: Seq[CrfTokenResult])
     (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
     logExecute("Address") {
-      search.in(conf.config.elasticSearch.indexes.hybridIndex).source.paginate query {
+      search.in(conf.config.elasticSearch.indexes.hybridIndex).format.paginate query {
         query(tokens.map(_.value).mkString(" "))
       }
     }
