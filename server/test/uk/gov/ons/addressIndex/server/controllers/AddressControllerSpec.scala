@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.Inject
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules.{AddressIndexCannedResponse, AddressParserModule, ElasticsearchRepository}
+import uk.gov.ons.addressIndex.server.modules.{AddressIndexCannedResponse, AddressParserModule, ElasticSearchRepository}
 import com.sksamuel.elastic4s.ElasticClient
 import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
@@ -86,7 +86,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
 
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
-  val elasticRepositoryMock = new ElasticsearchRepository {
+  val elasticRepositoryMock = new ElasticSearchRepository {
 
     override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
       Future.successful(Some(validPafAddress))
@@ -107,7 +107,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
   }
 
   // mock that won't return any addresses
-  val emptyElasticRepositoryMock = new ElasticsearchRepository {
+  val emptyElasticRepositoryMock = new ElasticSearchRepository {
 
     override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
 

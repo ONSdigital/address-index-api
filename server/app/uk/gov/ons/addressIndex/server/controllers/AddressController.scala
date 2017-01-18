@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticsearchRepository}
+import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticSearchRepository}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.ExecutionContext
@@ -13,7 +13,7 @@ import uk.gov.ons.addressIndex.model.AddressScheme._
 
 @Singleton
 class AddressController @Inject()(
-  override val esRepo: ElasticsearchRepository,
+  override val esRepo: ElasticSearchRepository,
   parser: AddressParserModule,
   conf : AddressIndexConfigModule
 )(implicit override val ec: ExecutionContext) extends AddressIndexController with AddressIndexActions {
