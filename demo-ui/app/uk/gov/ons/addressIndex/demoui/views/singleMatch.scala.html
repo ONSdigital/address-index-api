@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse])(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse], classification: Option[Map[String,String]])(implicit messages: Messages)
 @import helper._
 
 @*
@@ -77,7 +77,7 @@
                                         @messages("category.R")
                                     } else {
                                         @address.nag.map{ nag =>
-                                        @nag.classificationCode
+                                        @classification.get(nag.uprn)
                                         }
                                     }
                                 </div>

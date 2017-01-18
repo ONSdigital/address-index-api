@@ -11,7 +11,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
     val classHierarchy = new ClassHierarchy(messagesApi)
 
     // Given
-    val expectedSeq = "[C][Commercial]"
+    val expectedSeq = " [ C ] [ Commercial ]"
 
     // When
     val result = classHierarchy.analyseClassCode("C")
@@ -25,7 +25,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
     val classHierarchy = new ClassHierarchy(messagesApi)
 
     // Given
-    val expectedSeq = "[CL][Commercial][Leisure - Applicable to recreational sites and enterprises]"
+    val expectedSeq = " [ CL ] [ Commercial ] [ Leisure - Applicable to recreational sites and enterprises ]"
 
     // When
     val result = classHierarchy.analyseClassCode("CL")
@@ -39,7 +39,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
     val classHierarchy = new ClassHierarchy(messagesApi)
 
     // Given
-    val expectedSeq = "[CL06][Commercial][Leisure - Applicable to recreational sites and enterprises][Indoor / Outdoor Leisure / Sporting Activity / Centre]"
+    val expectedSeq = " [ CL06 ] [ Commercial ] [ Leisure - Applicable to recreational sites and enterprises ] [ Indoor / Outdoor Leisure / Sporting Activity / Centre ]"
 
     // When
     val result = classHierarchy.analyseClassCode("CL06")
@@ -53,7 +53,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
     val classHierarchy = new ClassHierarchy(messagesApi)
 
     // Given
-    val expectedSeq = "[CL06RG][Commercial][Leisure - Applicable to recreational sites and enterprises][Indoor / Outdoor Leisure / Sporting Activity / Centre][Recreation Ground]"
+    val expectedSeq = " [ CL06RG ] [ Commercial ] [ Leisure - Applicable to recreational sites and enterprises ] [ Indoor / Outdoor Leisure / Sporting Activity / Centre ] [ Recreation Ground ]"
 
     // When
     val result = classHierarchy.analyseClassCode("CL06RG")
@@ -67,7 +67,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
     val classHierarchy = new ClassHierarchy(messagesApi)
 
     // Given
-    val expectedSeq = "[AB12AB]"
+    val expectedSeq = " [ AB12AB ]"
 
     // When
     val result = classHierarchy.analyseClassCode("AB12AB")
@@ -81,7 +81,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
     val classHierarchy = new ClassHierarchy(messagesApi)
 
     // Given
-    val expectedSeq = "[MF99UG][Military][Air Force][Air Force Military Storage]"
+    val expectedSeq = " [ MF99UG ] [ Military ] [ Air Force ] [ Air Force Military Storage ]"
 
     // When
     val result = classHierarchy.analyseClassCode("MF99UG")

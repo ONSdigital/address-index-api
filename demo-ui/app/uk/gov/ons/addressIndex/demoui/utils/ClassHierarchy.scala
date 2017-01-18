@@ -16,7 +16,7 @@ class ClassHierarchy @Inject()(val messagesApi: MessagesApi)  {
 
       val patterns = Seq(primary, secondary, tertiary, quaternary)
       var classifications = Seq[Option[String]]()
-      var outputHierarchy = Seq("[" + code + "]")
+      var outputHierarchy = Seq(" [ " + code + " ]")
 
       patterns.foreach{pattern =>
         val classification = pattern.findFirstIn(code)
@@ -25,12 +25,12 @@ class ClassHierarchy @Inject()(val messagesApi: MessagesApi)  {
 
       classifications.flatten.foreach{ code =>
         // Sometimes a full classification hierarchy doesn't exist so check first before adding to Sequence
-        if (messagesApi.isDefinedAt("category." + code)) outputHierarchy :+= "[" + messagesApi("category." + code) + "]"
+        if (messagesApi.isDefinedAt("category." + code)) outputHierarchy :+= " [ " + messagesApi("category." + code) + " ]"
       }
 
       outputHierarchy.mkString
     } else {
-      "[" + code + "]"
+      " [ " + code + " ]"
     }
   }
 }
