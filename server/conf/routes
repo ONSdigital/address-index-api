@@ -7,4 +7,4 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, format: Option[String], offset: Option[String], limit: Option[String])
 
 #EG     /es
-GET     /es                 uk.gov.ons.addressIndex.server.controllers.AddressController.elasticTest
+GET     /es                 uk.gov.ons.addressIndex.server.controllers.ElasticController.elasticTest

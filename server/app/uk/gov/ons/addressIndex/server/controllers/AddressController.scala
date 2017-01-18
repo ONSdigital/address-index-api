@@ -5,9 +5,6 @@ import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParse
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.ExecutionContext
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.RichSearchResponse
-import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
@@ -21,19 +18,6 @@ class AddressController @Inject()(
 )(implicit override val ec: ExecutionContext) extends AddressIndexController with AddressIndexActions {
 
   val logger = Logger("address-index-server:AddressController")
-
-  /**
-    * Test elastic is connected
-    *
-    * @return
-    */
-  def elasticTest(): Action[AnyContent] = Action async { implicit req =>
-    esRepo.client execute {
-      get cluster health
-    } map { resp =>
-      Ok(resp.toString)
-    }
-  }
 
   /**
     * Address query API
@@ -58,7 +42,8 @@ class AddressController @Inject()(
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
 
-// TODO Look at refactoring to use types
+// TODO Look at refactoring to use types.... lazy.
+    //TODO look at play filters
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
     val limitInvalid = Try(limval.toInt).isFailure
@@ -79,22 +64,18 @@ class AddressController @Inject()(
     } else if (offsetInt > maxOffset) {
       futureJsonBadRequest(OffsetTooLarge)
     } else {
-
       //pagination passing
       val pagination = Pagination(
         offset = offsetInt,
         limit = limitInt
       )
-
       input.toOption map { actualInput =>
         val tokens = parser tag actualInput
         logger info s"#addressQuery parsed:\n${tokens.map(t => s"value: ${t.value} - label:${t.label}").mkString("\n")}"
-
         val input = AddressQueryInput(
           tokens = tokens,
           pagination = pagination
         )
-
         addressSearch(input).map(_.map(r => jsonOk(r))).getOrElse(futureJsonBadRequest(EmptySearch))
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
