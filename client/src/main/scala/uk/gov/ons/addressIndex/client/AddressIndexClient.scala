@@ -4,7 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.Container$
+import uk.gov.ons.addressIndex.model.server.response.Container
 
 trait AddressIndexClient {
 
