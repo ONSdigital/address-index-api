@@ -22,7 +22,7 @@ trait AddressIndexCannedResponse {
                 label = seqTknRslt.map(_.value).mkString(" ")
               )
             }.toSeq,
-          addresses = addresses,
+          addresses = Some(addresses),
           limit = p.limit,
           offset = p.offset,
           total = addresses.size

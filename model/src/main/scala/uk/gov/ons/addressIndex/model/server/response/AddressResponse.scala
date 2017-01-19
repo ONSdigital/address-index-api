@@ -11,9 +11,9 @@ import Model.HybridResponse
 object Model {
 
   case class HybridResponse(
-                             uprn: String,
-                             lpi: Option[Seq[NationalAddressGazetteer]],
-                             paf: Option[Seq[PostcodeAddressFile]]
+    uprn: String,
+    lpi: Option[Seq[NationalAddressGazetteer]],
+    paf: Option[Seq[PostcodeAddressFile]]
   )
 
   implicit class StringAnyRefAugmenter(map: Map[String, AnyRef]) {
@@ -133,16 +133,18 @@ object Container {
     errors: Option[Seq[Error]] = None
   ): Container = {
 
-    optAddresses.getOrElse(Seq.empty).map {
-      _.lpi.getOrElse(Seq.empty).map { x =>
-        AddressInformation(
-          uprn = x.uprn
-          paf = None,
-          nag = None,
-          underlyingScore = 0f,
-          underlyingMaxScore = 0f
-        )
-      }
+
+
+    optAddresses.getOrElse(Seq.empty).map { sHybrid =>
+
+      AddressInformation(
+        uprn = sHybrid.uprn,
+        paf = None,
+        nag = sHybrid.lpi.map(x => x),
+        underlyingScore = 0f,
+        underlyingMaxScore = 0f
+      )
+
     }
 
     Container(
@@ -242,11 +244,11 @@ object NAG {
 }
 
 case class PAO(
-  paoText: String,
-  paoStartNumber: String,
-  paoStartSuffix: String,
-  paoEndNumber: String,
-  paoEndSuffix: String
+                text: String,
+                startNumber: String,
+                paoStartSuffix: String,
+                paoEndNumber: String,
+                paoEndSuffix: String
 )
 
 object PAO {
@@ -254,11 +256,11 @@ object PAO {
 }
 
 case class SAO(
-  saoText: String,
-  saoStartNumber: String,
-  saoStartSuffix: String,
-  saoEndNumber: String,
-  saoEndSuffix: String
+                text: String,
+                startNumber: String,
+                startSuffix: String,
+                endNumber: String,
+                endSuffix: String
 )
 
 object SAO {

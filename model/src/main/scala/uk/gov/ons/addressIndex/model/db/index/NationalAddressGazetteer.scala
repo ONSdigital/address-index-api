@@ -1,8 +1,11 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import uk.gov.ons.addressIndex.model.server.response.{GEO, NAG, PAO, SAO}
+
 /**
  * Data structure containing addresses with the maximum address
- * @param addresses fetched addresses
+  *
+  * @param addresses fetched addresses
  * @param maxScore maximum score
  */
 case class NationalAddressGazetteerAddresses(
@@ -44,7 +47,8 @@ case class NationalAddressGazetteer(
   locality: String,
   score: Float
 ) extends AddressFormattable {
-  def formattedAddress(nag: NationalAddressGazetteer): String = {
+
+  def formattedAddress: String = {
 
     val saoLeftRangeExists = saoStartNumber.nonEmpty || saoStartSuffix.nonEmpty
     val saoRightRangeExists = saoEndNumber.nonEmpty || saoEndSuffix.nonEmpty
@@ -65,5 +69,45 @@ case class NationalAddressGazetteer(
 
     delimitByComma(organisation, sao, buildingNumberWithStreetDescription, locality,
       townName, postcodeLocator)
+  }
+
+  def toNag: NAG = {
+    NAG(
+      uprn = uprn,
+      postcodeLocator = postcodeLocator,
+      addressBasePostal = addressBasePostal,
+      usrn = usrn,
+      lpiKey = lpiKey,
+      pao = PAO(
+        text = paoText,
+        startNumber = paoStartNumber,
+        paoStartSuffix = paoStartSuffix,
+        paoEndNumber = paoEndNumber,
+        paoEndSuffix = paoEndSuffix
+      ),
+      sao = SAO(
+        text = saoText,
+        startNumber = saoStartNumber,
+        startSuffix = saoStartSuffix,
+        endNumber = saoEndNumber,
+        endSuffix = saoEndSuffix
+      ),
+      geo = GEO(
+        latitude = latitude.toDouble,
+        longitude = longitude.toDouble,
+        easting = easting.toInt,
+        northing = northing.toInt
+      ),
+      level = level,
+      officialFlag = officialFlag,
+      logicalStatus = logicalStatus,
+      streetDescriptor = streetDescriptor,
+      townName = townName,
+      locality = locality,
+      organisation = organisation,
+      legalName = legalName,
+      classificationCode = classificationCode,
+      formattedAddress = formattedAddress
+    )
   }
 }
