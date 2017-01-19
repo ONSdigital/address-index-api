@@ -132,26 +132,21 @@ object Container {
     status: Status,
     errors: Option[Seq[Error]] = None
   ): Container = {
-
-
-
-    optAddresses.getOrElse(Seq.empty).map { sHybrid =>
-
-      AddressInformation(
-        uprn = sHybrid.uprn,
-        paf = None,
-        nag = sHybrid.lpi.map(x => x),
-        underlyingScore = 0f,
-        underlyingMaxScore = 0f
-      )
-
-    }
-
     Container(
       response = Some(
         Results(
           tokens = tokens,
-          addresses = None,
+          addresses = optAddresses.map(
+            _.map { sHybrid =>
+              AddressInformation(
+                uprn = sHybrid.uprn,
+                paf = sHybrid.paf.map(_.map(_.toPAF)),
+                nag = sHybrid.lpi.map(_.map(_.toNag)),
+                underlyingScore = 0f,
+                underlyingMaxScore = 0f
+              )
+            }
+          ),
           limit = 1,
           offset = 1,
           total = 1

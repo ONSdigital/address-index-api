@@ -1,28 +1,11 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import uk.gov.ons.addressIndex.model.db.ElasticIndex
 import uk.gov.ons.addressIndex.model.server.response.PAF
 
-
-
-trait AddressFormattable {
+trait Formattable {
   def delimitByComma(parts: String*) = parts.map(_.trim).filter(_.nonEmpty).mkString(", ")
 }
 
-/**
- * Data structure containing addresses with the maximum address
- * @param addresses fetched addresses
- * @param maxScore maximum score
- */
-case class PostcodeAddressFileAddresses(
- addresses: Seq[PostcodeAddressFile],
- maxScore: Float
-)
-
-/**
-  * PAF Address DTO
-  */
 case class PostcodeAddressFile(
   recordIdentifier: String,
   changeType: String,
@@ -54,7 +37,8 @@ case class PostcodeAddressFile(
   lastUpdateDate: String,
   entryDate: String,
   score: Float
-) extends AddressFormattable {
+) extends Formattable {
+
   def formatAddress: String = {
     val newPoboxNumber = if (poBoxNumber.isEmpty) "" else s"PO BOX $poBoxNumber"
     val trimmedBuildingNumber = buildingNumber.trim

@@ -2,20 +2,6 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import uk.gov.ons.addressIndex.model.server.response.{GEO, NAG, PAO, SAO}
 
-/**
- * Data structure containing addresses with the maximum address
-  *
-  * @param addresses fetched addresses
- * @param maxScore maximum score
- */
-case class NationalAddressGazetteerAddresses(
-                                              addresses: Seq[NationalAddressGazetteer],
-                                              maxScore: Float
-)
-
-/**
-  * NAG Address DTO
-  */
 case class NationalAddressGazetteer(
   uprn: String,
   postcodeLocator: String,
@@ -46,7 +32,7 @@ case class NationalAddressGazetteer(
   townName: String,
   locality: String,
   score: Float
-) extends AddressFormattable {
+) extends Formattable {
 
   def formatAddress: String = {
     val saoLeftRangeExists = saoStartNumber.nonEmpty || saoStartSuffix.nonEmpty
@@ -54,14 +40,14 @@ case class NationalAddressGazetteer(
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
     val saoNumbers = Seq(saoStartNumber, saoStartSuffix, saoHyphen, saoEndNumber, saoEndSuffix)
       .map(_.trim).mkString
-    val sao = if (saoText == organisation) saoNumbers else s"$saoNumbers, ${saoText}"
+    val sao = if (saoText == organisation) saoNumbers else s"$saoNumbers, $saoText"
 
     val paoLeftRangeExists = paoStartNumber.nonEmpty || paoStartSuffix.nonEmpty
     val paoRightRangeExists = paoEndNumber.nonEmpty || paoEndSuffix.nonEmpty
     val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
     val paoNumbers = Seq(paoStartNumber, paoStartSuffix, paoHyphen, paoEndNumber, paoEndSuffix)
       .map(_.trim).mkString
-    val pao = if (paoText == organisation) paoNumbers else s"${paoText}, $paoNumbers"
+    val pao = if (paoText == organisation) paoNumbers else s"$paoText, $paoNumbers"
 
     val trimmedStreetDescriptor = streetDescriptor.trim
     val buildingNumberWithStreetDescription = s"$pao $trimmedStreetDescriptor"
