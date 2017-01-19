@@ -55,16 +55,20 @@ case class PostcodeAddressFile(
   score: Float
 ) extends AddressFormattable {
   def formatAddress: String = {
-    val poBoxNumber = if (poBoxNumber.isEmpty) "" else s"PO BOX ${poBoxNumber}"
+    val newPoboxNumber = if (poBoxNumber.isEmpty) "" else s"PO BOX ${poBoxNumber}"
     val trimmedBuildingNumber = buildingNumber.trim
     val trimmedDependentThoroughfare = dependentThoroughfare.trim
     val trimmedThoroughfare = thoroughfare.trim
 
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
+    val buildingNumberWithStreetName = s"$trimmedBuildingNumber ${
+      if(trimmedDependentThoroughfare.nonEmpty)
+        s"$trimmedDependentThoroughfare, "
+      else
+        ""
+    }$trimmedThoroughfare"
 
     delimitByComma(departmentName, organizationName, subBuildingName, buildingName,
-      poBoxNumber, buildingNumberWithStreetName, doubleDependentLocality, dependentLocality,
+      newPoboxNumber, buildingNumberWithStreetName, doubleDependentLocality, dependentLocality,
       postTown, postcode)
   }
 }
