@@ -1,15 +1,17 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
+
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import play.api.Logger
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.model.AddressScheme
+import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
 import uk.gov.ons.addressIndex.server.modules.Model._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 object Model {
@@ -22,8 +24,9 @@ object Model {
 
   implicit class AutoSource(searchDefinition: SearchDefinition) {
     def format(implicit optFmt: Option[AddressScheme]) = {
-      optFmt map { fmt =>
-        searchDefinition sourceInclude fmt.toString
+      optFmt map {
+        case x: PostcodeAddressFile => searchDefinition sourceExclude HybridIndex.Fields.lpi
+        case x: BritishStandard7666 => searchDefinition sourceExclude HybridIndex.Fields.paf
       } getOrElse searchDefinition
     }
   }
