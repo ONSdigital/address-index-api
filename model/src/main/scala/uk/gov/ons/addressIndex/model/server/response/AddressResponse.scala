@@ -15,10 +15,15 @@ import Model.HybridResponse
 object Model {
 
   case class HybridResponse(
-     uprn: String,
-     lpi: Option[Seq[Map[String, String]]],
-     paf: Option[Seq[Map[String, String]]]
-   )
+    uprn: String,
+    lpi: Option[Seq[NationalAddressGazetteerAddress]],
+    paf: Option[Seq[PostcodeAddressFileAddress]]
+  )
+
+
+  implicit class StringAnyRefAugmenter(map: Map[String, AnyRef]) {
+    def getType[T](field: String, default: T): T = map.getOrElse(field, default).asInstanceOf[T]
+  }
 
   implicit object HybridResponse extends HitAs[HybridResponse] {
     import scala.collection.JavaConverters._
@@ -28,17 +33,87 @@ object Model {
     override def as(hit: RichSearchHit): HybridResponse = {
       val map = hit.sourceAsMap
 
-      def getSeqMap(fieldName: String): Option[Seq[Map[String, String]]] = {
+      def getSeqMap[T](fieldName: String)(fn: Seq[Map[String, AnyRef]] => Seq[T]): Option[Seq[T]] = {
         Try {
-          val x = map(fieldName).asInstanceOf[util.ArrayList[java.util.HashMap[String, String]]].asScala
-          x.map(_.asScala.toMap)
+          val x = map(fieldName).asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala
+          val y = x.map(_.asScala.toMap)
+          fn(y)
         }.toOption
       }
 
       HybridResponse(
         uprn = map(HybridIndex.Fields.uprn).toString,
-        lpi = getSeqMap(HybridIndex.Fields.lpi),
-        paf = getSeqMap(HybridIndex.Fields.paf)
+        lpi = getSeqMap(HybridIndex.Fields.lpi) { seqMap =>
+          seqMap map { nag =>
+            NationalAddressGazetteerAddress(
+              uprn = nag.getType("uprn", ""),
+              postcodeLocator = nag.getType("postcodeLocator", ""),
+              addressBasePostal = nag.getType("addressBasePostal", ""),
+              latitude = nag.getType("latitude", ""),
+              longitude = nag.getType("longitude", ""),
+              easting = nag.getType("easting", ""),
+              northing = nag.getType("northing", ""),
+              organisation = nag.getType("organisation", ""),
+              legalName = nag.getType("legalName", ""),
+              classificationCode = nag.getType("classificationCode", ""),
+              usrn = nag.getType("usrn", ""),
+              lpiKey = nag.getType("lpiKey", ""),
+              paoText = nag.getType("paoText", ""),
+              paoStartNumber = nag.getType("paoStartNumber", ""),
+              paoStartSuffix = nag.getType("paoStartSuffix", ""),
+              paoEndNumber = nag.getType("paoEndNumber", ""),
+              paoEndSuffix = nag.getType("paoEndSuffix", ""),
+              saoText = nag.getType("saoText", ""),
+              saoStartNumber = nag.getType("saoStartNumber", ""),
+              saoStartSuffix = nag.getType("saoStartSuffix", ""),
+              saoEndNumber = nag.getType("saoEndNumber", ""),
+              saoEndSuffix = nag.getType("saoEndSuffix", ""),
+              level = nag.getType("level", ""),
+              officialFlag = nag.getType("officialFlag", ""),
+              logicalStatus = nag.getType("logicalStatus", ""),
+              streetDescriptor = nag.getType("streetDescriptor", ""),
+              townName = nag.getType("townName", ""),
+              locality = nag.getType("locality", ""),
+              score = nag.getType("score", 0f)
+            )
+          }
+        },
+        paf = getSeqMap(HybridIndex.Fields.paf) { seqMap =>
+          seqMap map { paf =>
+            PostcodeAddressFileAddress(
+              recordIdentifier = paf.getType("recordIdentifier", ""),
+              changeType = paf.getType("recordIdentifier", ""),
+              proOrder = paf.getType("proOrder", ""),
+              uprn = paf.getType("uprn", ""),
+              udprn = paf.getType("udprn", ""),
+              organizationName = paf.getType("organizationName", ""),
+              departmentName = paf.getType("departmentName", ""),
+              subBuildingName = paf.getType("subBuildingName", ""),
+              buildingName = paf.getType("buildingName", ""),
+              buildingNumber = paf.getType("buildingNumber", ""),
+              dependentThoroughfare = paf.getType("dependentThoroughfare", ""),
+              thoroughfare = paf.getType("thoroughfare", ""),
+              doubleDependentLocality = paf.getType("doubleDependentLocality", ""),
+              dependentLocality = paf.getType("dependentLocality", ""),
+              postTown = paf.getType("postTown", ""),
+              postcode = paf.getType("postcode", ""),
+              postcodeType = paf.getType("postcodeType", ""),
+              deliveryPointSuffix = paf.getType("deliveryPointSuffix", ""),
+              welshDependentThoroughfare = paf.getType("welshDependentThoroughfare", ""),
+              welshThoroughfare = paf.getType("welshThoroughfare", ""),
+              welshDoubleDependentLocality = paf.getType("welshDoubleDependentLocality", ""),
+              welshDependentLocality = paf.getType("welshDependentLocality", ""),
+              welshPostTown = paf.getType("welshPostTown", ""),
+              poBoxNumber = paf.getType("poBoxNumber", ""),
+              processDate = paf.getType("processDate", ""),
+              startDate = paf.getType("startDate", ""),
+              endDate = paf.getType("endDate", ""),
+              lastUpdateDate = paf.getType("lastUpdateDate", ""),
+              entryDate = paf.getType("entryDate", ""),
+              score = paf.getType("score", 0f)
+            )
+          }
+        }
       )
     }
   }
@@ -111,8 +186,11 @@ case class AddressBySearchResponse(
 )
 
 object AddressBySearchResponse {
-  implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
-  implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
+  implicit lazy val fmt = Json.format[HybridResponse]
+  implicit lazy val fmtNag = Json.format[NationalAddressGazetteerAddress]
+  implicit lazy val fmtPaf = Json.format[PostcodeAddressFileAddress]
+  implicit lazy val tokenResultFmt = Json.format[CrfTokenResult]
+  implicit lazy val addressBySearchResponseFormat = Json.format[AddressBySearchResponse]
 }
 
 
@@ -161,7 +239,6 @@ case class AddressResponseAddress(
   underlyingScore: Float,
   underlyingMaxScore: Float
 )
-
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
 
@@ -285,6 +362,13 @@ object AddressResponseAddress {
       underlyingScore = other.score,
       underlyingMaxScore = maxScore
     )
+  }
+
+  def fromHybridAddress(maxScore: Float, other: HybridResponse): AddressResponseAddress = {
+
+    other.paf.getOrElse(Nil).map(x => fromPafAddress(maxScore)(x))
+    other.lpi.getOrElse(Nil).map(x => fromNagAddress(maxScore)(x))
+    val nag = fromNagAddress(maxScore)()
   }
 
   private def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {

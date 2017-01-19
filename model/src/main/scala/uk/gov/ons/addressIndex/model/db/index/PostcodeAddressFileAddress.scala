@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
 /**
@@ -48,6 +49,7 @@ case class PostcodeAddressFileAddress(
   entryDate: String,
   score: Float
 )
+
 
 /**
   * PAF Address DTO companion object that also contains implicits needed for Elastic4s
