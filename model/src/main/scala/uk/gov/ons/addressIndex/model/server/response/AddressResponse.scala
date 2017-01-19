@@ -23,8 +23,6 @@ object Model {
   implicit object HybridResponse extends HitAs[HybridResponse] {
     import scala.collection.JavaConverters._
 
-    implicit lazy val fmt = Json.format[HybridResponse]
-
     override def as(hit: RichSearchHit): HybridResponse = {
       val map = hit.sourceAsMap
 
@@ -130,7 +128,10 @@ object Container {
     optAddresses: Option[Seq[HybridResponse]],
     tokens: Seq[CrfTokenResult],
     status: Status,
-    errors: Option[Seq[Error]] = None
+    errors: Option[Seq[Error]] = None,
+    limit: Int,
+    offset: Int,
+    total: Int
   ): Container = {
     Container(
       response = Some(
@@ -147,9 +148,9 @@ object Container {
               )
             }
           ),
-          limit = 1,
-          offset = 1,
-          total = 1
+          limit = limit,
+          offset = offset,
+          total = total
         )
       ),
       status = status,

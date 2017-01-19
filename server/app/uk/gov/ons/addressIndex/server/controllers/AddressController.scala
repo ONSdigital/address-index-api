@@ -17,7 +17,7 @@ import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 import scala.util.Try
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
-import uk.gov.ons.addressIndex.model.server.response.Results$
+import uk.gov.ons.addressIndex.model.server.response.{Container, Results$}
 import uk.gov.ons.addressIndex.model.server.response.Model.HybridResponse
 
 
@@ -111,9 +111,10 @@ class AddressController @Inject()(
           format = format flatMap(_.stringToScheme)
         ) map { r =>
           jsonOk(
-            Results(
+            Container.fromHybridResponse(
+              optAddresses = Some(r.as[HybridResponse].toSeq),
               tokens = tokens,
-              addresses = r.as[HybridResponse].toSeq,
+              status = Status.Ok,
               limit = pagination.limit,
               offset = pagination.offset,
               total = r.totalHits.toInt
