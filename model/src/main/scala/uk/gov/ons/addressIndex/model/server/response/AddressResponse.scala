@@ -122,6 +122,7 @@ case class Container(
 )
 
 object Container {
+
   implicit lazy val fmt = Json.format[Container]
 
   def fromHybridResponse(
@@ -141,10 +142,10 @@ object Container {
             _.map { sHybrid =>
               AddressInformation(
                 uprn = sHybrid.uprn,
-                paf = sHybrid.paf.map(_.map(_.toPAF)),
-                nag = sHybrid.lpi.map(_.map(_.toNag)),
-                underlyingScore = 0f,
-                underlyingMaxScore = 0f
+                paf = sHybrid.paf.map(_.map(_.toPAFWithFormat)),
+                nag = sHybrid.lpi.map(_.map(_.toNagWithFormat)),
+                underlyingScore = 0f,//??
+                underlyingMaxScore = 0f//??
               )
             }
           ),
@@ -168,20 +169,25 @@ case class Results(
 )
 
 object Results {
-  implicit lazy val tokenResultFmt = Json.format[CrfTokenResult]
-  implicit lazy val addressBySearchResponseFormat = Json.format[Results]
+  implicit lazy val trFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
+  implicit lazy val rFmt: Format[Results] = Json.format[Results]
 }
 
 case class AddressInformation(
   uprn: String,
-  paf: Option[Seq[PAF]],
-  nag: Option[Seq[NAG]],
+  paf: Option[Seq[PAFWithFormat]],
+  nag: Option[Seq[NAGWithFormat]],
   underlyingScore: Float,
   underlyingMaxScore: Float
 )
 
 object AddressInformation {
-  implicit lazy val addressResponseAddressFormat: Format[AddressInformation] = Json.format[AddressInformation]
+  implicit lazy val fmt: Format[AddressInformation] = Json.format[AddressInformation]
+}
+
+case class PAFWithFormat(formattedAddress: String, paf: PAF)
+object PAFWithFormat {
+  implicit lazy val fmt: Format[PAFWithFormat] = Json.format[PAFWithFormat]
 }
 
 case class PAF(
@@ -206,12 +212,16 @@ case class PAF(
   welshPostTown: String,
   poBoxNumber: String,
   startDate: String,
-  endDate: String,
-  formattedAddress: String
+  endDate: String
 )
 
 object PAF {
-  implicit lazy val fmt = Json.format[PAF]
+  implicit lazy val fmt: Format[PAF] = Json.format[PAF]
+}
+
+case class NAGWithFormat(formattedAddress: String, nag: NAG)
+object NAGWithFormat {
+  implicit lazy val fmt: Format[NAGWithFormat] = Json.format[NAGWithFormat]
 }
 
 case class NAG(
@@ -231,12 +241,11 @@ case class NAG(
   locality: String,
   organisation: String,
   legalName: String,
-  classificationCode: String,
-  formattedAddress: String
+  classificationCode: String
 )
 
 object NAG {
-  implicit lazy val fmt = Json.format[NAG]
+  implicit lazy val fmt: Format[NAG] = Json.format[NAG]
 }
 
 case class PAO(
@@ -248,7 +257,7 @@ case class PAO(
 )
 
 object PAO {
-  implicit lazy val fmt = Json.format[PAO]
+  implicit lazy val fmt: Format[PAO] = Json.format[PAO]
 }
 
 case class SAO(
@@ -260,18 +269,18 @@ case class SAO(
 )
 
 object SAO {
-  implicit lazy val fmt = Json.format[SAO]
+  implicit lazy val fmt: Format[SAO] = Json.format[SAO]
 }
 
 case class GEO(
   latitude: Double,
   longitude: Double,
-  easting: Int,
-  northing: Int
+  easting: Double,
+  northing: Double
 )
 
 object GEO {
-  implicit lazy val fmt = Json.format[GEO]
+  implicit lazy val fmt: Format[GEO] = Json.format[GEO]
 }
 
 case class Status(
@@ -280,7 +289,7 @@ case class Status(
 )
 
 object Status {
-  implicit lazy val fmt = Json.format[Status]
+  implicit lazy val fmt: Format[Status] = Json.format[Status]
 }
 
 case class Error(
@@ -289,5 +298,5 @@ case class Error(
 )
 
 object Error {
-  implicit lazy val fmt = Json.format[Error]
+  implicit lazy val fmt: Format[Error] = Json.format[Error]
 }

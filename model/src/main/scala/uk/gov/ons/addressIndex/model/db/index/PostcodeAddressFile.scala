@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import uk.gov.ons.addressIndex.model.server.response.PAF
+import uk.gov.ons.addressIndex.model.server.response.{PAF, PAFWithFormat}
 
 trait Formattable {
   def delimitByComma(parts: String*) = parts.map(_.trim).filter(_.nonEmpty).mkString(", ")
@@ -57,31 +57,33 @@ case class PostcodeAddressFile(
       postTown, postcode)
   }
 
-  def toPAF: PAF = {
-    PAF(
-      udprn = udprn,
-      organisationName = organizationName,
-      departmentName = departmentName,
-      subBuildingName = subBuildingName,
-      buildingName = buildingName,
-      buildingNumber = buildingNumber,
-      dependentThoroughfare = dependentThoroughfare,
-      thoroughfare = thoroughfare,
-      doubleDependentLocality = doubleDependentLocality,
-      dependentLocality = dependentLocality,
-      postTown = postTown,
-      postcode = postcode,
-      postcodeType = postcodeType,
-      deliveryPointSuffix = deliveryPointSuffix,
-      welshDependentThoroughfare = welshDependentThoroughfare,
-      welshThoroughfare = welshThoroughfare,
-      welshDoubleDependentLocality = welshDoubleDependentLocality,
-      welshDependentLocality = welshDependentLocality,
-      welshPostTown = welshPostTown,
-      poBoxNumber = poBoxNumber,
-      startDate = startDate,
-      endDate = endDate,
-      formattedAddress = formatAddress
+  def toPAFWithFormat: PAFWithFormat = {
+    PAFWithFormat(
+      formattedAddress = formatAddress,
+      paf = PAF(
+        udprn = udprn,
+        organisationName = organizationName,
+        departmentName = departmentName,
+        subBuildingName = subBuildingName,
+        buildingName = buildingName,
+        buildingNumber = buildingNumber,
+        dependentThoroughfare = dependentThoroughfare,
+        thoroughfare = thoroughfare,
+        doubleDependentLocality = doubleDependentLocality,
+        dependentLocality = dependentLocality,
+        postTown = postTown,
+        postcode = postcode,
+        postcodeType = postcodeType,
+        deliveryPointSuffix = deliveryPointSuffix,
+        welshDependentThoroughfare = welshDependentThoroughfare,
+        welshThoroughfare = welshThoroughfare,
+        welshDoubleDependentLocality = welshDoubleDependentLocality,
+        welshDependentLocality = welshDependentLocality,
+        welshPostTown = welshPostTown,
+        poBoxNumber = poBoxNumber,
+        startDate = startDate,
+        endDate = endDate
+      )
     )
   }
 }

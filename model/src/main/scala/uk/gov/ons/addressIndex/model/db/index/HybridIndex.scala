@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import org.elasticsearch.search.SearchHit
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 

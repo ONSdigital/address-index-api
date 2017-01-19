@@ -7,31 +7,6 @@ import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
 trait AddressIndexCannedResponse {
 
-  def searchContainerTemplate(
-    tokens: Seq[CrfTokenResult],
-    addresses: Seq[HybridResponse],
-    total: Int
-  )(implicit p: Pagination): Container = {
-    Container(
-      response = Some(
-        Results(
-          tokens = tokens
-            .groupBy(_.label).map { case (tkn, seqTknRslt) =>
-              CrfTokenResult(
-                value = tkn,
-                label = seqTknRslt.map(_.value).mkString(" ")
-              )
-            }.toSeq,
-          addresses = Some(addresses),
-          limit = p.limit,
-          offset = p.offset,
-          total = addresses.size
-        )
-      ),
-      status = Status.Ok
-    )
-  }
-
   def searchUprnContainerTemplate(optAddresses: Option[AddressInformation]): Container = {
     Container(
       status = Status.Ok
@@ -95,7 +70,7 @@ trait AddressIndexCannedResponse {
   def ErrorResults: Results = {
     Results(
       Seq.empty,
-      addresses = Seq.empty,
+      addresses = None,
       limit = 10,
       offset = 0,
       total = 0

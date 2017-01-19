@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import uk.gov.ons.addressIndex.model.server.response.{GEO, NAG, PAO, SAO}
+import uk.gov.ons.addressIndex.model.server.response._
 
 case class NationalAddressGazetteer(
   uprn: String,
@@ -56,43 +56,45 @@ case class NationalAddressGazetteer(
       townName, postcodeLocator)
   }
 
-  def toNag: NAG = {
-    NAG(
-      uprn = uprn,
-      postcodeLocator = postcodeLocator,
-      addressBasePostal = addressBasePostal,
-      usrn = usrn,
-      lpiKey = lpiKey,
-      pao = PAO(
-        text = paoText,
-        startNumber = paoStartNumber,
-        paoStartSuffix = paoStartSuffix,
-        paoEndNumber = paoEndNumber,
-        paoEndSuffix = paoEndSuffix
-      ),
-      sao = SAO(
-        text = saoText,
-        startNumber = saoStartNumber,
-        startSuffix = saoStartSuffix,
-        endNumber = saoEndNumber,
-        endSuffix = saoEndSuffix
-      ),
-      geo = GEO(
-        latitude = latitude.toDouble,
-        longitude = longitude.toDouble,
-        easting = easting.toInt,
-        northing = northing.toInt
-      ),
-      level = level,
-      officialFlag = officialFlag,
-      logicalStatus = logicalStatus,
-      streetDescriptor = streetDescriptor,
-      townName = townName,
-      locality = locality,
-      organisation = organisation,
-      legalName = legalName,
-      classificationCode = classificationCode,
-      formattedAddress = formatAddress
+  def toNagWithFormat: NAGWithFormat = {
+    NAGWithFormat(
+      formattedAddress = formatAddress,
+      nag = NAG(
+        uprn = uprn,
+        postcodeLocator = postcodeLocator,
+        addressBasePostal = addressBasePostal,
+        usrn = usrn,
+        lpiKey = lpiKey,
+        pao = PAO(
+          text = paoText,
+          startNumber = paoStartNumber,
+          paoStartSuffix = paoStartSuffix,
+          paoEndNumber = paoEndNumber,
+          paoEndSuffix = paoEndSuffix
+        ),
+        sao = SAO(
+          text = saoText,
+          startNumber = saoStartNumber,
+          startSuffix = saoStartSuffix,
+          endNumber = saoEndNumber,
+          endSuffix = saoEndSuffix
+        ),
+        geo = GEO(
+          latitude = latitude.toDouble,
+          longitude = longitude.toDouble,
+          easting = easting.toDouble,
+          northing = northing.toDouble
+        ),
+        level = level,
+        officialFlag = officialFlag,
+        logicalStatus = logicalStatus,
+        streetDescriptor = streetDescriptor,
+        townName = townName,
+        locality = locality,
+        organisation = organisation,
+        legalName = legalName,
+        classificationCode = classificationCode
+      )
     )
   }
 }
