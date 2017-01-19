@@ -18,19 +18,14 @@ class ClassHierarchy @Inject()(val messagesApi: MessagesApi)  {
       val patterns = Seq(primary, secondary, tertiary, quaternary)
       val classifications = patterns.flatMap(_.findFirstIn(code))
 
-      (
-        Seq(s" [ $code ]") ++ (
-          classifications flatMap { code =>
-            if (messagesApi.isDefinedAt("category." + code)) {
-              Seq(" [ " + messagesApi("category." + code) + " ]")
-            } else {
-              Seq.empty
-            }
-          }
-        )
-      ).mkString
+      val codes = classifications
+        .map(categoryCode => s"category.$categoryCode")
+        .filter(messagesApi.isDefinedAt)
+        .map(categoryCode => s" [ ${messagesApi(categoryCode)} ]")
+
+      s" [ $code ]${codes.mkString}"
     } else {
-      " [ " + code + " ]"
+      s" [ $code ]"
     }
   }
 }
