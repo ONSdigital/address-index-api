@@ -123,7 +123,12 @@ case class Container(
 object Container {
   implicit lazy val fmt = Json.format[Container]
 
-  def fromHybridResponse(optAddresses: Option[Seq[HybridResponse]], tokens: Seq[CrfTokenResult], status: Status, errors: Option[Seq[Error]] = None): Container = {
+  def fromHybridResponse(
+    optAddresses: Option[Seq[HybridResponse]],
+    tokens: Seq[CrfTokenResult],
+    status: Status,
+    errors: Option[Seq[Error]] = None
+  ): Container = {
     Container(
       response = Results(
         tokens = tokens,
@@ -293,47 +298,47 @@ object Error {
   implicit lazy val fmt = Json.format[Error]
 }
 
-object EmptyQueryError$ extends Error(
+object EmptyQueryError extends Error(
   code = 1,
   message = "Empty query"
 )
 
-object FormatNotSupportedError$ extends Error(
+object FormatNotSupportedError extends Error(
   code = 2,
   message = "Address format is not supported"
 )
 
-object NotFoundError$ extends Error(
+object NotFoundError extends Error(
   code = 3,
   message = "UPRN request didn't yield a result"
 )
 
-object LimitNotNumericError$ extends Error(
+object LimitNotNumericError extends Error(
   code = 4,
   message = "Limit parameter not numeric"
 )
 
-object OffsetNotNumericError$ extends Error(
+object OffsetNotNumericError extends Error(
   code = 5,
   message = "Offset parameter not numeric"
 )
 
-object LimitTooSmallError$ extends Error(
+object LimitTooSmallError extends Error(
   code = 6,
   message = "Limit parameter too small, minimum = 1"
 )
 
-object OffsetTooSmallError$ extends Error(
+object OffsetTooSmallError extends Error(
   code = 7,
   message = "Offset parameter too small, minimum = 0"
 )
 
-object LimitTooLargeError$ extends Error(
+object LimitTooLargeError extends Error(
   code = 8,
   message = "Limit parameter too large (maximum configurable)"
 )
 
-object OffsetTooLargeError$ extends Error(
+object OffsetTooLargeError extends Error(
   code = 9,
   message = "Offset parameter too large (maximum configurable)"
 )
