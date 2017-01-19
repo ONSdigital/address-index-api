@@ -114,7 +114,7 @@ class AddressController @Inject()(
             Container.fromHybridResponse(
               optAddresses = Some(r.as[HybridResponse].toSeq),
               tokens = tokens,
-              status = Status.Ok,
+              status = PredefStatus.Ok,
               limit = pagination.limit,
               offset = pagination.offset,
               total = r.totalHits.toInt

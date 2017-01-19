@@ -1,16 +1,12 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.Inject
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexCannedResponse, AddressParserModule, ElasticSearchRepository}
 import com.sksamuel.elastic4s.{ElasticClient, RichSearchResponse}
 import org.elasticsearch.common.settings.Settings
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
-import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteer, NationalAddressGazetteerAddresses, PostcodeAddressFile, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteer, PostcodeAddressFile}
 import org.scalatestplus.play._
-import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.AddressScheme
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
@@ -19,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
-  extends PlaySpec with Results with AddressIndexCannedResponse {
+  extends PlaySpec with Results with AddressIndexCannedResponse  {
 
   val validPafAddress = PostcodeAddressFile(
     recordIdentifier = "1",
@@ -125,343 +121,59 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
   "Address controller" should {
 
     "reply with a found PAF address (by address query)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-//            AddressTokens(
-//            uprn = "",
-//            buildingNumber = "10",
-//            postcode = "B16 8TH"
-//          ),
-          addresses = Seq(AddressInformation.fromPafAddress(1.0f)(validPafAddress)),
-          limit = 10,
-          offset = 0,
-          total = 1
-        ),
-        Ok
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe OK
-      actual mustBe expected
     }
 
     "reply with a found NAG address (by address query)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-//          AddressTokens(
-//            uprn = "",
-//            buildingNumber = "72",
-//            postcode = "B16 8TH"
-//          ),
-          addresses = Seq(AddressInformation.fromNagAddress(1.0f)(validNagAddress)),
-          limit = 10,
-          offset = 0,
-          total = 1
-        ),
-        Ok
-      ))
-
-      // When
-      val result = controller.addressQuery("72 B16 8TH", Some("bs")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe Ok
-      actual mustBe expected
     }
 
     "reply on a 400 error if address format is not supported (by address query)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(FormatNotSupportedError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("format is not supported")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if a non-numeric offset parameter is supplied" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(OffsetNotNumericError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("thing"), Some("1")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if a non-numeric limit parameter is supplied" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(OffsetNotNumericError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("1"), Some("thing")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if a negative offset parameter is supplied" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooSmallError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("-1"), Some("1")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if a negative or zero limit parameter is supplied" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooSmallError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("0"), Some("0")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if an offset parameter greater than the maximum allowed is supplied" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooLargeError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("9999999"), Some("1")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if a limit parameter larger than the maximum allowed is supplied" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooLargeError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("10 B16 8TH", Some("paf"), Some("0"), Some("999999")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a 400 error if query is empty (by address query)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(Container(
-        Results(
-          tokens = Seq.empty,
-          addresses = Seq.empty,
-          limit = 10,
-          offset = 0,
-          total = 0
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(EmptyQueryError$)
-      ))
-
-      // When
-      val result = controller.addressQuery("", Some("paf")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
     "reply on a found PAF address (by uprn)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = Some(AddressInformation.fromPafAddress(validPafAddress))
-        ),
-        Ok
-      ))
-
-      // When
-      val result = controller.uprnQuery("4", Some("paf")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe Ok
-      actual mustBe expected
     }
 
     "reply on a found NAG address (by uprn)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = Some(AddressInformation.fromNagAddress(validNagAddress))
-        ),
-        Ok
-      ))
-
-      // When
-      val result = controller.uprnQuery("1", Some("bs")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe Ok
-      actual mustBe expected
     }
 
     "reply a 404 error if address was not found (by uprn)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = None
-        ),
-        NotFoundAddressResponseStatus,
-        errors = Seq(NotFoundError$)
-      ))
-
-      // When
-      val result = controller.uprnQuery("doesn't exist", Some("paf")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe NotFound
-      actual mustBe expected
     }
 
     "reply a 400 error if address format is not supported (by uprn)" ignore {
-      // Given
-      val controller = testController
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = None
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(FormatNotSupportedError$)
-      ))
-
-      // When
-      val result = controller.uprnQuery("4", Some("format is not supported")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BadRequest
-      actual mustBe expected
     }
 
   }

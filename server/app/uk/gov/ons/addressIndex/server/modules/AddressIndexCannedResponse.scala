@@ -9,62 +9,62 @@ trait AddressIndexCannedResponse {
 
   def searchUprnContainerTemplate(optAddresses: Option[AddressInformation]): Container = {
     Container(
-      status = Status.Ok
+      status = PredefStatus.Ok
     )
   }
 
   def NoAddressFoundUprn: Container = {
     Container(
-      status = Status.BadRequest,
-      errors = Some(Seq(Error.NotFound))
+      status = PredefStatus.BadRequest,
+      errors = Some(Seq(PredefError.NotFound))
     )
   }
 
   def UnsupportedFormatUprn: Container = {
     Container(
-      status = Status.BadRequest,
-      errors = Some(Seq(Error.FormatNotSupported))
+      status = PredefStatus.BadRequest,
+      errors = Some(Seq(PredefError.FormatNotSupported))
     )
   }
 
   private def BadRequestTemplate(errors: Error*): Container = {
     Container(
       response = None,
-      status = Status.BadRequest,
+      status = PredefStatus.BadRequest,
       errors = Some(errors)
     )
   }
 
   def OffsetNotNumeric: Container = {
-    BadRequestTemplate(Error.OffsetNotNumeric)
+    BadRequestTemplate(PredefError.OffsetNotNumeric)
   }
 
   def LimitNotNumeric: Container = {
-    BadRequestTemplate(Error.LimitNotNumeric)
+    BadRequestTemplate(PredefError.LimitNotNumeric)
   }
 
   def LimitTooSmall: Container = {
-    BadRequestTemplate(Error.LimitTooSmall)
+    BadRequestTemplate(PredefError.LimitTooSmall)
   }
 
   def OffsetTooSmall: Container = {
-    BadRequestTemplate(Error.OffsetTooSmall)
+    BadRequestTemplate(PredefError.OffsetTooSmall)
   }
 
   def LimitTooLarge: Container = {
-    BadRequestTemplate(Error.LimitTooLarge)
+    BadRequestTemplate(PredefError.LimitTooLarge)
   }
 
   def OffsetTooLarge: Container = {
-    BadRequestTemplate(Error.OffsetTooLarge)
+    BadRequestTemplate(PredefError.OffsetTooLarge)
   }
 
   def UnsupportedFormat: Container = {
-    BadRequestTemplate(Error.FormatNotSupported)
+    BadRequestTemplate(PredefError.FormatNotSupported)
   }
 
   def EmptySearch: Container = {
-    BadRequestTemplate(Error.EmptyQuery)
+    BadRequestTemplate(PredefError.EmptyQuery)
   }
 
   def ErrorResults: Results = {
@@ -76,8 +76,7 @@ trait AddressIndexCannedResponse {
       total = 0
     )
   }
-
-  object Error {
+  object PredefError {
     object EmptyQuery extends Error(
       code = 1,
       message = "Empty query"
@@ -124,7 +123,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  object Status {
+  object PredefStatus {
     object Ok extends Status(
       code = play.api.http.Status.OK,
       message = "Ok"
