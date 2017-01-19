@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
+import uk.gov.ons.addressIndex.model.server.response.PAF
 
 
 
@@ -55,7 +56,7 @@ case class PostcodeAddressFile(
   score: Float
 ) extends AddressFormattable {
   def formatAddress: String = {
-    val newPoboxNumber = if (poBoxNumber.isEmpty) "" else s"PO BOX ${poBoxNumber}"
+    val newPoboxNumber = if (poBoxNumber.isEmpty) "" else s"PO BOX $poBoxNumber"
     val trimmedBuildingNumber = buildingNumber.trim
     val trimmedDependentThoroughfare = dependentThoroughfare.trim
     val trimmedThoroughfare = thoroughfare.trim
@@ -70,5 +71,33 @@ case class PostcodeAddressFile(
     delimitByComma(departmentName, organizationName, subBuildingName, buildingName,
       newPoboxNumber, buildingNumberWithStreetName, doubleDependentLocality, dependentLocality,
       postTown, postcode)
+  }
+
+  def toPAF: PAF = {
+    PAF(
+      udprn = udprn,
+      organisationName = organizationName,
+      departmentName = departmentName,
+      subBuildingName = subBuildingName,
+      buildingName = buildingName,
+      buildingNumber = buildingNumber,
+      dependentThoroughfare = dependentThoroughfare,
+      thoroughfare = thoroughfare,
+      doubleDependentLocality = doubleDependentLocality,
+      dependentLocality = dependentLocality,
+      postTown = postTown,
+      postcode = postcode,
+      postcodeType = postcodeType,
+      deliveryPointSuffix = deliveryPointSuffix,
+      welshDependentThoroughfare = welshDependentThoroughfare,
+      welshThoroughfare = welshThoroughfare,
+      welshDoubleDependentLocality = welshDoubleDependentLocality,
+      welshDependentLocality = welshDependentLocality,
+      welshPostTown = welshPostTown,
+      poBoxNumber = poBoxNumber,
+      startDate = startDate,
+      endDate = endDate,
+      formattedAddress = formatAddress
+    )
   }
 }

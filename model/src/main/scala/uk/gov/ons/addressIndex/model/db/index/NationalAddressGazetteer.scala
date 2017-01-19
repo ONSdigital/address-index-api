@@ -48,8 +48,7 @@ case class NationalAddressGazetteer(
   score: Float
 ) extends AddressFormattable {
 
-  def formattedAddress: String = {
-
+  def formatAddress: String = {
     val saoLeftRangeExists = saoStartNumber.nonEmpty || saoStartSuffix.nonEmpty
     val saoRightRangeExists = saoEndNumber.nonEmpty || saoEndSuffix.nonEmpty
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
@@ -107,7 +106,7 @@ case class NationalAddressGazetteer(
       organisation = organisation,
       legalName = legalName,
       classificationCode = classificationCode,
-      formattedAddress = formattedAddress
+      formattedAddress = formatAddress
     )
   }
 }
