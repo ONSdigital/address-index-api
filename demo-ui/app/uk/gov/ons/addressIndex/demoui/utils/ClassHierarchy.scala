@@ -1,7 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.utils
 
-import play.api.i18n._
 import javax.inject.{Inject, Singleton}
+
+import play.api.i18n._
 
 @Singleton
 class ClassHierarchy @Inject()(val messagesApi: MessagesApi)  {
@@ -15,20 +16,19 @@ class ClassHierarchy @Inject()(val messagesApi: MessagesApi)  {
       val quaternary = "^[A-Z]{2}[0-9]{2}[A-Z]{2}".r
 
       val patterns = Seq(primary, secondary, tertiary, quaternary)
-      var classifications = Seq[Option[String]]()
-      var outputHierarchy = Seq(" [ " + code + " ]")
+      val classifications = patterns.flatMap(_.findFirstIn(code))
 
-      patterns.foreach{pattern =>
-        val classification = pattern.findFirstIn(code)
-        classifications :+= classification
-      }
-
-      classifications.flatten.foreach{ code =>
-        // Sometimes a full classification hierarchy doesn't exist so check first before adding to Sequence
-        if (messagesApi.isDefinedAt("category." + code)) outputHierarchy :+= " [ " + messagesApi("category." + code) + " ]"
-      }
-
-      outputHierarchy.mkString
+      (
+        Seq(s" [ $code ]") ++ (
+          classifications flatMap { code =>
+            if (messagesApi.isDefinedAt("category." + code)) {
+              Seq(" [ " + messagesApi("category." + code) + " ]")
+            } else {
+              Seq.empty
+            }
+          }
+        )
+      ).mkString
     } else {
       " [ " + code + " ]"
     }

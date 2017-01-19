@@ -4,22 +4,20 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Controller}
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.data.Forms._
 import play.api.data._
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 
-import scala.collection.mutable
+import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 import scala.util.Try
 
 case class BulkRequest(inputs: Seq[String])
@@ -116,19 +114,15 @@ class SingleMatchController @Inject()(
       ) map { resp: AddressBySearchResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
 
-        val classCodes = mutable.Map[String, String]()
-
-        resp.response.addresses.map{address =>
-          if (address.nag.nonEmpty)
-          {
-            address.nag.map{nag => classCodes += (nag.uprn -> classHierarchy.analyseClassCode(nag.classificationCode))}
-          }}
+        val nags = resp.response.addresses.flatMap(_.nag)
+        val classCodes: Map[String, String] = nags.map(nag =>
+          (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
           warningMessage = None,
           addressBySearchResponse = Some(resp.response),
-          classification = Some(classCodes.toMap))
+          classification = Some(classCodes))
         Ok(viewToRender)
       }
     }
@@ -158,4 +152,3 @@ object SingleMatchController {
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }
-
