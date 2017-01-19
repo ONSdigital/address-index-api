@@ -141,7 +141,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           offset = 0,
           total = 1
         ),
-        OkAddressResponseStatus
+        Ok
       ))
 
       // When
@@ -170,7 +170,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           offset = 0,
           total = 1
         ),
-        OkAddressResponseStatus
+        Ok
       ))
 
       // When
@@ -390,7 +390,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
         response = AddressByUprnResponse(
           address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
         ),
-        OkAddressResponseStatus
+        Ok
       ))
 
       // When
@@ -410,7 +410,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
         response = AddressByUprnResponse(
           address = Some(AddressResponseAddress.fromNagAddress(validNagAddress))
         ),
-        OkAddressResponseStatus
+        Ok
       ))
 
       // When
