@@ -1,15 +1,52 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
+import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParserModule, ElasticSearchRepository}
 import play.api.Logger
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.ExecutionContext
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
+
 import scala.util.Try
 import uk.gov.ons.addressIndex.model.AddressScheme._
+import uk.gov.ons.addressIndex.model.db.index.HybridIndex
+import uk.gov.ons.addressIndex.server.controllers.Model.HybridResponse
+
+
+object Model {
+
+  case class HybridResponses(
+    responses: Array[HybridResponse]
+  )
+
+  object HybridResponses {
+    implicit lazy val fmt = Json.format[HybridResponses]
+  }
+
+  case class HybridResponse(
+    uprn: String,
+    lpi: Option[Seq[Map[String, String]]],
+    paf: Option[Seq[Map[String, String]]]
+  )
+
+  implicit object HybridResponse extends HitAs[HybridResponse] {
+    override def as(hit: RichSearchHit): HybridResponse = {
+      val map = hit.sourceAsMap
+      HybridResponse(
+        uprn = map(HybridIndex.Fields.uprn).toString,
+        lpi = None,
+        paf = None
+      )
+    }
+  }
+}
+
 
 @Singleton
 class AddressController @Inject()(
@@ -99,7 +136,9 @@ class AddressController @Inject()(
             pagination = pagination
           ),
           format = format flatMap(_.stringToScheme)
-        ) map(r => jsonOk(r.toString))
+        ) map { r =>
+          jsonOk(r.as[HybridResponse])
+        }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }
   }
