@@ -17,7 +17,7 @@ import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 import scala.util.Try
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse
+import uk.gov.ons.addressIndex.model.server.response.Results$
 import uk.gov.ons.addressIndex.model.server.response.Model.HybridResponse
 
 
@@ -111,7 +111,7 @@ class AddressController @Inject()(
           format = format flatMap(_.stringToScheme)
         ) map { r =>
           jsonOk(
-            AddressBySearchResponse(
+            Results(
               tokens = tokens,
               addresses = r.as[HybridResponse].toSeq,
               limit = pagination.limit,

@@ -83,7 +83,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = AddressResponseAddress(
         uprn = paf.uprn,
         formattedAddress = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",
-        paf = Some(AddressResponsePaf(
+        paf = Some(PAF(
           udprn = paf.udprn,
           organisationName = paf.organizationName,
           departmentName = paf.departmentName,
@@ -154,20 +154,20 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = nag.uprn,
         formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         paf = None,
-        nag = Some(AddressResponseNag(
+        nag = Some(NAG(
           nag.uprn,
           nag.postcodeLocator,
           nag.addressBasePostal,
           nag.usrn,
           nag.lpiKey,
-          pao = AddressResponsePao(
+          pao = PAO(
             nag.paoText,
             nag.paoStartNumber,
             nag.paoStartSuffix,
             nag.paoEndNumber,
             nag.paoEndSuffix
           ),
-          sao = AddressResponseSao(
+          sao = SAO(
             nag.saoText,
             nag.saoStartNumber,
             nag.saoStartSuffix,
@@ -184,7 +184,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           nag.legalName,
           nag.classificationCode
         )),
-        geo = Some(AddressResponseGeo(
+        geo = Some(GEO(
           latitude = 50.7341677d,
           longitude = -3.540302d,
           easting = 291398,

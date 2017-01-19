@@ -1,8 +1,13 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
+
+
+
+trait AddressFormattable {
+  def delimitByComma(parts: String*) = parts.map(_.trim).filter(_.nonEmpty).mkString(", ")
+}
 
 /**
  * Data structure containing addresses with the maximum address
@@ -48,7 +53,22 @@ case class PostcodeAddressFileAddress(
   lastUpdateDate: String,
   entryDate: String,
   score: Float
-)
+) extends AddressFormattable {
+  def formatAddress(paf: PostcodeAddressFileAddress): String = {
+    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
+
+    val trimmedBuildingNumber = paf.buildingNumber.trim
+    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
+    val trimmedThoroughfare = paf.thoroughfare.trim
+
+    val buildingNumberWithStreetName =
+      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
+
+    delimitByComma(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
+      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
+      paf.postTown, paf.postcode)
+  }
+}
 
 
 /**

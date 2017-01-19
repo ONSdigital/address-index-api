@@ -1,9 +1,5 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import uk.gov.ons.addressIndex.model.db.ElasticIndex
-
-
 /**
  * Data structure containing addresses with the maximum address
  * @param addresses fetched addresses
@@ -47,89 +43,27 @@ case class NationalAddressGazetteerAddress(
   townName: String,
   locality: String,
   score: Float
-)
+) extends AddressFormattable {
+  def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
 
-/**
-  * NAF Address DTO companion object that also contains implicits needed for Elastic4s
-  */
-object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazetteerAddress] {
+    val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
+    val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
+    val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
+    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
+      .map(_.trim).mkString
+    val sao = if (nag.saoText == nag.organisation) saoNumbers else s"$saoNumbers, ${nag.saoText}"
 
-  val name = "NationalAddressGazetteer"
+    val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
+    val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
+    val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
+    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
+      .map(_.trim).mkString
+    val pao = if (nag.paoText == nag.organisation) paoNumbers else s"${nag.paoText}, $paoNumbers"
 
-  object Fields {
+    val trimmedStreetDescriptor = nag.streetDescriptor.trim
+    val buildingNumberWithStreetDescription = s"$pao $trimmedStreetDescriptor"
 
-    /**
-      * Document Fields
-      */
-    val uprn: String = "uprn"
-    val postcodeLocator: String = "postcodeLocator"
-    val addressBasePostal: String = "addressBasePostal"
-    val latitude: String = "latitude"
-    val longitude: String = "longitude"
-    val easting: String = "easting"
-    val northing: String = "northing"
-    val organisation: String = "organisation"
-    val legalName: String = "legalName"
-    val classificationCode: String = "classificationCode"
-    val usrn: String = "usrn"
-    val lpiKey: String = "lpiKey"
-    val paoText: String = "paoText"
-    val paoStartNumber: String = "paoStartNumber"
-    val paoStartSuffix: String = "paoStartSuffix"
-    val paoEndNumber: String = "paoEndNumber"
-    val paoEndSuffix: String = "paoEndSuffix"
-    val saoText: String = "saoText"
-    val saoStartNumber: String = "saoStartNumber"
-    val saoStartSuffix: String = "saoStartSuffix"
-    val saoEndNumber: String = "saoEndNumber"
-    val saoEndSuffix: String = "saoEndSuffix"
-    val level: String = "level"
-    val officialFlag: String = "officialFlag"
-    val logicalStatus: String = "logicalStatus"
-    val streetDescriptor: String = "streetDescriptor"
-    val townName: String = "townName"
-    val locality: String = "locality"
-  }
-
-  /**
-    * This is needed to directly transform a collection of objects returned by Elastic
-    * request into a collection of NAF addresses
-    */
-  implicit object NationalAddressGazetteerAddressHitAs extends HitAs[NationalAddressGazetteerAddress] {
-    import Fields._
-    override def as(hit: RichSearchHit): NationalAddressGazetteerAddress = {
-      val map = hit.sourceAsMap
-      NationalAddressGazetteerAddress(
-        map(uprn).toString,
-        map(postcodeLocator).toString,
-        map(addressBasePostal).toString,
-        map(latitude).toString,
-        map(longitude).toString,
-        map(easting).toString,
-        map(northing).toString,
-        map(organisation).toString,
-        map(legalName).toString,
-        map(classificationCode).toString,
-        map(usrn).toString,
-        map(lpiKey).toString,
-        map(paoText).toString,
-        map(paoStartNumber).toString,
-        map(paoStartSuffix).toString,
-        map(paoEndNumber).toString,
-        map(paoEndSuffix).toString,
-        map(saoText).toString,
-        map(saoStartNumber).toString,
-        map(saoStartSuffix).toString,
-        map(saoEndNumber).toString,
-        map(saoEndSuffix).toString,
-        map(level).toString,
-        map(officialFlag).toString,
-        map(logicalStatus).toString,
-        map(streetDescriptor).toString,
-        map(townName).toString,
-        map(locality).toString,
-        hit.score
-      )
-    }
+    delimitByComma(nag.organisation, sao, buildingNumberWithStreetDescription, nag.locality,
+      nag.townName, nag.postcodeLocator)
   }
 }

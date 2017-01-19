@@ -11,9 +11,9 @@ trait AddressIndexCannedResponse {
     tokens: Seq[CrfTokenResult],
     addresses: Seq[HybridResponse],
     total: Int
-  )(implicit p: Pagination): AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = AddressBySearchResponse(
+  )(implicit p: Pagination): Container = {
+    Container(
+      response = Results(
         tokens = tokens
           .groupBy(_.label).map { case (tkn, seqTknRslt) =>
             CrfTokenResult(
@@ -45,7 +45,7 @@ trait AddressIndexCannedResponse {
         address = None
       ),
       status = NotFoundAddressResponseStatus,
-      errors = Seq(NotFoundAddressResponseError)
+      errors = Seq(NotFoundError$)
     )
   }
 
@@ -55,52 +55,52 @@ trait AddressIndexCannedResponse {
         address = None
       ),
       status = BadRequestAddressResponseStatus,
-      errors = Seq(FormatNotSupportedAddressResponseError)
+      errors = Seq(FormatNotSupportedError$)
     )
   }
 
-  private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
+  private def BadRequestTemplate(errors: Error*): Container = {
+    Container(
       response = Error,
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def OffsetNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  def OffsetNotNumeric: Container = {
+    BadRequestTemplate(OffsetNotNumericError$)
   }
 
-  def LimitNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitNotNumericAddressResponseError)
+  def LimitNotNumeric: Container = {
+    BadRequestTemplate(LimitNotNumericError$)
   }
 
-  def LimitTooSmall: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooSmallAddressResponseError)
+  def LimitTooSmall: Container = {
+    BadRequestTemplate(LimitTooSmallError$)
   }
 
-  def OffsetTooSmall: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  def OffsetTooSmall: Container = {
+    BadRequestTemplate(OffsetTooSmallError$)
   }
 
-  def LimitTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooLargeAddressResponseError)
+  def LimitTooLarge: Container = {
+    BadRequestTemplate(LimitTooLargeError$)
   }
 
-  def OffsetTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  def OffsetTooLarge: Container = {
+    BadRequestTemplate(OffsetTooLargeError$)
   }
 
-  def UnsupportedFormat: AddressBySearchResponseContainer = {
-    BadRequestTemplate(FormatNotSupportedAddressResponseError)
+  def UnsupportedFormat: Container = {
+    BadRequestTemplate(FormatNotSupportedError$)
   }
 
-  def EmptySearch: AddressBySearchResponseContainer = {
-    BadRequestTemplate(EmptyQueryAddressResponseError)
+  def EmptySearch: Container = {
+    BadRequestTemplate(EmptyQueryError$)
   }
 
-  def Error: AddressBySearchResponse = {
-    AddressBySearchResponse(
+  def Error: Results = {
+    Results(
       Seq.empty,
       addresses = Seq.empty,
       limit = 10,

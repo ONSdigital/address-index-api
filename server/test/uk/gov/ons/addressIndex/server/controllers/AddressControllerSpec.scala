@@ -128,8 +128,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
 //            AddressTokens(
 //            uprn = "",
@@ -157,8 +157,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
 //          AddressTokens(
 //            uprn = "",
@@ -186,8 +186,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -195,7 +195,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(FormatNotSupportedAddressResponseError)
+        errors = Seq(FormatNotSupportedError$)
       ))
 
       // When
@@ -211,8 +211,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -220,7 +220,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetNotNumericAddressResponseError)
+        errors = Seq(OffsetNotNumericError$)
       ))
 
       // When
@@ -236,8 +236,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -245,7 +245,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetNotNumericAddressResponseError)
+        errors = Seq(OffsetNotNumericError$)
       ))
 
       // When
@@ -261,8 +261,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -270,7 +270,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooSmallAddressResponseError)
+        errors = Seq(OffsetTooSmallError$)
       ))
 
       // When
@@ -286,8 +286,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -295,7 +295,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooSmallAddressResponseError)
+        errors = Seq(LimitTooSmallError$)
       ))
 
       // When
@@ -311,8 +311,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -320,7 +320,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooLargeAddressResponseError)
+        errors = Seq(OffsetTooLargeError$)
       ))
 
       // When
@@ -336,8 +336,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -345,7 +345,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooLargeAddressResponseError)
+        errors = Seq(LimitTooLargeError$)
       ))
 
       // When
@@ -361,8 +361,8 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
       // Given
       val controller = testController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
+      val expected = Json.toJson(Container(
+        Results(
           tokens = Seq.empty,
           addresses = Seq.empty,
           limit = 10,
@@ -370,7 +370,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           total = 0
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(EmptyQueryAddressResponseError)
+        errors = Seq(EmptyQueryError$)
       ))
 
       // When
@@ -431,7 +431,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           address = None
         ),
         NotFoundAddressResponseStatus,
-        errors = Seq(NotFoundAddressResponseError)
+        errors = Seq(NotFoundError$)
       ))
 
       // When
@@ -452,7 +452,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
           address = None
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(FormatNotSupportedAddressResponseError)
+        errors = Seq(FormatNotSupportedError$)
       ))
 
       // When

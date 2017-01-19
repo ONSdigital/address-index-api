@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.Container$
 import scala.util.Try
 
 case class BulkRequest(inputs: Seq[String])
@@ -105,7 +105,7 @@ class SingleMatchController @Inject()(
           offset = "0",
           id = UUID.randomUUID
         )
-      ) map { resp: AddressBySearchResponseContainer =>
+      ) map { resp: Container =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
