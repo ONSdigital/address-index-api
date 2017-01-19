@@ -244,11 +244,11 @@ object NAG {
 }
 
 case class PAO(
-                text: String,
-                startNumber: String,
-                paoStartSuffix: String,
-                paoEndNumber: String,
-                paoEndSuffix: String
+  text: String,
+  startNumber: String,
+  paoStartSuffix: String,
+  paoEndNumber: String,
+  paoEndSuffix: String
 )
 
 object PAO {
@@ -256,11 +256,11 @@ object PAO {
 }
 
 case class SAO(
-                text: String,
-                startNumber: String,
-                startSuffix: String,
-                endNumber: String,
-                endSuffix: String
+  text: String,
+  startNumber: String,
+  startSuffix: String,
+  endNumber: String,
+  endSuffix: String
 )
 
 object SAO {
