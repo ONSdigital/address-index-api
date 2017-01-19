@@ -1,10 +1,48 @@
 package uk.gov.ons.addressIndex.model.server.response
 
+import java.util
+
+import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridIndex, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+
 import scala.util.Try
+
+import Model.HybridResponse
+
+object Model {
+
+  case class HybridResponse(
+     uprn: String,
+     lpi: Option[Seq[Map[String, String]]],
+     paf: Option[Seq[Map[String, String]]]
+   )
+
+  implicit object HybridResponse extends HitAs[HybridResponse] {
+    import scala.collection.JavaConverters._
+
+    implicit lazy val fmt = Json.format[HybridResponse]
+
+    override def as(hit: RichSearchHit): HybridResponse = {
+      val map = hit.sourceAsMap
+
+      def getSeqMap(fieldName: String): Option[Seq[Map[String, String]]] = {
+        Try {
+          val x = map(fieldName).asInstanceOf[util.ArrayList[java.util.HashMap[String, String]]].asScala
+          x.map(_.asScala.toMap)
+        }.toOption
+      }
+
+      HybridResponse(
+        uprn = map(HybridIndex.Fields.uprn).toString,
+        lpi = getSeqMap(HybridIndex.Fields.lpi),
+        paf = getSeqMap(HybridIndex.Fields.paf)
+      )
+    }
+  }
+}
 
 /**
   * Contains the reply for address by uprn request
@@ -66,7 +104,7 @@ object AddressBySearchResponseContainer {
   */
 case class AddressBySearchResponse(
   tokens: Seq[CrfTokenResult],
-  addresses: Seq[AddressResponseAddress],
+  addresses: Seq[HybridResponse],
   limit: Int,
   offset: Int,
   total: Int

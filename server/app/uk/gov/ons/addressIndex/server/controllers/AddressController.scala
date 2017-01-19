@@ -17,52 +17,8 @@ import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 import scala.util.Try
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
-import uk.gov.ons.addressIndex.server.controllers.Model.HybridResponse
-//import uk.gov.ons.addressIndex.server.controllers.Model.HybridResponses
-
-object Model {
-
-
-//  case class HybridResponses(documents: Seq[HybridResponse])
-//
-//  implicit object HybridResponses extends HitAs[HybridResponses] {
-//
-////    implicit lazy val fmt = Json.format[HybridResponses]
-//
-//    override def as(hit: RichSearchHit): HybridResponses = {
-//      HybridResponses(
-//        documents = hit.sourceAsMap
-//      )
-//    }
-//  }
-
-  case class HybridResponse(
-    uprn: String,
-    lpi: Option[Seq[Map[String, String]]],
-    paf: Option[Seq[Map[String, String]]]
-  )
-
-  implicit object HybridResponse extends HitAs[HybridResponse] {
-    import scala.collection.JavaConverters._
-
-    implicit lazy val fmt = Json.format[HybridResponse]
-
-    override def as(hit: RichSearchHit): HybridResponse = {
-      val map = hit.sourceAsMap
-
-      def getSeqMap(fieldName: String): Seq[Map[String, String]] = {
-        val x = map(fieldName).asInstanceOf[util.ArrayList[java.util.HashMap[String, String]]].asScala
-        x.map(_.asScala.toMap)
-      }
-
-      HybridResponse(
-        uprn = map(HybridIndex.Fields.uprn).toString,
-        lpi = Some(getSeqMap(HybridIndex.Fields.lpi)),
-        paf = Some(getSeqMap(HybridIndex.Fields.paf))
-      )
-    }
-  }
-}
+import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse
+import uk.gov.ons.addressIndex.model.server.response.Model.HybridResponse
 
 
 @Singleton
@@ -154,15 +110,15 @@ class AddressController @Inject()(
           ),
           format = format flatMap(_.stringToScheme)
         ) map { r =>
-//          println("r.toString" + r.toString)
-//          println("r.hits.toString")
-//          pprint.pprintln(r.hits.map(_.sourceAsMap))
-
-            r.as[HybridResponse]
-
-
-//          jsonOk(r.as[HybridResponses].toSeq)
-          jsonOk(r.as[HybridResponse])
+          jsonOk(
+            AddressBySearchResponse(
+              tokens = tokens,
+              addresses = r.as[HybridResponse].toSeq,
+              limit = pagination.limit,
+              offset = pagination.offset,
+              total = r.totalHits.toInt
+            )
+          )
         }
       } getOrElse futureJsonBadRequest(EmptySearch)
     }

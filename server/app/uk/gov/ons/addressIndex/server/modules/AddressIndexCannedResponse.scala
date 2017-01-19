@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.server.response.Model.HybridResponse
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
@@ -8,7 +9,7 @@ trait AddressIndexCannedResponse {
 
   def searchContainerTemplate(
     tokens: Seq[CrfTokenResult],
-    addresses: Seq[AddressResponseAddress],
+    addresses: Seq[HybridResponse],
     total: Int
   )(implicit p: Pagination): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
