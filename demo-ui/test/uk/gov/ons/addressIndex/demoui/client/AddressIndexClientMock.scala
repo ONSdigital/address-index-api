@@ -58,7 +58,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     endDate = ""
   )
 
-  val mockAddressResponseAddress = AddressResponseAddress(
+  val mockAddressResponseAddress = AddressInformation(
     uprn = "",
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
@@ -70,7 +70,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
 
   val mockAddressBySearchResponse = Results (
     tokens = mockAddressTokens,
-    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    addresses = Seq(mockAddressResponseAddress: AddressInformation),
     limit = 1,
     offset = 1,
     total = 1

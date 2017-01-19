@@ -6,14 +6,14 @@ package uk.gov.ons.addressIndex.model.db.index
  * @param maxScore maximum score
  */
 case class NationalAddressGazetteerAddresses(
-  addresses: Seq[NationalAddressGazetteerAddress],
-  maxScore: Float
+                                              addresses: Seq[NationalAddressGazetteer],
+                                              maxScore: Float
 )
 
 /**
   * NAG Address DTO
   */
-case class NationalAddressGazetteerAddress(
+case class NationalAddressGazetteer(
   uprn: String,
   postcodeLocator: String,
   addressBasePostal: String,
@@ -44,26 +44,26 @@ case class NationalAddressGazetteerAddress(
   locality: String,
   score: Float
 ) extends AddressFormattable {
-  def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
+  def formattedAddress(nag: NationalAddressGazetteer): String = {
 
-    val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
-    val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
+    val saoLeftRangeExists = saoStartNumber.nonEmpty || saoStartSuffix.nonEmpty
+    val saoRightRangeExists = saoEndNumber.nonEmpty || saoEndSuffix.nonEmpty
     val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
-    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
+    val saoNumbers = Seq(saoStartNumber, saoStartSuffix, saoHyphen, saoEndNumber, saoEndSuffix)
       .map(_.trim).mkString
-    val sao = if (nag.saoText == nag.organisation) saoNumbers else s"$saoNumbers, ${nag.saoText}"
+    val sao = if (saoText == organisation) saoNumbers else s"$saoNumbers, ${saoText}"
 
-    val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
-    val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
+    val paoLeftRangeExists = paoStartNumber.nonEmpty || paoStartSuffix.nonEmpty
+    val paoRightRangeExists = paoEndNumber.nonEmpty || paoEndSuffix.nonEmpty
     val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
-    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
+    val paoNumbers = Seq(paoStartNumber, paoStartSuffix, paoHyphen, paoEndNumber, paoEndSuffix)
       .map(_.trim).mkString
-    val pao = if (nag.paoText == nag.organisation) paoNumbers else s"${nag.paoText}, $paoNumbers"
+    val pao = if (paoText == organisation) paoNumbers else s"${paoText}, $paoNumbers"
 
-    val trimmedStreetDescriptor = nag.streetDescriptor.trim
+    val trimmedStreetDescriptor = streetDescriptor.trim
     val buildingNumberWithStreetDescription = s"$pao $trimmedStreetDescriptor"
 
-    delimitByComma(nag.organisation, sao, buildingNumberWithStreetDescription, nag.locality,
-      nag.townName, nag.postcodeLocator)
+    delimitByComma(organisation, sao, buildingNumberWithStreetDescription, locality,
+      townName, postcodeLocator)
   }
 }

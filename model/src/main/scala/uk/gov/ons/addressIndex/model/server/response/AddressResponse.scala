@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.model.server.response
 import java.util
 import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridIndex, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridIndex, NationalAddressGazetteer, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import scala.util.Try
 import Model.HybridResponse
@@ -11,9 +11,9 @@ import Model.HybridResponse
 object Model {
 
   case class HybridResponse(
-    uprn: String,
-    lpi: Option[Seq[NationalAddressGazetteerAddress]],
-    paf: Option[Seq[PostcodeAddressFileAddress]]
+                             uprn: String,
+                             lpi: Option[Seq[NationalAddressGazetteer]],
+                             paf: Option[Seq[PostcodeAddressFile]]
   )
 
   implicit class StringAnyRefAugmenter(map: Map[String, AnyRef]) {
@@ -43,7 +43,7 @@ object Model {
         uprn = map(HybridIndex.Fields.uprn).toString,
         lpi = getSeqMap(HybridIndex.Fields.lpi) { seqMap =>
           seqMap map { nag =>
-            NationalAddressGazetteerAddress(
+            NationalAddressGazetteer(
               uprn = nag.getType("uprn", ""),
               postcodeLocator = nag.getType("postcodeLocator", ""),
               addressBasePostal = nag.getType("addressBasePostal", ""),
@@ -78,7 +78,7 @@ object Model {
         },
         paf = getSeqMap(HybridIndex.Fields.paf) { seqMap =>
           seqMap map { paf =>
-            PostcodeAddressFileAddress(
+            PostcodeAddressFile(
               recordIdentifier = paf.getType("recordIdentifier", ""),
               changeType = paf.getType("recordIdentifier", ""),
               proOrder = paf.getType("proOrder", ""),
@@ -132,11 +132,24 @@ object Container {
     status: Status,
     errors: Option[Seq[Error]] = None
   ): Container = {
+
+    optAddresses.getOrElse(Seq.empty).map {
+      _.lpi.getOrElse(Seq.empty).map { x =>
+        AddressInformation(
+          uprn = x.uprn
+          paf = None,
+          nag = None,
+          underlyingScore = 0f,
+          underlyingMaxScore = 0f
+        )
+      }
+    }
+
     Container(
       response = Some(
         Results(
           tokens = tokens,
-          addresses = optAddresses getOrElse Seq.empty,
+          addresses = None,
           limit = 1,
           offset = 1,
           total = 1
@@ -150,7 +163,7 @@ object Container {
 
 case class Results(
   tokens: Seq[CrfTokenResult],
-  addresses: Seq[HybridResponse],
+  addresses: Option[Seq[AddressInformation]],
   limit: Int,
   offset: Int,
   total: Int
@@ -161,18 +174,16 @@ object Results {
   implicit lazy val addressBySearchResponseFormat = Json.format[Results]
 }
 
-case class AddressResponseAddress(
+case class AddressInformation(
   uprn: String,
-  formattedAddress: String,
   paf: Option[Seq[PAF]],
   nag: Option[Seq[NAG]],
-  geo: Option[Seq[GEO]],
   underlyingScore: Float,
   underlyingMaxScore: Float
 )
 
-object AddressResponseAddress {
-  implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
+object AddressInformation {
+  implicit lazy val addressResponseAddressFormat: Format[AddressInformation] = Json.format[AddressInformation]
 }
 
 case class PAF(
@@ -197,7 +208,8 @@ case class PAF(
   welshPostTown: String,
   poBoxNumber: String,
   startDate: String,
-  endDate: String
+  endDate: String,
+  formattedAddress: String
 )
 
 object PAF {
@@ -205,22 +217,24 @@ object PAF {
 }
 
 case class NAG(
-   uprn: String,
-   postcodeLocator: String,
-   addressBasePostal: String,
-   usrn: String,
-   lpiKey: String,
-   pao: PAO,
-   sao: SAO,
-   level: String,
-   officialFlag: String,
-   logicalStatus: String,
-   streetDescriptor: String,
-   townName: String,
-   locality: String,
-   organisation: String,
-   legalName: String,
-   classificationCode: String
+  uprn: String,
+  postcodeLocator: String,
+  addressBasePostal: String,
+  usrn: String,
+  lpiKey: String,
+  pao: PAO,
+  sao: SAO,
+  geo: GEO,
+  level: String,
+  officialFlag: String,
+  logicalStatus: String,
+  streetDescriptor: String,
+  townName: String,
+  locality: String,
+  organisation: String,
+  legalName: String,
+  classificationCode: String,
+  formattedAddress: String
 )
 
 object NAG {

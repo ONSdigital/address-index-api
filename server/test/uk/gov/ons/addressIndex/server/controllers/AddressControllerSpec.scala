@@ -8,7 +8,7 @@ import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
 import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteer, NationalAddressGazetteerAddresses, PostcodeAddressFile, PostcodeAddressFileAddresses}
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
@@ -21,7 +21,7 @@ import scala.concurrent.Future
 class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
   extends PlaySpec with Results with AddressIndexCannedResponse {
 
-  val validPafAddress = PostcodeAddressFileAddress(
+  val validPafAddress = PostcodeAddressFile(
     recordIdentifier = "1",
     changeType = "2",
     proOrder = "3",
@@ -54,7 +54,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
     score = 1.0f
   )
 
-  val validNagAddress = NationalAddressGazetteerAddress(
+  val validNagAddress = NationalAddressGazetteer(
     uprn = "1",
     postcodeLocator = "B16 8TH",
     addressBasePostal = "3",
@@ -136,7 +136,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
 //            buildingNumber = "10",
 //            postcode = "B16 8TH"
 //          ),
-          addresses = Seq(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress)),
+          addresses = Seq(AddressInformation.fromPafAddress(1.0f)(validPafAddress)),
           limit = 10,
           offset = 0,
           total = 1
@@ -165,7 +165,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
 //            buildingNumber = "72",
 //            postcode = "B16 8TH"
 //          ),
-          addresses = Seq(AddressResponseAddress.fromNagAddress(1.0f)(validNagAddress)),
+          addresses = Seq(AddressInformation.fromNagAddress(1.0f)(validNagAddress)),
           limit = 10,
           offset = 0,
           total = 1
@@ -388,7 +388,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
+          address = Some(AddressInformation.fromPafAddress(validPafAddress))
         ),
         Ok
       ))
@@ -408,7 +408,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromNagAddress(validNagAddress))
+          address = Some(AddressInformation.fromNagAddress(validNagAddress))
         ),
         Ok
       ))

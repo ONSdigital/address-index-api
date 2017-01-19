@@ -32,7 +32,7 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): Container = {
+  def searchUprnContainerTemplate(optAddresses: Option[AddressInformation]): Container = {
     Container(
       status = Status.Ok
     )

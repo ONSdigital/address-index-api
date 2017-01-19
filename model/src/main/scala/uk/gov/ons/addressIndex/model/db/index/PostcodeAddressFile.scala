@@ -15,14 +15,14 @@ trait AddressFormattable {
  * @param maxScore maximum score
  */
 case class PostcodeAddressFileAddresses(
-  addresses: Seq[PostcodeAddressFileAddress],
-  maxScore: Float
+                                         addresses: Seq[PostcodeAddressFile],
+                                         maxScore: Float
 )
 
 /**
   * PAF Address DTO
   */
-case class PostcodeAddressFileAddress(
+case class PostcodeAddressFile(
   recordIdentifier: String,
   changeType: String,
   proOrder: String,
@@ -54,7 +54,7 @@ case class PostcodeAddressFileAddress(
   entryDate: String,
   score: Float
 ) extends AddressFormattable {
-  def formatAddress(paf: PostcodeAddressFileAddress): String = {
+  def formatAddress(paf: PostcodeAddressFile): String = {
     val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
 
     val trimmedBuildingNumber = paf.buildingNumber.trim
@@ -74,7 +74,7 @@ case class PostcodeAddressFileAddress(
 /**
   * PAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
-object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
+object PostcodeAddressFile extends ElasticIndex[PostcodeAddressFile] {
 
   val name: String = "PostcodeAddressFile"
 
@@ -119,12 +119,12 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
     * This is needed to directly transform a collection of objects returned by Elastic
     * request into a collection of PAF addresses
     */
-  implicit object PostcodeAddressFileAddressHitAs extends HitAs[PostcodeAddressFileAddress] {
+  implicit object PostcodeAddressFileAddressHitAs extends HitAs[PostcodeAddressFile] {
     import Fields._
 
-    override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {
+    override def as(hit: RichSearchHit): PostcodeAddressFile = {
       val map = hit.sourceAsMap
-      PostcodeAddressFileAddress(
+      PostcodeAddressFile(
         map(recordIdentifier).toString,
         map(changeType).toString,
         map(proOrder).toString,
