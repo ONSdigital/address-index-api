@@ -30,9 +30,12 @@ object Model {
 
       def getSeqMap[T](fieldName: String)(fn: Seq[Map[String, AnyRef]] => Seq[T]): Option[Seq[T]] = {
         Try {
-          val x = map(fieldName).asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala
-          val y = x.map(_.asScala.toMap)
-          fn(y)
+          fn(
+            map(fieldName)
+              .asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
+              .asScala
+              .map(_.asScala.toMap)
+          )
         }.toOption
       }
 
@@ -115,7 +118,7 @@ object Model {
 }
 
 case class Container(
-  response: Option = None[Results],
+  response: Option[Results] = None,
   status: Status,
   errors: Option[Seq[Error]] = None
 )
@@ -130,12 +133,14 @@ object Container {
     errors: Option[Seq[Error]] = None
   ): Container = {
     Container(
-      response = Results(
-        tokens = tokens,
-        addresses = optAddresses getOrElse Seq.empty,
-        limit = 1,
-        offset = 1,
-        total = 1
+      response = Some(
+        Results(
+          tokens = tokens,
+          addresses = optAddresses getOrElse Seq.empty,
+          limit = 1,
+          offset = 1,
+          total = 1
+        )
       ),
       status = status,
       errors = errors
@@ -256,10 +261,6 @@ case class GEO(
 object GEO {
   implicit lazy val fmt = Json.format[GEO]
 }
-
-
-
-
 
 case class Status(
   code: Int,
