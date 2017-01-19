@@ -298,47 +298,47 @@ object Error {
   implicit lazy val fmt = Json.format[Error]
 }
 
-object EmptyQueryError extends Error(
+object EmptyQuery extends Error(
   code = 1,
   message = "Empty query"
 )
 
-object FormatNotSupportedError extends Error(
+object FormatNotSupported extends Error(
   code = 2,
   message = "Address format is not supported"
 )
 
-object NotFoundError extends Error(
+object NotFound extends Error(
   code = 3,
   message = "UPRN request didn't yield a result"
 )
 
-object LimitNotNumericError extends Error(
+object LimitNotNumeric extends Error(
   code = 4,
   message = "Limit parameter not numeric"
 )
 
-object OffsetNotNumericError extends Error(
+object OffsetNotNumeric extends Error(
   code = 5,
   message = "Offset parameter not numeric"
 )
 
-object LimitTooSmallError extends Error(
+object LimitTooSmall extends Error(
   code = 6,
   message = "Limit parameter too small, minimum = 1"
 )
 
-object OffsetTooSmallError extends Error(
+object OffsetTooSmall extends Error(
   code = 7,
   message = "Offset parameter too small, minimum = 0"
 )
 
-object LimitTooLargeError extends Error(
+object LimitTooLarge extends Error(
   code = 8,
   message = "Limit parameter too large (maximum configurable)"
 )
 
-object OffsetTooLargeError extends Error(
+object OffsetTooLarge extends Error(
   code = 9,
   message = "Offset parameter too large (maximum configurable)"
 )
