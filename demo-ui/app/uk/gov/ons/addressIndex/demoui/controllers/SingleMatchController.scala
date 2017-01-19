@@ -95,10 +95,11 @@ class SingleMatchController @Inject()(
           Ok(viewToRender)
       )
     } else {
+      import AddressScheme._
       logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
-          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().getOrElse(PostcodeAddressFile("paf")),
+          format = Some(formatText.stringToScheme).getOrElse(Some(PostcodeAddressFile("paf"))),
           input = addressText,
           limit = "10",
           offset = "0",
@@ -120,7 +121,7 @@ class SingleMatchController @Inject()(
     apiClient.addressQueriesBulkMimic(
       requests = request.body.inputs map { input =>
         AddressIndexSearchRequest(
-          format = PostcodeAddressFile("paf"),
+          format = Some(PostcodeAddressFile("paf")),
           input = input,
           limit = "10",
           offset = "0",

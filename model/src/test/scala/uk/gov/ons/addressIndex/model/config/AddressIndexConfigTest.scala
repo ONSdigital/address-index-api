@@ -36,8 +36,6 @@ object ElasticSearchConfigTest {
       ssl = true
     ),
     indexes = IndexesConfig(
-      pafIndex = "paf/address",
-      nagIndex = "nag/address",
       hybridIndex = "hybrid/address"
     ),
     defaultLimit=10,

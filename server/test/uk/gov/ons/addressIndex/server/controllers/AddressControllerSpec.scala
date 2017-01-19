@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.Inject
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexCannedResponse, AddressParserModule, ElasticSearchRepository}
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, RichSearchResponse}
 import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results
@@ -12,12 +12,14 @@ import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, 
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.AddressScheme
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends PlaySpec with Results with AddressIndexCannedResponse {
+class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
+  extends PlaySpec with Results with AddressIndexCannedResponse {
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
@@ -88,41 +90,32 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticSearchRepository {
 
-    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
-      Future.successful(Some(validPafAddress))
-
-    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] =
-      Future.successful(Some(validNagAddress))
-
-    override def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] =
-      Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
-
-    override def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] =
-      Future.successful(NationalAddressGazetteerAddresses(Seq(validNagAddress), 1.0f))
-
-    override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
-      Future.successful(())
-    }
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def queryAddress(tokens: Seq[CrfTokenResult])
+      (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+      Future.successful(null)
+    }
+
+    override def queryUprn(uprn: String)
+      (implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+      Future.successful(null)
+    }
   }
 
   // mock that won't return any addresses
   val emptyElasticRepositoryMock = new ElasticSearchRepository {
 
-    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
-
-    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = Future.successful(None)
-
-    def queryPafAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[PostcodeAddressFileAddresses] =
-      Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
-
-    def queryNagAddresses(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[NationalAddressGazetteerAddresses] =
-      Future.successful(NationalAddressGazetteerAddresses(Seq.empty, 1.0f))
-
-    override def queryHybrid(tokens: Seq[CrfTokenResult])(implicit p: Pagination): Future[_] = {
-      Future.successful(())
-    }
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def queryAddress(tokens: Seq[CrfTokenResult])
+      (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+      Future.successful(null)
+    }
+
+    override def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+      Future.successful(null)
+    }
   }
 
   val parser = new AddressParserModule
@@ -401,7 +394,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.uprnQuery("4", "paf").apply(FakeRequest())
+      val result = controller.uprnQuery("4", Some("paf")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -421,7 +414,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.uprnQuery("1", "bs").apply(FakeRequest())
+      val result = controller.uprnQuery("1", Some("bs")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -442,7 +435,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.uprnQuery("doesn't exist", "paf").apply(FakeRequest())
+      val result = controller.uprnQuery("doesn't exist", Some("paf")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -463,7 +456,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       ))
 
       // When
-      val result = controller.uprnQuery("4", "format is not supported").apply(FakeRequest())
+      val result = controller.uprnQuery("4", Some("format is not supported")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
