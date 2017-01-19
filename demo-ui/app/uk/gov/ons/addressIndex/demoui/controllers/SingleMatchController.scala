@@ -3,13 +3,11 @@ package uk.gov.ons.addressIndex.demoui.controllers
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Controller}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.data.Forms._
 import play.api.data._
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
@@ -33,7 +31,8 @@ object BulkRequest {
 class SingleMatchController @Inject()(
    conf : DemouiConfigModule,
    val messagesApi: MessagesApi,
-   apiClient: AddressIndexClientInstance
+   apiClient: AddressIndexClientInstance,
+   classHierarchy: ClassHierarchy
 )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("SingleMatchController")
@@ -47,7 +46,8 @@ class SingleMatchController @Inject()(
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
-      addressBySearchResponse = None)
+      addressBySearchResponse = None,
+      classification = None)
     Future.successful(
         Ok(viewToRender)
     )
@@ -67,7 +67,8 @@ class SingleMatchController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressBySearchResponse = None)
+        addressBySearchResponse = None,
+        classification = None)
       Future.successful(
         Ok(viewToRender)
       )
@@ -90,7 +91,8 @@ class SingleMatchController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressBySearchResponse = None)
+        addressBySearchResponse = None,
+        classification = None)
         Future.successful(
           Ok(viewToRender)
       )
@@ -107,10 +109,16 @@ class SingleMatchController @Inject()(
         )
       ) map { resp: Container =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
+
+        val nags = resp.response.addresses.flatMap(_.nag)
+        val classCodes: Map[String, String] = nags.map(nag =>
+          (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
           warningMessage = None,
-          addressBySearchResponse = Some(resp.response))
+          addressBySearchResponse = Some(resp.response),
+          classification = Some(classCodes))
         Ok(viewToRender)
       }
     }
@@ -140,4 +148,3 @@ object SingleMatchController {
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }
-

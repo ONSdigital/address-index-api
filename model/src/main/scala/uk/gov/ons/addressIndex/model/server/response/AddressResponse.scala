@@ -181,6 +181,7 @@ case class AddressInformation(
   underlyingMaxScore: Float
 )
 
+
 object AddressInformation {
   implicit lazy val fmt: Format[AddressInformation] = Json.format[AddressInformation]
 }

@@ -39,7 +39,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     locality = "n21",
     score = 1.0f
   )
-
   val givenPaf = PostcodeAddressFile(
     recordIdentifier = "1",
     changeType = "2",
@@ -198,7 +197,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 //      // Then
 //      result shouldBe expected
     }
-
     "be creatable (with empty geo field) from Elastic NAG response with invalid latitude" ignore {
 //      // Given
 //      val nag = givenNag.copy(latitude = "invalid")
@@ -208,6 +206,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 //
 //      // Then
 //      result shouldBe None
+
     }
 
     "be creatable (with empty geo field) from Elastic NAG response with invalid longitude" ignore {
