@@ -13,12 +13,14 @@ import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, 
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.BritishStandard7666
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends PlaySpec with Results with AddressIndexCannedResponse {
+class AddressControllerSpec extends PlaySpec with Results with AddressIndexCannedResponse {
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
@@ -120,9 +122,29 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
   }
 
-  val parser = new AddressParserModule
+  // mock that will fail on query that contains first token as "failed"
+  val sometimesFailingRepositoryMock = new ElasticsearchRepository {
 
-  def testController: AddressController = new AddressController(elasticRepositoryMock, parser, conf)
+    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
+      Future.successful(Some(validPafAddress))
+
+    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] =
+      Future.successful(Some(validNagAddress))
+
+    override def queryPafAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[PostcodeAddressFileAddresses] =
+      if (tokens.head.value == "failed") Future.failed(new Exception("test failure"))
+      else Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
+
+    override def queryNagAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[NationalAddressGazetteerAddresses] =
+      if (tokens.head.value == "failed") Future.failed(new Exception("test failure"))
+      else Future.successful(NationalAddressGazetteerAddresses(Seq(validNagAddress), 1.0f))
+
+    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+  }
+
+  val parser = new AddressParserModule
+  val config = new AddressIndexConfigModule
+  def testController: AddressController = new AddressController(elasticRepositoryMock, parser, config)
 
   "Address controller" should {
 
@@ -464,6 +486,26 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule) extends Pl
       // Then
       status(result) mustBe BadRequest
       actual mustBe expected
+    }
+
+    "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
+      // Given
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+
+      val tokensPerLine: Iterator[Seq[CrfTokenResult]] = List(
+        Seq(CrfTokenResult("success", "first")),
+        Seq(CrfTokenResult("success", "second")),
+        Seq(CrfTokenResult("failed", "third"))
+      ).iterator
+
+      // When
+      val result: controller.MultipleSearchResult = Await.result(
+        controller.multipleSearch(tokensPerLine, BritishStandard7666("bs")), Duration.Inf
+      )
+
+      // Then
+      result.successfulAddresses.size mustBe 2
+      result.failedAddresses.size mustBe 1
     }
 
   }

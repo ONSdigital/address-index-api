@@ -6,13 +6,15 @@ import uk.gov.ons.addressIndex.server.modules.{AddressIndexActions, AddressParse
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import com.sksamuel.elastic4s.ElasticDsl._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
+import uk.gov.ons.addressIndex.model.AddressScheme._
 
+import scala.io.Source
 import scala.util.Try
 
 @Singleton
@@ -102,5 +104,20 @@ class AddressController @Inject()(
       inputForNagFn = UprnQueryInput(uprn),
       nagFn = uprnNagSearch
     ) getOrElse futureJsonBadRequest(UnsupportedFormatUprn)
+  }
+
+  def bulkQuery(formatInput: String): Action[AnyContent] = Action.async { implicit req =>
+
+    formatInput.stringToScheme().map { format =>
+
+      val rawAddresses: Iterator[String] = Source.fromFile("/").getLines
+
+      val tokenizedAddresses: Iterator[Seq[CrfTokenResult]] = rawAddresses.map(parser.tag)
+
+      val addresses: Future[MultipleSearchResult] = multipleSearch(tokenizedAddresses, format)
+
+      addresses.map(result => Ok(s"${result.successfulAddresses.size}, ${result.failedAddresses.size}"))
+
+    }.getOrElse(futureJsonBadRequest(UnsupportedFormatUprn))
   }
 }

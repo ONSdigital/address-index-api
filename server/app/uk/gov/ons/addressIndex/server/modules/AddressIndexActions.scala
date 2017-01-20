@@ -3,11 +3,12 @@ package uk.gov.ons.addressIndex.server.modules
 import play.api.libs.json.Writes
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.model.{BritishStandard7666, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddresses, PostcodeAddressFileAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
 import uk.gov.ons.addressIndex.model.AddressScheme._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>
@@ -117,4 +118,62 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
       }
     ) map(_.map(jsonOk[T]))
   }
+
+  case class RejectedAddress(tokens: Seq[CrfTokenResult], exception: Throwable)
+  case class MultipleSearchResult(
+    successfulAddresses: Seq[AddressBySearchResponseContainer],
+    failedAddresses: Seq[RejectedAddress]
+  )
+
+  /**
+    * A fairly complex method
+    * I left type annotations for `val` to make it easier to follow
+    * @param inputs an iterator containing a collectioin of tokens per each lines,
+    *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
+    * @param format format scheme
+    * @return MultipleSearchResult containing successful addresses and the information on the rejected ones
+    */
+  def multipleSearch(inputs: Iterator[Seq[CrfTokenResult]], format: AddressScheme ): Future[MultipleSearchResult] = {
+
+    val addressesRequests: Iterator[Future[Either[RejectedAddress, AddressBySearchResponseContainer]]] =
+      inputs.map { tokens =>
+
+        val addressRequest: Future[AddressBySearchResponseContainer] = format match {
+          case _: PostcodeAddressFile => pafSearch(AddressQueryInput(tokens, 0, 1))
+          case _: BritishStandard7666 => nagSearch(AddressQueryInput(tokens, 0, 1))
+        }
+
+        // Successful requests are stored in the `Right`
+        // Failed requests will be stored in the `Left`
+        addressRequest.map(Right(_)).recover {
+          case exception: Throwable => Left(RejectedAddress(tokens, exception))
+        }
+
+      }
+
+    // This also transforms lazy `Iterator` into an in-memory sequence
+    val addresses: Future[Seq[Either[RejectedAddress, AddressBySearchResponseContainer]]] = Future.sequence(addressesRequests.toList)
+
+    val successfulAddresses: Future[Seq[AddressBySearchResponseContainer]] = addresses.map(collectSuccessfulAddresses)
+
+    val failedAddresses: Future[Seq[RejectedAddress]] = addresses.map(collectFailedAddresses)
+
+    // transform (Future(X), Future[Y]) into Future(X, Y)
+    for {
+      successful <- successfulAddresses
+      failed <- failedAddresses
+    } yield MultipleSearchResult(successful, failed)
+  }
+
+
+  private def collectSuccessfulAddresses(addresses: Seq[Either[RejectedAddress, AddressBySearchResponseContainer]]): Seq[AddressBySearchResponseContainer] =
+    addresses.collect {
+      case Right(address) => address
+    }
+
+  private def collectFailedAddresses(addresses: Seq[Either[RejectedAddress, AddressBySearchResponseContainer]]): Seq[RejectedAddress] =
+    addresses.collect {
+      case Left(address) => address
+    }
+
 }
