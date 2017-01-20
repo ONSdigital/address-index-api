@@ -20,7 +20,7 @@
     <div class="container">
         <div class="panel panel-single">
             <div class="panel-heading sub-nav-heading">
-            @navigation()
+                @navigation()
             </div>
             @warningMessage.map { message =>
             <div id="warning-message" class="panel panel-warning address-panel">
@@ -50,14 +50,15 @@
                                     <div class="alert alert-success">
                                         <div class="matchResults">
                                             <div class="resultRow">
-                                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address(underlyingScore, 0)))
-                                                    (
-                                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
-                                                    <span style="background-color: @color">
+                                                <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address(underlyingScore, 0)))
+                                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color: String =>
+                                                        <span style="background-color: @color">
                                                     }
-                                                    @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
+                                                    @{"%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100)}%
+                                                        </span>
+                                                </div>
                                             </div>
-                                            <div class="resultRow">@address.
+                                            <div class="resultRow">
                                                 <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
                                                     @address.formattedAddress
                                                 </div>
