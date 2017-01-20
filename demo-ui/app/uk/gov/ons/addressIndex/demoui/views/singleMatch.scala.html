@@ -1,4 +1,11 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse])(implicit messages: Messages)
+@(
+    singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+    warningMessage : Option[String],
+    addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.Results]
+)(
+    implicit
+    messages: Messages
+)
 @import helper._
 
 @*
@@ -35,57 +42,45 @@
             <div id="match-count" class="panel panel-single address-panel">
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
             </div>
-            @aresponse.addresses.map{ address =>
-            <div id = "match-results" class="panel panel-match address-panel">
-                <div class="result-content">
-                    <div class="alert alert-success">
-                        <div class="matchResults">
-                            <div class="resultRow">
-                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.getOrElse(underlyingScore, 0)))
-                                    (
-                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
-                                    <span style="background-color: @color">
-                                    }
-                                    @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
-                            </div>
-                            <div class="resultRow">
-                                <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
-                                    @address.formattedAddress
-                                </div>
-                            </div>
-                            <div class="resultRow">
-                                <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
-                                @if(address.geo.isEmpty){
-                                    @if(address.nag.isEmpty){
-                                    <div id="maplink-dummy-paf" class="map-link-txt">
-                                       <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>
-                                    </div>
-                                    } else {
-                                    <div id="maplink-dummy-nag" class="map-link-txt">
-                                       <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">Open Map</a></td>
-                                    </div>
-                                    }
-                                } else {
-                                    <div id="maplink-real" class="map-link-txt">
-                                        <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">Open Map</a></td>
-                                    </div>
-                                }
-                            </div>
-                            <div class="resultRow">
-                                <div class="classification"><strong>Classification: </strong>
-                                    @if(address.nag.isEmpty){
-                                        @messages("category.R")
-                                    } else {
-                                        @address.nag.map{ nag =>
-                                        @nag.classificationCode
+            @aresponse.addresses.map { x => x.map { address: AddressInformation =>
+                <div id = "match-results" class="panel panel-match address-panel">
+                    <div class="result-content">
+                        <div class="alert alert-success">
+                            <div class="matchResults">
+                                <div class="resultRow">
+                                      <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address(underlyingScore, 0)))
+                                        (
+                                        @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
+                                        <span style="background-color: @color">
                                         }
-                                    }
+                                        @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
+                                </div>
+                                <div class="resultRow">@address.
+                                    <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
+                                        @address.formattedAddress
+                                    </div>
+                                </div>
+                                <div class="resultRow">
+                                    <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+                                    @googleMap.googleMap(address)
+                                </div>
+                                <div class="resultRow">
+                                    <div class="classification"><strong>Classification: </strong>
+                                        @if(address.nag.isEmpty){
+                                            @messages("category.R")
+                                        } else {
+                                            @address.nag.map{ nag =>
+                                            @nag.classificationCode
+                                            }
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>}
+            }
+            }
             }
         </div>
         <div class="panel panel-single address-panel">
@@ -122,10 +117,10 @@
                 };
                 console.log('ajaxObj', ajaxObj);
                 $.ajax(ajaxObj);
-            }
+            };
             reader.onerror = function(evt) {
                 console.error(evt);
-            }
+            };
         }
     }
 </script>

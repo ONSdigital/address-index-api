@@ -6,7 +6,7 @@ import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Controller}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.data.Forms._
 import play.api.data._
 import play.api.libs.json.Json
@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
-import uk.gov.ons.addressIndex.model.server.response.Container$
+import uk.gov.ons.addressIndex.model.server.response.Container
 import scala.util.Try
 
 case class BulkRequest(inputs: Seq[String])
@@ -110,7 +110,7 @@ class SingleMatchController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
           warningMessage = None,
-          addressBySearchResponse = Some(resp.response))
+          addressBySearchResponse = resp.response)
         Ok(viewToRender)
       }
     }

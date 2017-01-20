@@ -1,0 +1,63 @@
+@*@import uk.gov.ons.addressIndex.model.server.response.AddressInformation*@
+@*@(address: AddressInformation)*@
+
+
+@*<div class="resultRow">*@
+    @*<div class="classification"><strong>Classification: </strong>*@
+        @*@if(address.nag.isEmpty){*@
+            @*@messages("category.R")*@
+        @*} else {*@
+            @*@address.nag.map{ nag =>*@
+                @*@nag.classificationCode*@
+            @*}*@
+        @*}*@
+    @*</div>*@
+@*</div>*@
+
+
+@*<div id="match-results" class="panel panel-match address-panel">*@
+    @*<div class="result-content">*@
+        @*<div class="alert alert-success">*@
+            @*<div class="matchResults">*@
+                @*<div class="resultRow">*@
+                    @*<div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address(underlyingScore, 0)))*@
+                        @*(*@
+                        @*@defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>*@
+                            @*<span style="background-color: @color">*@
+                        @*}*@
+                        @*@{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>*@
+                @*</div>*@
+                @*<div class="resultRow">*@
+                    @*<div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>*@
+                        @*@address.formattedAddress*@
+                    @*</div>*@
+                @*</div>*@
+                @*<div class="resultRow">*@
+                    @*<div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>*@
+                    @*@if(address.geo.isEmpty){*@
+                        @*@if(address.nag.isEmpty){*@
+                            @*<div id="maplink-dummy-paf" class="map-link-txt">*@
+                                @*<a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>*@
+                            @*</div>*@
+                        @*} else {*@
+                            @*<div id="maplink-dummy-nag" class="map-link-txt">*@
+                                @*<a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">Open Map</a></td>*@
+                            @*</div>*@
+                        @*}*@
+                    @*} else {*@
+                        @*<div id="maplink-real" class="map-link-txt">*@
+                            @*<a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">Open Map</a></td>*@
+                        @*</div>*@
+                    @*}*@
+                @*</div>*@
+                @*<div class="resultRow">*@
+                    @*<div class="classification"><strong>Classification: </strong>*@
+
+                        @*Residential*@
+
+                    @*</div>*@
+                @*</div>*@
+            @*</div>*@
+        @*</div>*@
+    @*</div>*@
+@*</div>*@
