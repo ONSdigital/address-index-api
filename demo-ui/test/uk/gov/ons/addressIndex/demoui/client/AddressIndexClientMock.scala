@@ -21,7 +21,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
   //  set config entry to "https://addressindexapitest.cfapps.io" to run from cloud
   override def host: String = s"${conf.config.apiURL.host}:${conf.config.apiURL.port}"
 
-  val mockAddressResponseStatus = AddressResponseStatus(
+  val mockAddressResponseStatus = Status(
     code = 200,
     message = "OK"
   )
@@ -33,56 +33,59 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
 //    postcode = "EX2 9GA"
 //  )
 
-  val mockPafAddress1 = AddressResponsePaf(
-    udprn = "",
-    organisationName = "",
-    departmentName = "",
-    subBuildingName = "",
-    buildingName = "",
-    buildingNumber = "7",
-    dependentThoroughfare = "GATE REACH",
-    thoroughfare = "",
-    doubleDependentLocality = "",
-    dependentLocality = "",
-    postTown = "EXETER",
-    postcode = "PO7 6GA",
-    postcodeType = "",
-    deliveryPointSuffix = "",
-    welshDependentThoroughfare = "",
-    welshThoroughfare = "",
-    welshDoubleDependentLocality = "",
-    welshDependentLocality = "",
-    welshPostTown = "",
-    poBoxNumber = "",
-    startDate = "",
-    endDate = ""
+  val mockPafAddress1 = PAFWithFormat(
+    formattedAddress =  "",
+    paf = PAF(
+      udprn = "",
+      organisationName = "",
+      departmentName = "",
+      subBuildingName = "",
+      buildingName = "",
+      buildingNumber = "7",
+      dependentThoroughfare = "GATE REACH",
+      thoroughfare = "",
+      doubleDependentLocality = "",
+      dependentLocality = "",
+      postTown = "EXETER",
+      postcode = "PO7 6GA",
+      postcodeType = "",
+      deliveryPointSuffix = "",
+      welshDependentThoroughfare = "",
+      welshThoroughfare = "",
+      welshDoubleDependentLocality = "",
+      welshDependentLocality = "",
+      welshPostTown = "",
+      poBoxNumber = "",
+      startDate = "",
+      endDate = ""
+    )
   )
 
-  val mockAddressResponseAddress = AddressResponseAddress(
+
+
+  val mockAddressResponseAddress = AddressInformation(
     uprn = "",
-    formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
-    paf = Some(mockPafAddress1),
+    paf = Some(Seq(mockPafAddress1)),
     nag = None,
-    geo = None,
     underlyingScore = 1.0f,
     underlyingMaxScore =  1.0f
   )
 
-  val mockAddressBySearchResponse = AddressBySearchResponse (
+  val mockAddressBySearchResponse = Results (
     tokens = mockAddressTokens,
-    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    addresses = Some(Seq(mockAddressResponseAddress: AddressInformation)),
     limit = 1,
     offset = 1,
     total = 1
   )
 
-  val mockSearchResponseContainer = AddressBySearchResponseContainer (
-    response = mockAddressBySearchResponse,
+  val mockSearchResponseContainer = Container (
+    response = Some(mockAddressBySearchResponse),
     status = mockAddressResponseStatus,
-    errors = Seq.empty[AddressResponseError]
+    errors = None
   )
 
 
-  override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
+  override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[Container] =
     Future.successful(mockSearchResponseContainer)
 }

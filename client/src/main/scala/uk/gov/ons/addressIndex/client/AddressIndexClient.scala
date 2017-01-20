@@ -1,10 +1,10 @@
 package uk.gov.ons.addressIndex.client
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.Container
 
 trait AddressIndexClient {
 
@@ -28,17 +28,17 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def addressQuery(request: AddressIndexSearchRequest)
-    (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+    (implicit ec: ExecutionContext): Future[Container] = {
     AddressQuery
       .toReq
+      .formatOptionalQueryString(request.format)
       .withQueryString(
         "input" -> request.input,
-        "format" -> request.format.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
       .get
-      .map(_.json.as[AddressBySearchResponseContainer])
+      .map(_.json.as[Container])
   }
 
   /**
@@ -48,7 +48,7 @@ trait AddressIndexClient {
     * @return a list of addresses for each request, in order of the requests
     */
   def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])
-    (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
+    (implicit ec: ExecutionContext): Future[Seq[Container]] = {
     Future sequence(requests map addressQuery)
   }
 
@@ -61,10 +61,14 @@ trait AddressIndexClient {
   def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
     UprnQuery(request.uprn.toString)
       .toReq
-      .withQueryString(
-        "format" -> request.format.toString
-      )
+      .formatOptionalQueryString(request.format)
       .get
+  }
+
+  implicit class AugOptFormat(req: WSRequest) {
+    def formatOptionalQueryString(format: Option[AddressScheme]): WSRequest = {
+      format.map(fmt => req.withQueryString("format" -> fmt.toString)).getOrElse(req)
+    }
   }
 }
 

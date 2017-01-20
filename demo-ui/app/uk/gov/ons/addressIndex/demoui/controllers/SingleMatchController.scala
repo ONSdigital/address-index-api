@@ -4,6 +4,8 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
+
+import scala.language.implicitConversions
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -13,11 +15,11 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.model.server.response.Container
+
 import scala.util.Try
 
 case class BulkRequest(inputs: Seq[String])
@@ -48,13 +50,15 @@ class SingleMatchController @Inject()(
     */
   def showSingleMatchPage() : Action[AnyContent] = Action.async { implicit request =>
     logger info("SingleMatch: Rendering Single Match Page")
-    val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-      singleSearchForm = SingleMatchController.form,
-      warningMessage = None,
-      addressBySearchResponse = None,
-      classification = None)
     Future.successful(
-        Ok(viewToRender)
+      Ok(
+        uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+          singleSearchForm = SingleMatchController.form,
+          warningMessage = None,
+          addressBySearchResponse = None,
+          classHierarchy = None
+        )
+      )
     )
   }
 
@@ -69,13 +73,15 @@ class SingleMatchController @Inject()(
     logger info("Single Match with address format = " + addressFormat)
     if (addressText.trim.isEmpty) {
       logger info("Single Match with Empty input address")
-      val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-        singleSearchForm = SingleMatchController.form,
-        warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressBySearchResponse = None,
-        classification = None)
       Future.successful(
-        Ok(viewToRender)
+        Ok(
+          uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+            singleSearchForm = SingleMatchController.form,
+            warningMessage = Some(messagesApi("single.pleasesupply")),
+            addressBySearchResponse = None,
+            classHierarchy = None
+          )
+        )
       )
     } else {
       Future.successful(
@@ -93,37 +99,42 @@ class SingleMatchController @Inject()(
     val addressText = input
     if (addressText.trim.isEmpty) {
       logger info("Single Match with expected input address missing")
-      val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-        singleSearchForm = SingleMatchController.form,
-        warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressBySearchResponse = None,
-        classification = None)
-        Future.successful(
-          Ok(viewToRender)
+      Future.successful(
+        Ok(
+          uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+            singleSearchForm = SingleMatchController.form,
+            warningMessage = Some(messagesApi("single.pleasesupply")),
+            addressBySearchResponse = None,
+            classHierarchy = None
+          )
+        )
       )
     } else {
+      import AddressScheme._
       logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
-          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().getOrElse(PostcodeAddressFile("paf")),
+          format = Some(formatText.stringToScheme).getOrElse(Some(PostcodeAddressFile("paf"))),
           input = addressText,
           limit = "10",
           offset = "0",
           id = UUID.randomUUID
         )
-      ) map { resp: AddressBySearchResponseContainer =>
+      ) map { resp: Container =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
 
-        val nags = resp.response.addresses.flatMap(_.nag)
-        val classCodes: Map[String, String] = nags.map(nag =>
-          (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+//        val nags = resp.response.addresses.flatMap(_.nag)
+//        val classCodes: Map[String, String] = nags.map(nag =>
+//          (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
-        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-          singleSearchForm = filledForm,
-          warningMessage = None,
-          addressBySearchResponse = Some(resp.response),
-          classification = Some(classCodes))
-        Ok(viewToRender)
+        Ok(
+          uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+            singleSearchForm = filledForm,
+            warningMessage = None,
+            addressBySearchResponse = resp.response,
+            classHierarchy = Some(classHierarchy)
+          )
+        )
       }
     }
   }
@@ -133,7 +144,7 @@ class SingleMatchController @Inject()(
     apiClient.addressQueriesBulkMimic(
       requests = request.body.inputs map { input =>
         AddressIndexSearchRequest(
-          format = PostcodeAddressFile("paf"),
+          format = Some(PostcodeAddressFile("paf")),
           input = input,
           limit = "10",
           offset = "0",

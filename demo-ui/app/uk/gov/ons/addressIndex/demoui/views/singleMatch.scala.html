@@ -1,4 +1,15 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse], classification: Option[Map[String,String]])(implicit messages: Messages)
+@import uk.gov.ons.addressIndex.model.server.response.AddressInformation
+@import uk.gov.ons.addressIndex.model.server.response.NAGWithFormat
+@import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+@(
+    singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+    warningMessage : Option[String],
+    addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.Results],
+    classHierarchy: Option[ClassHierarchy]
+)(
+    implicit
+    messages: Messages
+)
 @import helper._
 
 @*
@@ -8,91 +19,82 @@
  *@
 
 @main(title = messages("single.title")) {
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<div class="container">
-    <div class="panel panel-single">
-        <div class="panel-heading sub-nav-heading">
-        @navigation()
-        </div>
-        @warningMessage.map { message =>
-        <div id="warning-message" class="panel panel-warning address-panel">
-            <div class="result-content">
-                <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+
+    <div class="container">
+        <div class="panel panel-single">
+            <div class="panel-heading sub-nav-heading">
+                @navigation()
             </div>
-        </div>
-        }
-        <div class="panel panel-single address-panel">
-            <h3 class="panel-title">@messages("single.sfatext")</h3>
-            <div class="panel-body">
-                <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)">
-                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
-                <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm)
+            @warningMessage.map { message =>
+            <div id="warning-message" class="panel panel-warning address-panel">
+                <div class="result-content">
+                    <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
                 </div>
+            </div>
+            }
+            <div class="panel panel-single address-panel">
+                <h3 class="panel-title">@messages("single.sfatext")</h3>
+                <div class="panel-body">
+                    <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)">
+                    @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
+                        <div id="search-form" class="search-bar-active">
+                                @forms.singleAddressForm(singleSearchForm)
+                        </div>
+                    }
+                </div>
+                @addressBySearchResponse.map { aresponse =>
+                    <div id="match-count" class="panel panel-single address-panel">
+                        <h3 class="green">@aresponse.total @messages("single.found")</h3>
+                    </div>
+                    @aresponse.addresses.map { x: Seq[AddressInformation] =>
+                        @x.map { address: AddressInformation =>
+                            <div class="panel panel-match address-panel">
+                                <div class="result-content">
+                                    <div class="alert alert-success">
+                                        <div class="matchResults">
+                                            <div class="resultRow">
+                                                @partials.addressInformationScore(address)
+                                            </div>
+                                            <div class="resultRow">
+                                                <div class="formattedAdress">
+                                                    <strong>@messages("single.address"):</strong>
+                                                    <span>@address</span>
+                                                </div>
+                                            </div>
+                                            <div class="resultRow">
+                                                <div class="uprn-txt">
+                                                    <strong>@messages("single.uprn"):&nbsp;</strong>
+                                                    <span>@address.uprn</span>
+                                                </div>
+                                            </div>
+                                            <div class="resultRow">
+                                                <div class="classification"><strong>Classification: </strong>
+                                                    @if(address.nag.isEmpty){
+                                                        @messages("category.R")
+                                                    } else {
+                                                        @address.nag.map{ nagSeq: Seq[NAGWithFormat] =>
+                                                            @nagSeq.map { nag: NAGWithFormat =>
+                                                                @classHierarchy.map { cH: ClassHierarchy =>
+                                                                  @cH.analyseClassCode(nag.nag.classificationCode)
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
                 }
             </div>
-            @addressBySearchResponse.map { aresponse =>
-            <div id="match-count" class="panel panel-single address-panel">
-                <h3 class="green">@aresponse.total @messages("single.found")</h3>
+            <div class="panel panel-single address-panel">
+                <p class="pad">&nbsp;</p>
             </div>
-            @aresponse.addresses.map{ address =>
-            <div id = "match-results" class="panel panel-match address-panel">
-                <div class="result-content">
-                    <div class="alert alert-success">
-                        <div class="matchResults">
-                            <div class="resultRow">
-                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
-                                    (
-                                    @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
-                                    <span style="background-color: @color">
-                                    }
-                                    @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
-                            </div>
-                            <div class="resultRow">
-                                <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
-                                    @address.formattedAddress
-                                </div>
-                            </div>
-                            <div class="resultRow">
-                                <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
-                                @if(address.geo.isEmpty){
-                                    @if(address.nag.isEmpty){
-                                    <div id="maplink-dummy-paf" class="map-link-txt">
-                                       <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">Open Map</a></td>
-                                    </div>
-                                    } else {
-                                    <div id="maplink-dummy-nag" class="map-link-txt">
-                                       <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">Open Map</a></td>
-                                    </div>
-                                    }
-                                } else {
-                                    <div id="maplink-real" class="map-link-txt">
-                                        <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">Open Map</a></td>
-                                    </div>
-                                }
-                            </div>
-                            <div class="resultRow">
-                                <div class="classification"><strong>Classification: </strong>
-                                    @if(address.nag.isEmpty){
-                                        @messages("category.R")
-                                    } else {
-                                        @address.nag.map{ nag =>
-                                        @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
-                                        }
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>}
-            }
-        </div>
-        <div class="panel panel-single address-panel">
-            <p class="pad">&nbsp;</p>
         </div>
     </div>
-</div>
 <script>
     function mimicBulk() {
         var file = document.getElementById('file-bulk-mimic').files[0];
@@ -122,10 +124,10 @@
                 };
                 console.log('ajaxObj', ajaxObj);
                 $.ajax(ajaxObj);
-            }
+            };
             reader.onerror = function(evt) {
                 console.error(evt);
-            }
+            };
         }
     }
 </script>

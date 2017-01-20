@@ -1,0 +1,27 @@
+@import uk.gov.ons.addressIndex.model.server.response.AddressInformation
+@import uk.gov.ons.addressIndex.model.server.response.PAFWithFormat
+
+@import uk.gov.ons.addressIndex.model.server.response.NAGWithFormat
+@(address: AddressInformation)(implicit messages: Messages)
+
+
+<div class="resultRow">
+    <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+
+    @address.paf.map { pafSeq: Seq[PAFWithFormat] =>
+      PAF results
+      @pafSeq.map { pafWithFormat: PAFWithFormat =>
+        @pafGoogleMap(pafWithFormat)
+        -
+      }
+    }
+
+    @address.nag.map { nagSeq: Seq[NAGWithFormat] =>
+      NAG results
+      @nagSeq.map { nagWithFormat: NAGWithFormat =>
+        @nagGoogleMap(nagWithFormat)
+        -
+      }
+    }
+
+</div>

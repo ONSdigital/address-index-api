@@ -1,10 +1,13 @@
 package uk.gov.ons.addressIndex.server.controllers
 
+import akka.event.slf4j.Logger
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Controller, Result}
 import scala.concurrent.Future
 
 trait PlayHelperController extends Controller {
+
+  private val logger = Logger("Response")
 
   /**
     * Use this instead of Future.successful(BadRequest(Json.toJson(toJsonable)))
@@ -119,6 +122,7 @@ trait PlayHelperController extends Controller {
     * @return
     */
   def json[T](status: Status, toJsonable: T)(implicit writes: Writes[T]): Result = {
+    logger info s"${status.toString}"
     status(Json toJson toJsonable)
   }
 }

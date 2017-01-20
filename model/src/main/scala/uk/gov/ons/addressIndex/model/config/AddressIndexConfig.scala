@@ -18,8 +18,7 @@ object ElasticSearchConfig {
     cluster = "ons-cluster",
     local = false,
     indexes = IndexesConfig(
-      pafIndex = "paf/address",
-      nagIndex = "nag/address"
+      hybridIndex = "hybrid/address"
     ),
     shield = ShieldConfig(
       ssl = true,
@@ -50,8 +49,7 @@ object AddressIndexConfig {
 }
 
 case class IndexesConfig(
-  pafIndex: String,
-  nagIndex: String
+  hybridIndex: String
 )
 
 case class ApiConfig(

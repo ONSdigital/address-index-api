@@ -3,20 +3,20 @@
 
 <fieldset class="searchfield">
     @inputText(
-    singleSearchForm("address"),
-    args = '_id -> "numberOrName",
-    'class -> "form-control",
-    '_label -> "",
-    'placeholder -> messages("singlesearchform.placeholder")
+        singleSearchForm("address"),
+        args = '_id -> "numberOrName",
+        'class -> "form-control",
+        '_label -> "",
+        'placeholder -> messages("singlesearchform.placeholder")
     )
 </fieldset>
 
 <fieldset class="radio">
     @inputRadioGroup(
-    singleSearchForm("format"),
-    options = options("paf"->"PAF","bs"->"NAG"),
-    'class -> "form-control",
-    '_label -> ""
+        singleSearchForm("format"),
+        options = options("paf"->"PAF","bs"->"NAG"),
+        'class -> "form-control",
+        '_label -> ""
     )
 </fieldset>
 
