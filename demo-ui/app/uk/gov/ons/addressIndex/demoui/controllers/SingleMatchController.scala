@@ -2,12 +2,8 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
-
 import scala.language.implicitConversions
-import play.api.data.Forms._
-import play.api.data._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller}
@@ -15,11 +11,9 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.server.response.Container
-
 import scala.util.Try
 
 case class BulkRequest(inputs: Seq[String])
@@ -53,7 +47,7 @@ class SingleMatchController @Inject()(
     Future.successful(
       Ok(
         uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-          singleSearchForm = SingleMatchController.form,
+          singleSearchForm = SingleSearchForm.form,
           warningMessage = None,
           addressBySearchResponse = None,
           classHierarchy = None
@@ -76,7 +70,7 @@ class SingleMatchController @Inject()(
       Future.successful(
         Ok(
           uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-            singleSearchForm = SingleMatchController.form,
+            singleSearchForm = SingleSearchForm.form,
             warningMessage = Some(messagesApi("single.pleasesupply")),
             addressBySearchResponse = None,
             classHierarchy = None
@@ -102,7 +96,7 @@ class SingleMatchController @Inject()(
       Future.successful(
         Ok(
           uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-            singleSearchForm = SingleMatchController.form,
+            singleSearchForm = SingleSearchForm.form,
             warningMessage = Some(messagesApi("single.pleasesupply")),
             addressBySearchResponse = None,
             classHierarchy = None
@@ -121,7 +115,7 @@ class SingleMatchController @Inject()(
           id = UUID.randomUUID
         )
       ) map { resp: Container =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
+        val filledForm = SingleSearchForm.form.fill(SingleSearchForm(addressText))
 
 //        val nags = resp.response.addresses.flatMap(_.nag)
 //        val classCodes: Map[String, String] = nags.map(nag =>
@@ -153,13 +147,4 @@ class SingleMatchController @Inject()(
       }
     ).map(resp => Ok(Json toJson resp))
   }
-}
-
-object SingleMatchController {
-  val form = Form(
-    mapping(
-      "address" -> text,
-      "format" -> text
-    )(SingleSearchForm.apply)(SingleSearchForm.unapply)
-  )
 }
