@@ -1,9 +1,0 @@
-@import uk.gov.ons.addressIndex.model.server.response.PAFWithFormat
-@import uk.gov.ons.addressIndex.model.server.response.PAF
-@(pafWithFormat: PAFWithFormat)
-
-@defining(pafWithFormat.paf) { paf: PAF =>
-    <div class="map-link-txt">
-        <a href="https://maps.google.com/?q=50.855,-1.18@{paf.buildingNumber}&ll=50.855,-1.18@{paf.buildingNumber}&z=20&t=h" target="_blank">Open Map</a>
-    </div>
-}
