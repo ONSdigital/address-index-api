@@ -58,7 +58,7 @@
                                             <div class="resultRow">
                                                 <div class="formattedAdress">
                                                     <strong>@messages("single.address"):</strong>
-                                                    <span>@address</span>
+                                                    <span>@address.nag.flatMap(_.find(_.nag.logicalStatus == "1").map(_.formattedAddress))</span>
                                                 </div>
                                             </div>
                                             <div class="resultRow">
@@ -68,19 +68,20 @@
                                                 </div>
                                             </div>
                                             <div class="resultRow">
-                                                <div class="classification"><strong>Classification: </strong>
-                                                    @if(address.nag.isEmpty){
-                                                        @messages("category.R")
-                                                    } else {
-                                                        @address.nag.map{ nagSeq: Seq[NAGWithFormat] =>
-                                                            @nagSeq.map { nag: NAGWithFormat =>
-                                                                @classHierarchy.map { cH: ClassHierarchy =>
-                                                                  @cH.analyseClassCode(nag.nag.classificationCode)
-                                                                }
+                                                @defining(
+                                                    address.nag.flatMap { nagSeq: Seq[NAGWithFormat] =>
+                                                        nagSeq.flatMap { nag: NAGWithFormat =>
+                                                            classHierarchy.map { cH: ClassHierarchy =>
+                                                                cH.analyseClassCode(nag.nag.classificationCode)
                                                             }
-                                                        }
+                                                        }.headOption
                                                     }
-                                                </div>
+                                                ) { optClassificationCode: Option[String] =>
+                                                    <div class="classification">
+                                                        <strong>Classification:</strong>
+                                                        <span>@optClassificationCode.getOrElse(messages("category.R"))</span>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -95,40 +96,4 @@
             </div>
         </div>
     </div>
-<script>
-    function mimicBulk() {
-        var file = document.getElementById('file-bulk-mimic').files[0];
-        if (file) {
-            var reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = function(evt) {
-
-                var inputs = evt.target.result.split("\n");
-                console.log('inputs', inputs);
-
-                var postBody = { inputs: inputs };
-                console.log('postBody', postBody);
-
-                var ajaxObj = {
-                    type: 'POST',
-                    url: '/addresses/mimicBulk',
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    data: JSON.stringify(postBody),
-                    success: function(resp) {
-                        console.log('success', resp);
-                    },
-                    error: function(err) {
-                        console.error(err);
-                    }
-                };
-                console.log('ajaxObj', ajaxObj);
-                $.ajax(ajaxObj);
-            };
-            reader.onerror = function(evt) {
-                console.error(evt);
-            };
-        }
-    }
-</script>
 }
