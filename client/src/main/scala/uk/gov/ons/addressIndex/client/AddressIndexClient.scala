@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.client
 
+import play.api.Logger
+
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
@@ -74,6 +76,8 @@ trait AddressIndexClient {
 
 object AddressIndexClientHelper {
 
+  private val logger = Logger("Client Interface")
+
   implicit def str2host(h: String): AddressIndexServerHost = AddressIndexServerHost(h)
 
   sealed abstract class AddressIndexPath(val path: String, val method: String)
@@ -81,7 +85,11 @@ object AddressIndexClientHelper {
   implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)
     (implicit client: WSClient, host: AddressIndexServerHost) {
     def toReq(): WSRequest = {
-      client url s"${host.value}${p.path}" withMethod p.path
+      val url =  s"${host.value}${p.path}"
+
+      logger info s"requesting to $url with ${p.path}"
+
+      client url url withMethod p.path
     }
   }
 
