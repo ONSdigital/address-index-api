@@ -1,6 +1,10 @@
 @import uk.gov.ons.addressIndex.model.server.response.AddressInformation
 @import uk.gov.ons.addressIndex.model.server.response.NAGWithFormat
 @import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+@import uk.gov.ons.addressIndex.model.server.response.GEO
+@import uk.gov.ons.addressIndex.demoui.views.SingleMatchHelper
+
+@import play.twirl.api.Html
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
     warningMessage : Option[String],
@@ -10,7 +14,6 @@
     implicit
     messages: Messages
 )
-@import helper._
 
 @*
  * Call the `main` template with two arguments. The first
@@ -35,10 +38,9 @@
             <div class="panel panel-single address-panel">
                 <h3 class="panel-title">@messages("single.sfatext")</h3>
                 <div class="panel-body">
-                    <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)">
                     @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                         <div id="search-form" class="search-bar-active">
-                                @forms.singleAddressForm(singleSearchForm)
+                            @forms.singleAddressForm(singleSearchForm)
                         </div>
                     }
                 </div>
@@ -55,34 +57,33 @@
                                             <div class="resultRow">
                                                 @partials.addressInformationScore(address)
                                             </div>
-                                            <div class="resultRow">
-                                                <div class="formattedAdress">
-                                                    <strong>@messages("single.address"):</strong>
-                                                    <span>@address.nag.flatMap(_.find(_.nag.logicalStatus == "1").map(_.formattedAddress))</span>
+                                            @defining(SingleMatchHelper.getApprovedNAG(address)) { optAddressWithFormat: Option[NAGWithFormat] =>
+                                                <div class="resultRow">
+                                                    <div class="formattedAdress">
+                                                        <strong>@messages("single.address"):</strong>
+                                                        <span>@optAddressWithFormat.map(_.formattedAddress)</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="resultRow">
-                                                <div class="uprn-txt">
-                                                    <strong>@messages("single.uprn"):&nbsp;</strong>
-                                                    <span>@address.uprn</span>
+                                                <div class="resultRow">
+                                                    <div class="uprn-txt">
+                                                        <strong>@messages("single.uprn"):&nbsp;</strong>
+                                                        <span>@address.uprn</span>
+                                                    </div>
+
+                                                    @optAddressWithFormat.map(_.nag.geo).map { geo: GEO =>
+                                                        <div class="map-link-txt">
+                                                            <a href="https://maps.google.com/?q=@{geo.latitude},@{geo.longitude}&ll=@{geo.latitude},@{geo.longitude}&z=20&t=h" target="_blank">Open Map</a>
+                                                        </div>
+                                                    }.getOrElse(Html(""))
+
                                                 </div>
-                                            </div>
-                                            <div class="resultRow">
-                                                @defining(
-                                                    address.nag.flatMap { nagSeq: Seq[NAGWithFormat] =>
-                                                        nagSeq.flatMap { nag: NAGWithFormat =>
-                                                            classHierarchy.map { cH: ClassHierarchy =>
-                                                                cH.analyseClassCode(nag.nag.classificationCode)
-                                                            }
-                                                        }.headOption
-                                                    }
-                                                ) { optClassificationCode: Option[String] =>
+                                                <div class="resultRow">
                                                     <div class="classification">
                                                         <strong>Classification:</strong>
-                                                        <span>@optClassificationCode.getOrElse(messages("category.R"))</span>
+                                                        <span>@SingleMatchHelper.getClassificationCode(address, classHierarchy)</span>
                                                     </div>
-                                                }
-                                            </div>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
