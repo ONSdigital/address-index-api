@@ -6,6 +6,7 @@ import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPR
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
 import uk.gov.ons.addressIndex.model.server.response.Container
+import AddressIndexClientHelper.AugOptFormat
 
 trait AddressIndexClient {
 
@@ -83,14 +84,15 @@ trait AddressIndexClient {
       .formatOptionalQueryString(request.format)
   }
 
+
+}
+
+object AddressIndexClientHelper {
   implicit class AugOptFormat(req: WSRequest) {
     def formatOptionalQueryString(format: Option[AddressScheme]): WSRequest = {
       format.map(fmt => req.withQueryString("format" -> fmt.toString)).getOrElse(req)
     }
   }
-}
-
-object AddressIndexClientHelper {
 
   private val logger = Logger("Client Interface")
 
