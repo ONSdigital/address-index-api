@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "iwa.h"
+#include "fmemopen.h"
 #include "crftagger.h"
 
 static int format_result(
@@ -74,8 +75,17 @@ int tag(const char *items, crfsuite_model_t* model, char *buffer)
 
     crfsuite_instance_init(&inst);
 
-    /* Create an IWA reader */
-    iwa = iwa_string_reader(items);
+    /* Open a memory stream for the items */
+    FILE *fp = fmemopen((void *)items, strlen(items), "r");
+
+    if (fp == NULL) {
+        ret = 1;
+        goto force_exit;
+    }
+
+    /* Open an IWA reader */
+    iwa = iwa_reader(fp);
+    // TODO: iwa = iwa_string_reader(items);
 
     if (iwa == NULL) {
         ret = 2;
@@ -162,6 +172,12 @@ force_exit:
     /* Close the IWA parser */
     iwa_delete(iwa);
     iwa = NULL;
+
+    /* Close the input stream if necessary */
+    if (fp != NULL) {
+        fclose(fp);
+        fp = NULL;
+    }
 
     free(comment);
     comment = NULL;
