@@ -35,8 +35,7 @@ case class PostcodeAddressFile(
   startDate: String,
   endDate: String,
   lastUpdateDate: String,
-  entryDate: String,
-  score: Float
+  entryDate: String
 ) extends Formattable {
 
   def formatAddress: String = {
