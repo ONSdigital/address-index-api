@@ -23,8 +23,8 @@ object Model {
   implicit class AutoSource(searchDefinition: SearchDefinition) {
     def format(implicit optFmt: Option[AddressScheme]) = {
       optFmt map {
-        case x: PostcodeAddressFile => searchDefinition sourceExclude HybridIndex.Fields.lpi
-        case x: BritishStandard7666 => searchDefinition sourceExclude HybridIndex.Fields.paf
+        case _: PostcodeAddressFile => searchDefinition sourceExclude HybridIndex.Fields.lpi
+        case _: BritishStandard7666 => searchDefinition sourceExclude HybridIndex.Fields.paf
       } getOrElse searchDefinition
     }
   }
