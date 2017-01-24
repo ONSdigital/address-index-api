@@ -13,7 +13,8 @@ object Model {
   case class HybridResponse(
     uprn: String,
     lpi: Option[Seq[NationalAddressGazetteer]],
-    paf: Option[Seq[PostcodeAddressFile]]
+    paf: Option[Seq[PostcodeAddressFile]],
+    score: Float
   )
 
   implicit class StringAnyRefAugmenter(map: Map[String, AnyRef]) {
@@ -36,9 +37,9 @@ object Model {
           )
         }.toOption
       }
-
       HybridResponse(
         uprn = map(HybridIndex.Fields.uprn).toString,
+        score = hit.score,
         lpi = getSeqMap(HybridIndex.Fields.lpi) { seqMap =>
           seqMap map { nag =>
             NationalAddressGazetteer(
@@ -69,8 +70,7 @@ object Model {
               logicalStatus = nag.getType("logicalStatus", ""),
               streetDescriptor = nag.getType("streetDescriptor", ""),
               townName = nag.getType("townName", ""),
-              locality = nag.getType("locality", ""),
-              score = nag.getType("score", 0f)
+              locality = nag.getType("locality", "")
             )
           }
         },
@@ -105,8 +105,7 @@ object Model {
               startDate = paf.getType("startDate", ""),
               endDate = paf.getType("endDate", ""),
               lastUpdateDate = paf.getType("lastUpdateDate", ""),
-              entryDate = paf.getType("entryDate", ""),
-              score = paf.getType("score", 0f)
+              entryDate = paf.getType("entryDate", "")
             )
           }
         }
@@ -132,7 +131,8 @@ object Container {
     errors: Option[Seq[Error]] = None,
     limit: Int,
     offset: Int,
-    total: Int
+    total: Int,
+    maxScore: Float
   ): Container = {
     Container(
       response = Some(
@@ -144,8 +144,8 @@ object Container {
                 uprn = sHybrid.uprn,
                 paf = sHybrid.paf.map(_.map(_.toPAFWithFormat)),
                 nag = sHybrid.lpi.map(_.map(_.toNagWithFormat)),
-                underlyingScore = 0f,//??
-                underlyingMaxScore = 0f//??
+                underlyingScore = sHybrid.score,//??
+                underlyingMaxScore = maxScore
               )
             }
           ),
