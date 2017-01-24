@@ -13,7 +13,6 @@ import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.server.response.Container
 import uk.gov.ons.addressIndex.model.server.response.Model.HybridResponse
 
-
 @Singleton
 class AddressController @Inject()(
   override val esRepo: ElasticSearchRepository,
@@ -36,11 +35,22 @@ class AddressController @Inject()(
     uprnSearch(
       uprn = uprn,
       format = format flatMap(_.stringToScheme)
-    ) map(r => jsonOk(r.toString))
+    ) map { r =>
+      jsonOk(
+        Container.fromHybridResponse(
+          optAddresses = Some(r.as[HybridResponse].toSeq),
+          tokens = Seq.empty,
+          status = PredefStatus.Ok,
+          limit = 1,
+          offset = 0,
+          total = 1,
+          maxScore = r.maxScore
+        )
+      )
+    }
   }
 
   /**
-    *
     * @param input
     * @param format
     * @param offset
@@ -110,7 +120,8 @@ class AddressController @Inject()(
               status = PredefStatus.Ok,
               limit = pagination.limit,
               offset = pagination.offset,
-              total = r.totalHits.toInt
+              total = r.totalHits.toInt,
+              maxScore = r.maxScore
             )
           )
         }
