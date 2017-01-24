@@ -30,8 +30,7 @@ case class NationalAddressGazetteer(
   logicalStatus: String,
   streetDescriptor: String,
   townName: String,
-  locality: String,
-  score: Float
+  locality: String
 ) extends Formattable {
 
   def formatAddress: String = {
