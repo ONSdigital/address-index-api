@@ -74,8 +74,6 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   it should "construct a correct address query WSRequest, no format" in {
     val input = "input"
     val actual = apiClient.addressQueryWSRequest(
