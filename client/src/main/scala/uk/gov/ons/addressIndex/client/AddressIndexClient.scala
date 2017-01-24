@@ -30,6 +30,16 @@ trait AddressIndexClient {
     */
   def addressQuery(request: AddressIndexSearchRequest)
     (implicit ec: ExecutionContext): Future[Container] = {
+    addressQueryWSRequest(request).get.map(_.json.as[Container])
+  }
+
+  /**
+    * testable method for addressQuery
+    *
+    * @param request
+    * @return
+    */
+  def addressQueryWSRequest(request: AddressIndexSearchRequest): WSRequest = {
     AddressQuery
       .toReq
       .formatOptionalQueryString(request.format)
@@ -38,8 +48,6 @@ trait AddressIndexClient {
         "limit" -> request.limit,
         "offset" -> request.offset
       )
-      .get
-      .map(_.json.as[Container])
   }
 
   /**
@@ -60,10 +68,19 @@ trait AddressIndexClient {
     * @return an address
     */
   def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
+    urpnQueryWSRequest(request).get
+  }
+
+  /**
+    * testable method for uprnQuery
+    *
+    * @param request
+    * @return
+    */
+  def urpnQueryWSRequest(request: AddressIndexUPRNRequest): WSRequest = {
     UprnQuery(request.uprn.toString)
       .toReq
       .formatOptionalQueryString(request.format)
-      .get
   }
 
   implicit class AugOptFormat(req: WSRequest) {
