@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl._
@@ -11,7 +10,6 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
 import uk.gov.ons.addressIndex.server.modules.Model._
-
 import scala.concurrent.{ExecutionContext, Future}
 
 object Model {
@@ -34,10 +32,13 @@ object Model {
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticSearchRepository {
+
   /**
     * An ElasticClient.
     */
-  def client(): ElasticClient
+  def client: ElasticClient
+
+  def logger: Logger
 
   /**
     *
@@ -47,7 +48,9 @@ trait ElasticSearchRepository {
     * @return
     */
   def queryAddress(tokens: Seq[CrfTokenResult])
-    (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse]
+    (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+    logExecute("Address")(queryAddressSearchDefinition(tokens))
+  }
 
   /**
     *
@@ -55,41 +58,14 @@ trait ElasticSearchRepository {
     * @param fmt
     * @return
     */
-  def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse]
-}
-
-@Singleton
-class AddressIndexRepository @Inject()(
-  conf: AddressIndexConfigModule,
-  elasticClientProvider: ElasticClientProvider
-)(implicit ec: ExecutionContext) extends ElasticSearchRepository {
-
-  private val logger = Logger("AddressIndexRepository")
-  val client: ElasticClient = elasticClientProvider.client
-
-  override def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
-    logExecute("UPRN") {
-      search.in(conf.config.elasticSearch.indexes.hybridIndex).format query {
-        bool(
-          must(
-            matchQuery(
-              field = HybridIndex.Fields.uprn,
-              value = uprn
-            )
-          )
-        )
-      }
-    }
+  def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+    logExecute("UPRN")(queryUprnSearchDefinition(uprn))
   }
 
-  override def queryAddress(tokens: Seq[CrfTokenResult])
-    (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
-    logExecute("Address") {
-      search.in(conf.config.elasticSearch.indexes.hybridIndex).format.paginate query {
-        query(tokens.map(_.value).mkString(" "))
-      }
-    }
-  }
+  def queryUprnSearchDefinition(uprn: String)(implicit fmt: Option[AddressScheme]): SearchDefinition
+
+  def queryAddressSearchDefinition(tokens: Seq[CrfTokenResult])
+    (implicit p: Pagination, fmt: Option[AddressScheme]): SearchDefinition
 
   /**
     * Helper which logs an ElasticSearch Query before executing it.
@@ -102,10 +78,40 @@ class AddressIndexRepository @Inject()(
     * @tparam Q
     * @return
     */
-  private def logExecute[T, R, Q](info: String)(t: T)(implicit executable: Executable[T, R, Q]): Future[Q] = {
+  def logExecute[T, R, Q](info: String)(t: T)(implicit executable: Executable[T, R, Q]): Future[Q] = {
 
     logger info s"$info: ${t.toString}"
 
     client execute t
+  }
+}
+
+@Singleton
+class AddressIndexRepository @Inject()(
+  conf: AddressIndexConfigModule,
+  elasticClientProvider: ElasticClientProvider
+)(implicit ec: ExecutionContext) extends ElasticSearchRepository {
+
+  val logger = Logger("AddressIndexRepository")
+  val client: ElasticClient = elasticClientProvider.client
+
+  def queryUprnSearchDefinition(uprn: String)(implicit fmt: Option[AddressScheme]): SearchDefinition = {
+    search.in(conf.config.elasticSearch.indexes.hybridIndex).format query {
+      bool(
+        must(
+          matchQuery(
+            field = HybridIndex.Fields.uprn,
+            value = uprn
+          )
+        )
+      )
+    }
+  }
+
+  def queryAddressSearchDefinition(tokens: Seq[CrfTokenResult])
+    (implicit p: Pagination, fmt: Option[AddressScheme]): SearchDefinition = {
+    search.in(conf.config.elasticSearch.indexes.hybridIndex).format.paginate query {
+      query(tokens.map(_.value).mkString(" "))
+    }
   }
 }
