@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.client
 
 import play.api.Logger
-
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
