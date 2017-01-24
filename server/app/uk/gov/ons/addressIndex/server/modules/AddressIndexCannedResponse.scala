@@ -1,9 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.model.server.response.Model.HybridResponse
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules.Model.Pagination
 
 trait AddressIndexCannedResponse {
 
@@ -76,6 +73,7 @@ trait AddressIndexCannedResponse {
       total = 0
     )
   }
+
   object PredefError {
     object EmptyQuery extends Error(
       code = 1,
