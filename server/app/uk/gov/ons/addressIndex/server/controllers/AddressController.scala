@@ -23,7 +23,6 @@ class AddressController @Inject()(
   val logger = Logger("address-index-server:AddressController")
 
   /**
-    *
     * @param uprn
     * @param format
     * @return
