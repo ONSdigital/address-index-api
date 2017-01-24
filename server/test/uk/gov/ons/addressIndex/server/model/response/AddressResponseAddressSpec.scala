@@ -36,8 +36,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     logicalStatus = "n18",
     streetDescriptor = "n19",
     townName = "n20",
-    locality = "n21",
-    score = 1.0f
+    locality = "n21"
   )
 
   val givenPaf = PostcodeAddressFile(
@@ -69,8 +68,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29",
-    score = 1.0f
+    entryDate = "29"
   )
 
   "Address response Address model" should {

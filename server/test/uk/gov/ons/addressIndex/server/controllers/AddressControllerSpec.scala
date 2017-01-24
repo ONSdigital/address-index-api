@@ -46,8 +46,7 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29",
-    score = 1.0f
+    entryDate = "29"
   )
 
   val validNagAddress = NationalAddressGazetteer(
@@ -78,45 +77,44 @@ class AddressControllerSpec @Inject()(conf: AddressIndexConfigModule)
     logicalStatus = "18",
     streetDescriptor = "19",
     townName = "20",
-    locality = "21",
-    score = 1.0f
+    locality = "21"
   )
-
-  // injected value, change implementations accordingly when needed
-  // mock that will return one address as a result
-  val elasticRepositoryMock = new ElasticSearchRepository {
-
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
-
-    override def queryAddress(tokens: Seq[CrfTokenResult])
-      (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
-      Future.successful(null)
-    }
-
-    override def queryUprn(uprn: String)
-      (implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
-      Future.successful(null)
-    }
-  }
-
-  // mock that won't return any addresses
-  val emptyElasticRepositoryMock = new ElasticSearchRepository {
-
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
-
-    override def queryAddress(tokens: Seq[CrfTokenResult])
-      (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
-      Future.successful(null)
-    }
-
-    override def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
-      Future.successful(null)
-    }
-  }
-
-  val parser = new AddressParserModule
-
-  def testController: AddressController = new AddressController(elasticRepositoryMock, parser, conf)
+//
+//  // injected value, change implementations accordingly when needed
+//  // mock that will return one address as a result
+//  val elasticRepositoryMock = new ElasticSearchRepository {
+//
+//    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+//
+//    override def queryAddress(tokens: Seq[CrfTokenResult])
+//      (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+//      Future.successful(null)
+//    }
+//
+//    override def queryUprn(uprn: String)
+//      (implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+//      Future.successful(null)
+//    }
+//  }
+//
+//  // mock that won't return any addresses
+//  val emptyElasticRepositoryMock = new ElasticSearchRepository {
+//
+//    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+//
+//    override def queryAddress(tokens: Seq[CrfTokenResult])
+//      (implicit p: Pagination, fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+//      Future.successful(null)
+//    }
+//
+//    override def queryUprn(uprn: String)(implicit fmt: Option[AddressScheme]): Future[RichSearchResponse] = {
+//      Future.successful(null)
+//    }
+////  }
+//
+//  val parser = new AddressParserModule
+//
+//  def testController: AddressController = new AddressController(elasticRepositoryMock, parser, conf)
 
   "Address controller" should {
 
