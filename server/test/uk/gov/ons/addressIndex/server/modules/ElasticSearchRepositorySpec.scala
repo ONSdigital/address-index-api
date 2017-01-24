@@ -11,33 +11,26 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticSearchRepositorySpec extends FlatSpec with ElasticSugar with Matchers {
 
-  object Resources {
+  val testClient = client
 
-    val testClient = client
-
-    val repo = new AddressIndexRepository(
-      conf = new AddressIndexConfigModule,
-      elasticClientProvider = new ElasticClientProvider {
-        override def client: ElasticClient = testClient
-      }
-    )
-
-    implicit class StringStripper(str: String) {
-      def normalise(): String = {
-        str.replace(" ", "").replace("\n", "")
-      }
+  val repo = new AddressIndexRepository(
+    conf = new AddressIndexConfigModule,
+    elasticClientProvider = new ElasticClientProvider {
+      override def client: ElasticClient = testClient
     }
+  )
 
-    object Formats {
-      val none: Option[AddressScheme] = None
-      val paf: Option[AddressScheme] = Some(PostcodeAddressFile("paf"))
-      val nag: Option[AddressScheme] = Some(BritishStandard7666("bs"))
+  implicit class StringStripper(str: String) {
+    def normalise(): String = {
+      str.replace(" ", "").replace("\n", "")
     }
-
   }
 
-  import Resources._
-
+  object Formats {
+    val none: Option[AddressScheme] = None
+    val paf: Option[AddressScheme] = Some(PostcodeAddressFile("paf"))
+    val nag: Option[AddressScheme] = Some(BritishStandard7666("bs"))
+  }
 
   it should "produce the correct search definition for a uprn, no format" in {
     val input = "109102"
