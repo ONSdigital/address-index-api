@@ -105,7 +105,7 @@ object AddressIndexClientHelper {
     def toReq(): WSRequest = {
       val url =  s"${host.value}${p.path}"
       val r = client url url withMethod p.path
-      logger info s"requesting to $url with ${p.path}\n with query string map: ${r.queryString}"
+      logger info s"requesting to: $url\nwith: ${p.path}\nwith query: ${r.queryString}"
       r
     }
   }
