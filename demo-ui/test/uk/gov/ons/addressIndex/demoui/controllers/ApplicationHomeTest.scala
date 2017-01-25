@@ -32,6 +32,7 @@ class ApplicationHomeTest extends PlaySpec with Results {
         status(response) mustBe OK
         content must include(expectedString)
       }
+      
       "return at least one link with language set" in  {
         // can we set the accept language Seq in the fake request so that cy is top?
         // Given
