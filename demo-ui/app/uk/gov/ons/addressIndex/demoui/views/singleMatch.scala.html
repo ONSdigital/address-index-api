@@ -49,9 +49,8 @@
                                     @{("%.2f".format((address.underlyingScore / address.underlyingMaxScore) * 100))}</span>%)</div>
                             </div>
                             <div class="resultRow">
-                                <div id="formatted-address" class=formattedAdress"><strong>@messages("single.address"): </strong>
+                                <strong>@messages("single.address"): </strong>
                                     @address.formattedAddress
-                                </div>
                             </div>
                             <div class="resultRow">
                                 <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
@@ -72,7 +71,7 @@
                                 }
                             </div>
                             <div class="resultRow">
-                                <div class="classification"><strong>Classification: </strong>
+                                <strong>Classification: </strong>
                                     @if(address.nag.isEmpty){
                                         @messages("category.R")
                                     } else {
@@ -80,7 +79,6 @@
                                         @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
                                         }
                                     }
-                                </div>
                             </div>
                         </div>
                     </div>
