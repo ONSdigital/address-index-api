@@ -29,15 +29,15 @@ class ClassHierarchyTest extends PlaySpec {
         actual mustBe expected
       }
 
-      "return the original unknown code" in {
-        val expected = " [ AB12AB ]"
-        val actual = classHierarchy.analyseClassCode("AB12AB")
-        actual mustBe expected
-      }
-
       "return the original code and the three classifications in the (partial) hierarchy" in {
         val expected = " [ MF99UG ] [ Military ] [ Air Force ] [ Air Force Military Storage ]"
         val actual = classHierarchy.analyseClassCode("MF99UG")
+        actual mustBe expected
+      }
+
+      "return the original unknown code" in {
+        val expected = " [ AB12AB ]"
+        val actual = classHierarchy.analyseClassCode("AB12AB")
         actual mustBe expected
       }
     }

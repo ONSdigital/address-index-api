@@ -35,5 +35,4 @@ class AddressIndexModelTest extends FlatSpec with Matchers {
     val sample = "unsupported scheme"
     sample.stringToScheme shouldBe None
   }
-
 }
