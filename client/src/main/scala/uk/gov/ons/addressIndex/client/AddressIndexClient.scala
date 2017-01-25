@@ -1,12 +1,11 @@
 package uk.gov.ons.addressIndex.client
 
 import play.api.Logger
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
 import uk.gov.ons.addressIndex.model.server.response.Container
-import AddressIndexClientHelper.AugOptFormat
+import AddressIndexClientHelper.{AddressIndexPathToWsAugmenter, AddressIndexServerHost, AddressQuery, AugOptFormat, UprnQuery}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexClient {
 
@@ -83,11 +82,11 @@ trait AddressIndexClient {
       .toReq
       .formatOptionalQueryString(request.format)
   }
-
-
 }
 
+
 object AddressIndexClientHelper {
+
   implicit class AugOptFormat(req: WSRequest) {
     def formatOptionalQueryString(format: Option[AddressScheme]): WSRequest = {
       format.map(fmt => req.withQueryString("format" -> fmt.toString)).getOrElse(req)
@@ -104,10 +103,9 @@ object AddressIndexClientHelper {
     (implicit client: WSClient, host: AddressIndexServerHost) {
     def toReq(): WSRequest = {
       val url =  s"${host.value}${p.path}"
-
-      logger info s"requesting to $url with ${p.path}"
-
-      client url url withMethod p.path
+      val r = client url url withMethod p.path
+      logger info s"requesting to $url with ${p.path}\n${r.queryString}"
+      r
     }
   }
 
