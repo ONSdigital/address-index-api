@@ -28,7 +28,7 @@ class AddressController @Inject()(
     * @param format
     * @return
     */
-  def uprnQuery(uprn: String, format: Option[String]): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, format: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     logger info s"#addressQuery:\nuprn $uprn , format: ${format.getOrElse("no format supplied")}"
 

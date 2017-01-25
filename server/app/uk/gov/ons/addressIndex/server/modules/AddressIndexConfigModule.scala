@@ -10,9 +10,15 @@ import scala.util.Try
   * Inject this into your controllers to access a type safe config.
   */
 @Singleton
-class AddressIndexConfigModule() {
+class AddressIndexConfigModule(optOverride: Option[AddressIndexConfig] = None) {
   private val logger = Logger("ConfigLogger")
-  val tryConfig: Try[AddressIndexConfig] = loadConfig[AddressIndexConfig]("addressIndex")
+  val tryConfig: Try[AddressIndexConfig] = {
+    if(optOverride.isEmpty) {
+      loadConfig[AddressIndexConfig]("addressIndex")
+    } else {
+      Try(optOverride.get)
+    }
+  }
   val config: AddressIndexConfig = tryConfig getOrElse {
     logger info "defaulting config because of errors"
     logger info s"${tryConfig.toString}"

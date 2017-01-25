@@ -41,7 +41,6 @@ trait ElasticSearchRepository {
   def logger: Logger
 
   /**
-    *
     * @param tokens
     * @param p
     * @param fmt
@@ -53,7 +52,6 @@ trait ElasticSearchRepository {
   }
 
   /**
-    *
     * @param uprn
     * @param fmt
     * @return
