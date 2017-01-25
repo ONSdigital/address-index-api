@@ -6,6 +6,7 @@ import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPR
 import uk.gov.ons.addressIndex.model.server.response.Container
 import AddressIndexClientHelper.{AddressIndexPathToWsAugmenter, AddressIndexServerHost, AddressQuery, AugOptFormat, UprnQuery}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 trait AddressIndexClient {
 
@@ -104,7 +105,7 @@ object AddressIndexClientHelper {
     def toReq(): WSRequest = {
       val url =  s"${host.value}${p.path}"
       val r = client url url withMethod p.path
-      logger info s"requesting to $url with ${p.path}\n${r.queryString}"
+      logger info s"requesting to $url with ${p.path}\n with query string map: ${r.queryString}"
       r
     }
   }
