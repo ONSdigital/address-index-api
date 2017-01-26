@@ -12,7 +12,7 @@ ifeq ($(OS),Windows)
 	TARGET=libcrftagger.dll
 	LIB=$(HOME)/local/win/lib
 
-	export CPATH=$(HOME)/local/win/include:/usr/java/latest/include:/usr/java/latest/include/linux
+	export CPATH=$(HOME)/local/win/include:/usr/java/latest/include:/usr/lib/jvm/java-1.8.0/include:/usr/java/latest/include/linux
 else
 	UNAME=$(shell uname -s)
 	
@@ -31,7 +31,7 @@ else
 		TARGET=libcrftagger.so
 		LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
-		export CPATH=$(HOME)/local/include:/usr/java/latest/include:/usr/java/latest/include/linux
+		export CPATH=$(HOME)/local/include:/usr/java/latest/include:/usr/lib/jvm/java-1.8.0/include:/usr/java/latest/include/linux
 	endif
 endif
 
