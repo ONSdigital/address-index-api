@@ -20,33 +20,11 @@ class AddressControllerSpec extends PlaySpec with AddressIndexCannedResponse  {
 
   "Address controller" should {
     new WithApplication {
-      val maxLimit = 11
-      val maxOffset = 2
+      val maxLimit = 100
+      val maxOffset = 1000
       val controller = new AddressController(
         parser = new AddressParserModule,
-        conf = new AddressIndexConfigModule(
-          optOverride = Some(
-            AddressIndexConfig(
-              elasticSearch = ElasticSearchConfig(
-                local = false,
-                cluster = "",
-                uri = "",
-                indexes = IndexesConfig(
-                  hybridIndex = ""
-                ),
-                shield = ShieldConfig(
-                  ssl = true,
-                  user = "",
-                  password = ""
-                ),
-                defaultLimit = 10,
-                defaultOffset = 1,
-                maximumLimit = maxLimit,
-                maximumOffset = maxOffset
-              )
-            )
-          )
-        ),
+        conf = new AddressIndexConfigModule,
         esRepo = new ElasticSearchRepository {
           override def logger: Logger = ???
           override def queryUprnSearchDefinition(uprn: String)
