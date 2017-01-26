@@ -21,6 +21,13 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     pagination: Pagination
   )
 
+  /**
+    * Search for an address
+    *
+    * @param input - search string
+    * @param format - optional return data; see AddressScheme
+    * @return
+    */
   def addressSearch(input: AddressQueryInput, format: Option[AddressScheme]): Future[RichSearchResponse] = {
     implicit val implPag = input.pagination
     implicit val implFmt = format
@@ -29,6 +36,13 @@ trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperCont
     )
   }
 
+  /**
+    * Search for an address
+    *
+    * @param uprn - uprn to search for
+    * @param format - optional return data; see AddressScheme
+    * @return
+    */
   def uprnSearch(uprn: String, format: Option[AddressScheme]): Future[RichSearchResponse] = {
     implicit val implFmt = format
     esRepo queryUprn uprn
