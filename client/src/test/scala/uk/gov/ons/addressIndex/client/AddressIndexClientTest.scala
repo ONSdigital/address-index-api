@@ -136,13 +136,13 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
 
 class AugOptFormatTest extends FlatSpec with Matchers {
 
-  it should "append paf format param when `Some(PostcodeAddressFile)" in {
+  it should "append paf format param when `Some(PostcodeAddressFile)`" in {
     val actual = apiClient.client.url(apiHost).formatOptionalQueryString(Some(PostcodeAddressFile("paf"))).queryString
     val expected = Map("format" -> Seq("paf"))
     actual shouldBe expected
   }
 
-  it should "append paf format param when `Some(BritishStandard7666)" in {
+  it should "append paf format param when `Some(BritishStandard7666)`" in {
     val actual = apiClient.client.url(apiHost).formatOptionalQueryString(Some(BritishStandard7666("bs"))).queryString
     val expected = Map("format" -> Seq("bs"))
     actual shouldBe expected
