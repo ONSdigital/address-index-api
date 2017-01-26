@@ -2,7 +2,6 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.data.Forms._
 import play.api.data._
@@ -12,12 +11,8 @@ import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
+import uk.gov.ons.addressIndex.model.server.response.Container$
 import scala.util.Try
 
 case class BulkRequest(inputs: Seq[String])
@@ -102,16 +97,17 @@ class SingleMatchController @Inject()(
           Ok(viewToRender)
       )
     } else {
+      import AddressScheme._
       logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
-          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().getOrElse(PostcodeAddressFile("paf")),
+          format = Some(formatText.stringToScheme).getOrElse(Some(PostcodeAddressFile("paf"))),
           input = addressText,
           limit = "10",
           offset = "0",
           id = UUID.randomUUID
         )
-      ) map { resp: AddressBySearchResponseContainer =>
+      ) map { resp: Container =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
 
         val nags = resp.response.addresses.flatMap(_.nag)
@@ -133,7 +129,7 @@ class SingleMatchController @Inject()(
     apiClient.addressQueriesBulkMimic(
       requests = request.body.inputs map { input =>
         AddressIndexSearchRequest(
-          format = PostcodeAddressFile("paf"),
+          format = Some(PostcodeAddressFile("paf")),
           input = input,
           limit = "10",
           offset = "0",

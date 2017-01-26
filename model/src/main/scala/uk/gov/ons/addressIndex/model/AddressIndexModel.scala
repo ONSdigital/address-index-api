@@ -3,13 +3,13 @@ package uk.gov.ons.addressIndex.model
 import java.util.UUID
 
 case class AddressIndexUPRNRequest(
-  format: AddressScheme,
+  format: Option[AddressScheme],
   uprn: BigInt,
   id: UUID
 )
 
 case class AddressIndexSearchRequest(
-  format: AddressScheme,
+  format: Option[AddressScheme],
   input: String,
   limit: String,
   offset: String,
@@ -30,9 +30,9 @@ object AddressScheme {
     */
   implicit class StringToAddressSchemeAugmenter(str: String) {
     def stringToScheme(): Option[AddressScheme] = str.toLowerCase match {
-      case "paf" | "postcodeaddressfile" => Some(PostcodeAddressFile(str))
+      case "paf" | "postcodeaddressfile" => Some(PostcodeAddressFile("paf"))
 
-      case "bs" | "bs7666" | "britishstandard7666" => Some(BritishStandard7666(str))
+      case "bs" | "bs7666" | "britishstandard7666" => Some(BritishStandard7666("lpi"))
 
       case _ => None
     }

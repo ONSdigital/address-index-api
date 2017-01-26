@@ -41,7 +41,7 @@
                     <div class="alert alert-success">
                         <div class="matchResults">
                             <div class="resultRow">
-                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.getOrElse(underlyingScore, 0)))
                                     (
                                     @defining(if ((address.underlyingScore / address.underlyingMaxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
                                     <span style="background-color: @color">
