@@ -125,15 +125,7 @@ class ElasticSearchRepositorySpec extends FlatSpec with ElasticSugar with Matche
     implicit val format: Option[AddressScheme] = Formats.none
     val actual = (repo queryAddressSearchDefinition tokens).toString.normalise
     val expected = """
-                     |{
-                     |   "from" : 0,
-                     |   "size" : 10,
-                     |   "query" : {
-                     |       "query_string" : {
-                     |           "query" : "wd244re"
-                     |       }
-                     |   }
-                     |}
+                     |{"from":0,"size":10,"query":{"bool":{"should":[{"match":{"lpi.postcodeLocator":{"query":"wd244re","type":"boolean"}}},{"match":{"paf.postcode":{"query":"wd244re","type":"boolean"}}},{"match":{"_all":{"query":"wd244re","type":"boolean"}}}]}}}
                    """.stripMargin.normalise
 
     actual shouldBe expected
@@ -153,19 +145,7 @@ class ElasticSearchRepositorySpec extends FlatSpec with ElasticSugar with Matche
     implicit val format: Option[AddressScheme] = Formats.paf
     val actual = (repo queryAddressSearchDefinition tokens).toString.normalise
     val expected = """
-                     |{
-                     |   "from" : 0,
-                     |   "size" : 10,
-                     |   "query" : {
-                     |       "query_string" : {
-                     |           "query" : "wd244re"
-                     |       }
-                     |   },
-                     |   "_source" : {
-                     |       "includes":[],
-                     |       "excludes":["lpi"]
-                     |   }
-                     |}
+                     |{"from":0,"size":10,"query":{"bool":{"should":[{"match":{"lpi.postcodeLocator":{"query":"wd244re","type":"boolean"}}},{"match":{"paf.postcode":{"query":"wd244re","type":"boolean"}}},{"match":{"_all":{"query":"wd244re","type":"boolean"}}}]}},"_source":{"includes":[],"excludes":["lpi"]}}
                    """.stripMargin.normalise
 
     actual shouldBe expected
@@ -185,19 +165,7 @@ class ElasticSearchRepositorySpec extends FlatSpec with ElasticSugar with Matche
     implicit val format: Option[AddressScheme] = Formats.nag
     val actual = (repo queryAddressSearchDefinition tokens).toString.normalise
     val expected = """
-                     |{
-                     |   "from" : 0,
-                     |   "size" : 10,
-                     |   "query" : {
-                     |       "query_string" : {
-                     |           "query" : "wd244re"
-                     |       }
-                     |   },
-                     |   "_source" : {
-                     |       "includes":[],
-                     |       "excludes":["paf"]
-                     |   }
-                     |}
+                     |{"from":0,"size":10,"query":{"bool":{"should":[{"match":{"lpi.postcodeLocator":{"query":"wd244re","type":"boolean"}}},{"match":{"paf.postcode":{"query":"wd244re","type":"boolean"}}},{"match":{"_all":{"query":"wd244re","type":"boolean"}}}]}},"_source":{"includes":[],"excludes":["paf"]}}
                    """.stripMargin.normalise
 
     actual shouldBe expected
