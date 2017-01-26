@@ -1,0 +1,9 @@
+@import uk.gov.ons.addressIndex.model.server.response.NAGWithFormat
+@import uk.gov.ons.addressIndex.model.server.response.Geo
+@(nagWithFormat: NAGWithFormat)
+
+@defining(nagWithFormat.nag.geo) { geo: Geo =>
+    <div class="map-link-txt">
+        <a href="https://maps.google.com/?q=@{geo.latitude},@{geo.longitude}&ll=@{geo.latitude},@{geo.longitude}&z=20&t=h" target="_blank">Open Map</a>
+    </div>
+}

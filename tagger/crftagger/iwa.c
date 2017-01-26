@@ -43,6 +43,8 @@ typedef struct {
 } iwa_string_t;
 
 struct tag_iwa {
+    FILE *fp;
+
     iwa_token_t token;
 
     char *items;
@@ -115,6 +117,36 @@ error_exit:
     return NULL;
 }
 
+iwa_t* iwa_reader(FILE *fp)
+{
+    iwa_t* iwa = (iwa_t*)malloc(sizeof(iwa_t));
+
+    if (iwa == NULL) {
+        goto error_exit;
+    }
+
+    memset(iwa, 0, sizeof(iwa_t));
+
+    iwa->fp = fp;
+
+    iwa->buffer = (char*)malloc(sizeof(char) * BUFFER_SIZE);
+    iwa->offset = iwa->buffer + BUFFER_SIZE;
+    iwa->end = iwa->buffer + BUFFER_SIZE;
+
+    if (iwa->buffer == NULL) {
+        goto error_exit;
+    }
+
+    string_init(&iwa->attr);
+    string_init(&iwa->value);
+
+    return iwa;
+
+error_exit:
+    iwa_delete(iwa);
+    return NULL;
+}
+
 void iwa_delete(iwa_t* iwa)
 {
     if (iwa != NULL) {
@@ -124,14 +156,25 @@ void iwa_delete(iwa_t* iwa)
         free(iwa->items);
         free(iwa->buffer);
     }
-    
     free(iwa);
 }
 
 static int peek_char(iwa_t* iwa)
 {
-    if (iwa->offset >= iwa->end) {
-        return EOF;
+    if (iwa->fp) {
+        /* Refill the buffer if necessary. */
+        if (iwa->end <= iwa->offset) {
+            size_t count = fread(iwa->buffer, sizeof(char), BUFFER_SIZE, iwa->fp);
+            iwa->offset = iwa->buffer;
+            iwa->end = iwa->buffer + count;
+            if (count == 0) {
+                return EOF;
+            }
+        }
+    } else {
+        if (iwa->offset >= iwa->end) {
+            return EOF;
+        }
     }
 
     /* Return the current character */

@@ -1,111 +1,140 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
 
-  def searchContainerTemplate(
-    tokens: Seq[CrfTokenResult],
-    addresses: Seq[AddressResponseAddress],
-    total: Int,
-    limit: Int,
-    offset: Int
-  ): AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = AddressBySearchResponse(
-        tokens = tokens
-          .groupBy(_.label).map { case (tkn, seqTknRslt) =>
-            CrfTokenResult(
-              value = tkn,
-              label = seqTknRslt.map(_.value).mkString(" ")
-            )
-          }.toSeq,
-        addresses = addresses,
-        limit = limit,
-        offset = offset,
-        total = addresses.size
-      ),
-      status = OkAddressResponseStatus
+  def searchUprnContainerTemplate(optAddresses: Option[AddressInformation]): Container = {
+    Container(
+      status = PredefStatus.Ok
     )
   }
 
-  def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
-    AddressByUprnResponseContainer(
-      response = AddressByUprnResponse(
-        address = optAddresses
-      ),
-      status = OkAddressResponseStatus
+  def NoAddressFoundUprn: Container = {
+    Container(
+      status = PredefStatus.BadRequest,
+      errors = Some(Seq(PredefError.NotFound))
     )
   }
 
-  def NoAddressFoundUprn: AddressByUprnResponseContainer = {
-    AddressByUprnResponseContainer(
-      response = AddressByUprnResponse(
-        address = None
-      ),
-      status = NotFoundAddressResponseStatus,
-      errors = Seq(NotFoundAddressResponseError)
+  def UnsupportedFormatUprn: Container = {
+    Container(
+      status = PredefStatus.BadRequest,
+      errors = Some(Seq(PredefError.FormatNotSupported))
     )
   }
 
-  def UnsupportedFormatUprn: AddressByUprnResponseContainer = {
-    AddressByUprnResponseContainer(
-      response = AddressByUprnResponse(
-        address = None
-      ),
-      status = BadRequestAddressResponseStatus,
-      errors = Seq(FormatNotSupportedAddressResponseError)
+  private def BadRequestTemplate(errors: Error*): Container = {
+    Container(
+      response = None,
+      status = PredefStatus.BadRequest,
+      errors = Some(errors)
     )
   }
 
-  private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = Error,
-      status = BadRequestAddressResponseStatus,
-      errors = errors
-    )
+  def OffsetNotNumeric: Container = {
+    BadRequestTemplate(PredefError.OffsetNotNumeric)
   }
 
-  def OffsetNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  def LimitNotNumeric: Container = {
+    BadRequestTemplate(PredefError.LimitNotNumeric)
   }
 
-  def LimitNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitNotNumericAddressResponseError)
+  def LimitTooSmall: Container = {
+    BadRequestTemplate(PredefError.LimitTooSmall)
   }
 
-  def LimitTooSmall: AddressBySearchResponseContainer = {
-      BadRequestTemplate(LimitTooSmallAddressResponseError)
+  def OffsetTooSmall: Container = {
+    BadRequestTemplate(PredefError.OffsetTooSmall)
   }
 
-  def OffsetTooSmall: AddressBySearchResponseContainer = {
-      BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  def LimitTooLarge: Container = {
+    BadRequestTemplate(PredefError.LimitTooLarge)
   }
 
-  def LimitTooLarge: AddressBySearchResponseContainer = {
-      BadRequestTemplate(LimitTooLargeAddressResponseError)
+  def OffsetTooLarge: Container = {
+    BadRequestTemplate(PredefError.OffsetTooLarge)
   }
 
-  def OffsetTooLarge: AddressBySearchResponseContainer = {
-      BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  def UnsupportedFormat: Container = {
+    BadRequestTemplate(PredefError.FormatNotSupported)
   }
 
-  def UnsupportedFormat: AddressBySearchResponseContainer = {
-      BadRequestTemplate(FormatNotSupportedAddressResponseError)
+  def EmptySearch: Container = {
+    BadRequestTemplate(PredefError.EmptyQuery)
   }
 
-  def EmptySearch: AddressBySearchResponseContainer = {
-      BadRequestTemplate(EmptyQueryAddressResponseError)
-  }
-
-  def Error: AddressBySearchResponse = {
-    AddressBySearchResponse(
+  def ErrorResults: Results = {
+    Results(
       Seq.empty,
-      addresses = Seq.empty,
+      addresses = None,
       limit = 10,
       offset = 0,
       total = 0
+    )
+  }
+
+  object PredefError {
+    object EmptyQuery extends Error(
+      code = 1,
+      message = "Empty query"
+    )
+
+    object FormatNotSupported extends Error(
+      code = 2,
+      message = "Address format is not supported"
+    )
+
+    object NotFound extends Error(
+      code = 3,
+      message = "UPRN request didn't yield a result"
+    )
+
+    object LimitNotNumeric extends Error(
+      code = 4,
+      message = "Limit parameter not numeric"
+    )
+
+    object OffsetNotNumeric extends Error(
+      code = 5,
+      message = "Offset parameter not numeric"
+    )
+
+    object LimitTooSmall extends Error(
+      code = 6,
+      message = "Limit parameter too small, minimum = 1"
+    )
+
+    object OffsetTooSmall extends Error(
+      code = 7,
+      message = "Offset parameter too small, minimum = 0"
+    )
+
+    object LimitTooLarge extends Error(
+      code = 8,
+      message = "Limit parameter too large (maximum configurable)"
+    )
+
+    object OffsetTooLarge extends Error(
+      code = 9,
+      message = "Offset parameter too large (maximum configurable)"
+    )
+  }
+
+  object PredefStatus {
+    object Ok extends Status(
+      code = play.api.http.Status.OK,
+      message = "Ok"
+    )
+
+    object NotFound extends Status(
+      code = play.api.http.Status.NOT_FOUND,
+      message = "Not Found"
+    )
+
+    object BadRequest extends Status(
+      code = play.api.http.Status.BAD_REQUEST,
+      message = "Bad request"
     )
   }
 }

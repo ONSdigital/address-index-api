@@ -35,21 +35,22 @@ $ xcode-select --install
 ```
 $ cd /path/to/address-index-api/tagger/crftagger
 
-# build liblbfgs first
-$ cd liblbfgs
+# build libbfgs first
+$ cd libbfgs
 $ ./configure --prefix=$HOME/local
-$ make clean && make
+$ make
 $ make install
 
-# then build crfsuite (depends on liblbfgs)
+# then build crfsuite (depends on libbfgs)
 $ cd ../crfsuite
 $ ./configure --prefix=$HOME/local --with-liblbfgs=$HOME/local
-$ make clean && make # you will see some warnings re inline assignments but these can be ignored
+$ make
 $ make install
 
-# finally, build the tagger (depends on crfsuite and liblbfgs)
+# finally, build the tagger (depends on crfsuite and libbfgs)
 $ cd ../crftagger
-$ make clean && make
+$ make
+$ make install
 ```
 
 ### Testing on macOS
@@ -62,3 +63,9 @@ $ scalac uk/gov/ons/addressIndex/crfscala/CrfScalaJniImpl.scala test.scala
 # run the simple multi-threading test
 $ scala Test
 ```
+
+## Building on Windows
+TODO
+
+## Building on CentOS
+TODO

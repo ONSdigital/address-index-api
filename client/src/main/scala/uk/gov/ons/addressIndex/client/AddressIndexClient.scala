@@ -1,10 +1,12 @@
 package uk.gov.ons.addressIndex.client
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
+import play.api.Logger
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressScheme}
+import uk.gov.ons.addressIndex.model.server.response.Container
+import AddressIndexClientHelper.{AddressIndexPathToWsAugmenter, AddressIndexServerHost, AddressQuery, AugOptFormat, UprnQuery}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 trait AddressIndexClient {
 
@@ -28,17 +30,25 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def addressQuery(request: AddressIndexSearchRequest)
-    (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+    (implicit ec: ExecutionContext): Future[Container] = {
+    addressQueryWSRequest(request).get.map(_.json.as[Container])
+  }
+
+  /**
+    * testable method for addressQuery
+    *
+    * @param request
+    * @return
+    */
+  def addressQueryWSRequest(request: AddressIndexSearchRequest): WSRequest = {
     AddressQuery
       .toReq
+      .formatOptionalQueryString(request.format)
       .withQueryString(
         "input" -> request.input,
-        "format" -> request.format.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
-      .get
-      .map(_.json.as[AddressBySearchResponseContainer])
   }
 
   /**
@@ -48,7 +58,7 @@ trait AddressIndexClient {
     * @return a list of addresses for each request, in order of the requests
     */
   def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])
-    (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
+    (implicit ec: ExecutionContext): Future[Seq[Container]] = {
     Future sequence(requests map addressQuery)
   }
 
@@ -59,16 +69,32 @@ trait AddressIndexClient {
     * @return an address
     */
   def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
+    urpnQueryWSRequest(request).get
+  }
+
+  /**
+    * testable method for uprnQuery
+    *
+    * @param request
+    * @return
+    */
+  def urpnQueryWSRequest(request: AddressIndexUPRNRequest): WSRequest = {
     UprnQuery(request.uprn.toString)
       .toReq
-      .withQueryString(
-        "format" -> request.format.toString
-      )
-      .get
+      .formatOptionalQueryString(request.format)
   }
 }
 
+
 object AddressIndexClientHelper {
+
+  implicit class AugOptFormat(req: WSRequest) {
+    def formatOptionalQueryString(format: Option[AddressScheme]): WSRequest = {
+      format.map(fmt => req.withQueryString("format" -> fmt.toString)).getOrElse(req)
+    }
+  }
+
+  private val logger = Logger("Client Interface")
 
   implicit def str2host(h: String): AddressIndexServerHost = AddressIndexServerHost(h)
 
@@ -77,7 +103,11 @@ object AddressIndexClientHelper {
   implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)
     (implicit client: WSClient, host: AddressIndexServerHost) {
     def toReq(): WSRequest = {
-      client url s"${host.value}${p.path}" withMethod p.path
+      val url =  s"${host.value}${p.path}"
+      //client.url(url).withMethod(p.path)
+      val r = client url url withMethod p.path
+      logger info s"requesting to: $url\nwith: ${p.path}\nwith query: ${r.queryString}"
+      r
     }
   }
 

@@ -18,10 +18,7 @@ POST    /addresses/search                       uk.gov.ons.addressIndex.demoui.c
 GET    /addresses/search                        uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search/:input/:format         uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, format: String)
-
-# ONS-Address Index Single Search Request
-GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, format: String = "paf")
+GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String)
 
 # ONS-Address Index Bulk Mimic Upload
 POST    /addresses/mimicBulk                    uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithBulk
