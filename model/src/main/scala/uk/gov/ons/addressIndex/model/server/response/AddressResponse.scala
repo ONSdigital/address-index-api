@@ -230,9 +230,9 @@ case class NAG(
   addressBasePostal: String,
   usrn: String,
   lpiKey: String,
-  pao: PAO,
-  sao: SAO,
-  geo: GEO,
+  pao: PrimaryAddressableObject,
+  sao: SecondaryAddressableObject,
+  geo: Geo,
   level: String,
   officialFlag: String,
   logicalStatus: String,
@@ -241,14 +241,14 @@ case class NAG(
   locality: String,
   organisation: String,
   legalName: String,
-  classificationCode: String
+classificationCode: String
 )
 
 object NAG {
   implicit lazy val fmt: Format[NAG] = Json.format[NAG]
 }
 
-case class PAO(
+case class PrimaryAddressableObject(
   text: String,
   startNumber: String,
   paoStartSuffix: String,
@@ -256,11 +256,11 @@ case class PAO(
   paoEndSuffix: String
 )
 
-object PAO {
-  implicit lazy val fmt: Format[PAO] = Json.format[PAO]
+object PrimaryAddressableObject {
+  implicit lazy val fmt: Format[PrimaryAddressableObject] = Json.format[PrimaryAddressableObject]
 }
 
-case class SAO(
+case class SecondaryAddressableObject(
   text: String,
   startNumber: String,
   startSuffix: String,
@@ -268,19 +268,19 @@ case class SAO(
   endSuffix: String
 )
 
-object SAO {
-  implicit lazy val fmt: Format[SAO] = Json.format[SAO]
+object SecondaryAddressableObject {
+  implicit lazy val fmt: Format[SecondaryAddressableObject] = Json.format[SecondaryAddressableObject]
 }
 
-case class GEO(
+case class Geo(
   latitude: Double,
   longitude: Double,
   easting: Double,
   northing: Double
 )
 
-object GEO {
-  implicit lazy val fmt: Format[GEO] = Json.format[GEO]
+object Geo {
+  implicit lazy val fmt: Format[Geo] = Json.format[Geo]
 }
 
 case class Status(

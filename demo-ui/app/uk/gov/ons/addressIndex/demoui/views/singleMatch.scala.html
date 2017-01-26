@@ -1,7 +1,7 @@
 @import uk.gov.ons.addressIndex.model.server.response.AddressInformation
 @import uk.gov.ons.addressIndex.model.server.response.NAGWithFormat
 @import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-@import uk.gov.ons.addressIndex.model.server.response.GEO
+@import uk.gov.ons.addressIndex.model.server.response.Geo$
 @import uk.gov.ons.addressIndex.demoui.views.SingleMatchHelper
 
 @import play.twirl.api.Html
@@ -70,7 +70,7 @@
                                                         <span>@address.uprn</span>
                                                     </div>
 
-                                                    @optAddressWithFormat.map(_.nag.geo).map { geo: GEO =>
+                                                    @optAddressWithFormat.map(_.nag.geo).map { geo: Geo =>
                                                         <div class="map-link-txt">
                                                             <a href="https://maps.google.com/?q=@{geo.latitude},@{geo.longitude}&ll=@{geo.latitude},@{geo.longitude}&z=20&t=h" target="_blank">Open Map</a>
                                                         </div>

@@ -64,21 +64,21 @@ case class NationalAddressGazetteer(
         addressBasePostal = addressBasePostal,
         usrn = usrn,
         lpiKey = lpiKey,
-        pao = PAO(
+        pao = PrimaryAddressableObject(
           text = paoText,
           startNumber = paoStartNumber,
           paoStartSuffix = paoStartSuffix,
           paoEndNumber = paoEndNumber,
           paoEndSuffix = paoEndSuffix
         ),
-        sao = SAO(
+        sao = SecondaryAddressableObject(
           text = saoText,
           startNumber = saoStartNumber,
           startSuffix = saoStartSuffix,
           endNumber = saoEndNumber,
           endSuffix = saoEndSuffix
         ),
-        geo = GEO(
+        geo = Geo(
           latitude = latitude.toDouble,
           longitude = longitude.toDouble,
           easting = easting.toDouble,

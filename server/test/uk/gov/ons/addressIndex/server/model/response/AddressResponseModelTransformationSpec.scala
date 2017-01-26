@@ -166,21 +166,21 @@ class AddressResponseModelTransformationSpec extends WordSpec with Matchers {
                 nag.addressBasePostal,
                 nag.usrn,
                 nag.lpiKey,
-                pao = PAO(
+                pao = PrimaryAddressableObject(
                   nag.paoText,
                   nag.paoStartNumber,
                   nag.paoStartSuffix,
                   nag.paoEndNumber,
                   nag.paoEndSuffix
                 ),
-                sao = SAO(
+                sao = SecondaryAddressableObject(
                   nag.saoText,
                   nag.saoStartNumber,
                   nag.saoStartSuffix,
                   nag.saoEndNumber,
                   nag.saoEndSuffix
                 ),
-                geo = GEO(
+                geo = Geo(
                   nag.latitude.toDouble,
                   nag.longitude.toDouble,
                   nag.easting.toDouble,
