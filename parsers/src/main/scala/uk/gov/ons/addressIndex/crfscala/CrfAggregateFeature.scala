@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.CrfAggregateFeatureAnalyser
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfToken, CrfTokens}
 
 //todo scaladoc
 trait CrfAggregateFeature[T] {
@@ -17,5 +16,5 @@ trait CrfAggregateFeature[T] {
   def name: String
 
   //todo scaladoc
-  def analyse(token: CrfToken, tokens: CrfTokens): T = analyser apply(tokens, token)
+  def analyse(token: String, tokens: Array[String]): T = analyser apply(tokens, token)
 }
