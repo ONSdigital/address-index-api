@@ -1,13 +1,14 @@
-package uk.gov.ons.addressIndex.demoui.modules
+package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.SearchDefinition
-import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
+import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 
 object ElasticDsl {
   case class Pagination(offset: Int, limit: Int)
   implicit class AutoPaginate(searchDefinition: SearchDefinition) {
     def paginate(implicit p: Pagination): SearchDefinition = {
+      //searchDefinition.start(p.offset).limit(p.limit)
       searchDefinition start p.offset limit p.limit
     }
   }

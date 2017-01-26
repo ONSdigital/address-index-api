@@ -4,7 +4,8 @@ import com.sksamuel.elastic4s.RichSearchResponse
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.AddressScheme
 import uk.gov.ons.addressIndex.server.controllers.PlayHelperController
-import uk.gov.ons.addressIndex.server.modules.Model.Pagination
+import uk.gov.ons.addressIndex.server.modules.ElasticDsl.Pagination
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexActions { self: AddressIndexCannedResponse with PlayHelperController =>

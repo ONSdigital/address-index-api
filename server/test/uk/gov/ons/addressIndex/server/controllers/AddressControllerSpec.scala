@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.AddressScheme
 import uk.gov.ons.addressIndex.model.config.{AddressIndexConfig, ElasticSearchConfig, IndexesConfig, ShieldConfig}
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
-import uk.gov.ons.addressIndex.server.modules.Model.Pagination
+import uk.gov.ons.addressIndex.server.modules.ElasticDsl.Pagination
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

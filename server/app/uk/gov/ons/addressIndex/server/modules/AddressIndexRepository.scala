@@ -9,27 +9,8 @@ import play.api.Logger
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.model.db.index.HybridIndex
-import uk.gov.ons.addressIndex.server.modules.Model._
+import uk.gov.ons.addressIndex.server.modules.ElasticDsl._
 import scala.concurrent.{ExecutionContext, Future}
-
-object Model {
-  case class Pagination(offset: Int, limit: Int)
-  implicit class AutoPaginate(searchDefinition: SearchDefinition) {
-    def paginate(implicit p: Pagination): SearchDefinition = {
-      searchDefinition start p.offset limit p.limit
-    }
-  }
-
-  implicit class AutoSource(searchDefinition: SearchDefinition) {
-    def format(implicit optFmt: Option[AddressScheme]) = {
-      optFmt map {
-        case _: PostcodeAddressFile => searchDefinition sourceExclude HybridIndex.Fields.lpi
-        case _: BritishStandard7666 => searchDefinition sourceExclude HybridIndex.Fields.paf
-      } getOrElse searchDefinition
-    }
-  }
-}
-
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticSearchRepository {
 

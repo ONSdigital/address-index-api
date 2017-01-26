@@ -114,6 +114,13 @@ object Model {
   }
 }
 
+/**
+  * Container for all responses
+  *
+  * @param response - results from ES
+  * @param status - status from server
+  * @param errors - any errors which occurred
+  */
 case class Container(
   response: Option[Results] = None,
   status: Status,
@@ -144,7 +151,7 @@ object Container {
                 uprn = sHybrid.uprn,
                 paf = sHybrid.paf.map(_.map(_.toPAFWithFormat)),
                 nag = sHybrid.lpi.map(_.map(_.toNagWithFormat)),
-                underlyingScore = sHybrid.score,//??
+                underlyingScore = sHybrid.score,
                 underlyingMaxScore = maxScore
               )
             }

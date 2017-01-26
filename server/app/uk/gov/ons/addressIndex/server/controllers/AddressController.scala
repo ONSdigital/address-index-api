@@ -7,7 +7,7 @@ import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.ExecutionContext
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 import uk.gov.ons.addressIndex.parsers.Implicits._
-import uk.gov.ons.addressIndex.server.modules.Model.Pagination
+import uk.gov.ons.addressIndex.server.modules.ElasticDsl.Pagination
 import scala.util.Try
 import uk.gov.ons.addressIndex.model.AddressScheme._
 import uk.gov.ons.addressIndex.model.server.response.Container

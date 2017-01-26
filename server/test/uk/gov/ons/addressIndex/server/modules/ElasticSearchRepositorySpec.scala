@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{AddressScheme, BritishStandard7666, PostcodeAddressFile}
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import uk.gov.ons.addressIndex.server.modules.Model.Pagination
+import uk.gov.ons.addressIndex.server.modules.ElasticDsl.Pagination
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticSearchRepositorySpec extends FlatSpec with ElasticSugar with Matchers {
