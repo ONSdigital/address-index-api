@@ -91,7 +91,7 @@ p.toptext {
     margin-top: 0px;
     margin-bottom: 10px;
     min-width: 300px;
-    max-width: 600px;
+    max-width: 900px;
     border-bottom:2px solid #ddd;
     border-top: 0px;
     border-left: 0px;
@@ -324,20 +324,9 @@ div.matchResults{
     width: 100%;
 }
 
-div.classification{
-    text-align:left;
-    float: left;
-    width: 100%;
-}
-
 div.match-conf{
     text-align:right;
     white-space:nowrap;
-    float: left;
-    width: 100%;
-}
-
-div.formattedAddress{
     float: left;
     width: 100%;
 }

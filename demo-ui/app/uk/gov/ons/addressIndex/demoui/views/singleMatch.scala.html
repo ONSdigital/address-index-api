@@ -59,10 +59,8 @@
                                             </div>
                                             @defining(SingleMatchHelper.getApprovedNAG(address)) { optAddressWithFormat: Option[NAGWithFormat] =>
                                                 <div class="resultRow">
-                                                    <div class="formattedAdress">
-                                                        <strong>@messages("single.address"):</strong>
-                                                        <span>@optAddressWithFormat.map(_.formattedAddress)</span>
-                                                    </div>
+                                                    <strong>@messages("single.address"):</strong>
+                                                    <span>@optAddressWithFormat.map(_.formattedAddress)</span>
                                                 </div>
                                                 <div class="resultRow">
                                                     <div class="uprn-txt">
@@ -78,10 +76,8 @@
 
                                                 </div>
                                                 <div class="resultRow">
-                                                    <div class="classification">
-                                                        <strong>Classification:</strong>
-                                                        <span>@SingleMatchHelper.getClassificationCode(address, classHierarchy)</span>
-                                                    </div>
+                                                    <strong>Classification:</strong>
+                                                    <span>@SingleMatchHelper.getClassificationCode(address, classHierarchy)</span>
                                                 </div>
                                             }
                                         </div>

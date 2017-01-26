@@ -8,7 +8,11 @@ CCFLAGS=-fPIC -DHAVE_CONFIG_H -mfpmath=sse -msse2 -DUSE_SSE -O3 -fomit-frame-poi
 ifeq ($(OS),Windows_NT)
 	OSNAME=Windows
 	TARGET=libcrftagger.dll
-	RM=del
+
+	LIB=$(HOME)/local/win/lib
+
+	export CPATH=$(HOME)/local/win/include:/usr/java/latest/include:/usr/lib/jvm/java-1.8.0/include:/usr/lib/jvm/java-1.8.0/include/linux:/usr/java/latest/include/linux
+
 else
 	UNAME=$(shell uname -s)
 
@@ -25,7 +29,7 @@ else
 		OBJ=crftagger.o crfjni.o iwa.o
 		LIB_OPTIONS=-l:libcrfsuite.a -l:libcqdb.a -l:liblbfgs.a
 
-		export CPATH=$(HOME)/local/include:/usr/java/latest/include:/usr/java/latest/include/linux
+		export CPATH=$(HOME)/local/include:/usr/java/latest/include:/usr/lib/jvm/java-1.8.0/include:/usr/lib/jvm/java-1.8.0/include/linux:/usr/java/latest/include/linux
 	endif
 endif
 
