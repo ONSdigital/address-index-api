@@ -74,14 +74,22 @@ case class DemouiConfig (
   customErrorDev: Boolean,
   customErrorTest: Boolean,
   customErrorProd: Boolean,
-  apiURL: ApiConfig
-)
+  apiURL: ApiConfig,
+  limit: Int,
+  offset: Int,
+  maxLimit: Int,
+  maxOffset: Int
+ )
 
 object DemouiConfig {
   val default: DemouiConfig = DemouiConfig(
     customErrorDev = false,
     customErrorTest = false,
     customErrorProd = true,
-    apiURL = ApiConfig.default
+    apiURL = ApiConfig.default,
+    limit = ElasticSearchConfig.default.defaultLimit,
+    offset = ElasticSearchConfig.default.defaultOffset,
+    maxLimit = ElasticSearchConfig.default.maximumLimit,
+    maxOffset = ElasticSearchConfig.default.maximumOffset
   )
 }

@@ -1,5 +1,15 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse], classification: Option[Map[String,String]])(implicit messages: Messages)
 @import helper._
+
+@(
+    singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+    warningMessage : Option[String],
+    addressFormat: String,
+    pageNum: Int,
+    pageSize: Int,
+    pageMax: Int,
+    addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+    classification: Option[Map[String,String]]
+)(implicit messages: Messages)
 
 @*
  * Call the `main` template with two arguments. The first
@@ -83,7 +93,9 @@
                         </div>
                     </div>
                 </div>
-            </div>}
+            </div>
+            }
+            @pager(addressFormat, pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total)
             }
         </div>
         <div class="panel panel-single address-panel">

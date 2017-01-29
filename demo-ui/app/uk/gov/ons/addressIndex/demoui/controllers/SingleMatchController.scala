@@ -41,6 +41,9 @@ class SingleMatchController @Inject()(
 )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("SingleMatchController")
+  val pageSize = conf.config.limit
+  val maxOff = conf.config.maxOffset
+  val maxPages = (maxOff + pageSize - 1) / pageSize
 
   /**
     * Present empty form for user to input address
@@ -51,6 +54,10 @@ class SingleMatchController @Inject()(
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
+      addressFormat = "paf",
+      pageNum = 1,
+      pageSize = pageSize,
+      pageMax = maxPages,
       addressBySearchResponse = None,
       classification = None)
     Future.successful(
@@ -72,6 +79,10 @@ class SingleMatchController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
+        addressFormat = addressFormat,
+        pageNum = 1,
+        pageSize = pageSize,
+        pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None)
       Future.successful(
@@ -79,7 +90,7 @@ class SingleMatchController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText,addressFormat))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText,addressFormat, Some(1)))
       )
     }
   }
@@ -89,13 +100,24 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doMatchWithInput(input : String, formatText: String) : Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input : String, formatText: String, page: Option[Int]) : Action[AnyContent] = Action.async { implicit request =>
     val addressText = input
+    val limit = pageSize.toString()
+    logger info("Limit param = " + limit)
+    val pageNum = page.getOrElse(1)
+    val offNum = (pageNum - 1) * pageSize
+    val offset = offNum.toString
+    logger info("Offset param = " + offset)
+    logger info("Max pages = " + maxPages)
     if (addressText.trim.isEmpty) {
       logger info("Single Match with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
+        addressFormat = formatText,
+        pageNum = 1,
+        pageSize = pageSize,
+        pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None)
         Future.successful(
@@ -106,8 +128,8 @@ class SingleMatchController @Inject()(
       apiClient.addressQuery(
         AddressIndexSearchRequest(
           input = addressText,
-          limit = "10",
-          offset = "0",
+          limit = limit,
+          offset = offset,
           id = UUID.randomUUID
         )
       ) map { resp: AddressBySearchResponseContainer =>
@@ -117,9 +139,18 @@ class SingleMatchController @Inject()(
         val classCodes: Map[String, String] = nags.map(nag =>
           (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
+        val warningMessage =
+          if (resp.status.code == 200) None
+          else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.mkString}")
+
+
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
-          warningMessage = None,
+          warningMessage = warningMessage,
+          addressFormat = formatText,
+          pageNum = pageNum,
+          pageSize = pageSize,
+          pageMax = maxPages,
           addressBySearchResponse = Some(resp.response),
           classification = Some(classCodes))
         Ok(viewToRender)
