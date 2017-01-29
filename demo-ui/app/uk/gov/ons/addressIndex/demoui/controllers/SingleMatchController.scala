@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressScheme, PostcodeAddressFile}
+import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -105,7 +105,6 @@ class SingleMatchController @Inject()(
       logger info("Single Match with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
-          format = AddressScheme.StringToAddressSchemeAugmenter(formatText).stringToScheme().getOrElse(PostcodeAddressFile("paf")),
           input = addressText,
           limit = "10",
           offset = "0",
@@ -133,7 +132,6 @@ class SingleMatchController @Inject()(
     apiClient.addressQueriesBulkMimic(
       requests = request.body.inputs map { input =>
         AddressIndexSearchRequest(
-          format = PostcodeAddressFile("paf"),
           input = input,
           limit = "10",
           offset = "0",

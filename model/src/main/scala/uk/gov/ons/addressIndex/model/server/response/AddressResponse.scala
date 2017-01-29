@@ -2,9 +2,11 @@ package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+
 import scala.util.Try
+
 
 /**
   * Contains the reply for address by uprn request
@@ -69,7 +71,8 @@ case class AddressBySearchResponse(
   addresses: Seq[AddressResponseAddress],
   limit: Int,
   offset: Int,
-  total: Int
+  total: Long,
+  maxScore: Float
 )
 
 object AddressBySearchResponse {
@@ -110,9 +113,7 @@ object AddressTokens {
   * @param formattedAddress   cannonical address form
   * @param paf                optional, information from Paf index
   * @param nag                optional, information from Nag index
-  * @param geo                optional, geo information
   * @param underlyingScore    score from elastic search
-  * @param underlyingMaxScore maximum score in the elastic result
   */
 case class AddressResponseAddress(
   uprn: String,
@@ -120,173 +121,43 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  underlyingScore: Float,
-  underlyingMaxScore: Float
+  underlyingScore: Float
 )
 
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
 
   /**
-    * Transforms Paf address from elastic search into the Response address
-    *
-    * @param maxScore elastic's response maximum score
-    * @param other
+    * Transforms hybrid object returned by ES into an Address that will be in the json response
+    * @param other HybridAddress from ES
     * @return
     */
-  def fromPafAddress(maxScore: Float)(other: PostcodeAddressFileAddress): AddressResponseAddress = {
-    AddressResponseAddress(
-      uprn = other.uprn,
-      formattedAddress = generateFormattedAddress(other),
-      paf = Some(AddressResponsePaf(
-        other.udprn,
-        other.organizationName,
-        other.departmentName,
-        other.subBuildingName,
-        other.buildingName,
-        other.buildingNumber,
-        other.dependentThoroughfare,
-        other.thoroughfare,
-        other.doubleDependentLocality,
-        other.dependentLocality,
-        other.postTown,
-        other.postcode,
-        other.postcodeType,
-        other.deliveryPointSuffix,
-        other.welshDependentThoroughfare,
-        other.welshThoroughfare,
-        other.welshDoubleDependentLocality,
-        other.welshDependentLocality,
-        other.welshPostTown,
-        other.poBoxNumber,
-        other.startDate,
-        other.endDate
-      )),
-      nag = None,
-      geo = None,
-      underlyingScore = other.score,
-      underlyingMaxScore = maxScore
-    )
-  }
+  def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
 
-  private def generateFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
-    val trimmedThoroughfare = paf.thoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    delimitByComma(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
-      paf.postTown, paf.postcode)
-  }
-
-  private def delimitByComma(parts: String*) = parts.map(_.trim).filter(_.nonEmpty).mkString(", ")
-  /**
-    *
-    * @param other address in elastic's response form
-    * @return
-    */
-  def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponseAddress = fromPafAddress(1.0f)(other)
-
-  /**
-    * Transforms Paf address from elastic search into the Response address
-    *
-    * @param maxScore elastic's response maximum score
-    * @param other
-    * @return
-    */
-  def fromNagAddress(maxScore: Float)(other: NationalAddressGazetteerAddress): AddressResponseAddress = {
-
-    val geo: Try[AddressResponseGeo] = for {
-      latitude <- Try(other.latitude.toDouble)
-      longitude <- Try(other.longitude.toDouble)
-      easting <- Try(other.easting.split("\\.").head.toInt)
-      northing <- Try(other.northing.split("\\.").head.toInt)
-    } yield AddressResponseGeo(latitude, longitude, easting, northing)
+    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi)
 
     AddressResponseAddress(
       uprn = other.uprn,
-      formattedAddress = generateFormattedAddress(other),
-      paf = None,
-      nag = Some(AddressResponseNag(
-        other.uprn,
-        other.postcodeLocator,
-        other.addressBasePostal,
-        other.usrn,
-        other.lpiKey,
-        pao = AddressResponsePao(
-          other.paoText,
-          other.paoStartNumber,
-          other.paoStartSuffix,
-          other.paoEndNumber,
-          other.paoEndSuffix
-        ),
-        sao = AddressResponseSao(
-          other.saoText,
-          other.saoStartNumber,
-          other.saoStartSuffix,
-          other.saoEndNumber,
-          other.saoEndSuffix
-        ),
-        other.level,
-        other.officialFlag,
-        other.logicalStatus,
-        other.streetDescriptor,
-        other.townName,
-        other.locality,
-        other.organisation,
-        other.legalName,
-        other.classificationCode
-      )),
-      geo = geo.toOption,
-      underlyingScore = other.score,
-      underlyingMaxScore = maxScore
+      formattedAddress = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse(""),
+      paf = other.paf.headOption.map(AddressResponsePaf.fromPafAddress),
+      nag = chosenNag.map(AddressResponseNag.fromNagAddress),
+      geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      underlyingScore = other.score
     )
   }
 
   /**
-    * Formatted address should contain commas between all fields except after digits
+    * Gets the right (most often - the most recent) address from an array of NAG addresses
+    * @param addresses list of Nag addresses
+    * @return the NAG address that corresponds to the returned address
     */
-  private def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
-
-    val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
-    val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
-    val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
-    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
-      .map(_.trim).mkString
-    val sao =
-      if (nag.saoText == nag.organisation || nag.saoText.isEmpty) saoNumbers
-      else if (saoNumbers.isEmpty) s"${nag.saoText},"
-      else s"$saoNumbers, ${nag.saoText},"
-
-    val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
-    val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
-    val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
-    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
-      .map(_.trim).mkString
-    val pao =
-      if (nag.paoText == nag.organisation || nag.paoText.isEmpty) paoNumbers
-      else if (paoNumbers.isEmpty) s"${nag.paoText},"
-      else s"${nag.paoText}, $paoNumbers"
-
-    val trimmedStreetDescriptor = nag.streetDescriptor.trim
-    val buildingNumberWithStreetDescription =
-      if (pao.isEmpty) s"$sao $trimmedStreetDescriptor"
-      else if (sao.isEmpty) s"$pao $trimmedStreetDescriptor"
-      else if (pao.isEmpty && sao.isEmpty) trimmedStreetDescriptor
-      else s"$sao $pao $trimmedStreetDescriptor"
-
-    delimitByComma(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-      nag.townName, nag.postcodeLocator)
+  def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress]): Option[NationalAddressGazetteerAddress] ={
+    // "if" is more readable than "getOrElse" in this case
+    if (addresses.exists(_.logicalStatus == "1")) addresses.find(_.logicalStatus == "1")
+    else if (addresses.exists(_.logicalStatus == "6")) addresses.find(_.logicalStatus == "6")
+    else if (addresses.exists(_.logicalStatus == "8")) addresses.find(_.logicalStatus == "8")
+    else addresses.headOption
   }
-
-  def fromNagAddress(other: NationalAddressGazetteerAddress): AddressResponseAddress = fromNagAddress(1.0f)(other)
-
 }
 
 
@@ -343,6 +214,53 @@ case class AddressResponsePaf(
 
 object AddressResponsePaf {
   implicit lazy val addressResponsePafFormat: Format[AddressResponsePaf] = Json.format[AddressResponsePaf]
+
+  def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponsePaf =
+    AddressResponsePaf(
+      other.udprn,
+      other.organizationName,
+      other.departmentName,
+      other.subBuildingName,
+      other.buildingName,
+      other.buildingNumber,
+      other.dependentThoroughfare,
+      other.thoroughfare,
+      other.doubleDependentLocality,
+      other.dependentLocality,
+      other.postTown,
+      other.postcode,
+      other.postcodeType,
+      other.deliveryPointSuffix,
+      other.welshDependentThoroughfare,
+      other.welshThoroughfare,
+      other.welshDoubleDependentLocality,
+      other.welshDependentLocality,
+      other.welshPostTown,
+      other.poBoxNumber,
+      other.startDate,
+      other.endDate
+    )
+
+  /**
+    * Creates formatted address from PAF address
+    * @param paf PAF address
+    * @return String of formatted address
+    */
+  def generateFormattedAddress(paf: PostcodeAddressFileAddress): String = {
+
+    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
+
+    val trimmedBuildingNumber = paf.buildingNumber.trim
+    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
+    val trimmedThoroughfare = paf.thoroughfare.trim
+
+    val buildingNumberWithStreetName =
+      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
+
+    Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
+      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
+      paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
+  }
 }
 
 /**
@@ -351,6 +269,8 @@ object AddressResponsePaf {
   * @param addressBasePostal
   * @param usrn ursn
   * @param lpiKey lpi key
+  * @param pao
+  * @param sao
   * @param level ground and first floor
   * @param officialFlag
   * @param logicalStatus
@@ -382,6 +302,80 @@ case class AddressResponseNag(
 
 object AddressResponseNag {
   implicit lazy val addressResponseNagFormat: Format[AddressResponseNag] = Json.format[AddressResponseNag]
+
+  def fromNagAddress(other: NationalAddressGazetteerAddress): AddressResponseNag = {
+    AddressResponseNag(
+        other.uprn,
+        other.postcodeLocator,
+        other.addressBasePostal,
+        other.usrn,
+        other.lpiKey,
+        pao = AddressResponsePao(
+          other.paoText,
+          other.paoStartNumber,
+          other.paoStartSuffix,
+          other.paoEndNumber,
+          other.paoEndSuffix
+        ),
+        sao = AddressResponseSao(
+          other.saoText,
+          other.saoStartNumber,
+          other.saoStartSuffix,
+          other.saoEndNumber,
+          other.saoEndSuffix
+        ),
+        other.level,
+        other.officialFlag,
+        other.logicalStatus,
+        other.streetDescriptor,
+        other.townName,
+        other.locality,
+        other.organisation,
+        other.legalName,
+        other.classificationCode
+      )
+  }
+
+  /**
+    * Formatted address should contain commas between all fields except after digits
+    * The actual logic is pretty complex and should be treated on example-to-example level
+    * (with unit tests)
+    * @param nag NAG address
+    * @return String of formatted address
+    */
+  def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
+
+    val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
+    val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
+    val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
+    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
+      .map(_.trim).mkString
+    val sao =
+      if (nag.saoText == nag.organisation || nag.saoText.isEmpty) saoNumbers
+      else if (saoNumbers.isEmpty) s"${nag.saoText},"
+      else s"$saoNumbers, ${nag.saoText},"
+
+    val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
+    val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
+    val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
+    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
+      .map(_.trim).mkString
+    val pao =
+      if (nag.paoText == nag.organisation || nag.paoText.isEmpty) paoNumbers
+      else if (paoNumbers.isEmpty) s"${nag.paoText},"
+      else s"${nag.paoText}, $paoNumbers"
+
+    val trimmedStreetDescriptor = nag.streetDescriptor.trim
+    val buildingNumberWithStreetDescription =
+      if (pao.isEmpty) s"$sao $trimmedStreetDescriptor"
+      else if (sao.isEmpty) s"$pao $trimmedStreetDescriptor"
+      else if (pao.isEmpty && sao.isEmpty) trimmedStreetDescriptor
+      else s"$sao $pao $trimmedStreetDescriptor"
+
+    Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
+      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
+  }
+
 }
 
 /**
@@ -442,6 +436,19 @@ case class AddressResponseGeo(
 
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
+
+  /**
+    * Creates GEO information from NAG elastic search object
+    * @param other NAG elastic search
+    * @return
+    */
+  def fromNagAddress(other: NationalAddressGazetteerAddress): Option[AddressResponseGeo] = (for {
+      latitude <- Try(other.latitude.toDouble)
+      longitude <- Try(other.longitude.toDouble)
+      easting <- Try(other.easting.split("\\.").head.toInt)
+      northing <- Try(other.northing.split("\\.").head.toInt)
+    } yield AddressResponseGeo(latitude, longitude, easting, northing)).toOption
+
 }
 
 /**
