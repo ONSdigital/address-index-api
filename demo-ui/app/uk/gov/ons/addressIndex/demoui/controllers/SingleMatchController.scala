@@ -141,7 +141,7 @@ class SingleMatchController @Inject()(
 
         val warningMessage =
           if (resp.status.code == 200) None
-          else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.mkString}")
+          else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
 
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(

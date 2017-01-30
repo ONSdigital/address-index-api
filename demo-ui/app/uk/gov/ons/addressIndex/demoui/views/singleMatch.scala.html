@@ -34,7 +34,6 @@
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
-                <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
