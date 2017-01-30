@@ -74,30 +74,30 @@ object Tokens extends CrfTokenable {
   )
 
   // `lazy` is needed so that if this is called from other modules, during tests, it doesn't throw exception
-  lazy val directions: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.direction"))
+  lazy val directions: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "direction")
 
-  lazy val flat: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.flat"))
+  lazy val flat: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "flat")
 
-  lazy val company: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.company"))
+  lazy val company: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "company")
 
-  lazy val road: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.road"))
+  lazy val road: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "road")
 
-  lazy val residential: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.residential"))
+  lazy val residential: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "residential")
 
-  lazy val business: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.business"))
+  lazy val business: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "business")
 
-  lazy val locational: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.locational"))
+  lazy val locational: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "locational")
 
-  lazy val ordinal: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.ordinal"))
+  lazy val ordinal: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "ordinal")
 
-  lazy val outcodes: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.outcode"))
+  lazy val outcodes: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "outcode")
 
-  lazy val postTown: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.posttown"))
+  lazy val postTown: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "posttown")
 
   /**
     * Contains key-value map of synonyms (replace key by value)
     */
-  lazy val synonym: Map[String, String] = fileToList(config.getString("parser.input-pre-post-processing.synonym"))
+  lazy val synonym: Map[String, String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "synonym")
     // The "-1" in split is to catch the trailing empty space on the lines like "ENGLAND,"
     .map(_.split(",", -1))
     .filter(_.nonEmpty)
@@ -107,12 +107,12 @@ object Tokens extends CrfTokenable {
   /**
     * List of counties to be removed from the input
     */
-  lazy val county: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.county"))
+  lazy val county: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "county")
 
   /**
     * A county is a county if it is not followed by following suffixes
     */
-  lazy val nonCountyIdentification: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.non_county_identification"))
+  lazy val nonCountyIdentification: Seq[String] = fileToList(config.getString("parser.input-pre-post-processing.folder") + "non_county_identification")
 
   private def fileToList(path: String): Seq[String] = Source.fromFile(path).getLines().toList
 
