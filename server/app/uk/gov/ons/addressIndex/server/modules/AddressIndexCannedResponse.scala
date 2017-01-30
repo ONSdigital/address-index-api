@@ -1,34 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
-
-  def searchContainerTemplate(
-    tokens: Seq[CrfTokenResult],
-    addresses: Seq[AddressResponseAddress],
-    total: Int,
-    limit: Int,
-    offset: Int
-  ): AddressBySearchResponseContainer = {
-    AddressBySearchResponseContainer(
-      response = AddressBySearchResponse(
-        tokens = tokens
-          .groupBy(_.label).map { case (tkn, seqTknRslt) =>
-            CrfTokenResult(
-              value = tkn,
-              label = seqTknRslt.map(_.value).mkString(" ")
-            )
-          }.toSeq,
-        addresses = addresses,
-        limit = limit,
-        offset = offset,
-        total = addresses.size
-      ),
-      status = OkAddressResponseStatus
-    )
-  }
 
   def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
@@ -105,7 +79,8 @@ trait AddressIndexCannedResponse {
       addresses = Seq.empty,
       limit = 10,
       offset = 0,
-      total = 0
+      total = 0,
+      maxScore = 0f
     )
   }
 }

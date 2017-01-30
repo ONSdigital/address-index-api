@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.model.server.response._
 
 /**
@@ -37,8 +37,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     logicalStatus = "n18",
     streetDescriptor = "n19",
     townName = "n20",
-    locality = "n21",
-    score = 1.0f
+    locality = "n21"
   )
 
   val givenRealisticNag = givenNag.copy(
@@ -91,51 +90,55 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29",
-    score = 1.0f
+    entryDate = "29"
   )
 
   "Address response Address model" should {
 
-    "be creatable from Elastic PAF response" in {
+    "create PAF from Elastic PAF response" in {
       // Given
       val paf = givenPaf
 
-      val expected = AddressResponseAddress(
-        uprn = paf.uprn,
-        formattedAddress = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",
-        paf = Some(AddressResponsePaf(
-          udprn = paf.udprn,
-          organisationName = paf.organizationName,
-          departmentName = paf.departmentName,
-          subBuildingName = paf.subBuildingName,
-          buildingName = paf.buildingName,
-          buildingNumber = paf.buildingNumber,
-          dependentThoroughfare = paf.dependentThoroughfare,
-          thoroughfare = paf.thoroughfare,
-          doubleDependentLocality = paf.doubleDependentLocality,
-          dependentLocality = paf.dependentLocality,
-          postTown = paf.postTown,
-          postcode = paf.postcode,
-          postcodeType = paf.postcodeType,
-          deliveryPointSuffix = paf.deliveryPointSuffix,
-          welshDependentThoroughfare = paf.welshDependentThoroughfare,
-          welshThoroughfare = paf.welshThoroughfare,
-          welshDoubleDependentLocality = paf.welshDoubleDependentLocality,
-          welshDependentLocality = paf.welshDependentLocality,
-          welshPostTown = paf.welshPostTown,
-          poBoxNumber = paf.poBoxNumber,
-          startDate = paf.startDate,
-          endDate = paf.endDate
-        )),
-        nag = None,
-        geo = None,
-        underlyingScore = 1,
-        underlyingMaxScore = 1
+      val expected = AddressResponsePaf(
+        udprn = paf.udprn,
+        organisationName = paf.organizationName,
+        departmentName = paf.departmentName,
+        subBuildingName = paf.subBuildingName,
+        buildingName = paf.buildingName,
+        buildingNumber = paf.buildingNumber,
+        dependentThoroughfare = paf.dependentThoroughfare,
+        thoroughfare = paf.thoroughfare,
+        doubleDependentLocality = paf.doubleDependentLocality,
+        dependentLocality = paf.dependentLocality,
+        postTown = paf.postTown,
+        postcode = paf.postcode,
+        postcodeType = paf.postcodeType,
+        deliveryPointSuffix = paf.deliveryPointSuffix,
+        welshDependentThoroughfare = paf.welshDependentThoroughfare,
+        welshThoroughfare = paf.welshThoroughfare,
+        welshDoubleDependentLocality = paf.welshDoubleDependentLocality,
+        welshDependentLocality = paf.welshDependentLocality,
+        welshPostTown = paf.welshPostTown,
+        poBoxNumber = paf.poBoxNumber,
+        startDate = paf.startDate,
+        endDate = paf.endDate
       )
 
       // When
-      val result = AddressResponseAddress.fromPafAddress(paf)
+      val result = AddressResponsePaf.fromPafAddress(paf)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create formatted address from PAF" in {
+      // Given
+      val paf = givenPaf
+
+      val expected = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16"
+
+      // When
+      val result = AddressResponsePaf.generateFormattedAddress(paf)
 
       // Then
       result shouldBe expected
@@ -148,10 +151,10 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "7, 6, 8, 9, PO BOX 24, 10 12, 13, 14, 15, 16"
 
       // When
-      val result = AddressResponseAddress.fromPafAddress(paf)
+      val result = AddressResponsePaf.generateFormattedAddress(paf)
 
       // Then
-      result.formattedAddress shouldBe expected
+      result shouldBe expected
     }
 
     "handle absent PO box in the formatted address" in {
@@ -161,61 +164,92 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "7, 6, 8, 9, 10 11, 12, 13, 14, 15, 16"
 
       // When
-      val result = AddressResponseAddress.fromPafAddress(paf)
+      val result = AddressResponsePaf.generateFormattedAddress(paf)
 
       // Then
-      result.formattedAddress shouldBe expected
+      result shouldBe expected
     }
 
-    "be creatable from Elastic NAG response" in {
+    "create NAG from Elastic NAG response" in {
       // Given
       val nag = givenNag
 
+      val expected = AddressResponseNag(
+        nag.uprn,
+        nag.postcodeLocator,
+        nag.addressBasePostal,
+        nag.usrn,
+        nag.lpiKey,
+        pao = AddressResponsePao(
+          nag.paoText,
+          nag.paoStartNumber,
+          nag.paoStartSuffix,
+          nag.paoEndNumber,
+          nag.paoEndSuffix
+        ),
+        sao = AddressResponseSao(
+          nag.saoText,
+          nag.saoStartNumber,
+          nag.saoStartSuffix,
+          nag.saoEndNumber,
+          nag.saoEndSuffix
+        ),
+        nag.level,
+        nag.officialFlag,
+        nag.logicalStatus,
+        nag.streetDescriptor,
+        nag.townName,
+        nag.locality,
+        nag.organisation,
+        nag.legalName,
+        nag.classificationCode
+      )
+
+      // When
+      val result = AddressResponseNag.fromNagAddress(nag)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create GEO from NAG elastic response" in {
+      // Given
+      val nag = givenRealisticNag
+      val expected = Some(AddressResponseGeo(
+        latitude = 50.7341677d,
+        longitude = -3.540302d,
+        easting = 291398,
+        northing = 93861
+      ))
+
+      // When
+      val result = AddressResponseGeo.fromNagAddress(nag)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "be creatable from Hybrid ES response" in {
+      // Given
+      val hybrid = HybridAddress(givenPaf.uprn, Seq(givenNag), Seq(givenPaf), 1)
+      val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
+      val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expected = AddressResponseAddress(
-        uprn = nag.uprn,
+        uprn = givenPaf.uprn,
         formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
-        paf = None,
-        nag = Some(AddressResponseNag(
-          nag.uprn,
-          nag.postcodeLocator,
-          nag.addressBasePostal,
-          nag.usrn,
-          nag.lpiKey,
-          pao = AddressResponsePao(
-            nag.paoText,
-            nag.paoStartNumber,
-            nag.paoStartSuffix,
-            nag.paoEndNumber,
-            nag.paoEndSuffix
-          ),
-          sao = AddressResponseSao(
-            nag.saoText,
-            nag.saoStartNumber,
-            nag.saoStartSuffix,
-            nag.saoEndNumber,
-            nag.saoEndSuffix
-          ),
-          nag.level,
-          nag.officialFlag,
-          nag.logicalStatus,
-          nag.streetDescriptor,
-          nag.townName,
-          nag.locality,
-          nag.organisation,
-          nag.legalName,
-          nag.classificationCode
-        )),
+        paf = Some(expectedPaf),
+        nag = Some(expectedNag),
         geo = Some(AddressResponseGeo(
           latitude = 50.7341677d,
           longitude = -3.540302d,
           easting = 291398,
           northing = 93861
         )),
-        underlyingScore = 1,
-        underlyingMaxScore = 1)
+        underlyingScore = 1
+      )
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag)
+      val result = AddressResponseAddress.fromHybridAddress(hybrid)
 
       // Then
       result shouldBe expected
@@ -227,7 +261,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "MAJESTIC, 1 BRIBERY ROAD, EXTER, EXO 808"
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+      val result = AddressResponseNag.generateFormattedAddress(nag)
 
       // Then
       result shouldBe expected
@@ -239,7 +273,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "MAJESTIC, 1 BRIBERY ROAD, EXTER, EXO 808"
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+      val result = AddressResponseNag.generateFormattedAddress(nag)
 
       // Then
       result shouldBe expected
@@ -255,7 +289,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "MAJESTIC, UNIT, BRIBERY ROAD, EXTER, EXO 808"
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+      val result = AddressResponseNag.generateFormattedAddress(nag)
 
       // Then
       result shouldBe expected
@@ -271,7 +305,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "MAJESTIC, UNIT, BRIBERY ROAD, EXTER, EXO 808"
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+      val result = AddressResponseNag.generateFormattedAddress(nag)
 
       // Then
       result shouldBe expected
@@ -288,7 +322,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = "MAJESTIC, UNIT, BUNIT, BRIBERY ROAD, EXTER, EXO 808"
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).formattedAddress
+      val result = AddressResponseNag.generateFormattedAddress(nag)
 
       // Then
       result shouldBe expected
@@ -299,7 +333,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nag = givenNag.copy(latitude = "invalid")
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).geo
+      val result = AddressResponseGeo.fromNagAddress(nag)
 
       // Then
       result shouldBe None
@@ -310,7 +344,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nag = givenNag.copy(longitude = "invalid")
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).geo
+      val result = AddressResponseGeo.fromNagAddress(nag)
 
       // Then
       result shouldBe None
@@ -321,7 +355,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nag = givenNag.copy(easting = "invalid")
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).geo
+      val result = AddressResponseGeo.fromNagAddress(nag)
 
       // Then
       result shouldBe None
@@ -332,10 +366,58 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nag = givenNag.copy(northing = "invalid")
 
       // When
-      val result = AddressResponseAddress.fromNagAddress(1)(nag).geo
+      val result = AddressResponseGeo.fromNagAddress(nag)
 
       // Then
       result shouldBe None
+    }
+
+    "choose the nag with a legal status equal to 1 if it exists" in {
+      // Given
+      val expectedNag = givenNag.copy(logicalStatus = "1")
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(logicalStatus = "6"))
+
+      // When
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+
+      // Then
+      result shouldBe Some(expectedNag)
+    }
+
+    "choose the nag with a legal status equal to 6 if it exists and the one with legal status 1 doesn't exist" in {
+      // Given
+      val expectedNag = givenNag.copy(logicalStatus = "6")
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(logicalStatus = "8"))
+
+      // When
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+
+      // Then
+      result shouldBe Some(expectedNag)
+    }
+
+    "choose the nag with a legal status equal to 8 if it exists and the one with legal status 1 or 6 doesn't exist" in {
+      // Given
+      val expectedNag = givenNag.copy(logicalStatus = "8")
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(logicalStatus = "11"))
+
+      // When
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+
+      // Then
+      result shouldBe Some(expectedNag)
+    }
+
+    "choose the first nag with if a nag with a legal status 1, 6 or 8 doesn't exist" in {
+      // Given
+      val expectedNag = givenNag
+      val nagAddresses = Seq(expectedNag, expectedNag.copy(logicalStatus = "10") , expectedNag.copy(logicalStatus = "11"))
+
+      // When
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+
+      // Then
+      result shouldBe Some(expectedNag)
     }
 
   }

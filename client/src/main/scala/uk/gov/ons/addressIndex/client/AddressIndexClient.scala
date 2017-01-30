@@ -33,7 +33,6 @@ trait AddressIndexClient {
       .toReq
       .withQueryString(
         "input" -> request.input,
-        "format" -> request.format.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
@@ -59,12 +58,7 @@ trait AddressIndexClient {
     * @return an address
     */
   def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
-    UprnQuery(request.uprn.toString)
-      .toReq
-      .withQueryString(
-        "format" -> request.format.toString
-      )
-      .get
+    UprnQuery(request.uprn.toString).toReq.get
   }
 }
 

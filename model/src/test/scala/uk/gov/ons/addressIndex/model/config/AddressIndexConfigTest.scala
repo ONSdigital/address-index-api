@@ -36,12 +36,14 @@ object ElasticSearchConfigTest {
       ssl = true
     ),
     indexes = IndexesConfig(
-      pafIndex = "paf/address",
-      nagIndex = "nag/address"
+      hybridIndex = "hybrid/address"
     ),
     defaultLimit=10,
     defaultOffset=0,
     maximumLimit=100,
-    maximumOffset=1000
+    maximumOffset=1000,
+    minimumShouldMatch = "-2",
+    underlineAllBoost = 0.5f
+
   )
 }

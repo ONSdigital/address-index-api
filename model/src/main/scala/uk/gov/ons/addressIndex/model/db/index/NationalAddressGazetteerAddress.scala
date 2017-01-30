@@ -5,16 +5,6 @@ import uk.gov.ons.addressIndex.model.db.ElasticIndex
 
 
 /**
- * Data structure containing addresses with the maximum address
- * @param addresses fetched addresses
- * @param maxScore maximum score
- */
-case class NationalAddressGazetteerAddresses(
-  addresses: Seq[NationalAddressGazetteerAddress],
-  maxScore: Float
-)
-
-/**
   * NAG Address DTO
   */
 case class NationalAddressGazetteerAddress(
@@ -45,8 +35,7 @@ case class NationalAddressGazetteerAddress(
   logicalStatus: String,
   streetDescriptor: String,
   townName: String,
-  locality: String,
-  score: Float
+  locality: String
 )
 
 /**
@@ -126,8 +115,7 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
         hit.sourceAsMap(logicalStatus).toString,
         hit.sourceAsMap(streetDescriptor).toString,
         hit.sourceAsMap(townName).toString,
-        hit.sourceAsMap(locality).toString,
-        hit.score
+        hit.sourceAsMap(locality).toString
       )
     }
   }
