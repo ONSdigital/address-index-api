@@ -24,7 +24,7 @@ trait CrfFeature[T] {
     * @param input
     * @return apply the analyser to i
     */
-  def analyse(input: Input): T = analyser apply input
+  def analyse(input: String): T = analyser apply input
 
   //TODO scaladoc
   /**
@@ -33,12 +33,12 @@ trait CrfFeature[T] {
     * @param opPrevious
     * @return
     */
-  def toCrfJniInput(input: CrfToken, opNext: Option[CrfToken] = None, opPrevious: Option[CrfToken] = None): CrfJniInput = {
-    val currentCrfJni: CrfJniInput = createCrfJniInput(
+  def toCrfJniInput(input: String, opNext: Option[String] = None, opPrevious: Option[String] = None): String = {
+    val currentCrfJni: String = createCrfJniInput(
       prefix = name,
       value = analyse(input)
     )
-    val nextCrfJni: CrfJniInput = {
+    val nextCrfJni: String = {
       opNext map { next =>
         CrfScalaJni.delimiter +
           createCrfJniInput(
@@ -47,7 +47,7 @@ trait CrfFeature[T] {
           )
       } getOrElse ""
     }
-    val previousCrfJni: CrfJniInput = {
+    val previousCrfJni: String = {
       opPrevious map { previous =>
         CrfScalaJni.delimiter +
           createCrfJniInput(
@@ -66,7 +66,7 @@ trait CrfFeature[T] {
     * @param value
     * @return
     */
-  def createCrfJniInput(prefix: String, value: Any): CrfJniInput = {
+  def createCrfJniInput(prefix: String, value: Any): String = {
     def qualify(str: String): String = str.replace(":", "\\:")
     val qName = qualify(name)
     val qPrefix = if (prefix == name) "" else prefix

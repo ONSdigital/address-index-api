@@ -14,7 +14,7 @@ trait CrfFeatures {
   def aggregateFeatures: Seq[CrfAggregateFeature[_]]
 
   //TODO scaladoc
-  def toCrfJniInput(input: CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): CrfJniInput = {
+  def toCrfJniInput(input: String, next: Option[String] = None, previous: Option[String] = None): String = {
     (features map(_.toCrfJniInput(input, next, previous)) mkString) + CrfScalaJni.lineEnd
   }
 
@@ -22,7 +22,7 @@ trait CrfFeatures {
     * @param i the token to run against all feature analysers
     * @return the token and its results, as a pair
     */
-  def analyse(i : CrfToken, next: Option[CrfToken] = None, previous: Option[CrfToken] = None): Unit = {
+  def analyse(i : String, next: Option[String] = None, previous: Option[String] = None): Unit = {
 //    CrfTokenResult(
 //      token = i,
 //      next = next,

@@ -1,13 +1,12 @@
 package uk.gov.ons.addressIndex.parsers
 
-import uk.gov.ons.addressIndex.parsers.Implicits._
-import Tokens._
 import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.{apply => _, _}
-import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeatureAnalyser, CrfFeatureAnalyser}
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokens, CrfType, FeatureName}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfType
+import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeatureAnalyser, CrfFeatureAnalyser}
 import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.ADT.Root
 import uk.gov.ons.addressIndex.parsers.FeatureAnalysers.DigitsLiteral._
+import uk.gov.ons.addressIndex.parsers.Implicits._
 
 /**
   * FeatureAnalyser implementations for the AddressParser
@@ -56,19 +55,19 @@ object FeatureAnalysers {
     implicit class BooleanWrapper(override val value: Boolean) extends Root[Boolean]
   }
 
-  val rawStringStart: FeatureName  = "rawstring.start"
+  val rawStringStart: String  = "rawstring.start"
   /**
     * @return true if the token is the first in the sequence.
     */
   def rawStringStartAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_ => 0)
 
-  val rawStringEnd: FeatureName  = "rawstring.end"
+  val rawStringEnd: String  = "rawstring.end"
   /**
     * @return true is the token is the last in the sequence.
     */
   def rawStringEndAggrAnalyser: CrfAggregateFeatureAnalyser[Boolean] = IndexAggregateFeatureAnalyser(_.length - 1)
 
-  val singleton: FeatureName  = "singleton"
+  val singleton: String  = "singleton"
   /**
     * @return true if the token is the only token.
     */
@@ -76,7 +75,7 @@ object FeatureAnalysers {
     tokens.length == 1 && tokens(0) == token
   }
 
-  val word: FeatureName = "word"
+  val word: String = "word"
   /**
     * @return true if the string is all digits, false if not
     */
@@ -90,7 +89,7 @@ object FeatureAnalysers {
     }
   }
 
-  val length: FeatureName = "length"
+  val length: String = "length"
   /**
     * @return the length of the string as a string
     *         with a prefix of "w:" if its a word (some or no digits) eg "Hello" or "Hello123" or
@@ -107,7 +106,7 @@ object FeatureAnalysers {
     }
   }
 
-  val endsInPunctuation: FeatureName = "endsinpunc"
+  val endsInPunctuation: String = "endsinpunc"
   /**
     * @return true if the last character of the string is a '.', false if not
     */
@@ -116,79 +115,79 @@ object FeatureAnalysers {
     str.lastOption.getOrElse(arbitrary) == '.'
   }
 
-  val hasVowels: FeatureName = "has.vowels"
+  val hasVowels: String = "has.vowels"
   /**
     * @return true if the string contains vowels, false if not
     */
   def hasVowelsAnalyser: CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](_.containsVowels[Boolean](identity))
 
-  val directional: FeatureName = "directional"
+  val directional: String = "directional"
   /**
     * @return true if the string is in the Tokens.directions collection, false if not
     */
   def directionalAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.directions)
 
-  val outcode: FeatureName = "outcode"
+  val outcode: String = "outcode"
   /**
     * @return true if the string is in the Tokens.outcodes collection, false if not
     */
   def outcodeAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.outcodes)
 
-  val postTown: FeatureName = "posttown"
+  val postTown: String = "posttown"
   /**
     * @return true if the string is in the Tokens.postTown collection, false if not
     */
   def postTownAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.postTown)
 
-  val flat: FeatureName = "flat"
+  val flat: String = "flat"
   /**
     * @return true if the string is in the Tokens.flat collection, false if not
     */
   def flatAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.flat)
 
-  val company: FeatureName = "company"
+  val company: String = "company"
   /**
     * @return true if the string is in the Tokens.company collection, false if not
     */
   def companyAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.company)
 
-  val road: FeatureName = "road"
+  val road: String = "road"
   /**
     * @return true if the string is in the Tokens.road collection, false if not
     */
   def roadAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.road)
 
-  val residential: FeatureName = "residential"
+  val residential: String = "residential"
   /**
     * @return true if the string is in the Tokens.residential collection, false if not
     */
   def residentialAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.residential)
 
-  val business: FeatureName = "business"
+  val business: String = "business"
   /**
     * @return true if the string is in the Tokens.business collection, false if not
     */
   def businessAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.business)
 
-  val locational: FeatureName = "locational"
+  val locational: String = "locational"
   /**
     * @return true if the string is in the Tokens.locational collection, false if not
     */
   def locationalAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.locational)
 
-  val ordinal: FeatureName = "ordinal"
+  val ordinal: String = "ordinal"
   /**
     * @return true if the string is in the Tokens.ordinal collection, false if not
     */
   def ordinalAnalyser: CrfFeatureAnalyser[Boolean] = ContainsAnalyser(Tokens.ordinal)
 
-  val hyphenations: FeatureName = "hyphenations"
+  val hyphenations: String = "hyphenations"
   /**
     * @return the count of characters which are '-'
     */
   def hyphenationsAnalyser: CrfFeatureAnalyser[Int] = CrfFeatureAnalyser[Int](_ count(_ == '-'))
 
-  val digits: FeatureName = "digits"
+  val digits: String = "digits"
   /**
     * @return a DigitLiteral String, which indicates if the string has all digits, contains digits or no digits
     */
@@ -227,7 +226,7 @@ object FeatureAnalysers {
     *     ContainsAnalyser(Seq("oneThingToLookFor", "AnotherThingToLookFor"))
     */
   object ContainsAnalyser {
-    def apply(seq: Seq[TokenIndicator]): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](seq contains _)
+    def apply(seq: Seq[String]): CrfFeatureAnalyser[Boolean] = CrfFeatureAnalyser[Boolean](seq contains _)
   }
 
   /**
@@ -238,7 +237,7 @@ object FeatureAnalysers {
     *    IndexAggregateFeatureAnalyser(_ => 0)
     */
   object IndexAggregateFeatureAnalyser {
-    def apply(fn: CrfTokens => Int): CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
+    def apply(fn: Array[String] => Int): CrfAggregateFeatureAnalyser[Boolean] = CrfAggregateFeatureAnalyser[Boolean] { (tokens, token) =>
       tokens.indexOf(token) == fn(tokens)
     }
   }

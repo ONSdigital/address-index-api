@@ -8,10 +8,9 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import org.elasticsearch.common.unit.Fuzziness
 import play.api.Logger
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, Input}
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.parsers.Tokens.Token
 
 import scala.concurrent.{ExecutionContext, Future}
 

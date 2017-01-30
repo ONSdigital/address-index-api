@@ -25,7 +25,7 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
   }
 
   it should "have all feature names" in {
-    val expected : Seq[FeatureName] = Seq(
+    val expected = Seq(
       "digits",
       "word",
       "length",
@@ -43,7 +43,7 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
       "ordinal",
       "hyphenations"
     )
-    val actual : Seq[FeatureName] = Seq[FeatureName](
+    val actual = Seq[String](
       digits,
       word,
       FeatureAnalysers.length, //clash with `org.scalatest.words.MatcherWords.length`
@@ -304,7 +304,7 @@ class FeatureAnalysersTest extends FlatSpec with Matchers {
       "FIFTH", "5TH",
       "SIXTH", "6TH",
       "SEVENTH", "7TH",
-      "EIGHT", "8TH"
+      "EIGHTH", "8TH"
     )
     val expected = Seq.fill(inputs.length)(true)
     val actual = inputs map ordinalAnalyser.apply
