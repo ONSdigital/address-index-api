@@ -28,7 +28,6 @@ class ElasticSearchRepositorySpec2 extends FlatSpec with ElasticSugar with Match
   it should "produce the correct search definition for a uprn" in {
     val input = "109102"
     val actual = (repo generateQueryUprnRequest input).toString.normalise
-    println(actual)
     val expected = """
                      |{"query":{"term":{"uprn":"109102"}}}
                    """.stripMargin.normalise
