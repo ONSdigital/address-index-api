@@ -91,7 +91,7 @@ p.toptext {
     margin-top: 0px;
     margin-bottom: 10px;
     min-width: 300px;
-    max-width: 900px;
+    max-width: 800px;
     border-bottom:2px solid #ddd;
     border-top: 0px;
     border-left: 0px;
@@ -331,8 +331,8 @@ div.matchResults{
 div.match-conf{
     text-align:right;
     white-space:nowrap;
-    float: left;
-    width: 100%;
+    float: right;
+    width: 50%;
 }
 
 div.uprn-txt{
@@ -375,15 +375,15 @@ p.errorBody{
 
 div.paf-nag-switch-buttons{
     color: #aaa;
-    display: inline-block;
+    text-align:left;
     background: #eee;
     padding: 5px 6px;
+    float:left;
 }
+
 div.paf-nag-switch-buttons span{
-    display: inline-block;
     padding: 0px 10px;
     border: 1px solid #999;
-
 }
 
 .formatted-button-active{
