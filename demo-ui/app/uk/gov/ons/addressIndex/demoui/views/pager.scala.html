@@ -5,13 +5,13 @@
         <div class="pageleft pl@{pageNum}">
             <a href='@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, addressFormat, Some(pageNum-1))}'>
                 &lt; Previous page<br>
-            @{Some(pageNum-1)} of @{(numResults + pageSize - 1) / pageSize}</a>
+            @{Some(pageNum-1)} of @{Math.min(pageMax, (numResults + pageSize - 1) / pageSize)}</a>
         </div>
         <div class="pagecentre"> <br>Page @{pageNum}</div>
         <div class="pageright pr@{ (pageNum == (numResults / pageSize)) || pageNum == pageMax }">
             <a href='@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, addressFormat, Some(pageNum+1))}'>
             Next page &gt;<br>
-            @{Some(pageNum+1)} of @{Math.min(100, (numResults + pageSize - 1) / pageSize)}</a>
+            @{Some(pageNum+1)} of @{Math.min(pageMax, (numResults + pageSize - 1) / pageSize)}</a>
         </div>
     </div>
 </div>
