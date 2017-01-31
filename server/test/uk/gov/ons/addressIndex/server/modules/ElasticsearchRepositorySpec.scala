@@ -410,7 +410,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "fuzzy" : {
                     "lpi.streetDescriptor" : {
                       "value" : "h7",
-                      "fuzziness" : "2"
+                      "fuzziness" : "2",
+                      "boost" : 1.0
                     }
                   }
                 }, {
@@ -466,7 +467,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "fuzzy" : {
                     "paf.thoroughfare" : {
                       "value" : "h7",
-                      "fuzziness" : "2"
+                      "fuzziness" : "2",
+                      "boost" : 1.0
                     }
                   }
                 }, {

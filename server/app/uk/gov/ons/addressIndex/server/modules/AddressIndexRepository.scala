@@ -49,6 +49,7 @@ class AddressIndexRepository @Inject()(
   private val hybridIndex = esConf.indexes.hybridIndex
   private val minimumShouldMatch = conf.config.elasticSearch.minimumShouldMatch
   private val underlineAllBoost = conf.config.elasticSearch.underlineAllBoost
+  private val streetNameBoost = conf.config.elasticSearch.streetNameBoost
 
   val client: ElasticClient = elasticClientProvider.client
   private val logger = Logger("AddressIndexRepository")
@@ -134,7 +135,7 @@ class AddressIndexRepository @Inject()(
             fuzzyQuery(
               name = "lpi.streetDescriptor",
               value = token
-            ).fuzziness(Fuzziness.TWO)),
+            ).boost(streetNameBoost).fuzziness(Fuzziness.TWO)),
           tokensMap.get(Tokens.townName).map(token =>
             matchQuery(
               field = "lpi.townName",
@@ -174,7 +175,7 @@ class AddressIndexRepository @Inject()(
             fuzzyQuery(
               name = "paf.thoroughfare",
               value = token
-            ).fuzziness(Fuzziness.TWO)),
+            ).boost(streetNameBoost).fuzziness(Fuzziness.TWO)),
           tokensMap.get(Tokens.townName).map(token =>
             matchQuery(
               field = "paf.postTown",
