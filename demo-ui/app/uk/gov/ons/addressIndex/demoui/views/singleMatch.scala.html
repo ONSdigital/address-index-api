@@ -14,17 +14,19 @@
         $(function () {
            $(".formatted-nag-button").click(function (e) {
                $(this).addClass("formatted-button-active");
-               $(this).closest(".resultRow").find(".formatted-paf-button").removeClass("formatted-button-active");
-               $(this).closest(".resultRow").find(".formatted-nag").show();
-               $(this).closest(".resultRow").find(".formatted-paf").hide();
+               var parent = $(this).closest(".resultRow");
+               parent.find(".formatted-paf-button").removeClass("formatted-button-active");
+               parent.find(".formatted-nag").show();
+               parent.find(".formatted-paf").hide();
                e.preventDefault()
            });
 
             $(".formatted-paf-button").click(function (e) {
                 $(this).addClass("formatted-button-active");
-                $(this).closest(".resultRow").find(".formatted-nag-button").removeClass("formatted-button-active");
-                $(this).closest(".resultRow").find(".formatted-paf").show();
-                $(this).closest(".resultRow").find(".formatted-nag").hide();
+                var parent = $(this).closest(".resultRow");
+                parent.find(".formatted-nag-button").removeClass("formatted-button-active");
+                parent.find(".formatted-paf").show();
+                parent.find(".formatted-nag").hide();
                 e.preventDefault()
             });
         });
