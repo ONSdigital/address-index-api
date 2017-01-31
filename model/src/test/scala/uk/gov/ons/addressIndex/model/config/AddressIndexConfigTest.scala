@@ -43,6 +43,7 @@ object ElasticSearchConfigTest {
     maximumLimit=100,
     maximumOffset=1000,
     minimumShouldMatch = "-2",
-    underlineAllBoost = 0.5f
+    underlineAllBoost = 0.5f,
+    streetNameBoost = 1.0f
   )
 }

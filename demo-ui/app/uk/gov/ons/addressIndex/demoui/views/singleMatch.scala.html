@@ -26,8 +26,9 @@
                $(this).addClass("formatted-button-active");
                var parent = $(this).closest(".resultRow");
                parent.find(".formatted-paf-button").removeClass("formatted-button-active");
-               parent.find(".formatted-nag").show();
-               parent.find(".formatted-paf").hide();
+               var parent2 = $(parent).next(".resultRow");
+               parent2.find(".formatted-nag").show();
+               parent2.find(".formatted-paf").hide();
                e.preventDefault()
            });
 
@@ -35,8 +36,9 @@
                 $(this).addClass("formatted-button-active");
                 var parent = $(this).closest(".resultRow");
                 parent.find(".formatted-nag-button").removeClass("formatted-button-active");
-                parent.find(".formatted-paf").show();
-                parent.find(".formatted-nag").hide();
+                var parent2 = $(parent).next(".resultRow");
+                parent2.find(".formatted-paf").show();
+                parent2.find(".formatted-nag").hide();
                 e.preventDefault()
             });
         });
@@ -73,18 +75,19 @@
                     <div class="alert alert-success">
                         <div class="matchResults">
                             <div class="resultRow">
-                                  <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
-                                    (
-                                    @defining(if ((address.underlyingScore / aresponse.maxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
-                                    <span style="background-color: @color">
-                                    }
-                                    @{"%.2f".format((address.underlyingScore / aresponse.maxScore) * 100)}</span>%)</div>
-                            </div>
-                            <div class="resultRow">
                                 <div class="paf-nag-switch-buttons">
                                     <span class="formatted-nag-button formatted-button-active">LA</span>
                                     <span class="formatted-paf-button">PAF</span>
                                 </div>
+                                 <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                    (
+                                    @defining(if ((address.underlyingScore / aresponse.maxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
+                                    <span style="background-color: @color">
+                                    }
+                                    @{"%.2f".format((address.underlyingScore / aresponse.maxScore) * 100)}</span>%)
+                                 </div>
+                              </div>
+                            <div class="resultRow">
                                 <div>
                                     <strong>@messages("single.address"): </strong>
                                     <span class="formatted-nag">@address.formattedAddressNag</span>
