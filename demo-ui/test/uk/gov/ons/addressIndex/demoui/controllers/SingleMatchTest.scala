@@ -88,7 +88,7 @@ class SingleMatchTest extends PlaySpec with Results {
         messagesApi,
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy)
-      .doMatchWithInput(inputAddress,"paf").apply(FakeRequest())
+      .doMatchWithInput(inputAddress,"paf", Some(1)).apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then
