@@ -1,5 +1,15 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], warningMessage : Option[String], addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse], classification: Option[Map[String,String]])(implicit messages: Messages)
 @import helper._
+
+@(
+    singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+    warningMessage : Option[String],
+    addressFormat: String,
+    pageNum: Int,
+    pageSize: Int,
+    pageMax: Int,
+    addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+    classification: Option[Map[String,String]]
+)(implicit messages: Messages)
 
 @*
  * Call the `main` template with two arguments. The first
@@ -24,7 +34,6 @@
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("single.sfatext")</h3>
             <div class="panel-body">
-                <input type="file" id="file-bulk-mimic" onchange="mimicBulk(this.files)">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
                         @forms.singleAddressForm(singleSearchForm)
@@ -83,7 +92,9 @@
                         </div>
                     </div>
                 </div>
-            </div>}
+            </div>
+            }
+            @pager(addressFormat, pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total)
             }
         </div>
         <div class="panel panel-single address-panel">
