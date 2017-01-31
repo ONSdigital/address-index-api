@@ -26,8 +26,9 @@
                $(this).addClass("formatted-button-active");
                var parent = $(this).closest(".resultRow");
                parent.find(".formatted-paf-button").removeClass("formatted-button-active");
-               parent.find(".formatted-nag").show();
-               parent.find(".formatted-paf").hide();
+               var parent2 = $(parent).next(".resultRow");
+               parent2.find(".formatted-nag").show();
+               parent2.find(".formatted-paf").hide();
                e.preventDefault()
            });
 
@@ -35,8 +36,9 @@
                 $(this).addClass("formatted-button-active");
                 var parent = $(this).closest(".resultRow");
                 parent.find(".formatted-nag-button").removeClass("formatted-button-active");
-                parent.find(".formatted-paf").show();
-                parent.find(".formatted-nag").hide();
+                var parent2 = $(parent).next(".resultRow");
+                parent2.find(".formatted-paf").show();
+                parent2.find(".formatted-nag").hide();
                 e.preventDefault()
             });
         });
