@@ -9,7 +9,7 @@ trait CrfParser {
   val tagger: CrfScalaJniImpl = new CrfScalaJniImpl
 
   //TODO scaladoc
-  def tag(input: Input, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
+  def tag(input: String, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
     //todo optimise file
     val currentDirectory = new java.io.File(".").getCanonicalPath
     val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
@@ -31,7 +31,7 @@ trait CrfParser {
     }
   }
 
-  def augmentCrfJniInput(crfJniInput: CrfJniInput): CrfJniInput = {
+  def augmentCrfJniInput(crfJniInput: String): String = {
     crfJniInput
       .split(CrfScalaJni.lineEnd)
       .map(
@@ -43,7 +43,7 @@ trait CrfParser {
   }
 
   //TODO scaladoc
-  def parse(i: Input, features: CrfFeatures, tokenable: CrfTokenable): CrfJniInput = {
+  def parse(i: String, features: CrfFeatures, tokenable: CrfTokenable): String = {
     val tokens = tokenable(i)
     val preprocessedTokens = tokenable normalise tokens
     val onlyOneToken = preprocessedTokens.length == 1
@@ -134,6 +134,6 @@ trait CrfParser {
         }
       }
     }
-    sb toString: CrfJniInput
+    sb toString: String
   }
 }

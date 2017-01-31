@@ -61,11 +61,12 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = None,
     geo = None,
-    underlyingScore = 1.0f,
-    underlyingMaxScore =  1.0f
+    underlyingScore = 1.0f
   )
 
   val mockAddressBySearchResponse = AddressBySearchResponse (
@@ -73,7 +74,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,
     offset = 1,
-    total = 1
+    total = 1,
+    maxScore = 1f
   )
 
   val mockSearchResponseContainer = AddressBySearchResponseContainer (

@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.crfscala
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
 object CrfFeatureAnalyser {
-  type CrfFeatureAnalyser[T] = (Input => T)
+  type CrfFeatureAnalyser[T] = (String => T)
 
   /**
     * Helper apply method for better syntax.

@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.crfscala
 
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfToken, CrfTokens}
 
 object CrfAggregateFeatureAnalyser {
 
@@ -8,7 +7,7 @@ object CrfAggregateFeatureAnalyser {
     * An aggregate analyser
     * @tparam T
     */
-  type CrfAggregateFeatureAnalyser[T] = ((CrfTokens, CrfToken) => T)
+  type CrfAggregateFeatureAnalyser[T] = ((Array[String], String) => T)
 
   /**
     * Helper apply method for better syntax.

@@ -5,8 +5,10 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
-import uk.gov.ons.addressIndex.model.server.response.AddressTokens
+import play.api.libs.json.Json
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.index._
+import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -21,335 +23,489 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   }
   val config = new AddressIndexConfigModule
 
-  val pafIndex = config.config.elasticSearch.indexes.pafIndex
-  val Array(pafIndexName, pafMappings) = pafIndex.split("/")
+  val hybridIndex = config.config.elasticSearch.indexes.hybridIndex
+  val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
 
-  val nagIndex = config.config.elasticSearch.indexes.nagIndex
-  val Array(nagIndexName, nagMappings) = nagIndex.split("/")
+  val hybridFirstUprn = "uprn1"
 
-  val pafRecordIdentifier = "1"
-  val pafChangeType = "2"
-  val pafProOrder = "3"
-  val pafUprn = "4"
-  val pafUdprn = "5"
-  val pafOrganizationName = "6"
-  val pafDepartmentName = "7"
-  val pafSubBuildingName = "8"
-  val pafBuildingName = "9"
-  val pafBuildingNumber = "10"
-  val pafDependentThoroughfare = "11"
-  val pafThoroughfare = "12"
-  val pafDoubleDependentLocality = "13"
-  val pafDependentLocality = "14"
-  val pafPostTown = "15"
-  val pafPostcode = "16"
-  val pafPostcodeType = "17"
-  val pafDeliveryPointSuffix = "18"
-  val pafWelshDependentThoroughfare = "19"
-  val pafWelshThoroughfare = "20"
-  val pafWelshDoubleDependentLocality = "21"
-  val pafWelshDependentLocality = "22"
-  val pafWelshPostTown = "23"
-  val pafPoBoxNumber = "24"
-  val pafProcessDate = "25"
-  val pafStartDate = "26"
-  val pafEndDate = "27"
-  val pafLastUpdateDate = "28"
-  val pafEntryDate = "29"
+  // Fields that are not in this list are not used for search
+  val hybridPafUprn = "h1"
+  val hybridPafOrganizationName = "h2"
+  val hybridPafDepartmentName = "h3"
+  val hybridPafSubBuildingName = "h4"
+  val hybridPafBuildingName = "h5"
+  val hybridPafBuildingNumber = "h6"
+  val hybridPafThoroughfare = "h7"
+  val hybridPafPostTown = "h8"
+  val hybridPafPostcode = "h9"
+
+  // Fields that are not in this list are not used for search
+  val hybridNagUprn = hybridPafUprn
+  val hybridNagPostcodeLocator = hybridPafPostcode
+  val hybridNagPaoStartNumber = hybridPafBuildingNumber
+  val hybridNagLocality = "h10"
+  val hybridNagOrganisation = hybridPafOrganizationName
+  val hybridNagLegalName = hybridPafOrganizationName
+  val hybridNagSaoText = hybridPafSubBuildingName
+  val hybridNagPaoText = hybridPafBuildingName
+  val hybridNagStreetDescriptor = hybridPafThoroughfare
+  val hybridNagTownName = hybridPafPostTown
+  val hybridNagLatitude = "1.0000000"
+  val hybridNagLongitude = "2.0000000"
+  val hybridNagNorthing = "3"
+  val hybridNagEasting = "4"
+
+  // Fields with this value are not used in the search and are, thus, irrelevant
+  val hybridNotUsed = ""
 
 
-  val nagUprn = "n1"
-  val nagPostcodeLocator = "n2"
-  val nagAddressBasePostal = "n3"
-  val nagUsrn = "n4"
-  val nagLpiKey = "n5"
-  val nagPaoText = "n6"
-  val nagPaoStartNumber = "n7"
-  val nagPaoStartSuffix = "n8"
-  val nagPaoEndNumber = "n9"
-  val nagPaoEndSuffix = "n10"
-  val nagSaoText = "n11"
-  val nagSaoStartNumber = "n12"
-  val nagSaoStartSuffix = "n13"
-  val nagSaoEndNumber = "n14"
-  val nagSaoEndSuffix = "n15"
-  val nagLevel = "n16"
-  val nagOfficialFlag = "n17"
-  val nagLogicalStatus = "n18"
-  val nagStreetDescriptor = "n19"
-  val nagTownName = "n20"
-  val nagLocality = "n21"
-  val nagOrganisation = "n22"
-  val nagLegalName = "n23"
-  val nagLatitude = "1.0000000"
-  val nagLongitude = "2.0000000"
-  val nagNorthing = "3"
-  val nagEasting = "4"
-  val nagClassificationCode = "n24"
+  val firstHybridPafEs = Map(
+    "recordIdentifier" -> hybridNotUsed,
+    "changeType" -> hybridNotUsed,
+    "proOrder" -> hybridNotUsed,
+    "uprn" -> hybridPafUprn,
+    "udprn" -> hybridNotUsed,
+    "organizationName" -> hybridPafOrganizationName,
+    "departmentName" -> hybridPafDepartmentName,
+    "subBuildingName" -> hybridPafSubBuildingName,
+    "buildingName" -> hybridPafBuildingName,
+    "buildingNumber" -> hybridPafBuildingNumber,
+    "dependentThoroughfare" -> hybridNotUsed,
+    "thoroughfare" -> hybridPafThoroughfare,
+    "doubleDependentLocality" -> hybridNotUsed,
+    "dependentLocality" -> hybridNotUsed,
+    "postTown" -> hybridPafPostTown,
+    "postcode" -> hybridPafPostcode,
+    "postcodeType" -> hybridNotUsed,
+    "deliveryPointSuffix" -> hybridNotUsed,
+    "welshDependentThoroughfare" -> hybridNotUsed,
+    "welshThoroughfare" -> hybridNotUsed,
+    "welshDoubleDependentLocality" -> hybridNotUsed,
+    "welshDependentLocality" -> hybridNotUsed,
+    "welshPostTown" -> hybridNotUsed,
+    "poBoxNumber" -> hybridNotUsed,
+    "processDate" -> hybridNotUsed,
+    "startDate" -> hybridNotUsed,
+    "endDate" -> hybridNotUsed,
+    "lastUpdateDate" -> hybridNotUsed,
+    "entryDate" ->hybridNotUsed
+  )
+
+  val secondHybridPafEs = Map(
+    "recordIdentifier" -> "a1",
+    "changeType" -> "a2",
+    "proOrder" -> "a3",
+    "uprn" -> "a4",
+    "udprn" -> "a5",
+    "organizationName" -> "a6",
+    "departmentName" -> "a7",
+    "subBuildingName" -> "a8",
+    "buildingName" -> "a9",
+    "buildingNumber" -> "a10",
+    "dependentThoroughfare" -> "a11",
+    "thoroughfare" -> "a12",
+    "doubleDependentLocality" -> "a13",
+    "dependentLocality" -> "a14",
+    "postTown" -> "a15",
+    "postcode" -> "a16",
+    "postcodeType" -> "a17",
+    "deliveryPointSuffix" -> "a18",
+    "welshDependentThoroughfare" -> "a19",
+    "welshThoroughfare" -> "a20",
+    "welshDoubleDependentLocality" -> "a21",
+    "welshDependentLocality" -> "a22",
+    "welshPostTown" -> "a23",
+    "poBoxNumber" -> "a24",
+    "processDate" -> "a25",
+    "startDate" -> "a26",
+    "endDate" -> "a27",
+    "lastUpdateDate" -> "a28",
+    "entryDate" -> "a29"
+  )
+
+  val firstHybridNagEs = Map(
+    "uprn" -> hybridNagUprn,
+    "postcodeLocator" -> hybridNagPostcodeLocator,
+    "addressBasePostal" -> hybridNotUsed,
+    "usrn" -> hybridNotUsed,
+    "lpiKey" -> hybridNotUsed,
+    "paoText" -> hybridNagPaoText,
+    "paoStartNumber" -> hybridNagPaoStartNumber,
+    "paoStartSuffix" -> hybridNotUsed,
+    "paoEndNumber" -> hybridNotUsed,
+    "paoEndSuffix" -> hybridNotUsed,
+    "saoText" -> hybridNagSaoText,
+    "saoStartNumber" -> hybridNotUsed,
+    "saoStartSuffix" -> hybridNotUsed,
+    "saoEndNumber" -> hybridNotUsed,
+    "saoEndSuffix" -> hybridNotUsed,
+    "level" -> hybridNotUsed,
+    "officialFlag" -> hybridNotUsed,
+    "logicalStatus" -> hybridNotUsed,
+    "streetDescriptor" -> hybridNagStreetDescriptor,
+    "townName" -> hybridNagTownName,
+    "locality" -> hybridNagLocality,
+    "organisation" -> hybridNagOrganisation,
+    "legalName" -> hybridNagLegalName,
+    "latitude" -> hybridNagLatitude,
+    "longitude" -> hybridNagLongitude,
+    "northing" -> hybridNagNorthing,
+    "easting" -> hybridNagEasting,
+    "classificationCode" -> hybridNotUsed
+  )
+
+  val secondHybridNagEs = Map(
+    "uprn" -> "1n1",
+    "postcodeLocator" -> "1n2",
+    "addressBasePostal" -> "1n3",
+    "usrn" -> "1n4",
+    "lpiKey" -> "1n5",
+    "paoText" -> "1n6",
+    "paoStartNumber" -> "1n7",
+    "paoStartSuffix" -> "1n8",
+    "paoEndNumber" -> "1n9",
+    "paoEndSuffix" -> "1n10",
+    "saoText" -> "1n11",
+    "saoStartNumber" -> "1n12",
+    "saoStartSuffix" -> "1n13",
+    "saoEndNumber" -> "1n14",
+    "saoEndSuffix" -> "1n15",
+    "level" -> "1n16",
+    "officialFlag" -> "1n17",
+    "logicalStatus" -> "1n18",
+    "streetDescriptor" -> "1n19",
+    "townName" -> "1n20",
+    "locality" -> "1n21",
+    "organisation" -> "1n22",
+    "legalName" -> "1n23",
+    "lat" -> "1.0000000",
+    "lon" -> "2.0000000",
+    "northing" -> "3",
+    "easting" -> "4",
+    "classificationCode" -> "n24"
+  )
+
+  val firstHybridEs = Map(
+    "uprn" -> hybridFirstUprn,
+    "paf" -> Seq(firstHybridPafEs),
+    "lpi" -> Seq(firstHybridNagEs)
+  )
+
+  // This one is used to create a "concurrent" for the first one (the first one should be always on top)
+  val secondHybridEs = Map(
+    "uprn" -> "uprn2",
+    "paf" -> Seq(secondHybridPafEs),
+    "lpi" -> Seq(secondHybridNagEs)
+  )
 
   testClient.execute {
     bulk(
-      indexInto(pafIndexName / pafMappings).fields(
-        "recordIdentifier" -> pafRecordIdentifier,
-        "changeType" -> pafChangeType,
-        "proOrder" -> pafProOrder,
-        "uprn" -> pafUprn,
-        "udprn" -> pafUdprn,
-        "organizationName" -> pafOrganizationName,
-        "departmentName" -> pafDepartmentName,
-        "subBuildingName" -> pafSubBuildingName,
-        "buildingName" -> pafBuildingName,
-        "buildingNumber" -> pafBuildingNumber,
-        "dependentThoroughfare" -> pafDependentThoroughfare,
-        "thoroughfare" -> pafThoroughfare,
-        "doubleDependentLocality" -> pafDoubleDependentLocality,
-        "dependentLocality" -> pafDependentLocality,
-        "postTown" -> pafPostTown,
-        "postcode" -> pafPostcode,
-        "postcodeType" -> pafPostcodeType,
-        "deliveryPointSuffix" -> pafDeliveryPointSuffix,
-        "welshDependentThoroughfare" -> pafWelshDependentThoroughfare,
-        "welshThoroughfare" -> pafWelshThoroughfare,
-        "welshDoubleDependentLocality" -> pafWelshDoubleDependentLocality,
-        "welshDependentLocality" -> pafWelshDependentLocality,
-        "welshPostTown" -> pafWelshPostTown,
-        "poBoxNumber" -> pafPoBoxNumber,
-        "processDate" -> pafProcessDate,
-        "startDate" -> pafStartDate,
-        "endDate" -> pafEndDate,
-        "lastUpdateDate" -> pafLastUpdateDate,
-        "entryDate" ->pafEntryDate
-      ),
-      indexInto(pafIndexName / pafMappings).fields(
-        "recordIdentifier" -> "a1",
-        "changeType" -> "a2",
-        "proOrder" -> "a3",
-        "uprn" -> "a4",
-        "udprn" -> "a5",
-        "organizationName" -> "a6",
-        "departmentName" -> "a7",
-        "subBuildingName" -> "a8",
-        "buildingName" -> "a9",
-        "buildingNumber" -> "a10",
-        "dependentThoroughfare" -> "a11",
-        "thoroughfare" -> "a12",
-        "doubleDependentLocality" -> "a13",
-        "dependentLocality" -> "a14",
-        "postTown" -> "a15",
-        "postcode" -> "a16",
-        "postcodeType" -> "a17",
-        "deliveryPointSuffix" -> "a18",
-        "welshDependentThoroughfare" -> "a19",
-        "welshThoroughfare" -> "a20",
-        "welshDoubleDependentLocality" -> "a21",
-        "welshDependentLocality" -> "a22",
-        "welshPostTown" -> "a23",
-        "poBoxNumber" -> "a24",
-        "processDate" -> "a25",
-        "startDate" -> "a26",
-        "endDate" -> "a27",
-        "lastUpdateDate" -> "a28",
-        "entryDate" -> "a29"
-      ),
-      indexInto(nagIndexName / nagMappings). fields(
-        "uprn" -> nagUprn,
-        "postcodeLocator" -> nagPostcodeLocator,
-        "addressBasePostal" -> nagAddressBasePostal,
-        "usrn" -> nagUsrn,
-        "lpiKey" -> nagLpiKey,
-        "paoText" -> nagPaoText,
-        "paoStartNumber" -> nagPaoStartNumber,
-        "paoStartSuffix" -> nagPaoStartSuffix,
-        "paoEndNumber" -> nagPaoEndNumber,
-        "paoEndSuffix" -> nagPaoEndSuffix,
-        "saoText" -> nagSaoText,
-        "saoStartNumber" -> nagSaoStartNumber,
-        "saoStartSuffix" -> nagSaoStartSuffix,
-        "saoEndNumber" -> nagSaoEndNumber,
-        "saoEndSuffix" -> nagSaoEndSuffix,
-        "level" -> nagLevel,
-        "officialFlag" -> nagOfficialFlag,
-        "logicalStatus" -> nagLogicalStatus,
-        "streetDescriptor" -> nagStreetDescriptor,
-        "townName" -> nagTownName,
-        "locality" -> nagLocality,
-        "organisation" -> nagOrganisation,
-        "legalName" -> nagLegalName,
-        "latitude" -> nagLatitude,
-        "longitude" -> nagLongitude,
-        "northing" -> nagNorthing,
-        "easting" -> nagEasting,
-        "classificationCode" -> nagClassificationCode
-
-      ),
-      indexInto(nagIndexName / nagMappings). fields(
-        "uprn" -> "1n1",
-        "postcodeLocator" -> "1n2",
-        "addressBasePostal" -> "1n3",
-        "usrn" -> "1n4",
-        "lpiKey" -> "1n5",
-        "paoText" -> "1n6",
-        "paoStartNumber" -> "1n7",
-        "paoStartSuffix" -> "1n8",
-        "paoEndNumber" -> "1n9",
-        "paoEndSuffix" -> "1n10",
-        "saoText" -> "1n11",
-        "saoStartNumber" -> "1n12",
-        "saoStartSuffix" -> "1n13",
-        "saoEndNumber" -> "1n14",
-        "saoEndSuffix" -> "1n15",
-        "level" -> "1n16",
-        "officialFlag" -> "1n17",
-        "logicalStatus" -> "1n18",
-        "streetDescriptor" -> "1n19",
-        "townName" -> "1n20",
-        "locality" -> "1n21",
-        "organisation" -> "1n22",
-        "legalName" -> "1n23",
-        "lat" -> "1.0000000",
-        "lon" -> "2.0000000",
-        "northing" -> "3",
-        "easting" -> "4",
-        "classificationCode" -> "n24"
-      )
+      indexInto(hybridIndexName / hybridMappings).fields(firstHybridEs),
+      indexInto(hybridIndexName / hybridMappings).fields(secondHybridEs)
     )
   }.await
 
-  blockUntilCount(2, pafIndexName)
-  blockUntilCount(2, nagIndexName)
+  blockUntilCount(2, hybridIndexName)
 
   val expectedPaf = PostcodeAddressFileAddress(
-    pafRecordIdentifier,
-    pafChangeType,
-    pafProOrder,
-    pafUprn,
-    pafUdprn,
-    pafOrganizationName,
-    pafDepartmentName,
-    pafSubBuildingName,
-    pafBuildingName,
-    pafBuildingNumber,
-    pafDependentThoroughfare,
-    pafThoroughfare,
-    pafDoubleDependentLocality,
-    pafDependentLocality,
-    pafPostTown,
-    pafPostcode,
-    pafPostcodeType,
-    pafDeliveryPointSuffix,
-    pafWelshDependentThoroughfare,
-    pafWelshThoroughfare,
-    pafWelshDoubleDependentLocality,
-    pafWelshDependentLocality,
-    pafWelshPostTown,
-    pafPoBoxNumber,
-    pafProcessDate,
-    pafStartDate,
-    pafEndDate,
-    pafLastUpdateDate,
-    pafEntryDate,
-    1.0f
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridPafUprn,
+    hybridNotUsed,
+    hybridPafOrganizationName,
+    hybridPafDepartmentName,
+    hybridPafSubBuildingName,
+    hybridPafBuildingName,
+    hybridPafBuildingNumber,
+    hybridNotUsed,
+    hybridPafThoroughfare,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridPafPostTown,
+    hybridPafPostcode,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed
   )
 
   val expectedNag = NationalAddressGazetteerAddress(
-    nagUprn,
-    nagPostcodeLocator,
-    nagAddressBasePostal,
-    nagLatitude,
-    nagLongitude,
-    nagEasting,
-    nagNorthing,
-    nagOrganisation,
-    nagLegalName,
-    nagClassificationCode,
-    nagUsrn,
-    nagLpiKey,
-    nagPaoText,
-    nagPaoStartNumber,
-    nagPaoStartSuffix,
-    nagPaoEndNumber,
-    nagPaoEndSuffix,
-    nagSaoText,
-    nagSaoStartNumber,
-    nagSaoStartSuffix,
-    nagSaoEndNumber,
-    nagSaoEndSuffix,
-    nagLevel,
-    nagOfficialFlag,
-    nagLogicalStatus,
-    nagStreetDescriptor,
-    nagTownName,
-    nagLocality,
-    1.0f
+    hybridNagUprn,
+    hybridNagPostcodeLocator,
+    hybridNotUsed,
+    hybridNagLatitude,
+    hybridNagLongitude,
+    hybridNagEasting,
+    hybridNagNorthing,
+    hybridNagOrganisation,
+    hybridNagLegalName,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNagPaoText,
+    hybridNagPaoStartNumber,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNagSaoText,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNagStreetDescriptor,
+    hybridNagTownName,
+    hybridNagLocality
   )
 
   "Elastic repository" should {
 
-    "find PAF address by UPRN" in {
+    "generate valid query for search by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = Some(expectedPaf)
+      val expected = Json.parse(
+        """
+        {
+          "query" : {
+            "term" : {
+            "uprn" : "uprn1"
+          }
+          }
+        }
+        """
+      )
 
       // When
-      val result = repository.queryPafUprn("4").await
+      val result = Json.parse(repository.generateQueryUprnRequest(hybridFirstUprn).toString)
 
       // Then
       result shouldBe expected
     }
 
-    "find NAG address by UPRN" in {
+    "find HYBRID address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = Some(expectedNag)
+      val expectedHybrid = HybridAddress(
+        uprn = hybridFirstUprn,
+        lpi = Seq(expectedNag),
+        paf = Seq(expectedPaf),
+        score = 1.0f
+      )
+      val expected = Some(expectedHybrid)
 
       // When
-      val result = repository.queryNagUprn("n1").await
+      val result = repository.queryUprn(hybridFirstUprn).await
 
       // Then
       result shouldBe expected
     }
 
-    "find PAF addresses by building number and a postcode" ignore {
+    "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq.empty
+      val tokens = Seq(
+        CrfTokenResult(hybridNagPaoStartNumber, Tokens.buildingNumber),
+        CrfTokenResult(hybridNagLocality, Tokens.locality),
+        CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
+        CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
+      )
+      val expectedScore = 2.8f
 
-//        AddressTokens(
-//        uprn = "4",
-//        buildingNumber = "10",
-//        postcode = "16"
-//      )
-      val expectedScore = 1.4142135f
-      val expected = expectedPaf.copy(score = expectedScore)
+      val expected = HybridAddress(
+        uprn = hybridFirstUprn,
+        lpi = Seq(expectedNag),
+        paf = Seq(expectedPaf),
+        score = 0f
+      )
 
       // When
-      val PostcodeAddressFileAddresses(results, maxScore) = repository.queryPafAddresses(1,10,tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
 
       // Then
       results.length shouldBe 1
-      results.head shouldBe expected
-      maxScore shouldBe expectedScore
+
+      val resultHybrid = results.head
+      resultHybrid shouldBe expected.copy(score = resultHybrid.score)
+
+      // Score is random, but should always be close to some number
+      resultHybrid.score shouldBe expectedScore +- 0.1f
+      maxScore shouldBe expectedScore +- 0.1f
     }
 
-    "find NAG addresses by building number and a postcode" ignore {
+    "generate valid query for search by tokens" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq.empty
-//        AddressTokens(
-//        uprn = "n1",
-//        buildingNumber = "n7",
-//        postcode = "n2"
-//      )
-      val expectedScore = 1.4142135f
-      val expected = expectedNag.copy(score = expectedScore)
+      val tokens = Seq(
+        CrfTokenResult(hybridNagPaoStartNumber, Tokens.buildingNumber),
+        CrfTokenResult(hybridNagLocality, Tokens.locality),
+        CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
+        CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode),
+        CrfTokenResult(hybridPafDepartmentName, Tokens.departmentName),
+        CrfTokenResult(hybridPafSubBuildingName, Tokens.subBuildingName),
+        CrfTokenResult(hybridPafBuildingName, Tokens.buildingName),
+        CrfTokenResult(hybridNagStreetDescriptor, Tokens.streetName),
+        CrfTokenResult(hybridNagTownName, Tokens.townName)
+      )
+
+      val expected = Json.parse(
+        """
+          {
+            "query" : {
+              "bool" : {
+                "should" : [ {
+                  "match" : {
+                    "lpi.paoStartNumber" : {
+                      "query" : "h6",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.locality" : {
+                      "query" : "h10",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.organisation" : {
+                      "query" : "h2",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.legalName" : {
+                      "query" : "h2",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.saoText" : {
+                      "query" : "h4",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.paoText" : {
+                      "query" : "h5",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "fuzzy" : {
+                    "lpi.streetDescriptor" : {
+                      "value" : "h7",
+                      "fuzziness" : "2",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.townName" : {
+                      "query" : "h8",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.postcodeLocator" : {
+                      "query" : "h9",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.buildingNumber" : {
+                      "query" : "h6",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.organizationName" : {
+                      "query" : "h2",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.departmentName" : {
+                      "query" : "h3",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.subBuildingName" : {
+                      "query" : "h4",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.buildingName" : {
+                      "query" : "h5",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "fuzzy" : {
+                    "paf.thoroughfare" : {
+                      "value" : "h7",
+                      "fuzziness" : "2",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.postTown" : {
+                      "query" : "h8",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.postcode" : {
+                      "query" : "h9",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "_all" : {
+                      "query" : "h6 h10 h2 h9 h3 h4 h5 h7 h8",
+                      "type" : "boolean",
+                      "boost" : 0.5
+                    }
+                  }
+                } ],
+                "minimum_should_match" : "55%"
+              }
+            }
+          }
+        """
+      )
 
       // When
-      val NationalAddressGazetteerAddresses(results, maxScore) = repository.queryNagAddresses(1,10,tokens).await
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
 
       // Then
-      results.length shouldBe 1
-      results.head shouldBe expected
-      maxScore shouldBe expectedScore
+      result shouldBe expected
     }
 
   }

@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.model.config
 
+import org.elasticsearch.common.lucene.MinimumScoreCollector
+
 case class ElasticSearchConfig(
   local: Boolean,
   cluster: String,
@@ -9,7 +11,10 @@ case class ElasticSearchConfig(
   defaultLimit: Int,
   defaultOffset: Int,
   maximumLimit: Int,
-  maximumOffset: Int
+  maximumOffset: Int,
+  minimumShouldMatch: String,
+  underlineAllBoost: Float,
+  streetNameBoost: Float
 )
 
 object ElasticSearchConfig {
@@ -18,8 +23,7 @@ object ElasticSearchConfig {
     cluster = "ons-cluster",
     local = false,
     indexes = IndexesConfig(
-      pafIndex = "paf/address",
-      nagIndex = "nag/address"
+      hybridIndex = "hybrid/address"
     ),
     shield = ShieldConfig(
       ssl = true,
@@ -29,7 +33,10 @@ object ElasticSearchConfig {
     defaultLimit=10,
     defaultOffset=0,
     maximumLimit=100,
-    maximumOffset=1000
+    maximumOffset=1000,
+    minimumShouldMatch = "-2",
+    underlineAllBoost = 0.5f,
+    streetNameBoost = 1.0f
   )
 }
 
@@ -50,8 +57,7 @@ object AddressIndexConfig {
 }
 
 case class IndexesConfig(
-  pafIndex: String,
-  nagIndex: String
+  hybridIndex: String
 )
 
 case class ApiConfig(
@@ -70,14 +76,22 @@ case class DemouiConfig (
   customErrorDev: Boolean,
   customErrorTest: Boolean,
   customErrorProd: Boolean,
-  apiURL: ApiConfig
-)
+  apiURL: ApiConfig,
+  limit: Int,
+  offset: Int,
+  maxLimit: Int,
+  maxOffset: Int
+ )
 
 object DemouiConfig {
   val default: DemouiConfig = DemouiConfig(
     customErrorDev = false,
     customErrorTest = false,
     customErrorProd = true,
-    apiURL = ApiConfig.default
+    apiURL = ApiConfig.default,
+    limit = ElasticSearchConfig.default.defaultLimit,
+    offset = ElasticSearchConfig.default.defaultOffset,
+    maxLimit = ElasticSearchConfig.default.maximumLimit,
+    maxOffset = ElasticSearchConfig.default.maximumOffset
   )
 }

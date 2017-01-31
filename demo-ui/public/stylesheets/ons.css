@@ -91,7 +91,7 @@ p.toptext {
     margin-top: 0px;
     margin-bottom: 10px;
     min-width: 300px;
-    max-width: 600px;
+    max-width: 800px;
     border-bottom:2px solid #ddd;
     border-top: 0px;
     border-left: 0px;
@@ -100,6 +100,10 @@ p.toptext {
     padding-top: 2px;
     padding-left: 2px;
     padding-right: 2px
+}
+
+.panel-match#pager {
+    border-bottom:0px;
 }
 
 .panel-warning {
@@ -324,22 +328,11 @@ div.matchResults{
     width: 100%;
 }
 
-div.classification{
-    text-align:left;
-    float: left;
-    width: 100%;
-}
-
 div.match-conf{
     text-align:right;
     white-space:nowrap;
-    float: left;
-    width: 100%;
-}
-
-div.formattedAddress{
-    float: left;
-    width: 100%;
+    float: right;
+    width: 50%;
 }
 
 div.uprn-txt{
@@ -380,3 +373,87 @@ p.errorBody{
     color: darkred;
 }
 
+div.paf-nag-switch-buttons{
+    color: #aaa;
+    text-align:left;
+    background: #eee;
+    padding: 5px 6px;
+    float:left;
+}
+
+div.paf-nag-switch-buttons span{
+    padding: 0px 10px;
+    border: 1px solid #999;
+}
+
+.formatted-button-active{
+    background-color: #00914E;
+    color: #fff;
+}
+
+div.paf-nag-switch-buttons span:hover{
+    background-color: #00914E;
+    color: #fff;
+    cursor:pointer;
+}
+
+.pagecontainer {
+    max-width:100%;
+    text-align:center;
+}
+
+.pageleft {
+    float:left;
+    width:110px;
+    border: 1px solid #377894;
+}
+
+.pageleft a {
+    color: #377894;
+    text-decoration: none;
+    font-size:0.9em;
+    font-weight:700;
+}
+
+.pagecentre {
+    display: inline-block;
+    vertical-align: middle;
+    margin:0 auto;
+    width:90px;
+    color:gray;
+}
+
+.pageright {
+    float:right;
+    width:100px;
+    border: 1px solid #377894;
+}
+
+.pageright a {
+    color: #377894;
+    text-decoration: none;
+    font-size:0.9em;
+    font-weight:700;
+}
+
+.pl1 {
+    pointer-events: none;
+    cursor: default;
+    color:white;
+    border: 0px;
+}
+
+.pl1  a {
+    color:white;
+}
+
+.prtrue {
+    pointer-events: none;
+    cursor: default;
+    color:white;
+    border: 0px;
+}
+
+.prtrue  a {
+    color:white;
+}
