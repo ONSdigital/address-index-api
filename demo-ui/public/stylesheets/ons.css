@@ -102,6 +102,10 @@ p.toptext {
     padding-right: 2px
 }
 
+.panel-match#pager {
+    border-bottom:0px;
+}
+
 .panel-warning {
     margin: 0px 20px 10px 20px;
     border: 0px solid #ddd;
@@ -389,4 +393,65 @@ div.paf-nag-switch-buttons span{
 div.paf-nag-switch-buttons span:hover{
     background-color: #00914E;
     cursor:pointer;
+}
+
+.pagecontainer {
+    max-width:100%;
+    text-align:center;
+}
+
+.pageleft {
+    float:left;
+    width:110px;
+    border: 1px solid #377894;
+}
+
+.pageleft a {
+    color: #377894;
+    text-decoration: none;
+    font-size:0.9em;
+    font-weight:700;
+}
+
+.pagecentre {
+    display: inline-block;
+    vertical-align: middle;
+    margin:0 auto;
+    width:90px;
+    color:gray;
+}
+
+.pageright {
+    float:right;
+    width:100px;
+    border: 1px solid #377894;
+}
+
+.pageright a {
+    color: #377894;
+    text-decoration: none;
+    font-size:0.9em;
+    font-weight:700;
+}
+
+.pl1 {
+    pointer-events: none;
+    cursor: default;
+    color:white;
+    border: 0px;
+}
+
+.pl1  a {
+    color:white;
+}
+
+.prtrue {
+    pointer-events: none;
+    cursor: default;
+    color:white;
+    border: 0px;
+}
+
+.prtrue  a {
+    color:white;
 }
