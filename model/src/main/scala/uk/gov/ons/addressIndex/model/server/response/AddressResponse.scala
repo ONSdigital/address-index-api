@@ -118,6 +118,8 @@ object AddressTokens {
 case class AddressResponseAddress(
   uprn: String,
   formattedAddress: String,
+  formattedAddressNag: String,
+  formattedAddressPaf: String,
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
@@ -135,11 +137,17 @@ object AddressResponseAddress {
   def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi)
+    val formattedAddressNag = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+
+    val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
+    val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
 
     AddressResponseAddress(
       uprn = other.uprn,
-      formattedAddress = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse(""),
-      paf = other.paf.headOption.map(AddressResponsePaf.fromPafAddress),
+      formattedAddress = formattedAddressNag,
+      formattedAddressNag = formattedAddressNag,
+      formattedAddressPaf = formattedAddressPaf,
+      paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       underlyingScore = other.score

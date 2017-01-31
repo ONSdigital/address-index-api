@@ -9,6 +9,27 @@
 
 @main(title = messages("single.title")) {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+           $(".formatted-nag-button").click(function (e) {
+               $(this).addClass("formatted-button-active");
+               $(this).closest(".resultRow").find(".formatted-paf-button").removeClass("formatted-button-active");
+               $(this).closest(".resultRow").find(".formatted-nag").show();
+               $(this).closest(".resultRow").find(".formatted-paf").hide();
+               e.preventDefault()
+           });
+
+            $(".formatted-paf-button").click(function (e) {
+                $(this).addClass("formatted-button-active");
+                $(this).closest(".resultRow").find(".formatted-nag-button").removeClass("formatted-button-active");
+                $(this).closest(".resultRow").find(".formatted-paf").show();
+                $(this).closest(".resultRow").find(".formatted-nag").hide();
+                e.preventDefault()
+            });
+        });
+    </script>
+
 <div class="container">
     <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
@@ -49,8 +70,15 @@
                                     @{"%.2f".format((address.underlyingScore / aresponse.maxScore) * 100)}</span>%)</div>
                             </div>
                             <div class="resultRow">
-                                <strong>@messages("single.address"): </strong>
-                                    @address.formattedAddress
+                                <div class="paf-nag-switch-buttons">
+                                    <span class="formatted-nag-button formatted-button-active">LA</span>
+                                    <span class="formatted-paf-button">PAF</span>
+                                </div>
+                                <div>
+                                    <strong>@messages("single.address"): </strong>
+                                    <span class="formatted-nag">NAG @address.formattedAddressNag</span>
+                                    <span style="display: none" class="formatted-paf">PAF @address.formattedAddressPaf</span>
+                                </div>
                             </div>
                             <div class="resultRow">
                                 <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
