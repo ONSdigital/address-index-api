@@ -388,10 +388,12 @@ div.paf-nag-switch-buttons span{
 
 .formatted-button-active{
     background-color: #00914E;
+    color: #fff;
 }
 
 div.paf-nag-switch-buttons span:hover{
     background-color: #00914E;
+    color: #fff;
     cursor:pointer;
 }
 
