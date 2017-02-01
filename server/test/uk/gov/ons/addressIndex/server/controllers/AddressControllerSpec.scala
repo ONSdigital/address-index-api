@@ -4,13 +4,14 @@ import javax.inject.Inject
 
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, SearchDefinition}
 import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.model.db.index._
 import org.scalatestplus.play._
+import play.api.Logger
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 
@@ -100,6 +101,12 @@ class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCann
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def logger: Logger = ???
+
+    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
+
+    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
   }
 
   // mock that won't return any addresses
@@ -111,6 +118,12 @@ class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCann
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def logger: Logger = ???
+
+    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
+
+    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
   }
   
   val parser = new ParserModule {
