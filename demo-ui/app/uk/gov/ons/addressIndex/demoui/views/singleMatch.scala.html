@@ -137,40 +137,4 @@
         </div>
     </div>
 </div>
-<script>
-    function mimicBulk() {
-        var file = document.getElementById('file-bulk-mimic').files[0];
-        if (file) {
-            var reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = function(evt) {
-
-                var inputs = evt.target.result.split("\n");
-                console.log('inputs', inputs);
-
-                var postBody = { inputs: inputs };
-                console.log('postBody', postBody);
-
-                var ajaxObj = {
-                    type: 'POST',
-                    url: '/addresses/mimicBulk',
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    data: JSON.stringify(postBody),
-                    success: function(resp) {
-                        console.log('success', resp);
-                    },
-                    error: function(err) {
-                        console.error(err);
-                    }
-                };
-                console.log('ajaxObj', ajaxObj);
-                $.ajax(ajaxObj);
-            }
-            reader.onerror = function(evt) {
-                console.error(evt);
-            }
-        }
-    }
-</script>
 }
