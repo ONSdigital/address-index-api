@@ -25,3 +25,6 @@ GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.c
 
 # ONS-Address Index Bulk Mimic Upload
 POST    /addresses/mimicBulk                    uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithBulk
+
+# ONS-Address Index Single Search View
+GET     /bulkAddresses                          uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage

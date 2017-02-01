@@ -1,5 +1,8 @@
 @import helper._
-@()(implicit messages: Messages)
+@()(implicit
+    requestHeader: RequestHeader,
+    messages: Messages
+)
 @*
  * Call the `main` template with two arguments. The first
  * argument is a `String` with the title of the page, the second
@@ -15,13 +18,14 @@
         <div class="panel panel-default">
             <div class="row">
                 <div class="index-nav">
-                    <article class="box-nav-item">
-                        <a href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage()}">
-                            <img style="float:right;" width="280" height="120" src="/assets/images/singlesearch.jpg"/>
-                            <h4><a href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage()}">@messages("home.singlehead")</a></h4>
-                            <p>@messages("home.singlebody")</p>
-                        </a>
-                    </article>
+                    @nav.navItem(
+                        href = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage.absoluteURL,
+                        linkText = messages("home.singlehead"),
+                        linkBody = messages("home.singlebody"),
+                        imgUrl = "/assets/images/singlesearch.jpg",
+                        width = 280,
+                        height = 120
+                    )
                 </div>
             </div>
         </div>

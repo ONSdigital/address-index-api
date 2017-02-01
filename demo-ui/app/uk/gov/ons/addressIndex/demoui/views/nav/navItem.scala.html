@@ -1,0 +1,21 @@
+@(
+    href: String,
+    linkText: String,
+    linkBody: String,
+    imgUrl: String,
+    width: Int,
+    height: Int
+)(
+    implicit
+    messages: Messages
+)
+
+<article class="box-nav-item">
+    <a href="@href">
+        <img style="float:right;" width="@width" height="@height" src="@imgUrl"/>
+        <h4>
+            <a href="@href">@linkText</a>
+        </h4>
+        <p>@linkBody</p>
+    </a>
+</article>
