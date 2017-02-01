@@ -11,6 +11,7 @@ main.licenceurl=https://www.nationalarchives.gov.uk/doc/open-government-licence/
 main.copyright=Crown copyright
 navbar.home=Home
 navbar.singlematch=Single Match
+navbar.multimatch=Multiple Match
 single.pleasesupply=Please enter an address
 single.sfatext=Search for Addresses
 single.searchbut=Search
