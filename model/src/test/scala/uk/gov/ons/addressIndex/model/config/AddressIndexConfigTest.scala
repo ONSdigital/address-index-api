@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class AddressIndexConfigTest extends FlatSpec with Matchers {
 
-  ignore should "produce the expected default config" in {
+  it should "produce the expected default config" in {
     val expected = AddressIndexConfigTest.default
     val actual = AddressIndexConfig.default
     actual shouldBe expected
@@ -18,7 +18,7 @@ object AddressIndexConfigTest {
 }
 
 class ElasticSearchConfigTest extends FlatSpec with Matchers {
-  ignore should "produce the expected default config" in {
+  it should "produce the expected default config" in {
     val expected = ElasticSearchConfigTest.default
     val actual = ElasticSearchConfig.default
     actual shouldBe expected
@@ -30,13 +30,13 @@ object ElasticSearchConfigTest {
     uri = "elasticsearch://localhost:9200",
     cluster = "ons-cluster",
     local = false,
-    shield = ShieldConfig(
-      user = "",
-      password = "",
-      ssl = true
-    ),
     indexes = IndexesConfig(
       hybridIndex = "hybrid/address"
+    ),
+    shield = ShieldConfig(
+      ssl = true,
+      user = "admin",
+      password = ""
     ),
     defaultLimit=10,
     defaultOffset=0,
@@ -45,6 +45,5 @@ object ElasticSearchConfigTest {
     minimumShouldMatch = "-2",
     underlineAllBoost = 0.5f,
     streetNameBoost = 1.0f
-
   )
 }

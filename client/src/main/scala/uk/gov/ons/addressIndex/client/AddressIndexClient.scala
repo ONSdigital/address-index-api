@@ -6,6 +6,7 @@ import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
+
 trait AddressIndexClient {
 
   /**
@@ -28,7 +29,17 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def addressQuery(request: AddressIndexSearchRequest)
-    (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+                  (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+    addressQueryWSRequest(request).get.map(_.json.as[AddressBySearchResponseContainer])
+  }
+
+  /**
+    * testable method for addressQuery
+    *
+    * @param request
+    * @return
+    */
+  def addressQueryWSRequest(request: AddressIndexSearchRequest): WSRequest = {
     AddressQuery
       .toReq
       .withQueryString(
@@ -36,8 +47,6 @@ trait AddressIndexClient {
         "limit" -> request.limit,
         "offset" -> request.offset
       )
-      .get
-      .map(_.json.as[AddressBySearchResponseContainer])
   }
 
   /**
@@ -47,7 +56,7 @@ trait AddressIndexClient {
     * @return a list of addresses for each request, in order of the requests
     */
   def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])
-    (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
+                             (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
     Future sequence(requests map addressQuery)
   }
 
@@ -58,7 +67,18 @@ trait AddressIndexClient {
     * @return an address
     */
   def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
-    UprnQuery(request.uprn.toString).toReq.get
+    urpnQueryWSRequest(request).get
+  }
+
+  /**
+    * testable method for uprnQuery
+    *
+    * @param request
+    * @return
+    */
+  def urpnQueryWSRequest(request: AddressIndexUPRNRequest): WSRequest = {
+    UprnQuery(request.uprn.toString)
+      .toReq
   }
 }
 

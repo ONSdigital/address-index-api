@@ -16,27 +16,43 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
+
   /**
     * An ElasticClient.
     */
-  def client(): ElasticClient
+  def client: ElasticClient
+
+  def logger: Logger
 
   /**
-    * Query the address index by UPRN.
-    *
-    * @param uprn the identificator of the address
-    * @return Fucture containing a address or `None` if not in the index
-    */
-  def queryUprn(uprn: String): Future[Option[HybridAddress]]
-
-  /**
-    * Query the address index for addresses.
-    * @param start the offset for the query
-    * @param limit maximum number of returned results
-    * @param tokens address tokens
-    * @return Future with found addresses and the maximum score
+    * @param tokens
+    * @return
     */
   def queryAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses]
+
+  def queryUprn(uprn: String): Future[Option[HybridAddress]]
+
+  def generateQueryUprnRequest(uprn: String): SearchDefinition
+
+  def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition
+
+  /**
+    * Helper which logs an ElasticSearch Query before executing it.
+    *
+    * @param info
+    * @param t
+    * @param executable
+    * @tparam T
+    * @tparam R
+    * @tparam Q
+    * @return
+    */
+  def logExecute[T, R, Q](info: String)(t: T)(implicit executable: Executable[T, R, Q]): Future[Q] = {
+
+    logger info s"$info: ${t.toString}"
+
+    client execute t
+  }
 }
 
 @Singleton
@@ -52,7 +68,7 @@ class AddressIndexRepository @Inject()(
   private val streetNameBoost = conf.config.elasticSearch.streetNameBoost
 
   val client: ElasticClient = elasticClientProvider.client
-  private val logger = Logger("AddressIndexRepository")
+  val logger = Logger("AddressIndexRepository")
 
   def queryUprn(uprn: String): Future[Option[HybridAddress]] = {
 

@@ -405,7 +405,6 @@ div.paf-nag-switch-buttons span:hover{
 .pageleft {
     float:left;
     width:110px;
-    border: 1px solid #377894;
 }
 
 .pageleft a {
@@ -426,7 +425,6 @@ div.paf-nag-switch-buttons span:hover{
 .pageright {
     float:right;
     width:100px;
-    border: 1px solid #377894;
 }
 
 .pageright a {
