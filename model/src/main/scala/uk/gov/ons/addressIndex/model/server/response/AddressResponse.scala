@@ -4,6 +4,8 @@ import play.api.http.Status
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.BulkAddress
+import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
 
@@ -78,6 +80,54 @@ case class AddressBySearchResponse(
 object AddressBySearchResponse {
   implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
   implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
+}
+
+case class AddressBulkResponseContainer(
+  bulkAddresses: Seq[AddressResponseBulkAddress],
+  totalSuccessful: Int,
+  totalFailed: Int
+)
+
+object AddressBulkResponseContainer {
+
+}
+
+case class AddressResponseBulkAddress(
+  id: String,
+  uprn: String,
+  organisationName: String,
+  departmentName: String,
+  subBuildingName: String,
+  buildingName: String,
+  buildingNumber: String,
+  streetName: String,
+  locality: String,
+  townName: String,
+  postcode: String,
+  formattedAddress: String,
+  score: Float
+)
+
+object AddressResponseBulkAddress {
+
+  implicit lazy val addressResponseBulkAddressFormat: Format[AddressResponseBulkAddress] = Json.format[AddressResponseBulkAddress]
+
+  def from(id: String, tokens: Map[String, String], bulkAddress: BulkAddress) =
+    AddressResponseBulkAddress(
+      id = id,
+      uprn = bulkAddress.hybridAddress.uprn,
+      organisationName = bulkAddress.tokens.getOrElse(Tokens.organisationName, ""),
+      departmentName = bulkAddress.tokens.getOrElse(Tokens.departmentName, ""),
+      subBuildingName = bulkAddress.tokens.getOrElse(Tokens.subBuildingName, ""),
+      buildingName = bulkAddress.tokens.getOrElse(Tokens.buildingName, ""),
+      buildingNumber = bulkAddress.tokens.getOrElse(Tokens.buildingNumber, ""),
+      streetName = bulkAddress.tokens.getOrElse(Tokens.streetName, ""),
+      locality = bulkAddress.tokens.getOrElse(Tokens.locality, ""),
+      townName = bulkAddress.tokens.getOrElse(Tokens.townName, ""),
+      postcode = bulkAddress.tokens.getOrElse(Tokens.postcode, ""),
+      formattedAddress = " ",
+      score = bulkAddress.hybridAddress.score
+    )
 }
 
 

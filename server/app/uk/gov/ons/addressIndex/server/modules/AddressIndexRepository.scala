@@ -96,7 +96,7 @@ class AddressIndexRepository @Inject()(
     */
   def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = {
 
-    val tokensMap = tokensToMap(tokens)
+    val tokensMap = Tokens.tokensToMap(tokens)
 
     val query =
       bool {
@@ -199,9 +199,4 @@ class AddressIndexRepository @Inject()(
 
   }
 
-  private def tokensToMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
-    tokens.groupBy(_.label).map {
-      case (token, values) => (token, values.map(_.value).mkString(" "))
-    }
-  }
 }
