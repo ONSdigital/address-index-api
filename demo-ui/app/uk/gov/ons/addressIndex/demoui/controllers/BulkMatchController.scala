@@ -45,6 +45,9 @@ class BulkMatchController @Inject()(
   def uploadFile(): Action[MultipartFormData[TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     request.body.file(multiMatchFormName) map { file =>
       val seqAddress = Source.fromFile(file.ref.file).mkString.split("\n").toSeq
+
+      Logger("TEST").info("SIZE OF ADDRESSES:: " + seqAddress.size.toString)
+
       Future.sequence(
         seqAddress map { address =>
           apiClient.addressQuery(
@@ -62,7 +65,7 @@ class BulkMatchController @Inject()(
             nav = Navigation.default,
             fileFormName = multiMatchFormName,
             results = Some(
-              resp
+              seqAddress.zip(resp)
             )
           )
         )
