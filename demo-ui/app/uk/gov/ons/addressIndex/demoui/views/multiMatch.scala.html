@@ -1,0 +1,70 @@
+@import helper._
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+
+@(
+    nav: Navigation,
+    fileFormName: String,
+    results: Option[Seq[AddressBySearchResponseContainer]] = None
+)(
+    implicit
+    messages: Messages,
+    request: RequestHeader
+)
+
+@main(title = messages("single.title")) {
+    <div class="container">
+        <div class="panel panel-single">
+            <div class="panel-heading sub-nav-heading">
+                @navigation(nav)
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-single address-panel">
+        <h3 class="panel-title">@messages("multi.sfatext")</h3>
+        <div class="panel-body">
+            <div id="search-form" class="search-bar-active">
+                @form(
+                    action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFile,
+                    'enctype -> "multipart/form-data"
+                ) {
+                    <p>
+                        <input type="file" name="@fileFormName" />
+                        <input class="btn btn-success btn-search" type="submit" />
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+    @results.map { resultSeq =>
+        <div class="panel panel-single address-panel">
+            <div class="panel-body">
+                <table border="1px;black;">
+                    <thead>
+                        <td>ID</td>
+                        <td>Input Address</td>
+                        <td>Matched Address</td>
+                        <td>UPRN</td>
+                        <td>Match Type</td>
+                        <td>Scores</td>
+                    </thead>
+                    <tbody>
+                        @for((result, i)<- resultSeq.zipWithIndex) {
+                            <tr>
+                                <td>@{i+1}</td>
+                                <td>@{result.response.addresses.head.formattedAddress}</td>
+                                <td>@{result.response.addresses.head.formattedAddress}</td>
+                                <td>@{result.response.addresses.head.uprn}</td>
+                                <td>???</td>
+                                <td>@{result.response.addresses.head.underlyingScore}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    <div class="panel panel-single address-panel">
+        <p class="pad">&nbsp;</p>
+    </div>
+}
