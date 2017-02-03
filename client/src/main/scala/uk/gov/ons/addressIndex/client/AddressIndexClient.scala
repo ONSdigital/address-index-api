@@ -30,7 +30,10 @@ trait AddressIndexClient {
     */
   def addressQuery(request: AddressIndexSearchRequest)
                   (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
-    addressQueryWSRequest(request).get.map(_.json.as[AddressBySearchResponseContainer])
+    addressQueryWSRequest(request).get.map { x =>
+      println(x)
+      x.json.as[AddressBySearchResponseContainer]
+    }
   }
 
   /**
