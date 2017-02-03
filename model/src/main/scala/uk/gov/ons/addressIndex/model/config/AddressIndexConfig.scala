@@ -47,11 +47,13 @@ case class ShieldConfig(
 )
 
 case class AddressIndexConfig(
+  parserLibPath: String,
   elasticSearch: ElasticSearchConfig
 )
 
 object AddressIndexConfig {
   val default: AddressIndexConfig = AddressIndexConfig(
+    parserLibPath = "/",
     elasticSearch = ElasticSearchConfig.default
   )
 }

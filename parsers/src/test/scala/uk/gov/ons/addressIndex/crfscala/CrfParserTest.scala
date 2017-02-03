@@ -51,4 +51,6 @@ class CrfParserTest extends FlatSpec with Matchers {
   }
 }
 
-object CrfParserImpl extends CrfParser
+object CrfParserImpl extends CrfParser {
+  override def parserLibPath: String = "parsers/src/main/resources"
+}
