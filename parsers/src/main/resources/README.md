@@ -21,15 +21,15 @@ make install
 ##Build Shim for OSX or Linux:
 ```
 git clone https://github.com/ONSdigital/crftagger.git
-cd tagger/crftagger
+cd crftagger
 make clean
 make
 ```
 
-##Build Shim for OSX or Linux:
+##Build Shim for Windows:
 ```
 git clone https://github.com/ONSdigital/crftagger.git
-cd tagger/crftagger
+cd crftagger
 make clean
 OS="Windows" make
 ```
