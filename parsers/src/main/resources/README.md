@@ -2,7 +2,7 @@ The shared objects are built from C code in the ONSdigital repository:
 
 ##Build Lib LBFGS:
 ```
-git clone https://github.com/chokkan/liblbfgs.git
+git clone https://github.com/ONSdigital/liblbfgs.git
 cd liblbfgs
 ./autogen.sh
 ./configure --prefix=$HOME/local
@@ -11,17 +11,25 @@ make install
 ```
 ##Build CRFSuite:
 ```
-git clone https://github.com/chokkan/crfsuite.git
+git clone https://github.com/ONSdigital/crfsuite.git
 cd crfsuite
 ./autogen.sh
 ./configure --prefix=$HOME/local --with-liblbfgs=$HOME/local
 make
 make install
 ```
-##Build Shim:
+##Build Shim for OSX or Linux:
 ```
-git clone https://github.com/ONSdigital/address-index-api.git
+git clone https://github.com/ONSdigital/crftagger.git
 cd tagger/crftagger
 make clean
 make
+```
+
+##Build Shim for OSX or Linux:
+```
+git clone https://github.com/ONSdigital/crftagger.git
+cd tagger/crftagger
+make clean
+OS="Windows" make
 ```
