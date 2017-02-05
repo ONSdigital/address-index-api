@@ -112,22 +112,6 @@ object AddressResponseBulkAddress {
 
   implicit lazy val addressResponseBulkAddressFormat: Format[AddressResponseBulkAddress] = Json.format[AddressResponseBulkAddress]
 
-  def from(id: String, tokens: Map[String, String], bulkAddress: BulkAddress) =
-    AddressResponseBulkAddress(
-      id = id,
-      uprn = bulkAddress.hybridAddress.uprn,
-      organisationName = bulkAddress.tokens.getOrElse(Tokens.organisationName, ""),
-      departmentName = bulkAddress.tokens.getOrElse(Tokens.departmentName, ""),
-      subBuildingName = bulkAddress.tokens.getOrElse(Tokens.subBuildingName, ""),
-      buildingName = bulkAddress.tokens.getOrElse(Tokens.buildingName, ""),
-      buildingNumber = bulkAddress.tokens.getOrElse(Tokens.buildingNumber, ""),
-      streetName = bulkAddress.tokens.getOrElse(Tokens.streetName, ""),
-      locality = bulkAddress.tokens.getOrElse(Tokens.locality, ""),
-      townName = bulkAddress.tokens.getOrElse(Tokens.townName, ""),
-      postcode = bulkAddress.tokens.getOrElse(Tokens.postcode, ""),
-      formattedAddress = " ",
-      score = bulkAddress.hybridAddress.score
-    )
 }
 
 

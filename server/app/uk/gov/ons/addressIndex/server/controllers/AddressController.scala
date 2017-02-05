@@ -6,7 +6,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
@@ -16,6 +16,7 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
+import scala.concurrent.duration.Duration
 import scala.io.Source
 import scala.util.Try
 
@@ -128,15 +129,22 @@ class AddressController @Inject()(
     }
   }
 
-  def bulkQuery(): Action[AnyContent] = Action.async { implicit req =>
+  /**
+    * Runs queries for each address in file
+    * @return tbd
+    */
+  def bulkQuery(): Action[AnyContent] = Action { implicit req =>
+    val rawAddresses = Source.fromFile("/path/to/file").getLines
 
-      val rawAddresses: Iterator[String] = Source.fromFile("/").getLines
+    val tokenizedAddresses: Iterator[Seq[CrfTokenResult]] = rawAddresses.map(parser.tag)
 
-      val tokenizedAddresses: Iterator[Seq[CrfTokenResult]] = rawAddresses.map(parser.tag)
+    val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
 
-      val addresses: Future[BulkAddresses] = queryBulkAddresses(tokenizedAddresses, 3)
+    val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
 
-      addresses.map(result => Ok(s"${result.successfulBulkAddresses.size}, ${result.failedBulkAddresses.size}"))
+    val test = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, 1), Duration.Inf))
+
+    Ok(s"${test.map(_.successfulBulkAddresses.size).sum}, ${test.map(_.failedBulkAddresses.size).sum}")
   }
 
   /**

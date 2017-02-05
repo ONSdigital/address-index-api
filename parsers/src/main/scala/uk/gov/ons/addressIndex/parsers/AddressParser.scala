@@ -10,6 +10,12 @@ import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeature, CrfFeature, CrfFea
   * AddressParser
   */
 object AddressParser extends CrfParser {
+
+  val currentDirectory = new java.io.File(".").getCanonicalPath
+  val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
+
+  tagger.loadModel(modelPath)
+
   def tag(input: String): Seq[CrfTokenResult]  = {
     super.tag(input, FeatureAnalysers.allFeatures, Tokens)
   }

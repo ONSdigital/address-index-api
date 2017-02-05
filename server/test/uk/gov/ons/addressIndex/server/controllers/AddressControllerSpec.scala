@@ -135,6 +135,12 @@ class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCann
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def logger: Logger = ???
+
+    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
+
+    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
   }
   
   val parser = new ParserModule {
