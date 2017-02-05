@@ -5,6 +5,8 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
 //TODO scaladoc
 trait CrfParser {
 
+  def parserLibPath: String
+
   //TODO scaladoc
   val tagger: CrfScalaJniImpl = new CrfScalaJniImpl
 

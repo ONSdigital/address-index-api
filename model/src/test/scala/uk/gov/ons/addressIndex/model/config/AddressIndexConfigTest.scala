@@ -13,6 +13,7 @@ class AddressIndexConfigTest extends FlatSpec with Matchers {
 
 object AddressIndexConfigTest {
   val default = AddressIndexConfig(
+    parserLibPath = "/",
     elasticSearch = ElasticSearchConfigTest.default
   )
 }
