@@ -82,17 +82,39 @@ object AddressBySearchResponse {
   implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
 }
 
+/**
+  * Contains relevant information about the result of the bulk request
+  * @param bulkAddresses found bulk addresses
+  * @param totalSuccessful number of successful results
+  * @param totalFailed number of failed results
+  */
 case class AddressBulkResponseContainer(
-  bulkAddresses: Seq[AddressResponseBulkAddress],
+  bulkAddresses: Seq[AddressBulkResponseAddress],
   totalSuccessful: Int,
   totalFailed: Int
 )
 
 object AddressBulkResponseContainer {
-
+  implicit lazy val addressBulkResponseContainer: Format[AddressBulkResponseContainer] = Json.format[AddressBulkResponseContainer]
 }
 
-case class AddressResponseBulkAddress(
+/**
+  * Container for relevent information on each of the address result in bulk search
+  * @param id
+  * @param uprn
+  * @param organisationName
+  * @param departmentName
+  * @param subBuildingName
+  * @param buildingName
+  * @param buildingNumber
+  * @param streetName
+  * @param locality
+  * @param townName
+  * @param postcode
+  * @param formattedAddress
+  * @param score
+  */
+case class AddressBulkResponseAddress(
   id: String,
   uprn: String,
   organisationName: String,
@@ -108,10 +130,8 @@ case class AddressResponseBulkAddress(
   score: Float
 )
 
-object AddressResponseBulkAddress {
-
-  implicit lazy val addressResponseBulkAddressFormat: Format[AddressResponseBulkAddress] = Json.format[AddressResponseBulkAddress]
-
+object AddressBulkResponseAddress {
+  implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 }
 
 
