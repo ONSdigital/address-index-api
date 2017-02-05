@@ -16,7 +16,9 @@ class AddressParserTest extends FlatSpec with Matchers {
     *   Ignore for now but address later.
     */
 
-  val addressParser = new CrfParser {}
+  val addressParser = new CrfParser {
+    override def parserLibPath: String = ""
+  }
 
   it should "create the correct `CrfJniInput` for input `mySingleton`" in {
     val input = "mySingleton"
