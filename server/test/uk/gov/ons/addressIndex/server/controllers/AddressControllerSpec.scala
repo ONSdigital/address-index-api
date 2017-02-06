@@ -1,7 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import javax.inject.Inject
-
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
 import com.sksamuel.elastic4s.{ElasticClient, SearchDefinition}
@@ -14,9 +12,11 @@ import org.scalatestplus.play._
 import play.api.Logger
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.BulkAddresses
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCannedResponse {
 
@@ -116,6 +116,23 @@ class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCann
 
     override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+
+    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def logger: Logger = ???
+
+    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
+
+    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
+  }
+
+  val sometimesFailingRepositoryMock = new ElasticsearchRepository {
+
+    override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
+
+    override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
+      if (tokens.head.value == "failed") Future.failed(new Exception("test failure"))
+      else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
 
@@ -382,6 +399,25 @@ class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCann
       status(result) mustBe NOT_FOUND
       actual mustBe expected
     }
-    
+
+    "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
+      // Given
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+
+      val tokensPerLine: Iterator[Seq[CrfTokenResult]] = List(
+        Seq(CrfTokenResult("success", "first")),
+        Seq(CrfTokenResult("success", "second")),
+        Seq(CrfTokenResult("failed", "third"))
+      ).iterator
+
+      // When
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(tokensPerLine, 3), Duration.Inf )
+
+      // Then
+      result.successfulBulkAddresses.size mustBe 2
+      result.failedBulkAddresses.size mustBe 1
+    }
+
+
   }
 }

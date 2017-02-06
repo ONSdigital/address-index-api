@@ -13,12 +13,9 @@ trait CrfParser {
   //TODO scaladoc
   def tag(input: String, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
     //todo optimise file
-    val currentDirectory = new java.io.File(".").getCanonicalPath
-    val modelPath = s"$currentDirectory/$parserLibPath/addressCRFA.crfsuite"
     val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
 
-    tagger.loadModel(modelPath)
     val resp = tagger.tag(augmentedActual)
     
     val tokenResults = resp.split(CrfScalaJni.lineEnd)

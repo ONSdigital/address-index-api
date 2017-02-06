@@ -11,3 +11,5 @@ GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressCo
 
 #EG     /es
 GET     /es                 uk.gov.ons.addressIndex.server.controllers.AddressController.elasticTest
+
+GET     /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulkQuery

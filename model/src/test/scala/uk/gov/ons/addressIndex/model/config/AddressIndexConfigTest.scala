@@ -45,6 +45,7 @@ object ElasticSearchConfigTest {
     maximumOffset=1000,
     minimumShouldMatch = "-2",
     underlineAllBoost = 0.5f,
-    streetNameBoost = 1.0f
+    streetNameBoost = 1.0f,
+    bulkRequestsPerBatch = 1000
   )
 }

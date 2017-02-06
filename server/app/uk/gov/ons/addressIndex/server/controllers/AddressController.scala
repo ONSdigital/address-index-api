@@ -5,11 +5,19 @@ import javax.inject.{Inject, Singleton}
 import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
-import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
+import com.sksamuel.elastic4s.ElasticDsl._
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
+import uk.gov.ons.addressIndex.server.modules._
+import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.parsers.Implicits._
+import uk.gov.ons.addressIndex.parsers.Tokens
+
+import scala.concurrent.duration.Duration
+import scala.io.Source
 import scala.util.Try
 
 @Singleton
@@ -120,4 +128,74 @@ class AddressController @Inject()(
 
     }
   }
+
+  /**
+    * Runs queries for each address in file
+    * @return tbd
+    */
+  def bulkQuery(): Action[AnyContent] = Action { implicit req =>
+    val rawAddresses = Source.fromFile("/path/to/file").getLines
+
+    val tokenizedAddresses: Iterator[Seq[CrfTokenResult]] = rawAddresses.map(parser.tag)
+
+    val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
+
+    val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
+
+    val test = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, 1), Duration.Inf))
+
+    Ok(s"${test.map(_.successfulBulkAddresses.size).sum}, ${test.map(_.failedBulkAddresses.size).sum}")
+  }
+
+  /**
+    * Requests addresses for each tokens sequence supplied.
+    * This method should not be in `Repository` because it uses `queryAddress`
+    * that needs to be mocked through dependency injection
+    * @param inputs an iterator containing a collection of tokens per each lines,
+    *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
+    * @return BulkAddresses containing successful addresses and other information
+    */
+  def queryBulkAddresses(inputs: Iterator[Seq[CrfTokenResult]], limitPerAddress: Int): Future[BulkAddresses] = {
+
+    val addressesRequests: Iterator[Future[Either[RejectedRequest, Seq[BulkAddress]]]] =
+      inputs.map { tokens =>
+
+        val bulkAddressRequest: Future[Seq[BulkAddress]] =
+          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+            hybridAddresses.map(hybridAddress => BulkAddress(Tokens.tokensToMap(tokens), hybridAddress))
+          }
+
+        // Successful requests are stored in the `Right`
+        // Failed requests will be stored in the `Left`
+        bulkAddressRequest.map(Right(_)).recover {
+          case exception: Throwable => Left(RejectedRequest(tokens, exception))
+        }
+
+      }
+
+    // This also transforms lazy `Iterator` into an in-memory sequence
+    val bulkAddresses: Future[Seq[Either[RejectedRequest, Seq[BulkAddress]]]] = Future.sequence(addressesRequests.toList)
+
+    val successfulAddresses: Future[Seq[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
+
+    val failedAddresses: Future[Seq[RejectedRequest]] = bulkAddresses.map(collectFailedAddresses)
+
+    // transform (Future(X), Future[Y]) into Future(X, Y)
+    for {
+      successful <- successfulAddresses
+      failed <- failedAddresses
+    } yield BulkAddresses(successful, failed)
+  }
+
+
+  private def collectSuccessfulAddresses(addresses: Seq[Either[RejectedRequest, Seq[BulkAddress]]]): Seq[BulkAddress] =
+    addresses.collect {
+      case Right(bulkAddresses) => bulkAddresses
+    }.flatten
+
+  private def collectFailedAddresses(addresses: Seq[Either[RejectedRequest, Seq[BulkAddress]]]): Seq[RejectedRequest] =
+    addresses.collect {
+      case Left(address) => address
+    }
+
 }

@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import com.typesafe.config.ConfigFactory
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenable
+import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
 
 import scala.io.Source
 
@@ -53,6 +53,12 @@ object Tokens extends CrfTokenable {
     tokens.map(token => synonym.getOrElse(token, token))
 
   override def normalise(tokens: Array[String]): Array[String] = tokens.map(_.toUpperCase)
+
+  def tokensToMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
+    tokens.groupBy(_.label).map {
+      case (token, values) => (token, values.map(_.value).mkString(" "))
+    }
+  }
 
   val organisationName: String = "OrganisationName"
   val departmentName: String = "DepartmentName"
