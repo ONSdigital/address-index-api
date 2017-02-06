@@ -131,6 +131,8 @@ class AddressController @Inject()(
     }
   }
 
+
+  //mini model for input post body
   case class BulkBody(addresses: Seq[BulkQuery])
   object BulkBody {
     implicit lazy val fmt: Format[BulkBody] = Json.format[BulkBody]
@@ -162,6 +164,7 @@ class AddressController @Inject()(
     implicit lazy val fmt: Format[BulkItem] = Json.format[BulkItem]
   }
 
+  //mini model for output
   case class BulkResp(resp: List[BulkItem])
   object BulkResp {
     implicit lazy val fmt: Format[BulkResp] = Json.format[BulkResp]
@@ -177,7 +180,7 @@ class AddressController @Inject()(
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
     val test = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.map(_._2).toIterator, 1), Duration.Inf))
-
+    //converts output to resp shape
     futureJsonOk(
       BulkResp(
         resp = test.flatMap {
