@@ -13,7 +13,7 @@ import uk.gov.ons.addressIndex.crfscala.{CrfAggregateFeature, CrfFeature, CrfFea
 object AddressParser extends CrfParser {
 
   val currentDirectory = new java.io.File(".").getCanonicalPath
-  val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
+  val modelPath = s"$currentDirectory/$parserLibPath/addressCRFA.crfsuite"
 
   tagger.loadModel(modelPath)
 
