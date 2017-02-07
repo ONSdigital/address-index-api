@@ -29,11 +29,8 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def addressQuery(request: AddressIndexSearchRequest)
-                  (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
-    addressQueryWSRequest(request).get.map { x =>
-      println(x)
-      x.json.as[AddressBySearchResponseContainer]
-    }
+    (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+    addressQueryWSRequest(request).get.map(_.json.as[AddressBySearchResponseContainer])
   }
 
   /**
@@ -59,7 +56,7 @@ trait AddressIndexClient {
     * @return a list of addresses for each request, in order of the requests
     */
   def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])
-                             (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
+    (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
     Future sequence(requests map addressQuery)
   }
 
