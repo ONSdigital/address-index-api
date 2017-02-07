@@ -1,4 +1,6 @@
 @import helper._
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.model.ui.Links
 
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
@@ -20,34 +22,34 @@
 @main(title = messages("single.title")) {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-    <script>
-        $(function () {
-           $(".formatted-nag-button").click(function (e) {
-               $(this).addClass("formatted-button-active");
-               var parent = $(this).closest(".resultRow");
-               parent.find(".formatted-paf-button").removeClass("formatted-button-active");
-               var parent2 = $(parent).next(".resultRow");
-               parent2.find(".formatted-nag").show();
-               parent2.find(".formatted-paf").hide();
-               e.preventDefault()
-           });
+<script>
+    $(function () {
+       $(".formatted-nag-button").click(function (e) {
+           $(this).addClass("formatted-button-active");
+           var parent = $(this).closest(".resultRow");
+           parent.find(".formatted-paf-button").removeClass("formatted-button-active");
+           var parent2 = $(parent).next(".resultRow");
+           parent2.find(".formatted-nag").show();
+           parent2.find(".formatted-paf").hide();
+           e.preventDefault()
+       });
 
-            $(".formatted-paf-button").click(function (e) {
-                $(this).addClass("formatted-button-active");
-                var parent = $(this).closest(".resultRow");
-                parent.find(".formatted-nag-button").removeClass("formatted-button-active");
-                var parent2 = $(parent).next(".resultRow");
-                parent2.find(".formatted-paf").show();
-                parent2.find(".formatted-nag").hide();
-                e.preventDefault()
-            });
+        $(".formatted-paf-button").click(function (e) {
+            $(this).addClass("formatted-button-active");
+            var parent = $(this).closest(".resultRow");
+            parent.find(".formatted-nag-button").removeClass("formatted-button-active");
+            var parent2 = $(parent).next(".resultRow");
+            parent2.find(".formatted-paf").show();
+            parent2.find(".formatted-nag").hide();
+            e.preventDefault()
         });
-    </script>
+    });
+</script>
 
 <div class="container">
     <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
-        @navigation()
+        @navigation(Navigation.default)
         </div>
         @warningMessage.map { message =>
         <div id="warning-message" class="panel panel-warning address-panel">
@@ -61,7 +63,7 @@
             <div class="panel-body">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm)
+                    @forms.singleAddressForm(singleSearchForm)
                 </div>
                 }
             </div>
@@ -135,40 +137,4 @@
         </div>
     </div>
 </div>
-<script>
-    function mimicBulk() {
-        var file = document.getElementById('file-bulk-mimic').files[0];
-        if (file) {
-            var reader = new FileReader();
-            reader.readAsText(file, "UTF-8");
-            reader.onload = function(evt) {
-
-                var inputs = evt.target.result.split("\n");
-                console.log('inputs', inputs);
-
-                var postBody = { inputs: inputs };
-                console.log('postBody', postBody);
-
-                var ajaxObj = {
-                    type: 'POST',
-                    url: '/addresses/mimicBulk',
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    data: JSON.stringify(postBody),
-                    success: function(resp) {
-                        console.log('success', resp);
-                    },
-                    error: function(err) {
-                        console.error(err);
-                    }
-                };
-                console.log('ajaxObj', ajaxObj);
-                $.ajax(ajaxObj);
-            }
-            reader.onerror = function(evt) {
-                console.error(evt);
-            }
-        }
-    }
-</script>
 }
