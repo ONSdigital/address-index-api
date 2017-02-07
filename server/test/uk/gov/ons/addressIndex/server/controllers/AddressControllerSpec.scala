@@ -1,24 +1,26 @@
 package uk.gov.ons.addressIndex.server.controllers
 
+import akka.stream.Materializer
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
 import com.sksamuel.elastic4s.{ElasticClient, SearchDefinition}
 import org.elasticsearch.common.settings.Settings
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.ons.addressIndex.model.db.index._
 import org.scalatestplus.play._
 import play.api.Logger
+import play.api.http.HeaderNames
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 import uk.gov.ons.addressIndex.model.db.BulkAddresses
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCannedResponse {
+class AddressControllerSpec extends PlaySpec with Results with AddressIndexCannedResponse {
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
@@ -352,7 +354,36 @@ class AddressControllerSpec  extends PlaySpec with Results with AddressIndexCann
       status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
-    
+
+    "reply on bulk post req" in new WithApplication {
+      val mtrlzr = app.injector.instanceOf[Materializer]
+      // Given
+      val controller = queryController
+      val request = {
+        FakeRequest(
+          method = "POST",
+          path = uk.gov.ons.addressIndex.server.controllers.routes.AddressController.bulkQuery.url
+        ).withJsonBody(
+          Json.toJson(
+            BulkBody(
+              Seq(
+                BulkQuery(
+                  id = "",
+                  address = ""
+                )
+              )
+            )
+          )
+        ).withHeaders(
+          HeaderNames.CONTENT_TYPE -> "application/json"
+        )
+      }
+
+      // When
+      val result: Future[Result] = controller.bulkQuery().apply(request).run()(mtrlzr)
+      // Then
+      status(result) mustBe OK
+    }
     "reply on a 400 error if query is empty (by address query)" in {
       // Given
       val controller = queryController
