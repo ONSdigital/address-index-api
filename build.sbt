@@ -69,7 +69,8 @@ val commonDeps = Seq(
   "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
   "com.lihaoyi"            %% "pprint"            % "0.4.3",
   "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
-  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s
+  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
+  "org.apache.commons"     %  "commons-lang3"     % "3.3.2"
 )
 
 val modelDeps = Seq(ws) ++ commonDeps
