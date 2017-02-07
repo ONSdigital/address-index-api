@@ -5,20 +5,23 @@ import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 
 /**
   * DTO to hold the information about found address while doing bulk requests
+  * @param id
   * @param tokens tokens that were used to do the bulk request
   * @param hybridAddress found address
   */
 case class BulkAddress(
+  id: String,
   tokens: Map[String, String],
   hybridAddress: HybridAddress
 )
 
 /**
   * If a bulk request didn't pass (failed `Future`), it will be stored in this DTO
+  * @param id
   * @param tokens tokens that were used for the request
   * @param exception exeption that lead to the failure of the `Future`
   */
-case class RejectedRequest(tokens: Seq[CrfTokenResult], exception: Throwable)
+case class RejectedRequest(id: String, tokens: Seq[CrfTokenResult], exception: Throwable)
 
 /**
   * Dto to hold the result of the internal fetch of the addresses in a bulk request
