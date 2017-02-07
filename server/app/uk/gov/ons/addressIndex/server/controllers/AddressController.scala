@@ -181,13 +181,13 @@ class AddressController @Inject()(
   def queryBulkAddresses(inputs: Iterator[(String, Seq[CrfTokenResult])], limitPerAddress: Int): Future[BulkAddresses] = {
 
     val addressesRequests: Iterator[Future[Either[RejectedRequest, Seq[BulkAddress]]]] =
-      inputs.map { tokens =>
+      inputs.map { case (id, tokens) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
-          esRepo.queryAddresses(0, limitPerAddress, tokens._2).map { case HybridAddresses(hybridAddresses, _, _) =>
+          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
             hybridAddresses.map(hybridAddress => BulkAddress(
-                id = tokens._1,
-                tokens = Tokens.tokensToMap(tokens._2),
+                id = id,
+                tokens = Tokens.tokensToMap(tokens),
                 hybridAddress = hybridAddress
               )
             )
@@ -196,7 +196,7 @@ class AddressController @Inject()(
         // Successful requests are stored in the `Right`
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
-          case exception: Throwable => Left(RejectedRequest(tokens._1, tokens._2, exception))
+          case exception: Throwable => Left(RejectedRequest(id, tokens, exception))
         }
 
       }
