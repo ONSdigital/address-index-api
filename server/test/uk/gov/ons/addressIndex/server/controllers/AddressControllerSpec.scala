@@ -435,10 +435,10 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       // Given
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
-      val tokensPerLine: Iterator[Seq[CrfTokenResult]] = List(
-        Seq(CrfTokenResult("success", "first")),
-        Seq(CrfTokenResult("success", "second")),
-        Seq(CrfTokenResult("failed", "third"))
+      val tokensPerLine: Iterator[(String, Seq[CrfTokenResult])] = List(
+        "1" -> Seq(CrfTokenResult("success", "first")),
+        "2" -> Seq(CrfTokenResult("success", "second")),
+        "3" -> Seq(CrfTokenResult("failed", "third"))
       ).iterator
 
       // When

@@ -24,7 +24,7 @@ class SystemBootstrap @Inject()() {
 
   System.load(
     new File(
-      s"${ConfigFactory.load().getString("addressIndex.parserLibPath")}/$osSharedObjectName"
+      s"${new java.io.File(".").getCanonicalPath}/${ConfigFactory.load().getString("addressIndex.parserLibPath")}/$osSharedObjectName"
     ).getAbsolutePath
   )
   Logger("address-index") info "`SystemBootstrap` complete"
