@@ -142,7 +142,7 @@ class AddressController @Inject()(
     val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.map(_._2).toIterator, 1), Duration.Inf))
+    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, 1), Duration.Inf))
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
     futureJsonOk(
@@ -150,7 +150,7 @@ class AddressController @Inject()(
         resp = results flatMap {
           _.successfulBulkAddresses map { addr =>
             BulkItem(
-              id = "",
+              id = addr.id,
               organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
               departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
               subBuildingName = addr.tokens.getOrElse(Tokens.subBuildingName, ""),
@@ -178,20 +178,25 @@ class AddressController @Inject()(
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(inputs: Iterator[Seq[CrfTokenResult]], limitPerAddress: Int): Future[BulkAddresses] = {
+  def queryBulkAddresses(inputs: Iterator[(String, Seq[CrfTokenResult])], limitPerAddress: Int): Future[BulkAddresses] = {
 
     val addressesRequests: Iterator[Future[Either[RejectedRequest, Seq[BulkAddress]]]] =
-      inputs.map { tokens =>
+      inputs.map { case (id, tokens) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
           esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
-            hybridAddresses.map(hybridAddress => BulkAddress(Tokens.tokensToMap(tokens), hybridAddress))
+            hybridAddresses.map(hybridAddress => BulkAddress(
+                id = id,
+                tokens = Tokens.tokensToMap(tokens),
+                hybridAddress = hybridAddress
+              )
+            )
           }
 
         // Successful requests are stored in the `Right`
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
-          case exception: Throwable => Left(RejectedRequest(tokens, exception))
+          case exception: Throwable => Left(RejectedRequest(id, tokens, exception))
         }
 
       }
