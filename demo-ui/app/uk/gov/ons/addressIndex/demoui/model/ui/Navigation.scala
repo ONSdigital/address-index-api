@@ -24,6 +24,12 @@ object Links {
       label = messages("navbar.multimatch")
     )
   }
+  def clerical(implicit messages: Messages) = {
+    Link(
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showSingleMatchPage.toString,
+      label = messages("navbar.clerical")
+    )
+  }
 }
 
 object Navigation {
@@ -32,7 +38,8 @@ object Navigation {
       links = Seq(
         Links.home,
         Links.single,
-        Links.multi
+        Links.multi,
+        Links.clerical
       )
     )
   }

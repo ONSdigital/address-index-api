@@ -82,9 +82,10 @@ p.toptext {
     margin-left: 15px;
     margin-right: 15px;
     min-width: 310px;
-    max-width: 310px;
+    max-width: 936px;
     border:1px solid #ddd;
     padding: 10px;
+    overflow:auto;
 }
 
 .panel-match {
@@ -229,6 +230,7 @@ input[type="radio"]#format.form-control {
     width: 280px ;
     border:1px solid #ddd;
     padding: 10px;
+    float:left;
 }
 
 .index-nav a:link {
@@ -316,6 +318,16 @@ span.error   {
     cursor: pointer;
 }
 
+h3.panel-title {
+    display:inline;
+}
+
+h4.panel-subtitle {
+    display:inline;
+    font-weight: 400;
+    font-size: 22px;
+}
+
 h3.green {
     margin-top:20px;
     color: #00914E;
@@ -332,7 +344,10 @@ div.match-conf{
     text-align:right;
     white-space:nowrap;
     float: right;
-    width: 50%;
+    height: 40px;
+    line-height: 40px;
+    vertical-align: middle;
+    width: 65%;
 }
 
 div.uprn-txt{
@@ -360,6 +375,14 @@ div.resultRow{
 }
 
 .map-link-txt a:hover {
+    color: #4c2c92 ;
+}
+
+.clericalInfo a:link {
+    color: #489DC4;
+}
+
+.clericalInfo a:hover {
     color: #4c2c92 ;
 }
 
@@ -454,4 +477,8 @@ div.paf-nag-switch-buttons span:hover{
 
 .prtrue  a {
     color:white;
+}
+
+.hiderow {
+    visibility:hidden;
 }
