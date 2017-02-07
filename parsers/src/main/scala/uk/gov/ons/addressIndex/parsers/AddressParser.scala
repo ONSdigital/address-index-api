@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.parsers
 
 import com.typesafe.config.ConfigFactory
+import org.apache.commons.lang3.StringUtils
 import uk.gov.ons.addressIndex.crfscala.CrfAggregateFeatureAnalyser.CrfAggregateFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
@@ -18,7 +19,7 @@ object AddressParser extends CrfParser {
   tagger.loadModel(modelPath)
 
   def tag(input: String): Seq[CrfTokenResult]  = {
-    super.tag(input, FeatureAnalysers.allFeatures, Tokens)
+    super.tag(StringUtils.stripAccents(input), FeatureAnalysers.allFeatures, Tokens)
   }
   def parse(input: String): String = {
     super.parse(input, FeatureAnalysers.allFeatures, Tokens)
