@@ -9,6 +9,7 @@ import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
+import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
 import uk.gov.ons.addressIndex.server.modules._
@@ -129,23 +130,80 @@ class AddressController @Inject()(
     }
   }
 
-  /**
-    * Runs queries for each address in file
-    * @return tbd
-    */
-  def bulkQuery(): Action[AnyContent] = Action { implicit req =>
-    val rawAddresses = Source.fromFile("/path/to/file").getLines
 
-    val tokenizedAddresses: Iterator[Seq[CrfTokenResult]] = rawAddresses.map(parser.tag)
 
-    val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
-
-    val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-
-    val test = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, 1), Duration.Inf))
-
-    Ok(s"${test.map(_.successfulBulkAddresses.size).sum}, ${test.map(_.failedBulkAddresses.size).sum}")
+  //mini model for input post body
+  case class BulkBody(addresses: Seq[BulkQuery])
+  object BulkBody {
+    implicit lazy val fmt: Format[BulkBody] = Json.format[BulkBody]
   }
+
+  case class BulkQuery(id: String, address: String)
+  object BulkQuery {
+    implicit lazy val fmt: Format[BulkQuery] = Json.format[BulkQuery]
+  }
+
+  case class BulkItem(
+    id: String,
+    organisationName: String = "",
+    departmentName: String = "",
+    subBuildingName: String = "",
+    buildingName: String = "",
+    buildingNumber: String = "",
+    streetName: String = "",
+    locality: String = "",
+    townName: String = "",
+    postcode: String = "",
+    uprn: String,
+    score: Float
+  )
+  object BulkItem {
+    implicit lazy val fmt: Format[BulkItem] = Json.format[BulkItem]
+  }
+
+  //mini model for output
+  case class BulkResp(resp: List[BulkItem])
+  object BulkResp {
+    implicit lazy val fmt: Format[BulkResp] = Json.format[BulkResp]
+  }
+
+
+  /**
+    * a POST route which will process all `BulkQuery` items in the `BulkBody`.
+    * @return
+    */
+  def bulkQuery(): Action[BulkBody] = Action.async(parse.json[BulkBody]) { implicit req =>
+    logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
+    val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
+    val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
+    val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
+    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.map(_._2).toIterator, 1), Duration.Inf))
+    logger.info(s"#bulkQuery processed")
+    logger.info(s"#bulkQuery converting to response")
+    futureJsonOk(
+      BulkResp(
+        resp = results flatMap {
+          _.successfulBulkAddresses map { addr =>
+            BulkItem(
+              id = "",
+              organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
+              departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
+              subBuildingName = addr.tokens.getOrElse(Tokens.subBuildingName, ""),
+              buildingName = addr.tokens.getOrElse(Tokens.buildingName, ""),
+              buildingNumber = addr.tokens.getOrElse(Tokens.buildingNumber, ""),
+              streetName = addr.tokens.getOrElse(Tokens.streetName, ""),
+              locality = addr.tokens.getOrElse(Tokens.locality, ""),
+              townName = addr.tokens.getOrElse(Tokens.townName, ""),
+              postcode = addr.tokens.getOrElse(Tokens.postcode, ""),
+              uprn = addr.hybridAddress.uprn,
+              score = addr.hybridAddress.score
+            )
+          }
+        }
+      )
+    )
+  }
+
 
   /**
     * Requests addresses for each tokens sequence supplied.
