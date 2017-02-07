@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.demoui.controllers
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
+import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
 import play.api.data._
@@ -101,7 +102,7 @@ class SingleMatchController @Inject()(
     * @return result to view
     */
   def doMatchWithInput(input : String, formatText: String, page: Option[Int]) : Action[AnyContent] = Action.async { implicit request =>
-    val addressText = input
+    val addressText = StringUtils.stripAccents(input)
     val limit = pageSize.toString()
     logger info("Limit param = " + limit)
     val pageNum = page.getOrElse(1)
