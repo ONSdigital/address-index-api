@@ -21,7 +21,7 @@ case class BulkAddress(
   * @param tokens tokens that were used for the request
   * @param exception exeption that lead to the failure of the `Future`
   */
-case class RejectedRequest(id: String, tokens: Seq[CrfTokenResult], exception: Throwable)
+case class RejectedRequest(id: String, tokens: Seq[CrfTokenResult], exception: Exception)
 
 /**
   * Dto to hold the result of the internal fetch of the addresses in a bulk request
