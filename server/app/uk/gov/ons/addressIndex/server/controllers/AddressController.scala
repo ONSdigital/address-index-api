@@ -1,25 +1,18 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
-import com.sksamuel.elastic4s.ElasticDsl._
+import scala.concurrent.duration._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
-import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.parsers.Implicits._
 import uk.gov.ons.addressIndex.parsers.Tokens
-
-import scala.concurrent.duration.Duration
-import scala.io.Source
 import scala.util.Try
 
 @Singleton
@@ -133,7 +126,8 @@ class AddressController @Inject()(
 
 
 
-  /**
+
+    /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`.
     * @return
     */
@@ -142,51 +136,53 @@ class AddressController @Inject()(
     val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf))
+    val fResults = Future.sequence(chunkedTokenizedAddresses.map(tokens => queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit)))
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
-    futureJsonOk(
-      BulkResp(
-        resp = results flatMap { result =>
-          val successes = result.successfulBulkAddresses map { addr =>
-            BulkItem(
-              id = addr.id,
-              organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
-              departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
-              subBuildingName = addr.tokens.getOrElse(Tokens.subBuildingName, ""),
-              buildingName = addr.tokens.getOrElse(Tokens.buildingName, ""),
-              buildingNumber = addr.tokens.getOrElse(Tokens.buildingNumber, ""),
-              streetName = addr.tokens.getOrElse(Tokens.streetName, ""),
-              locality = addr.tokens.getOrElse(Tokens.locality, ""),
-              townName = addr.tokens.getOrElse(Tokens.townName, ""),
-              postcode = addr.tokens.getOrElse(Tokens.postcode, ""),
-              uprn = addr.hybridAddress.uprn,
-              score = addr.hybridAddress.score,
-              exceptionMessage = ""
-            )
+    fResults.map { results =>
+      jsonOk(
+        BulkResp(
+          resp = results flatMap { result =>
+            val successes = result.successfulBulkAddresses map { addr =>
+              BulkItem(
+                id = addr.id,
+                organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
+                departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
+                subBuildingName = addr.tokens.getOrElse(Tokens.subBuildingName, ""),
+                buildingName = addr.tokens.getOrElse(Tokens.buildingName, ""),
+                buildingNumber = addr.tokens.getOrElse(Tokens.buildingNumber, ""),
+                streetName = addr.tokens.getOrElse(Tokens.streetName, ""),
+                locality = addr.tokens.getOrElse(Tokens.locality, ""),
+                townName = addr.tokens.getOrElse(Tokens.townName, ""),
+                postcode = addr.tokens.getOrElse(Tokens.postcode, ""),
+                uprn = addr.hybridAddress.uprn,
+                score = addr.hybridAddress.score,
+                exceptionMessage = ""
+              )
+            }
+            val failures = result.failedBulkAddresses map { failure =>
+              val tokenMap = Tokens.tokensToMap(failure.tokens)
+              BulkItem(
+                id = failure.id,
+                organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
+                departmentName = tokenMap.getOrElse(Tokens.departmentName, ""),
+                subBuildingName = tokenMap.getOrElse(Tokens.subBuildingName, ""),
+                buildingName = tokenMap.getOrElse(Tokens.buildingName, ""),
+                buildingNumber = tokenMap.getOrElse(Tokens.buildingNumber, ""),
+                streetName = tokenMap.getOrElse(Tokens.streetName, ""),
+                locality = tokenMap.getOrElse(Tokens.locality, ""),
+                townName = tokenMap.getOrElse(Tokens.townName, ""),
+                postcode = tokenMap.getOrElse(Tokens.postcode, ""),
+                uprn = "",
+                score = 0f,
+                exceptionMessage = s"${failure.exception.getMessage}"
+              )
+            }
+            successes ++ failures
           }
-          val failures = result.failedBulkAddresses map { failures =>
-            val tokenMap = Tokens.tokensToMap(failures.tokens)
-            BulkItem(
-              id = failures.id,
-              organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
-              departmentName = tokenMap.getOrElse(Tokens.departmentName, ""),
-              subBuildingName = tokenMap.getOrElse(Tokens.subBuildingName, ""),
-              buildingName = tokenMap.getOrElse(Tokens.buildingName, ""),
-              buildingNumber = tokenMap.getOrElse(Tokens.buildingNumber, ""),
-              streetName = tokenMap.getOrElse(Tokens.streetName, ""),
-              locality = tokenMap.getOrElse(Tokens.locality, ""),
-              townName = tokenMap.getOrElse(Tokens.townName, ""),
-              postcode = tokenMap.getOrElse(Tokens.postcode, ""),
-              uprn = "",
-              score = 0f,
-              exceptionMessage = failures.exception.getMessage
-            )
-          }
-          successes ++ failures
-        }
+        )
       )
-    )
+    }
   }
 
 
@@ -213,10 +209,10 @@ class AddressController @Inject()(
             )
           }
 
-        // Successful requests are stored in the `Right`
+        // Successful requests are stored isys.error(s"Unable to find config for '$env' env")n the `Right`
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
-          case exception: Throwable => Left(RejectedRequest(id, tokens, exception))
+          case exception: Exception => Left(RejectedRequest(id, tokens, exception))
         }
 
       }
@@ -228,7 +224,7 @@ class AddressController @Inject()(
 
     val failedAddresses: Future[Seq[RejectedRequest]] = bulkAddresses.map(collectFailedAddresses)
 
-    // transform (Future(X), Future[Y]) into Future(X, Y)
+    // transform (Future[X], Future[Y]) into Future[Z[X, Y]]
     for {
       successful <- successfulAddresses
       failed <- failedAddresses
