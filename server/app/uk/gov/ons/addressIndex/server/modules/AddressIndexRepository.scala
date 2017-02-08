@@ -75,7 +75,7 @@ class AddressIndexRepository @Inject()(
 
     val request = generateQueryUprnRequest(uprn)
 
-    logger.info(request.toString)
+    logger.trace(request.toString)
 
     client.execute(request).map(_.as[HybridAddress].headOption)
   }
@@ -94,7 +94,7 @@ class AddressIndexRepository @Inject()(
 
     val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
-    logger.info(request.toString)
+    logger.trace(request.toString)
 
     client.execute(request).map { response =>
       HybridAddresses(
