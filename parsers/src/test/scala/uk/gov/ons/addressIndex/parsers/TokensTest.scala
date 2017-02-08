@@ -60,10 +60,10 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "convert '9 GRANVILLE ROAD ST. ALBANS HERTS AL1 5BE' into '9 GRANVILLE ROAD ST. ALBANS HERTFORDSHIRE AL1 5BE'" in {
+  it should "convert '9 GRANVILLE ROAD ST. ALBANS HERTS AL1 5BE' into '9 GRANVILLE ROAD ST. ALBANS AL1 5BE'" in {
     val input = "9 GRANVILLE ROAD ST. ALBANS HERTS AL1 5BE"
     val actual = Tokens(input).mkString(" ")
-    val expected = "9 GRANVILLE ROAD ST. ALBANS HERTFORDSHIRE AL1 5BE"
+    val expected = "9 GRANVILLE ROAD ST. ALBANS AL1 5BE"
     actual shouldBe expected
   }
 
@@ -88,10 +88,10 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "convert 'ESSEX HOUSE TYNE AND WEAR ROAD MIDDX S01 1ZZ' into 'ESSEX HOUSE TYNE AND WEAR ROAD MIDDLESEX S01 1ZZ'" in {
+  it should "convert 'ESSEX HOUSE TYNE AND WEAR ROAD MIDDX S01 1ZZ' into 'ESSEX HOUSE TYNE AND WEAR ROAD S01 1ZZ'" in {
     val input = "ESSEX HOUSE TYNE AND WEAR ROAD MIDDX S01 1ZZ"
     val actual = Tokens(input).mkString(" ")
-    val expected = "ESSEX HOUSE TYNE AND WEAR ROAD MIDDLESEX S01 1ZZ"
+    val expected = "ESSEX HOUSE TYNE AND WEAR ROAD S01 1ZZ"
     actual shouldBe expected
   }
 
