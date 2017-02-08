@@ -66,7 +66,7 @@ object Tokens extends CrfTokenable {
     val postCodeTokens = tokens.getOrElse(Tokens.postcode, Seq.empty)
     if(postCodeTokens.size == 1) {
       val token = postCodeTokens.head.value
-      if(token.length >= 5) {
+      if(token.length >= 4) {
         val outcode = token.substring(token.length - 3, token.length)
         val incode = token.substring(0, token.indexOf(outcode))
         val regex = "[0-9][A-Z][A-Z]".r

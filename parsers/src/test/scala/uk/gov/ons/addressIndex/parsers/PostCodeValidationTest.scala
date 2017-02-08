@@ -75,6 +75,13 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
   }
 
+  it should "X1AA -> X 1AA" in {
+    testHelper(
+      input = "X1AA",
+      expected = "X 1AA"
+    )
+  }
+
   //These ingored tests are bounds tests for postcode, these occurrences will never happen
   //because the parser will pick them up as building number.
   //still interesting to keep.
