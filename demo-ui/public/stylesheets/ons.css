@@ -386,6 +386,11 @@ div.resultRow{
     color: #4c2c92 ;
 }
 
+.clericalInfo a {
+    display:inline-block;
+    margin-bottom:6px;
+}
+
 p.messageDetail{
     margin-top:0px;
     -webkit-margin-before: 0em;
@@ -481,4 +486,17 @@ div.paf-nag-switch-buttons span:hover{
 
 .hiderow {
     visibility:hidden;
+    overflow:auto;
+    height:0px;
+}
+
+
+.clerical1 {
+    margin: 0px 0px 0px 6px;
+    color: #606060;
+}
+
+.clerical2 {
+    margin: 6px 0px 6px 6px;
+    color: #606060;
 }

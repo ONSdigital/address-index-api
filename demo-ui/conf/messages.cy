@@ -1,4 +1,5 @@
 clerical.sfatext=Offeryn clerigol
+clerical.addinfo=Gwybodaeth Clerigol Ychwanegol
 home.servicetext=Gwasanaeth Paru Cyfeiriad
 home.headertext=Mae''r gwasanaeth hwn yn eich galluogi i chwilio am gyfeiriad unigol, neu yn cyd-fynd swp o gyfeiriadau o ffeil mewnbwn.
 home.singlehead=Dod o hyd i gyfeiriad
@@ -30,9 +31,11 @@ single.matchscore=Cyfateb Sgôr
 single.confidence=hyder
 single.found=dod o hyd i gyfeiriadau
 single.openmap=Map agored
+single.classification=Dosbarthiad
 singlesearchform.placeholder=E.g. 7 Gate Reach Exeter EX2 6GA
 error.error=gwall
 error.detail=Manylion neges
+category.notfound = Dosbarthiad Anhysbys
 category.C = Masnachol
 category.CA = Amaethyddol
 category.CA01 = Fferm Dibreswyl Adeilad Cysylltiedig

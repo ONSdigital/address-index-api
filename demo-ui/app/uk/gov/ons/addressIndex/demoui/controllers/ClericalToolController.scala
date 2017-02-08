@@ -89,7 +89,7 @@ class ClericalToolController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(addressText, addressFormat, Some(1), Some(1)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(addressText, addressFormat, Some(1), Some(-1)))
       )
     }
   }

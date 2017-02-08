@@ -115,9 +115,9 @@
                                 }
                             </div>
                             <div class="resultRow">
-                                <strong>Classification: </strong>
+                                <strong>@messages("single.classification"): </strong>
                                     @if(address.nag.isEmpty){
-                                        @messages("category.R")
+                                        @messages("category.notfound")
                                     } else {
                                         @address.nag.map{ nag =>
                                         @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")

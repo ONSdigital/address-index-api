@@ -77,6 +77,7 @@ classification: Option[Map[String,String]]
                 <div class="result-content">
                     <div class="alert alert-success">
                         <div class="matchResults">
+                            <a name="@index"></a>
                             <div class="resultRow">
                                 <div class="paf-nag-switch-buttons">
                                     <span class="formatted-nag-button formatted-button-active">LA</span>
@@ -116,21 +117,82 @@ classification: Option[Map[String,String]]
                                 }
                             </div>
                             <div class="resultRow">
-                                <strong>Classification: </strong>
+                                <strong>@messages("single.classification"): </strong>
                                 @if(address.nag.isEmpty){
-                                @messages("category.R")
+                                @messages("category.notfound")
                                 } else {
                                 @address.nag.map{ nag =>
                                 @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
                                 }
                                 }
                             </div>
+
                             <div class="resultRow">
                                 <div id="clerical" class="clericalInfo">
-                                    <a href="?page=@{pageNum}&expand=@index">Additional Clerical Information @expandRow</a>
+                                    <a href="?page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
                                 </div>
                                 <div class='@{if (index == expandRow) {"showrow"} else {"hiderow"}}'>
-                                    Wibble
+                                    @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token =>
+                                    <div id="hfnum" class="clerical1">
+                                        <strong>House / Flat Number:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token =>
+                                    <div id="hname" class="clerical1">
+                                        <strong>House Name:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token =>
+                                    <div id="street" class="clerical1">
+                                        <strong>Street:</strong>  @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "TownName").map { token =>
+                                    <div id="town" class="clerical1">
+                                        <strong>Town:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "CountyName").map { token =>
+                                    <div id="county" class="clerical1">
+                                        <strong>County:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token =>
+                                    <div id="postcode" class="clerical1">
+                                        <strong>Postcode:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "CountryName").map { token =>
+                                    <div id="country" class="clerical1">
+                                        <strong>Country:</strong> @token.value
+                                    </div>
+                                    }
+                                    <div id="status" class="clerical2">
+                                        <strong>Logical Status:</strong> @address.nag.map{ nag => @nag.logicalStatus }
+                                    </div>
+                                    <div id="score" class="clerical2">
+                                        <strong>Elastic score:</strong> @address.underlyingScore
+                                    </div>
+                                    <div id="classification" class="clerical2">
+                                        <strong>@messages("single.classification"): </strong>
+                                        @if(address.nag.isEmpty){
+                                        @messages("category.notfound")
+                                        } else {
+                                        @address.nag.map{ nag =>
+                                        @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                                        }
+                                        }
+                                    </div>
+                                    <div id="parent" class="clerical2">
+                                        <strong>Parent UPRN:</strong>
+                                    </div>
+                                    <div id="la" class="clerical2">
+                                        <strong>Local Authority:</strong>
+                                    </div>
+                                    <div id="level" class="clerical2">
+                                        <strong>Hierarchy Level:</strong>
+                                    </div>
+                                    <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
                                 </div>
                             </div>
                         </div>

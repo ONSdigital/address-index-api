@@ -1,4 +1,5 @@
 clerical.sfatext=Clerical Tool
+clerical.addinfo=Additional Clerical Information
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
 home.singlehead=Find an address
@@ -30,9 +31,11 @@ single.matchscore=Matching Score
 single.confidence=Confidence
 single.found=addresses found
 single.openmap=Open Map
+single.classification=Classification
 singlesearchform.placeholder=E.g. 7 Gate Reach Exeter EX2 6GA
 error.error=Error
 error.detail=Message Detail
+category.notfound = Classification Unknown
 category.C=Commercial
 category.CA=Agricultural
 category.CA01=Farm / Non-Residential Associated Building
