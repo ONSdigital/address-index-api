@@ -40,6 +40,7 @@ case class BulkItem(
   townName: String = "",
   postcode: String = "",
   uprn: String,
+  exceptionMessage: String,
   score: Float
 )
 object BulkItem {

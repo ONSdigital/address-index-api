@@ -50,12 +50,14 @@ case class ShieldConfig(
 
 case class AddressIndexConfig(
   parserLibPath: String,
+  bulkLimit: Int,
   elasticSearch: ElasticSearchConfig
 )
 
 object AddressIndexConfig {
   val default: AddressIndexConfig = AddressIndexConfig(
     parserLibPath = "/",
+    bulkLimit = 5,
     elasticSearch = ElasticSearchConfig.default
   )
 }

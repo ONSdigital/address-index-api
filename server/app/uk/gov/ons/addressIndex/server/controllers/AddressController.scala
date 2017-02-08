@@ -142,13 +142,13 @@ class AddressController @Inject()(
     val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, 1), Duration.Inf))
+    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf))
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
     futureJsonOk(
       BulkResp(
-        resp = results flatMap {
-          _.successfulBulkAddresses map { addr =>
+        resp = results flatMap { result =>
+          val successes = result.successfulBulkAddresses map { addr =>
             BulkItem(
               id = addr.id,
               organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
@@ -161,9 +161,29 @@ class AddressController @Inject()(
               townName = addr.tokens.getOrElse(Tokens.townName, ""),
               postcode = addr.tokens.getOrElse(Tokens.postcode, ""),
               uprn = addr.hybridAddress.uprn,
-              score = addr.hybridAddress.score
+              score = addr.hybridAddress.score,
+              exceptionMessage = ""
             )
           }
+          val failures = result.failedBulkAddresses map { failures =>
+            val tokenMap = Tokens.tokensToMap(failures.tokens)
+            BulkItem(
+              id = failures.id,
+              organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
+              departmentName = tokenMap.getOrElse(Tokens.departmentName, ""),
+              subBuildingName = tokenMap.getOrElse(Tokens.subBuildingName, ""),
+              buildingName = tokenMap.getOrElse(Tokens.buildingName, ""),
+              buildingNumber = tokenMap.getOrElse(Tokens.buildingNumber, ""),
+              streetName = tokenMap.getOrElse(Tokens.streetName, ""),
+              locality = tokenMap.getOrElse(Tokens.locality, ""),
+              townName = tokenMap.getOrElse(Tokens.townName, ""),
+              postcode = tokenMap.getOrElse(Tokens.postcode, ""),
+              uprn = "",
+              score = 0f,
+              exceptionMessage = failures.exception.getMessage
+            )
+          }
+          successes ++ failures
         }
       )
     )
