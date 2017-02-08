@@ -55,7 +55,7 @@ object Tokens extends CrfTokenable {
 
   override def normalise(tokens: Array[String]): Array[String] = tokens.map(_.toUpperCase)
 
-  def tokensToMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
+  def tokensToValidMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
     val validatedTokens = validatePostCode(tokens.groupBy(_.label))
     validatedTokens.map {
       case (token, values) => (token, values.map(_.value).mkString(" "))
