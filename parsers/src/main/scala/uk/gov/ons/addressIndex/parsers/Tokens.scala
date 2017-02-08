@@ -82,7 +82,7 @@ object Tokens extends CrfTokenable {
             )
           )
         } else {
-          tokens.-(Tokens.postcode)
+          tokens - Tokens.postcode
         }
       } else {
         tokens
