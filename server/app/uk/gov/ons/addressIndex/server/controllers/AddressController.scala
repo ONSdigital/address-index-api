@@ -209,7 +209,7 @@ class AddressController @Inject()(
             )
           }
 
-        // Successful requests are stored isys.error(s"Unable to find config for '$env' env")n the `Right`
+        // Successful requests are stored in the `Right`
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
           case exception: Exception => Left(RejectedRequest(id, tokens, exception))
