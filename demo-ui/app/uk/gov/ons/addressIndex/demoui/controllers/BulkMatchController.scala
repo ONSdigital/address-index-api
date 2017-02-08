@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, BulkBody, BulkQuery}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
 import scala.io.Source
@@ -62,8 +62,6 @@ class BulkMatchController @Inject()(
     ).toSeq
   }
 
-  import scala.concurrent.duration._
-
   def uploadFile(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = Action.async(
     parse.maxLength(
       10 * 1024 * 1024, //10MB
@@ -76,54 +74,31 @@ class BulkMatchController @Inject()(
     val optRes = request.body match {
       case Right(file) => {
         file.file(multiMatchFormName) map { file =>
+          val lines = Source.fromFile(file.ref.file).getLines()
+          //format
+          //id | address
+          apiClient bulk BulkBody(
+            addresses = lines.map { line =>
+              println(line)
+              val arr = line.split("\\|")
 
-          val source = Source.fromFile(file.ref.file)
-          val x = source.iter
-//          val reqs = q(source)
+              BulkQuery(
+                id = arr(0),
+                address = arr(1)
+              )
+            }.toSeq
+          ) map { resp =>
+            Logger("uploadFile").info(s"${resp.resp.size}")
 
-          val test = source.getLines.map(line =>
-            apiClient.addressQuery(
-              request = AddressIndexSearchRequest(
-                input = line,
-                limit = "10",
-                offset = "0",
-                id = UUID.randomUUID
+            Ok(
+              uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
+                nav = Navigation.default,
+                fileFormName = multiMatchFormName,
+                results = Some(resp)
               )
             )
-          )
-          println("lines txfd into reqs")
-
-          val s  = test.grouped(30).map(x => Future.sequence(x))
-          println("about to do blocking")
-
-          val y = s.map { f =>
-
-            val z = Await.result(f, 100 seconds)
-            z
           }
 
-
-
-          pprint.pprintln(y.toSeq)
-
-          Future.successful(Ok)
-//          val seqAddress = source.mkString.split("\n").toSeq
-
-//          Logger("TEST").info("SIZE OF ADDRESSES:: " + seqAddress.size.toString)
-          //
-          //         Future.sequence(reqs) map { resp =>
-//            Logger("szie resp").info(resp.size.toString)
-//            Ok(
-//              uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
-//                nav = Navigation.default,
-//                fileFormName = multiMatchFormName,
-//                results = None
-////                  Some(
-////                  seqAddress.zip(resp)
-////                )
-//              )
-//            )
-//          }
         }
       }
       case Left(maxSizeExceeded) => {

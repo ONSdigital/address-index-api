@@ -2,7 +2,6 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
@@ -16,15 +15,9 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.Try
-
-case class BulkRequest(inputs: Seq[String])
-object BulkRequest {
-  implicit lazy val fmts = Json.format[BulkRequest]
-}
 
 /**
   * Controller class for a single address to be matched
@@ -157,20 +150,6 @@ class SingleMatchController @Inject()(
         Ok(viewToRender)
       }
     }
-  }
-
-  def doMatchWithBulk(): Action[BulkRequest] = Action.async(parse.json[BulkRequest]) { implicit request =>
-    logger info "doMatchWithBulk"
-    apiClient.addressQueriesBulkMimic(
-      requests = request.body.inputs map { input =>
-        AddressIndexSearchRequest(
-          input = input,
-          limit = "10",
-          offset = "0",
-          id = UUID.randomUUID
-        )
-      }
-    ).map(resp => Ok(Json toJson resp))
   }
 }
 

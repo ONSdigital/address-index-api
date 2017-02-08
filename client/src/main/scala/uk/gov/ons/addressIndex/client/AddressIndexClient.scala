@@ -1,9 +1,11 @@
 package uk.gov.ons.addressIndex.client
 
+import play.api.libs.json.Json
+
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody, BulkResp}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, UprnQuery}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, UprnQuery}
 import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
 
@@ -49,15 +51,19 @@ trait AddressIndexClient {
       )
   }
 
-  /**
-    * perform a `bulk` address search query
-    *
-    * @param requests the requests
-    * @return a list of addresses for each request, in order of the requests
-    */
-  def addressQueriesBulkMimic(requests: Seq[AddressIndexSearchRequest])
-    (implicit ec: ExecutionContext): Future[Seq[AddressBySearchResponseContainer]] = {
-    Future sequence(requests map addressQuery)
+  def bulk(request: BulkBody)
+    (implicit ec: ExecutionContext): Future[BulkResp] = {
+    Bulk
+      .toReq
+      .withHeaders(
+        "Content-Type" -> "application/json"
+      )
+      .post(
+        Json.toJson(
+          request
+        )
+      )
+      .map(_.json.as[BulkResp])
   }
 
   /**
@@ -114,5 +120,10 @@ object AddressIndexClientHelper {
   object AddressQuery extends AddressIndexPath(
     path = "/addresses",
     method = "GET"
+  )
+
+  object Bulk extends AddressIndexPath(
+    path = "/bulk",
+    method = "post"
   )
 }
