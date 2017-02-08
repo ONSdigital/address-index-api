@@ -171,7 +171,7 @@ class AddressController @Inject()(
                 postcode = tokenMap.getOrElse(Tokens.postcode, ""),
                 uprn = "",
                 score = 0f,
-                exceptionMessage = s"${failure.exception.getMessage} ~ ${failure.exception.getStackTrace.head.}"
+                exceptionMessage = s"${failure.exception.getMessage}"
               )
             }
             successes ++ failures
