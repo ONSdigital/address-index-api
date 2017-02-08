@@ -33,7 +33,7 @@ object Tokens extends CrfTokenable {
       .replace("\\", " ")
       .split(" ")
 
-    replaceSynonyms(tokens).filter(_.nonEmpty)
+    removeCounties(replaceSynonyms(tokens).filter(_.nonEmpty).mkString(" ")).split(" ")
   }
 
   private def removeCounties(input: String): String = {

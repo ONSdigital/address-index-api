@@ -105,11 +105,8 @@ class AddressController @Inject()(
     */
   def uprnQuery(uprn: String): Action[AnyContent] = Action async { implicit req =>
     logger.info(s"#uprnQuery: uprn: $uprn")
-
     val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
-
     request.map {
-
       case Some(hybridAddress) => jsonOk(
         AddressByUprnResponseContainer(
           response = AddressByUprnResponse(
@@ -118,17 +115,16 @@ class AddressController @Inject()(
           status = OkAddressResponseStatus
         )
       )
-
       case None => jsonNotFound(NoAddressFoundUprn)
-
     }
   }
 
 
 
 
-    /**
-    * a POST route which will process all `BulkQuery` items in the `BulkBody`.
+  /**
+    * a POST route which will process all `BulkQuery` items in the `BulkBody`
+    *
     * @return
     */
   def bulkQuery(): Action[BulkBody] = Action.async(parse.json[BulkBody]) { implicit req =>
@@ -175,7 +171,7 @@ class AddressController @Inject()(
                 postcode = tokenMap.getOrElse(Tokens.postcode, ""),
                 uprn = "",
                 score = 0f,
-                exceptionMessage = s"${failure.exception.getMessage}"
+                exceptionMessage = s"${failure.exception.getMessage} ~ ${failure.exception.getStackTrace.head.}"
               )
             }
             successes ++ failures
