@@ -4,6 +4,7 @@ import com.typesafe.config.ConfigFactory
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
 
 import scala.io.Source
+import scala.util.matching.Regex
 
 /**
   * Tokenizer for the input
@@ -54,11 +55,43 @@ object Tokens extends CrfTokenable {
 
   override def normalise(tokens: Array[String]): Array[String] = tokens.map(_.toUpperCase)
 
-  def tokensToMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
-    tokens.groupBy(_.label).map {
+  def tokensToValidMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
+    val validatedTokens = validatePostCode(tokens.groupBy(_.label))
+    validatedTokens.map {
       case (token, values) => (token, values.map(_.value).mkString(" "))
     }
   }
+
+  def validatePostCode(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]] = {
+    val postCodeTokens = tokens.getOrElse(Tokens.postcode, Seq.empty)
+    if(postCodeTokens.size == 1) {
+      val token = postCodeTokens.head.value
+      if(token.length >= 4) {
+        val outcode = token.substring(token.length - 3, token.length)
+        val incode = token.substring(0, token.indexOf(outcode))
+        val regex = "[0-9][A-Z][A-Z]".r
+        val optOutCode = regex.findFirstIn(outcode.toUpperCase)
+        if(optOutCode.isDefined) {
+          tokens.updated(
+            key = Tokens.postcode,
+            value = Seq(
+              CrfTokenResult(
+                value = s"$incode $outcode",
+                label = Tokens.postcode
+              )
+            )
+          )
+        } else {
+          tokens - Tokens.postcode
+        }
+      } else {
+        tokens
+      }
+    } else {
+      tokens
+    }
+  }
+
 
   val organisationName: String = "OrganisationName"
   val departmentName: String = "DepartmentName"

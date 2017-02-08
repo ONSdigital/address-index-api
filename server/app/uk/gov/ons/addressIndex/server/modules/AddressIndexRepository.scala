@@ -113,7 +113,7 @@ class AddressIndexRepository @Inject()(
     */
   def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = {
 
-    val tokensMap = Tokens.tokensToMap(tokens)
+    val tokensMap = Tokens.tokensToValidMap(tokens)
 
     val query =
       bool {
