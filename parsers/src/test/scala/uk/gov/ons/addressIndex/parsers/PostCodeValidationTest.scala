@@ -75,6 +75,65 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
   }
 
+  //These ingored tests are bounds tests for postcode, these occurrences will never happen
+  //because the parser will pick them up as building number.
+  //still interesting to keep.
+  ignore should "17B -> " in {
+    val input = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "17B",
+          label = Tokens.postcode
+        )
+      )
+    )
+    val expected = Map.empty
+    val actual = Tokens.validatePostCode(input)
+    actual shouldBe expected
+  }
+
+  ignore should "17 -> " in {
+    val input = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "17",
+          label = Tokens.postcode
+        )
+      )
+    )
+    val expected = Map.empty
+    val actual = Tokens.validatePostCode(input)
+    actual shouldBe expected
+  }
+
+  ignore should "1A -> " in {
+    val input = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "1A",
+          label = Tokens.postcode
+        )
+      )
+    )
+    val expected = Map.empty
+    val actual = Tokens.validatePostCode(input)
+    actual shouldBe expected
+  }
+
+  ignore should "12 -> " in {
+    val input = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "12",
+          label = Tokens.postcode
+        )
+      )
+    )
+    val expected = Map.empty
+    val actual = Tokens.validatePostCode(input)
+    actual shouldBe expected
+  }
+
   it should "L1234 -> " in {
     val input = Map(
       Tokens.postcode -> Seq(
