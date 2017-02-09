@@ -72,7 +72,7 @@
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
             </div>
             @aresponse.addresses.map{ address =>
-            <div id = "match-results" class="panel panel-match address-panel">
+            <div id = class="panel panel-match address-panel">
                 <div class="result-content">
                     <div class="alert alert-success">
                         <div class="matchResults">
@@ -81,7 +81,7 @@
                                     <span class="formatted-nag-button formatted-button-active">LA</span>
                                     <span class="formatted-paf-button">PAF</span>
                                 </div>
-                                 <div id="match-score" class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                 <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
                                     (
                                     @defining(if ((address.underlyingScore / aresponse.maxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
                                     <span style="background-color: @color">
@@ -100,16 +100,16 @@
                                 <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
                                 @if(address.geo.isEmpty){
                                     @if(address.nag.isEmpty){
-                                    <div id="maplink-dummy-paf" class="map-link-txt">
+                                    <div class="map-link-txt">
                                        <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
                                     </div>
                                     } else {
-                                    <div id="maplink-dummy-nag" class="map-link-txt">
+                                    <div class="map-link-txt">
                                        <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("single.openmap")</a>
                                     </div>
                                     }
                                 } else {
-                                    <div id="maplink-real" class="map-link-txt">
+                                    <div class="map-link-txt">
                                         <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
                                     </div>
                                 }
