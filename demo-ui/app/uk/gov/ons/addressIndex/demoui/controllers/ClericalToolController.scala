@@ -35,7 +35,7 @@ class ClericalToolController @Inject()(
                                        classHierarchy: ClassHierarchy
                                      )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
-  val logger = Logger("SingleMatchController")
+  val logger = Logger("ClericalToolController")
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
@@ -46,7 +46,7 @@ class ClericalToolController @Inject()(
     * @return result to view
     */
   def showSingleMatchPage(): Action[AnyContent] = Action.async { implicit request =>
-    logger info ("SingleMatch: Rendering Single Match Page")
+    logger info ("Clerial Tool: Rendering Single Match Page")
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
@@ -71,9 +71,9 @@ class ClericalToolController @Inject()(
     val addressText = Option(request.body.asFormUrlEncoded.get("address").mkString).getOrElse("")
     val optFormat: Option[String] = Try(request.body.asFormUrlEncoded.get("format").mkString).toOption
     val addressFormat = optFormat.getOrElse("paf")
-    logger info ("Single Match with address format = " + addressFormat)
+    logger info ("Clerical Tool with address format = " + addressFormat)
     if (addressText.trim.isEmpty) {
-      logger info ("Single Match with Empty input address")
+      logger info ("Clerical Tool with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
@@ -112,7 +112,7 @@ class ClericalToolController @Inject()(
     logger info ("Offset param = " + offset)
     logger info ("Max pages = " + maxPages)
     if (addressText.trim.isEmpty) {
-      logger info ("Single Match with expected input address missing")
+      logger info ("Clerical Tool with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
@@ -127,7 +127,7 @@ class ClericalToolController @Inject()(
         Ok(viewToRender)
       )
     } else {
-      logger info ("Single Match with supplied input address " + addressText)
+      logger info ("Clerical Tool with supplied input address " + addressText)
       apiClient.addressQuery(
         AddressIndexSearchRequest(
           input = addressText,
