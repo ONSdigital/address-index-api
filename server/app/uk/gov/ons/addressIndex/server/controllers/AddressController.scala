@@ -127,15 +127,14 @@ class AddressController @Inject()(
     *
     * @return
     */
-  def bulkQuery(): Action[BulkBody] = Action.async(parse.json[BulkBody]) { implicit req =>
+  def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
     val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    val fResults = Future.sequence(chunkedTokenizedAddresses.map(tokens => queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit)))
+    val results = chunkedTokenizedAddresses.map(tokens => Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf))
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
-    fResults.map { results =>
       jsonOk(
         BulkResp(
           resp = results flatMap { result =>
@@ -178,7 +177,6 @@ class AddressController @Inject()(
           }
         )
       )
-    }
   }
 
 
