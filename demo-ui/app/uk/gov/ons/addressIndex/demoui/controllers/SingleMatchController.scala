@@ -64,7 +64,8 @@ class SingleMatchController @Inject()(
     * @return result to view or redirect
     */
   def doMatch() : Action[AnyContent] = Action.async { implicit request =>
-    val addressText = Option(request.body.asFormUrlEncoded.get("address").mkString).getOrElse("")
+    val optAddress: Option[String] = Try(request.body.asFormUrlEncoded.get("address").mkString).toOption
+    val addressText = optAddress.getOrElse("")
     val optFormat: Option[String] = Try(request.body.asFormUrlEncoded.get("format").mkString).toOption
     val addressFormat = optFormat.getOrElse("paf")
     logger info("Single Match with address format = " + addressFormat)
