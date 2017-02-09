@@ -1,0 +1,211 @@
+@import helper._
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.model.ui.Links
+
+@(
+singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+warningMessage : Option[String],
+addressFormat: String,
+pageNum: Int,
+pageSize: Int,
+pageMax: Int,
+expandRow: Int,
+addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+classification: Option[Map[String,String]]
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("single.title")) {
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<script>
+    $(function () {
+       $(".formatted-nag-button").click(function (e) {
+           $(this).addClass("formatted-button-active");
+           var parent = $(this).closest(".resultRow");
+           parent.find(".formatted-paf-button").removeClass("formatted-button-active");
+           var parent2 = $(parent).next(".resultRow");
+           parent2.find(".formatted-nag").show();
+           parent2.find(".formatted-paf").hide();
+           e.preventDefault()
+       });
+
+        $(".formatted-paf-button").click(function (e) {
+            $(this).addClass("formatted-button-active");
+            var parent = $(this).closest(".resultRow");
+            parent.find(".formatted-nag-button").removeClass("formatted-button-active");
+            var parent2 = $(parent).next(".resultRow");
+            parent2.find(".formatted-paf").show();
+            parent2.find(".formatted-nag").hide();
+            e.preventDefault()
+        });
+    });
+</script>
+
+<div class="container">
+    <div class="panel panel-single">
+        <div class="panel-heading sub-nav-heading">
+            @navigation(Navigation.default)
+        </div>
+        @warningMessage.map { message =>
+        <div id="warning-message" class="panel panel-warning address-panel">
+            <div class="result-content">
+                <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+            </div>
+        </div>
+        }
+        <div class="panel panel-single address-panel">
+            <h3 class="panel-title">@messages("clerical.sfatext")</h3>&nbsp;&nbsp;<h4 class="panel-subtitle">@messages("single.sfatext")</h4>
+            <div class="panel-body">
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch) {
+                <div id="search-form" class="search-bar-active">
+                    @forms.singleAddressForm(singleSearchForm)
+                </div>
+                }
+            </div>
+            @addressBySearchResponse.map { aresponse =>
+            <div id="match-count" class="panel panel-single address-panel">
+                <h3 class="green">@aresponse.total @messages("single.found")</h3>
+            </div>
+            @aresponse.addresses.zipWithIndex.map{ case (address, index) =>
+            <div class="panel panel-match address-panel">
+                <div class="result-content">
+                    <div class="alert alert-success">
+                        <div class="matchResults">
+                            <a name="@index"></a>
+                            <div class="resultRow">
+                                <div class="paf-nag-switch-buttons">
+                                    <span class="formatted-nag-button formatted-button-active">LA</span>
+                                    <span class="formatted-paf-button">PAF</span>
+                                </div>
+                                <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                    (
+                                    @defining(if ((address.underlyingScore / aresponse.maxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
+                                    <span style="background-color: @color">
+                                    }
+                                    @{"%.2f".format((address.underlyingScore / aresponse.maxScore) * 100)}</span>%)
+                                </div>
+                            </div>
+                            <div class="resultRow">
+                                <div>
+                                    <strong>@messages("single.address"): </strong>
+                                    <span class="formatted-nag">@address.formattedAddressNag</span>
+                                    <span style="display: none" class="formatted-paf">@address.formattedAddressPaf</span>
+                                </div>
+                            </div>
+                            <div class="resultRow">
+                                <div class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+                                @if(address.geo.isEmpty){
+                                @if(address.nag.isEmpty){
+                                <div class="map-link-txt">
+                                    <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
+                                </div>
+                                } else {
+                                <div class="map-link-txt">
+                                    <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("single.openmap")</a>
+                                </div>
+                                }
+                                } else {
+                                <div class="map-link-txt">
+                                    <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
+                                </div>
+                                }
+                            </div>
+                            <div class="resultRow">
+                                <strong>@messages("single.classification"): </strong>
+                                @if(address.nag.isEmpty){
+                                @messages("category.notfound")
+                                } else {
+                                @address.nag.map{ nag =>
+                                @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                                }
+                                }
+                            </div>
+
+                            <div class="resultRow">
+                                <div id="clerical" class="clericalInfo">
+                                    <a href="?page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
+                                </div>
+                                <div class='@{if (index == expandRow) {"showrow"} else {"hiderow"}}'>
+                                    @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token =>
+                                    <div id="hfnum" class="clerical1">
+                                        <strong>House / Flat Number:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token =>
+                                    <div id="hname" class="clerical1">
+                                        <strong>House Name:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token =>
+                                    <div id="street" class="clerical1">
+                                        <strong>Street:</strong>  @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "TownName").map { token =>
+                                    <div id="town" class="clerical1">
+                                        <strong>Town:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "CountyName").map { token =>
+                                    <div id="county" class="clerical1">
+                                        <strong>County:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token =>
+                                    <div id="postcode" class="clerical1">
+                                        <strong>Postcode:</strong> @token.value
+                                    </div>
+                                    }
+                                    @aresponse.tokens.withFilter(t => t.label == "CountryName").map { token =>
+                                    <div id="country" class="clerical1">
+                                        <strong>Country:</strong> @token.value
+                                    </div>
+                                    }
+                                    <div id="status" class="clerical2">
+                                        <strong>Logical Status:</strong> @address.nag.map{ nag => @nag.logicalStatus }
+                                    </div>
+                                    <div id="score" class="clerical2">
+                                        <strong>Elastic score:</strong> @address.underlyingScore
+                                    </div>
+                                    <div id="classification" class="clerical2">
+                                        <strong>@messages("single.classification"): </strong>
+                                        @if(address.nag.isEmpty){
+                                        @messages("category.notfound")
+                                        } else {
+                                        @address.nag.map{ nag =>
+                                        @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                                        }
+                                        }
+                                    </div>
+                                    <div id="parent" class="clerical2">
+                                        <strong>Parent UPRN:</strong>
+                                    </div>
+                                    <div id="la" class="clerical2">
+                                        <strong>Local Authority:</strong>
+                                    </div>
+                                    <div id="level" class="clerical2">
+                                        <strong>Hierarchy Level:</strong>
+                                    </div>
+                                    <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+            @pager(addressFormat, pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total,true)
+            }
+        </div>
+        <div class="panel panel-single address-panel">
+            <p class="pad">&nbsp;</p>
+        </div>
+    </div>
+</div>
+}

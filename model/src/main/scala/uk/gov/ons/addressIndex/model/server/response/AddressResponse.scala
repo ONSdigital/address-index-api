@@ -89,7 +89,7 @@ object AddressBySearchResponse {
   * @param totalFailed number of failed results
   */
 case class AddressBulkResponseContainer(
-  bulkAddresses: Seq[AddressBulkResponseAddress],
+  bulkAddresses: List[AddressBulkResponseAddress],
   totalSuccessful: Int,
   totalFailed: Int
 )
