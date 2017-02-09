@@ -49,18 +49,6 @@ class BulkMatchController @Inject()(
     )
   }
 
-  def q(source: Source): Seq[Future[AddressBySearchResponseContainer]] = {
-    source.getLines.map(line =>
-      apiClient.addressQuery(
-        request = AddressIndexSearchRequest(
-          input = line,
-          limit = "10",
-          offset = "0",
-          id = UUID.randomUUID
-        )
-      )
-    ).toSeq
-  }
 
   def uploadFile(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = Action.async(
     parse.maxLength(
