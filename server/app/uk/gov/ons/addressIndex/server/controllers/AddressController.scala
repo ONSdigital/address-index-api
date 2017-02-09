@@ -136,12 +136,13 @@ class AddressController @Inject()(
     val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
+    logger.info(s"#bulkQuery will have ${chunkedTokenizedAddresses.length} mini-batches")
+
     val results = chunkedTokenizedAddresses.zipWithIndex.map{ case (tokens, index) =>
-      logger.info(s"#bulkQuery Start mini-batch number $index: ${System.nanoTime()} | ${LocalDateTime.now()}")
-      val result = Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf)
-      logger.info(s"#bulkQuery End mini-batch ${System.nanoTime()} | ${LocalDateTime.now()}")
-      result
+      logger.info(s"#bulkQuery Start mini-batch number $index")
+      Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf)
     }
+
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
       jsonOk(
