@@ -1,18 +1,22 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.duration._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
+import org.joda.time.LocalDateTime
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
+
 import scala.util.Try
 
 @Singleton
@@ -127,15 +131,19 @@ class AddressController @Inject()(
     *
     * @return
     */
-  def bulkQuery(): Action[BulkBody] = Action.async(parse.json[BulkBody]) { implicit req =>
+  def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
     val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    val fResults = Future.sequence(chunkedTokenizedAddresses.map(tokens => queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit)))
+    val results = chunkedTokenizedAddresses.zipWithIndex.map{ case (tokens, index) =>
+      logger.info(s"#bulkQuery Start mini-batch number $index: ${System.nanoTime()} | ${LocalDateTime.now()}")
+      val result = Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf)
+      logger.info(s"#bulkQuery End mini-batch ${System.nanoTime()} | ${LocalDateTime.now()}")
+      result
+    }
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
-    fResults.map { results =>
       jsonOk(
         BulkResp(
           resp = results flatMap { result =>
@@ -178,7 +186,6 @@ class AddressController @Inject()(
           }
         )
       )
-    }
   }
 
 
