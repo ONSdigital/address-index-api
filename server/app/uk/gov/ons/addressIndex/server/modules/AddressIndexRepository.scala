@@ -97,10 +97,14 @@ class AddressIndexRepository @Inject()(
     logger.trace(request.toString)
 
     client.execute(request).map { response =>
+      val total = response.totalHits
+      // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
+      val maxScore = if (total == 0) 0 else response.maxScore
+
       HybridAddresses(
         addresses = response.as[HybridAddress],
-        maxScore = response.maxScore,
-        total = response.totalHits
+        maxScore = maxScore,
+        total = total
       )
     }
   }
