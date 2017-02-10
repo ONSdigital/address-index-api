@@ -132,24 +132,21 @@ class AddressController @Inject()(
     *
     * @return
     */
-  def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
+  def bulkQuery(): Action[BulkBody] = Action.async(parse.json[BulkBody]) { implicit req =>
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
-    val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
-    val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
-    val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    logger.info(s"#bulkQuery will have ${chunkedTokenizedAddresses.length} mini-batches")
-
-    val results = chunkedTokenizedAddresses.zipWithIndex.map{ case (tokens, index) =>
-      logger.info(s"#bulkQuery Start mini-batch number $index")
-      Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf)
+    val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map { row =>
+      (row.id, parser.tag(row.address))
     }
 
-    logger.info(s"#bulkQuery processed")
+    logger.info(s"#bulkQuery tokenizing done, sending queries...")
+    val result: Future[BulkAddresses] = queryBulkAddresses(tokenizedAddresses, conf.config.bulkLimit)
+
     logger.info(s"#bulkQuery converting to response")
+    result.map { addresses =>
       jsonOk(
         BulkResp(
-          resp = results flatMap { result =>
-            val successes = result.successfulBulkAddresses map { addr =>
+          resp = {
+            val successes = addresses.successfulBulkAddresses map { addr =>
               BulkItem(
                 id = addr.id,
                 organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
@@ -166,7 +163,7 @@ class AddressController @Inject()(
                 exceptionMessage = ""
               )
             }
-            val failures = result.failedBulkAddresses map { failure =>
+            val failures = addresses.failedBulkAddresses map { failure =>
               val tokenMap = Tokens.tokensToValidMap(failure.tokens)
               BulkItem(
                 id = failure.id,
@@ -184,10 +181,11 @@ class AddressController @Inject()(
                 exceptionMessage = s"${failure.exception.getMessage}"
               )
             }
-            successes ++ failures
+            (successes ++ failures).toList
           }
         )
       )
+    }
   }
 
 

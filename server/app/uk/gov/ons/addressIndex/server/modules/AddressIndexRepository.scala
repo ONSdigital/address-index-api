@@ -60,7 +60,26 @@ trait ElasticsearchRepository {
 class AddressIndexRepository @Inject()(
   conf: AddressIndexConfigModule,
   elasticClientProvider: ElasticClientProvider
-)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
+) extends ElasticsearchRepository {
+
+  // The following piece of code will create an executor that will throttle `Future`
+  // creation until there is a place in a queue
+  // Important: this `ExecutionContext` should not be used outside of this Repository file
+  // otherwise there is a risk of deadlocks, more: http://blog.quantifind.com/instantiations-of-scala-futures
+  val numWorkers = sys.runtime.availableProcessors
+  val queueCapacity = 500
+  implicit val ec = ExecutionContext.fromExecutorService(
+    new ThreadPoolExecutor(
+      numWorkers, numWorkers,
+      0L, TimeUnit.SECONDS,
+      new ArrayBlockingQueue[Runnable](queueCapacity) {
+        override def offer(e: Runnable) = {
+          put(e); // may block if waiting for empty room
+          true
+        }
+      }
+    )
+  )
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex
