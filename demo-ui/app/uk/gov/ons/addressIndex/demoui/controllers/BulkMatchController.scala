@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
@@ -11,11 +10,10 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, BulkBody, BulkQuery}
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.io.Source
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 /**
@@ -39,6 +37,7 @@ class BulkMatchController @Inject()(
 ) extends Controller with I18nSupport {
 
   private val multiMatchFormName = "file"
+  private val logger =  Logger("BulkMatchController")
 
   def bulkMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     Future successful Ok(
@@ -56,28 +55,24 @@ class BulkMatchController @Inject()(
       parse.multipartFormData
     )
   ) { implicit request =>
-
-    Logger("uploadFile").info("invoked")
+    logger info "invoked"
 
     val optRes = request.body match {
       case Right(file) => {
         file.file(multiMatchFormName) map { file =>
-          val lines = Source.fromFile(file.ref.file).getLines()
-          //format
-          //id | address
+          val lines = Source.fromFile(file.ref.file).getLines
           apiClient bulk BulkBody(
             addresses = lines.map { line =>
-              println(line)
+              //format
+              //id | address
               val arr = line.split("\\|")
-
               BulkQuery(
                 id = arr(0),
                 address = arr(1)
               )
             }.toSeq
           ) map { resp =>
-            Logger("uploadFile").info(s"${resp.resp.size}")
-
+            logger info s"Response size: ${resp.resp.size}"
             Ok(
               uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
                 nav = Navigation.default,
@@ -90,9 +85,10 @@ class BulkMatchController @Inject()(
         }
       }
       case Left(maxSizeExceeded) => {
+        logger info "Max size exceeded"
         Some(Future.successful(EntityTooLarge))
       }
     }
-    optRes.getOrElse(Future.successful(InternalServerError))
+    optRes.getOrElse(Future.successful(InternalServerError))s
   }
 }
