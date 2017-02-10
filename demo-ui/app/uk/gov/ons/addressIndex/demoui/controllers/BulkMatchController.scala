@@ -89,6 +89,6 @@ class BulkMatchController @Inject()(
         Some(Future.successful(EntityTooLarge))
       }
     }
-    optRes.getOrElse(Future.successful(InternalServerError))s
+    optRes.getOrElse(Future.successful(InternalServerError))
   }
 }
