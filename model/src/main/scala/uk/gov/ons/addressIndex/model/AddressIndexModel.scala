@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.model
 
 import java.util.UUID
-
 import play.api.libs.json.{Format, Json}
 
 case class AddressIndexUPRNRequest(
@@ -40,8 +39,8 @@ case class BulkItem(
   townName: String = "",
   postcode: String = "",
   uprn: String,
-  exceptionMessage: String,
-  score: Float
+  score: Float,
+  exceptionMessage: String
 )
 object BulkItem {
   implicit lazy val fmt: Format[BulkItem] = Json.format[BulkItem]

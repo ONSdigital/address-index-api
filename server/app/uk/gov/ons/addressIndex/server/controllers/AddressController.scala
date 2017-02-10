@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.duration._
@@ -10,6 +11,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.joda.time.LocalDateTime
+import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
@@ -122,7 +124,6 @@ class AddressController @Inject()(
       case None => jsonNotFound(NoAddressFoundUprn)
     }
   }
-
 
 
 

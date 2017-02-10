@@ -23,5 +23,20 @@ GET    /addresses/search/:input/:format         uk.gov.ons.addressIndex.demoui.c
 # ONS-Address Index Single Search Request
 GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, format: String = "paf", page: Option[Int])
 
+# ONS-Address Index Single Search Request
+POST    /clerical/search                       uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
+
+# ONS-Address Index Single Search Request
+GET    /clerical/search                        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
+
+# ONS-Address Index Single Search Request
+GET    /clerical/search/:input/:format         uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, format: String, page: Option[Int], expand: Option[Int])
+
+# ONS-Address Index Single Search Request
+GET    /clerical/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, format: String = "paf", page: Option[Int], expand: Option[Int])
+
 # ONS-Address Index Bulk Mimic Upload
-POST    /addresses/mimicBulk                    uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithBulk
+POST    /bulkUpload                             uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFile
+
+# ONS-Address Index Single Search View
+GET     /bulkAddresses                          uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage

@@ -1,14 +1,12 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Controller, Result}
+import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 
 /**
   * Simple controller for home page
