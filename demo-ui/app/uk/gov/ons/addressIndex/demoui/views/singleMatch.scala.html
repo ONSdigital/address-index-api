@@ -3,21 +3,21 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Links
 
 @(
-    singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
-    warningMessage : Option[String],
-    addressFormat: String,
-    pageNum: Int,
-    pageSize: Int,
-    pageMax: Int,
-    addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
-    classification: Option[Map[String,String]]
+singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+warningMessage : Option[String],
+addressFormat: String,
+pageNum: Int,
+pageSize: Int,
+pageMax: Int,
+addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+classification: Option[Map[String,String]]
 )(implicit messages: Messages)
 
 @*
- * Call the `main` template with two arguments. The first
- * argument is a `String` with the title of the page, the second
- * argument is an `Html` object containing the body of the page.
- *@
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
 
 @main(title = messages("single.title")) {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
@@ -49,7 +49,7 @@
 <div class="container">
     <div class="panel panel-single">
         <div class="panel-heading sub-nav-heading">
-        @navigation(Navigation.default)
+            @navigation(Navigation.default)
         </div>
         @warningMessage.map { message =>
         <div id="warning-message" class="panel panel-warning address-panel">
@@ -72,7 +72,7 @@
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
             </div>
             @aresponse.addresses.map{ address =>
-            <div id = class="panel panel-match address-panel">
+            <div class="panel panel-match address-panel">
                 <div class="result-content">
                     <div class="alert alert-success">
                         <div class="matchResults">
@@ -81,14 +81,14 @@
                                     <span class="formatted-nag-button formatted-button-active">LA</span>
                                     <span class="formatted-paf-button">PAF</span>
                                 </div>
-                                 <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                                <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
                                     (
                                     @defining(if ((address.underlyingScore / aresponse.maxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
                                     <span style="background-color: @color">
                                     }
                                     @{"%.2f".format((address.underlyingScore / aresponse.maxScore) * 100)}</span>%)
-                                 </div>
-                              </div>
+                                </div>
+                            </div>
                             <div class="resultRow">
                                 <div>
                                     <strong>@messages("single.address"): </strong>
@@ -97,32 +97,32 @@
                                 </div>
                             </div>
                             <div class="resultRow">
-                                <div id="uprn" class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+                                <div class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
                                 @if(address.geo.isEmpty){
-                                    @if(address.nag.isEmpty){
-                                    <div class="map-link-txt">
-                                       <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
-                                    </div>
-                                    } else {
-                                    <div class="map-link-txt">
-                                       <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("single.openmap")</a>
-                                    </div>
-                                    }
+                                @if(address.nag.isEmpty){
+                                <div class="map-link-txt">
+                                    <a href="https://maps.google.com/?q=@address.paf.map{paf=>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
+                                </div>
                                 } else {
-                                    <div class="map-link-txt">
-                                        <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
-                                    </div>
+                                <div class="map-link-txt">
+                                    <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("single.openmap")</a>
+                                </div>
+                                }
+                                } else {
+                                <div class="map-link-txt">
+                                    <a href="https://maps.google.com/?q=@address.geo.map{geo=>@geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h}" target="_blank">@messages("single.openmap")</a>
+                                </div>
                                 }
                             </div>
                             <div class="resultRow">
                                 <strong>@messages("single.classification"): </strong>
-                                    @if(address.nag.isEmpty){
-                                        @messages("category.notfound")
-                                    } else {
-                                        @address.nag.map{ nag =>
-                                        @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
-                                        }
-                                    }
+                                @if(address.nag.isEmpty){
+                                @messages("category.notfound")
+                                } else {
+                                @address.nag.map{ nag =>
+                                @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                                }
+                                }
                             </div>
                         </div>
                     </div>
