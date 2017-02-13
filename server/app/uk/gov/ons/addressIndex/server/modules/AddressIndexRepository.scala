@@ -220,6 +220,11 @@ class AddressIndexRepository @Inject()(
               field = "paf.postcode",
               value = token
             )),
+          tokensMap.get(Tokens.locality).map(token =>
+            matchQuery(
+              field = "paf.dependentLocality",
+              value = token
+            )),
           Some(
             matchQuery(
               field = "_all",

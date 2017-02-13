@@ -321,7 +321,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
         CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
       )
-      val expectedScore = 1.9f
+      val expectedScore = 1.6f
 
       val expected = HybridAddress(
         uprn = hybridFirstUprn,
@@ -528,6 +528,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "match" : {
                     "paf.postcode" : {
                       "query" : "h9",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.dependentLocality" : {
+                      "query" : "h10",
                       "type" : "boolean"
                     }
                   }
