@@ -64,9 +64,7 @@ class AddressIndexRepository @Inject()(
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex
-  private val minimumShouldMatch = conf.config.elasticSearch.minimumShouldMatch
-  private val underlineAllBoost = conf.config.elasticSearch.underlineAllBoost
-  private val streetNameBoost = conf.config.elasticSearch.streetNameBoost
+  private val queryParams =conf.config.elasticSearch.queryParams
 
   val client: ElasticClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
@@ -126,7 +124,7 @@ class AddressIndexRepository @Inject()(
             matchQuery(
               field = "lpi.paoStartNumber",
               value = token
-            )),
+            ).boost(queryParams.buildingNumberLpiBoost)),
           tokensMap.get(Tokens.locality).map(token =>
             matchQuery(
               field = "lpi.locality",
@@ -136,17 +134,27 @@ class AddressIndexRepository @Inject()(
             matchQuery(
               field = "lpi.organisation",
               value = token
-            )),
+            ).boost(queryParams.organisationNameOrganisationLpiBoost)),
           tokensMap.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "lpi.legalName",
               value = token
-            )),
+            ).boost(queryParams.organisationNameLegalNameLpiBoost)),
+          tokensMap.get(Tokens.organisationName).map(token =>
+            matchQuery(
+              field = "lpi.paoText",
+              value = token
+            ).boost(queryParams.organisationNamePaoTextLpiBoost)),
+          tokensMap.get(Tokens.organisationName).map(token =>
+            matchQuery(
+              field = "lpi.saoText",
+              value = token
+            ).boost(queryParams.organisationNameSaoTextLpiBoost)),
           tokensMap.get(Tokens.subBuildingName).map(token =>
             matchQuery(
               field = "lpi.saoText",
               value = token
-            )),
+            ).boost(queryParams.subBuildingNameLpiBoost)),
           tokensMap.get(Tokens.buildingName).map(token =>
             matchQuery(
               field = "lpi.paoText",
@@ -156,7 +164,7 @@ class AddressIndexRepository @Inject()(
             fuzzyQuery(
               name = "lpi.streetDescriptor",
               value = token
-            ).boost(streetNameBoost).fuzziness(Fuzziness.TWO)),
+            ).boost(queryParams.streetNameLpiBoost).fuzziness(Fuzziness.TWO)),
           tokensMap.get(Tokens.townName).map(token =>
             matchQuery(
               field = "lpi.townName",
@@ -171,7 +179,7 @@ class AddressIndexRepository @Inject()(
             matchQuery(
               field = "paf.buildingNumber",
               value = token
-            )),
+            ).boost(queryParams.buildingNumberPafBoost)),
           tokensMap.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "paf.organizationName",
@@ -186,7 +194,12 @@ class AddressIndexRepository @Inject()(
             matchQuery(
               field = "paf.subBuildingName",
               value = token
-            )),
+            ).boost(queryParams.subBuildingNameSubBuildingPafBoost)),
+          tokensMap.get(Tokens.subBuildingName).map(token =>
+            matchQuery(
+              field = "paf.buildingName",
+              value = token
+            ).boost(queryParams.subBuildingNameBuildingPafBoost)),
           tokensMap.get(Tokens.buildingName).map(token =>
             matchQuery(
               field = "paf.buildingName",
@@ -196,7 +209,7 @@ class AddressIndexRepository @Inject()(
             fuzzyQuery(
               name = "paf.thoroughfare",
               value = token
-            ).boost(streetNameBoost).fuzziness(Fuzziness.TWO)),
+            ).boost(queryParams.streetNamePafBoost).fuzziness(Fuzziness.TWO)),
           tokensMap.get(Tokens.townName).map(token =>
             matchQuery(
               field = "paf.postTown",
@@ -211,10 +224,10 @@ class AddressIndexRepository @Inject()(
             matchQuery(
               field = "_all",
               value = tokens.map(_.value).mkString(" ")
-            ).boost(underlineAllBoost)
+            ).boost(queryParams.underlineAllBoost)
           )
         ).flatten)
-      }.minimumShouldMatch(minimumShouldMatch)
+      }.minimumShouldMatch(queryParams.minimumShouldMatch)
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
 
