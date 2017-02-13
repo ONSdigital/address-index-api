@@ -380,11 +380,15 @@ div.resultRow{
 }
 
 .clericalInfo a:link {
-    color: #489DC4;
+     color: #489DC4;
+}
+
+.clericalInfo a:visited {
+    font-weight: 700;
 }
 
 .clericalInfo a:hover {
-    color: #4c2c92 ;
+    color: #4c2c92;
 }
 
 .clericalInfo a {
@@ -493,15 +497,96 @@ div.paf-nag-switch-buttons span:hover{
 
 .clerical1 {
     margin: 0px 0px 0px 6px;
+}
+
+.clericalgrey {
     color: #606060;
 }
 
 .clerical2 {
     margin: 6px 0px 6px 6px;
-    color: #606060;
 }
 
 .search-bar-active {
     min-width: 300px;
     max-width: 522px;
+}
+
+div.taTable{
+    width: 100%; display: table; table-layout: auto;
+    padding:0;
+    margin:0 0 6px 0;
+}
+
+div.taRow{
+    display: table-row; width: 100%;
+white-space: nowrap;
+    vertical-align:top;
+    padding:0;
+    margin:0;
+}
+div.taRowH{
+    display: table-row; width: 100%;
+white-space: nowrap;
+    vertical-align:top;
+    padding:0;
+    margin:0;
+    background-color: #CCD9FF;
+}
+
+div.taColumn1{
+    display: table-cell; height:100%; min-width: 20%;
+    vertical-align:top;
+    padding: 0.2em;
+    border: 1px solid black;
+    margin:0;
+}
+
+div.taColumn2{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 0.2em;
+    border: 1px solid black;
+    margin:0;
+}
+
+div.taColumn3{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 0.2em;
+    border: 1px solid black;
+    margin:0;
+}
+
+div.taColumn1H{
+    display: table-cell; height:100%; min-width: 20%;
+    vertical-align:top;
+    padding: 0.2em;
+    border: 1px solid black;
+    margin:0;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100%;
+}
+
+div.taColumn2H{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 0.2em;
+    border: 1px solid black;
+    margin:0;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100%;
+}
+
+div.taColumn3H{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 0.2em;
+    border: 1px solid black;
+    margin:0;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100%;
 }

@@ -132,56 +132,12 @@ classification: Option[Map[String,String]]
                                     <a href="?page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
                                 </div>
                                 <div class='@{if (index == expandRow) {"showrow"} else {"hiderow"}}'>
-                                    @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token =>
-                                    <div class="clerical1">
-                                        <strong>House / Flat Number:</strong> @token.value
-                                    </div>
-                                    }
-                                    @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token =>
-                                    <div class="clerical1">
-                                        <strong>House Name:</strong> @token.value
-                                    </div>
-                                    }
-                                    @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token =>
-                                    <div class="clerical1">
-                                        <strong>Street:</strong>  @token.value
-                                    </div>
-                                    }
-                                    @aresponse.tokens.withFilter(t => t.label == "TownName").map { token =>
-                                    <div class="clerical1">
-                                        <strong>Town:</strong> @token.value
-                                    </div>
-                                    }
-                                    @aresponse.tokens.withFilter(t => t.label == "CountyName").map { token =>
-                                    <div class="clerical1">
-                                        <strong>County:</strong> @token.value
-                                    </div>
-                                    }
-                                    @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token =>
-                                    <div class="clerical1">
-                                        <strong>Postcode:</strong> @token.value
-                                    </div>
-                                    }
-                                    @aresponse.tokens.withFilter(t => t.label == "CountryName").map { token =>
-                                    <div class="clerical1">
-                                        <strong>Country:</strong> @token.value
-                                    </div>
-                                    }
+
                                     <div class="clerical2">
-                                        <strong>Logical Status:</strong> @address.nag.map{ nag => @nag.logicalStatus }
+                                        <strong>Logical Status:</strong><span class="clericalgrey"> @address.nag.map{ nag => @nag.logicalStatus }</span>
                                     </div>
                                     <div class="clerical2">
-                                        <strong>Elastic score:</strong> @address.underlyingScore
-                                    </div>
-                                    <div class="clerical2">
-                                        <strong>@messages("single.classification"): </strong>
-                                        @if(address.nag.isEmpty){
-                                        @messages("category.notfound")
-                                        } else {
-                                        @address.nag.map{ nag =>
-                                        @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
-                                        }
-                                        }
+                                        <strong>Elastic score:</strong><span class="clericalgrey"> @address.underlyingScore</span>
                                     </div>
                                     <div class="clerical2">
                                         <strong>Parent UPRN:</strong>
@@ -192,7 +148,191 @@ classification: Option[Map[String,String]]
                                     <div class="clerical2">
                                         <strong>Hierarchy Level:</strong>
                                     </div>
-                                    <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
+                                    <div class="clerical2">
+                                        <strong>Tokenised Address:</strong>
+                                    </div>
+
+                                    <div class="taTable">
+                                        <div class="taRowH">
+                                            <div class="taColumn1H">
+                                                Field Name (PAF)
+                                            </div>
+                                            <div class="taColumn2H">
+                                                Input Data
+                                            </div>
+                                            <div class="taColumn3H">
+                                                Output Data
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Sub Building Name
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "SubBuildingName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                 cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Building Name
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Building Number
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Street
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Town
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "TownName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                        cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Postcode
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Postcode Type
+                                            </div>
+                                            <div class="taColumn2">
+                                                &nbsp;
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Delivery Point Suffix
+                                            </div>
+                                            <div class="taColumn2">
+                                                &nbsp;
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                        <div class="taRowH">
+                                            <div class="taColumn1H">
+                                                Field Name (NAG)
+                                            </div>
+                                            <div class="taColumn2H">
+                                                Input Data
+                                            </div>
+                                            <div class="taColumn3H">
+                                                Output Data
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Sub Building Name
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "SubBuildingName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Building Name
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Building Number
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Street
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Town
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "TownName").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccc2
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1">
+                                                Postcode
+                                            </div>
+                                            <div class="taColumn2">
+                                                @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token => @token.value }
+                                            </div>
+                                            <div class="taColumn3">
+                                                cccccc
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clericalInfo">
+                                        <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
