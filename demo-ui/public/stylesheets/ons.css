@@ -520,14 +520,12 @@ div.taTable{
 
 div.taRow{
     display: table-row; width: 100%;
-white-space: nowrap;
     vertical-align:top;
     padding:0;
     margin:0;
 }
 div.taRowH{
     display: table-row; width: 100%;
-white-space: nowrap;
     vertical-align:top;
     padding:0;
     margin:0;
