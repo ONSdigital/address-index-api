@@ -8,6 +8,7 @@ case class ElasticSearchConfig(
   uri: String,
   indexes: IndexesConfig,
   shield: ShieldConfig,
+  requestsQueueSize:Int,
   defaultLimit: Int,
   defaultOffset: Int,
   maximumLimit: Int,
@@ -31,6 +32,7 @@ object ElasticSearchConfig {
       user = "admin",
       password = ""
     ),
+    requestsQueueSize=100,
     defaultLimit=10,
     defaultOffset=0,
     maximumLimit=100,
