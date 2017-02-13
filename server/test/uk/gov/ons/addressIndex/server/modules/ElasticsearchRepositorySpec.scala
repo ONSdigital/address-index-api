@@ -321,7 +321,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
         CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
       )
-      val expectedScore = 2.8f
+      val expectedScore = 1.6f
 
       val expected = HybridAddress(
         uprn = hybridFirstUprn,
@@ -376,56 +376,76 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       val expected = Json.parse(
-        """
+        s"""
           {
             "query" : {
               "bool" : {
                 "should" : [ {
                   "match" : {
                     "lpi.paoStartNumber" : {
-                      "query" : "h6",
-                      "type" : "boolean"
+                      "query" : "$hybridPafBuildingNumber",
+                      "type" : "boolean",
+                      "boost" : 1.0
                     }
                   }
                 }, {
                   "match" : {
                     "lpi.locality" : {
-                      "query" : "h10",
+                      "query" : "$hybridNagLocality",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "lpi.organisation" : {
-                      "query" : "h2",
-                      "type" : "boolean"
+                      "query" : "$hybridPafOrganizationName",
+                      "type" : "boolean",
+                      "boost" : 1.0
                     }
                   }
                 }, {
                   "match" : {
                     "lpi.legalName" : {
-                      "query" : "h2",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "h4",
-                      "type" : "boolean"
+                      "query" : "$hybridPafOrganizationName",
+                      "type" : "boolean",
+                      "boost" : 1.0
                     }
                   }
                 }, {
                   "match" : {
                     "lpi.paoText" : {
-                      "query" : "h5",
+                      "query" : "$hybridPafOrganizationName",
+                      "type" : "boolean",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.saoText" : {
+                      "query" : "$hybridPafOrganizationName",
+                      "type" : "boolean",
+                      "boost" : 0.5
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.saoText" : {
+                      "query" : "$hybridPafSubBuildingName",
+                      "type" : "boolean",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.paoText" : {
+                      "query" : "$hybridPafBuildingName",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "fuzzy" : {
                     "lpi.streetDescriptor" : {
-                      "value" : "h7",
+                      "value" : "$hybridPafThoroughfare",
                       "fuzziness" : "2",
                       "boost" : 1.0
                     }
@@ -433,56 +453,66 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 }, {
                   "match" : {
                     "lpi.townName" : {
-                      "query" : "h8",
+                      "query" : "$hybridPafPostTown",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "lpi.postcodeLocator" : {
-                      "query" : "h9",
+                      "query" : "$hybridPafPostcode",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "paf.buildingNumber" : {
-                      "query" : "h6",
-                      "type" : "boolean"
+                      "query" : "$hybridPafBuildingNumber",
+                      "type" : "boolean",
+                      "boost" : 1.0
                     }
                   }
                 }, {
                   "match" : {
                     "paf.organizationName" : {
-                      "query" : "h2",
+                      "query" : "$hybridPafOrganizationName",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "paf.departmentName" : {
-                      "query" : "h3",
+                      "query" : "$hybridPafDepartmentName",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "paf.subBuildingName" : {
-                      "query" : "h4",
-                      "type" : "boolean"
+                      "query" : "$hybridPafSubBuildingName",
+                      "type" : "boolean",
+                      "boost" : 1.0
                     }
                   }
                 }, {
                   "match" : {
                     "paf.buildingName" : {
-                      "query" : "h5",
+                      "query" : "$hybridPafSubBuildingName",
+                      "type" : "boolean",
+                      "boost" : 0.5
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.buildingName" : {
+                      "query" : "$hybridPafBuildingName",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "fuzzy" : {
                     "paf.thoroughfare" : {
-                      "value" : "h7",
+                      "value" : "$hybridPafThoroughfare",
                       "fuzziness" : "2",
                       "boost" : 1.0
                     }
@@ -490,21 +520,28 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 }, {
                   "match" : {
                     "paf.postTown" : {
-                      "query" : "h8",
+                      "query" : "$hybridPafPostTown",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "paf.postcode" : {
-                      "query" : "h9",
+                      "query" : "$hybridPafPostcode",
+                      "type" : "boolean"
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "paf.dependentLocality" : {
+                      "query" : "$hybridNagLocality",
                       "type" : "boolean"
                     }
                   }
                 }, {
                   "match" : {
                     "_all" : {
-                      "query" : "h6 h10 h2 h9 h3 h4 h5 h7 h8",
+                      "query" : "$hybridPafBuildingNumber $hybridNagLocality $hybridPafOrganizationName $hybridPafPostcode $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafBuildingName $hybridPafThoroughfare $hybridPafPostTown",
                       "type" : "boolean",
                       "boost" : 0.5
                     }
