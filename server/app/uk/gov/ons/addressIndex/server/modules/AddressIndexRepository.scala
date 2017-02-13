@@ -62,12 +62,19 @@ class AddressIndexRepository @Inject()(
   elasticClientProvider: ElasticClientProvider
 ) extends ElasticsearchRepository {
 
+  private val esConf = conf.config.elasticSearch
+  private val hybridIndex = esConf.indexes.hybridIndex
+  private val minimumShouldMatch = conf.config.elasticSearch.minimumShouldMatch
+  private val underlineAllBoost = conf.config.elasticSearch.underlineAllBoost
+  private val streetNameBoost = conf.config.elasticSearch.streetNameBoost
+  private val requestsQueueSize = conf.config.elasticSearch.requestsQueueSize
+
   // The following piece of code will create an executor that will throttle `Future`
   // creation until there is a place in a queue
   // Important: this `ExecutionContext` should not be used outside of this Repository file
   // otherwise there is a risk of deadlocks, more: http://blog.quantifind.com/instantiations-of-scala-futures
   val numWorkers = sys.runtime.availableProcessors
-  val queueCapacity = 500
+  val queueCapacity = requestsQueueSize
   implicit val ec = ExecutionContext.fromExecutorService(
     new ThreadPoolExecutor(
       numWorkers, numWorkers,
@@ -81,11 +88,6 @@ class AddressIndexRepository @Inject()(
     )
   )
 
-  private val esConf = conf.config.elasticSearch
-  private val hybridIndex = esConf.indexes.hybridIndex
-  private val minimumShouldMatch = conf.config.elasticSearch.minimumShouldMatch
-  private val underlineAllBoost = conf.config.elasticSearch.underlineAllBoost
-  private val streetNameBoost = conf.config.elasticSearch.streetNameBoost
 
   val client: ElasticClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
