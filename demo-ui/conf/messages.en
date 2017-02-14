@@ -1,6 +1,6 @@
 clerical.sfatext=Clerical Tool
 clerical.addinfo=Additional Clerical Information
-clerical.logical=Logical Status
+clerical.logicalstatus=Logical Status
 clerical.elasticscore=Elastic score
 clerical.parentuprn=Parent UPRN
 clerical.la=Local Authority
