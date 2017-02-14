@@ -23,8 +23,8 @@ class ClientToolTest extends PlaySpec with Results {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
-      val expectedString = "<strong>Street:</strong>  REACH"
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val expectedString = "GATE REACH"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When

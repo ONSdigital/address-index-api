@@ -391,7 +391,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                     "lpi.paoStartNumber" : {
                       "query" : "$hybridPafBuildingNumber",
                       "type" : "boolean",
-                      "boost" : 1.0
+                      "boost" : 5.0
                     }
                   }
                 }, {
@@ -573,7 +573,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                     "_all" : {
                       "query" : "$hybridPafThoroughfare $hybridPafBuildingNumber $hybridNagPaoStartSuffix $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafPostTown $hybridPafPostcode $hybridNagPaoEndNumber $hybridPafOrganizationName $hybridNagLocality $hybridNagPaoStartNumber $hybridPafBuildingName",
                       "type" : "boolean",
-                      "boost" : 0.5
+                      "boost" : 30.0
                     }
                   }
                 } ],

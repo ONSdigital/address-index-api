@@ -31,12 +31,6 @@ paths:
          required: true
          description: Specifies the address UPRN.
 
-       - name: format
-         in: query
-         type: string
-         required: false
-         description: Specifies the response address format, either paf or bs7666 (defaults to paf).
-
       responses:
         200:
           description: OK.
@@ -59,7 +53,7 @@ paths:
       description: Returns a ranked list of addresses matching the search query in the specified format.
 
       parameters:
-       - name: q
+       - name: input
          in: query
          type: string
          required: true
@@ -70,26 +64,25 @@ paths:
          type: integer
          format: int32
          required: false
-         description: Specifies the offset from zero, used for pagination (default 0).
+         description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
 
        - name: limit
          in: query
          type: integer
          format: int32
          required: false
-         description: Specifies the number of addresses to return (defaults to 20, maximum 100).
-
-       - name: format
-         in: query
-         type: string
-         required: false
-         description: Specifies the response address format, either paf or bs7666 (defaults to paf).
+         description: Specifies the number of addresses to return (defaults to 10, maximum 100).
 
       responses:
         200:
           description: OK.
           schema:
               $ref: '#/definitions/AddressSearchResponse'
+
+        400:
+          description: Bad Request.
+          schema:
+              $ref: '#/definitions/Status'
 
         404:
           description: Not found.
@@ -100,6 +93,33 @@ paths:
           description: One or more errors occurred.
           schema:
               $ref: '#/definitions/Errors'
+
+  /bulk:
+    post:
+      summary: Post batch of addresses.
+      description: Returns a text file containing the top 5 results for each sumbitted address.
+
+      responses:
+        200:
+          description: OK.
+          schema:
+              $ref: '#/definitions/AddressBulkResponse'
+
+        400:
+          description: Bad Request.
+          schema:
+              $ref: '#/definitions/Status'
+
+        502:
+          description: Bad Gateway.
+          schema:
+              $ref: '#/definitions/Status'
+
+        default:
+          description: One or more errors occurred.
+          schema:
+              $ref: '#/definitions/Errors'
+
 
 definitions:
   AddressResponse:
@@ -137,6 +157,13 @@ definitions:
           limit:
             type: integer
 
+          total:
+            type: integer
+
+          maxScore:
+            type: number
+            format: double
+
       status:
         $ref: '#/definitions/Status'
 
@@ -144,35 +171,19 @@ definitions:
         $ref: '#/definitions/Errors'
 
   AddressTokens:
+    type: array
+    items:
+      $ref: '#/definitions/Token'
+
+  Token:
     type: object
-
     properties:
-      organisationName:
+      value:
         type: string
 
-      departmentName:
+      label:
         type: string
-
-      subBuildingName:
-        type: string
-
-      buildingName:
-        type: string
-
-      buildingNumber:
-        type: string
-
-      streetName:
-        type: string
-
-      locality:
-        type: string
-
-      postTown:
-        type: string
-
-      postcode:
-        type: string
+        enum: ["organisationName", "departmentName", "subBuildingName","buildingName","buildingNumber","streetName","locality","postTown","postCode"]
 
   Addresses:
     type: array
@@ -188,6 +199,12 @@ definitions:
       formattedAddress:
         type: string
 
+      formattedAddressNag:
+        type: string
+
+      formattedAddressPaf:
+        type: string
+
       paf:
         $ref: '#/definitions/PafAddress'
 
@@ -198,10 +215,6 @@ definitions:
         $ref: '#/definitions/Geo'
 
       underlyingScore:
-        type: number
-        format: double
-
-      underlyingMaxScore:
         type: number
         format: double
 
@@ -277,9 +290,89 @@ definitions:
         format: date
 
   NagAddress:
+    properties:
+      uprn:
+        type: string
+
+      postcodeLocator:
+        type: string
+
+      addressBasePostal:
+        type: string
+
+      usrn:
+        type: string
+
+      lpiKey:
+        type: string
+
+      pao:
+        $ref: '#/definitions/Pao'
+
+      sao:
+        $ref: '#/definitions/Sao'
+
+      level:
+        type: string
+
+      officialFlag:
+        type: string
+
+      logicalStatus:
+        type: string
+
+      streetDescriptore:
+        type: string
+
+      townName:
+        type: string
+
+      locality:
+        type: string
+
+      organisation:
+        type: string
+
+      legalName:
+        type: string
+
+      classification:
+        type: string
+
+  Pao:
     type: object
     properties:
-      postcode:
+      paoText:
+        type: string
+
+      paoStartNumber:
+        type: string
+
+      paoStartSuffix:
+        type: string
+
+      paoEndNumber:
+        type: string
+
+      paoEndSuffix:
+        type: string
+
+  Sao:
+    type: object
+    properties:
+      saoText:
+        type: string
+
+      saoStartNumber:
+        type: string
+
+      saoStartSuffix:
+        type: string
+
+      saoEndNumber:
+        type: string
+
+      saoEndSuffix:
         type: string
 
   Geo:
@@ -300,6 +393,67 @@ definitions:
       northing:
         type: number
         format: integer
+
+
+  AddressBulkResponse:
+    type: object
+    properties:
+      bulkAddresses:
+        $ref: '#/definitions/BulkAddresses'
+
+      totalSuccessful:
+        type: integer
+
+      totalFailed:
+        type: integer
+
+  BulkAddresses:
+    type: array
+    items:
+      $ref: '#/definitions/BulkAddress'
+
+  BulkAddress:
+    type: object
+    properties:
+      id:
+        type: string
+
+      uprn:
+        type: string
+
+      organisationName:
+        type: string
+
+      departmentName:
+        type: string
+
+      subBuildingName:
+        type: string
+
+      buildingName:
+        type: string
+
+      buildingNumber:
+        type: string
+
+      streetName:
+        type: string
+
+      locality:
+        type: string
+
+      townName:
+        type: string
+
+      postcode:
+        type: string
+
+      formattedAddress:
+        type: string
+
+      score:
+        type: number
+        format: float
 
   Status:
     type: object
