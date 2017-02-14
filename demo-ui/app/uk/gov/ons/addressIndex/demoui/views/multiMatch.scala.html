@@ -114,7 +114,7 @@
                         ) {
                             <p>
                                 <input type="file" name="@fileFormName" />
-                                <input class="btn btn-success btn-search" type="submit" />
+                                <button class="btn btn-success btn-search" type="submit">@messages("upload")</button>
                             </p>
                         }
                     </div>
@@ -127,34 +127,18 @@
                             <div id="dvData">
                                 <table border="1px;black;">
                                     <thead>
-                                        <td>Index</td>
-                                        <td>Input ID</td>
-                                        <td>organisationName</td>
-                                        <td>departmentName</td>
-                                        <td>subBuildingName</td>
-                                        <td>buildingName</td>
-                                        <td>buildingNumber</td>
-                                        <td>streetName</td>
-                                        <td>locality</td>
-                                        <td>townName</td>
-                                        <td>postcode</td>
-                                        <td>UPRN</td>
-                                        <td>Score</td>
+                                        <td>@messages("multi.table.id")</td>
+                                        <td>@messages("multi.table.input.address")</td>
+                                        <td>@messages("multi.table.matched.address")</td>
+                                        <td>@messages("multi.table.uprn")</td>
+                                        <td>@messages("multi.table.score")</td>
                                     </thead>
                                     <tbody>
                                         @for((result, i)<- bulkResp.resp.zipWithIndex) {
                                             <tr>
-                                                <td>@{i}</td>
                                                 <td>@{result.id}</td>
-                                                <td>@{result.organisationName}</td>
-                                                <td>@{result.departmentName }</td>
-                                                <td>@{result.subBuildingName}</td>
-                                                <td>@{result.buildingName}</td>
-                                                <td>@{result.buildingNumber}</td>
-                                                <td>@{result.streetName}</td>
-                                                <td>@{result.locality}</td>
-                                                <td>@{result.townName}</td>
-                                                <td>@{result.postcode}</td>
+                                                <td>@{result.inputAddress}</td>
+                                                <td>@{result.matchedFormattedAddress}</td>
                                                 <td>@{result.uprn}</td>
                                                 <td>@{result.score}</td>
                                             </tr>
@@ -165,7 +149,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="#" id ="export" role="button">export</a>
+                <a href="#" id ="export" role="button">Download</a>
             }
         </div>
     </div>
