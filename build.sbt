@@ -91,8 +91,7 @@ val uiDeps = Seq(
   ws,
   specs2 % Test,
   "com.typesafe.play"      %% "play-test"          % "2.5.9" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test,
-  "com.github.tototoshi"   %% "scala-csv"          % "1.3.4"
+  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test
 ) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
