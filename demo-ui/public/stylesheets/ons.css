@@ -589,3 +589,14 @@ div.taColumn3H{
     vertical-align: middle;
     line-height: 100%;
 }
+
+.match-type-M {
+    background: orange;
+}
+
+.match-type-S {
+    background: green;
+}
+.match-type-N {
+    background: red;
+}
