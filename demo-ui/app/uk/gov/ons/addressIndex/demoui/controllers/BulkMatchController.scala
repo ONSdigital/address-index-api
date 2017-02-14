@@ -56,7 +56,6 @@ class BulkMatchController @Inject()(
         file.file(multiMatchFormName) map { file =>
           apiClient bulk BulkBody(
             addresses = CSVReader.open(file.ref.file).all().zipWithIndex.flatMap { case (lines, index) =>
-              println(index)
               if(index == 0) {
                 None
               } else {
