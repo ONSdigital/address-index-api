@@ -31,7 +31,10 @@ case class IndexesConfig(
 )
 
 case class queryParamsConfig(
-  buildingNumberLpiBoost: Float,
+  paoStartNumberBuildingNumberLpiBoost: Float,
+  paoStartNumberPaoLpiBoost: Float,
+  paoStartSuffixLpiBoost: Float,
+  paoEndNumberLpiBoost: Float,
   organisationNameOrganisationLpiBoost: Float,
   organisationNameLegalNameLpiBoost: Float,
   organisationNamePaoTextLpiBoost: Float,

@@ -108,7 +108,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
 
-    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = ???
   }
 
   // mock that won't return any addresses
@@ -125,7 +125,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
 
-    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = ???
   }
 
   val sometimesFailingRepositoryMock = new ElasticsearchRepository {
@@ -142,7 +142,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
 
-    override def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = ???
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = ???
   }
   
   val parser = new ParserModule {

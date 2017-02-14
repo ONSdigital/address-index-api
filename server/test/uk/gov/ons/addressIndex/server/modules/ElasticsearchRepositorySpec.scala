@@ -42,7 +42,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
   val hybridNagPostcodeLocator = hybridPafPostcode
-  val hybridNagPaoStartNumber = hybridPafBuildingNumber
+  val hybridNagPaoStartNumber = "h13"
+  val hybridNagPaoStartSuffix = "h11"
+  val hybridNagPaoEndNumber = "h12"
   val hybridNagLocality = "h10"
   val hybridNagOrganisation = hybridPafOrganizationName
   val hybridNagLegalName = hybridPafOrganizationName
@@ -321,7 +323,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
         CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
       )
-      val expectedScore = 1.6f
+      val expectedScore = 1.3f
 
       val expected = HybridAddress(
         uprn = hybridFirstUprn,
@@ -335,6 +337,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       // Then
       results.length shouldBe 1
+      total shouldBe 1
 
       val resultHybrid = results.head
       resultHybrid shouldBe expected.copy(score = resultHybrid.score)
@@ -363,16 +366,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "generate valid query for search by tokens" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq(
-        CrfTokenResult(hybridNagPaoStartNumber, Tokens.buildingNumber),
-        CrfTokenResult(hybridNagLocality, Tokens.locality),
-        CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
-        CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode),
-        CrfTokenResult(hybridPafDepartmentName, Tokens.departmentName),
-        CrfTokenResult(hybridPafSubBuildingName, Tokens.subBuildingName),
-        CrfTokenResult(hybridPafBuildingName, Tokens.buildingName),
-        CrfTokenResult(hybridNagStreetDescriptor, Tokens.streetName),
-        CrfTokenResult(hybridNagTownName, Tokens.townName)
+      val tokens = Map(
+        Tokens.buildingNumber -> hybridPafBuildingNumber,
+        Tokens.paoStartNumber -> hybridNagPaoStartNumber,
+        Tokens.paoStartSuffix -> hybridNagPaoStartSuffix,
+        Tokens.paoEndNumber -> hybridNagPaoEndNumber,
+        Tokens.locality -> hybridNagLocality,
+        Tokens.organisationName -> hybridNagOrganisation,
+        Tokens.postcode -> hybridNagPostcodeLocator,
+        Tokens.departmentName -> hybridPafDepartmentName,
+        Tokens.subBuildingName -> hybridPafSubBuildingName,
+        Tokens.buildingName -> hybridPafBuildingName,
+        Tokens.streetName -> hybridNagStreetDescriptor,
+        Tokens.townName -> hybridNagTownName
       )
 
       val expected = Json.parse(
@@ -384,6 +390,30 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "match" : {
                     "lpi.paoStartNumber" : {
                       "query" : "$hybridPafBuildingNumber",
+                      "type" : "boolean",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.paoStartNumber" : {
+                      "query" : "$hybridNagPaoStartNumber",
+                      "type" : "boolean",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.paoStartSuffix" : {
+                      "query" : "$hybridNagPaoStartSuffix",
+                      "type" : "boolean",
+                      "boost" : 1.0
+                    }
+                  }
+                }, {
+                  "match" : {
+                    "lpi.paoEndNumber" : {
+                      "query" : "$hybridNagPaoEndNumber",
                       "type" : "boolean",
                       "boost" : 1.0
                     }
@@ -541,7 +571,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 }, {
                   "match" : {
                     "_all" : {
-                      "query" : "$hybridPafBuildingNumber $hybridNagLocality $hybridPafOrganizationName $hybridPafPostcode $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafBuildingName $hybridPafThoroughfare $hybridPafPostTown",
+                      "query" : "$hybridPafThoroughfare $hybridPafBuildingNumber $hybridNagPaoStartSuffix $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafPostTown $hybridPafPostcode $hybridNagPaoEndNumber $hybridPafOrganizationName $hybridNagLocality $hybridNagPaoStartNumber $hybridPafBuildingName",
                       "type" : "boolean",
                       "boost" : 0.5
                     }
