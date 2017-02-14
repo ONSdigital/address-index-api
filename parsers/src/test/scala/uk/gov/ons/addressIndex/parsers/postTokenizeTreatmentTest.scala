@@ -75,4 +75,66 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "transform buildingName into paoStartNumber and paoEndSuffix" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "120-122",
+        label = Tokens.buildingName
+      )
+    )
+
+    val expected = Map(
+      Tokens.buildingName -> "120-122",
+      Tokens.paoStartNumber -> "120",
+      Tokens.paoEndNumber -> "122"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "NOT transform buildingName if it doesn't follow the pattern" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "120-A",
+        label = Tokens.buildingName
+      )
+    )
+
+    val expected = Map(
+      Tokens.buildingName -> "120-A"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "NOT transform buildingName if it is not a building number" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "65 120-122",
+        label = Tokens.buildingName
+      )
+    )
+
+    val expected = Map(
+      Tokens.buildingName -> "65 120-122"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
 }

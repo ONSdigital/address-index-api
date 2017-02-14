@@ -140,6 +140,7 @@ object Tokens extends CrfTokenable {
     * Adds paoStartNumber token if buildingNumber token is present
     * so that we can query LPI addresses
     * @param tokens tokens grouped by label
+    * @return map with tokens that will also contain paoStartNumberToken if buildingNumber is present
     */
   def postTokenizeTreatmentBuildingNumber(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
     val buildingNumber: Option[String] = tokens.get(Tokens.buildingNumber).flatMap(_.headOption).map(_.value)
@@ -161,28 +162,33 @@ object Tokens extends CrfTokenable {
     * Adds paoStartSuffix and (if no buildingNumber token is present) paoStartNumber
     * tokens if buildingName token is present so that we can query LPI addresses
     * @param tokens tokens grouped by label
+    * @return map with tokens that will also contain paoStartNumber and paoStartSuffix tokens if buildingName is present
     */
   def postTokenizeTreatmentBuildingName(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
     val buildingName: Option[String] = tokens.get(Tokens.buildingName).flatMap(_.headOption).map(_.value)
     // To split building name into the pao tokens, it should follow a pattern of a number followed by a letter
-    val buildingNameRegex = """(\d+)(\w)""".r
+    val buildingNameRegexWithLetter = """(\d+)(\w)""".r
+    val buildingNameRegexWithHyphen = """(\d+)-(\d+)""".r
 
     buildingName match {
-      case Some(buildingNameRegex(number, suffix)) =>
-        val paoStartNumberToken = CrfTokenResult(
-          value = number,
-          label = Tokens.paoStartNumber
-        )
+      case Some(buildingNameRegexWithLetter(number, suffix)) =>
+        val paoStartNumberToken = CrfTokenResult(number, Tokens.paoStartNumber)
 
-        val paoStartSuffixToken = CrfTokenResult(
-          value = suffix,
-          label = Tokens.paoStartSuffix
-        )
+        val paoStartSuffixToken = CrfTokenResult(suffix, Tokens.paoStartSuffix)
 
         val tokensWithPaoStartSuffix = tokens + (Tokens.paoStartSuffix -> Seq(paoStartSuffixToken))
 
         if (tokens.contains(Tokens.paoStartNumber)) tokensWithPaoStartSuffix
         else tokensWithPaoStartSuffix + (Tokens.paoStartNumber -> Seq(paoStartNumberToken))
+
+      case Some(buildingNameRegexWithHyphen(firstNumber, endNumber)) =>
+        val paoStartNumberToken = CrfTokenResult(firstNumber, Tokens.paoStartNumber)
+
+        val paoEndNumberToken = CrfTokenResult(endNumber, Tokens.paoEndNumber)
+
+        tokens + (Tokens.paoStartNumber -> Seq(paoStartNumberToken)) + (Tokens.paoEndNumber -> Seq(paoEndNumberToken))
+
+      case Some(_) => tokens
 
       case None => tokens
     }
