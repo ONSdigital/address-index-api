@@ -56,9 +56,8 @@ object Tokens extends CrfTokenable {
     val inputWithoutCounties = removeCounties(upperInput)
 
     val tokens = inputWithoutCounties
-      .replace(" - ", "-")
-      .replace("- ", "-")
-      .replace(" -", "-")
+      .replaceAll("(\\d+) ?- ?(\\d+)", "$1-$2")
+      .replace(" - ", " ")
       .replace(",", " ")
       .replace("\\", " ")
       .split(" ")
