@@ -101,9 +101,9 @@ object Tokens extends CrfTokenable {
   }
 
   /**
-    *
-    * @param tokens
-    * @return
+    * Normalizes postcode address
+    * @param tokens tokens grouped by label
+    * @return Map with tokens that will contain normalized postcode address
     */
   def postTokenizeTreatmentPostCode(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]] = {
     val postCodeTokens = tokens.getOrElse(Tokens.postcode, Seq.empty)
