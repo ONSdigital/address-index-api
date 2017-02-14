@@ -323,7 +323,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
         CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
       )
-      val expectedScore = 1.3f
+      val expectedScore = 0.4f
 
       val expected = HybridAddress(
         uprn = hybridFirstUprn,
@@ -499,7 +499,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                     "paf.buildingNumber" : {
                       "query" : "$hybridPafBuildingNumber",
                       "type" : "boolean",
-                      "boost" : 1.0
+                      "boost" : 5.0
                     }
                   }
                 }, {
@@ -577,7 +577,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                     }
                   }
                 } ],
-                "minimum_should_match" : "55%"
+                "minimum_should_match" : "45%"
               }
             }
           }
