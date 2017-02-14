@@ -14,6 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticSugar {
 
+
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
 
@@ -321,7 +322,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
         CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
       )
-      val expectedScore = 1.6f
+      val expectedScore = 0.58591104f
 
       val expected = HybridAddress(
         uprn = hybridFirstUprn,
@@ -375,187 +376,187 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         CrfTokenResult(hybridNagTownName, Tokens.townName)
       )
 
-      val expected = Json.parse(
-        s"""
-          {
-            "query" : {
-              "bool" : {
-                "should" : [ {
-                  "match" : {
-                    "lpi.paoStartNumber" : {
-                      "query" : "$hybridPafBuildingNumber",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.locality" : {
-                      "query" : "$hybridNagLocality",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.organisation" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.legalName" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoText" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoText" : {
-                      "query" : "$hybridPafBuildingName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "fuzzy" : {
-                    "lpi.streetDescriptor" : {
-                      "value" : "$hybridPafThoroughfare",
-                      "fuzziness" : "2",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.townName" : {
-                      "query" : "$hybridPafPostTown",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.postcodeLocator" : {
-                      "query" : "$hybridPafPostcode",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingNumber" : {
-                      "query" : "$hybridPafBuildingNumber",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.organizationName" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.departmentName" : {
-                      "query" : "$hybridPafDepartmentName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.subBuildingName" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingName" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingName" : {
-                      "query" : "$hybridPafBuildingName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "fuzzy" : {
-                    "paf.thoroughfare" : {
-                      "value" : "$hybridPafThoroughfare",
-                      "fuzziness" : "2",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.postTown" : {
-                      "query" : "$hybridPafPostTown",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.postcode" : {
-                      "query" : "$hybridPafPostcode",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.dependentLocality" : {
-                      "query" : "$hybridNagLocality",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "_all" : {
-                      "query" : "$hybridPafBuildingNumber $hybridNagLocality $hybridPafOrganizationName $hybridPafPostcode $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafBuildingName $hybridPafThoroughfare $hybridPafPostTown",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                } ],
-                "minimum_should_match" : "55%"
-              }
-            }
-          }
+      val expected =
         """
-      )
+          |{
+          |"query":{
+          |"bool":{
+          |"should":[{
+          |"match":{
+          |"lpi.paoStartNumber":{
+          |"query":"h6",
+          |"type":"boolean",
+          |"boost":5.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.locality":{
+          |"query":"h10",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.organisation":{
+          |"query":"h2",
+          |"type":"boolean",
+          |"boost":1.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.legalName":{
+          |"query":"h2",
+          |"type":"boolean",
+          |"boost":1.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.paoText":{
+          |"query":"h2",
+          |"type":"boolean",
+          |"boost":1.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.saoText":{
+          |"query":"h2",
+          |"type":"boolean",
+          |"boost":0.5
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.saoText":{
+          |"query":"h4",
+          |"type":"boolean",
+          |"boost":1.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.paoText":{
+          |"query":"h5",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"fuzzy":{
+          |"lpi.streetDescriptor":{
+          |"value":"h7",
+          |"boost":1.0,
+          |"fuzziness":"2"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.townName":{
+          |"query":"h8",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"lpi.postcodeLocator":{
+          |"query":"h9",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.buildingNumber":{
+          |"query":"h6",
+          |"type":"boolean",
+          |"boost":5.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.organizationName":{
+          |"query":"h2",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.departmentName":{
+          |"query":"h3",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.subBuildingName":{
+          |"query":"h4",
+          |"type":"boolean",
+          |"boost":1.0
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.buildingName":{
+          |"query":"h4",
+          |"type":"boolean",
+          |"boost":0.5
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.buildingName":{
+          |"query":"h5",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"fuzzy":{
+          |"paf.thoroughfare":{
+          |"value":"h7",
+          |"boost":1.0,
+          |"fuzziness":"2"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.postTown":{
+          |"query":"h8",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.postcode":{
+          |"query":"h9",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"paf.dependentLocality":{
+          |"query":"h10",
+          |"type":"boolean"
+          |}
+          |}
+          |},{
+          |"match":{
+          |"_all":{
+          |"query":"h6h10h2h9h3h4h5h7h8",
+          |"type":"boolean",
+          |"boost":30.0
+          |}
+          |}
+          |}],
+          |"minimum_should_match":"45%"
+          |}
+          |}
+          |}
+        """.stripMargin.replace(" ", "").replace("\n", "")
+
 
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
+      val result = repository.generateQueryAddressRequest(tokens).toString.replace(" ", "").replace("\n", "")
 
       // Then
       result shouldBe expected
