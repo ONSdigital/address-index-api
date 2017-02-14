@@ -627,3 +627,6 @@ upload=Upload
 multi.table.id=ID
 multi.table.input.address=Input Address
 multi.table.matched.address=Matched Address
+multi.table.match.type=Match Type
+multi.table.uprn=UPRN
+multi.table.score=Score

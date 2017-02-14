@@ -505,6 +505,7 @@ div.paf-nag-switch-buttons span:hover{
 
 .clerical2 {
     margin: 6px 0px 6px 6px;
+    color: #606060;
 }
 
 .search-bar-active {
@@ -587,4 +588,15 @@ div.taColumn3H{
     text-align: center;
     vertical-align: middle;
     line-height: 100%;
+}
+
+.match-type-M {
+    background: orange;
+}
+
+.match-type-S {
+    background: green;
+}
+.match-type-N {
+    background: red;
 }

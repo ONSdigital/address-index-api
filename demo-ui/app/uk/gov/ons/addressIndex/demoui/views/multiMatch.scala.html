@@ -3,6 +3,8 @@
 @import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
 @import uk.gov.ons.addressIndex.model.BulkResp
+@import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
+@import uk.gov.ons.addressIndex.demoui.views.MatchTypeHelper
 @(
     nav: Navigation,
     fileFormName: String,
@@ -12,6 +14,10 @@
     messages: Messages,
     request: RequestHeader
 )
+
+@tableHeaderHelper(text: String) = {
+    <td align="center"><b>@text</b></td>
+}
 
 @main(title = messages("single.title")) {
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
@@ -125,23 +131,27 @@
                     <div class="panel-body">
                         <div class='container'>
                             <div id="dvData">
-                                <table border="1px;black;">
-                                    <thead>
-                                        <td>@messages("multi.table.id")</td>
-                                        <td>@messages("multi.table.input.address")</td>
-                                        <td>@messages("multi.table.matched.address")</td>
-                                        <td>@messages("multi.table.uprn")</td>
-                                        <td>@messages("multi.table.score")</td>
+                                <table border="1px;black;black;" cellpadding="5px" cellspacing="0px">
+                                    <thead style="background-color: #DFE0E2;">
+                                        @tableHeaderHelper(messages("multi.table.id"))
+                                        @tableHeaderHelper(messages("multi.table.input.address"))
+                                        @tableHeaderHelper(messages("multi.table.matched.address"))
+                                        @tableHeaderHelper(messages("multi.table.uprn"))
+                                        @tableHeaderHelper(messages("multi.table.match.type"))
+                                        @tableHeaderHelper(messages("multi.table.score"))
                                     </thead>
                                     <tbody>
                                         @for((result, i)<- bulkResp.resp.zipWithIndex) {
-                                            <tr>
-                                                <td>@{result.id}</td>
-                                                <td>@{result.inputAddress}</td>
-                                                <td>@{result.matchedFormattedAddress}</td>
-                                                <td>@{result.uprn}</td>
-                                                <td>@{result.score}</td>
-                                            </tr>
+                                            @defining(MatchTypeHelper.matchType(result.id, bulkResp.resp.map(_.id), result.matchedFormattedAddress)) { matchType =>
+                                                <tr>
+                                                    <td align="center">@{result.id}</td>
+                                                    <td>@{result.inputAddress}</td>
+                                                    <td>@{result.matchedFormattedAddress}</td>
+                                                    <td align="center">@{result.uprn}</td>
+                                                    <td align="center" class="match-type-@matchType">@matchType</td>
+                                                    <td align="center">@{ScoreHelper.getPercentageFromScore(result.score, 5F)}&#37;</td>
+                                                </tr>
+                                            }
                                         }
                                     </tbody>
                                 </table>

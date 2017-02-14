@@ -151,8 +151,8 @@ class AddressController @Inject()(
           resp = results flatMap { result =>
             val successes = result.successfulBulkAddresses map { addr =>
               BulkItem(
-                inputAddress = addr.inputAddress,//addr,
-                matchedFormattedAddress = addr.matchedFormattedAddress,//addr,
+                inputAddress = addr.inputAddress,
+                matchedFormattedAddress = addr.matchedFormattedAddress,
                 id = addr.id,
                 organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
                 departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
@@ -171,8 +171,8 @@ class AddressController @Inject()(
             val failures = result.failedBulkAddresses map { failure =>
               val tokenMap = Tokens.tokensToValidMap(failure.tokens)
               BulkItem(
-                inputAddress = failure.inputAddress,//addr,
-                matchedFormattedAddress = "",//addr,
+                inputAddress = failure.inputAddress,
+                matchedFormattedAddress = "",
                 id = failure.id,
                 organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
                 departmentName = tokenMap.getOrElse(Tokens.departmentName, ""),
@@ -226,7 +226,6 @@ class AddressController @Inject()(
         bulkAddressRequest.map(Right(_)).recover {
           case exception: Exception => Left(RejectedRequest(originalInput, id, tokens, exception))
         }
-
       }
 
     // This also transforms lazy `Iterator` into an in-memory sequence

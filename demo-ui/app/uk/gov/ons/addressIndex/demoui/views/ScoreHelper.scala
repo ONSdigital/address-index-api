@@ -1,8 +1,14 @@
 package uk.gov.ons.addressIndex.demoui.views
 
-/**
-  * Created by rhysbradbury on 14/02/2017.
-  */
 object ScoreHelper {
-
+  /**
+    * calculates score percentage
+    *
+    * @param score
+    * @param maxScore
+    * @return
+    */
+  def getPercentageFromScore(score: Float, maxScore: Float): Int = {
+    ((score / maxScore) * 100).toInt
+  }
 }
