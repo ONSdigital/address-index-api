@@ -13,6 +13,35 @@ object Tokens extends CrfTokenable {
 
   private val config = ConfigFactory.load()
 
+
+  val organisationName: String = "OrganisationName"
+  val departmentName: String = "DepartmentName"
+  val subBuildingName: String = "SubBuildingName"
+  val buildingName: String = "BuildingName"
+  val buildingNumber: String = "BuildingNumber"
+  val paoStartNumber: String = "PaoStartNumber"
+  val paoStartSuffix: String = "PaoStartSuffix"
+  val paoEndNumber: String = "PaoEndNumber"
+  val streetName: String = "StreetName"
+  val locality: String = "Locality"
+  val townName: String = "TownName"
+  val postcode: String = "Postcode"
+
+  val all: Seq[String] = Seq(
+    organisationName,
+    departmentName,
+    subBuildingName,
+    buildingName,
+    buildingNumber,
+    paoStartNumber,
+    paoStartSuffix,
+    paoEndNumber,
+    streetName,
+    locality,
+    townName,
+    postcode
+  )
+
   private val currentDirectory = new java.io.File(".").getCanonicalPath
   private val tokenDirectory = s"$currentDirectory${config.getString("parser.input-pre-post-processing.folder")}"
 
@@ -55,14 +84,29 @@ object Tokens extends CrfTokenable {
 
   override def normalise(tokens: Array[String]): Array[String] = tokens.map(_.toUpperCase)
 
-  def tokensToValidMap(tokens: Seq[CrfTokenResult]): Map[String, String] = {
-    val validatedTokens = validatePostCode(tokens.groupBy(_.label))
-    validatedTokens.map {
+
+  /**
+    * Normalizes tokens after they were tokenized and labeled
+    *
+    * @param tokens labeled tokens from the parser
+    * @return Map with label -> concatenated tokens ready to be sent to the ES
+    */
+  def postTokenizeTreatment(tokens: Seq[CrfTokenResult]): Map[String, String] = {
+    val groupedTokens = tokens.groupBy(_.label)
+    val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
+    val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(postcodeTreatedTokens)
+    val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)
+    buildingNameTreatedTokens.map {
       case (token, values) => (token, values.map(_.value).mkString(" "))
     }
   }
 
-  def validatePostCode(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]] = {
+  /**
+    *
+    * @param tokens
+    * @return
+    */
+  def postTokenizeTreatmentPostCode(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]] = {
     val postCodeTokens = tokens.getOrElse(Tokens.postcode, Seq.empty)
     if(postCodeTokens.size == 1) {
       val token = postCodeTokens.head.value
@@ -92,28 +136,58 @@ object Tokens extends CrfTokenable {
     }
   }
 
+  /**
+    * Adds paoStartNumber token if buildingNumber token is present
+    * so that we can query LPI addresses
+    * @param tokens tokens grouped by label
+    */
+  def postTokenizeTreatmentBuildingNumber(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
+    val buildingNumber: Option[String] = tokens.get(Tokens.buildingNumber).flatMap(_.headOption).map(_.value)
 
-  val organisationName: String = "OrganisationName"
-  val departmentName: String = "DepartmentName"
-  val subBuildingName: String = "SubBuildingName"
-  val buildingName: String = "BuildingName"
-  val buildingNumber: String = "BuildingNumber"
-  val streetName: String = "StreetName"
-  val locality: String = "Locality"
-  val townName: String = "TownName"
-  val postcode: String = "Postcode"
+    buildingNumber match {
+      case Some(number) =>
+        val paoStartNumberToken = CrfTokenResult(
+          value = number,
+          label = Tokens.paoStartNumber
+        )
 
-  val all: Seq[String] = Seq(
-    organisationName,
-    departmentName,
-    subBuildingName,
-    buildingName,
-    buildingNumber,
-    streetName,
-    locality,
-    townName,
-    postcode
-  )
+        tokens + (Tokens.paoStartNumber -> Seq(paoStartNumberToken))
+
+      case None => tokens
+    }
+  }
+
+  /**
+    * Adds paoStartSuffix and (if no buildingNumber token is present) paoStartNumber
+    * tokens if buildingName token is present so that we can query LPI addresses
+    * @param tokens tokens grouped by label
+    */
+  def postTokenizeTreatmentBuildingName(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
+    val buildingName: Option[String] = tokens.get(Tokens.buildingName).flatMap(_.headOption).map(_.value)
+    // To split building name into the pao tokens, it should follow a pattern of a number followed by a letter
+    val buildingNameRegex = """(\d+)(\w)""".r
+
+    buildingName match {
+      case Some(buildingNameRegex(number, suffix)) =>
+        val paoStartNumberToken = CrfTokenResult(
+          value = number,
+          label = Tokens.paoStartNumber
+        )
+
+        val paoStartSuffixToken = CrfTokenResult(
+          value = suffix,
+          label = Tokens.paoStartSuffix
+        )
+
+        val tokensWithPaoStartSuffix = tokens + (Tokens.paoStartSuffix -> Seq(paoStartSuffixToken))
+
+        if (tokens.contains(Tokens.paoStartNumber)) tokensWithPaoStartSuffix
+        else tokensWithPaoStartSuffix + (Tokens.paoStartNumber -> Seq(paoStartNumberToken))
+
+      case None => tokens
+    }
+  }
+
 
 
   // `lazy` is needed so that if this is called from other modules, during tests, it doesn't throw exception

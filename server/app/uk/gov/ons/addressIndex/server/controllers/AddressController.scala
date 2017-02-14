@@ -167,7 +167,7 @@ class AddressController @Inject()(
               )
             }
             val failures = result.failedBulkAddresses map { failure =>
-              val tokenMap = Tokens.tokensToValidMap(failure.tokens)
+              val tokenMap = Tokens.postTokenizeTreatment(failure.tokens)
               BulkItem(
                 id = failure.id,
                 organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
@@ -208,7 +208,7 @@ class AddressController @Inject()(
           esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
             hybridAddresses.map(hybridAddress => BulkAddress(
                 id = id,
-                tokens = Tokens.tokensToValidMap(tokens),
+                tokens = Tokens.postTokenizeTreatment(tokens),
                 hybridAddress = hybridAddress
               )
             )
