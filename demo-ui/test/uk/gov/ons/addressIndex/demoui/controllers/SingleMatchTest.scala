@@ -23,7 +23,7 @@ class SingleMatchTest extends PlaySpec with Results {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val expectedString = "Search for Addresses"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
@@ -41,7 +41,7 @@ class SingleMatchTest extends PlaySpec with Results {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
@@ -59,7 +59,7 @@ class SingleMatchTest extends PlaySpec with Results {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientInstance]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val expectedString = "<span class=\"error\" onclick=\"setFocus('address');\">Please enter an address</span>"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 

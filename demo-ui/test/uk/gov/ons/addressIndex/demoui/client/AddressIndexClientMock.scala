@@ -58,13 +58,44 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     endDate = ""
   )
 
+  val mockNagAddress1 = AddressResponseNag(
+    uprn = "",
+    postcodeLocator = "PO7 6GA",
+    addressBasePostal=  "",
+    usrn = "",
+    lpiKey = "",
+    pao = AddressResponsePao(
+      paoText = "",
+      paoStartNumber = "7",
+      paoStartSuffix = "",
+      paoEndNumber = "",
+      paoEndSuffix = ""
+    ),
+    sao = AddressResponseSao(
+      saoText = "",
+      saoStartNumber= "",
+      saoStartSuffix= "",
+      saoEndNumber= "",
+      saoEndSuffix = ""
+    ),
+    level= "",
+    officialFlag= "",
+    logicalStatus= "1",
+    streetDescriptor= "",
+    townName= "EXETER",
+    locality= "",
+    organisation= "",
+    legalName= "",
+    classificationCode = "R"
+  )
+
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
-    nag = None,
+    nag = Some(mockNagAddress1),
     geo = None,
     underlyingScore = 1.0f
   )
