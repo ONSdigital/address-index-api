@@ -104,73 +104,71 @@
             <div class="panel-heading sub-nav-heading">
                 @navigation(nav)
             </div>
-    <div class="panel panel-single address-panel">
-        <h3 class="panel-title">@messages("multi.sfatext")</h3>
-        <div class="panel-body">
-            <div id="search-form" class="search-bar-active">
-                @form(
-                    action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFile,
-                    'enctype -> "multipart/form-data"
-                ) {
-                    <p>
-                        <input type="file" name="@fileFormName" />
-                        <input class="btn btn-success btn-search" type="submit" />
-                    </p>
-                }
-            </div>
-        </div>
-    </div>
-    @results.map { bulkResp =>
-        <div class="panel panel-single address-panel">
-            <div class="panel-body">
-                <div class='container'>
-                    <div id="dvData">
-                        <table border="1px;black;">
-                            <thead>
-                                <td>Index</td>
-                                <td>Input ID</td>
-                                <td>organisationName</td>
-                                <td>departmentName</td>
-                                <td>subBuildingName</td>
-                                <td>buildingName</td>
-                                <td>buildingNumber</td>
-                                <td>streetName</td>
-                                <td>locality</td>
-                                <td>townName</td>
-                                <td>postcode</td>
-                                <td>UPRN</td>
-                                <td>Score</td>
-                            </thead>
-                            <tbody>
-                                @for((result, i)<- bulkResp.resp.zipWithIndex) {
-                                    <tr>
-                                        <td>@{i}</td>
-                                        <td>@{result.id}</td>
-                                        <td>@{result.organisationName}</td>
-                                        <td>@{result.departmentName }</td>
-                                        <td>@{result.subBuildingName}</td>
-                                        <td>@{result.buildingName}</td>
-                                        <td>@{result.buildingNumber}</td>
-                                        <td>@{result.streetName}</td>
-                                        <td>@{result.locality}</td>
-                                        <td>@{result.townName}</td>
-                                        <td>@{result.postcode}</td>
-                                        <td>@{result.uprn}</td>
-                                        <td>@{result.score}</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+            <div class="panel panel-single address-panel">
+                <h3 class="panel-title">@messages("multi.sfatext")</h3>
+                <div class="panel-body">
+                    <div id="search-form" class="search-bar-active">
+                        @form(
+                            action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFile,
+                            'enctype -> "multipart/form-data"
+                        ) {
+                            <p>
+                                <input type="file" name="@fileFormName" />
+                                <input class="btn btn-success btn-search" type="submit" />
+                            </p>
+                        }
                     </div>
                 </div>
             </div>
+            @results.map { bulkResp =>
+                <div class="panel panel-single address-panel">
+                    <div class="panel-body">
+                        <div class='container'>
+                            <div id="dvData">
+                                <table border="1px;black;">
+                                    <thead>
+                                        <td>Index</td>
+                                        <td>Input ID</td>
+                                        <td>organisationName</td>
+                                        <td>departmentName</td>
+                                        <td>subBuildingName</td>
+                                        <td>buildingName</td>
+                                        <td>buildingNumber</td>
+                                        <td>streetName</td>
+                                        <td>locality</td>
+                                        <td>townName</td>
+                                        <td>postcode</td>
+                                        <td>UPRN</td>
+                                        <td>Score</td>
+                                    </thead>
+                                    <tbody>
+                                        @for((result, i)<- bulkResp.resp.zipWithIndex) {
+                                            <tr>
+                                                <td>@{i}</td>
+                                                <td>@{result.id}</td>
+                                                <td>@{result.organisationName}</td>
+                                                <td>@{result.departmentName }</td>
+                                                <td>@{result.subBuildingName}</td>
+                                                <td>@{result.buildingName}</td>
+                                                <td>@{result.buildingNumber}</td>
+                                                <td>@{result.streetName}</td>
+                                                <td>@{result.locality}</td>
+                                                <td>@{result.townName}</td>
+                                                <td>@{result.postcode}</td>
+                                                <td>@{result.uprn}</td>
+                                                <td>@{result.score}</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id ="export" role="button">export</a>
+            }
         </div>
-
-        <a href="#" id ="export" role="button">export</a>
-    }
     </div>
-    </div>
-
     <div class="panel panel-single address-panel">
         <p class="pad">&nbsp;</p>
     </div>
