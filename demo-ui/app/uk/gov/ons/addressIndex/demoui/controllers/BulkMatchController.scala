@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import com.github.tototoshi.csv._
 import javax.inject.{Inject, Singleton}
+
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
@@ -11,6 +11,8 @@ import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
+
+import scala.io.Source
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
@@ -18,13 +20,16 @@ import scala.language.postfixOps
   * Controller class for a multiple addresses to be matched
   *
   * @param messagesApi
+  * @param conf
   * @param apiClient
   * @param ec
   */
 @Singleton
 class BulkMatchController @Inject()(
   val messagesApi: MessagesApi,
-  apiClient: AddressIndexClientInstance
+  conf: DemouiConfigModule,
+  apiClient: AddressIndexClientInstance,
+  classHierarchy: ClassHierarchy
  )(
   implicit
   ec: ExecutionContext,
@@ -43,6 +48,7 @@ class BulkMatchController @Inject()(
     )
   }
 
+
   def uploadFile(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = Action.async(
     parse.maxLength(
       10 * 1024 * 1024, //10MB
@@ -54,19 +60,17 @@ class BulkMatchController @Inject()(
     val optRes = request.body match {
       case Right(file) => {
         file.file(multiMatchFormName) map { file =>
+          val lines = Source.fromFile(file.ref.file).getLines
           apiClient bulk BulkBody(
-            addresses = CSVReader.open(file.ref.file).all().zipWithIndex.flatMap { case (lines, index) =>
-              if(index == 0) {
-                None
-              } else {
-                Some(
-                  BulkQuery(
-                    id = lines.head,
-                    address = lines(1)
-                  )
-                )
-              }
-            }
+            addresses = lines.map { line =>
+              //format
+              //id | address
+              val arr = line.split("\\|")
+              BulkQuery(
+                id = arr(0),
+                address = arr(1)
+              )
+            }.toSeq
           ) map { resp =>
             logger info s"Response size: ${resp.resp.size}"
             Ok(
@@ -77,6 +81,7 @@ class BulkMatchController @Inject()(
               )
             )
           }
+
         }
       }
       case Left(maxSizeExceeded) => {
