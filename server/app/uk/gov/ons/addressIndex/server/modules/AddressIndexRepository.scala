@@ -98,9 +98,22 @@ class AddressIndexRepository @Inject()(
       val total = response.totalHits
       // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
       val maxScore = if (total == 0) 0 else response.maxScore
+      val addrs = response.as[HybridAddress]
 
+      val addresses = if(addrs.size == 0) {
+        Array(
+          HybridAddress(
+            uprn = "",
+            lpi = Seq.empty,
+            paf = Seq.empty,
+            score = 0f
+          )
+        )
+      } else {
+        addrs
+      }
       HybridAddresses(
-        addresses = response.as[HybridAddress],
+        addresses = addresses,
         maxScore = maxScore,
         total = total
       )
