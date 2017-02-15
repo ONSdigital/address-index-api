@@ -1,24 +1,18 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import java.util.UUID
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.duration._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
-import org.joda.time.LocalDateTime
-import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
-
 import scala.util.Try
 
 @Singleton
@@ -151,6 +145,7 @@ class AddressController @Inject()(
           resp = results flatMap { result =>
             val successes = result.successfulBulkAddresses map { addr =>
               BulkItem(
+                maxScorePossible = addr.maxPossibleScore,
                 inputAddress = addr.inputAddress,
                 matchedFormattedAddress = addr.matchedFormattedAddress,
                 id = addr.id,
@@ -171,6 +166,7 @@ class AddressController @Inject()(
             val failures = result.failedBulkAddresses map { failure =>
               val tokenMap = Tokens.postTokenizeTreatment(failure.tokens)
               BulkItem(
+                maxScorePossible = 0f,
                 inputAddress = failure.inputAddress,
                 matchedFormattedAddress = "",
                 id = failure.id,
@@ -209,9 +205,10 @@ class AddressController @Inject()(
       inputs.map { case (id, originalInput, tokens) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
-          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, maxScore, _) =>
             val resp = hybridAddresses.map(hybridAddress =>
               BulkAddress(
+                maxPossibleScore = maxScore,
                 matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(hybridAddress).formattedAddress,
                 inputAddress = originalInput,
                 id = id,
@@ -222,6 +219,7 @@ class AddressController @Inject()(
             if(resp.isEmpty) {
               Seq(
                 BulkAddress(
+                  maxPossibleScore = maxScore,
                   matchedFormattedAddress = "",
                   inputAddress = originalInput,
                   id = id,

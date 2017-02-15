@@ -149,7 +149,7 @@
                                                     <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
                                                     <td align="center">@{result.uprn}</td>
                                                     <td align="center" class="match-type-@matchType">@matchType</td>
-                                                    <td align="center">@{ScoreHelper.getPercentageFromScore(result.score, 5F)}&#37;</td>
+                                                    <td align="center">@{ScoreHelper.getPercentageFromScore(result.score, result.maxScorePossible)}&#37;</td>
                                                 </tr>
                                             }
                                         }
