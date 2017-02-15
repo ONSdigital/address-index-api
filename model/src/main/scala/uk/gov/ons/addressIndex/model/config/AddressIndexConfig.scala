@@ -25,7 +25,8 @@ case class AddressIndexConfig(
   elasticSearch: ElasticSearchConfig,
   bulkRequestsPerBatch: Int,
   bulkMiniBatchUpscale: Float,
-  bulkMiniBatchDownscale: Float
+  bulkMiniBatchDownscale: Float,
+  bulkRequestsSizeWarningThreshold: Float
 )
 
 case class IndexesConfig(

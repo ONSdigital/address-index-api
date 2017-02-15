@@ -183,7 +183,13 @@ class AddressController @Inject()(
   @tailrec
   final def iterateOverRequestsWithBackPressure(requests: Stream[BulkAddressRequestData], miniBatchSize: Int,
     successfulResults: Seq[BulkAddress]): Seq[BulkAddress] = {
-    logger.info(s"#bulkQuery sending a mini-batch of the size $miniBatchSize")
+
+    val defaultBatchSize = conf.config.bulkRequestsPerBatch
+    val bulkSizeWarningThreshold = conf.config.bulkRequestsSizeWarningThreshold
+
+    if (miniBatchSize < defaultBatchSize * bulkSizeWarningThreshold)
+      logger.warn(s"#bulkQuery mini-bulk size it less than a ${defaultBatchSize * bulkSizeWarningThreshold}: size = $miniBatchSize , check if everything is fine with ES")
+    else logger.info(s"#bulkQuery sending a mini-batch of the size $miniBatchSize")
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
