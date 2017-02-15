@@ -28,6 +28,7 @@ object BulkQuery {
 }
 
 case class BulkItem(
+  maxScorePossible: Float,
   id: String,
   inputAddress: String,
   matchedFormattedAddress: String,
