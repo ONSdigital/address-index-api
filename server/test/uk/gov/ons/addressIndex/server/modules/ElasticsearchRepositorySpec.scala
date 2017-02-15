@@ -356,9 +356,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
 
       // Then
-      results.length shouldBe 0
-      maxScore shouldBe 0
-      total shouldBe 0
+      results.length shouldBe 1
+      maxScore shouldBe 0f
+      total shouldBe 0f
     }
 
     "generate valid query for search by tokens" in {

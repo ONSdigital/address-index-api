@@ -106,7 +106,7 @@ class AddressIndexRepository @Inject()(
             uprn = "",
             lpi = Seq.empty,
             paf = Seq.empty,
-            score = 0f
+            score = 0
           )
         )
       } else {
