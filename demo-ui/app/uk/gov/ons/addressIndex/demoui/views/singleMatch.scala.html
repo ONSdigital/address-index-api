@@ -1,6 +1,7 @@
 @import helper._
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @import uk.gov.ons.addressIndex.demoui.model.ui.Links
+@import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
 
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
@@ -83,7 +84,7 @@ classification: Option[Map[String,String]]
                                 </div>
                                 <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
                                     (
-                                    @defining(if ((address.underlyingScore / aresponse.maxScore) * 100 > 70) "#c6ffb3" else "#ffcccc") { color =>
+                                    @defining(if (ScoreHelper.getPercentageFromScore(address.underlyingScore, aresponse.maxScore) > 70) "#c6ffb3" else "#ffcccc") { color =>
                                     <span style="background-color: @color">
                                     }
                                     @{"%.2f".format((address.underlyingScore / aresponse.maxScore) * 100)}</span>%)

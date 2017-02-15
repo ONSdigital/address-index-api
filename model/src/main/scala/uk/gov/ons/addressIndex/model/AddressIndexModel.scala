@@ -29,6 +29,8 @@ object BulkQuery {
 
 case class BulkItem(
   id: String,
+  inputAddress: String,
+  matchedFormattedAddress: String,
   organisationName: String = "",
   departmentName: String = "",
   subBuildingName: String = "",

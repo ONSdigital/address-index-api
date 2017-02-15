@@ -134,12 +134,12 @@ class AddressController @Inject()(
     */
   def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
-    val tokenizedAddresses: Iterator[(String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, parser.tag(a.address)))
+    val tokenizedAddresses: Iterator[(String, String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, a.address, parser.tag(a.address)))
     val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
     val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
     logger.info(s"#bulkQuery will have ${chunkedTokenizedAddresses.length} mini-batches")
 
-    val results = chunkedTokenizedAddresses.zipWithIndex.map{ case (tokens, index) =>
+    val results = chunkedTokenizedAddresses.zipWithIndex.map { case (tokens, index) =>
       logger.info(s"#bulkQuery Start mini-batch number $index")
       Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf)
     }
@@ -151,6 +151,8 @@ class AddressController @Inject()(
           resp = results flatMap { result =>
             val successes = result.successfulBulkAddresses map { addr =>
               BulkItem(
+                inputAddress = addr.inputAddress,
+                matchedFormattedAddress = addr.matchedFormattedAddress,
                 id = addr.id,
                 organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
                 departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
@@ -169,6 +171,8 @@ class AddressController @Inject()(
             val failures = result.failedBulkAddresses map { failure =>
               val tokenMap = Tokens.postTokenizeTreatment(failure.tokens)
               BulkItem(
+                inputAddress = failure.inputAddress,
+                matchedFormattedAddress = "",
                 id = failure.id,
                 organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
                 departmentName = tokenMap.getOrElse(Tokens.departmentName, ""),
@@ -199,14 +203,17 @@ class AddressController @Inject()(
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(inputs: Iterator[(String, Seq[CrfTokenResult])], limitPerAddress: Int): Future[BulkAddresses] = {
+  def queryBulkAddresses(inputs: Iterator[(String, String, Seq[CrfTokenResult])], limitPerAddress: Int): Future[BulkAddresses] = {
 
     val addressesRequests: Iterator[Future[Either[RejectedRequest, Seq[BulkAddress]]]] =
-      inputs.map { case (id, tokens) =>
+      inputs.map { case (id, originalInput, tokens) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
           esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
-            hybridAddresses.map(hybridAddress => BulkAddress(
+            hybridAddresses.map(hybridAddress =>
+              BulkAddress(
+                matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(hybridAddress).formattedAddress,
+                inputAddress = originalInput,
                 id = id,
                 tokens = Tokens.postTokenizeTreatment(tokens),
                 hybridAddress = hybridAddress
@@ -217,9 +224,8 @@ class AddressController @Inject()(
         // Successful requests are stored in the `Right`
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
-          case exception: Exception => Left(RejectedRequest(id, tokens, exception))
+          case exception: Exception => Left(RejectedRequest(originalInput, id, tokens, exception))
         }
-
       }
 
     // This also transforms lazy `Iterator` into an in-memory sequence
