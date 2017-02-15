@@ -210,7 +210,7 @@ class AddressController @Inject()(
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
           esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
-            hybridAddresses.map(hybridAddress =>
+            val resp = hybridAddresses.map(hybridAddress =>
               BulkAddress(
                 matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(hybridAddress).formattedAddress,
                 inputAddress = originalInput,
@@ -219,6 +219,24 @@ class AddressController @Inject()(
                 hybridAddress = hybridAddress
               )
             )
+            if(resp.isEmpty) {
+              Seq(
+                BulkAddress(
+                  matchedFormattedAddress = "",
+                  inputAddress = originalInput,
+                  id = id,
+                  tokens = Tokens.postTokenizeTreatment(tokens),
+                  hybridAddress = HybridAddress(
+                    uprn = "",
+                    lpi = Seq.empty,
+                    paf = Seq.empty,
+                    score = 0
+                  )
+                )
+              )
+            } else {
+              resp
+            }
           }
 
         // Successful requests are stored in the `Right`

@@ -591,12 +591,12 @@ div.taColumn3H{
 }
 
 .match-type-M {
-    background: orange;
+    background: #FFCC00;
 }
 
 .match-type-S {
-    background: green;
+    background: #00CC00;
 }
 .match-type-N {
-    background: red;
+    background: #FF0000;
 }

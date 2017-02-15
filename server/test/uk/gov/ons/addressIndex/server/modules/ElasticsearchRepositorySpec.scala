@@ -359,8 +359,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       // Then
       results.length shouldBe 0
-      maxScore shouldBe 0
-      total shouldBe 0
+      maxScore shouldBe 0f
+      total shouldBe 0f
     }
 
     "generate valid query for search by tokens" in {
