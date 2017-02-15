@@ -22,7 +22,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
         )
       )
     )
-    val actual = Tokens.validatePostCode(anInput)
+    val actual = Tokens.postTokenizeTreatmentPostCode(anInput)
     actual shouldBe theExpected
   }
 
@@ -95,7 +95,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
       )
     )
     val expected = Map.empty
-    val actual = Tokens.validatePostCode(input)
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
     actual shouldBe expected
   }
 
@@ -109,7 +109,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
       )
     )
     val expected = Map.empty
-    val actual = Tokens.validatePostCode(input)
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
     actual shouldBe expected
   }
 
@@ -123,7 +123,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
       )
     )
     val expected = Map.empty
-    val actual = Tokens.validatePostCode(input)
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
     actual shouldBe expected
   }
 
@@ -137,7 +137,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
       )
     )
     val expected = Map.empty
-    val actual = Tokens.validatePostCode(input)
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
     actual shouldBe expected
   }
 
@@ -151,7 +151,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
       )
     )
     val expected = Map.empty
-    val actual = Tokens.validatePostCode(input)
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
     actual shouldBe expected
   }
 }
