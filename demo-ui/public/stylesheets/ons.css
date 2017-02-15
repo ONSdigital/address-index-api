@@ -516,6 +516,7 @@ div.taTable{
     width: 100%; display: table; table-layout: auto;
     padding:0;
     margin:0 0 6px 0;
+    border: 1px solid black;
 }
 
 div.taRow{
@@ -535,7 +536,7 @@ div.taRowH{
 div.taColumn1{
     display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
-    padding: 0.1em;
+    padding: 1px;
     border: 1px solid black;
     margin:0;
 }
@@ -543,7 +544,7 @@ div.taColumn1{
 div.taColumn2{
     display: table-cell; height:100%; min-width: 40%;
     vertical-align:top;
-    padding: 0.1em;
+    padding: 1px;
     border: 1px solid black;
     margin:0;
 }
@@ -551,7 +552,7 @@ div.taColumn2{
 div.taColumn3{
     display: table-cell; height:100%; min-width: 40%;
     vertical-align:top;
-    padding: 0.1em;
+    padding: 1px;
     border: 1px solid black;
     margin:0;
 }
@@ -559,7 +560,7 @@ div.taColumn3{
 div.taColumn1H{
     display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
-    padding: 0.1em;
+    padding: 1px;
     border: 1px solid black;
     margin:0;
     text-align: center;
@@ -570,7 +571,7 @@ div.taColumn1H{
 div.taColumn2H{
     display: table-cell; height:100%; min-width: 40%;
     vertical-align:top;
-    padding: 0.1em;
+    padding: 1px;
     border: 1px solid black;
     margin:0;
     text-align: center;
@@ -581,7 +582,7 @@ div.taColumn2H{
 div.taColumn3H{
     display: table-cell; height:100%; min-width: 40%;
     vertical-align:top;
-    padding: 0.1em;
+    padding: 1px;
     border: 1px solid black;
     margin:0;
     text-align: center;

@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import java.util.concurrent.{ArrayBlockingQueue, ThreadPoolExecutor, TimeUnit}
 import javax.inject.{Inject, Singleton}
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
@@ -35,7 +34,7 @@ trait ElasticsearchRepository {
 
   def generateQueryUprnRequest(uprn: String): SearchDefinition
 
-  def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition
 
   /**
     * Helper which logs an ElasticSearch Query before executing it.
@@ -90,7 +89,8 @@ class AddressIndexRepository @Inject()(
 
   def queryAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
+    val tokensMap = Tokens.postTokenizeTreatment(tokens)
+    val request = generateQueryAddressRequest(tokensMap).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -126,114 +126,127 @@ class AddressIndexRepository @Inject()(
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Seq[CrfTokenResult]): SearchDefinition = {
-
-    val tokensMap = Tokens.tokensToValidMap(tokens)
+  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
 
     val query =
       bool {
         should(Seq(
-          tokensMap.get(Tokens.buildingNumber).map(token =>
+          tokens.get(Tokens.buildingNumber).map(token =>
             matchQuery(
               field = "lpi.paoStartNumber",
               value = token
-            ).boost(queryParams.buildingNumberLpiBoost)),
-          tokensMap.get(Tokens.locality).map(token =>
+            ).boost(queryParams.paoStartNumberBuildingNumberLpiBoost)),
+          tokens.get(Tokens.paoStartNumber).map(token =>
+            matchQuery(
+              field = "lpi.paoStartNumber",
+              value = token
+            ).boost(queryParams.paoStartNumberPaoLpiBoost)),
+          tokens.get(Tokens.paoStartSuffix).map(token =>
+            matchQuery(
+              field = "lpi.paoStartSuffix",
+              value = token
+            ).boost(queryParams.paoStartSuffixLpiBoost)),
+          tokens.get(Tokens.paoEndNumber).map(token =>
+            matchQuery(
+              field = "lpi.paoEndNumber",
+              value = token
+            ).boost(queryParams.paoEndNumberLpiBoost)),
+          tokens.get(Tokens.locality).map(token =>
             matchQuery(
               field = "lpi.locality",
               value = token
             )),
-          tokensMap.get(Tokens.organisationName).map(token =>
+          tokens.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "lpi.organisation",
               value = token
             ).boost(queryParams.organisationNameOrganisationLpiBoost)),
-          tokensMap.get(Tokens.organisationName).map(token =>
+          tokens.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "lpi.legalName",
               value = token
             ).boost(queryParams.organisationNameLegalNameLpiBoost)),
-          tokensMap.get(Tokens.organisationName).map(token =>
+          tokens.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "lpi.paoText",
               value = token
             ).boost(queryParams.organisationNamePaoTextLpiBoost)),
-          tokensMap.get(Tokens.organisationName).map(token =>
+          tokens.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "lpi.saoText",
               value = token
             ).boost(queryParams.organisationNameSaoTextLpiBoost)),
-          tokensMap.get(Tokens.subBuildingName).map(token =>
+          tokens.get(Tokens.subBuildingName).map(token =>
             matchQuery(
               field = "lpi.saoText",
               value = token
             ).boost(queryParams.subBuildingNameLpiBoost)),
-          tokensMap.get(Tokens.buildingName).map(token =>
+          tokens.get(Tokens.buildingName).map(token =>
             matchQuery(
               field = "lpi.paoText",
               value = token
             )),
-          tokensMap.get(Tokens.streetName).map(token =>
+          tokens.get(Tokens.streetName).map(token =>
             fuzzyQuery(
               name = "lpi.streetDescriptor",
               value = token
             ).boost(queryParams.streetNameLpiBoost).fuzziness(Fuzziness.TWO)),
-          tokensMap.get(Tokens.townName).map(token =>
+          tokens.get(Tokens.townName).map(token =>
             matchQuery(
               field = "lpi.townName",
               value = token
             )),
-          tokensMap.get(Tokens.postcode).map(token =>
+          tokens.get(Tokens.postcode).map(token =>
             matchQuery(
               field = "lpi.postcodeLocator",
               value = token
             )),
-          tokensMap.get(Tokens.buildingNumber).map(token =>
+          tokens.get(Tokens.buildingNumber).map(token =>
             matchQuery(
               field = "paf.buildingNumber",
               value = token
             ).boost(queryParams.buildingNumberPafBoost)),
-          tokensMap.get(Tokens.organisationName).map(token =>
+          tokens.get(Tokens.organisationName).map(token =>
             matchQuery(
               field = "paf.organizationName",
               value = token
             )),
-          tokensMap.get(Tokens.departmentName).map(token =>
+          tokens.get(Tokens.departmentName).map(token =>
             matchQuery(
               field = "paf.departmentName",
               value = token
             )),
-          tokensMap.get(Tokens.subBuildingName).map(token =>
+          tokens.get(Tokens.subBuildingName).map(token =>
             matchQuery(
               field = "paf.subBuildingName",
               value = token
             ).boost(queryParams.subBuildingNameSubBuildingPafBoost)),
-          tokensMap.get(Tokens.subBuildingName).map(token =>
+          tokens.get(Tokens.subBuildingName).map(token =>
             matchQuery(
               field = "paf.buildingName",
               value = token
             ).boost(queryParams.subBuildingNameBuildingPafBoost)),
-          tokensMap.get(Tokens.buildingName).map(token =>
+          tokens.get(Tokens.buildingName).map(token =>
             matchQuery(
               field = "paf.buildingName",
               value = token
             )),
-          tokensMap.get(Tokens.streetName).map(token =>
+          tokens.get(Tokens.streetName).map(token =>
             fuzzyQuery(
               name = "paf.thoroughfare",
               value = token
             ).boost(queryParams.streetNamePafBoost).fuzziness(Fuzziness.TWO)),
-          tokensMap.get(Tokens.townName).map(token =>
+          tokens.get(Tokens.townName).map(token =>
             matchQuery(
               field = "paf.postTown",
               value = token
             )),
-          tokensMap.get(Tokens.postcode).map(token =>
+          tokens.get(Tokens.postcode).map(token =>
             matchQuery(
               field = "paf.postcode",
               value = token
             )),
-          tokensMap.get(Tokens.locality).map(token =>
+          tokens.get(Tokens.locality).map(token =>
             matchQuery(
               field = "paf.dependentLocality",
               value = token

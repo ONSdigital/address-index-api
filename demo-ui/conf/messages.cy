@@ -1,6 +1,6 @@
 clerical.sfatext=Offeryn clerigol
 clerical.addinfo=Gwybodaeth Clerigol Ychwanegol
-clerical.logical=Statws rhesymegol
+clerical.logicalstatus=Statws rhesymegol
 clerical.elasticscore=sgôr elastig
 clerical.parentuprn=UPRN rhieni
 clerical.la=Awdurdod lleol

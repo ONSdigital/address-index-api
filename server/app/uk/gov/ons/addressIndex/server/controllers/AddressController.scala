@@ -169,7 +169,7 @@ class AddressController @Inject()(
               )
             }
             val failures = result.failedBulkAddresses map { failure =>
-              val tokenMap = Tokens.tokensToValidMap(failure.tokens)
+              val tokenMap = Tokens.postTokenizeTreatment(failure.tokens)
               BulkItem(
                 inputAddress = failure.inputAddress,
                 matchedFormattedAddress = "",
@@ -215,7 +215,7 @@ class AddressController @Inject()(
                 matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(hybridAddress).formattedAddress,
                 inputAddress = originalInput,
                 id = id,
-                tokens = Tokens.tokensToValidMap(tokens),
+                tokens = Tokens.postTokenizeTreatment(tokens),
                 hybridAddress = hybridAddress
               )
             )
