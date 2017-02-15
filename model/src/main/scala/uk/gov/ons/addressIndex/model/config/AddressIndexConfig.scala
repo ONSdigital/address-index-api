@@ -10,8 +10,7 @@ case class ElasticSearchConfig(
   defaultLimit: Int,
   defaultOffset: Int,
   maximumLimit: Int,
-  maximumOffset: Int,
-  bulkRequestsPerBatch: Int
+  maximumOffset: Int
 )
 
 case class ShieldConfig(
@@ -23,7 +22,10 @@ case class ShieldConfig(
 case class AddressIndexConfig(
   parserLibPath: String,
   bulkLimit: Int,
-  elasticSearch: ElasticSearchConfig
+  elasticSearch: ElasticSearchConfig,
+  bulkRequestsPerBatch: Int,
+  bulkMiniBatchUpscale: Float,
+  bulkMiniBatchDownscale: Float
 )
 
 case class IndexesConfig(
