@@ -5,12 +5,14 @@ import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 
 /**
   * DTO to hold the information about found address while doing bulk requests
+  * @param maxPossibleScore the max elastic score possible
   * @param inputAddress the original input address
   * @param id
   * @param tokens tokens that were used to do the bulk request
   * @param hybridAddress found address
   */
 case class BulkAddress(
+  maxPossibleScore: Float,
   id: String,
   inputAddress: String,
   tokens: Map[String, String],

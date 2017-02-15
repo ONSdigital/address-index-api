@@ -1,14 +1,13 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import scala.concurrent.duration._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
@@ -147,6 +146,7 @@ class AddressController @Inject()(
       BulkResp(
         resp = results.map { address =>
           BulkItem(
+            maxScorePossible = address.maxPossibleScore,
             inputAddress = address.inputAddress,
             matchedFormattedAddress = address.matchedFormattedAddress,
             id = address.id,
@@ -218,9 +218,10 @@ class AddressController @Inject()(
       inputs.map { case BulkAddressRequestData(id, originalInput, tokens) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
-          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
-            hybridAddresses.map(hybridAddress =>
+          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, maxScore, _) =>
+            val resp = hybridAddresses.map(hybridAddress =>
               BulkAddress(
+                maxPossibleScore = maxScore,
                 matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(hybridAddress).formattedAddress,
                 inputAddress = originalInput,
                 id = id,
@@ -228,6 +229,25 @@ class AddressController @Inject()(
                 hybridAddress = hybridAddress
               )
             )
+            if(resp.isEmpty) {
+              Seq(
+                BulkAddress(
+                  maxPossibleScore = maxScore,
+                  matchedFormattedAddress = "",
+                  inputAddress = originalInput,
+                  id = id,
+                  tokens = Tokens.postTokenizeTreatment(tokens),
+                  hybridAddress = HybridAddress(
+                    uprn = "",
+                    lpi = Seq.empty,
+                    paf = Seq.empty,
+                    score = 0
+                  )
+                )
+              )
+            } else {
+              resp
+            }
           }
 
         // Successful requests are stored in the `Right`
