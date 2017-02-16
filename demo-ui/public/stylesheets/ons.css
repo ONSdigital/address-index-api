@@ -504,7 +504,7 @@ div.paf-nag-switch-buttons span:hover{
 }
 
 .clerical2 {
-    margin: 6px 0px 6px 6px;
+    margin: 2px 0px 0px 6px;
 }
 
 .search-bar-active {
@@ -599,4 +599,25 @@ div.taColumn3H{
 }
 .match-type-N {
     background: #FF0000;
+}
+
+@media only screen and (max-width: 600px) {
+    td {
+        font-size: 0.7em;
+        padding: 2px;
+    }
+}
+
+.ls-approved{
+    color:white;
+    background-color:green;
+    font-size:0.9em;
+}
+.ls-provisional{
+    color:white;
+    background-color:orange
+}
+.ls-historical{
+    color:white;
+    background-color:red
 }

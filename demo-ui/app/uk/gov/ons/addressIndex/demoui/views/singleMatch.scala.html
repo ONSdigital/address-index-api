@@ -93,8 +93,12 @@ classification: Option[Map[String,String]]
                             <div class="resultRow">
                                 <div>
                                     <strong>@messages("single.address"): </strong>
-                                    <span class="formatted-nag">@address.formattedAddressNag</span>
-                                    <span style="display: none" class="formatted-paf">@address.formattedAddressPaf</span>
+                                    <span class="formatted-nag">@address.formattedAddressNag&nbsp;</span>
+                                    <span style="display: none" class="formatted-paf">@address.formattedAddressPaf&nbsp;</span>
+                                    <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
+                                    title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
+                                            &nbsp;@address.nag.map{ nag => @messages("logical.letter"+nag.logicalStatus) }&nbsp;
+                                    </span>
                                 </div>
                             </div>
                             <div class="resultRow">
