@@ -22,7 +22,7 @@ class CrfParserTest extends FlatSpec with Matchers {
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
     val features = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
     val actual = CrfParserImpl.parse(input, features, Tokens)
-    val expected = s"\t${feature1.name}\\:${token1.replace(":", "\\:").toUpperCase}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\tsingleton:1.0\n"
+    val expected = s"${CrfScala.arbitraryString}\t${feature1.name}\\:${token1.replace(":", "\\:").toUpperCase}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\tsingleton:1.0\n"
     actual shouldBe expected
   }
 
@@ -45,7 +45,9 @@ class CrfParserTest extends FlatSpec with Matchers {
     val token2Expectedf3 = s"\t${feature3.name}:3.0\tprevious\\:${feature3.name}:3.0"
     val token2Expectedf4 = s"\t${feature4.name}:7.0\tprevious\\:${feature4.name}:7.0\trawstring.end:1.0\tprevious\\:rawstring.start:1.0\n"
     val expected =
+      CrfScala.arbitraryString +
       token1Expectedf1 + token1Expectedf2 + token1Expectedf3 + token1Expectedf4 +
+      CrfScala.arbitraryString +
       token2Expectedf1 + token2Expectedf2 + token2Expectedf3 + token2Expectedf4
     actual shouldBe expected
   }

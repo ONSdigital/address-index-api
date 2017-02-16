@@ -8,6 +8,11 @@ package uk.gov.ons.addressIndex.crfscala
   */
 object CrfScala {
 
+  /**
+    * This string is required to have a `\t` at the end for CrfScala to work.
+    */
+  val arbitraryString: String = "RhysBradbury\t"
+
   case class CrfParserResult(originalInput: String, crfLabel: String)
 
   /**

@@ -15,7 +15,6 @@ trait CrfParser {
     //todo optimise file
     val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
-
     val resp = tagger.tag(augmentedActual)
     
     val tokenResults = resp.split(CrfScalaJni.lineEnd)
