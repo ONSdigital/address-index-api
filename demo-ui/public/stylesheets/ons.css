@@ -600,3 +600,10 @@ div.taColumn3H{
 .match-type-N {
     background: #FF0000;
 }
+
+@media only screen and (max-width: 600px) {
+    td {
+        font-size: 0.7em;
+        padding: 2px;
+    }
+}
