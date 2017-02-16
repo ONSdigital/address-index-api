@@ -19,7 +19,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
     val test = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
     val actual = test toCrfJniInput input
-    val expected = s"\t${feature1.name}\\:$input:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
+    val expected = s"${CrfScala.arbitraryString}\t${feature1.name}\\:$input:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
     actual shouldBe expected
   }
 
@@ -31,7 +31,7 @@ class CrfFeaturesTest extends FlatSpec with Matchers {
     val feature4 = CrfFeatureTestImpl[Int]("name4")(str => 0)
     val test = CrfFeaturesImpl(Seq(feature1, feature2, feature3, feature4))(Nil)
     val actual = test toCrfJniInput input
-    val expected = s"\t${feature1.name}\\:${input.replace(":", "\\:")}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
+    val expected = s"${CrfScala.arbitraryString}\t${feature1.name}\\:${input.replace(":", "\\:")}:1.0\t${feature2.name}:1.0\t${feature3.name}:0.0\t${feature4.name}:0.0\n"
     actual shouldBe expected
   }
 }
