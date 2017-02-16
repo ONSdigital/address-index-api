@@ -42,15 +42,14 @@ case class BulkItem(
   townName: String = "",
   postcode: String = "",
   uprn: String,
-  score: Float,
-  exceptionMessage: String
+  score: Float
 )
 object BulkItem {
   implicit lazy val fmt: Format[BulkItem] = Json.format[BulkItem]
 }
 
 //mini model for output
-case class BulkResp(resp: List[BulkItem])
+case class BulkResp(resp: Seq[BulkItem])
 object BulkResp {
   implicit lazy val fmt: Format[BulkResp] = Json.format[BulkResp]
 }

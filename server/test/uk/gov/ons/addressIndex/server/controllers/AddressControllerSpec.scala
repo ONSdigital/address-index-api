@@ -15,7 +15,8 @@ import play.api.http.HeaderNames
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
-import uk.gov.ons.addressIndex.model.db.BulkAddresses
+import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -435,20 +436,56 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       // Given
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
-      val tokensPerLine: Iterator[(String, String, Seq[CrfTokenResult])] = List(
-        Tuple3("", "1", Seq(CrfTokenResult("success", "first"))),
-        Tuple3("", "2", Seq(CrfTokenResult("success", "second"))),
-        Tuple3("", "3", Seq(CrfTokenResult("failed", "third")))
-      ).iterator
+      val requestsData: Stream[BulkAddressRequestData] = Stream(
+        BulkAddressRequestData("", "1", Seq(CrfTokenResult("success", "first"))),
+        BulkAddressRequestData("", "2", Seq(CrfTokenResult("success", "second"))),
+        BulkAddressRequestData("", "3", Seq(CrfTokenResult("failed", "third")))
+      )
 
       // When
-      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(tokensPerLine, 3), Duration.Inf )
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3), Duration.Inf )
 
       // Then
       result.successfulBulkAddresses.size mustBe 2
-      result.failedBulkAddresses.size mustBe 1
+      result.failedRequests.size mustBe 1
     }
 
+    "have process bulk addresses using back-pressure" in {
+      // Given
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+
+      val requestsData: Stream[BulkAddressRequestData] = Stream(
+        BulkAddressRequestData("", "1", Seq(CrfTokenResult("success", "first"))),
+        BulkAddressRequestData("", "2", Seq(CrfTokenResult("success", "second"))),
+        BulkAddressRequestData("", "3", Seq(CrfTokenResult("success", "third"))),
+        BulkAddressRequestData("", "4", Seq(CrfTokenResult("success", "forth"))),
+        BulkAddressRequestData("", "5", Seq(CrfTokenResult("success", "fifth"))),
+        BulkAddressRequestData("", "6", Seq(CrfTokenResult("success", "sixth"))),
+        BulkAddressRequestData("", "7", Seq(CrfTokenResult("success", "seventh"))),
+        BulkAddressRequestData("", "8", Seq(CrfTokenResult("success", "eighth"))),
+        BulkAddressRequestData("", "9", Seq(CrfTokenResult("success", "ninth")))
+      )
+
+      // When
+      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, Seq.empty)
+
+      // Then
+      result.size mustBe requestsData.size
+    }
+
+    "have back-pressure that should throw an exception if there is an always failing request" in {
+      // Given
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+
+      val requestsData: Stream[BulkAddressRequestData] = Stream(
+        BulkAddressRequestData("", "1", Seq(CrfTokenResult("success", "first"))),
+        BulkAddressRequestData("", "2", Seq(CrfTokenResult("success", "second"))),
+        BulkAddressRequestData("", "3", Seq(CrfTokenResult("failed", "third")))
+      )
+
+      // When Then
+      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, Seq.empty)
+    }
 
   }
 }
