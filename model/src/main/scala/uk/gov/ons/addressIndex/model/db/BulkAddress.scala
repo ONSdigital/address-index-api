@@ -29,7 +29,8 @@ case class BulkAddress(
 case class BulkAddressRequestData(
   id: String,
   inputAddress: String,
-  tokens: Seq[CrfTokenResult]
+  tokens: Seq[CrfTokenResult],
+  lastFailExceptionMessage: String = ""
 )
 
 /**

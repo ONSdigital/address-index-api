@@ -135,7 +135,7 @@ class AddressController @Inject()(
       row => BulkAddressRequestData(row.id, row.address, parser.tag(row.address))
     }
 
-    val defaultBatchSize = conf.config.bulkRequestsPerBatch
+    val defaultBatchSize = conf.config.bulk.batch.perBatch
 
     val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestsData, defaultBatchSize, Seq.empty)
 
@@ -184,8 +184,8 @@ class AddressController @Inject()(
   final def iterateOverRequestsWithBackPressure(requests: Stream[BulkAddressRequestData], miniBatchSize: Int,
     successfulResults: Seq[BulkAddress]): Seq[BulkAddress] = {
 
-    val defaultBatchSize = conf.config.bulkRequestsPerBatch
-    val bulkSizeWarningThreshold = conf.config.bulkRequestsSizeWarningThreshold
+    val defaultBatchSize = conf.config.bulk.batch.perBatch
+    val bulkSizeWarningThreshold = conf.config.bulk.batch.warningThreshold
 
     if (miniBatchSize < defaultBatchSize * bulkSizeWarningThreshold)
       logger.warn(s"#bulkQuery mini-bulk size it less than a ${defaultBatchSize * bulkSizeWarningThreshold}: size = $miniBatchSize , check if everything is fine with ES")
@@ -193,15 +193,19 @@ class AddressController @Inject()(
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulkLimit), Duration.Inf)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress), Duration.Inf)
 
     val requestsLeft = result.failedRequests ++ requestsAfterMiniBatch
 
     if (requestsLeft.isEmpty) successfulResults ++ result.successfulBulkAddresses
-    else if (miniBatchSize == 1 && result.failedRequests.nonEmpty) throw new Exception("Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.")
+    else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
+      throw new Exception(s"""
+           Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.
+           Last request failure message: ${result.failedRequests.head.lastFailExceptionMessage}
+        """)
     else {
-      val miniBatchUpscale = conf.config.bulkMiniBatchUpscale
-      val miniBatchDownscale = conf.config.bulkMiniBatchDownscale
+      val miniBatchUpscale = conf.config.bulk.batch.upscale
+      val miniBatchDownscale = conf.config.bulk.batch.downscale
       val newMiniBatchSize =
         if (result.failedRequests.isEmpty) math.ceil(miniBatchSize * miniBatchUpscale).toInt
         else math.floor(miniBatchSize * miniBatchDownscale).toInt
@@ -221,7 +225,7 @@ class AddressController @Inject()(
   def queryBulkAddresses(inputs: Stream[BulkAddressRequestData], limitPerAddress: Int): Future[BulkAddresses] = {
 
     val addressesRequests: Stream[Future[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
-      inputs.map { case BulkAddressRequestData(id, originalInput, tokens) =>
+      inputs.map { case BulkAddressRequestData(id, originalInput, tokens, _) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
           esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, maxScore, _) =>
@@ -260,8 +264,8 @@ class AddressController @Inject()(
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
           case exception: Exception =>
-            logger.info(s"#bulk query: rejected future (this is, most likely, normal) ${exception.getMessage}")
-            Left(BulkAddressRequestData(id, originalInput, tokens))
+            logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource): ${exception.getMessage}")
+            Left(BulkAddressRequestData(id, originalInput, tokens, exception.getMessage))
         }
       }
 

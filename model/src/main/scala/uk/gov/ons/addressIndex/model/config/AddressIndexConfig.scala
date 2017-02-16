@@ -1,5 +1,11 @@
 package uk.gov.ons.addressIndex.model.config
 
+case class AddressIndexConfig(
+  parserLibPath: String,
+  elasticSearch: ElasticSearchConfig,
+  bulk: BulkConfig
+)
+
 case class ElasticSearchConfig(
   local: Boolean,
   cluster: String,
@@ -17,16 +23,6 @@ case class ShieldConfig(
   ssl: Boolean,
   user: String,
   password: String
-)
-
-case class AddressIndexConfig(
-  parserLibPath: String,
-  bulkLimit: Int,
-  elasticSearch: ElasticSearchConfig,
-  bulkRequestsPerBatch: Int,
-  bulkMiniBatchUpscale: Float,
-  bulkMiniBatchDownscale: Float,
-  bulkRequestsSizeWarningThreshold: Float
 )
 
 case class IndexesConfig(
@@ -50,6 +46,18 @@ case class queryParamsConfig(
   streetNamePafBoost: Float,
   underlineAllBoost: Float,
   minimumShouldMatch: String
+)
+
+case class BulkConfig(
+  batch: BatchConfig,
+  limitPerAddress: Int
+)
+
+case class BatchConfig(
+  perBatch: Int,
+  upscale: Float,
+  downscale: Float,
+  warningThreshold: Float
 )
 
 case class ApiConfig(
