@@ -9,10 +9,12 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
-import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddresses, RejectedRequest}
+import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
+
+import scala.annotation.tailrec
 import scala.util.Try
 
 @Singleton
@@ -128,68 +130,89 @@ class AddressController @Inject()(
     */
   def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
-    val tokenizedAddresses: Iterator[(String, String, Seq[CrfTokenResult])] = req.body.addresses.toIterator.map(a => (a.id, a.address, parser.tag(a.address)))
-    val bulkRequestsPerBatch = conf.config.elasticSearch.bulkRequestsPerBatch
-    val chunkedTokenizedAddresses = tokenizedAddresses.grouped(bulkRequestsPerBatch).toList
-    logger.info(s"#bulkQuery will have ${chunkedTokenizedAddresses.length} mini-batches")
 
-    val results = chunkedTokenizedAddresses.zipWithIndex.map { case (tokens, index) =>
-      logger.info(s"#bulkQuery Start mini-batch number $index")
-      Await.result(queryBulkAddresses(tokens.toIterator, conf.config.bulkLimit), Duration.Inf)
+    val requestsData: Stream[BulkAddressRequestData] = req.body.addresses.toStream.map{
+      row => BulkAddressRequestData(row.id, row.address, parser.tag(row.address))
     }
+
+    val defaultBatchSize = conf.config.bulk.batch.perBatch
+
+    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestsData, defaultBatchSize, Seq.empty)
 
     logger.info(s"#bulkQuery processed")
     logger.info(s"#bulkQuery converting to response")
-      jsonOk(
-        BulkResp(
-          resp = results flatMap { result =>
-            val successes = result.successfulBulkAddresses map { addr =>
-              BulkItem(
-                maxScorePossible = addr.maxPossibleScore,
-                inputAddress = addr.inputAddress,
-                matchedFormattedAddress = addr.matchedFormattedAddress,
-                id = addr.id,
-                organisationName = addr.tokens.getOrElse(Tokens.organisationName, ""),
-                departmentName = addr.tokens.getOrElse(Tokens.departmentName, ""),
-                subBuildingName = addr.tokens.getOrElse(Tokens.subBuildingName, ""),
-                buildingName = addr.tokens.getOrElse(Tokens.buildingName, ""),
-                buildingNumber = addr.tokens.getOrElse(Tokens.buildingNumber, ""),
-                streetName = addr.tokens.getOrElse(Tokens.streetName, ""),
-                locality = addr.tokens.getOrElse(Tokens.locality, ""),
-                townName = addr.tokens.getOrElse(Tokens.townName, ""),
-                postcode = addr.tokens.getOrElse(Tokens.postcode, ""),
-                uprn = addr.hybridAddress.uprn,
-                score = addr.hybridAddress.score,
-                exceptionMessage = ""
-              )
-            }
-            val failures = result.failedBulkAddresses map { failure =>
-              val tokenMap = Tokens.postTokenizeTreatment(failure.tokens)
-              BulkItem(
-                maxScorePossible = 0f,
-                inputAddress = failure.inputAddress,
-                matchedFormattedAddress = "",
-                id = failure.id,
-                organisationName = tokenMap.getOrElse(Tokens.organisationName, ""),
-                departmentName = tokenMap.getOrElse(Tokens.departmentName, ""),
-                subBuildingName = tokenMap.getOrElse(Tokens.subBuildingName, ""),
-                buildingName = tokenMap.getOrElse(Tokens.buildingName, ""),
-                buildingNumber = tokenMap.getOrElse(Tokens.buildingNumber, ""),
-                streetName = tokenMap.getOrElse(Tokens.streetName, ""),
-                locality = tokenMap.getOrElse(Tokens.locality, ""),
-                townName = tokenMap.getOrElse(Tokens.townName, ""),
-                postcode = tokenMap.getOrElse(Tokens.postcode, ""),
-                uprn = "",
-                score = 0f,
-                exceptionMessage = s"${failure.exception.getMessage}"
-              )
-            }
-            successes ++ failures
-          }
-        )
+
+    jsonOk(
+      BulkResp(
+        resp = results.map { address =>
+          BulkItem(
+            maxScorePossible = address.maxPossibleScore,
+            inputAddress = address.inputAddress,
+            matchedFormattedAddress = address.matchedFormattedAddress,
+            id = address.id,
+            organisationName = address.tokens.getOrElse(Tokens.organisationName, ""),
+            departmentName = address.tokens.getOrElse(Tokens.departmentName, ""),
+            subBuildingName = address.tokens.getOrElse(Tokens.subBuildingName, ""),
+            buildingName = address.tokens.getOrElse(Tokens.buildingName, ""),
+            buildingNumber = address.tokens.getOrElse(Tokens.buildingNumber, ""),
+            streetName = address.tokens.getOrElse(Tokens.streetName, ""),
+            locality = address.tokens.getOrElse(Tokens.locality, ""),
+            townName = address.tokens.getOrElse(Tokens.townName, ""),
+            postcode = address.tokens.getOrElse(Tokens.postcode, ""),
+            uprn = address.hybridAddress.uprn,
+            score = address.hybridAddress.score
+          )
+        }
       )
+    )
   }
 
+  /**
+    * Iterates over requests data and adapts the size of the bulk-chunks using back-pressure.
+    * ES rejects requests when it cannot handle them (because of the consumed resources)
+    * in this case we reduce the bulk size so that we could process the data successfully.
+    * Otherwise we increase the size of the bulk so that we could do more in one bulk
+    *
+    * It should throw an exception if the situation is desperate (we only do one request at
+    * a time and this request fails)
+    * @param requests Stream of data that will be used to query ES
+    * @param miniBatchSize the size of the bulk to use
+    * @param successfulResults accumulator of successfull results
+    * @return Queried addresses
+    */
+  @tailrec
+  final def iterateOverRequestsWithBackPressure(requests: Stream[BulkAddressRequestData], miniBatchSize: Int,
+    successfulResults: Seq[BulkAddress]): Seq[BulkAddress] = {
+
+    val defaultBatchSize = conf.config.bulk.batch.perBatch
+    val bulkSizeWarningThreshold = conf.config.bulk.batch.warningThreshold
+
+    if (miniBatchSize < defaultBatchSize * bulkSizeWarningThreshold)
+      logger.warn(s"#bulkQuery mini-bulk size it less than a ${defaultBatchSize * bulkSizeWarningThreshold}: size = $miniBatchSize , check if everything is fine with ES")
+    else logger.info(s"#bulkQuery sending a mini-batch of the size $miniBatchSize")
+
+    val miniBatch = requests.take(miniBatchSize)
+    val requestsAfterMiniBatch = requests.drop(miniBatchSize)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress), Duration.Inf)
+
+    val requestsLeft = result.failedRequests ++ requestsAfterMiniBatch
+
+    if (requestsLeft.isEmpty) successfulResults ++ result.successfulBulkAddresses
+    else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
+      throw new Exception(s"""
+           Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.
+           Last request failure message: ${result.failedRequests.head.lastFailExceptionMessage}
+        """)
+    else {
+      val miniBatchUpscale = conf.config.bulk.batch.upscale
+      val miniBatchDownscale = conf.config.bulk.batch.downscale
+      val newMiniBatchSize =
+        if (result.failedRequests.isEmpty) math.ceil(miniBatchSize * miniBatchUpscale).toInt
+        else math.floor(miniBatchSize * miniBatchDownscale).toInt
+
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, successfulResults ++ result.successfulBulkAddresses)
+    }
+  }
 
   /**
     * Requests addresses for each tokens sequence supplied.
@@ -199,10 +222,10 @@ class AddressController @Inject()(
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(inputs: Iterator[(String, String, Seq[CrfTokenResult])], limitPerAddress: Int): Future[BulkAddresses] = {
+  def queryBulkAddresses(inputs: Stream[BulkAddressRequestData], limitPerAddress: Int): Future[BulkAddresses] = {
 
-    val addressesRequests: Iterator[Future[Either[RejectedRequest, Seq[BulkAddress]]]] =
-      inputs.map { case (id, originalInput, tokens) =>
+    val addressesRequests: Stream[Future[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+      inputs.map { case BulkAddressRequestData(id, originalInput, tokens, _) =>
 
         val bulkAddressRequest: Future[Seq[BulkAddress]] =
           esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, maxScore, _) =>
@@ -240,16 +263,17 @@ class AddressController @Inject()(
         // Successful requests are stored in the `Right`
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
-          case exception: Exception => Left(RejectedRequest(originalInput, id, tokens, exception))
+          case exception: Exception =>
+            logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource): ${exception.getMessage}")
+            Left(BulkAddressRequestData(id, originalInput, tokens, exception.getMessage))
         }
       }
 
-    // This also transforms lazy `Iterator` into an in-memory sequence
-    val bulkAddresses: Future[Seq[Either[RejectedRequest, Seq[BulkAddress]]]] = Future.sequence(addressesRequests.toList)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = Future.sequence(addressesRequests)
 
-    val successfulAddresses: Future[Seq[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
+    val successfulAddresses: Future[Stream[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
 
-    val failedAddresses: Future[Seq[RejectedRequest]] = bulkAddresses.map(collectFailedAddresses)
+    val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
 
     // transform (Future[X], Future[Y]) into Future[Z[X, Y]]
     for {
@@ -259,12 +283,12 @@ class AddressController @Inject()(
   }
 
 
-  private def collectSuccessfulAddresses(addresses: Seq[Either[RejectedRequest, Seq[BulkAddress]]]): Seq[BulkAddress] =
+  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddress] =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
     }.flatten
 
-  private def collectFailedAddresses(addresses: Seq[Either[RejectedRequest, Seq[BulkAddress]]]): Seq[RejectedRequest] =
+  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddressRequestData] =
     addresses.collect {
       case Left(address) => address
     }
