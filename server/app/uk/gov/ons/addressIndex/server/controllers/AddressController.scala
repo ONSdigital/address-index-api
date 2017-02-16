@@ -264,7 +264,7 @@ class AddressController @Inject()(
         // Failed requests will be stored in the `Left`
         bulkAddressRequest.map(Right(_)).recover {
           case exception: Exception =>
-            logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource): ${exception.getMessage}")
+            logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $id: ${exception.getMessage}")
             Left(BulkAddressRequestData(id, originalInput, tokens, exception.getMessage))
         }
       }
