@@ -183,7 +183,7 @@ definitions:
 
       label:
         type: string
-        enum: ["organisationName", "departmentName", "subBuildingName","buildingName","buildingNumber","streetName","locality","postTown","postCode"]
+        enum: ['OrganisationName','DepartmentName','SubBuildingName','BuildingName','BuildingNumber','StreetName','Locality','TownName','Postcode']
 
   Addresses:
     type: array
