@@ -142,7 +142,6 @@
                                     </thead>
                                     <tbody>
                                         @for((result, i) <- ScoreHelper.filterSetByScore(bulkResp).resp.zipWithIndex) {
-                                            @println(result)
                                             @defining(MatchTypeHelper.matchType(result.id, bulkResp.resp.map(_.id), result.matchedFormattedAddress)) { matchType =>
                                                 <tr>
                                                     <td align="center">@{result.id}</td>
