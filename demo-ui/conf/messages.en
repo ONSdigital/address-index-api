@@ -636,4 +636,6 @@ multi.table.matched.address=Matched Address
 multi.table.match.type=Match Type
 multi.table.uprn=UPRN
 multi.table.score=Score
+multi.table.comparable.score=Comparable Score
+multi.table.actual.score=Actual Score
 not.found=Not Found
