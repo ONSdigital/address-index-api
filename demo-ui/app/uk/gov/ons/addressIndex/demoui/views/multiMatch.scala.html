@@ -141,7 +141,7 @@
                                         @tableHeaderHelper(messages("multi.table.score"))
                                     </thead>
                                     <tbody>
-                                        @for((result, i)<- bulkResp.resp.zipWithIndex) {
+                                        @for((result, i) <- ScoreHelper.filterSetByScore(bulkResp).resp.zipWithIndex) {
                                             @defining(MatchTypeHelper.matchType(result.id, bulkResp.resp.map(_.id), result.matchedFormattedAddress)) { matchType =>
                                                 <tr>
                                                     <td align="center">@{result.id}</td>
