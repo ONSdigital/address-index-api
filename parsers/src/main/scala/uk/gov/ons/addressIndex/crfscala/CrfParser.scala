@@ -2,15 +2,26 @@ package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
-//TODO scaladoc
 trait CrfParser {
 
   def parserLibPath: String
 
-  //TODO scaladoc
+  /**
+    * JNI object.
+    */
   val tagger: CrfScalaJniImpl = new CrfScalaJniImpl
 
-  //TODO scaladoc
+  /**
+    * Produce a collection of results from an input string.
+    *
+    * Step 1 parse to IWA String,
+    * Step 2 pass IWA string to tagger.
+    *
+    * @param input
+    * @param features
+    * @param tokenable
+    * @return
+    */
   def tag(input: String, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
     //todo optimise file
     val actual = parse(input, features, tokenable)
@@ -29,6 +40,13 @@ trait CrfParser {
     }
   }
 
+  /**
+    * A helper method which will order the input string to produce
+    * correct label probabilities.
+    *
+    * @param crfJniInput
+    * @return
+    */
   def augmentCrfJniInput(crfJniInput: String): String = {
     crfJniInput
       .split(CrfScalaJni.lineEnd)
@@ -40,7 +58,14 @@ trait CrfParser {
       .mkString(CrfScalaJni.lineEnd) + CrfScalaJni.lineEnd
   }
 
-  //TODO scaladoc
+  /**
+    * A method which produces a IWA string from a given input
+    *
+    * @param i
+    * @param features
+    * @param tokenable
+    * @return
+    */
   def parse(i: String, features: CrfFeatures, tokenable: CrfTokenable): String = {
     val tokens = tokenable(i)
     val preprocessedTokens = tokenable normalise tokens
