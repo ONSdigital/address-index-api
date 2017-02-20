@@ -610,14 +610,19 @@ div.taColumn3H{
 
 .ls-approved{
     color:white;
-    background-color:green;
+    background-color:#00CC00;
     font-size:0.9em;
+    white-space: nowrap;
 }
 .ls-provisional{
     color:white;
-    background-color:orange
+    background-color:#FFCC00;
+    font-size:0.9em;
+    white-space: nowrap;
 }
 .ls-historical{
     color:white;
-    background-color:red
+    background-color:#FF0000;
+    font-size:0.9em;
+    white-space: nowrap;
 }
