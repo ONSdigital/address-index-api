@@ -2,7 +2,6 @@ package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
-//TODO scaladoc
 trait CrfFeatures {
 
   /**
@@ -10,10 +9,19 @@ trait CrfFeatures {
     */
   def features: Seq[CrfFeature[_]]
 
-  //todo scaladoc
+  /**
+    * @return a sequence of CrfAggregateFeatures
+    */
   def aggregateFeatures: Seq[CrfAggregateFeature[_]]
 
-  //TODO scaladoc
+  /**
+    * A method which produced IWA strings.
+    *
+    * @param input the input
+    * @param next the optional next input
+    * @param previous the optional previous input
+    * @return and IWA string
+    */
   def toCrfJniInput(input: String, next: Option[String] = None, previous: Option[String] = None): String = {
     CrfScala.arbitraryString + (features map(_.toCrfJniInput(input, next, previous)) mkString) + CrfScalaJni.lineEnd
   }

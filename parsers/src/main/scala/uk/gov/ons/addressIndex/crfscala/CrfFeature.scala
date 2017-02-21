@@ -4,8 +4,7 @@ import uk.gov.ons.addressIndex.crfscala.CrfFeatureAnalyser.CrfFeatureAnalyser
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 import scala.util.control.NonFatal
 
-/** todo scaladoc
-  *
+/**
   * @tparam T the return type of the FeatureAnalyser
   */
 trait CrfFeature[T] {
@@ -16,22 +15,25 @@ trait CrfFeature[T] {
   def analyser: CrfFeatureAnalyser[T]
 
   /**
-    * @return name
+    * @return name of the feature.
     */
   def name: String
 
   /**
-    * @param input
-    * @return apply the analyser to i
+    * Helper method which applys the feature analyser (function) to it's input
+    *
+    * @param input the input
+    * @return apply the analyser to i, and return the result of type T
     */
   def analyse(input: String): T = analyser apply input
 
-  //TODO scaladoc
   /**
-    * @param input
-    * @param opNext
-    * @param opPrevious
-    * @return
+    * Produces an IWA string
+    *
+    * @param input the current input token
+    * @param opNext the optional next token
+    * @param opPrevious the optional previous token
+    * @return an IWA string
     */
   def toCrfJniInput(input: String, opNext: Option[String] = None, opPrevious: Option[String] = None): String = {
     val currentCrfJni: String = createCrfJniInput(
@@ -59,12 +61,14 @@ trait CrfFeature[T] {
     CrfScalaJni.lineStart + currentCrfJni + nextCrfJni + previousCrfJni
   }
 
-  //TODO scaladoc
   /**
+    * Produces an IWA string. This is the most granular level where we
+    * create IWA strings. The string will look different on FeatureAnalysers
+    * return type and the feature analysers name.
     *
-    * @param prefix
-    * @param value
-    * @return
+    * @param prefix the prefix, eg, next, previous
+    * @param value the value of the feature analyser
+    * @return the IWA string part
     */
   def createCrfJniInput(prefix: String, value: Any): String = {
     def qualify(str: String): String = str.replace(":", "\\:")

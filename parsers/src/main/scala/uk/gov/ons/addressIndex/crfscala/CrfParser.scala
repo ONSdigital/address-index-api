@@ -4,6 +4,9 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
 trait CrfParser {
 
+  /**
+    * @return The file path to the parser lib.
+    */
   def parserLibPath: String
 
   /**
@@ -17,13 +20,12 @@ trait CrfParser {
     * Step 1 parse to IWA String,
     * Step 2 pass IWA string to tagger.
     *
-    * @param input
-    * @param features
-    * @param tokenable
-    * @return
+    * @param input the input
+    * @param features an object which contains your features.
+    * @param tokenable an object which describes the transformation to tokens.
+    * @return a collection of results of the tag.
     */
   def tag(input: String, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
-    //todo optimise file
     val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
     val resp = tagger.tag(augmentedActual)
@@ -44,8 +46,8 @@ trait CrfParser {
     * A helper method which will order the input string to produce
     * correct label probabilities.
     *
-    * @param crfJniInput
-    * @return
+    * @param crfJniInput IWA String
+    * @return ordered and formatted IWA string
     */
   def augmentCrfJniInput(crfJniInput: String): String = {
     crfJniInput
@@ -61,10 +63,10 @@ trait CrfParser {
   /**
     * A method which produces a IWA string from a given input
     *
-    * @param i
-    * @param features
-    * @param tokenable
-    * @return
+    * @param i input
+    * @param features an object which contains your features.
+    * @param tokenable an object which describes the transformation to tokens.
+    * @return IWA string
     */
   def parse(i: String, features: CrfFeatures, tokenable: CrfTokenable): String = {
     val tokens = tokenable(i)
