@@ -1,21 +1,17 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import akka.stream.Materializer
-import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules._
-import com.sksamuel.elastic4s.{ElasticClient, SearchDefinition}
+import com.sksamuel.elastic4s.ElasticClient
 import org.elasticsearch.common.settings.Settings
+import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
-import play.api.test.{FakeRequest, WithApplication}
-import uk.gov.ons.addressIndex.model.db.index._
-import org.scalatestplus.play._
-import play.api.Logger
-import play.api.http.HeaderNames
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
-import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.db.index._
+import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.server.modules._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -103,13 +99,13 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
 
-    override def logger: Logger = ???
+    override def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+      Future.successful{
+        requestsData.map(requestData => Right(BulkAddress.fromHybridAddress(validHybridAddress, requestData))).toStream
+      }
 
-    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
-
-    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = ???
   }
 
   // mock that won't return any addresses
@@ -120,13 +116,12 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
 
-    override def logger: Logger = ???
-
-    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
-
-    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = ???
+    override def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+      Future.successful{
+        requestsData.map(requestData => Right(BulkAddress.empty(requestData))).toStream
+      }
   }
 
   val sometimesFailingRepositoryMock = new ElasticsearchRepository {
@@ -137,13 +132,15 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       if (tokens.head.value == "failed") Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
 
-    override def logger: Logger = ???
-
-    override def generateQueryUprnRequest(uprn: String): SearchDefinition = ???
-
-    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = ???
+    override def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+      Future.successful{
+        requestsData.map{
+          case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
+          case requestData => Right(BulkAddress.fromHybridAddress(validHybridAddress, requestData))
+        }.toStream
+      }
   }
   
   val parser = new ParserModule {
@@ -356,35 +353,6 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       actual mustBe expected
     }
 
-    "reply on bulk post req" ignore new WithApplication {
-      val mtrlzr = app.injector.instanceOf[Materializer]
-      // Given
-      val controller = queryController
-      val request = {
-        FakeRequest(
-          method = "POST",
-          path = uk.gov.ons.addressIndex.server.controllers.routes.AddressController.bulkQuery.url
-        ).withJsonBody(
-          Json.toJson(
-            BulkBody(
-              Seq(
-                BulkQuery(
-                  id = "",
-                  address = ""
-                )
-              )
-            )
-          )
-        ).withHeaders(
-          HeaderNames.CONTENT_TYPE -> "application/json"
-        )
-      }
-
-      // When
-      val result: Future[Result] = controller.bulkQuery().apply(request).run()(mtrlzr)
-      // Then
-      status(result) mustBe Ok
-    }
     "reply on a 400 error if query is empty (by address query)" in {
       // Given
       val controller = queryController
@@ -437,9 +405,9 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
-        BulkAddressRequestData("", "1", Seq(CrfTokenResult("success", "first"))),
-        BulkAddressRequestData("", "2", Seq(CrfTokenResult("success", "second"))),
-        BulkAddressRequestData("", "3", Seq(CrfTokenResult("failed", "third")))
+        BulkAddressRequestData("", "1", Map("first" -> "success")),
+        BulkAddressRequestData("", "2", Map("second" -> "success")),
+        BulkAddressRequestData("", "3", Map("third" -> "failed"))
       )
 
       // When
@@ -455,15 +423,15 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
-        BulkAddressRequestData("", "1", Seq(CrfTokenResult("success", "first"))),
-        BulkAddressRequestData("", "2", Seq(CrfTokenResult("success", "second"))),
-        BulkAddressRequestData("", "3", Seq(CrfTokenResult("success", "third"))),
-        BulkAddressRequestData("", "4", Seq(CrfTokenResult("success", "forth"))),
-        BulkAddressRequestData("", "5", Seq(CrfTokenResult("success", "fifth"))),
-        BulkAddressRequestData("", "6", Seq(CrfTokenResult("success", "sixth"))),
-        BulkAddressRequestData("", "7", Seq(CrfTokenResult("success", "seventh"))),
-        BulkAddressRequestData("", "8", Seq(CrfTokenResult("success", "eighth"))),
-        BulkAddressRequestData("", "9", Seq(CrfTokenResult("success", "ninth")))
+        BulkAddressRequestData("", "1", Map("first" -> "success")),
+        BulkAddressRequestData("", "2", Map("second" -> "success")),
+        BulkAddressRequestData("", "3", Map("third" -> "success")),
+        BulkAddressRequestData("", "4", Map("forth" -> "success")),
+        BulkAddressRequestData("", "5", Map("fifth" -> "success")),
+        BulkAddressRequestData("", "6", Map("sixth" -> "success")),
+        BulkAddressRequestData("", "7", Map("seventh" -> "success")),
+        BulkAddressRequestData("", "8", Map("eighth" -> "success")),
+        BulkAddressRequestData("", "9", Map("ninth" -> "success"))
       )
 
       // When
@@ -478,9 +446,9 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
-        BulkAddressRequestData("", "1", Seq(CrfTokenResult("success", "first"))),
-        BulkAddressRequestData("", "2", Seq(CrfTokenResult("success", "second"))),
-        BulkAddressRequestData("", "3", Seq(CrfTokenResult("failed", "third")))
+        BulkAddressRequestData("", "1", Map("first" -> "success")),
+        BulkAddressRequestData("", "2", Map("second" -> "success")),
+        BulkAddressRequestData("", "3", Map("third" -> "failed"))
       )
 
       // When Then

@@ -7,7 +7,6 @@ import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
@@ -132,7 +131,7 @@ class AddressController @Inject()(
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
 
     val requestsData: Stream[BulkAddressRequestData] = req.body.addresses.toStream.map{
-      row => BulkAddressRequestData(row.id, row.address, parser.tag(row.address))
+      row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
     }
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
@@ -146,9 +145,10 @@ class AddressController @Inject()(
       BulkResp(
         resp = results.map { address =>
           BulkItem(
-            maxScorePossible = address.maxPossibleScore,
             inputAddress = address.inputAddress,
-            matchedFormattedAddress = address.matchedFormattedAddress,
+            // This will need to be fixed in the PR where we adapt the response model to the one
+            // of the single match request
+            matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(address.hybridAddress).formattedAddressNag,
             id = address.id,
             organisationName = address.tokens.getOrElse(Tokens.organisationName, ""),
             departmentName = address.tokens.getOrElse(Tokens.departmentName, ""),
@@ -224,52 +224,10 @@ class AddressController @Inject()(
     */
   def queryBulkAddresses(inputs: Stream[BulkAddressRequestData], limitPerAddress: Int): Future[BulkAddresses] = {
 
-    val addressesRequests: Stream[Future[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
-      inputs.map { case BulkAddressRequestData(id, originalInput, tokens, _) =>
-
-        val bulkAddressRequest: Future[Seq[BulkAddress]] =
-          esRepo.queryAddresses(0, limitPerAddress, tokens).map { case HybridAddresses(hybridAddresses, maxScore, _) =>
-            val resp = hybridAddresses.map(hybridAddress =>
-              BulkAddress(
-                maxPossibleScore = maxScore,
-                matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(hybridAddress).formattedAddress,
-                inputAddress = originalInput,
-                id = id,
-                tokens = Tokens.postTokenizeTreatment(tokens),
-                hybridAddress = hybridAddress
-              )
-            )
-            if(resp.isEmpty) {
-              Seq(
-                BulkAddress(
-                  maxPossibleScore = maxScore,
-                  matchedFormattedAddress = "",
-                  inputAddress = originalInput,
-                  id = id,
-                  tokens = Tokens.postTokenizeTreatment(tokens),
-                  hybridAddress = HybridAddress(
-                    uprn = "",
-                    lpi = Seq.empty,
-                    paf = Seq.empty,
-                    score = 0
-                  )
-                )
-              )
-            } else {
-              resp
-            }
-          }
-
-        // Successful requests are stored in the `Right`
-        // Failed requests will be stored in the `Left`
-        bulkAddressRequest.map(Right(_)).recover {
-          case exception: Exception =>
-            logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $id: ${exception.getMessage}")
-            Left(BulkAddressRequestData(id, originalInput, tokens, exception.getMessage))
-        }
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+      esRepo.queryBulk(inputs, limitPerAddress).recover {
+        case exception: Exception => throw new Exception(s"MultiSearch request failed, verify that the cluster is still running. Exception message: ${exception.getMessage}")
       }
-
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = Future.sequence(addressesRequests)
 
     val successfulAddresses: Future[Stream[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
 
@@ -283,12 +241,12 @@ class AddressController @Inject()(
   }
 
 
-  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddress] =
+  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, BulkAddress]]): Stream[BulkAddress] =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
-    }.flatten
+    }
 
-  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddressRequestData] =
+  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, BulkAddress]]): Stream[BulkAddressRequestData] =
     addresses.collect {
       case Left(address) => address
     }
