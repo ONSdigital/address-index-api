@@ -247,7 +247,7 @@ class AddressIndexRepository @Inject()(
           else hybridAddresses.map { hybridAddress =>
             BulkAddress.fromHybridAddress(hybridAddress, requestData)
           }
-      }
+        }
 
       // Successful requests are stored in the `Right`
       // Failed requests will be stored in the `Left`
