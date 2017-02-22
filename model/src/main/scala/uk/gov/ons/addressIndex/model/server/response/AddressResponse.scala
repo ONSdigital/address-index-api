@@ -543,6 +543,11 @@ object BadRequestAddressResponseStatus extends AddressResponseStatus(
   message = "Bad request"
 )
 
+object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
+  code = Status.INTERNAL_SERVER_ERROR,
+  message = "Internal server error"
+)
+
 
 /**
   * Contains one response error
@@ -602,6 +607,11 @@ object LimitTooLargeAddressResponseError extends AddressResponseError(
 object OffsetTooLargeAddressResponseError extends AddressResponseError(
   code = 9,
   message = "Offset parameter too large (maximum configurable)"
+)
+
+object FailedRequestToEsError extends AddressResponseError(
+  code = 10,
+  message = "Failed request to the Elastic Search (check api logs)"
 )
 
 
