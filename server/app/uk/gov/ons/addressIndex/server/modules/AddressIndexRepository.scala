@@ -8,7 +8,6 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s._
 import org.elasticsearch.common.unit.Fuzziness
 import play.api.Logger
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -69,7 +68,9 @@ class AddressIndexRepository @Inject()(
 
     logger.trace(request.toString)
 
-    client.execute(request).map(_.as[HybridAddress].headOption)
+    client.execute(request)
+      .map(HybridAddresses.fromRichSearchResponse)
+      .map(_.addresses.headOption)
   }
 
   /**

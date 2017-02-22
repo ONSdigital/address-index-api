@@ -142,7 +142,22 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
         }
       }
   }
-  
+
+  val failingRepositoryMock = new ElasticsearchRepository {
+
+    override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
+      Future.failed(new Exception("test failure"))
+
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+      Future.failed(new Exception("Test exception"))
+
+    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
+
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+      Future.failed(new Exception("Test exception"))
+
+  }
+
   val parser = new ParserModule {
     override def tag(input: String): Seq[CrfTokenResult] = Seq.empty
   }
@@ -196,7 +211,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       status(result) mustBe OK
       actual mustBe expected
     }
-    
+
     "reply on a 400 error if a non-numeric offset parameter is supplied" in {
       // Given
       val controller = queryController
@@ -222,7 +237,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
-    
+
     "reply on a 400 error if a non-numeric limit parameter is supplied" in {
       // Given
       val controller = queryController
@@ -274,7 +289,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
-    
+
     "reply on a 400 error if a negative or zero limit parameter is supplied" in {
       // Given
       val controller = queryController
@@ -300,7 +315,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
-    
+
     "reply on a 400 error if an offset parameter greater than the maximum allowed is supplied" in {
       // Given
       val controller = queryController
@@ -378,7 +393,59 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
-    
+
+    "reply on a 500 error if Elastic threw exception (request failed) while querying for address" in {
+      // Given
+      val controller = new AddressController(failingRepositoryMock, parser, config)
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        InternalServerErrorAddressResponseStatus,
+        errors = Seq(FailedRequestToEsError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      actual mustBe expected
+    }
+
+    "reply on a 500 error if Elastic threw exception (request failed) while querying for uprn" in {
+      // Given
+      val controller = new AddressController(failingRepositoryMock, parser, config)
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        InternalServerErrorAddressResponseStatus,
+        errors = Seq(FailedRequestToEsError)
+      ))
+
+      // When
+      val result = controller.uprnQuery("12345").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      actual mustBe expected
+    }
+
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
       val controller = new AddressController(emptyElasticRepositoryMock, parser, config)

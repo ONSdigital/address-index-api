@@ -1,12 +1,15 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.duration._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
@@ -15,6 +18,7 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.annotation.tailrec
 import scala.util.Try
+import scala.util.control.NonFatal
 
 @Singleton
 class AddressController @Inject()(
@@ -94,7 +98,12 @@ class AddressController @Inject()(
             status = OkAddressResponseStatus
           )
         )
+      }.recover{
+        case NonFatal(exception) =>
+          logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
+          InternalServerError(Json.toJson(FailedRequestToEs))
       }
+
     }
   }
 
@@ -117,6 +126,10 @@ class AddressController @Inject()(
         )
       )
       case None => jsonNotFound(NoAddressFoundUprn)
+    }.recover {
+      case NonFatal(exception) =>
+        logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+        InternalServerError(Json.toJson(FailedRequestToEs))
     }
   }
 
@@ -195,7 +208,7 @@ class AddressController @Inject()(
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
     val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress), Duration.Inf)
 
-    val requestsLeft = result.failedRequests ++ requestsAfterMiniBatch
+    val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
     if (requestsLeft.isEmpty) successfulResults ++ result.successfulBulkAddresses
     else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
