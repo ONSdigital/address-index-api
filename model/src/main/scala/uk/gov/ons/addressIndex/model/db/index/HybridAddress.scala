@@ -2,26 +2,13 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import java.util
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
+import com.sksamuel.elastic4s.{HitAs, RichSearchHit, RichSearchResponse}
 import uk.gov.ons.addressIndex.model.db.ElasticIndex
 import uk.gov.ons.addressIndex.model.db.index.NationalAddressGazetteerAddress.{Fields => PafFields}
 import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress.{Fields => NagFields}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
-
-/**
-  * Contains the result of an ES query
-  * @param addresses returned hybrid addresses
-  * @param maxScore maximum score among all of the found addresses
-  *                 (even those that are not in the list because of the limit)
-  * @param total total number of all of the addresses regardless of the limit
-  */
-case class HybridAddresses(
-  addresses: Seq[HybridAddress],
-  maxScore: Float,
-  total: Long
-)
 
 /**
   * DTO object containing hybrid address returned from ES
@@ -40,6 +27,16 @@ case class HybridAddress(
 object HybridAddress extends ElasticIndex[HybridAddress] {
 
   val name = "HybridAddress"
+
+  /**
+    * An empty HybridAddress, used in bulk search to show the address that didn't yield any results
+    */
+  val empty = HybridAddress(
+    uprn = "",
+    lpi = Seq.empty,
+    paf = Seq.empty,
+    score = 0
+  )
 
   // this `implicit` is needed for the library (elastic4s) to work
   implicit object HybridAddressHitAs extends HitAs[HybridAddress] {
@@ -134,6 +131,42 @@ object HybridAddress extends ElasticIndex[HybridAddress] {
         score = hit.score
       )
     }
+  }
+
+}
+
+/**
+  * Contains the result of an ES query
+  * @param addresses returned hybrid addresses
+  * @param maxScore maximum score among all of the found addresses
+  *                 (even those that are not in the list because of the limit)
+  * @param total total number of all of the addresses regardless of the limit
+  */
+case class HybridAddresses(
+  addresses: Seq[HybridAddress],
+  maxScore: Float,
+  total: Long
+)
+
+object HybridAddresses {
+
+  /**
+    * Transforms `RichSearchResponse` into a hybrid address
+    * It needs implicit `HitAs[HybridAddress]` that's why the definition should be after
+    * the compamion object of `HybridAddress`
+    * @param response
+    * @return
+    */
+  def fromRichSearchResponse(response: RichSearchResponse): HybridAddresses = {
+    val total = response.totalHits
+    // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
+    val maxScore = if (total == 0) 0 else response.maxScore
+
+    HybridAddresses(
+      addresses = response.as[HybridAddress],
+      maxScore = maxScore,
+      total = total
+    )
   }
 
 }

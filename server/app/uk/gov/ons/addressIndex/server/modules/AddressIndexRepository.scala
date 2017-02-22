@@ -9,6 +9,7 @@ import com.sksamuel.elastic4s._
 import org.elasticsearch.common.unit.Fuzziness
 import play.api.Logger
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -22,37 +23,31 @@ trait ElasticsearchRepository {
     */
   def client: ElasticClient
 
-  def logger: Logger
-
   /**
-    * @param tokens
-    * @return
+    * Query the address index by UPRN.
+    *
+    * @param uprn the identificator of the address
+    * @return Fucture containing a address or `None` if not in the index
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses]
-
   def queryUprn(uprn: String): Future[Option[HybridAddress]]
 
-  def generateQueryUprnRequest(uprn: String): SearchDefinition
-
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition
+  /**
+    * Query the address index for addresses.
+    * @param start the offset for the query
+    * @param limit maximum number of returned results
+    * @param tokens address tokens
+    * @return Future with found addresses and the maximum score
+    */
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
 
   /**
-    * Helper which logs an ElasticSearch Query before executing it.
-    *
-    * @param info
-    * @param t
-    * @param executable
-    * @tparam T
-    * @tparam R
-    * @tparam Q
-    * @return
+    * Query ES using MultiSearch endpoint
+    * @param requestsData data that will be used in the multi search request
+    * @param limit how many addresses to take per a request
+    * @return a stream of `Either`, `Right` will contain resulting bulk address,
+    *         `Left` will contain request data that is to be re-send
     */
-  def logExecute[T, R, Q](info: String)(t: T)(implicit executable: Executable[T, R, Q]): Future[Q] = {
-
-    logger info s"$info: ${t.toString}"
-
-    client execute t
-  }
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
 }
 
 @Singleton
@@ -87,24 +82,13 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] = {
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
 
-    val tokensMap = Tokens.postTokenizeTreatment(tokens)
-    val request = generateQueryAddressRequest(tokensMap).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
     logger.trace(request.toString)
 
-    client.execute(request).map { response =>
-      val total = response.totalHits
-      // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
-      val maxScore = if (total == 0) 0 else response.maxScore
-
-      HybridAddresses(
-        addresses = response.as[HybridAddress],
-        maxScore = maxScore,
-        total = total
-      )
-    }
+    client.execute(request).map(HybridAddresses.fromRichSearchResponse)
   }
 
   /**
@@ -249,6 +233,32 @@ class AddressIndexRepository @Inject()(
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
 
+  }
+
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
+
+    val addressRequests = requestsData.map { requestData =>
+      val bulkAddressRequest: Future[Seq[BulkAddress]] =
+        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+
+          // If we didn't find any results for an input, we still need to return
+          // something that will indicate an empty result
+          if (hybridAddresses.isEmpty) Seq(BulkAddress.empty(requestData))
+          else hybridAddresses.map { hybridAddress =>
+            BulkAddress.fromHybridAddress(hybridAddress, requestData)
+          }
+        }
+
+      // Successful requests are stored in the `Right`
+      // Failed requests will be stored in the `Left`
+      bulkAddressRequest.map(Right(_)).recover {
+        case exception: Exception =>
+          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $id: ${exception.getMessage}")
+          Left(requestData.copy(lastFailExceptionMessage = exception.getMessage))
+      }
+    }
+
+    Future.sequence(addressRequests)
   }
 
 }

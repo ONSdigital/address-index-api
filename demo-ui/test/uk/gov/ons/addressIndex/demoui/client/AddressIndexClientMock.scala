@@ -26,12 +26,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     message = "OK"
   )
 
-  val mockAddressTokens = Seq.empty
-//  AddressTokens(
-//    uprn = "",
-//    buildingNumber = "7",
-//    postcode = "EX2 9GA"
-//  )
+  val mockAddressTokens = Map.empty[String, String]
 
   val mockPafAddress1 = AddressResponsePaf(
     udprn = "",

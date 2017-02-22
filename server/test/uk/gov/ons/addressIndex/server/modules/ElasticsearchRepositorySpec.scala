@@ -7,6 +7,7 @@ import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -60,6 +61,38 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
 
+  // Secondary PAF/NAG is used for single search (to have some "concurrence" for the main address)
+  // and in the Multi Search
+  val hybridSecondaryUprn = "uprn2"
+
+  // Fields that are not in this list are not used for search
+  val secondaryHybridPafUprn = "s1"
+  val secondaryHybridPafOrganizationName = "s2"
+  val secondaryHybridPafDepartmentName = "s3"
+  val secondaryHybridPafSubBuildingName = "s4"
+  val secondaryHybridPafBuildingName = "s5"
+  val secondaryHybridPafBuildingNumber = "s6"
+  val secondaryHybridPafThoroughfare = "s7"
+  val secondaryHybridPafPostTown = "s8"
+  val secondaryHybridPafPostcode = "s9"
+
+  // Fields that are not in this list are not used for search
+  val secondaryHybridNagUprn = secondaryHybridPafUprn
+  val secondaryHybridNagPostcodeLocator = secondaryHybridPafPostcode
+  val secondaryHybridNagPaoStartNumber = "s13"
+  val secondaryHybridNagPaoStartSuffix = "s11"
+  val secondaryHybridNagPaoEndNumber = "s12"
+  val secondaryHybridNagLocality = "s10"
+  val secondaryHybridNagOrganisation = secondaryHybridPafOrganizationName
+  val secondaryHybridNagLegalName = secondaryHybridPafOrganizationName
+  val secondaryHybridNagSaoText = secondaryHybridPafSubBuildingName
+  val secondaryHybridNagPaoText = secondaryHybridPafBuildingName
+  val secondaryHybridNagStreetDescriptor = secondaryHybridPafThoroughfare
+  val secondaryHybridNagTownName = secondaryHybridPafPostTown
+  val secondaryHybridNagLatitude = "3.0000000"
+  val secondaryHybridNagLongitude = "4.0000000"
+  val secondaryHybridNagNorthing = "5"
+  val secondaryHybridNagEasting = "6"
 
   val firstHybridPafEs = Map(
     "recordIdentifier" -> hybridNotUsed,
@@ -94,35 +127,35 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   )
 
   val secondHybridPafEs = Map(
-    "recordIdentifier" -> "a1",
-    "changeType" -> "a2",
-    "proOrder" -> "a3",
-    "uprn" -> "a4",
-    "udprn" -> "a5",
-    "organizationName" -> "a6",
-    "departmentName" -> "a7",
-    "subBuildingName" -> "a8",
-    "buildingName" -> "a9",
-    "buildingNumber" -> "a10",
-    "dependentThoroughfare" -> "a11",
-    "thoroughfare" -> "a12",
-    "doubleDependentLocality" -> "a13",
-    "dependentLocality" -> "a14",
-    "postTown" -> "a15",
-    "postcode" -> "a16",
-    "postcodeType" -> "a17",
-    "deliveryPointSuffix" -> "a18",
-    "welshDependentThoroughfare" -> "a19",
-    "welshThoroughfare" -> "a20",
-    "welshDoubleDependentLocality" -> "a21",
-    "welshDependentLocality" -> "a22",
-    "welshPostTown" -> "a23",
-    "poBoxNumber" -> "a24",
-    "processDate" -> "a25",
-    "startDate" -> "a26",
-    "endDate" -> "a27",
-    "lastUpdateDate" -> "a28",
-    "entryDate" -> "a29"
+    "recordIdentifier" -> hybridNotUsed,
+    "changeType" -> hybridNotUsed,
+    "proOrder" -> hybridNotUsed,
+    "uprn" -> hybridSecondaryUprn,
+    "udprn" -> hybridNotUsed,
+    "organizationName" -> secondaryHybridPafOrganizationName,
+    "departmentName" -> secondaryHybridPafDepartmentName,
+    "subBuildingName" -> secondaryHybridPafSubBuildingName,
+    "buildingName" -> secondaryHybridPafBuildingName,
+    "buildingNumber" -> secondaryHybridPafBuildingNumber,
+    "dependentThoroughfare" -> hybridNotUsed,
+    "thoroughfare" -> secondaryHybridPafThoroughfare,
+    "doubleDependentLocality" -> hybridNotUsed,
+    "dependentLocality" -> hybridNotUsed,
+    "postTown" -> secondaryHybridPafPostTown,
+    "postcode" -> secondaryHybridPafPostcode,
+    "postcodeType" -> hybridNotUsed,
+    "deliveryPointSuffix" -> hybridNotUsed,
+    "welshDependentThoroughfare" -> hybridNotUsed,
+    "welshThoroughfare" -> hybridNotUsed,
+    "welshDoubleDependentLocality" -> hybridNotUsed,
+    "welshDependentLocality" -> hybridNotUsed,
+    "welshPostTown" -> hybridNotUsed,
+    "poBoxNumber" -> hybridNotUsed,
+    "processDate" -> hybridNotUsed,
+    "startDate" -> hybridNotUsed,
+    "endDate" -> hybridNotUsed,
+    "lastUpdateDate" -> hybridNotUsed,
+    "entryDate" ->hybridNotUsed
   )
 
   val firstHybridNagEs = Map(
@@ -157,34 +190,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   )
 
   val secondHybridNagEs = Map(
-    "uprn" -> "1n1",
-    "postcodeLocator" -> "1n2",
-    "addressBasePostal" -> "1n3",
-    "usrn" -> "1n4",
-    "lpiKey" -> "1n5",
-    "paoText" -> "1n6",
-    "paoStartNumber" -> "1n7",
-    "paoStartSuffix" -> "1n8",
-    "paoEndNumber" -> "1n9",
-    "paoEndSuffix" -> "1n10",
-    "saoText" -> "1n11",
-    "saoStartNumber" -> "1n12",
-    "saoStartSuffix" -> "1n13",
-    "saoEndNumber" -> "1n14",
-    "saoEndSuffix" -> "1n15",
-    "level" -> "1n16",
-    "officialFlag" -> "1n17",
-    "logicalStatus" -> "1n18",
-    "streetDescriptor" -> "1n19",
-    "townName" -> "1n20",
-    "locality" -> "1n21",
-    "organisation" -> "1n22",
-    "legalName" -> "1n23",
-    "lat" -> "1.0000000",
-    "lon" -> "2.0000000",
-    "northing" -> "3",
-    "easting" -> "4",
-    "classificationCode" -> "n24"
+    "uprn" -> hybridSecondaryUprn,
+    "postcodeLocator" -> secondaryHybridNagPostcodeLocator,
+    "addressBasePostal" -> hybridNotUsed,
+    "usrn" -> hybridNotUsed,
+    "lpiKey" -> hybridNotUsed,
+    "paoText" -> secondaryHybridNagPaoText,
+    "paoStartNumber" -> secondaryHybridNagPaoStartNumber,
+    "paoStartSuffix" -> hybridNotUsed,
+    "paoEndNumber" -> hybridNotUsed,
+    "paoEndSuffix" -> hybridNotUsed,
+    "saoText" -> secondaryHybridNagSaoText,
+    "saoStartNumber" -> hybridNotUsed,
+    "saoStartSuffix" -> hybridNotUsed,
+    "saoEndNumber" -> hybridNotUsed,
+    "saoEndSuffix" -> hybridNotUsed,
+    "level" -> hybridNotUsed,
+    "officialFlag" -> hybridNotUsed,
+    "logicalStatus" -> hybridNotUsed,
+    "streetDescriptor" -> secondaryHybridNagStreetDescriptor,
+    "townName" -> secondaryHybridNagTownName,
+    "locality" -> secondaryHybridNagLocality,
+    "organisation" -> secondaryHybridNagOrganisation,
+    "legalName" -> secondaryHybridNagLegalName,
+    "latitude" -> secondaryHybridNagLatitude,
+    "longitude" -> secondaryHybridNagLongitude,
+    "northing" -> secondaryHybridNagNorthing,
+    "easting" -> secondaryHybridNagEasting,
+    "classificationCode" -> hybridNotUsed
   )
 
   val firstHybridEs = Map(
@@ -317,11 +350,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq(
-        CrfTokenResult(hybridNagPaoStartNumber, Tokens.buildingNumber),
-        CrfTokenResult(hybridNagLocality, Tokens.locality),
-        CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
-        CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
+      val tokens = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber,
+        Tokens.locality -> hybridNagLocality,
+        Tokens.organisationName -> hybridNagOrganisation,
+        Tokens.postcode -> hybridNagPostcodeLocator
       )
       val expectedScore = 0.4f
 
@@ -350,8 +383,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "have score of `0` if no addresses found" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq(
-        CrfTokenResult("SomeStringThatWontHaveAnyResult", Tokens.buildingNumber)
+      val tokens = Map(
+        Tokens.buildingNumber -> "SomeStringThatWontHaveAnyResult"
       )
 
       // When
@@ -589,6 +622,74 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       // Then
       result shouldBe expected
+    }
+
+    "bulk search addresses" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val firstAddressTokens = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber,
+        Tokens.locality -> hybridNagLocality,
+        Tokens.organisationName -> hybridNagOrganisation,
+        Tokens.postcode -> hybridNagPostcodeLocator
+      )
+
+      val secondAddressTokens = Map(
+        Tokens.buildingNumber -> secondaryHybridNagPaoStartNumber,
+        Tokens.locality -> secondaryHybridNagLocality,
+        Tokens.organisationName -> secondaryHybridNagOrganisation,
+        Tokens.postcode -> secondaryHybridNagPostcodeLocator
+      )
+
+      val inputs = Stream(
+        BulkAddressRequestData("1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", secondAddressTokens)
+      )
+
+      // When
+      val results = repository.queryBulk(inputs, 1).await
+      val addresses = results.collect{
+        case Right(address) => address
+      }.flatten
+
+      // Then
+      results.length shouldBe 2
+      addresses.length shouldBe 2
+
+      addresses(0).hybridAddress.uprn shouldBe hybridFirstUprn
+      addresses(1).hybridAddress.uprn shouldBe hybridSecondaryUprn
+    }
+
+    "return empty BulkAddress if there were no results for an address" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val firstAddressTokens = Map(
+        Tokens.buildingNumber -> "ThisBuildingNumberDoesNotExist"
+      )
+
+      val secondAddressTokens = Map(
+        Tokens.buildingNumber -> "ThisBuildingNumberDoesNotExist"
+      )
+
+      val inputs = Stream(
+        BulkAddressRequestData("1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", secondAddressTokens)
+      )
+
+      // When
+      val results = repository.queryBulk(inputs, 1).await
+      val addresses = results.collect {
+        case Right(address) => address
+      }.flatten
+
+      // Then
+      results.length shouldBe 2
+      addresses.length shouldBe 2
+
+      addresses(0).hybridAddress.uprn shouldBe HybridAddress.empty.uprn
+      addresses(1).hybridAddress.uprn shouldBe HybridAddress.empty.uprn
     }
 
   }
