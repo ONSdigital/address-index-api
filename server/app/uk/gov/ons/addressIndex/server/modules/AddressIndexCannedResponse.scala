@@ -74,7 +74,11 @@ trait AddressIndexCannedResponse {
   }
 
   def FailedRequestToEs: AddressBySearchResponseContainer = {
-    BadRequestTemplate(FailedRequestToEsError)
+    AddressBySearchResponseContainer(
+      response = Error,
+      status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(FailedRequestToEsError)
+    )
   }
 
   def Error: AddressBySearchResponse = {

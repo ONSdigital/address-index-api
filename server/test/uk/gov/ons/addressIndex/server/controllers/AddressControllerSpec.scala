@@ -394,7 +394,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       actual mustBe expected
     }
 
-    "reply on a 400 error if Elastic threw exception (request failed) while querying for address" in {
+    "reply on a 500 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
       val controller = new AddressController(failingRepositoryMock, parser, config)
 
@@ -407,7 +407,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
           total = 0,
           maxScore = 0.0f
         ),
-        BadRequestAddressResponseStatus,
+        InternalServerErrorAddressResponseStatus,
         errors = Seq(FailedRequestToEsError)
       ))
 
@@ -416,11 +416,11 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe BAD_REQUEST
+      status(result) mustBe INTERNAL_SERVER_ERROR
       actual mustBe expected
     }
 
-    "reply on a 400 error if Elastic threw exception (request failed) while querying for uprn" in {
+    "reply on a 500 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
       val controller = new AddressController(failingRepositoryMock, parser, config)
 
@@ -433,7 +433,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
           total = 0,
           maxScore = 0.0f
         ),
-        BadRequestAddressResponseStatus,
+        InternalServerErrorAddressResponseStatus,
         errors = Seq(FailedRequestToEsError)
       ))
 
@@ -442,7 +442,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe BAD_REQUEST
+      status(result) mustBe INTERNAL_SERVER_ERROR
       actual mustBe expected
     }
 

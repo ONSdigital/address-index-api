@@ -9,6 +9,7 @@ import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
@@ -100,7 +101,7 @@ class AddressController @Inject()(
       }.recover{
         case NonFatal(exception) =>
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-          jsonBadRequest(FailedRequestToEs)
+          InternalServerError(Json.toJson(FailedRequestToEs))
       }
 
     }
@@ -128,7 +129,7 @@ class AddressController @Inject()(
     }.recover {
       case NonFatal(exception) =>
         logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-        jsonBadRequest(FailedRequestToEs)
+        InternalServerError(Json.toJson(FailedRequestToEs))
     }
   }
 

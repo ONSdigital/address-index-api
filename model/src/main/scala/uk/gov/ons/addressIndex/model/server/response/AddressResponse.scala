@@ -543,6 +543,11 @@ object BadRequestAddressResponseStatus extends AddressResponseStatus(
   message = "Bad request"
 )
 
+object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
+  code = Status.INTERNAL_SERVER_ERROR,
+  message = "Internal server error"
+)
+
 
 /**
   * Contains one response error
