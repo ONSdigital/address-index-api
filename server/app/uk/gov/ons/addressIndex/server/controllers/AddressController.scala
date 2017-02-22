@@ -74,9 +74,9 @@ class AddressController @Inject()(
     } else if (input.isEmpty) {
       futureJsonBadRequest(EmptySearch)
     } else {
-      val tokens = parser.tag(input)
+      val tokens = Tokens.postTokenizeTreatment(parser.tag(input))
 
-      logger.info(s"#addressQuery parsed:\n${tokens.map(token => s"value: ${token.value} , label:${token.label}").mkString("\n")}")
+      logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
       val request: Future[HybridAddresses] = esRepo.queryAddresses(offsetInt, limitInt, tokens)
 
@@ -224,11 +224,7 @@ class AddressController @Inject()(
     */
   def queryBulkAddresses(inputs: Stream[BulkAddressRequestData], limitPerAddress: Int): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
-      esRepo.queryBulk(inputs, limitPerAddress).recover {
-        case exception: Exception => throw new Exception(s"MultiSearch request failed, verify that the cluster is still running. Exception message: ${exception.getMessage}")
-      }
-
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress)
     val successfulAddresses: Future[Stream[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
 
     val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
@@ -241,12 +237,12 @@ class AddressController @Inject()(
   }
 
 
-  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, BulkAddress]]): Stream[BulkAddress] =
+  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddress] =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
-    }
+    }.flatten
 
-  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, BulkAddress]]): Stream[BulkAddressRequestData] =
+  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddressRequestData] =
     addresses.collect {
       case Left(address) => address
     }

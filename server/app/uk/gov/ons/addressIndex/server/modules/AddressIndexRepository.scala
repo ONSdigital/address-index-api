@@ -38,7 +38,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses]
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
 
   /**
     * Query ES using MultiSearch endpoint
@@ -47,7 +47,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
 }
 
 @Singleton
@@ -82,10 +82,9 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] = {
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
 
-    val tokensMap = Tokens.postTokenizeTreatment(tokens)
-    val request = generateQueryAddressRequest(tokensMap).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -236,48 +235,30 @@ class AddressIndexRepository @Inject()(
 
   }
 
-  def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
 
-    val queries: Seq[SearchDefinition] = requestsData.map { case BulkAddressRequestData(_, _, tokens, _) =>
-      generateQueryAddressRequest(tokens).limit(limit)
-    }
+    val addressRequests = requestsData.map { requestData =>
+      val bulkAddressRequest: Future[Seq[BulkAddress]] =
+        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
 
-    val request: Future[MultiSearchResult] = client.execute(multi(queries))
-
-    request.map(response => multiSearchResultToBulkAddresses(response, requestsData))
-  }
-
-  /**
-    * Transforms the result from MultiSearch response into bulk addresses (storing failed requests separately)
-    * @param response MultiSearch response to be transformed
-    * @param requestsData request data, we will need it to store failed requests separately
-    * @return `Stream` of bulk addresses (stored in `Right`) and failed requests (stored in `Left`)
-    */
-  private def multiSearchResultToBulkAddresses(response: MultiSearchResult, requestsData: Seq[BulkAddressRequestData]): Stream[Either[BulkAddressRequestData, BulkAddress]] = {
-    // To find out which addresses failed we need to join the resulting items
-    // with the initial list of request data by index (oder number)
-    val itemsWithRequestData = response.items.zip(requestsData).toStream
-
-    itemsWithRequestData.flatMap { case (resultItem, requestData) =>
-
-      if (resultItem.isFailure) {
-        val exceptionMessage = resultItem.failureMessage.getOrElse("")
-        logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $id: $exceptionMessage")
-        Seq(Left(requestData.copy(lastFailExceptionMessage = exceptionMessage)))
+          // If we didn't find any results for an input, we still need to return
+          // something that will indicate an empty result
+          if (hybridAddresses.isEmpty) Seq(BulkAddress.empty(requestData))
+          else hybridAddresses.map { hybridAddress =>
+            BulkAddress.fromHybridAddress(hybridAddress, requestData)
+          }
       }
-      else {
-        val searchResponse = resultItem.response
-          .getOrElse(throw new Exception("MultiSearchResultItem is a success, but it does not contain a result, this is most likely a problem with elastic4s or the driver"))
 
-        val hybridAddresses = HybridAddresses.fromRichSearchResponse(searchResponse).addresses
-
-        // If we didn't find any results for an input, we still need to return
-        // something that will indicate an empty result
-        if (hybridAddresses.isEmpty) Seq(Right(BulkAddress.empty(requestData)))
-        else hybridAddresses.map { hybridAddress =>
-          Right(BulkAddress.fromHybridAddress(hybridAddress, requestData))
-        }
+      // Successful requests are stored in the `Right`
+      // Failed requests will be stored in the `Left`
+      bulkAddressRequest.map(Right(_)).recover {
+        case exception: Exception =>
+          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $id: ${exception.getMessage}")
+          Left(requestData.copy(lastFailExceptionMessage = exception.getMessage))
       }
     }
+
+    Future.sequence(addressRequests)
   }
+
 }

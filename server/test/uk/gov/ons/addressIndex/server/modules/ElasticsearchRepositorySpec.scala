@@ -350,11 +350,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq(
-        CrfTokenResult(hybridNagPaoStartNumber, Tokens.buildingNumber),
-        CrfTokenResult(hybridNagLocality, Tokens.locality),
-        CrfTokenResult(hybridNagOrganisation, Tokens.organisationName),
-        CrfTokenResult(hybridNagPostcodeLocator, Tokens.postcode)
+      val tokens = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber,
+        Tokens.locality -> hybridNagLocality,
+        Tokens.organisationName -> hybridNagOrganisation,
+        Tokens.postcode -> hybridNagPostcodeLocator
       )
       val expectedScore = 0.4f
 
@@ -383,8 +383,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "have score of `0` if no addresses found" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Seq(
-        CrfTokenResult("SomeStringThatWontHaveAnyResult", Tokens.buildingNumber)
+      val tokens = Map(
+        Tokens.buildingNumber -> "SomeStringThatWontHaveAnyResult"
       )
 
       // When
@@ -642,7 +642,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.postcode -> secondaryHybridNagPostcodeLocator
       )
 
-      val inputs = Seq(
+      val inputs = Stream(
         BulkAddressRequestData("1", "i1", firstAddressTokens),
         BulkAddressRequestData("2", "i2", secondAddressTokens)
       )
@@ -651,7 +651,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val results = repository.queryBulk(inputs, 1).await
       val addresses = results.collect{
         case Right(address) => address
-      }
+      }.flatten
 
       // Then
       results.length shouldBe 2
@@ -673,7 +673,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.buildingNumber -> "ThisBuildingNumberDoesNotExist"
       )
 
-      val inputs = Seq(
+      val inputs = Stream(
         BulkAddressRequestData("1", "i1", firstAddressTokens),
         BulkAddressRequestData("2", "i2", secondAddressTokens)
       )
@@ -682,7 +682,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val results = repository.queryBulk(inputs, 1).await
       val addresses = results.collect {
         case Right(address) => address
-      }
+      }.flatten
 
       // Then
       results.length shouldBe 2

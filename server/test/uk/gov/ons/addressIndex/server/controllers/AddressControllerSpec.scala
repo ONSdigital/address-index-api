@@ -96,14 +96,14 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
 
-    override def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
-        requestsData.map(requestData => Right(BulkAddress.fromHybridAddress(validHybridAddress, requestData))).toStream
+        requestsData.map(requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData))))
       }
 
   }
@@ -113,14 +113,14 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
 
-    override def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
-        requestsData.map(requestData => Right(BulkAddress.empty(requestData))).toStream
+        requestsData.map(requestData => Right(Seq(BulkAddress.empty(requestData))))
       }
   }
 
@@ -128,18 +128,18 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Seq[CrfTokenResult]): Future[HybridAddresses] =
-      if (tokens.head.value == "failed") Future.failed(new Exception("test failure"))
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+      if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
 
-    override def queryBulk(requestsData: Seq[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, BulkAddress]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map{
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
-          case requestData => Right(BulkAddress.fromHybridAddress(validHybridAddress, requestData))
-        }.toStream
+          case requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData)))
+        }
       }
   }
   
@@ -178,7 +178,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),
           limit = 10,
           offset = 0,
@@ -203,7 +203,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
@@ -229,7 +229,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
@@ -255,7 +255,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
@@ -281,7 +281,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
@@ -307,7 +307,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
@@ -333,7 +333,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
@@ -359,7 +359,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = Seq.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,

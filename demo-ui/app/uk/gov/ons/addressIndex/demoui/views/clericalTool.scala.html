@@ -170,7 +170,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.subbuildingname")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "SubBuildingName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("SubBuildingName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.paf.map{ paf => @paf.subBuildingName }
@@ -181,7 +181,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.buildingname")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("BuildingName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.paf.map{ paf => @paf.buildingName }
@@ -192,7 +192,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.buildingnumber")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("BuildingNumber", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.paf.map{ paf => @paf.buildingNumber }
@@ -203,7 +203,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.street")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("StreetName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.paf.map{ paf => @paf.thoroughfare }
@@ -214,7 +214,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.town")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "TownName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("TownName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.paf.map{ paf => @paf.postTown }
@@ -225,7 +225,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.postcode")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("Postcode", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.paf.map{ paf => @paf.postcode }
@@ -269,7 +269,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.subbuildingname")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "SubBuildingName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("SubBuildingName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.nag.map{ nag => @nag.organisation }
@@ -280,7 +280,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.buildingname")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "BuildingName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("BuildingName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.nag.map{ nag => @nag.pao.paoText }
@@ -291,7 +291,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.buildingnumber")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "BuildingNumber").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("BuildingNumber", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.nag.map{ nag => @nag.pao.paoStartNumber }
@@ -302,7 +302,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.street")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "StreetName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("StreetName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.nag.map{ nag => @nag.streetDescriptor }
@@ -313,7 +313,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.town")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "TownName").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("TownName", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.nag.map{ nag => @nag.townName }
@@ -324,7 +324,7 @@ classification: Option[Map[String,String]]
                                                 @messages("clerical.postcode")
                                             </div>
                                             <div class="taColumn2">
-                                                @aresponse.tokens.withFilter(t => t.label == "Postcode").map { token => @token.value }
+                                                @aresponse.tokens.getOrElse("Postcode", "")
                                             </div>
                                             <div class="taColumn3">
                                                 @address.nag.map{ nag => @nag.postcodeLocator }

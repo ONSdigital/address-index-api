@@ -75,7 +75,7 @@ trait AddressIndexCannedResponse {
 
   def Error: AddressBySearchResponse = {
     AddressBySearchResponse(
-      Seq.empty,
+      Map.empty,
       addresses = Seq.empty,
       limit = 10,
       offset = 0,
