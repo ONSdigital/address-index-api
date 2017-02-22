@@ -46,6 +46,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagPaoStartNumber = "h13"
   val hybridNagPaoStartSuffix = "h11"
   val hybridNagPaoEndNumber = "h12"
+  val hybridNagPaoEndSuffix = "h14"
+  val hybridNagSaoStartNumber = "h15"
+  val hybridNagSaoStartSuffix = "h16"
+  val hybridNagSaoEndNumber = "h17"
+  val hybridNagSaoEndSuffix = "h18"
   val hybridNagLocality = "h10"
   val hybridNagOrganisation = hybridPafOrganizationName
   val hybridNagLegalName = hybridPafOrganizationName
@@ -82,6 +87,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagPaoStartNumber = "s13"
   val secondaryHybridNagPaoStartSuffix = "s11"
   val secondaryHybridNagPaoEndNumber = "s12"
+  val secondaryHybridNagPaoEndSuffix = "s14"
+  val secondaryHybridNagSaoStartNumber = "s15"
+  val secondaryHybridNagSaoStartSuffix = "s16"
+  val secondaryHybridNagSaoEndNumber = "s17"
+  val secondaryHybridNagSaoEndSuffix = "s18"
   val secondaryHybridNagLocality = "s10"
   val secondaryHybridNagOrganisation = secondaryHybridPafOrganizationName
   val secondaryHybridNagLegalName = secondaryHybridPafOrganizationName
@@ -404,6 +414,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.paoStartNumber -> hybridNagPaoStartNumber,
         Tokens.paoStartSuffix -> hybridNagPaoStartSuffix,
         Tokens.paoEndNumber -> hybridNagPaoEndNumber,
+        Tokens.paoEndSuffix -> hybridNagPaoEndSuffix,
+        Tokens.saoStartNumber -> hybridNagSaoStartNumber,
+        Tokens.saoStartSuffix -> hybridNagSaoStartSuffix,
+        Tokens.saoEndNumber -> hybridNagSaoEndNumber,
+        Tokens.saoEndSuffix -> hybridNagPaoEndSuffix,
         Tokens.locality -> hybridNagLocality,
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator,
@@ -414,7 +429,415 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.townName -> hybridNagTownName
       )
 
+      val outcode = if (hybridNagPostcodeLocator.length >= 4) {
+        hybridNagPostcodeLocator.substring(hybridNagPostcodeLocator.length - 3, hybridNagPostcodeLocator.length)
+      } else {
+        hybridNagPostcodeLocator
+      }
+      val incode = if (hybridNagPostcodeLocator.length >= 4) {
+        hybridNagPostcodeLocator.substring(0, hybridNagPostcodeLocator.indexOf(outcode))
+      } else {
+        ""
+      }
+
       val expected = Json.parse(
+       s"""
+        {
+        	"query": {
+        		"bool": {
+        			"must": [{
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.subBuildingName": {
+        								"query": "$hybridPafSubBuildingName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.saoText": {
+        								"query": "$hybridPafSubBuildingName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}],
+        					"must": [{
+        						"match": {
+        							"lpi.saoStartNumber": {
+        								"query": "$hybridNagSaoStartNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.saoStartSuffix": {
+        								"query": "$hybridNagSaoStartSuffix",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        					"match": {
+        							"lpi.saoEndNumber": {
+        								"query": "$hybridNagSaoEndNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.saoEndSuffix": {
+        								"query": "$hybridNagSaoEndSuffix",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.buildingName": {
+        								"query": "$hybridPafBuildingName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoText": {
+        								"query": "$hybridPafBuildingName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}],
+        					"must": [{
+        						"match": {
+        							"lpi.paoStartNumber": {
+        								"query": "$hybridNagPaoStartNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoStartSuffix": {
+        								"query": "$hybridNagPaoStartSuffix",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoEndNumber": {
+        								"query": "$hybridNagPaoEndNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoEndSuffix": {
+        								"query": "$hybridNagPaoEndSuffix",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.buildingNumber": {
+        								"query": "$hybridPafBuildingNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoStartNumber": {
+        								"query": "$hybridNagPaoStartNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.thoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshThoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.dependentThoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDependentThoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.streetDescriptor": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.postTown": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshPostTown": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.townName": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.dependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.locality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.doubleDependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.2
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDoubleDependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.2
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.postcode": {
+        								"query": "$hybridNagPostcodeLocator",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.postcodeLocator": {
+        								"query": "$hybridNagPostcodeLocator",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.postcode": {
+        								"query": "$outcode",
+        								"type": "boolean",
+        								"boost": 0.8
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.postcodeLocator": {
+        								"query": "$incode",
+        								"type": "boolean",
+        								"boost": 0.3
+        							}
+        						}
+        					}]
+        				}
+        			}],
+        			"should": [{
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.organizationName": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.organisation": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoText": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.legalName": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.saoText": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.departmentName": {
+        								"query": "$hybridPafDepartmentName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.legalName": {
+        								"query": "$hybridPafDepartmentName",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.dependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.locality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.doubleDependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDoubleDependentLocalityt": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}]
+        				}
+        			}]
+        		}
+        	}
+        }
+       """
+      )
+
+
+
+      val expectedOld = Json.parse(
         s"""
           {
             "query" : {
