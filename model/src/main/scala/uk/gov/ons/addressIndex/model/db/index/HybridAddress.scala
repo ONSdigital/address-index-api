@@ -162,7 +162,7 @@ object HybridAddresses {
   def fromRichSearchResponse(response: RichSearchResponse): HybridAddresses = {
 
     if (response.shardFailures.nonEmpty)
-      throw new Exception(s"${response.shardFailures.length} failed shards out of ${response.totalShards}, the returned result would be partial and nor reliable")
+      throw new Exception(s"${response.shardFailures.length} failed shards out of ${response.totalShards}, the returned result would be partial and not reliable")
 
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
