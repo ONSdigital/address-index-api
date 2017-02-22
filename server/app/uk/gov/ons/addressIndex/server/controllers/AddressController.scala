@@ -208,7 +208,7 @@ class AddressController @Inject()(
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
     val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress), Duration.Inf)
 
-    val requestsLeft = result.failedRequests ++ requestsAfterMiniBatch
+    val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
     if (requestsLeft.isEmpty) successfulResults ++ result.successfulBulkAddresses
     else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
