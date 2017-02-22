@@ -1,9 +1,11 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.duration._
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
+
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import com.sksamuel.elastic4s.ElasticDsl._
@@ -15,6 +17,7 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.annotation.tailrec
 import scala.util.Try
+import scala.util.control.NonFatal
 
 @Singleton
 class AddressController @Inject()(
@@ -94,7 +97,12 @@ class AddressController @Inject()(
             status = OkAddressResponseStatus
           )
         )
+      }.recover{
+        case NonFatal(exception) =>
+          logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
+          jsonBadRequest(FailedRequestToEs)
       }
+
     }
   }
 
@@ -117,6 +125,10 @@ class AddressController @Inject()(
         )
       )
       case None => jsonNotFound(NoAddressFoundUprn)
+    }.recover {
+      case NonFatal(exception) =>
+        logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+        jsonBadRequest(FailedRequestToEs)
     }
   }
 

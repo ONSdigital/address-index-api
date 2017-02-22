@@ -604,6 +604,11 @@ object OffsetTooLargeAddressResponseError extends AddressResponseError(
   message = "Offset parameter too large (maximum configurable)"
 )
 
+object FailedRequestToEsError extends AddressResponseError(
+  code = 10,
+  message = "Failed request to the Elastic Search (check api logs)"
+)
+
 
 
 

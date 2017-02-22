@@ -73,6 +73,10 @@ trait AddressIndexCannedResponse {
       BadRequestTemplate(EmptyQueryAddressResponseError)
   }
 
+  def FailedRequestToEs: AddressBySearchResponseContainer = {
+    BadRequestTemplate(FailedRequestToEsError)
+  }
+
   def Error: AddressBySearchResponse = {
     AddressBySearchResponse(
       Map.empty,
