@@ -11,6 +11,7 @@ import scala.util.matching.Regex
   */
 object Tokens extends CrfTokenable {
 
+
   private val config = ConfigFactory.load()
 
 
@@ -22,6 +23,10 @@ object Tokens extends CrfTokenable {
   val paoStartNumber: String = "PaoStartNumber"
   val paoStartSuffix: String = "PaoStartSuffix"
   val paoEndNumber: String = "PaoEndNumber"
+  val saoStartNumber: String = "SaoStartNumber"
+  val saoStartSuffix: String = "SaoStartSuffix"
+  val saoEndNumber: String = "SaoEndNumber"
+  val saoEndSuffix: String = "SaoEndSuffix"
   val streetName: String = "StreetName"
   val locality: String = "Locality"
   val townName: String = "TownName"
