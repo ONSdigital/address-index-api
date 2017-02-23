@@ -6,10 +6,57 @@ clerical.parentuprn=UPRN rhieni
 clerical.la=Awdurdod lleol
 clerical.hierarchy=Lefel hierarchaeth
 clerical.ta=Cyfeiriad tokenize
+
+clerical.token_description=Enw Tocyn
 clerical.fieldnamePAF=Enw Field (PAF)
 clerical.fieldnameNAG=Enw Field (NAG)
 clerical.inputdata=Data mewnbwn
 clerical.outputdata=Data allbwn
+clerical.not_implemented=Heb ei Weithredu
+
+clerical.token.organisation_name=Enw'r Sefydliad
+clerical.token.department_name = Enw Adran
+clerical.token.sub_building_name = Is Enw'r Adeilad
+clerical.token.building_name = Enw Adeiladu
+clerical.token.building_number = Rhif yr Adeilad
+clerical.token.street_name = Enw Stryd
+clerical.token.locality = Ardal
+clerical.token.town_name = Enw y Dref
+clerical.token.postcode = Côd Post
+
+clerical.organisation_name = Enw Sefydliad
+clerical.department_name = Enw Adran
+clerical.sub_building_name = Is Enw'r Adeilad
+clerical.building_name = Enw Adeiladu
+clerical.building_number = Rhif yr Adeilad
+clerical.thoroughfare = tramwyfa
+clerical.welsh_thoroughfare = tramwyfa Cymraeg
+clerical.dependent_thoroughfare = tramwyfa Dibynnol
+clerical.welsh_dependent_thoroughfare = tramwyfa Dibynnol Cymraeg
+clerical.dependent_locality = Ardal Dibynnol
+clerical.welsh_dependent_locality = Ardal Dibynnol Cymraeg
+clerical.double_dependent_locality = Dwbl Ardal Dibynnol
+clerical.welsh_double_dependent_locality = Dwbl Ardal Dibynnol
+clerical.post_town = Tref Bost
+clerical.welsh_post_town = Tref Cymraeg Post
+clerical.postcode = Cod post
+
+clerical.organisation = Sefydliad
+clerical.pao_text = Prif Swyddog Cyfrifyddu Text
+clerical.pao_start_number = Prif Swyddog Cyfrifyddu Rhif Start
+clerical.legal_name = Enw Cyfreithiol
+clerical.sao_text = Sao Text
+clerical.sao_start_number = Sao Rhif Start
+clerical.sao_start_suffix = Sao Cychwyn Ôl-ddodiad
+clerical.sao_end_number = Sao Rhif End
+clerical.sao_end_suffix = Sao End Ôl-ddodiad
+clerical.street_descriptor = Street Disgrifydd
+clerical.locality = Ardal
+clerical.town_name = Enw y Dref
+clerical.postcode_locator = Cod post Locator
+clerical.postcode_in = Cod post Mewn
+clerical.postcode_out = Cod post Out
+
 clerical.subbuildingname=Sub Building Name
 clerical.buildingname=Building Name
 clerical.buildingnumber=Is Enw''r Adeilad
