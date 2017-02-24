@@ -440,6 +440,409 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         ""
       }
 
+
+      /**
+      {
+	"query": {
+		"bool": {
+			"must": [{
+				"bool": {
+					"must": [{
+						"match": {
+							"lpi.saoStartNumber": {
+								"query": "h15",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.saoStartSuffix": {
+								"query": "h16",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.saoEndNumber": {
+								"query": "h17",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.saoEndSuffix": {
+								"query": "h14",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}],
+					"should": [{
+						"match": {
+							"paf.subBuildingName": {
+								"query": "h4",
+								"type": "boolean",
+								"boost": 0.5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.saoText": {
+								"query": "h4",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"must": [{
+						"match": {
+							"lpi.paoStartNumber": {
+								"query": "h13",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.paoStartSuffix": {
+								"query": "h16",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.paoEndNumber": {
+								"query": "h12",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.paoEndSuffix": {
+								"query": "h14",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}],
+					"should": [{
+						"match": {
+							"paf.buildingName": {
+								"query": "h5",
+								"type": "boolean",
+								"boost": 0.5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.paoText": {
+								"query": "h5",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.buildingNumber": {
+								"query": "h6",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.paoStartNumber": {
+								"query": "h6",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.thoroughfare": {
+								"query": "h7",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.welshThoroughfare": {
+								"query": "h7",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.dependentThoroughfare": {
+								"query": "h7",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.welshDependentThoroughfare": {
+								"query": "h7",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.streetDescriptor": {
+								"query": "h7",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.postTown": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.welshPostTown": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.townName": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.dependentLocality": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.welshDependentLocality": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.locality": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.doubleDependentLocality": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"paf.doubleDependentLocality": {
+								"query": "h8",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.postcode": {
+								"query": "h9",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.postcodeLocator": {
+								"query": "h9",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}]
+				}
+			}],
+			"should": [{
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.organizationName": {
+								"query": "h2",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.organisation": {
+								"query": "h2",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.paoText": {
+								"query": "h2",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.legalName": {
+								"query": "h2",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.saoText": {
+								"query": "h2",
+								"type": "boolean",
+								"boost": 0.5
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.departmentName": {
+								"query": "h3",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}, {
+						"match": {
+							"lpi.legalName": {
+								"query": "h3",
+								"type": "boolean",
+								"boost": 1
+							}
+						}
+					}]
+				}
+			}, {
+				"bool": {
+					"should": [{
+						"match": {
+							"paf.dependentLocality": {
+								"query": "h10",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"paf.welshDependentLocality": {
+								"query": "h10",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"lpi.locality": {
+								"query": "h10",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"paf.doubleDependentLocality": {
+								"query": "h10",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}, {
+						"match": {
+							"paf.welshDoubleDependentLocality": {
+								"query": "h10",
+								"type": "boolean",
+								"boost": 5
+							}
+						}
+					}]
+				}
+			}]
+		}
+	}
+}
+        */
+
+
+
+        /**
+    }, {
+      "match": {
+        "paf.postcode": {
+        "query": "$outcode",
+        "type": "boolean",
+        "boost": 0.8
+      }
+      }
+    }, {
+      "match": {
+        "lpi.postcodeLocator": {
+        "query": "$incode",
+        "type": "boolean",
+        "boost": 0.3
+      }
+      }
+      */
+
+
+
+
+
       val expected = Json.parse(
        s"""
         {
@@ -447,6 +850,39 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         		"bool": {
         			"must": [{
         				"bool": {
+          	      "must": [{
+          					"match": {
+          						"lpi.saoStartNumber": {
+          							"query": "$hybridNagSaoStartNumber",
+           							"type": "boolean",
+             						"boost": 1
+             					}
+             				}
+             			}, {
+             				"match": {
+            					"lpi.saoStartSuffix": {
+             						"query": "$hybridNagSaoStartSuffix",
+               					"type": "boolean",
+               					"boost": 1
+               				}
+               		  }
+               		}, {
+                    "match": {
+               				"lpi.saoEndNumber": {
+               					"query": "$hybridNagSaoEndNumber",
+                				"type": "boolean",
+                 				"boost": 1
+                			}
+                 		}
+                 	}, {
+               			"match": {
+               				"lpi.saoEndSuffix": {
+               				  "query": "$hybridNagSaoEndSuffix",
+               				  "type": "boolean",
+               				  "boost": 1
+               			  }
+                    }
+               		}],
         					"should": [{
         						"match": {
         							"paf.subBuildingName": {
@@ -463,60 +899,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         								"boost": 1
         							}
         						}
-        					}],
-        					"must": [{
-        						"match": {
-        							"lpi.saoStartNumber": {
-        								"query": "$hybridNagSaoStartNumber",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.saoStartSuffix": {
-        								"query": "$hybridNagSaoStartSuffix",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        					"match": {
-        							"lpi.saoEndNumber": {
-        								"query": "$hybridNagSaoEndNumber",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.saoEndSuffix": {
-        								"query": "$hybridNagSaoEndSuffix",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
         					}]
-        				}
+         				}
         			}, {
         				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.buildingName": {
-        								"query": "$hybridPafBuildingName",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.paoText": {
-        								"query": "$hybridPafBuildingName",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}],
         					"must": [{
         						"match": {
         							"lpi.paoStartNumber": {
@@ -549,7 +935,24 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         								"boost": 1
         							}
         						}
-        					}]
+        					}],
+         					"should": [{
+        						"match": {
+         							"paf.buildingName": {
+         								"query": "$hybridPafBuildingName",
+           							"type": "boolean",
+           							"boost": 1
+           						}
+           					}
+         					}, {
+         						"match": {
+         							"lpi.paoText": {
+         								"query": "$hybridPafBuildingName",
+            						"type": "boolean",
+                  			"boost": 1
+          						}
+          					}
+          				}]
         				}
         			}, {
         				"bool": {
@@ -699,22 +1102,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         								"query": "$hybridNagPostcodeLocator",
         								"type": "boolean",
         								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.postcode": {
-        								"query": "$outcode",
-        								"type": "boolean",
-        								"boost": 0.8
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.postcodeLocator": {
-        								"query": "$incode",
-        								"type": "boolean",
-        								"boost": 0.3
         							}
         						}
         					}]
