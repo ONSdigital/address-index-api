@@ -12,23 +12,23 @@ case class ElasticSearchConfig(
   uri: String,
   indexes: IndexesConfig,
   shield: ShieldConfig,
-  queryParams: queryParamsConfig,
+  queryParams: QueryParamsConfig,
   defaultLimit: Int,
   defaultOffset: Int,
   maximumLimit: Int,
   maximumOffset: Int
 )
 
-case class queryParamsConfig(
-  subBuildingName: subBuildingNameConfig,
-  buildingName: buildingNameConfig,
-  buildingNumber: buildingNumberConfig,
-  streetName: streetNameConfig,
-  townName: townNameConfig,
-  postcode: postcodeConfig,
-  organisationName: organisationNameConfig,
-  departmentName: departmentNameConfig,
-  locality: localityConfig,
+case class QueryParamsConfig(
+  subBuildingName: SubBuildingNameConfig,
+  buildingName: BuildingNameConfig,
+  buildingNumber: BuildingNumberConfig,
+  streetName: StreetNameConfig,
+  townName: TownNameConfig,
+  postcode: PostcodeConfig,
+  organisationName: OrganisationNameConfig,
+  departmentName: DepartmentNameConfig,
+  locality: LocalityConfig,
   defaultBoost: Float,
   minimumShouldMatch: String
 )
@@ -43,7 +43,7 @@ case class IndexesConfig(
   hybridIndex: String
 )
 
-case class subBuildingNameConfig(
+case class SubBuildingNameConfig(
   lpiSaoStartNumberBoost: Float,
   lpiSaoStartSuffixBoost: Float,
   lpiSaoEndNumberBoost: Float,
@@ -52,7 +52,7 @@ case class subBuildingNameConfig(
   lpiSaoTextBoost: Float
  )
 
-case class buildingNameConfig(
+case class BuildingNameConfig(
   lpiPaoStartNumberBoost: Float,
   lpiPaoStartSuffixBoost: Float,
   lpiPaoEndNumberBoost: Float,
@@ -61,12 +61,12 @@ case class buildingNameConfig(
   lpiPaoTextBoost: Float
 )
 
-case class buildingNumberConfig(
+case class BuildingNumberConfig(
   pafBuildingNumberBoost: Float,
   lpiPaoStartNumberBoost: Float
 )
 
-case class streetNameConfig(
+case class StreetNameConfig(
   pafThoroughfareBoost: Float,
   pafWelshThoroughfareBoost: Float,
   pafDependentThoroughfareBoost: Float,
@@ -74,7 +74,7 @@ case class streetNameConfig(
   lpiStreetDescriptorBoost: Float
 )
 
-case class townNameConfig(
+case class TownNameConfig(
   pafPostTownBoost: Float,
   pafWelshPostTownBoost: Float,
   lpiTownNameBoost: Float,
@@ -85,14 +85,14 @@ case class townNameConfig(
   pafWelshDoubleDependentLocalityBoost: Float
 )
 
-case class postcodeConfig(
+case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
   pafOutcodeBoost: Float,
   pafIncodeBoost: Float
 )
 
-case class organisationNameConfig(
+case class OrganisationNameConfig(
   pafOrganisationNameBoost: Float,
   lpiOrganisationBoost: Float,
   lpiPaoTextBoost: Float,
@@ -100,12 +100,12 @@ case class organisationNameConfig(
   lpiSaoTextBoost: Float
 )
 
-case class departmentNameConfig(
+case class DepartmentNameConfig(
   pafDepartmentNameBoost: Float,
   lpiLegalNameBoost: Float
 )
 
-case class localityConfig(
+case class LocalityConfig(
   pafDependentLocalityBoost: Float,
   pafWelshDependentLocalityBoost: Float,
   lpiLocalityBoost: Float,

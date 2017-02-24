@@ -150,7 +150,7 @@ class AddressIndexRepository @Inject()(
                         field = "lpi.paoStartNumber",
                         value = token
                       ).boost(queryParams.buildingName.lpiPaoStartNumberBoost)),
-                    tokens.get(Tokens.saoStartSuffix).map(token =>
+                    tokens.get(Tokens.paoStartSuffix).map(token =>
                       matchQuery(
                         field = "lpi.paoStartSuffix",
                         value = token
@@ -262,7 +262,7 @@ class AddressIndexRepository @Inject()(
                     ).boost(queryParams.townName.pafDoubleDependentLocalityBoost)),
                   tokens.get(Tokens.townName).map(token =>
                     matchQuery(
-                      field = "paf.doubleDependentLocality",
+                      field = "paf.welshDoubleDependentLocality",
                       value = token
                     ).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
                 ).flatten
