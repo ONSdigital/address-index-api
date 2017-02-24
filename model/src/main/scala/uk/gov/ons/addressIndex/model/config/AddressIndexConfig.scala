@@ -57,7 +57,7 @@ case class buildingNameConfig(
   lpiPaoStartSuffixBoost: Float,
   lpiPaoEndNumberBoost: Float,
   lpiPaoEndSuffixBoost: Float,
-  pafSubBuildingNameBoost: Float,
+  pafBuildingNameBoost: Float,
   lpiPaoTextBoost: Float
 )
 

@@ -172,7 +172,7 @@ class AddressIndexRepository @Inject()(
                       matchQuery(
                         field = "paf.buildingName",
                         value = token
-                      ).boost(queryParams.buildingName.pafSubBuildingNameBoost)),
+                      ).boost(queryParams.buildingName.pafBuildingNameBoost)),
                     tokens.get(Tokens.buildingName).map(token =>
                       matchQuery(
                         field = "lpi.paoText",
