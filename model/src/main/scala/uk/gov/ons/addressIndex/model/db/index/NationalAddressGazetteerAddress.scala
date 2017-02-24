@@ -1,8 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import uk.gov.ons.addressIndex.model.db.ElasticIndex
-
+import scala.util.Try
 
 /**
   * NAG Address DTO
@@ -32,18 +30,28 @@ case class NationalAddressGazetteerAddress(
   saoEndSuffix: String,
   level: String,
   officialFlag: String,
-  logicalStatus: String,
   streetDescriptor: String,
   townName: String,
-  locality: String
+  locality: String,
+  lpiLogicalStatus: String,
+  blpuLogicalStatus: String,
+  source: String,
+  usrnMatchIndicator: String,
+  parentUprn: String,
+  crossReference: String,
+  streetClassification: String,
+  multiOccCount: String,
+  language: String,
+  classScheme: String,
+  localCustodianCode: String,
+  rpc: String,
+  nagAll: String
 )
 
 /**
   * NAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
-object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazetteerAddress] {
-
-  val name = "NationalAddressGazetteer"
+object NationalAddressGazetteerAddress {
 
   object Fields {
 
@@ -53,8 +61,6 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
     val uprn: String = "uprn"
     val postcodeLocator: String = "postcodeLocator"
     val addressBasePostal: String = "addressBasePostal"
-    val latitude: String = "latitude"
-    val longitude: String = "longitude"
     val easting: String = "easting"
     val northing: String = "northing"
     val organisation: String = "organisation"
@@ -74,49 +80,74 @@ object NationalAddressGazetteerAddress extends ElasticIndex[NationalAddressGazet
     val saoEndSuffix: String = "saoEndSuffix"
     val level: String = "level"
     val officialFlag: String = "officialFlag"
-    val logicalStatus: String = "logicalStatus"
     val streetDescriptor: String = "streetDescriptor"
     val townName: String = "townName"
     val locality: String = "locality"
+    val lpiLogicalStatus: String = "lpiLogicalStatus"
+    val blpuLogicalStatus: String = "blpuLogicalStatus"
+    val source: String = "source"
+    val usrnMatchIndicator: String = "usrnMatchIndicator"
+    val parentUprn: String = "parentUprn"
+    val crossReference: String = "crossReference"
+    val streetClassification: String = "streetClassification"
+    val multiOccCount: String = "multiOccCount"
+    val location: String = "location"
+    val language: String = "language"
+    val classScheme: String = "classScheme"
+    val localCustodianCode: String = "localCustodianCode"
+    val rpc: String = "rpc"
+    val nagAll: String = "nagALl"
   }
 
-  /**
-    * This is needed to directly transform a collection of objects returned by Elastic
-    * request into a collection of NAF addresses
-    */
-  implicit object NationalAddressGazetteerAddressHitAs extends HitAs[NationalAddressGazetteerAddress] {
-    import Fields._
-    override def as(hit: RichSearchHit): NationalAddressGazetteerAddress = {
-      NationalAddressGazetteerAddress(
-        hit.sourceAsMap(uprn).toString,
-        hit.sourceAsMap(postcodeLocator).toString,
-        hit.sourceAsMap(addressBasePostal).toString,
-        hit.sourceAsMap(latitude).toString,
-        hit.sourceAsMap(longitude).toString,
-        hit.sourceAsMap(easting).toString,
-        hit.sourceAsMap(northing).toString,
-        hit.sourceAsMap(organisation).toString,
-        hit.sourceAsMap(legalName).toString,
-        hit.sourceAsMap(classificationCode).toString,
-        hit.sourceAsMap(usrn).toString,
-        hit.sourceAsMap(lpiKey).toString,
-        hit.sourceAsMap(paoText).toString,
-        hit.sourceAsMap(paoStartNumber).toString,
-        hit.sourceAsMap(paoStartSuffix).toString,
-        hit.sourceAsMap(paoEndNumber).toString,
-        hit.sourceAsMap(paoEndSuffix).toString,
-        hit.sourceAsMap(saoText).toString,
-        hit.sourceAsMap(saoStartNumber).toString,
-        hit.sourceAsMap(saoStartSuffix).toString,
-        hit.sourceAsMap(saoEndNumber).toString,
-        hit.sourceAsMap(saoEndSuffix).toString,
-        hit.sourceAsMap(level).toString,
-        hit.sourceAsMap(officialFlag).toString,
-        hit.sourceAsMap(logicalStatus).toString,
-        hit.sourceAsMap(streetDescriptor).toString,
-        hit.sourceAsMap(townName).toString,
-        hit.sourceAsMap(locality).toString
-      )
-    }
+  def fromEsMap(nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
+    val filteredNag = nag.filter{ case (_, value) => value != null }
+
+    val matchLocationRegex = """\d+\.\d+""".r
+    val location = filteredNag.getOrElse(Fields.location, "").toString
+
+    val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
+
+    NationalAddressGazetteerAddress(
+      uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
+      postcodeLocator = filteredNag.getOrElse(Fields.postcodeLocator, "").toString,
+      addressBasePostal = filteredNag.getOrElse(Fields.addressBasePostal, "").toString,
+      latitude = latitude,
+      longitude = longitude,
+      easting = filteredNag.getOrElse(Fields.easting, "").toString,
+      northing = filteredNag.getOrElse(Fields.northing, "").toString,
+      organisation = filteredNag.getOrElse(Fields.organisation, "").toString,
+      legalName = filteredNag.getOrElse(Fields.legalName, "").toString,
+      classificationCode = filteredNag.getOrElse(Fields.classificationCode, "").toString,
+      usrn = filteredNag.getOrElse(Fields.usrn, "").toString,
+      lpiKey = filteredNag.getOrElse(Fields.lpiKey, "").toString,
+      paoText = filteredNag.getOrElse(Fields.paoText, "").toString,
+      paoStartNumber = filteredNag.getOrElse(Fields.paoStartNumber, "").toString,
+      paoStartSuffix = filteredNag.getOrElse(Fields.paoStartSuffix, "").toString,
+      paoEndNumber = filteredNag.getOrElse(Fields.paoEndNumber, "").toString,
+      paoEndSuffix = filteredNag.getOrElse(Fields.paoEndSuffix, "").toString,
+      saoText = filteredNag.getOrElse(Fields.saoText, "").toString,
+      saoStartNumber = filteredNag.getOrElse(Fields.saoStartNumber, "").toString,
+      saoStartSuffix = filteredNag.getOrElse(Fields.saoStartSuffix, "").toString,
+      saoEndNumber = filteredNag.getOrElse(Fields.saoEndNumber, "").toString,
+      saoEndSuffix = filteredNag.getOrElse(Fields.saoEndSuffix, "").toString,
+      level = filteredNag.getOrElse(Fields.level, "").toString,
+      officialFlag = filteredNag.getOrElse(Fields.officialFlag, "").toString,
+      streetDescriptor = filteredNag.getOrElse(Fields.streetDescriptor, "").toString,
+      townName = filteredNag.getOrElse(Fields.townName, "").toString,
+      locality = filteredNag.getOrElse(Fields.locality, "").toString,
+      lpiLogicalStatus = filteredNag.getOrElse(Fields.lpiLogicalStatus, "").toString,
+      blpuLogicalStatus = filteredNag.getOrElse(Fields.blpuLogicalStatus, "").toString,
+      source = filteredNag.getOrElse(Fields.source, "").toString,
+      usrnMatchIndicator = filteredNag.getOrElse(Fields.usrnMatchIndicator, "").toString,
+      parentUprn = filteredNag.getOrElse(Fields.parentUprn, "").toString,
+      crossReference = filteredNag.getOrElse(Fields.crossReference, "").toString,
+      streetClassification = filteredNag.getOrElse(Fields.streetClassification, "").toString,
+      multiOccCount = filteredNag.getOrElse(Fields.multiOccCount, "").toString,
+      language = filteredNag.getOrElse(Fields.language, "").toString,
+      classScheme = filteredNag.getOrElse(Fields.classScheme, "").toString,
+      localCustodianCode = filteredNag.getOrElse(Fields.localCustodianCode, "").toString,
+      rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
+      nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString
+    )
   }
 }
