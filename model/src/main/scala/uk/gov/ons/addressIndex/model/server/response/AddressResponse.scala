@@ -215,9 +215,9 @@ object AddressResponseAddress {
     */
   def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress]): Option[NationalAddressGazetteerAddress] ={
     // "if" is more readable than "getOrElse" in this case
-    if (addresses.exists(_.logicalStatus == "1")) addresses.find(_.logicalStatus == "1")
-    else if (addresses.exists(_.logicalStatus == "6")) addresses.find(_.logicalStatus == "6")
-    else if (addresses.exists(_.logicalStatus == "8")) addresses.find(_.logicalStatus == "8")
+    if (addresses.exists(_.lpiLogicalStatus == "1")) addresses.find(_.lpiLogicalStatus == "1")
+    else if (addresses.exists(_.lpiLogicalStatus == "6")) addresses.find(_.lpiLogicalStatus == "6")
+    else if (addresses.exists(_.lpiLogicalStatus == "8")) addresses.find(_.lpiLogicalStatus == "8")
     else addresses.headOption
   }
 }
@@ -388,7 +388,7 @@ object AddressResponseNag {
         ),
         other.level,
         other.officialFlag,
-        other.logicalStatus,
+        other.lpiLogicalStatus,
         other.streetDescriptor,
         other.townName,
         other.locality,
