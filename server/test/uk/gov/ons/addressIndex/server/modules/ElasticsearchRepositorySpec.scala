@@ -407,7 +407,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator
       )
-      val expectedScore = 0.4f
+      val expectedScore = 1.8f
 
       val expected = HybridAddress(
         uprn = hybridFirstUprn.toString,
@@ -423,12 +423,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       results.length shouldBe 1
       total shouldBe 1
 
-   //   val resultHybrid = results.head
-   //   resultHybrid shouldBe expected.copy(score = resultHybrid.score)
+      val resultHybrid = results.head
+      resultHybrid shouldBe expected.copy(score = resultHybrid.score)
 
       // Score is random, but should always be close to some number
-    //  resultHybrid.score shouldBe expectedScore +- 0.1f
-    //  maxScore shouldBe expectedScore +- 0.1f
+      resultHybrid.score shouldBe expectedScore +- 0.1f
+      maxScore shouldBe expectedScore +- 0.1f
     }
 
     "have score of `0` if no addresses found" in {
@@ -454,11 +454,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.buildingNumber -> hybridPafBuildingNumber.toString,
         Tokens.paoStartNumber -> hybridNagPaoStartNumber.toString,
         Tokens.paoStartSuffix -> hybridNagPaoStartSuffix,
-        Tokens.paoEndNumber -> hybridNagPaoEndNumber,
+        Tokens.paoEndNumber -> hybridNagPaoEndNumber.toString,
         Tokens.paoEndSuffix -> hybridNagPaoEndSuffix,
-        Tokens.saoStartNumber -> hybridNagSaoStartNumber,
+        Tokens.saoStartNumber -> hybridNagSaoStartNumber.toString,
         Tokens.saoStartSuffix -> hybridNagSaoStartSuffix,
-        Tokens.saoEndNumber -> hybridNagSaoEndNumber,
+        Tokens.saoEndNumber -> hybridNagSaoEndNumber.toString,
         Tokens.saoEndSuffix -> hybridNagSaoEndSuffix,
         Tokens.locality -> hybridNagLocality,
         Tokens.organisationName -> hybridNagOrganisation,
@@ -469,37 +469,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.streetName -> hybridNagStreetDescriptor,
         Tokens.townName -> hybridNagTownName
       )
-
-      val outcode = if (hybridNagPostcodeLocator.length >= 4) {
-        hybridNagPostcodeLocator.substring(hybridNagPostcodeLocator.length - 3, hybridNagPostcodeLocator.length)
-      } else {
-        hybridNagPostcodeLocator
-      }
-      val incode = if (hybridNagPostcodeLocator.length >= 4) {
-        hybridNagPostcodeLocator.substring(0, hybridNagPostcodeLocator.indexOf(outcode))
-      } else {
-        ""
-      }
-
-        /**
-    }, {
-      "match": {
-        "paf.postcode": {
-        "query": "$outcode",
-        "type": "boolean",
-        "boost": 0.8
-      }
-      }
-    }, {
-      "match": {
-        "lpi.postcodeLocator": {
-        "query": "$incode",
-        "type": "boolean",
-        "boost": 0.3
-      }
-      }
-      */
-
 
       val expected = Json.parse(
        s"""
@@ -878,211 +847,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         	}
         }
        """
-      )
-
-
-
-      val expectedOld = Json.parse(
-        s"""
-          {
-            "query" : {
-              "bool" : {
-                "should" : [ {
-                  "match" : {
-                    "lpi.paoStartNumber" : {
-                      "query" : $hybridPafBuildingNumber,
-                      "type" : "boolean",
-                      "boost" : 5.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoStartNumber" : {
-                      "query" : "$hybridNagPaoStartNumber",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoStartSuffix" : {
-                      "query" : "$hybridNagPaoStartSuffix",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoEndNumber" : {
-                      "query" : "$hybridNagPaoEndNumber",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.locality" : {
-                      "query" : "$hybridNagLocality",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.organisation" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.legalName" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoText" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoText" : {
-                      "query" : "$hybridPafBuildingName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "fuzzy" : {
-                    "lpi.streetDescriptor" : {
-                      "value" : "$hybridPafThoroughfare",
-                      "fuzziness" : "2",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.townName" : {
-                      "query" : "$hybridPafPostTown",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.postcodeLocator" : {
-                      "query" : "$hybridPafPostcode",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingNumber" : {
-                      "query" : "$hybridPafBuildingNumber",
-                      "type" : "boolean",
-                      "boost" : 5.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.organizationName" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.departmentName" : {
-                      "query" : "$hybridPafDepartmentName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.subBuildingName" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingName" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingName" : {
-                      "query" : "$hybridPafBuildingName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "fuzzy" : {
-                    "paf.thoroughfare" : {
-                      "value" : "$hybridPafThoroughfare",
-                      "fuzziness" : "2",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.postTown" : {
-                      "query" : "$hybridPafPostTown",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.postcode" : {
-                      "query" : "$hybridPafPostcode",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.dependentLocality" : {
-                      "query" : "$hybridNagLocality",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "_all" : {
-                      "query" : "$hybridPafThoroughfare $hybridPafBuildingNumber $hybridNagPaoStartSuffix $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafPostTown $hybridPafPostcode $hybridNagPaoEndNumber $hybridPafOrganizationName $hybridNagLocality $hybridNagPaoStartNumber $hybridPafBuildingName",
-                      "type" : "boolean",
-                      "boost" : 30.0
-                    }
-                  }
-                } ],
-                "minimum_should_match" : "45%"
-              }
-            }
-          }
-        """
       )
 
       // When
