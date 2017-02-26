@@ -34,10 +34,22 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     saoEndSuffix = "n15",
     level = "n16",
     officialFlag = "n17",
-    logicalStatus = "n18",
     streetDescriptor = "n19",
     townName = "n20",
-    locality = "n21"
+    locality = "n21",
+    lpiLogicalStatus = "lpiLogicalStatus",
+    blpuLogicalStatus = "blpuLogicalStatus",
+    source = "source",
+    usrnMatchIndicator = "usrnMatchIndicator",
+    parentUprn = "parentUprn",
+    crossReference = "crossReference",
+    streetClassification = "streetClassification",
+    multiOccCount = "multiOccCount",
+    language = "language",
+    classScheme = "classScheme",
+    localCustodianCode = "localCustodianCode",
+    rpc = "rpc",
+    nagAll = "nagAll"
   )
 
   val givenRealisticNag = givenNag.copy(
@@ -90,7 +102,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29"
+    entryDate = "29",
+    pafAll = "pafAll"
   )
 
   "Address response Address model" should {
@@ -196,7 +209,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         ),
         nag.level,
         nag.officialFlag,
-        nag.logicalStatus,
+        nag.lpiLogicalStatus,
         nag.streetDescriptor,
         nag.townName,
         nag.locality,
@@ -376,8 +389,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "choose the nag with a legal status equal to 1 if it exists" in {
       // Given
-      val expectedNag = givenNag.copy(logicalStatus = "1")
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(logicalStatus = "6"))
+      val expectedNag = givenNag.copy(lpiLogicalStatus = "1")
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "6"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
@@ -388,8 +401,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "choose the nag with a legal status equal to 6 if it exists and the one with legal status 1 doesn't exist" in {
       // Given
-      val expectedNag = givenNag.copy(logicalStatus = "6")
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(logicalStatus = "8"))
+      val expectedNag = givenNag.copy(lpiLogicalStatus = "6")
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "8"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
@@ -400,8 +413,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "choose the nag with a legal status equal to 8 if it exists and the one with legal status 1 or 6 doesn't exist" in {
       // Given
-      val expectedNag = givenNag.copy(logicalStatus = "8")
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(logicalStatus = "11"))
+      val expectedNag = givenNag.copy(lpiLogicalStatus = "8")
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "11"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
@@ -413,7 +426,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     "choose the first nag with if a nag with a legal status 1, 6 or 8 doesn't exist" in {
       // Given
       val expectedNag = givenNag
-      val nagAddresses = Seq(expectedNag, expectedNag.copy(logicalStatus = "10") , expectedNag.copy(logicalStatus = "11"))
+      val nagAddresses = Seq(expectedNag, expectedNag.copy(lpiLogicalStatus = "10") , expectedNag.copy(lpiLogicalStatus = "11"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)

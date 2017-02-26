@@ -6,18 +6,65 @@ clerical.parentuprn=Parent UPRN
 clerical.la=Local Authority
 clerical.hierarchy=Hierarchy Level
 clerical.ta=Tokenised Address
+
+clerical.token_description=Token name
 clerical.fieldnamePAF=Field Name (PAF)
 clerical.fieldnameNAG=Field Name (NAG)
 clerical.inputdata=Input Data
 clerical.outputdata=Output Data
+clerical.not_implemented=Not Implemented
+
+clerical.token.organisation_name=Organisation Name
+clerical.token.department_name=Department Name
+clerical.token.sub_building_name=Sub Building Name
+clerical.token.building_name=Building Name
+clerical.token.building_number=Building Number
+clerical.token.street_name=Street Name
+clerical.token.locality=Locality
+clerical.token.town_name=Town Name
+clerical.token.postcode=Post Code
+
+clerical.organisation_name=Organisation Name
+clerical.department_name=Department Name
+clerical.sub_building_name=Sub Building Name
+clerical.building_name=Building Name
+clerical.building_number=Building Number
+clerical.thoroughfare=Thoroughfare
+clerical.welsh_thoroughfare=Welsh Thoroughfare
+clerical.dependent_thoroughfare=Dependent Thoroughfare
+clerical.welsh_dependent_thoroughfare=Welsh Dependent Thoroughfare
+clerical.dependent_locality=Dependent Locality
+clerical.welsh_dependent_locality=Welsh Dependent Locality
+clerical.double_dependent_locality=Double Dependent Locality
+clerical.welsh_double_dependent_locality=Double Dependent Locality
+clerical.post_town=Post Town
+clerical.welsh_post_town=Welsh Post Town
+clerical.postcode=Postcode
+
+clerical.organisation=Organisation
+clerical.pao_text=Pao Text
+clerical.pao_start_number=Pao Start Number
+clerical.legal_name=Legal Name
+clerical.sao_text=Sao Text
+clerical.sao_start_number=Sao Start Number
+clerical.sao_start_suffix=Sao Start Suffix
+clerical.sao_end_number=Sao End Number
+clerical.sao_end_suffix=Sao End Suffix
+clerical.street_descriptor=Street Descriptor
+clerical.locality=Locality
+clerical.town_name=Town Name
+clerical.postcode_locator=Postcode Locator
+clerical.postcode_in=Postcode In
+clerical.postcode_out=Postcode Out
+
 clerical.subbuildingname=Sub Building Name
 clerical.buildingname=Building Name
 clerical.buildingnumber=Building Number
 clerical.street=Street
 clerical.town=Town
-clerical.postcode=Postcode
 clerical.postcodetype=Postcode Type
 clerical.deliverypointsuffix=Delivery Point Suffix
+
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
 home.singlehead=Find an address

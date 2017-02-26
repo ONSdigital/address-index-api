@@ -48,7 +48,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29"
+    entryDate = "29",
+    pafAll = "30"
   )
 
   val validNagAddress = NationalAddressGazetteerAddress(
@@ -76,10 +77,22 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     saoEndSuffix = "15",
     level = "16",
     officialFlag = "17",
-    logicalStatus = "18",
     streetDescriptor = "19",
     townName = "20",
-    locality = "21"
+    locality = "21",
+    lpiLogicalStatus = "lpiLogicalStatus",
+    blpuLogicalStatus = "blpuLogicalStatus",
+    source = "source",
+    usrnMatchIndicator = "usrnMatchIndicator",
+    parentUprn = "parentUprn",
+    crossReference = "crossReference",
+    streetClassification = "streetClassification",
+    multiOccCount = "multiOccCount",
+    language = "language",
+    classScheme = "classScheme",
+    localCustodianCode = "localCustodianCode",
+    rpc = "rpc",
+    nagAll = "nagAll"
   )
 
   val validHybridAddress = HybridAddress(

@@ -11,6 +11,7 @@ import scala.util.matching.Regex
   */
 object Tokens extends CrfTokenable {
 
+
   private val config = ConfigFactory.load()
 
 

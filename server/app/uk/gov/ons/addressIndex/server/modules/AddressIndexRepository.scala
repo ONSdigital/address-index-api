@@ -13,6 +13,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -377,7 +378,7 @@ class AddressIndexRepository @Inject()(
           tokens.get(Tokens.buildingNumber).map(token =>
             matchQuery(
               field = "lpi.paoStartNumber",
-              value = token
+              value = Try(token.toShort).getOrElse(null)
             ).boost(queryParams.paoStartNumberBuildingNumberLpiBoost)),
           tokens.get(Tokens.paoStartNumber).map(token =>
             matchQuery(
