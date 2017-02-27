@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticDsl.{bool, must, should, _}
 import com.sksamuel.elastic4s._
 import org.elasticsearch.common.unit.Fuzziness
 import play.api.Logger
@@ -13,6 +13,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -32,17 +33,20 @@ trait ElasticsearchRepository {
 
   /**
     * Query the address index for addresses.
-    * @param start the offset for the query
-    * @param limit maximum number of returned results
+    *
+    * @param start  the offset for the query
+    * @param limit  maximum number of returned results
     * @param tokens address tokens
+    * @param originalInput original input, used against pafAll and nagAll fields
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses]
 
   /**
     * Query ES using MultiSearch endpoint
+    *
     * @param requestsData data that will be used in the multi search request
-    * @param limit how many addresses to take per a request
+    * @param limit        how many addresses to take per a request
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
@@ -57,7 +61,7 @@ class AddressIndexRepository @Inject()(
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex
-  private val queryParams =conf.config.elasticSearch.queryParams
+  private val queryParams = conf.config.elasticSearch.queryParams
 
   val client: ElasticClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
@@ -76,6 +80,7 @@ class AddressIndexRepository @Inject()(
   /**
     * Generates request to get address from ES by UPRN
     * Public for tests
+    *
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
@@ -83,9 +88,9 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, originalInput).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -95,142 +100,304 @@ class AddressIndexRepository @Inject()(
   /**
     * Generates request to get address from ES by UPRN
     * Public for tests
+    *
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], originalInput: String): SearchDefinition = {
+
+    val saoQuery =
+      Seq(
+        tokens.get(Tokens.saoStartNumber).map(token =>
+          matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          ).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
+        tokens.get(Tokens.saoStartSuffix).map(token =>
+          matchQuery(
+            field = "lpi.saoStartSuffix",
+            value = token
+          ).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)),
+        tokens.get(Tokens.saoEndNumber).map(token =>
+          matchQuery(
+            field = "lpi.saoEndNumber",
+            value = token
+          ).boost(queryParams.subBuildingName.lpiSaoEndNumberBoost)),
+        tokens.get(Tokens.saoEndSuffix).map(token =>
+          matchQuery(
+            field = "lpi.saoEndSuffix",
+            value = token
+          ).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost))
+      ).flatten
+
+    val subBuildingNameQuery =
+      Seq(
+        tokens.get(Tokens.subBuildingName).map(token =>
+          matchQuery(
+            field = "paf.subBuildingName",
+            value = token
+          ).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
+        tokens.get(Tokens.subBuildingName).map(token =>
+          matchQuery(
+            field = "lpi.saoText",
+            value = token
+          ).boost(queryParams.subBuildingName.lpiSaoTextBoost))
+      ).flatten
+
+    val paoQuery =
+      Seq(
+        tokens.get(Tokens.paoStartNumber).map(token =>
+          matchQuery(
+            field = "lpi.paoStartNumber",
+            value = token
+          ).boost(queryParams.buildingName.lpiPaoStartNumberBoost)),
+        tokens.get(Tokens.paoStartSuffix).map(token =>
+          matchQuery(
+            field = "lpi.paoStartSuffix",
+            value = token
+          ).boost(queryParams.buildingName.lpiPaoStartSuffixBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+          matchQuery(
+            field = "lpi.paoEndNumber",
+            value = token
+          ).boost(queryParams.buildingName.lpiPaoEndNumberBoost)),
+        tokens.get(Tokens.paoEndSuffix).map(token =>
+          matchQuery(
+            field = "lpi.paoEndSuffix",
+            value = token
+          ).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
+      ).flatten
+
+    val buildingNameQuery =
+      Seq(
+        tokens.get(Tokens.buildingName).map(token =>
+          matchQuery(
+            field = "paf.buildingName",
+            value = token
+          ).boost(queryParams.buildingName.pafBuildingNameBoost)),
+        tokens.get(Tokens.buildingName).map(token =>
+          matchQuery(
+            field = "lpi.paoText",
+            value = token
+          ).boost(queryParams.buildingName.lpiPaoTextBoost))
+      ).flatten.map(_.fuzziness("AUTO"))
+
+
+    val buildingNumberQuery =
+      Seq(
+        tokens.get(Tokens.buildingNumber).map(token =>
+          matchQuery(
+            field = "paf.buildingNumber",
+            value = token
+          ).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
+        tokens.get(Tokens.buildingNumber).map(token =>
+          matchQuery(
+            field = "lpi.paoStartNumber",
+            value = token
+          ).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost))
+      ).flatten
+
+    val streetNameQuery =
+      Seq(
+        tokens.get(Tokens.streetName).map(token =>
+          matchQuery(
+            field = "paf.thoroughfare",
+            value = token
+          ).boost(queryParams.streetName.pafThoroughfareBoost)),
+        tokens.get(Tokens.streetName).map(token =>
+          matchQuery(
+            field = "paf.welshThoroughfare",
+            value = token
+          ).boost(queryParams.streetName.pafWelshThoroughfareBoost)),
+        tokens.get(Tokens.streetName).map(token =>
+          matchQuery(
+            field = "paf.dependentThoroughfare",
+            value = token
+          ).boost(queryParams.streetName.pafDependentThoroughfareBoost)),
+        tokens.get(Tokens.streetName).map(token =>
+          matchQuery(
+            field = "paf.welshDependentThoroughfare",
+            value = token
+          ).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost)),
+        tokens.get(Tokens.streetName).map(token =>
+          matchQuery(
+            field = "lpi.streetDescriptor",
+            value = token
+          ).boost(queryParams.streetName.lpiStreetDescriptorBoost))
+      ).flatten.map(_.fuzziness("2"))
+
+    val townNameQuery =
+      Seq(
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "paf.postTown",
+            value = token
+          ).boost(queryParams.townName.pafPostTownBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "paf.welshPostTown",
+            value = token
+          ).boost(queryParams.townName.pafWelshPostTownBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "lpi.townName",
+            value = token
+          ).boost(queryParams.townName.lpiTownNameBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "paf.dependentLocality",
+            value = token
+          ).boost(queryParams.townName.pafDependentLocalityBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "paf.welshDependentLocality",
+            value = token
+          ).boost(queryParams.townName.pafWelshDependentLocalityBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "lpi.locality",
+            value = token
+          ).boost(queryParams.townName.lpiLocalityBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "paf.doubleDependentLocality",
+            value = token
+          ).boost(queryParams.townName.pafDoubleDependentLocalityBoost)),
+        tokens.get(Tokens.townName).map(token =>
+          matchQuery(
+            field = "paf.welshDoubleDependentLocality",
+            value = token
+          ).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
+      ).flatten.map(_.fuzziness("2"))
+
+    val postcodeQuery =
+      Seq(
+        tokens.get(Tokens.postcode).map(token =>
+          matchQuery(
+            field = "paf.postcode",
+            value = token
+          ).boost(queryParams.postcode.pafPostcodeBoost)),
+        tokens.get(Tokens.postcode).map(token =>
+          matchQuery(
+            field = "lpi.postcodeLocator",
+            value = token
+          ).boost(queryParams.postcode.lpiPostcodeLocatorBoost))
+      ).flatten
+
+    val postcodeInOutQuery =
+      Seq(
+        tokens.get(Tokens.postcodeOut).map(token =>
+          matchQuery(
+            field = "postcodeOut",
+            value = token
+          ).boost(queryParams.postcode.postcodeOutBoost).fuzziness("1")),
+        tokens.get(Tokens.postcodeIn).map(token =>
+          matchQuery(
+            field = "postcodeIn",
+            value = token
+          ).boost(queryParams.postcode.postcodeInBoost).fuzziness("2"))
+      ).flatten
+
+    val organisationNameQuery =
+      Seq(
+        tokens.get(Tokens.organisationName).map(token =>
+          matchQuery(
+            field = "paf.organizationName",
+            value = token
+          ).boost(queryParams.organisationName.pafOrganisationNameBoost)),
+        tokens.get(Tokens.organisationName).map(token =>
+          matchQuery(
+            field = "lpi.organisation",
+            value = token
+          ).boost(queryParams.organisationName.lpiOrganisationBoost)),
+        tokens.get(Tokens.organisationName).map(token =>
+          matchQuery(
+            field = "lpi.paoText",
+            value = token
+          ).boost(queryParams.organisationName.lpiPaoTextBoost)),
+        tokens.get(Tokens.organisationName).map(token =>
+          matchQuery(
+            field = "lpi.legalName",
+            value = token
+          ).boost(queryParams.organisationName.lpiLegalNameBoost)),
+        tokens.get(Tokens.organisationName).map(token =>
+          matchQuery(
+            field = "lpi.saoText",
+            value = token
+          ).boost(queryParams.organisationName.lpiSaoTextBoost))
+      ).flatten
+
+    val departmentNameQuery =
+      Seq(
+        tokens.get(Tokens.departmentName).map(token =>
+          matchQuery(
+            field = "paf.departmentName",
+            value = token
+          ).boost(queryParams.departmentName.pafDepartmentNameBoost)),
+        tokens.get(Tokens.departmentName).map(token =>
+          matchQuery(
+            field = "lpi.legalName",
+            value = token
+          ).boost(queryParams.departmentName.lpiLegalNameBoost))
+      ).flatten
+
+    val localityQuery =
+      Seq(
+        tokens.get(Tokens.locality).map(token =>
+          matchQuery(
+            field = "paf.dependentLocality",
+            value = token
+          ).boost(queryParams.locality.pafDependentLocalityBoost)),
+        tokens.get(Tokens.locality).map(token =>
+          matchQuery(
+            field = "paf.welshDependentLocality",
+            value = token
+          ).boost(queryParams.locality.pafWelshDependentLocalityBoost)),
+        tokens.get(Tokens.locality).map(token =>
+          matchQuery(
+            field = "lpi.locality",
+            value = token
+          ).boost(queryParams.locality.lpiLocalityBoost)),
+        tokens.get(Tokens.locality).map(token =>
+          matchQuery(
+            field = "paf.doubleDependentLocality",
+            value = token
+          ).boost(queryParams.locality.pafDoubleDependentLocalityBoost)),
+        tokens.get(Tokens.locality).map(token =>
+          matchQuery(
+            field = "paf.welshDoubleDependentLocality",
+            value = token
+          ).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
+      ).flatten.map(_.fuzziness("2"))
+
+    val allQuery =
+      Seq(
+        matchQuery(
+          field = "paf.pafAll",
+          value = originalInput
+        ).boost(queryParams.pafAllBoost),
+        matchQuery(
+          field = "lpi.nagAll",
+          value = originalInput
+        ).boost(queryParams.nagAllBoost)
+      )
 
     val query =
-      bool {
-        should(Seq(
-          tokens.get(Tokens.buildingNumber).map(token =>
-            matchQuery(
-              field = "lpi.paoStartNumber",
-              value = token
-            ).boost(queryParams.paoStartNumberBuildingNumberLpiBoost)),
-          tokens.get(Tokens.paoStartNumber).map(token =>
-            matchQuery(
-              field = "lpi.paoStartNumber",
-              value = token
-            ).boost(queryParams.paoStartNumberPaoLpiBoost)),
-          tokens.get(Tokens.paoStartSuffix).map(token =>
-            matchQuery(
-              field = "lpi.paoStartSuffix",
-              value = token
-            ).boost(queryParams.paoStartSuffixLpiBoost)),
-          tokens.get(Tokens.paoEndNumber).map(token =>
-            matchQuery(
-              field = "lpi.paoEndNumber",
-              value = token
-            ).boost(queryParams.paoEndNumberLpiBoost)),
-          tokens.get(Tokens.locality).map(token =>
-            matchQuery(
-              field = "lpi.locality",
-              value = token
-            )),
-          tokens.get(Tokens.organisationName).map(token =>
-            matchQuery(
-              field = "lpi.organisation",
-              value = token
-            ).boost(queryParams.organisationNameOrganisationLpiBoost)),
-          tokens.get(Tokens.organisationName).map(token =>
-            matchQuery(
-              field = "lpi.legalName",
-              value = token
-            ).boost(queryParams.organisationNameLegalNameLpiBoost)),
-          tokens.get(Tokens.organisationName).map(token =>
-            matchQuery(
-              field = "lpi.paoText",
-              value = token
-            ).boost(queryParams.organisationNamePaoTextLpiBoost)),
-          tokens.get(Tokens.organisationName).map(token =>
-            matchQuery(
-              field = "lpi.saoText",
-              value = token
-            ).boost(queryParams.organisationNameSaoTextLpiBoost)),
-          tokens.get(Tokens.subBuildingName).map(token =>
-            matchQuery(
-              field = "lpi.saoText",
-              value = token
-            ).boost(queryParams.subBuildingNameLpiBoost)),
-          tokens.get(Tokens.buildingName).map(token =>
-            matchQuery(
-              field = "lpi.paoText",
-              value = token
-            )),
-          tokens.get(Tokens.streetName).map(token =>
-            fuzzyQuery(
-              name = "lpi.streetDescriptor",
-              value = token
-            ).boost(queryParams.streetNameLpiBoost).fuzziness(Fuzziness.TWO)),
-          tokens.get(Tokens.townName).map(token =>
-            matchQuery(
-              field = "lpi.townName",
-              value = token
-            )),
-          tokens.get(Tokens.postcode).map(token =>
-            matchQuery(
-              field = "lpi.postcodeLocator",
-              value = token
-            )),
-          tokens.get(Tokens.buildingNumber).map(token =>
-            matchQuery(
-              field = "paf.buildingNumber",
-              value = token
-            ).boost(queryParams.buildingNumberPafBoost)),
-          tokens.get(Tokens.organisationName).map(token =>
-            matchQuery(
-              field = "paf.organizationName",
-              value = token
-            )),
-          tokens.get(Tokens.departmentName).map(token =>
-            matchQuery(
-              field = "paf.departmentName",
-              value = token
-            )),
-          tokens.get(Tokens.subBuildingName).map(token =>
-            matchQuery(
-              field = "paf.subBuildingName",
-              value = token
-            ).boost(queryParams.subBuildingNameSubBuildingPafBoost)),
-          tokens.get(Tokens.subBuildingName).map(token =>
-            matchQuery(
-              field = "paf.buildingName",
-              value = token
-            ).boost(queryParams.subBuildingNameBuildingPafBoost)),
-          tokens.get(Tokens.buildingName).map(token =>
-            matchQuery(
-              field = "paf.buildingName",
-              value = token
-            )),
-          tokens.get(Tokens.streetName).map(token =>
-            fuzzyQuery(
-              name = "paf.thoroughfare",
-              value = token
-            ).boost(queryParams.streetNamePafBoost).fuzziness(Fuzziness.TWO)),
-          tokens.get(Tokens.townName).map(token =>
-            matchQuery(
-              field = "paf.postTown",
-              value = token
-            )),
-          tokens.get(Tokens.postcode).map(token =>
-            matchQuery(
-              field = "paf.postcode",
-              value = token
-            )),
-          tokens.get(Tokens.locality).map(token =>
-            matchQuery(
-              field = "paf.dependentLocality",
-              value = token
-            )),
-          Some(
-            matchQuery(
-              field = "_all",
-              value = tokens.map(_.value).mkString(" ")
-            ).boost(queryParams.underlineAllBoost)
-          )
-        ).flatten)
-      }.minimumShouldMatch(queryParams.minimumShouldMatch)
+      bool(
+        must(Seq(
+          bool(must(saoQuery).should(subBuildingNameQuery)),
+          bool(must(paoQuery).should(buildingNameQuery)),
+          bool(should(buildingNumberQuery)),
+          bool(should(streetNameQuery)),
+          bool(should(townNameQuery)),
+          bool(must(postcodeQuery).should(postcodeInOutQuery))
+        )).should(Seq(
+          bool(should(organisationNameQuery)),
+          bool(should(departmentNameQuery)),
+          bool(should(localityQuery)),
+          bool(should(allQuery))
+        )).not()
+      )
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
 
@@ -240,7 +407,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(0, limit, requestData.tokens, requestData.inputAddress).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

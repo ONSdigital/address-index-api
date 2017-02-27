@@ -1,8 +1,5 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit}
-import uk.gov.ons.addressIndex.model.db.ElasticIndex
-
 /**
   * PAF Address DTO
   */
@@ -35,15 +32,14 @@ case class PostcodeAddressFileAddress(
   startDate: String,
   endDate: String,
   lastUpdateDate: String,
-  entryDate: String
+  entryDate: String,
+  pafAll: String
 )
 
 /**
   * PAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
-object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddress] {
-
-  val name: String = "PostcodeAddressFile"
+object PostcodeAddressFileAddress {
 
   object Fields {
 
@@ -79,48 +75,43 @@ object PostcodeAddressFileAddress extends ElasticIndex[PostcodeAddressFileAddres
     val endDate: String = "endDate"
     val lastUpdateDate: String = "lastUpdateDate"
     val entryDate: String = "entryDate"
+    val pafAll: String = "pafAll"
   }
 
+  def fromEsMap(paf: Map[String, AnyRef]): PostcodeAddressFileAddress = {
+    val filteredPaf = paf.filter { case (_, value) => value != null }
 
-  /**
-    * This is needed to directly transform a collection of objects returned by Elastic
-    * request into a collection of PAF addresses
-    */
-  implicit object PostcodeAddressFileAddressHitAs extends HitAs[PostcodeAddressFileAddress] {
-    import Fields._
-
-    override def as(hit: RichSearchHit): PostcodeAddressFileAddress = {
-      PostcodeAddressFileAddress(
-        hit.sourceAsMap(recordIdentifier).toString,
-        hit.sourceAsMap(changeType).toString,
-        hit.sourceAsMap(proOrder).toString,
-        hit.sourceAsMap(uprn).toString,
-        hit.sourceAsMap(udprn).toString,
-        hit.sourceAsMap(organizationName).toString,
-        hit.sourceAsMap(departmentName).toString,
-        hit.sourceAsMap(subBuildingName).toString,
-        hit.sourceAsMap(buildingName).toString,
-        hit.sourceAsMap(buildingNumber).toString,
-        hit.sourceAsMap(dependentThoroughfare).toString,
-        hit.sourceAsMap(thoroughfare).toString,
-        hit.sourceAsMap(doubleDependentLocality).toString,
-        hit.sourceAsMap(dependentLocality).toString,
-        hit.sourceAsMap(postTown).toString,
-        hit.sourceAsMap(postcode).toString,
-        hit.sourceAsMap(postcodeType).toString,
-        hit.sourceAsMap(deliveryPointSuffix).toString,
-        hit.sourceAsMap(welshDependentThoroughfare).toString,
-        hit.sourceAsMap(welshThoroughfare).toString,
-        hit.sourceAsMap(welshDoubleDependentLocality).toString,
-        hit.sourceAsMap(welshDependentLocality).toString,
-        hit.sourceAsMap(welshPostTown).toString,
-        hit.sourceAsMap(poBoxNumber).toString,
-        hit.sourceAsMap(processDate).toString,
-        hit.sourceAsMap(startDate).toString,
-        hit.sourceAsMap(endDate).toString,
-        hit.sourceAsMap(lastUpdateDate).toString,
-        hit.sourceAsMap(entryDate).toString
-      )
-    }
+    PostcodeAddressFileAddress(
+      recordIdentifier = filteredPaf.getOrElse(Fields.recordIdentifier, "").toString,
+      changeType = filteredPaf.getOrElse(Fields.changeType, "").toString,
+      proOrder = filteredPaf.getOrElse(Fields.proOrder, "").toString,
+      uprn = filteredPaf.getOrElse(Fields.uprn, "").toString,
+      udprn = filteredPaf.getOrElse(Fields.udprn, "").toString,
+      organizationName = filteredPaf.getOrElse(Fields.organizationName, "").toString,
+      departmentName = filteredPaf.getOrElse(Fields.departmentName, "").toString,
+      subBuildingName = filteredPaf.getOrElse(Fields.subBuildingName, "").toString,
+      buildingName = filteredPaf.getOrElse(Fields.buildingName, "").toString,
+      buildingNumber = filteredPaf.getOrElse(Fields.buildingNumber, "").toString,
+      dependentThoroughfare = filteredPaf.getOrElse(Fields.dependentThoroughfare, "").toString,
+      thoroughfare = filteredPaf.getOrElse(Fields.thoroughfare, "").toString,
+      doubleDependentLocality = filteredPaf.getOrElse(Fields.doubleDependentLocality, "").toString,
+      dependentLocality = filteredPaf.getOrElse(Fields.dependentLocality, "").toString,
+      postTown = filteredPaf.getOrElse(Fields.postTown, "").toString,
+      postcode = filteredPaf.getOrElse(Fields.postcode, "").toString,
+      postcodeType = filteredPaf.getOrElse(Fields.postcodeType, "").toString,
+      deliveryPointSuffix = filteredPaf.getOrElse(Fields.deliveryPointSuffix, "").toString,
+      welshDependentThoroughfare = filteredPaf.getOrElse(Fields.welshDependentThoroughfare, "").toString,
+      welshThoroughfare = filteredPaf.getOrElse(Fields.welshThoroughfare, "").toString,
+      welshDoubleDependentLocality = filteredPaf.getOrElse(Fields.welshDoubleDependentLocality, "").toString,
+      welshDependentLocality = filteredPaf.getOrElse(Fields.welshDependentLocality, "").toString,
+      welshPostTown = filteredPaf.getOrElse(Fields.welshPostTown, "").toString,
+      poBoxNumber = filteredPaf.getOrElse(Fields.poBoxNumber, "").toString,
+      processDate = filteredPaf.getOrElse(Fields.processDate, "").toString,
+      startDate = filteredPaf.getOrElse(Fields.startDate, "").toString,
+      endDate = filteredPaf.getOrElse(Fields.endDate, "").toString,
+      lastUpdateDate = filteredPaf.getOrElse(Fields.lastUpdateDate, "").toString,
+      entryDate = filteredPaf.getOrElse(Fields.entryDate, "").toString,
+      pafAll = filteredPaf.getOrElse(Fields.pafAll, "").toString
+    )
   }
 }

@@ -48,7 +48,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     startDate = "26",
     endDate = "27",
     lastUpdateDate = "28",
-    entryDate = "29"
+    entryDate = "29",
+    pafAll = "30"
   )
 
   val validNagAddress = NationalAddressGazetteerAddress(
@@ -76,14 +77,28 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     saoEndSuffix = "15",
     level = "16",
     officialFlag = "17",
-    logicalStatus = "18",
     streetDescriptor = "19",
     townName = "20",
-    locality = "21"
+    locality = "21",
+    lpiLogicalStatus = "lpiLogicalStatus",
+    blpuLogicalStatus = "blpuLogicalStatus",
+    source = "source",
+    usrnMatchIndicator = "usrnMatchIndicator",
+    parentUprn = "parentUprn",
+    crossReference = "crossReference",
+    streetClassification = "streetClassification",
+    multiOccCount = "multiOccCount",
+    language = "language",
+    classScheme = "classScheme",
+    localCustodianCode = "localCustodianCode",
+    rpc = "rpc",
+    nagAll = "nagAll"
   )
 
   val validHybridAddress = HybridAddress(
     uprn = "1",
+    postcodeIn = "2",
+    postcodeOut = "3",
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
     score = 1f
@@ -96,7 +111,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -113,7 +128,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -128,7 +143,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
@@ -148,7 +163,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.failed(new Exception("test failure"))
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())

@@ -48,6 +48,24 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "NOT transform buildingNumber if it is not a number" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "not a number",
+        label = Tokens.buildingNumber
+      )
+    )
+
+    val expected = Map.empty[String, Seq[CrfTokenResult]]
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "transform buildingNumber and buildingName into paoStartNumber and paoStartSuffix" in {
     // Given
     val input = List(

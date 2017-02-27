@@ -27,25 +27,33 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridIndex = config.config.elasticSearch.indexes.hybridIndex
   val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
 
-  val hybridFirstUprn = "uprn1"
+  val hybridFirstUprn = 1L
+  val hybridFirstPostcodeIn = "h01p"
+  val hybridFirstPostcodeOut = "h02p"
 
   // Fields that are not in this list are not used for search
-  val hybridPafUprn = "h1"
+  val hybridPafUprn = 1L
   val hybridPafOrganizationName = "h2"
   val hybridPafDepartmentName = "h3"
   val hybridPafSubBuildingName = "h4"
   val hybridPafBuildingName = "h5"
-  val hybridPafBuildingNumber = "h6"
+  val hybridPafBuildingNumber = 6.toShort
   val hybridPafThoroughfare = "h7"
   val hybridPafPostTown = "h8"
   val hybridPafPostcode = "h9"
+  val hybridAll = "h100"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
   val hybridNagPostcodeLocator = hybridPafPostcode
-  val hybridNagPaoStartNumber = "h13"
+  val hybridNagPaoStartNumber = 13.toShort
   val hybridNagPaoStartSuffix = "h11"
-  val hybridNagPaoEndNumber = "h12"
+  val hybridNagPaoEndNumber = 12.toShort
+  val hybridNagPaoEndSuffix = "h14"
+  val hybridNagSaoStartNumber = 15.toShort
+  val hybridNagSaoStartSuffix = "h16"
+  val hybridNagSaoEndNumber = 17.toShort
+  val hybridNagSaoEndSuffix = "h18"
   val hybridNagLocality = "h10"
   val hybridNagOrganisation = hybridPafOrganizationName
   val hybridNagLegalName = hybridPafOrganizationName
@@ -53,35 +61,44 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagPaoText = hybridPafBuildingName
   val hybridNagStreetDescriptor = hybridPafThoroughfare
   val hybridNagTownName = hybridPafPostTown
-  val hybridNagLatitude = "1.0000000"
-  val hybridNagLongitude = "2.0000000"
-  val hybridNagNorthing = "3"
-  val hybridNagEasting = "4"
+  val hybridNagLatitude = 1.0000000f
+  val hybridNagLongitude = 2.0000000f
+  val hybridNagNorthing = 3f
+  val hybridNagEasting = 4f
 
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
+  val hybridNotUsedNull = null
 
   // Secondary PAF/NAG is used for single search (to have some "concurrence" for the main address)
   // and in the Multi Search
-  val hybridSecondaryUprn = "uprn2"
+  val hybridSecondaryUprn = 2L
+  val hybridSecondaryPostcodeIn = "s01p"
+  val hybridSecondaryPostcodeOut = "s02p"
 
   // Fields that are not in this list are not used for search
-  val secondaryHybridPafUprn = "s1"
+  val secondaryHybridPafUprn = 2L
   val secondaryHybridPafOrganizationName = "s2"
   val secondaryHybridPafDepartmentName = "s3"
   val secondaryHybridPafSubBuildingName = "s4"
   val secondaryHybridPafBuildingName = "s5"
-  val secondaryHybridPafBuildingNumber = "s6"
+  val secondaryHybridPafBuildingNumber = 7.toShort
   val secondaryHybridPafThoroughfare = "s7"
   val secondaryHybridPafPostTown = "s8"
   val secondaryHybridPafPostcode = "s9"
+  val secondaryHybridAll = "s200"
 
   // Fields that are not in this list are not used for search
   val secondaryHybridNagUprn = secondaryHybridPafUprn
   val secondaryHybridNagPostcodeLocator = secondaryHybridPafPostcode
-  val secondaryHybridNagPaoStartNumber = "s13"
+  val secondaryHybridNagPaoStartNumber = 20.toShort
   val secondaryHybridNagPaoStartSuffix = "s11"
-  val secondaryHybridNagPaoEndNumber = "s12"
+  val secondaryHybridNagPaoEndNumber = 21.toShort
+  val secondaryHybridNagPaoEndSuffix = "s14"
+  val secondaryHybridNagSaoStartNumber = 22.toShort
+  val secondaryHybridNagSaoStartSuffix = "s16"
+  val secondaryHybridNagSaoEndNumber = 23.toShort
+  val secondaryHybridNagSaoEndSuffix = "s18"
   val secondaryHybridNagLocality = "s10"
   val secondaryHybridNagOrganisation = secondaryHybridPafOrganizationName
   val secondaryHybridNagLegalName = secondaryHybridPafOrganizationName
@@ -89,17 +106,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagPaoText = secondaryHybridPafBuildingName
   val secondaryHybridNagStreetDescriptor = secondaryHybridPafThoroughfare
   val secondaryHybridNagTownName = secondaryHybridPafPostTown
-  val secondaryHybridNagLatitude = "3.0000000"
-  val secondaryHybridNagLongitude = "4.0000000"
-  val secondaryHybridNagNorthing = "5"
-  val secondaryHybridNagEasting = "6"
+  val secondaryHybridNagLatitude = 7.0000000f
+  val secondaryHybridNagLongitude = 8.0000000f
+  val secondaryHybridNagNorthing = 9f
+  val secondaryHybridNagEasting = 10f
 
   val firstHybridPafEs = Map(
-    "recordIdentifier" -> hybridNotUsed,
+    "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
-    "proOrder" -> hybridNotUsed,
+    "proOrder" -> hybridNotUsedNull,
     "uprn" -> hybridPafUprn,
-    "udprn" -> hybridNotUsed,
+    "udprn" -> hybridNotUsedNull,
     "organizationName" -> hybridPafOrganizationName,
     "departmentName" -> hybridPafDepartmentName,
     "subBuildingName" -> hybridPafSubBuildingName,
@@ -123,15 +140,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "startDate" -> hybridNotUsed,
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
-    "entryDate" ->hybridNotUsed
+    "entryDate" -> hybridNotUsed,
+    "pafAll" -> hybridAll
   )
 
   val secondHybridPafEs = Map(
-    "recordIdentifier" -> hybridNotUsed,
+    "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
-    "proOrder" -> hybridNotUsed,
+    "proOrder" -> hybridNotUsedNull,
     "uprn" -> hybridSecondaryUprn,
-    "udprn" -> hybridNotUsed,
+    "udprn" -> hybridNotUsedNull,
     "organizationName" -> secondaryHybridPafOrganizationName,
     "departmentName" -> secondaryHybridPafDepartmentName,
     "subBuildingName" -> secondaryHybridPafSubBuildingName,
@@ -155,80 +173,108 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "startDate" -> hybridNotUsed,
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
-    "entryDate" ->hybridNotUsed
+    "entryDate" ->hybridNotUsed,
+    "pafAll" -> secondaryHybridAll
   )
 
-  val firstHybridNagEs = Map(
+  val firstHybridNagEs: Map[String, Any] = Map(
     "uprn" -> hybridNagUprn,
     "postcodeLocator" -> hybridNagPostcodeLocator,
     "addressBasePostal" -> hybridNotUsed,
-    "usrn" -> hybridNotUsed,
+    "usrn" -> hybridNotUsedNull,
     "lpiKey" -> hybridNotUsed,
     "paoText" -> hybridNagPaoText,
     "paoStartNumber" -> hybridNagPaoStartNumber,
     "paoStartSuffix" -> hybridNotUsed,
-    "paoEndNumber" -> hybridNotUsed,
+    "paoEndNumber" -> hybridNotUsedNull,
     "paoEndSuffix" -> hybridNotUsed,
     "saoText" -> hybridNagSaoText,
-    "saoStartNumber" -> hybridNotUsed,
+    "saoStartNumber" -> hybridNotUsedNull,
     "saoStartSuffix" -> hybridNotUsed,
-    "saoEndNumber" -> hybridNotUsed,
+    "saoEndNumber" -> hybridNotUsedNull,
     "saoEndSuffix" -> hybridNotUsed,
     "level" -> hybridNotUsed,
     "officialFlag" -> hybridNotUsed,
-    "logicalStatus" -> hybridNotUsed,
     "streetDescriptor" -> hybridNagStreetDescriptor,
     "townName" -> hybridNagTownName,
     "locality" -> hybridNagLocality,
     "organisation" -> hybridNagOrganisation,
     "legalName" -> hybridNagLegalName,
-    "latitude" -> hybridNagLatitude,
-    "longitude" -> hybridNagLongitude,
     "northing" -> hybridNagNorthing,
     "easting" -> hybridNagEasting,
-    "classificationCode" -> hybridNotUsed
+    "classificationCode" -> hybridNotUsed,
+    "source" -> hybridNotUsed,
+    "usrnMatchIndicator" -> hybridNotUsed,
+    "parentUprn" -> hybridNotUsedNull,
+    "crossReference" -> hybridNotUsed,
+    "streetClassification" -> hybridNotUsedNull,
+    "blpuLogicalStatus" -> hybridNotUsedNull,
+    "lpiLogicalStatus" -> hybridNotUsedNull,
+    "multiOccCount" -> hybridNotUsedNull,
+    "location" -> Array(hybridNagLongitude, hybridNagLatitude),
+    "language" -> hybridNotUsed,
+    "classScheme" -> hybridNotUsed,
+    "localCustodianCode" -> hybridNotUsedNull,
+    "rpc" -> hybridNotUsedNull,
+    "nagAll" -> hybridAll
   )
 
-  val secondHybridNagEs = Map(
+  val secondHybridNagEs: Map[String, Any] = Map(
     "uprn" -> hybridSecondaryUprn,
     "postcodeLocator" -> secondaryHybridNagPostcodeLocator,
     "addressBasePostal" -> hybridNotUsed,
-    "usrn" -> hybridNotUsed,
+    "usrn" -> hybridNotUsedNull,
     "lpiKey" -> hybridNotUsed,
     "paoText" -> secondaryHybridNagPaoText,
     "paoStartNumber" -> secondaryHybridNagPaoStartNumber,
     "paoStartSuffix" -> hybridNotUsed,
-    "paoEndNumber" -> hybridNotUsed,
+    "paoEndNumber" -> hybridNotUsedNull,
     "paoEndSuffix" -> hybridNotUsed,
     "saoText" -> secondaryHybridNagSaoText,
-    "saoStartNumber" -> hybridNotUsed,
+    "saoStartNumber" -> hybridNotUsedNull,
     "saoStartSuffix" -> hybridNotUsed,
-    "saoEndNumber" -> hybridNotUsed,
+    "saoEndNumber" -> hybridNotUsedNull,
     "saoEndSuffix" -> hybridNotUsed,
     "level" -> hybridNotUsed,
     "officialFlag" -> hybridNotUsed,
-    "logicalStatus" -> hybridNotUsed,
     "streetDescriptor" -> secondaryHybridNagStreetDescriptor,
     "townName" -> secondaryHybridNagTownName,
     "locality" -> secondaryHybridNagLocality,
     "organisation" -> secondaryHybridNagOrganisation,
     "legalName" -> secondaryHybridNagLegalName,
-    "latitude" -> secondaryHybridNagLatitude,
-    "longitude" -> secondaryHybridNagLongitude,
     "northing" -> secondaryHybridNagNorthing,
     "easting" -> secondaryHybridNagEasting,
-    "classificationCode" -> hybridNotUsed
+    "classificationCode" -> hybridNotUsed,
+    "source" -> hybridNotUsed,
+    "usrnMatchIndicator" -> hybridNotUsed,
+    "parentUprn" -> hybridNotUsedNull,
+    "crossReference" -> hybridNotUsed,
+    "streetClassification" -> hybridNotUsedNull,
+    "blpuLogicalStatus" -> hybridNotUsedNull,
+    "lpiLogicalStatus" -> hybridNotUsedNull,
+    "multiOccCount" -> hybridNotUsedNull,
+    "location" -> Array(secondaryHybridNagLongitude, secondaryHybridNagLatitude),
+    "nagAll" -> hybridNotUsed,
+    "language" -> hybridNotUsed,
+    "classScheme" -> hybridNotUsed,
+    "localCustodianCode" -> hybridNotUsedNull,
+    "rpc" -> hybridNotUsedNull,
+    "nagAll" -> secondaryHybridAll
   )
 
-  val firstHybridEs = Map(
+  val firstHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridFirstUprn,
+    "postcodeIn" -> hybridFirstPostcodeIn,
+    "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs)
   )
 
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
-  val secondHybridEs = Map(
-    "uprn" -> "uprn2",
+  val secondHybridEs: Map[String, Any] = Map(
+    "uprn" -> hybridSecondaryUprn,
+    "postcodeIn" -> hybridSecondaryPostcodeIn,
+    "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs)
   )
@@ -246,13 +292,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridPafUprn,
+    hybridPafUprn.toString,
     hybridNotUsed,
     hybridPafOrganizationName,
     hybridPafDepartmentName,
     hybridPafSubBuildingName,
     hybridPafBuildingName,
-    hybridPafBuildingNumber,
+    hybridPafBuildingNumber.toString,
     hybridNotUsed,
     hybridPafThoroughfare,
     hybridNotUsed,
@@ -271,24 +317,25 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed
+    hybridNotUsed,
+    hybridAll
   )
 
   val expectedNag = NationalAddressGazetteerAddress(
-    hybridNagUprn,
+    hybridNagUprn.toString,
     hybridNagPostcodeLocator,
     hybridNotUsed,
-    hybridNagLatitude,
-    hybridNagLongitude,
-    hybridNagEasting,
-    hybridNagNorthing,
+    hybridNagLatitude.toString,
+    hybridNagLongitude.toString,
+    hybridNagEasting.toString,
+    hybridNagNorthing.toString,
     hybridNagOrganisation,
     hybridNagLegalName,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
     hybridNagPaoText,
-    hybridNagPaoStartNumber,
+    hybridNagPaoStartNumber.toString,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
@@ -299,10 +346,31 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed,
     hybridNagStreetDescriptor,
     hybridNagTownName,
-    hybridNagLocality
+    hybridNagLocality,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridAll
+  )
+
+  val expectedHybrid = HybridAddress(
+    uprn = hybridFirstUprn.toString,
+    postcodeIn = hybridFirstPostcodeIn,
+    postcodeOut = hybridFirstPostcodeOut,
+    lpi = Seq(expectedNag),
+    paf = Seq(expectedPaf),
+    score = 1.0f
   )
 
   "Elastic repository" should {
@@ -315,7 +383,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         {
           "query" : {
             "term" : {
-            "uprn" : "uprn1"
+            "uprn" : "1"
           }
           }
         }
@@ -323,7 +391,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val result = Json.parse(repository.generateQueryUprnRequest(hybridFirstUprn).toString)
+      val result = Json.parse(repository.generateQueryUprnRequest(hybridFirstUprn.toString).toString)
 
       // Then
       result shouldBe expected
@@ -332,41 +400,32 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find HYBRID address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expectedHybrid = HybridAddress(
-        uprn = hybridFirstUprn,
-        lpi = Seq(expectedNag),
-        paf = Seq(expectedPaf),
-        score = 1.0f
-      )
       val expected = Some(expectedHybrid)
 
       // When
-      val result = repository.queryUprn(hybridFirstUprn).await
+      val result = repository.queryUprn(hybridFirstUprn.toString).await
 
       // Then
+      result.get.lpi.head shouldBe expectedNag
+      result.get.paf.head shouldBe expectedPaf
       result shouldBe expected
     }
 
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Map(
-        Tokens.buildingNumber -> hybridNagPaoStartNumber,
+      val tokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber.toString,
         Tokens.locality -> hybridNagLocality,
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator
       )
-      val expectedScore = 0.4f
+      val expectedScore = 2.3f
 
-      val expected = HybridAddress(
-        uprn = hybridFirstUprn,
-        lpi = Seq(expectedNag),
-        paf = Seq(expectedPaf),
-        score = 0f
-      )
+      val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, hybridAll).await
 
       // Then
       results.length shouldBe 1
@@ -384,11 +443,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val tokens = Map(
-        Tokens.buildingNumber -> "SomeStringThatWontHaveAnyResult"
+        Tokens.buildingNumber -> "9999"
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, "9999").await
 
       // Then
       results.length shouldBe 0
@@ -399,14 +458,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "generate valid query for search by tokens" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val tokens = Map(
-        Tokens.buildingNumber -> hybridPafBuildingNumber,
-        Tokens.paoStartNumber -> hybridNagPaoStartNumber,
+      val tokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> hybridPafBuildingNumber.toString,
+        Tokens.paoStartNumber -> hybridNagPaoStartNumber.toString,
         Tokens.paoStartSuffix -> hybridNagPaoStartSuffix,
-        Tokens.paoEndNumber -> hybridNagPaoEndNumber,
+        Tokens.paoEndNumber -> hybridNagPaoEndNumber.toString,
+        Tokens.paoEndSuffix -> hybridNagPaoEndSuffix,
+        Tokens.saoStartNumber -> hybridNagSaoStartNumber.toString,
+        Tokens.saoStartSuffix -> hybridNagSaoStartSuffix,
+        Tokens.saoEndNumber -> hybridNagSaoEndNumber.toString,
+        Tokens.saoEndSuffix -> hybridNagSaoEndSuffix,
         Tokens.locality -> hybridNagLocality,
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator,
+        Tokens.postcodeIn -> hybridFirstPostcodeIn,
+        Tokens.postcodeOut -> hybridFirstPostcodeOut,
         Tokens.departmentName -> hybridPafDepartmentName,
         Tokens.subBuildingName -> hybridPafSubBuildingName,
         Tokens.buildingName -> hybridPafBuildingName,
@@ -415,210 +481,445 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       val expected = Json.parse(
-        s"""
-          {
-            "query" : {
-              "bool" : {
-                "should" : [ {
-                  "match" : {
-                    "lpi.paoStartNumber" : {
-                      "query" : "$hybridPafBuildingNumber",
-                      "type" : "boolean",
-                      "boost" : 5.0
+       s"""
+        {
+        	"query": {
+        		"bool": {
+        			"must": [{
+        				"bool": {
+          	      "must": [{
+          					"match": {
+          						"lpi.saoStartNumber": {
+          							"query": "$hybridNagSaoStartNumber",
+           							"type": "boolean",
+             						"boost": 1
+             					}
+             				}
+             			}, {
+             				"match": {
+            					"lpi.saoStartSuffix": {
+             						"query": "$hybridNagSaoStartSuffix",
+               					"type": "boolean",
+               					"boost": 1
+               				}
+               		  }
+               		}, {
+                    "match": {
+               				"lpi.saoEndNumber": {
+               					"query": "$hybridNagSaoEndNumber",
+                				"type": "boolean",
+                 				"boost": 1
+                			}
+                 		}
+                 	}, {
+               			"match": {
+               				"lpi.saoEndSuffix": {
+               				  "query": "$hybridNagSaoEndSuffix",
+               				  "type": "boolean",
+               				  "boost": 1
+               			  }
                     }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoStartNumber" : {
-                      "query" : "$hybridNagPaoStartNumber",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoStartSuffix" : {
-                      "query" : "$hybridNagPaoStartSuffix",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoEndNumber" : {
-                      "query" : "$hybridNagPaoEndNumber",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.locality" : {
-                      "query" : "$hybridNagLocality",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.organisation" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.legalName" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoText" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.saoText" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.paoText" : {
-                      "query" : "$hybridPafBuildingName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "fuzzy" : {
-                    "lpi.streetDescriptor" : {
-                      "value" : "$hybridPafThoroughfare",
-                      "fuzziness" : "2",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.townName" : {
-                      "query" : "$hybridPafPostTown",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "lpi.postcodeLocator" : {
-                      "query" : "$hybridPafPostcode",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingNumber" : {
-                      "query" : "$hybridPafBuildingNumber",
-                      "type" : "boolean",
-                      "boost" : 5.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.organizationName" : {
-                      "query" : "$hybridPafOrganizationName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.departmentName" : {
-                      "query" : "$hybridPafDepartmentName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.subBuildingName" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingName" : {
-                      "query" : "$hybridPafSubBuildingName",
-                      "type" : "boolean",
-                      "boost" : 0.5
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.buildingName" : {
-                      "query" : "$hybridPafBuildingName",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "fuzzy" : {
-                    "paf.thoroughfare" : {
-                      "value" : "$hybridPafThoroughfare",
-                      "fuzziness" : "2",
-                      "boost" : 1.0
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.postTown" : {
-                      "query" : "$hybridPafPostTown",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.postcode" : {
-                      "query" : "$hybridPafPostcode",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "paf.dependentLocality" : {
-                      "query" : "$hybridNagLocality",
-                      "type" : "boolean"
-                    }
-                  }
-                }, {
-                  "match" : {
-                    "_all" : {
-                      "query" : "$hybridPafThoroughfare $hybridPafBuildingNumber $hybridNagPaoStartSuffix $hybridPafDepartmentName $hybridPafSubBuildingName $hybridPafPostTown $hybridPafPostcode $hybridNagPaoEndNumber $hybridPafOrganizationName $hybridNagLocality $hybridNagPaoStartNumber $hybridPafBuildingName",
-                      "type" : "boolean",
-                      "boost" : 30.0
-                    }
-                  }
-                } ],
-                "minimum_should_match" : "45%"
-              }
-            }
-          }
-        """
+               		}],
+        					"should": [{
+        						"match": {
+        							"paf.subBuildingName": {
+        								"query": "$hybridPafSubBuildingName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.saoText": {
+        								"query": "$hybridPafSubBuildingName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}]
+         				}
+        			}, {
+        				"bool": {
+        					"must": [{
+        						"match": {
+        							"lpi.paoStartNumber": {
+        								"query": "$hybridNagPaoStartNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoStartSuffix": {
+        								"query": "$hybridNagPaoStartSuffix",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoEndNumber": {
+        								"query": "$hybridNagPaoEndNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoEndSuffix": {
+        								"query": "$hybridNagPaoEndSuffix",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}],
+         					"should": [{
+        						"match": {
+         							"paf.buildingName": {
+         								"query": "$hybridPafBuildingName",
+           							"type": "boolean",
+           							"boost": 1,
+                        "fuzziness":"AUTO"
+           						}
+           					}
+         					}, {
+         						"match": {
+         							"lpi.paoText": {
+         								"query": "$hybridPafBuildingName",
+            						"type": "boolean",
+                  			"boost": 1,
+                        "fuzziness":"AUTO"
+          						}
+          					}
+          				}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.buildingNumber": {
+        								"query": "$hybridPafBuildingNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoStartNumber": {
+        								"query": "$hybridPafBuildingNumber",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.thoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshThoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.dependentThoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDependentThoroughfare": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.streetDescriptor": {
+        								"query": "$hybridNagStreetDescriptor",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.postTown": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshPostTown": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.townName": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.dependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.locality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.doubleDependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.2,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDoubleDependentLocality": {
+        								"query": "$hybridNagTownName",
+        								"type": "boolean",
+        								"boost": 0.2,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"must": [{
+        						"match": {
+        							"paf.postcode": {
+        								"query": "$hybridNagPostcodeLocator",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.postcodeLocator": {
+        								"query": "$hybridNagPostcodeLocator",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}],
+        					"should": [{
+        						"match": {
+        							"postcodeOut": {
+        								"query": "$hybridFirstPostcodeOut",
+        								"type": "boolean",
+                        "boost": 0.8,
+                        "fuzziness": "1"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"postcodeIn": {
+        								"query": "$hybridFirstPostcodeIn",
+        								"type": "boolean",
+                        "boost": 0.3,
+                        "fuzziness": "2"
+        							}
+        						}
+        					}]
+        				}
+        			}],
+        			"should": [{
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.organizationName": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.organisation": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.paoText": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.legalName": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.saoText": {
+        								"query": "$hybridNagOrganisation",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.departmentName": {
+        								"query": "$hybridPafDepartmentName",
+        								"type": "boolean",
+        								"boost": 1
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.legalName": {
+        								"query": "$hybridPafDepartmentName",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.dependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.locality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 1,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.doubleDependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"paf.welshDoubleDependentLocality": {
+        								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.pafAll": {
+        								"query": "$hybridAll",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.nagAll": {
+        								"query": "$hybridAll",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}]
+        				}
+        			}]
+        		}
+        	}
+        }
+       """
       )
 
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens, hybridAll).toString)
 
       // Then
       result shouldBe expected
@@ -628,15 +929,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
-      val firstAddressTokens = Map(
-        Tokens.buildingNumber -> hybridNagPaoStartNumber,
+      val firstAddressTokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber.toString,
         Tokens.locality -> hybridNagLocality,
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator
       )
 
-      val secondAddressTokens = Map(
-        Tokens.buildingNumber -> secondaryHybridNagPaoStartNumber,
+      val secondAddressTokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> secondaryHybridNagPaoStartNumber.toString,
         Tokens.locality -> secondaryHybridNagLocality,
         Tokens.organisationName -> secondaryHybridNagOrganisation,
         Tokens.postcode -> secondaryHybridNagPostcodeLocator
@@ -657,8 +958,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       results.length shouldBe 2
       addresses.length shouldBe 2
 
-      addresses(0).hybridAddress.uprn shouldBe hybridFirstUprn
-      addresses(1).hybridAddress.uprn shouldBe hybridSecondaryUprn
+      addresses(0).hybridAddress.uprn shouldBe hybridFirstUprn.toString
+      addresses(1).hybridAddress.uprn shouldBe hybridSecondaryUprn.toString
     }
 
     "return empty BulkAddress if there were no results for an address" in {
@@ -666,11 +967,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
       val firstAddressTokens = Map(
-        Tokens.buildingNumber -> "ThisBuildingNumberDoesNotExist"
+        Tokens.buildingNumber -> "9999"
       )
 
       val secondAddressTokens = Map(
-        Tokens.buildingNumber -> "ThisBuildingNumberDoesNotExist"
+        Tokens.buildingNumber -> "9999"
       )
 
       val inputs = Stream(
