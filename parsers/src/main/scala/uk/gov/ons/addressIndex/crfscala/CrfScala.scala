@@ -4,7 +4,6 @@ package uk.gov.ons.addressIndex.crfscala
 /**
   * scala wrapper of crfsuite
   *
-  * todo describe this more
   */
 object CrfScala {
 
@@ -16,7 +15,7 @@ object CrfScala {
   case class CrfParserResult(originalInput: String, crfLabel: String)
 
   /**
-    * todo scaladoc
+    * A description of how to transform a String to tokens.
     */
   trait CrfTokenable {
     def apply(input : String) : Array[String]
@@ -25,12 +24,20 @@ object CrfScala {
 
   trait CrfFeaturable
 
+  /**
+    * A DTO for the result of one token being parsed and labeled.
+    * @param value the original token value.
+    * @param label the label the CRF model deduced.
+    */
   case class CrfTokenResult(
     value: String,
     label: String
   )
 
-  //todo scaladoc
+  /**
+    * A type class which can be used to extend the IWA string builder.
+    * @tparam T the underlying type of the value.
+    */
   trait CrfType[T] {
     def value: T
   }
