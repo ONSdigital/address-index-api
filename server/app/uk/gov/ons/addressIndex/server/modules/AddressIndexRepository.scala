@@ -372,17 +372,15 @@ class AddressIndexRepository @Inject()(
 
     val allQuery =
       Seq(
-        Some(
-          matchQuery(
-            field = "paf.pafAll",
-            value = originalInput
-          ).boost(queryParams.pafAllBoost)),
-        Some(
-          matchQuery(
-            field = "lpi.nagAll",
-            value = originalInput
-          ).boost(queryParams.nagAllBoost))
-      ).flatten
+        matchQuery(
+          field = "paf.pafAll",
+          value = originalInput
+        ).boost(queryParams.pafAllBoost),
+        matchQuery(
+          field = "lpi.nagAll",
+          value = originalInput
+        ).boost(queryParams.nagAllBoost)
+      )
 
     val query =
       bool(
