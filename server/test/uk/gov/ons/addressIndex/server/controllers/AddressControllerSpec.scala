@@ -97,6 +97,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
   val validHybridAddress = HybridAddress(
     uprn = "1",
+    postcodeIn = "2",
+    postcodeOut = "3",
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
     score = 1f
@@ -109,7 +111,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -126,7 +128,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
@@ -141,7 +143,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
@@ -161,7 +163,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.failed(new Exception("test failure"))
 
-    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
     override def client: ElasticClient = ElasticClient.local(Settings.builder().build())

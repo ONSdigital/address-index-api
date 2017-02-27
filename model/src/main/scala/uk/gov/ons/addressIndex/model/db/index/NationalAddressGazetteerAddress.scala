@@ -96,7 +96,7 @@ object NationalAddressGazetteerAddress {
     val classScheme: String = "classScheme"
     val localCustodianCode: String = "localCustodianCode"
     val rpc: String = "rpc"
-    val nagAll: String = "nagALl"
+    val nagAll: String = "nagAll"
   }
 
   def fromEsMap(nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {

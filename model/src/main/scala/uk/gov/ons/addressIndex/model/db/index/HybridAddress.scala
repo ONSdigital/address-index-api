@@ -15,6 +15,8 @@ import scala.util.Try
   */
 case class HybridAddress(
   uprn: String,
+  postcodeIn: String,
+  postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
   paf: Seq[PostcodeAddressFileAddress],
   score: Float
@@ -29,6 +31,8 @@ object HybridAddress {
     */
   val empty = HybridAddress(
     uprn = "",
+    postcodeIn = "",
+    postcodeOut = "",
     lpi = Seq.empty,
     paf = Seq.empty,
     score = 0
@@ -59,6 +63,8 @@ object HybridAddress {
 
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
+        postcodeIn = hit.sourceAsMap("postcodeIn").toString,
+        postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         score = hit.score

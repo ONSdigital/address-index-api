@@ -37,9 +37,10 @@ trait ElasticsearchRepository {
     * @param start  the offset for the query
     * @param limit  maximum number of returned results
     * @param tokens address tokens
+    * @param originalInput original input, used against pafAll and nagAll fields
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses]
 
   /**
     * Query ES using MultiSearch endpoint
@@ -87,9 +88,9 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, originalInput).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -103,7 +104,7 @@ class AddressIndexRepository @Inject()(
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], originalInput: String): SearchDefinition = {
 
     val saoQuery =
       Seq(
@@ -179,7 +180,7 @@ class AddressIndexRepository @Inject()(
             field = "lpi.paoText",
             value = token
           ).boost(queryParams.buildingName.lpiPaoTextBoost))
-      ).flatten
+      ).flatten.map(_.fuzziness("AUTO"))
 
 
     val buildingNumberQuery =
@@ -223,7 +224,7 @@ class AddressIndexRepository @Inject()(
             field = "lpi.streetDescriptor",
             value = token
           ).boost(queryParams.streetName.lpiStreetDescriptorBoost))
-      ).flatten
+      ).flatten.map(_.fuzziness("2"))
 
     val townNameQuery =
       Seq(
@@ -267,7 +268,7 @@ class AddressIndexRepository @Inject()(
             field = "paf.welshDoubleDependentLocality",
             value = token
           ).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
-      ).flatten
+      ).flatten.map(_.fuzziness("2"))
 
     val postcodeQuery =
       Seq(
@@ -281,6 +282,20 @@ class AddressIndexRepository @Inject()(
             field = "lpi.postcodeLocator",
             value = token
           ).boost(queryParams.postcode.lpiPostcodeLocatorBoost))
+      ).flatten
+
+    val postcodeInOutQuery =
+      Seq(
+        tokens.get(Tokens.postcodeOut).map(token =>
+          matchQuery(
+            field = "postcodeOut",
+            value = token
+          ).boost(queryParams.postcode.postcodeOutBoost).fuzziness("1")),
+        tokens.get(Tokens.postcodeIn).map(token =>
+          matchQuery(
+            field = "postcodeIn",
+            value = token
+          ).boost(queryParams.postcode.postcodeInBoost).fuzziness("2"))
       ).flatten
 
     val organisationNameQuery =
@@ -353,6 +368,20 @@ class AddressIndexRepository @Inject()(
             field = "paf.welshDoubleDependentLocality",
             value = token
           ).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
+      ).flatten.map(_.fuzziness("2"))
+
+    val allQuery =
+      Seq(
+        Some(
+          matchQuery(
+            field = "paf.pafAll",
+            value = originalInput
+          ).boost(queryParams.pafAllBoost)),
+        Some(
+          matchQuery(
+            field = "lpi.nagAll",
+            value = originalInput
+          ).boost(queryParams.nagAllBoost))
       ).flatten
 
     val query =
@@ -363,11 +392,12 @@ class AddressIndexRepository @Inject()(
           bool(should(buildingNumberQuery)),
           bool(should(streetNameQuery)),
           bool(should(townNameQuery)),
-          bool(should(postcodeQuery))
+          bool(must(postcodeQuery).should(postcodeInOutQuery))
         )).should(Seq(
           bool(should(organisationNameQuery)),
           bool(should(departmentNameQuery)),
-          bool(should(localityQuery))
+          bool(should(localityQuery)),
+          bool(should(allQuery))
         )).not()
       )
 
@@ -379,7 +409,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(0, limit, requestData.tokens, requestData.inputAddress).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

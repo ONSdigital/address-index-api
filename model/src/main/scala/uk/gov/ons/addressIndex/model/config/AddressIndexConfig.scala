@@ -29,6 +29,8 @@ case class QueryParamsConfig(
   organisationName: OrganisationNameConfig,
   departmentName: DepartmentNameConfig,
   locality: LocalityConfig,
+  pafAllBoost: Float,
+  nagAllBoost: Float,
   defaultBoost: Float,
   minimumShouldMatch: String
 )
@@ -88,8 +90,8 @@ case class TownNameConfig(
 case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
-  pafOutcodeBoost: Float,
-  pafIncodeBoost: Float
+  postcodeOutBoost: Float,
+  postcodeInBoost: Float
 )
 
 case class OrganisationNameConfig(

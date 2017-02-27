@@ -28,6 +28,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
 
   val hybridFirstUprn = 1L
+  val hybridFirstPostcodeIn = "h01p"
+  val hybridFirstPostcodeOut = "h02p"
 
   // Fields that are not in this list are not used for search
   val hybridPafUprn = 1L
@@ -39,6 +41,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridPafThoroughfare = "h7"
   val hybridPafPostTown = "h8"
   val hybridPafPostcode = "h9"
+  val hybridAll = "h100"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
@@ -70,6 +73,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // Secondary PAF/NAG is used for single search (to have some "concurrence" for the main address)
   // and in the Multi Search
   val hybridSecondaryUprn = 2L
+  val hybridSecondaryPostcodeIn = "s01p"
+  val hybridSecondaryPostcodeOut = "s02p"
 
   // Fields that are not in this list are not used for search
   val secondaryHybridPafUprn = 2L
@@ -81,6 +86,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridPafThoroughfare = "s7"
   val secondaryHybridPafPostTown = "s8"
   val secondaryHybridPafPostcode = "s9"
+  val secondaryHybridAll = "s200"
 
   // Fields that are not in this list are not used for search
   val secondaryHybridNagUprn = secondaryHybridPafUprn
@@ -135,7 +141,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
     "entryDate" -> hybridNotUsed,
-    "pafAll" -> hybridNotUsed
+    "pafAll" -> hybridAll
   )
 
   val secondHybridPafEs = Map(
@@ -168,7 +174,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
     "entryDate" ->hybridNotUsed,
-    "pafAll" -> hybridNotUsed
+    "pafAll" -> secondaryHybridAll
   )
 
   val firstHybridNagEs: Map[String, Any] = Map(
@@ -210,7 +216,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "classScheme" -> hybridNotUsed,
     "localCustodianCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
-    "nagAll" -> hybridNotUsed
+    "nagAll" -> hybridAll
   )
 
   val secondHybridNagEs: Map[String, Any] = Map(
@@ -253,11 +259,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "classScheme" -> hybridNotUsed,
     "localCustodianCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
-    "nagAll" -> hybridNotUsed
+    "nagAll" -> secondaryHybridAll
   )
 
   val firstHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridFirstUprn,
+    "postcodeIn" -> hybridFirstPostcodeIn,
+    "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs)
   )
@@ -265,6 +273,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridSecondaryUprn,
+    "postcodeIn" -> hybridSecondaryPostcodeIn,
+    "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs)
   )
@@ -308,7 +318,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed
+    hybridAll
   )
 
   val expectedNag = NationalAddressGazetteerAddress(
@@ -351,7 +361,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed
+    hybridAll
+  )
+
+  val expectedHybrid = HybridAddress(
+    uprn = hybridFirstUprn.toString,
+    postcodeIn = hybridFirstPostcodeIn,
+    postcodeOut = hybridFirstPostcodeOut,
+    lpi = Seq(expectedNag),
+    paf = Seq(expectedPaf),
+    score = 1.0f
   )
 
   "Elastic repository" should {
@@ -381,12 +400,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "find HYBRID address by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expectedHybrid = HybridAddress(
-        uprn = hybridFirstUprn.toString,
-        lpi = Seq(expectedNag),
-        paf = Seq(expectedPaf),
-        score = 1.0f
-      )
       val expected = Some(expectedHybrid)
 
       // When
@@ -407,17 +420,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator
       )
-      val expectedScore = 1.8f
+      val expectedScore = 2.3f
 
-      val expected = HybridAddress(
-        uprn = hybridFirstUprn.toString,
-        lpi = Seq(expectedNag),
-        paf = Seq(expectedPaf),
-        score = 0f
-      )
+      val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, hybridAll).await
 
       // Then
       results.length shouldBe 1
@@ -439,7 +447,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, "9999").await
 
       // Then
       results.length shouldBe 0
@@ -463,6 +471,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.locality -> hybridNagLocality,
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator,
+        Tokens.postcodeIn -> hybridFirstPostcodeIn,
+        Tokens.postcodeOut -> hybridFirstPostcodeOut,
         Tokens.departmentName -> hybridPafDepartmentName,
         Tokens.subBuildingName -> hybridPafSubBuildingName,
         Tokens.buildingName -> hybridPafBuildingName,
@@ -568,7 +578,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
          							"paf.buildingName": {
          								"query": "$hybridPafBuildingName",
            							"type": "boolean",
-           							"boost": 1
+           							"boost": 1,
+                        "fuzziness":"AUTO"
            						}
            					}
          					}, {
@@ -576,7 +587,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
          							"lpi.paoText": {
          								"query": "$hybridPafBuildingName",
             						"type": "boolean",
-                  			"boost": 1
+                  			"boost": 1,
+                        "fuzziness":"AUTO"
           						}
           					}
           				}]
@@ -608,7 +620,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.thoroughfare": {
         								"query": "$hybridNagStreetDescriptor",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -616,7 +629,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.welshThoroughfare": {
         								"query": "$hybridNagStreetDescriptor",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -624,7 +638,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.dependentThoroughfare": {
         								"query": "$hybridNagStreetDescriptor",
         								"type": "boolean",
-        								"boost": 0.5
+        								"boost": 0.5,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -632,7 +647,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.welshDependentThoroughfare": {
         								"query": "$hybridNagStreetDescriptor",
         								"type": "boolean",
-        								"boost": 0.5
+        								"boost": 0.5,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -640,7 +656,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"lpi.streetDescriptor": {
         								"query": "$hybridNagStreetDescriptor",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}]
@@ -652,7 +669,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.postTown": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -660,7 +678,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.welshPostTown": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -668,7 +687,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"lpi.townName": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -676,7 +696,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.dependentLocality": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 0.5
+        								"boost": 0.5,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -684,7 +705,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.welshDependentLocality": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 0.5
+        								"boost": 0.5,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -692,7 +714,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"lpi.locality": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 0.5
+        								"boost": 0.5,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -700,7 +723,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.doubleDependentLocality": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 0.2
+        								"boost": 0.2,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -708,14 +732,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.welshDoubleDependentLocality": {
         								"query": "$hybridNagTownName",
         								"type": "boolean",
-        								"boost": 0.2
+        								"boost": 0.2,
+                        "fuzziness":"2"
         							}
         						}
         					}]
         				}
         			}, {
         				"bool": {
-        					"should": [{
+        					"must": [{
         						"match": {
         							"paf.postcode": {
         								"query": "$hybridNagPostcodeLocator",
@@ -729,6 +754,25 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         								"query": "$hybridNagPostcodeLocator",
         								"type": "boolean",
         								"boost": 1
+        							}
+        						}
+        					}],
+        					"should": [{
+        						"match": {
+        							"postcodeOut": {
+        								"query": "$hybridFirstPostcodeOut",
+        								"type": "boolean",
+                        "boost": 0.8,
+                        "fuzziness": "1"
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"postcodeIn": {
+        								"query": "$hybridFirstPostcodeIn",
+        								"type": "boolean",
+                        "boost": 0.3,
+                        "fuzziness": "2"
         							}
         						}
         					}]
@@ -805,7 +849,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.dependentLocality": {
         								"query": "$hybridNagLocality",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -813,7 +858,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.welshDependentLocality": {
         								"query": "$hybridNagLocality",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -821,7 +867,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"lpi.locality": {
         								"query": "$hybridNagLocality",
         								"type": "boolean",
-        								"boost": 1
+        								"boost": 1,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
@@ -829,13 +876,35 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         							"paf.doubleDependentLocality": {
         								"query": "$hybridNagLocality",
         								"type": "boolean",
-        								"boost": 0.5
+        								"boost": 0.5,
+                        "fuzziness":"2"
         							}
         						}
         					}, {
         						"match": {
         							"paf.welshDoubleDependentLocality": {
         								"query": "$hybridNagLocality",
+        								"type": "boolean",
+        								"boost": 0.5,
+                        "fuzziness":"2"
+        							}
+        						}
+        					}]
+        				}
+        			}, {
+        				"bool": {
+        					"should": [{
+        						"match": {
+        							"paf.pafAll": {
+        								"query": "$hybridAll",
+        								"type": "boolean",
+        								"boost": 0.5
+        							}
+        						}
+        					}, {
+        						"match": {
+        							"lpi.nagAll": {
+        								"query": "$hybridAll",
         								"type": "boolean",
         								"boost": 0.5
         							}
@@ -850,7 +919,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens, hybridAll).toString)
 
       // Then
       result shouldBe expected
