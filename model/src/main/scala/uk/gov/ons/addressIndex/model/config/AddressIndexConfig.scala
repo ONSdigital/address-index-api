@@ -31,8 +31,7 @@ case class QueryParamsConfig(
   locality: LocalityConfig,
   pafAllBoost: Float,
   nagAllBoost: Float,
-  defaultBoost: Float,
-  minimumShouldMatch: String
+  defaultBoost: Float
 )
 
 case class ShieldConfig(
