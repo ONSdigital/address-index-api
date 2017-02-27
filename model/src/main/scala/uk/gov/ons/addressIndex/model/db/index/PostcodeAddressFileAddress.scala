@@ -111,7 +111,7 @@ object PostcodeAddressFileAddress {
       endDate = filteredPaf.getOrElse(Fields.endDate, "").toString,
       lastUpdateDate = filteredPaf.getOrElse(Fields.lastUpdateDate, "").toString,
       entryDate = filteredPaf.getOrElse(Fields.entryDate, "").toString,
-      pafAll = filteredPaf.getOrElse(Fields.entryDate, "").toString
+      pafAll = filteredPaf.getOrElse(Fields.pafAll, "").toString
     )
   }
 }

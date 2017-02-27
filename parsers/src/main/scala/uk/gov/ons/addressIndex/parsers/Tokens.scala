@@ -4,6 +4,7 @@ import com.typesafe.config.ConfigFactory
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
 
 import scala.io.Source
+import scala.util.Try
 import scala.util.matching.Regex
 
 /**
@@ -23,6 +24,7 @@ object Tokens extends CrfTokenable {
   val paoStartNumber: String = "PaoStartNumber"
   val paoStartSuffix: String = "PaoStartSuffix"
   val paoEndNumber: String = "PaoEndNumber"
+  val paoEndSuffix: String = "PaoEndSuffix"
   val saoStartNumber: String = "SaoStartNumber"
   val saoStartSuffix: String = "SaoStartSuffix"
   val saoEndNumber: String = "SaoEndNumber"
@@ -31,6 +33,8 @@ object Tokens extends CrfTokenable {
   val locality: String = "Locality"
   val townName: String = "TownName"
   val postcode: String = "Postcode"
+  val postcodeIn: String = "PostcodeIn"
+  val postcodeOut: String = "PostcodeOut"
 
   val all: Seq[String] = Seq(
     organisationName,
@@ -115,20 +119,29 @@ object Tokens extends CrfTokenable {
     if(postCodeTokens.size == 1) {
       val token = postCodeTokens.head.value
       if(token.length >= 4) {
-        val outcode = token.substring(token.length - 3, token.length)
-        val incode = token.substring(0, token.indexOf(outcode))
+        val inCode = token.substring(token.length - 3, token.length)
+        val outCode = token.substring(0, token.indexOf(inCode))
         val regex = "[0-9][A-Z][A-Z]".r
-        val optOutCode = regex.findFirstIn(outcode.toUpperCase)
+        val optOutCode = regex.findFirstIn(inCode.toUpperCase)
         if(optOutCode.isDefined) {
-          tokens.updated(
-            key = Tokens.postcode,
-            value = Seq(
-              CrfTokenResult(
-                value = s"$incode $outcode",
-                label = Tokens.postcode
-              )
+          val tokensWithPostcodeUpdated = tokens.updated(Tokens.postcode, Seq(
+            CrfTokenResult(
+              value = s"$outCode $inCode",
+              label = Tokens.postcode
             )
+          ))
+
+          tokensWithPostcodeUpdated ++ Map(
+            Tokens.postcodeOut -> Seq(CrfTokenResult(
+              value = outCode,
+              label = Tokens.postcodeOut
+            )),
+            Tokens.postcodeIn -> Seq(CrfTokenResult(
+              value = inCode,
+              label = Tokens.postcodeIn
+            ))
           )
+
         } else {
           tokens - Tokens.postcode
         }
@@ -147,7 +160,10 @@ object Tokens extends CrfTokenable {
     * @return map with tokens that will also contain paoStartNumberToken if buildingNumber is present
     */
   def postTokenizeTreatmentBuildingNumber(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
-    val buildingNumber: Option[String] = tokens.get(Tokens.buildingNumber).flatMap(_.headOption).map(_.value)
+    val buildingNumberToken: Option[String] = tokens.get(Tokens.buildingNumber).flatMap(_.headOption).map(_.value)
+
+    // This is a failsafe in case building number is not a number
+    val buildingNumber: Option[String] = buildingNumberToken.flatMap(token => Try(token.toShort.toString).toOption)
 
     buildingNumber match {
       case Some(number) =>
@@ -158,7 +174,8 @@ object Tokens extends CrfTokenable {
 
         tokens + (Tokens.paoStartNumber -> Seq(paoStartNumberToken))
 
-      case None => tokens
+      // Token is either not found or is not a number
+      case None => tokens - Tokens.buildingNumber
     }
   }
 
