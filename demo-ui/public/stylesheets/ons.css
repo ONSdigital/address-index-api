@@ -545,6 +545,7 @@ div.taColumn1inner{
     display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
+    color: white;
     border-style: solid;
     border-width: 0px 1px 0px 1px;
     border-color: black;
@@ -565,6 +566,7 @@ div.taColumn1bottom{
     display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
+    color: white;
     border-style: solid;
     border-width: 0px 1px 1px 1px;
     border-color: black;
