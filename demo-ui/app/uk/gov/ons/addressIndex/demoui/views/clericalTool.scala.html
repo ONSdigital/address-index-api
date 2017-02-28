@@ -705,16 +705,16 @@ classification: Option[Map[String,String]]
                                         @*NAG TABLE*@
                                         <div class="taRowH">
                                             <div class="taColumn1H">
-                                                @messages("clerical.token_description")
+                                            @messages("clerical.token_description")
                                             </div>
                                             <div class="taColumn2H">
-                                                @messages("clerical.fieldnamederived")
+                                            @messages("clerical.fieldnamederived")
                                             </div>
                                             <div class="taColumn3H">
-                                                @messages("clerical.inputdata")
+                                            @messages("clerical.inputdata")
                                             </div>
                                             <div class="taColumn4H">
-                                                @messages("clerical.outputdata")
+                                            @messages("clerical.outputdata")
                                             </div>
                                         </div>
                                         <div class="taRow">
@@ -722,9 +722,10 @@ classification: Option[Map[String,String]]
                                             @messages("clerical.token.postcode")
                                             </div>
                                             <div class="taColumn2">
-                                            @messages("clerical.postcode_in")
+                                            @messages("clerical.postcode_out")
                                             </div>
                                             <div class="taColumn3">
+                                            @aresponse.tokens.getOrElse(Tokens.postcodeOut, "")
                                             </div>
                                             <div class="taColumn4">
                                             @messages("clerical.not_implemented")
@@ -735,9 +736,10 @@ classification: Option[Map[String,String]]
                                             @messages("clerical.token.postcode")
                                             </div>
                                             <div class="taColumn2">
-                                            @messages("clerical.postcode_out")
+                                            @messages("clerical.postcode_in")
                                             </div>
                                             <div class="taColumn3">
+                                            @aresponse.tokens.getOrElse(Tokens.postcodeIn, "")
                                             </div>
                                             <div class="taColumn4">
                                             @messages("clerical.not_implemented")
