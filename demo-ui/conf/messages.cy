@@ -10,6 +10,7 @@ clerical.ta=Cyfeiriad tokenize
 clerical.token_description=Enw Tocyn
 clerical.fieldnamePAF=Enw Field (PAF)
 clerical.fieldnameNAG=Enw Field (NAG)
+clerical.fieldnamederived=Enw Field (Yn deillio)
 clerical.inputdata=Data mewnbwn
 clerical.outputdata=Data allbwn
 clerical.not_implemented=Heb ei Weithredu

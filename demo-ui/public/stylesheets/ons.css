@@ -541,6 +541,37 @@ div.taColumn1{
     margin:0;
 }
 
+div.taColumn1inner{
+    display: table-cell; height:100%; min-width: 20%;
+    vertical-align:top;
+    padding: 1px;
+    border-style: solid;
+    border-width: 0px 1px 0px 1px;
+    border-color: black;
+    margin:0;
+}
+
+div.taColumn1top{
+    display: table-cell; height:100%; min-width: 20%;
+    vertical-align:top;
+    padding: 1px;
+    border-style: solid;
+    border-width: 1px 1px 0px 1px;
+    border-color: black;
+    margin:0;
+}
+
+div.taColumn1bottom{
+    display: table-cell; height:100%; min-width: 20%;
+    vertical-align:top;
+    padding: 1px;
+    border-style: solid;
+    border-width: 0px 1px 1px 1px;
+    border-color: black;
+    margin:0;
+}
+
+
 div.taColumn2{
     display: table-cell; height:100%; min-width: 40%;
     vertical-align:top;
@@ -620,10 +651,10 @@ div.taColumn4H{
     background: #FF0000;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
     td {
-        font-size: 0.7em;
-        padding: 2px;
+        font-size: 0.6em;
+        padding: 1px;
     }
 }
 
