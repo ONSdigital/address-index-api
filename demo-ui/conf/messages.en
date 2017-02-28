@@ -10,6 +10,7 @@ clerical.ta=Tokenised Address
 clerical.token_description=Token name
 clerical.fieldnamePAF=Field Name (PAF)
 clerical.fieldnameNAG=Field Name (NAG)
+clerical.fieldname_derived=Field Name (PAF or NAG)
 clerical.inputdata=Input Data
 clerical.outputdata=Output Data
 clerical.not_implemented=Not Implemented
