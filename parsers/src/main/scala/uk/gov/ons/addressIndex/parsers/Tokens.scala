@@ -5,7 +5,6 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
 
 import scala.io.Source
 import scala.util.Try
-import scala.util.matching.Regex
 
 /**
   * Tokenizer for the input
@@ -115,41 +114,33 @@ object Tokens extends CrfTokenable {
     * @return Map with tokens that will contain normalized postcode address
     */
   def postTokenizeTreatmentPostCode(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]] = {
-    val postCodeTokens = tokens.getOrElse(Tokens.postcode, Seq.empty)
-    if(postCodeTokens.size == 1) {
-      val token = postCodeTokens.head.value
-      if(token.length >= 4) {
-        val inCode = token.substring(token.length - 3, token.length)
-        val outCode = token.substring(0, token.indexOf(inCode))
-        val regex = "[0-9][A-Z][A-Z]".r
-        val optOutCode = regex.findFirstIn(inCode.toUpperCase)
-        if(optOutCode.isDefined) {
-          val tokensWithPostcodeUpdated = tokens.updated(Tokens.postcode, Seq(
-            CrfTokenResult(
-              value = s"$outCode $inCode",
-              label = Tokens.postcode
-            )
-          ))
 
-          tokensWithPostcodeUpdated ++ Map(
-            Tokens.postcodeOut -> Seq(CrfTokenResult(
-              value = outCode,
-              label = Tokens.postcodeOut
-            )),
-            Tokens.postcodeIn -> Seq(CrfTokenResult(
-              value = inCode,
-              label = Tokens.postcodeIn
-            ))
+    val postcode: Option[String] = tokens.get(Tokens.postcode).map(postcodeTokens => postcodeTokens.map(_.value).mkString(""))
+
+    postcode match {
+      case Some(concatenatedPostcode) if concatenatedPostcode.length >= 4 =>
+        val postcodeIn = concatenatedPostcode.substring(concatenatedPostcode.length - 3, concatenatedPostcode.length)
+        val postcodeOut = concatenatedPostcode.substring(0, concatenatedPostcode.indexOf(postcodeIn))
+
+        val tokensWithPostcodeUpdated = tokens.updated(Tokens.postcode, Seq(
+          CrfTokenResult(
+            value = s"$postcodeOut $postcodeIn",
+            label = Tokens.postcode
           )
+        ))
 
-        } else {
-          tokens - Tokens.postcode
-        }
-      } else {
-        tokens
-      }
-    } else {
-      tokens
+        tokensWithPostcodeUpdated ++ Map(
+          Tokens.postcodeOut -> Seq(CrfTokenResult(
+            value = postcodeOut,
+            label = Tokens.postcodeOut
+          )),
+          Tokens.postcodeIn -> Seq(CrfTokenResult(
+            value = postcodeIn,
+            label = Tokens.postcodeIn
+          ))
+        )
+
+      case _ => tokens
     }
   }
 

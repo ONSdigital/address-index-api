@@ -65,6 +65,49 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "BD17 6QL -> BD17 6QL (if there are 2 initial postcode tokens)" in {
+    // Given
+    val input = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "BD17",
+          label = Tokens.postcode
+        ),
+        CrfTokenResult(
+          value = "6QL",
+          label = Tokens.postcode
+        )
+      )
+    )
+
+    val expected = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "BD17 6QL",
+          label = Tokens.postcode
+        )
+      ),
+      Tokens.postcodeOut -> Seq(
+        CrfTokenResult(
+          value = "BD17",
+          label = Tokens.postcodeOut
+        )
+      ),
+      Tokens.postcodeIn -> Seq(
+        CrfTokenResult(
+          value = "6QL",
+          label = Tokens.postcodeIn
+        )
+      )
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "HA62YY -> HA6 2YY" in {
     // Given
     val input = Map(
@@ -242,17 +285,37 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "L1234 -> " in {
+  it should "L1234 -> L1 123" in { // even if the inCode does not look valid, it is still an input from the user
     // Given
     val input = Map(
       Tokens.postcode -> Seq(
         CrfTokenResult(
-          value = "L1234",
+          value = "L123",
           label = Tokens.postcode
         )
       )
     )
-    val expected = Map.empty
+
+    val expected = Map(
+      Tokens.postcode -> Seq(
+        CrfTokenResult(
+          value = "L 123",
+          label = Tokens.postcode
+        )
+      ),
+      Tokens.postcodeOut -> Seq(
+        CrfTokenResult(
+          value = "L",
+          label = Tokens.postcodeOut
+        )
+      ),
+      Tokens.postcodeIn -> Seq(
+        CrfTokenResult(
+          value = "123",
+          label = Tokens.postcodeIn
+        )
+      )
+    )
 
     // When
     val actual = Tokens.postTokenizeTreatmentPostCode(input)
