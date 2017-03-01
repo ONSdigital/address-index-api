@@ -132,6 +132,8 @@ classification: Option[Map[String,String]]
                             <div class="resultRow">
                                 <div class="clericalInfo">
                                     <a href="?page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
+                                    &nbsp;
+                                    <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
                                 </div>
                                 <div class='@{if (index == expandRow) {"showrow"} else {"hiderow"}}'>
 
@@ -615,6 +617,77 @@ classification: Option[Map[String,String]]
                                         </div>
 
                                         <div class="taRow">
+                                            <div class="taColumn1top">
+                                                @messages("clerical.token.building_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.pao_text")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @aresponse.tokens.getOrElse(Tokens.buildingName, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                                @address.nag.map{ nag => @nag.pao.paoText }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.token.building_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.pao_start_number")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @aresponse.tokens.getOrElse(Tokens.paoStartNumber, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                                @address.nag.map{ nag => @nag.pao.paoStartNumber }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.token.building_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.pao_start_suffix")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @aresponse.tokens.getOrElse(Tokens.paoStartSuffix, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                                @address.nag.map{ nag => @nag.pao.paoStartSuffix }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.token.building_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.pao_end_number")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @aresponse.tokens.getOrElse(Tokens.paoEndNumber, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                                @address.nag.map{ nag => @nag.pao.paoEndNumber }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1bottom">
+                                                @messages("clerical.token.building_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.pao_end_suffix")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @aresponse.tokens.getOrElse(Tokens.paoEndSuffix, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                                @address.nag.map{ nag => @nag.pao.paoEndSuffix }
+                                            </div>
+                                        </div>
+
+                                        <div class="taRow">
                                             <div class="taColumn1">
                                             @messages("clerical.token.building_number")
                                             </div>
@@ -728,7 +801,11 @@ classification: Option[Map[String,String]]
                                             @aresponse.tokens.getOrElse(Tokens.postcodeOut, "")
                                             </div>
                                             <div class="taColumn4">
-                                            @messages("clerical.not_implemented")
+                                            @if(address.paf.isEmpty){
+                                                @address.nag.map{ nag => @nag.postcodeLocator }
+                                                } else {
+                                                @address.paf.map{ paf => @paf.postcode }
+                                            }
                                             </div>
                                         </div>
                                         <div class="taRow">
@@ -742,7 +819,11 @@ classification: Option[Map[String,String]]
                                             @aresponse.tokens.getOrElse(Tokens.postcodeIn, "")
                                             </div>
                                             <div class="taColumn4">
-                                            @messages("clerical.not_implemented")
+                                            @if(address.paf.isEmpty){
+                                                @address.nag.map{ nag => @nag.postcodeLocator }
+                                                } else {
+                                                @address.paf.map{ paf => @paf.postcode }
+                                            }
                                             </div>
                                         </div>
 
