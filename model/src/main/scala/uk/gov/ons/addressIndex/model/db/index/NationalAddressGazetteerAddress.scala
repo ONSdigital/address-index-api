@@ -1,11 +1,14 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import javax.inject.Inject
+
 import scala.util.Try
+import uk.gov.ons.addressIndex.model.db.index.LocalCustodian
 
 /**
   * NAG Address DTO
   */
-case class NationalAddressGazetteerAddress(
+case class NationalAddressGazetteerAddress @Inject()(localCustodian: LocalCustodian) (
   uprn: String,
   postcodeLocator: String,
   addressBasePostal: String,
@@ -44,6 +47,7 @@ case class NationalAddressGazetteerAddress(
   language: String,
   classScheme: String,
   localCustodianCode: String,
+  localCustodianName: String,
   rpc: String,
   nagAll: String
 )
@@ -95,11 +99,12 @@ object NationalAddressGazetteerAddress {
     val language: String = "language"
     val classScheme: String = "classScheme"
     val localCustodianCode: String = "localCustodianCode"
+    val localCustodianName: String = "localCustodianName"
     val rpc: String = "rpc"
     val nagAll: String = "nagAll"
   }
 
-  def fromEsMap(nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
+  def fromEsMap (localCustodian: LocalCustodian)(nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
     val filteredNag = nag.filter{ case (_, value) => value != null }
 
     val matchLocationRegex = """-?\d+\.\d+""".r
@@ -107,7 +112,7 @@ object NationalAddressGazetteerAddress {
 
     val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
 
-    NationalAddressGazetteerAddress(
+    NationalAddressGazetteerAddress (localCustodian)(
       uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
       postcodeLocator = filteredNag.getOrElse(Fields.postcodeLocator, "").toString,
       addressBasePostal = filteredNag.getOrElse(Fields.addressBasePostal, "").toString,
@@ -146,6 +151,7 @@ object NationalAddressGazetteerAddress {
       language = filteredNag.getOrElse(Fields.language, "").toString,
       classScheme = filteredNag.getOrElse(Fields.classScheme, "").toString,
       localCustodianCode = filteredNag.getOrElse(Fields.localCustodianCode, "").toString,
+      localCustodianName = localCustodian.analyseCustCode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
       nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString
     )
