@@ -132,11 +132,11 @@ classification: Option[Map[String,String]]
                             <div class="resultRow">
                                 <div class="clericalInfo">
                                     <a href="?page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
-                                    &nbsp;
-                                    <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
                                 </div>
                                 <div class='@{if (index == expandRow) {"showrow"} else {"hiderow"}}'>
-
+                                    <div class="clericalInfo">
+                                        <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
+                                    </div>
                                     <div class="clerical2">
                                         <strong>@messages("clerical.logicalstatus"):</strong><span class="clericalgrey"> @address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }</span>
                                     </div>

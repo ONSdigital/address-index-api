@@ -62,7 +62,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagStreetDescriptor = hybridPafThoroughfare
   val hybridNagTownName = hybridPafPostTown
   val hybridNagLatitude = 1.0000000f
-  val hybridNagLongitude = 2.0000000f
+  val hybridNagLongitude = -2.0000000f
   val hybridNagNorthing = 3f
   val hybridNagEasting = 4f
 

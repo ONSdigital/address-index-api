@@ -102,7 +102,7 @@ object NationalAddressGazetteerAddress {
   def fromEsMap(nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
     val filteredNag = nag.filter{ case (_, value) => value != null }
 
-    val matchLocationRegex = """\d+\.\d+""".r
+    val matchLocationRegex = """-?\d+\.\d+""".r
     val location = filteredNag.getOrElse(Fields.location, "").toString
 
     val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
