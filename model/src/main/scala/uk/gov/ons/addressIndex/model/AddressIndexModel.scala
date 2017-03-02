@@ -1,7 +1,11 @@
 package uk.gov.ons.addressIndex.model
 
 import java.util.UUID
+
 import play.api.libs.json.{Format, Json}
+import uk.gov.ons.addressIndex.model.db.BulkAddress
+import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+import uk.gov.ons.addressIndex.parsers.Tokens
 
 case class AddressIndexUPRNRequest(
   uprn: BigInt,
@@ -45,6 +49,26 @@ case class BulkItem(
 )
 object BulkItem {
   implicit lazy val fmt: Format[BulkItem] = Json.format[BulkItem]
+
+  def fromBulkAddress(bulkAddress: BulkAddress): BulkItem =
+    BulkItem(
+      inputAddress = bulkAddress.inputAddress,
+      // This will need to be fixed in the PR where we adapt the response model to the one
+      // of the single match request
+      matchedFormattedAddress = AddressResponseAddress.fromHybridAddress(bulkAddress.hybridAddress).formattedAddressNag,
+      id = bulkAddress.id,
+      organisationName = bulkAddress.tokens.getOrElse(Tokens.organisationName, ""),
+      departmentName = bulkAddress.tokens.getOrElse(Tokens.departmentName, ""),
+      subBuildingName = bulkAddress.tokens.getOrElse(Tokens.subBuildingName, ""),
+      buildingName = bulkAddress.tokens.getOrElse(Tokens.buildingName, ""),
+      buildingNumber = bulkAddress.tokens.getOrElse(Tokens.buildingNumber, ""),
+      streetName = bulkAddress.tokens.getOrElse(Tokens.streetName, ""),
+      locality = bulkAddress.tokens.getOrElse(Tokens.locality, ""),
+      townName = bulkAddress.tokens.getOrElse(Tokens.townName, ""),
+      postcode = bulkAddress.tokens.getOrElse(Tokens.postcode, ""),
+      uprn = bulkAddress.hybridAddress.uprn,
+      score = bulkAddress.hybridAddress.score
+    )
 }
 
 //mini model for output
