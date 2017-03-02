@@ -65,8 +65,8 @@ class AddressController @Inject()(
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
-        isInput = true, addressInput = input, addressOffset = offval,
-        addressLimit = limval, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        isInput = true, input = input, offset = offval,
+        limit = limval, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score)
     }
 
@@ -153,7 +153,7 @@ class AddressController @Inject()(
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
-        isUprn = true, addressUprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput, numOfResults = numOfResults, score = score)
+        isUprn = true, uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput, numOfResults = numOfResults, score = score)
     }
 
     val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
@@ -198,6 +198,9 @@ class AddressController @Inject()(
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
     val startingTime = System.currentTimeMillis()
 
+    // Used to distinguish individual bulk logs
+    val uuid = java.util.UUID.randomUUID.toString
+
     val requestsData: Stream[BulkAddressRequestData] = req.body.addresses.toStream.map{
       row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
     }
@@ -216,8 +219,8 @@ class AddressController @Inject()(
             val bulkItem = BulkItem.fromBulkAddress(bulkAddress)
 
             // Side effects
-            Splunk.log(IP = req.remoteAddress, url = req.uri, addressInput = bulkItem.inputAddress, isBulk = true,
-              formattedOutput = bulkItem.matchedFormattedAddress, score = bulkItem.score.toString)
+            Splunk.log(IP = req.remoteAddress, url = req.uri, input = bulkItem.inputAddress, isBulk = true,
+              formattedOutput = bulkItem.matchedFormattedAddress, score = bulkItem.score.toString, uuid = uuid)
 
             bulkItem
           }
