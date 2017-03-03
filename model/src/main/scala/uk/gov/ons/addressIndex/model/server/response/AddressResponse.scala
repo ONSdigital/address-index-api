@@ -361,7 +361,8 @@ case class AddressResponseNag(
   legalName: String,
   classificationCode: String,
   localCustodianCode: String,
-  localCustodianName: String
+  localCustodianName: String,
+  localCustodianGeogCode: String
 )
 
 object AddressResponseNag {
@@ -398,7 +399,8 @@ object AddressResponseNag {
         other.legalName,
         other.classificationCode,
         other.localCustodianCode,
-        other.localCustodianName
+        other.localCustodianName,
+        other.localCustodianGeogCode
       )
   }
 
