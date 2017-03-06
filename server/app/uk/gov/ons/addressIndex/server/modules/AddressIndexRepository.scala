@@ -389,9 +389,9 @@ class AddressIndexRepository @Inject()(
 
     val preciseQuery = (preciseMustQuery, preciseShouldQuery) match {
       case (Nil, Nil) => Seq.empty
-      case (mustQuery, Nil) => Seq(must(mustQuery))
+      case (mustQuery, Nil) => Seq(should(mustQuery))
       case (Nil, shouldQuery) => Seq(should(shouldQuery))
-      case (mustQuery, shouldQuery) => Seq(must(mustQuery), should(shouldQuery))
+      case (mustQuery, shouldQuery) => Seq(should(mustQuery), should(shouldQuery))
     }
 
     val fallbackQuery = should(allQuery)
