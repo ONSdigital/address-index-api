@@ -4,9 +4,8 @@ import javax.inject.{Inject, Singleton}
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.ElasticDsl.{bool, must, should, _}
+import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s._
-import org.elasticsearch.common.unit.Fuzziness
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
@@ -176,7 +175,7 @@ class AddressIndexRepository @Inject()(
           field = "lpi.paoText",
           value = token
         ).boost(queryParams.buildingName.lpiPaoTextBoost))
-    ).flatten.map(_.fuzziness("AUTO"))
+    ).flatten.map(_.fuzziness("1"))
 
 
     val buildingNumberQuery = Seq(
@@ -369,7 +368,7 @@ class AddressIndexRepository @Inject()(
       ).boost(queryParams.nagAllBoost)
     )
 
-    val preciseMustQuery = Seq(
+    val preciseQuery = Seq(
       buildingNumberQuery,
       buildingNameQuery,
       subBuildingNameQuery,
@@ -378,21 +377,14 @@ class AddressIndexRepository @Inject()(
       postcodeQuery,
       postcodeInOutQuery,
       paoQuery,
-      saoQuery
-    ).filter(_.nonEmpty).map(should(_))
-
-    val preciseShouldQuery = Seq(
+      saoQuery,
       organisationNameQuery,
       departmentNameQuery,
       localityQuery
-    ).filter(_.nonEmpty).map(should(_))
-
-    val preciseQuery = (preciseMustQuery, preciseShouldQuery) match {
-      case (Nil, Nil) => Seq.empty
-      case (mustQuery, Nil) => Seq(should(mustQuery))
-      case (Nil, shouldQuery) => Seq(should(shouldQuery))
-      case (mustQuery, shouldQuery) => Seq(should(mustQuery), should(shouldQuery))
-    }
+    )
+      .filter(_.nonEmpty)
+      // `dismax` dsl does not exist
+      .map(queries => dismax.query(queries: _*))
 
     val fallbackQuery = should(allQuery)
 
