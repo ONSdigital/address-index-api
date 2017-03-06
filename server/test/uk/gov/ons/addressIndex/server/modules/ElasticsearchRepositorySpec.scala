@@ -43,7 +43,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridPafThoroughfare = "h7"
   val hybridPafPostTown = "h8"
   val hybridPafPostcode = "h10"
-  val hybridAll = "h100"
+  val hybridAll = "H100"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
@@ -463,6 +463,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val tokens: Map[String, String] = Map.empty
 
+      val input = "ORIGINAL INPUT"
+
       val expected = Json.parse(
         s"""
           {
@@ -472,7 +474,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       {
                          "match":{
                             "paf.pafAll":{
-                               "query":"original input",
+                               "query":"$input",
                                "type":"boolean",
                                "boost":${queryParams.pafAllBoost}
                             }
@@ -481,7 +483,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       {
                          "match":{
                             "lpi.nagAll":{
-                               "query":"original input",
+                               "query":"$input",
                                "type":"boolean",
                                "boost":${queryParams.pafAllBoost}
                             }
@@ -495,7 +497,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens, "original input").toString)
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens, input).toString)
 
       // Then
       result shouldBe expected
