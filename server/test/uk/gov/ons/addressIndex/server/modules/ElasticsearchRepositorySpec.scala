@@ -581,7 +581,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        "lpi.paoText":{  
                                                           "query":"$hybridPafBuildingName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
+                                                          "boost":${queryParams.buildingName.lpiPaoTextBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
@@ -591,7 +591,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        "lpi.paoStartSuffix":{
                                                           "query":"$hybridNagPaoStartSuffix",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
+                                                          "boost":${queryParams.buildingName.lpiPaoStartSuffixBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
@@ -626,7 +626,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        "lpi.saoStartSuffix":{
                                                           "query":"$hybridNagSaoStartSuffix",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                          "boost":${queryParams.subBuildingName.lpiSaoStartSuffixBoost}
                                                        }
                                                     }
                                                  }

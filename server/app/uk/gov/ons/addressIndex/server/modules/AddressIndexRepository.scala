@@ -143,7 +143,7 @@ class AddressIndexRepository @Inject()(
         matchQuery(
           field = "lpi.saoStartSuffix",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoTextBoost))
+        ).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
     ).flatten
 
     val paoQuery = Seq(
@@ -184,7 +184,7 @@ class AddressIndexRepository @Inject()(
         matchQuery(
           field = "lpi.paoStartSuffix",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoTextBoost))
+        ).boost(queryParams.buildingName.lpiPaoStartSuffixBoost))
     ).flatten.map(_.fuzziness("1"))
 
 
