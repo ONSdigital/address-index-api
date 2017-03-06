@@ -539,8 +539,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             "should":[  
                                {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
-                                                 {  
+                                                 {
                                                     "match":{  
                                                        "paf.buildingNumber":{  
                                                           "query":"$hybridPafBuildingNumber",
@@ -563,6 +564,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -589,6 +591,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -613,6 +616,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {
                                                     "match":{  
@@ -669,6 +673,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -755,6 +760,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -779,6 +785,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -803,6 +810,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -845,6 +853,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -887,6 +896,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                          },
                                          {
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -938,6 +948,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  
@@ -962,6 +973,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
                                                     "match":{  

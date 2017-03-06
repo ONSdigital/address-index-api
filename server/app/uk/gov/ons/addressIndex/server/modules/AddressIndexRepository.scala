@@ -384,7 +384,7 @@ class AddressIndexRepository @Inject()(
     )
       .filter(_.nonEmpty)
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-      .map(queries => dismax.query(queries: _*))
+      .map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
 
     val fallbackQuery = should(allQuery)
 
