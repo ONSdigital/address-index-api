@@ -374,11 +374,11 @@ class AddressIndexRepository @Inject()(
       Seq(
         matchQuery(
           field = "paf.pafAll",
-          value = originalInput
+          value = originalInput.toUpperCase
         ).boost(queryParams.pafAllBoost),
         matchQuery(
           field = "lpi.nagAll",
-          value = originalInput
+          value = originalInput.toUpperCase
         ).boost(queryParams.nagAllBoost)
       )
 
