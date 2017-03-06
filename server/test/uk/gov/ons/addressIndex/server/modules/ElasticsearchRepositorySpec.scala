@@ -585,6 +585,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "fuzziness":"1"
                                                        }
                                                     }
+                                                 },
+                                                 {
+                                                    "match":{
+                                                       "lpi.paoStartSuffix":{
+                                                          "query":"$hybridNagPaoStartSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
                                                  }
                                               ]
                                            }
@@ -606,6 +616,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                     "match":{  
                                                        "lpi.saoText":{  
                                                           "query":"$hybridPafSubBuildingName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {
+                                                    "match":{
+                                                       "lpi.saoStartSuffix":{
+                                                          "query":"$hybridNagSaoStartSuffix",
                                                           "type":"boolean",
                                                           "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
                                                        }
