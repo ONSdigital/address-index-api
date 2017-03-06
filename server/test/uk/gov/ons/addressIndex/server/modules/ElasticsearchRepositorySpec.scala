@@ -530,7 +530,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
        s"""
-          {  
+          {
              "query":{  
                 "bool":{  
                    "should":[  
@@ -538,12 +538,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "bool":{  
                             "should":[  
                                {  
-                                  "bool":{  
-                                     "should":[
-                                        {  
-                                           "bool":{  
-                                              "should":[  
-                                                 {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {
                                                     "match":{  
                                                        "paf.buildingNumber":{  
                                                           "query":"$hybridPafBuildingNumber",
@@ -565,15 +563,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.buildingName":{  
                                                           "query":"$hybridPafBuildingName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.buildingName.pafBuildingNameBoost},
-                                                          "fuzziness":"AUTO"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -583,7 +582,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridPafBuildingName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.buildingName.pafBuildingNameBoost},
-                                                          "fuzziness":"AUTO"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  }
@@ -591,8 +590,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.subBuildingName":{  
@@ -615,9 +615,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
-                                                 {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {
                                                     "match":{  
                                                        "paf.thoroughfare":{  
                                                           "query":"$hybridNagStreetDescriptor",
@@ -671,8 +672,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.postTown":{  
@@ -757,8 +759,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.postcode":{  
@@ -781,8 +784,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "postcodeOut":{  
@@ -805,8 +809,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "lpi.paoStartNumber":{  
@@ -847,8 +852,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "lpi.saoStartNumber":{  
@@ -887,16 +893,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                  }
                                               ]
                                            }
-                                        }
-                                     ]
-                                  }
-                               },
-                               {  
-                                  "bool":{  
-                                     "should":[  
-                                        {  
-                                           "bool":{  
-                                              "should":[  
+                                         },
+                                         {
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.organizationName":{  
@@ -946,8 +947,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.departmentName":{  
@@ -970,8 +972,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                            }
                                         },
                                         {  
-                                           "bool":{  
-                                              "should":[  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
                                                  {  
                                                     "match":{  
                                                        "paf.dependentLocality":{  
@@ -1024,9 +1027,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                  }
                                               ]
                                            }
-                                        }
-                                     ]
-                                  }
                                }
                             ]
                          }
