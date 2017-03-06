@@ -539,7 +539,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             "should":[  
                                {  
                                   "bool":{  
-                                     "must":[  
+                                     "should":[
                                         {  
                                            "bool":{  
                                               "should":[  
