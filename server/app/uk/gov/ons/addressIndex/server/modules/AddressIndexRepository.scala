@@ -218,7 +218,7 @@ class AddressIndexRepository @Inject()(
           field = "lpi.streetDescriptor",
           value = token
         ).boost(queryParams.streetName.lpiStreetDescriptorBoost))
-    ).flatten.map(_.fuzziness("2"))
+    ).flatten.map(_.fuzziness("1"))
 
     val townNameQuery = Seq(
       tokens.get(Tokens.townName).map(token =>
@@ -261,7 +261,7 @@ class AddressIndexRepository @Inject()(
           field = "paf.welshDoubleDependentLocality",
           value = token
         ).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
-    ).flatten.map(_.fuzziness("2"))
+    ).flatten.map(_.fuzziness("1"))
 
     val postcodeQuery = Seq(
       tokens.get(Tokens.postcode).map(token =>
@@ -281,12 +281,12 @@ class AddressIndexRepository @Inject()(
         matchQuery(
           field = "postcodeOut",
           value = token
-        ).boost(queryParams.postcode.postcodeOutBoost).fuzziness("1")),
+        ).boost(queryParams.postcode.postcodeOutBoost)),
       tokens.get(Tokens.postcodeIn).map(token =>
         matchQuery(
           field = "postcodeIn",
           value = token
-        ).boost(queryParams.postcode.postcodeInBoost).fuzziness("2"))
+        ).boost(queryParams.postcode.postcodeInBoost))
     ).flatten
 
     val organisationNameQuery = Seq(
@@ -356,7 +356,7 @@ class AddressIndexRepository @Inject()(
           field = "paf.welshDoubleDependentLocality",
           value = token
         ).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
-    ).flatten.map(_.fuzziness("2"))
+    ).flatten.map(_.fuzziness("1"))
 
     val allQuery = Seq(
       matchQuery(

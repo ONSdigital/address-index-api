@@ -623,7 +623,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
                                                           "boost":${queryParams.streetName.pafThoroughfareBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -633,7 +633,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
                                                           "boost":${queryParams.streetName.pafWelshThoroughfareBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -643,7 +643,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
                                                           "boost":${queryParams.streetName.pafDependentThoroughfareBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -653,7 +653,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
                                                           "boost":${queryParams.streetName.pafWelshDependentThoroughfareBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -663,7 +663,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
                                                           "boost":${queryParams.streetName.lpiStreetDescriptorBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  }
@@ -679,7 +679,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.pafPostTownBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -689,7 +689,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.pafWelshPostTownBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -699,7 +699,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.lpiTownNameBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -709,7 +709,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.pafDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -719,7 +719,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.pafWelshDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -729,7 +729,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.lpiLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -739,7 +739,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.pafDoubleDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -749,7 +749,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
                                                           "boost":${queryParams.townName.pafWelshDoubleDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  }
@@ -788,8 +788,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        "postcodeOut":{  
                                                           "query":"$hybridFirstPostcodeOut",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.postcode.postcodeOutBoost},
-                                                          "fuzziness":"1"
+                                                          "boost":${queryParams.postcode.postcodeOutBoost}
                                                        }
                                                     }
                                                  },
@@ -798,8 +797,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        "postcodeIn":{  
                                                           "query":"$hybridFirstPostcodeIn",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.postcode.postcodeInBoost},
-                                                          "fuzziness":"2"
+                                                          "boost":${queryParams.postcode.postcodeInBoost}
                                                        }
                                                     }
                                                  }
@@ -980,7 +978,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
                                                           "boost":${queryParams.locality.pafDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -990,7 +988,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
                                                           "boost":${queryParams.locality.pafWelshDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -1000,7 +998,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
                                                           "boost":${queryParams.locality.lpiLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -1010,7 +1008,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
                                                           "boost":${queryParams.locality.pafDoubleDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  },
@@ -1020,7 +1018,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
                                                           "boost":${queryParams.locality.pafWelshDoubleDependentLocalityBoost},
-                                                          "fuzziness":"2"
+                                                          "fuzziness":"1"
                                                        }
                                                     }
                                                  }
