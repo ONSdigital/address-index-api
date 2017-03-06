@@ -138,6 +138,11 @@ class AddressIndexRepository @Inject()(
         matchQuery(
           field = "lpi.saoText",
           value = token
+        ).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
+      tokens.get(Tokens.saoStartSuffix).map(token =>
+        matchQuery(
+          field = "lpi.saoStartSuffix",
+          value = token
         ).boost(queryParams.subBuildingName.lpiSaoTextBoost))
     ).flatten
 
@@ -173,6 +178,11 @@ class AddressIndexRepository @Inject()(
       tokens.get(Tokens.buildingName).map(token =>
         matchQuery(
           field = "lpi.paoText",
+          value = token
+        ).boost(queryParams.buildingName.lpiPaoTextBoost)),
+      tokens.get(Tokens.paoStartSuffix).map(token =>
+        matchQuery(
+          field = "lpi.paoStartSuffix",
           value = token
         ).boost(queryParams.buildingName.lpiPaoTextBoost))
     ).flatten.map(_.fuzziness("1"))
