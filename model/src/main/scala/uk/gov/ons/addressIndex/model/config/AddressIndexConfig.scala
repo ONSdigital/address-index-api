@@ -30,8 +30,7 @@ case class QueryParamsConfig(
   departmentName: DepartmentNameConfig,
   locality: LocalityConfig,
   disMaxTieBreaker: Double,
-  pafAllBoost: Float,
-  nagAllBoost: Float,
+  allBoost: Float,
   defaultBoost: Float
 )
 
