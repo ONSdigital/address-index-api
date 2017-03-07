@@ -292,7 +292,7 @@ object LocalCustodian {
     "N1115" -> "NORTH DEVON",
     "C1115" -> "E07000043",
     "N1125" -> "SOUTH HAMS",
-    "C1125" -> "E07000044"
+    "C1125" -> "E07000044",
     "N1130" -> "TEIGNBRIDGE",
     "C1130" -> "E07000045",
     "N1135" -> "MID DEVON",
@@ -340,7 +340,7 @@ object LocalCustodian {
     "N1505" -> "BASILDON",
     "C1505" -> "E07000066",
     "N1510" -> "BRAINTREE",
-    "C1510" -> "E07000067,
+    "C1510" -> "E07000067",
     "N1515" -> "BRENTWOOD",
     "C1515" -> "E07000068",
     "N1520" -> "CASTLE POINT",
@@ -918,7 +918,7 @@ object LocalCustodian {
     "N9063" -> "EAST RENFREWSHIRE",
     "C9063" -> "S12000011",
     "N9064" -> "CITY OF EDINBURGH",
-    "C9064" -> "S12000036"
+    "C9064" -> "S12000036",
     "N9065" -> "FALKIRK",
     "C9065" -> "S12000014",
     "N9066" -> "FIFE",
@@ -932,7 +932,7 @@ object LocalCustodian {
     "N9070" -> "MIDLOTHIAN",
     "C9070" -> "S12000019",
     "N9071" -> "MORAY",
-    "C9071" -> "S12000020"
+    "C9071" -> "S12000020",
     "N9072" -> "NORTH AYRSHIRE",
     "C9072" -> "S12000021",
     "N9073" -> "NORTH LANARKSHIRE",
