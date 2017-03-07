@@ -26,7 +26,7 @@ object Splunk {
     score: String = "",
     uuid: String = ""
   ): Unit = {
-    logger.info(
+    logger.trace(
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_input=$isInput is_bulk=$isBulk " +
         s"uprn=$uprn input=$input offset=$offset limit=$limit bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +

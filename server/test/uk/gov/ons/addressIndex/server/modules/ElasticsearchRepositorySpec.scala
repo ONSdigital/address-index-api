@@ -18,11 +18,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
 
+
   // injections
   val elasticClientProvider = new ElasticClientProvider {
     override def client: ElasticClient = testClient
   }
   val config = new AddressIndexConfigModule
+  val queryParams = config.config.elasticSearch.queryParams
 
   val hybridIndex = config.config.elasticSearch.indexes.hybridIndex
   val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
@@ -40,8 +42,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridPafBuildingNumber = 6.toShort
   val hybridPafThoroughfare = "h7"
   val hybridPafPostTown = "h8"
-  val hybridPafPostcode = "h9"
-  val hybridAll = "h100"
+  val hybridPafPostcode = "h10"
+  val hybridAll = "H100"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
@@ -54,7 +56,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagSaoStartSuffix = "h16"
   val hybridNagSaoEndNumber = 17.toShort
   val hybridNagSaoEndSuffix = "h18"
-  val hybridNagLocality = "h10"
+  val hybridNagLocality = "h20"
   val hybridNagOrganisation = hybridPafOrganizationName
   val hybridNagLegalName = hybridPafOrganizationName
   val hybridNagSaoText = hybridPafSubBuildingName
@@ -85,7 +87,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridPafBuildingNumber = 7.toShort
   val secondaryHybridPafThoroughfare = "s7"
   val secondaryHybridPafPostTown = "s8"
-  val secondaryHybridPafPostcode = "s9"
+  val secondaryHybridPafPostcode = "s10"
   val secondaryHybridAll = "s200"
 
   // Fields that are not in this list are not used for search
@@ -99,7 +101,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagSaoStartSuffix = "s16"
   val secondaryHybridNagSaoEndNumber = 23.toShort
   val secondaryHybridNagSaoEndSuffix = "s18"
-  val secondaryHybridNagLocality = "s10"
+  val secondaryHybridNagLocality = "s20"
   val secondaryHybridNagOrganisation = secondaryHybridPafOrganizationName
   val secondaryHybridNagLegalName = secondaryHybridPafOrganizationName
   val secondaryHybridNagSaoText = secondaryHybridPafSubBuildingName
@@ -108,8 +110,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagTownName = secondaryHybridPafPostTown
   val secondaryHybridNagLatitude = 7.0000000f
   val secondaryHybridNagLongitude = 8.0000000f
-  val secondaryHybridNagNorthing = 9f
-  val secondaryHybridNagEasting = 10f
+  val secondaryHybridNagNorthing = 10f
+  val secondaryHybridNagEasting = 11f
 
   val firstHybridPafEs = Map(
     "recordIdentifier" -> hybridNotUsedNull,
@@ -436,15 +438,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, hybridAll).await
 
       // Then
-      results.length shouldBe 1
-      total shouldBe 1
+      results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
+      total should be > 0l
 
       val resultHybrid = results.head
       resultHybrid shouldBe expected.copy(score = resultHybrid.score)
 
-      // Score is random, but should always be close to some number
-      resultHybrid.score shouldBe expectedScore +- 0.1f
-      maxScore shouldBe expectedScore +- 0.1f
+      // Score is random, but should always be positive
+      resultHybrid.score should be > 0f
+      maxScore should be > 0f
     }
 */
     "have score of `0` if no addresses found" in {
@@ -461,6 +463,52 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       results.length shouldBe 0
       maxScore shouldBe 0f
       total shouldBe 0f
+    }
+
+    "remove empty boolean queries from the query " in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val tokens: Map[String, String] = Map.empty
+
+      val input = "ORIGINAL INPUT"
+
+      val expected = Json.parse(
+        s"""
+          {
+             "query":{
+                "bool":{
+                   "should":[
+                      {
+                         "match":{
+                            "paf.pafAll":{
+                               "query":"$input",
+                               "type":"boolean",
+                               "boost":${queryParams.pafAllBoost}
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "lpi.nagAll":{
+                               "query":"$input",
+                               "type":"boolean",
+                               "boost":${queryParams.pafAllBoost}
+                            }
+                         }
+                      }
+                   ]
+                }
+             }
+          }
+        """
+      )
+
+      // When
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens, input).toString)
+
+      // Then
+      result shouldBe expected
     }
 
     "generate valid query for search by tokens" in {
@@ -490,439 +538,554 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
        s"""
-        {
-        	"query": {
-        		"bool": {
-        			"must": [{
-        				"bool": {
-          	      "must": [{
-          					"match": {
-          						"lpi.saoStartNumber": {
-          							"query": "$hybridNagSaoStartNumber",
-           							"type": "boolean",
-             						"boost": 1
-             					}
-             				}
-             			}, {
-             				"match": {
-            					"lpi.saoStartSuffix": {
-             						"query": "$hybridNagSaoStartSuffix",
-               					"type": "boolean",
-               					"boost": 1
-               				}
-               		  }
-               		}, {
-                    "match": {
-               				"lpi.saoEndNumber": {
-               					"query": "$hybridNagSaoEndNumber",
-                				"type": "boolean",
-                 				"boost": 1
-                			}
-                 		}
-                 	}, {
-               			"match": {
-               				"lpi.saoEndSuffix": {
-               				  "query": "$hybridNagSaoEndSuffix",
-               				  "type": "boolean",
-               				  "boost": 1
-               			  }
-                    }
-               		}],
-        					"should": [{
-        						"match": {
-        							"paf.subBuildingName": {
-        								"query": "$hybridPafSubBuildingName",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.saoText": {
-        								"query": "$hybridPafSubBuildingName",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}]
-         				}
-        			}, {
-        				"bool": {
-        					"must": [{
-        						"match": {
-        							"lpi.paoStartNumber": {
-        								"query": "$hybridNagPaoStartNumber",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.paoStartSuffix": {
-        								"query": "$hybridNagPaoStartSuffix",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.paoEndNumber": {
-        								"query": "$hybridNagPaoEndNumber",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.paoEndSuffix": {
-        								"query": "$hybridNagPaoEndSuffix",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}],
-         					"should": [{
-        						"match": {
-         							"paf.buildingName": {
-         								"query": "$hybridPafBuildingName",
-           							"type": "boolean",
-           							"boost": 1,
-                        "fuzziness":"AUTO"
-           						}
-           					}
-         					}, {
-         						"match": {
-         							"lpi.paoText": {
-         								"query": "$hybridPafBuildingName",
-            						"type": "boolean",
-                  			"boost": 1,
-                        "fuzziness":"AUTO"
-          						}
-          					}
-          				}]
-        				}
-        			}, {
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.buildingNumber": {
-        								"query": "$hybridPafBuildingNumber",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.paoStartNumber": {
-        								"query": "$hybridPafBuildingNumber",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}]
-        				}
-        			}, {
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.thoroughfare": {
-        								"query": "$hybridNagStreetDescriptor",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshThoroughfare": {
-        								"query": "$hybridNagStreetDescriptor",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.dependentThoroughfare": {
-        								"query": "$hybridNagStreetDescriptor",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshDependentThoroughfare": {
-        								"query": "$hybridNagStreetDescriptor",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.streetDescriptor": {
-        								"query": "$hybridNagStreetDescriptor",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}]
-        				}
-        			}, {
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.postTown": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshPostTown": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.townName": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.dependentLocality": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshDependentLocality": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.locality": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.doubleDependentLocality": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 0.2,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshDoubleDependentLocality": {
-        								"query": "$hybridNagTownName",
-        								"type": "boolean",
-        								"boost": 0.2,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}]
-        				}
-        			}, {
-        				"bool": {
-        					"must": [{
-        						"match": {
-        							"paf.postcode": {
-        								"query": "$hybridNagPostcodeLocator",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.postcodeLocator": {
-        								"query": "$hybridNagPostcodeLocator",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}],
-        					"should": [{
-        						"match": {
-        							"postcodeOut": {
-        								"query": "$hybridFirstPostcodeOut",
-        								"type": "boolean",
-                        "boost": 0.8,
-                        "fuzziness": "1"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"postcodeIn": {
-        								"query": "$hybridFirstPostcodeIn",
-        								"type": "boolean",
-                        "boost": 0.3,
-                        "fuzziness": "2"
-        							}
-        						}
-        					}]
-        				}
-        			}],
-        			"should": [{
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.organizationName": {
-        								"query": "$hybridNagOrganisation",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.organisation": {
-        								"query": "$hybridNagOrganisation",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.paoText": {
-        								"query": "$hybridNagOrganisation",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.legalName": {
-        								"query": "$hybridNagOrganisation",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.saoText": {
-        								"query": "$hybridNagOrganisation",
-        								"type": "boolean",
-        								"boost": 0.5
-        							}
-        						}
-        					}]
-        				}
-        			}, {
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.departmentName": {
-        								"query": "$hybridPafDepartmentName",
-        								"type": "boolean",
-        								"boost": 1
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.legalName": {
-        								"query": "$hybridPafDepartmentName",
-        								"type": "boolean",
-        								"boost": 0.5
-        							}
-        						}
-        					}]
-        				}
-        			}, {
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.dependentLocality": {
-        								"query": "$hybridNagLocality",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshDependentLocality": {
-        								"query": "$hybridNagLocality",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.locality": {
-        								"query": "$hybridNagLocality",
-        								"type": "boolean",
-        								"boost": 1,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.doubleDependentLocality": {
-        								"query": "$hybridNagLocality",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"paf.welshDoubleDependentLocality": {
-        								"query": "$hybridNagLocality",
-        								"type": "boolean",
-        								"boost": 0.5,
-                        "fuzziness":"2"
-        							}
-        						}
-        					}]
-        				}
-        			}, {
-        				"bool": {
-        					"should": [{
-        						"match": {
-        							"paf.pafAll": {
-        								"query": "$hybridAll",
-        								"type": "boolean",
-        								"boost": 0.5
-        							}
-        						}
-        					}, {
-        						"match": {
-        							"lpi.nagAll": {
-        								"query": "$hybridAll",
-        								"type": "boolean",
-        								"boost": 0.5
-        							}
-        						}
-        					}]
-        				}
-        			}]
-        		}
-        	}
-        }
+          {
+             "query":{  
+                "bool":{  
+                   "should":[  
+                      {  
+                         "bool":{  
+                            "should":[  
+                               {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {
+                                                    "match":{  
+                                                       "paf.buildingNumber":{  
+                                                          "query":"$hybridPafBuildingNumber",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingNumber.pafBuildingNumberBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoStartNumber":{  
+                                                          "query":"$hybridPafBuildingNumber",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingNumber.pafBuildingNumberBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.buildingName":{  
+                                                          "query":"$hybridPafBuildingName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoText":{  
+                                                          "query":"$hybridPafBuildingName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {
+                                                    "match":{
+                                                       "lpi.paoStartSuffix":{
+                                                          "query":"$hybridNagPaoStartSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.subBuildingName":{  
+                                                          "query":"$hybridPafSubBuildingName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.pafSubBuildingNameBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.saoText":{  
+                                                          "query":"$hybridPafSubBuildingName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {
+                                                    "match":{
+                                                       "lpi.saoStartSuffix":{
+                                                          "query":"$hybridNagSaoStartSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {
+                                                    "match":{  
+                                                       "paf.thoroughfare":{  
+                                                          "query":"$hybridNagStreetDescriptor",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.streetName.pafThoroughfareBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshThoroughfare":{  
+                                                          "query":"$hybridNagStreetDescriptor",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.streetName.pafWelshThoroughfareBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.dependentThoroughfare":{  
+                                                          "query":"$hybridNagStreetDescriptor",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.streetName.pafDependentThoroughfareBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshDependentThoroughfare":{  
+                                                          "query":"$hybridNagStreetDescriptor",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.streetName.pafWelshDependentThoroughfareBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.streetDescriptor":{  
+                                                          "query":"$hybridNagStreetDescriptor",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.streetName.lpiStreetDescriptorBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.postTown":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.pafPostTownBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshPostTown":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.pafWelshPostTownBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.townName":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.lpiTownNameBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.dependentLocality":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.pafDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshDependentLocality":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.pafWelshDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.locality":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.lpiLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.doubleDependentLocality":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.pafDoubleDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshDoubleDependentLocality":{  
+                                                          "query":"$hybridNagTownName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.townName.pafWelshDoubleDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.postcode":{  
+                                                          "query":"$hybridNagPostcodeLocator",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.postcode.pafPostcodeBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.postcodeLocator":{  
+                                                          "query":"$hybridNagPostcodeLocator",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.postcode.lpiPostcodeLocatorBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "postcodeOut":{  
+                                                          "query":"$hybridFirstPostcodeOut",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.postcode.postcodeOutBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "postcodeIn":{  
+                                                          "query":"$hybridFirstPostcodeIn",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.postcode.postcodeInBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoStartNumber":{  
+                                                          "query":"$hybridNagPaoStartNumber",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.lpiPaoStartNumberBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoStartSuffix":{  
+                                                          "query":"$hybridNagPaoStartSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.lpiPaoStartSuffixBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoEndNumber":{  
+                                                          "query":"$hybridNagPaoEndNumber",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.lpiPaoEndNumberBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoEndSuffix":{  
+                                                          "query":"$hybridNagPaoEndSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.buildingName.lpiPaoEndSuffixBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.saoStartNumber":{  
+                                                          "query":"$hybridNagSaoStartNumber",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoStartNumberBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.saoStartSuffix":{  
+                                                          "query":"$hybridNagSaoStartSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoStartSuffixBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.saoEndNumber":{  
+                                                          "query":"$hybridNagSaoEndNumber",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoEndNumberBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.saoEndSuffix":{  
+                                                          "query":"$hybridNagSaoEndSuffix",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.subBuildingName.lpiSaoEndSuffixBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                         },
+                                         {
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.organizationName":{  
+                                                          "query":"$hybridNagOrganisation",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.organisationName.pafOrganisationNameBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.organisation":{  
+                                                          "query":"$hybridNagOrganisation",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.organisationName.lpiOrganisationBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.paoText":{  
+                                                          "query":"$hybridNagOrganisation",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.organisationName.lpiPaoTextBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.legalName":{  
+                                                          "query":"$hybridNagOrganisation",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.organisationName.lpiLegalNameBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.saoText":{  
+                                                          "query":"$hybridNagOrganisation",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.organisationName.lpiSaoTextBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.departmentName":{  
+                                                          "query":"$hybridPafDepartmentName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.departmentName.pafDepartmentNameBoost}
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.legalName":{  
+                                                          "query":"$hybridPafDepartmentName",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.departmentName.lpiLegalNameBoost}
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                    "match":{  
+                                                       "paf.dependentLocality":{  
+                                                          "query":"$hybridNagLocality",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.locality.pafDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshDependentLocality":{  
+                                                          "query":"$hybridNagLocality",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.locality.pafWelshDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "lpi.locality":{  
+                                                          "query":"$hybridNagLocality",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.locality.lpiLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.doubleDependentLocality":{  
+                                                          "query":"$hybridNagLocality",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.locality.pafDoubleDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 },
+                                                 {  
+                                                    "match":{  
+                                                       "paf.welshDoubleDependentLocality":{  
+                                                          "query":"$hybridNagLocality",
+                                                          "type":"boolean",
+                                                          "boost":${queryParams.locality.pafWelshDoubleDependentLocalityBoost},
+                                                          "fuzziness":"1"
+                                                       }
+                                                    }
+                                                 }
+                                              ]
+                                           }
+                               }
+                            ]
+                         }
+                      },
+                      {  
+                         "bool":{  
+                            "should":[  
+                               {  
+                                  "match":{  
+                                     "paf.pafAll":{  
+                                        "query":"$hybridAll",
+                                        "type":"boolean",
+                                        "boost":${queryParams.pafAllBoost}
+                                     }
+                                  }
+                               },
+                               {  
+                                  "match":{  
+                                     "lpi.nagAll":{  
+                                        "query":"$hybridAll",
+                                        "type":"boolean",
+                                        "boost":${queryParams.nagAllBoost}
+                                     }
+                                  }
+                               }
+                            ]
+                         }
+                      }
+                   ]
+                }
+             }
+          }
        """
       )
 
