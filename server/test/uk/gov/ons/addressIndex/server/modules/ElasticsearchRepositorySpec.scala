@@ -67,7 +67,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagLongitude = -2.0000000f
   val hybridNagNorthing = 3f
   val hybridNagEasting = 4f
-
+  val hybridNagCustCode = "1110"
+  val hybridNagCustName = "EXETER"
+  val hybridNagCustGeogCode = "E07000041"
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
   val hybridNotUsedNull = null
@@ -112,6 +114,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagLongitude = 8.0000000f
   val secondaryHybridNagNorthing = 10f
   val secondaryHybridNagEasting = 11f
+  val secondardyHybridNagLocalCustodianName = "EXETER"
+  val secondardyHybridNagLocalCustodianCode = "1110"
+
 
   val firstHybridPafEs = Map(
     "recordIdentifier" -> hybridNotUsedNull,
@@ -216,8 +221,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "location" -> Array(hybridNagLongitude, hybridNagLatitude),
     "language" -> hybridNotUsed,
     "classScheme" -> hybridNotUsed,
-    "localCustodianCode" -> hybridNotUsedNull,
-    "localCustodianName" -> hybridNotUsedNull,
+    "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
+    "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> hybridAll
@@ -261,8 +266,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "nagAll" -> hybridNotUsed,
     "language" -> hybridNotUsed,
     "classScheme" -> hybridNotUsed,
-    "localCustodianCode" -> hybridNotUsedNull,
-    "localCustodianName" -> hybridNotUsedNull,
+    "localCustodianCode" -> secondardyHybridNagLocalCustodianCode,
+    "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> secondaryHybridAll
@@ -365,9 +370,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed,
-    hybridNotUsed,
-    hybridNotUsed,
+    hybridNagCustCode,
+    hybridNagCustName,
+    hybridNagCustGeogCode,
     hybridNotUsed,
     hybridAll
   )
@@ -404,7 +409,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Then
       result shouldBe expected
     }
-/** two test not working due to new index / query - reinstate when fixed
+
     "find HYBRID address by UPRN" in {
 
       // Given
@@ -448,7 +453,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       resultHybrid.score should be > 0f
       maxScore should be > 0f
     }
-*/
     "have score of `0` if no addresses found" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
