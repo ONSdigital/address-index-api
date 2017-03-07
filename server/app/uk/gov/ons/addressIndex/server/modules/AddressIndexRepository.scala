@@ -105,303 +105,306 @@ class AddressIndexRepository @Inject()(
     */
   def generateQueryAddressRequest(tokens: Map[String, String], originalInput: String): SearchDefinition = {
 
+    val defaultFuzziness = "1"
+
     val saoQuery = Seq(
       tokens.get(Tokens.saoStartNumber).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoStartNumber",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
+        )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
       tokens.get(Tokens.saoStartSuffix).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoStartSuffix",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)),
+        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)),
       tokens.get(Tokens.saoEndNumber).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoEndNumber",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoEndNumberBoost)),
+        )).boost(queryParams.subBuildingName.lpiSaoEndNumberBoost)),
       tokens.get(Tokens.saoEndSuffix).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoEndSuffix",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost))
+        )).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost))
     ).flatten
 
     val subBuildingNameQuery = Seq(
       tokens.get(Tokens.subBuildingName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.subBuildingName",
           value = token
-        ).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
+        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
       tokens.get(Tokens.subBuildingName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
+        )).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
       tokens.get(Tokens.saoStartSuffix).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoStartSuffix",
           value = token
-        ).boost(queryParams.subBuildingName.lpiSaoTextBoost))
+        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
     ).flatten
 
     val paoQuery = Seq(
       tokens.get(Tokens.paoStartNumber).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoStartNumberBoost)),
+        )).boost(queryParams.buildingName.lpiPaoStartNumberBoost)),
       tokens.get(Tokens.paoStartSuffix).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoStartSuffix",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoStartSuffixBoost)),
+        )).boost(queryParams.buildingName.lpiPaoStartSuffixBoost)),
       tokens.get(Tokens.paoEndNumber).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoEndNumber",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoEndNumberBoost)),
+        )).boost(queryParams.buildingName.lpiPaoEndNumberBoost)),
       tokens.get(Tokens.paoEndSuffix).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoEndSuffix",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
+        )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
     ).flatten
 
     val buildingNameQuery = Seq(
       tokens.get(Tokens.buildingName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.buildingName",
           value = token
-        ).boost(queryParams.buildingName.pafBuildingNameBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost)),
       tokens.get(Tokens.buildingName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoTextBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoTextBoost)),
       tokens.get(Tokens.paoStartSuffix).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoStartSuffix",
           value = token
-        ).boost(queryParams.buildingName.lpiPaoTextBoost))
-    ).flatten.map(_.fuzziness("1"))
+        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoStartSuffixBoost))
+    ).flatten
 
 
     val buildingNumberQuery = Seq(
       tokens.get(Tokens.buildingNumber).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
           value = token
-        ).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
+        )).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
       tokens.get(Tokens.buildingNumber).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
-        ).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost))
+        )).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost))
     ).flatten
 
     val streetNameQuery = Seq(
       tokens.get(Tokens.streetName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.thoroughfare",
           value = token
-        ).boost(queryParams.streetName.pafThoroughfareBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafThoroughfareBoost)),
       tokens.get(Tokens.streetName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshThoroughfare",
           value = token
-        ).boost(queryParams.streetName.pafWelshThoroughfareBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshThoroughfareBoost)),
       tokens.get(Tokens.streetName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.dependentThoroughfare",
           value = token
-        ).boost(queryParams.streetName.pafDependentThoroughfareBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafDependentThoroughfareBoost)),
       tokens.get(Tokens.streetName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshDependentThoroughfare",
           value = token
-        ).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost)),
       tokens.get(Tokens.streetName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.streetDescriptor",
           value = token
-        ).boost(queryParams.streetName.lpiStreetDescriptorBoost))
-    ).flatten.map(_.fuzziness("1"))
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.lpiStreetDescriptorBoost))
+    ).flatten
 
     val townNameQuery = Seq(
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.postTown",
           value = token
-        ).boost(queryParams.townName.pafPostTownBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafPostTownBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshPostTown",
           value = token
-        ).boost(queryParams.townName.pafWelshPostTownBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshPostTownBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.townName",
           value = token
-        ).boost(queryParams.townName.lpiTownNameBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.lpiTownNameBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.dependentLocality",
           value = token
-        ).boost(queryParams.townName.pafDependentLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafDependentLocalityBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshDependentLocality",
           value = token
-        ).boost(queryParams.townName.pafWelshDependentLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshDependentLocalityBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.locality",
           value = token
-        ).boost(queryParams.townName.lpiLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.lpiLocalityBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.doubleDependentLocality",
           value = token
-        ).boost(queryParams.townName.pafDoubleDependentLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafDoubleDependentLocalityBoost)),
       tokens.get(Tokens.townName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshDoubleDependentLocality",
           value = token
-        ).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
-    ).flatten.map(_.fuzziness("1"))
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
+    ).flatten
 
     val postcodeQuery = Seq(
       tokens.get(Tokens.postcode).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.postcode",
           value = token
-        ).boost(queryParams.postcode.pafPostcodeBoost)),
+        )).boost(queryParams.postcode.pafPostcodeBoost)),
       tokens.get(Tokens.postcode).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.postcodeLocator",
           value = token
-        ).boost(queryParams.postcode.lpiPostcodeLocatorBoost))
-    ).flatten
-
-    val postcodeInOutQuery = Seq(
+        )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
       tokens.get(Tokens.postcodeOut).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "postcodeOut",
           value = token
-        ).boost(queryParams.postcode.postcodeOutBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.postcode.postcodeOutBoost)),
       tokens.get(Tokens.postcodeIn).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "postcodeIn",
           value = token
-        ).boost(queryParams.postcode.postcodeInBoost))
+        ).fuzziness("2")).boost(queryParams.postcode.postcodeInBoost))
     ).flatten
 
     val organisationNameQuery = Seq(
       tokens.get(Tokens.organisationName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.organizationName",
           value = token
-        ).boost(queryParams.organisationName.pafOrganisationNameBoost)),
+        )).boost(queryParams.organisationName.pafOrganisationNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.organisation",
           value = token
-        ).boost(queryParams.organisationName.lpiOrganisationBoost)),
+        )).boost(queryParams.organisationName.lpiOrganisationBoost)),
       tokens.get(Tokens.organisationName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
-        ).boost(queryParams.organisationName.lpiPaoTextBoost)),
+        )).boost(queryParams.organisationName.lpiPaoTextBoost)),
       tokens.get(Tokens.organisationName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.legalName",
           value = token
-        ).boost(queryParams.organisationName.lpiLegalNameBoost)),
+        )).boost(queryParams.organisationName.lpiLegalNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        ).boost(queryParams.organisationName.lpiSaoTextBoost))
+        )).boost(queryParams.organisationName.lpiSaoTextBoost))
     ).flatten
 
     val departmentNameQuery = Seq(
       tokens.get(Tokens.departmentName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.departmentName",
           value = token
-        ).boost(queryParams.departmentName.pafDepartmentNameBoost)),
+        )).boost(queryParams.departmentName.pafDepartmentNameBoost)),
       tokens.get(Tokens.departmentName).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.legalName",
           value = token
-        ).boost(queryParams.departmentName.lpiLegalNameBoost))
+        )).boost(queryParams.departmentName.lpiLegalNameBoost))
     ).flatten
 
     val localityQuery = Seq(
       tokens.get(Tokens.locality).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.dependentLocality",
           value = token
-        ).boost(queryParams.locality.pafDependentLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafDependentLocalityBoost)),
       tokens.get(Tokens.locality).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshDependentLocality",
           value = token
-        ).boost(queryParams.locality.pafWelshDependentLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDependentLocalityBoost)),
       tokens.get(Tokens.locality).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "lpi.locality",
           value = token
-        ).boost(queryParams.locality.lpiLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.lpiLocalityBoost)),
       tokens.get(Tokens.locality).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.doubleDependentLocality",
           value = token
-        ).boost(queryParams.locality.pafDoubleDependentLocalityBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafDoubleDependentLocalityBoost)),
       tokens.get(Tokens.locality).map(token =>
-        matchQuery(
+        constantScoreQuery(matchQuery(
           field = "paf.welshDoubleDependentLocality",
           value = token
-        ).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
-    ).flatten.map(_.fuzziness("1"))
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
+    ).flatten
 
-    val allQuery = Seq(
-      matchQuery(
-        field = "paf.pafAll",
-        value = originalInput.toUpperCase
-      ).boost(queryParams.pafAllBoost),
-      matchQuery(
-        field = "lpi.nagAll",
-        value = originalInput.toUpperCase
-      ).boost(queryParams.nagAllBoost)
-    )
+    val allQuery =
+      moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
+        .like(originalInput.toUpperCase)
+        .minTermFreq(1)
+        .analyser("welsh_split_analyzer")
+        .boost(queryParams.allBoost)
 
-    val preciseQuery = Seq(
+    // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
+    allQuery.builder.minimumShouldMatch("-1")
+
+    val preciseMustQuery = Seq(
       buildingNumberQuery,
       buildingNameQuery,
       subBuildingNameQuery,
       streetNameQuery,
       townNameQuery,
       postcodeQuery,
-      postcodeInOutQuery,
       paoQuery,
-      saoQuery,
+      saoQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
+
+    val preciseShouldQuery = Seq(
       organisationNameQuery,
       departmentNameQuery,
       localityQuery
-    )
-      .filter(_.nonEmpty)
-      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-      .map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
 
-    val fallbackQuery = should(allQuery)
+    val preciseQuery = (preciseMustQuery, preciseShouldQuery) match {
+      case (Nil, Nil) => Seq.empty
+      case (mustQuery, Nil) => Seq(must(mustQuery))
+      case (Nil, shouldQuery) => Seq(should(shouldQuery))
+      case (mustQuery, shouldQuery) => Seq(must(mustQuery), should(shouldQuery))
+    }
 
     val query =
-      if (preciseQuery.isEmpty) fallbackQuery
+      if (preciseQuery.isEmpty) allQuery
       else should(
-        Seq(should(preciseQuery), fallbackQuery)
+        Seq(should(preciseQuery), allQuery)
       )
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
