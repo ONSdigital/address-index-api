@@ -542,23 +542,30 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {
+                                                   "constant_score" : {
+                                                   "filter" : {
                                                     "match":{  
                                                        "paf.buildingNumber":{  
                                                           "query":"$hybridPafBuildingNumber",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.buildingNumber.pafBuildingNumberBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
+                                                          "boost":${queryParams.buildingNumber.pafBuildingNumberBoost}
+
+                                                 }},
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoStartNumber":{  
                                                           "query":"$hybridPafBuildingNumber",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.buildingNumber.pafBuildingNumberBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.buildingNumber.pafBuildingNumberBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -567,35 +574,45 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.buildingName":{  
                                                           "query":"$hybridPafBuildingName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoText":{  
                                                           "query":"$hybridPafBuildingName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
+                                                          "boost":${queryParams.buildingName.lpiPaoTextBoost}
+                                                 }},
                                                  {
+                                                   "constant_score" : {
+                                                   "filter" : {
                                                     "match":{
                                                        "lpi.paoStartSuffix":{
                                                           "query":"$hybridNagPaoStartSuffix",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.buildingName.pafBuildingNameBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
-                                                 }
+                                                 },
+
+                                                          "boost":${queryParams.buildingName.lpiPaoStartSuffixBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -604,32 +621,41 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.subBuildingName":{  
                                                           "query":"$hybridPafSubBuildingName",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.pafSubBuildingNameBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.subBuildingName.pafSubBuildingNameBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.saoText":{  
                                                           "query":"$hybridPafSubBuildingName",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
+                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                 }},
                                                  {
+                                                   "constant_score" : {
+                                                   "filter" : {
                                                     "match":{
                                                        "lpi.saoStartSuffix":{
                                                           "query":"$hybridNagSaoStartSuffix",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoTextBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.subBuildingName.lpiSaoStartSuffixBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -638,55 +664,71 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.thoroughfare":{  
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.streetName.pafThoroughfareBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.streetName.pafThoroughfareBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshThoroughfare":{  
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.streetName.pafWelshThoroughfareBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.streetName.pafWelshThoroughfareBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.dependentThoroughfare":{  
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.streetName.pafDependentThoroughfareBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.streetName.pafDependentThoroughfareBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshDependentThoroughfare":{  
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.streetName.pafWelshDependentThoroughfareBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.streetName.pafWelshDependentThoroughfareBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.streetDescriptor":{  
                                                           "query":"$hybridNagStreetDescriptor",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.streetName.lpiStreetDescriptorBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
-                                                 }
+                                                 },
+
+                                                          "boost":${queryParams.streetName.lpiStreetDescriptorBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -695,85 +737,109 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.postTown":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.pafPostTownBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.pafPostTownBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshPostTown":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.pafWelshPostTownBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.pafWelshPostTownBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.townName":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.lpiTownNameBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.lpiTownNameBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.dependentLocality":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.pafDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.pafDependentLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshDependentLocality":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.pafWelshDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.pafWelshDependentLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.locality":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.lpiLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.lpiLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.doubleDependentLocality":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.pafDoubleDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.townName.pafDoubleDependentLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshDoubleDependentLocality":{  
                                                           "query":"$hybridNagTownName",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.townName.pafWelshDoubleDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.townName.pafWelshDoubleDependentLocalityBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -782,23 +848,29 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.postcode":{  
                                                           "query":"$hybridNagPostcodeLocator",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.postcode.pafPostcodeBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.postcode.pafPostcodeBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.postcodeLocator":{  
                                                           "query":"$hybridNagPostcodeLocator",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.postcode.lpiPostcodeLocatorBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.postcode.lpiPostcodeLocatorBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -807,23 +879,29 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "postcodeOut":{  
                                                           "query":"$hybridFirstPostcodeOut",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.postcode.postcodeOutBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.postcode.postcodeOutBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "postcodeIn":{  
                                                           "query":"$hybridFirstPostcodeIn",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.postcode.postcodeInBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.postcode.postcodeInBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -832,41 +910,53 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoStartNumber":{  
                                                           "query":"$hybridNagPaoStartNumber",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.buildingName.lpiPaoStartNumberBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.buildingName.lpiPaoStartNumberBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoStartSuffix":{  
                                                           "query":"$hybridNagPaoStartSuffix",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.buildingName.lpiPaoStartSuffixBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.buildingName.lpiPaoStartSuffixBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoEndNumber":{  
                                                           "query":"$hybridNagPaoEndNumber",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.buildingName.lpiPaoEndNumberBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.buildingName.lpiPaoEndNumberBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoEndSuffix":{  
                                                           "query":"$hybridNagPaoEndSuffix",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.buildingName.lpiPaoEndSuffixBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.buildingName.lpiPaoEndSuffixBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -875,41 +965,53 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.saoStartNumber":{  
                                                           "query":"$hybridNagSaoStartNumber",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoStartNumberBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.subBuildingName.lpiSaoStartNumberBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.saoStartSuffix":{  
                                                           "query":"$hybridNagSaoStartSuffix",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoStartSuffixBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.subBuildingName.lpiSaoStartSuffixBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.saoEndNumber":{  
                                                           "query":"$hybridNagSaoEndNumber",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoEndNumberBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.subBuildingName.lpiSaoEndNumberBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.saoEndSuffix":{  
                                                           "query":"$hybridNagSaoEndSuffix",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.subBuildingName.lpiSaoEndSuffixBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.subBuildingName.lpiSaoEndSuffixBoost}
+                                                 }}
                                               ]
                                            }
                                          },
@@ -918,75 +1020,65 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.organizationName":{  
                                                           "query":"$hybridNagOrganisation",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.organisationName.pafOrganisationNameBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.organisationName.pafOrganisationNameBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.organisation":{  
                                                           "query":"$hybridNagOrganisation",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.organisationName.lpiOrganisationBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.organisationName.lpiOrganisationBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.paoText":{  
                                                           "query":"$hybridNagOrganisation",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.organisationName.lpiPaoTextBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.organisationName.lpiPaoTextBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.legalName":{  
                                                           "query":"$hybridNagOrganisation",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.organisationName.lpiLegalNameBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.organisationName.lpiLegalNameBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.saoText":{  
                                                           "query":"$hybridNagOrganisation",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.organisationName.lpiSaoTextBoost}
-                                                       }
-                                                    }
-                                                 }
-                                              ]
-                                           }
-                                        },
-                                        {  
-                                           "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
-                                              "queries":[
-                                                 {  
-                                                    "match":{  
-                                                       "paf.departmentName":{  
-                                                          "query":"$hybridPafDepartmentName",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.departmentName.pafDepartmentNameBoost}
+                                                          "type":"boolean"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
-                                                       "lpi.legalName":{  
-                                                          "query":"$hybridPafDepartmentName",
-                                                          "type":"boolean",
-                                                          "boost":${queryParams.departmentName.lpiLegalNameBoost}
-                                                       }
-                                                    }
-                                                 }
+                                                          "boost":${queryParams.organisationName.lpiSaoTextBoost}
+                                                 }}
                                               ]
                                            }
                                         },
@@ -995,55 +1087,101 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                               "tie_breaker":${queryParams.disMaxTieBreaker},
                                               "queries":[
                                                  {  
-                                                    "match":{  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
+                                                       "paf.departmentName":{  
+                                                          "query":"$hybridPafDepartmentName",
+                                                          "type":"boolean"
+                                                       }
+                                                    }
+                                                 },
+                                                          "boost":${queryParams.departmentName.pafDepartmentNameBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
+                                                       "lpi.legalName":{  
+                                                          "query":"$hybridPafDepartmentName",
+                                                          "type":"boolean"
+                                                       }
+                                                    }
+                                                 },
+                                                          "boost":${queryParams.departmentName.lpiLegalNameBoost}
+                                                 }}
+                                              ]
+                                           }
+                                        },
+                                        {  
+                                           "dis_max":{
+                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "queries":[
+                                                 {  
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.dependentLocality":{  
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.locality.pafDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.locality.pafDependentLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshDependentLocality":{  
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.locality.pafWelshDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.locality.pafWelshDependentLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "lpi.locality":{  
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.locality.lpiLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.locality.lpiLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.doubleDependentLocality":{  
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.locality.pafDoubleDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
                                                  },
-                                                 {  
-                                                    "match":{  
+                                                          "boost":${queryParams.locality.pafDoubleDependentLocalityBoost}
+                                                 }},
+                                                 {
+                                                   "constant_score" : {
+                                                   "filter" : {
+                                                    "match":{
                                                        "paf.welshDoubleDependentLocality":{  
                                                           "query":"$hybridNagLocality",
                                                           "type":"boolean",
-                                                          "boost":${queryParams.locality.pafWelshDoubleDependentLocalityBoost},
                                                           "fuzziness":"1"
                                                        }
                                                     }
-                                                 }
+                                                 },
+                                                          "boost":${queryParams.locality.pafWelshDoubleDependentLocalityBoost}
+                                                 }}
                                               ]
                                            }
                                }
