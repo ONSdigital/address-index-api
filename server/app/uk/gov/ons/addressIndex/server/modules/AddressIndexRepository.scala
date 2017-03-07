@@ -284,20 +284,17 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.postcodeLocator",
           value = token
-        )).boost(queryParams.postcode.lpiPostcodeLocatorBoost))
-    ).flatten
-
-    val postcodeInOutQuery = Seq(
+        )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
       tokens.get(Tokens.postcodeOut).map(token =>
         constantScoreQuery(matchQuery(
           field = "postcodeOut",
           value = token
-        )).boost(queryParams.postcode.postcodeOutBoost)),
+        ).fuzziness(defaultFuzziness)).boost(queryParams.postcode.postcodeOutBoost)),
       tokens.get(Tokens.postcodeIn).map(token =>
         constantScoreQuery(matchQuery(
           field = "postcodeIn",
           value = token
-        )).boost(queryParams.postcode.postcodeInBoost))
+        ).fuzziness("2")).boost(queryParams.postcode.postcodeInBoost))
     ).flatten
 
     val organisationNameQuery = Seq(
@@ -369,41 +366,44 @@ class AddressIndexRepository @Inject()(
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
     ).flatten
 
-    val allQuery = Seq(
-      matchQuery(
-        field = "paf.pafAll",
-        value = originalInput.toUpperCase
-      ).boost(queryParams.pafAllBoost),
-      matchQuery(
-        field = "lpi.nagAll",
-        value = originalInput.toUpperCase
-      ).boost(queryParams.nagAllBoost)
-    )
+    val allQuery =
+      moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
+        .like(originalInput.toUpperCase)
+        .minTermFreq(1)
+        .analyser("welsh_split_analyzer")
 
-    val preciseQuery = Seq(
+    // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
+    allQuery.builder.minimumShouldMatch("-1")
+
+    val preciseMustQuery = Seq(
       buildingNumberQuery,
       buildingNameQuery,
       subBuildingNameQuery,
       streetNameQuery,
       townNameQuery,
       postcodeQuery,
-      postcodeInOutQuery,
       paoQuery,
-      saoQuery,
+      saoQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
+
+    val preciseShouldQuery = Seq(
       organisationNameQuery,
       departmentNameQuery,
       localityQuery
-    )
-      .filter(_.nonEmpty)
-      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-      .map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
 
-    val fallbackQuery = should(allQuery)
+    val preciseQuery = (preciseMustQuery, preciseShouldQuery) match {
+      case (Nil, Nil) => Seq.empty
+      case (mustQuery, Nil) => Seq(must(mustQuery))
+      case (Nil, shouldQuery) => Seq(should(shouldQuery))
+      case (mustQuery, shouldQuery) => Seq(must(mustQuery), should(shouldQuery))
+    }
 
     val query =
-      if (preciseQuery.isEmpty) fallbackQuery
+      if (preciseQuery.isEmpty) allQuery
       else should(
-        Seq(should(preciseQuery), fallbackQuery)
+        Seq(should(preciseQuery), allQuery)
       )
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
