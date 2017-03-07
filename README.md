@@ -25,4 +25,4 @@
 
 ### Who do I talk to? ###
 
-* Rhys Bradbury
+* Richard Smith
