@@ -6,7 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody, BulkResp}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 
 
 trait AddressIndexClient {
@@ -72,8 +72,13 @@ trait AddressIndexClient {
     * @param request the request
     * @return an address
     */
-  def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
-    urpnQueryWSRequest(request).get
+//  def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
+//    urpnQueryWSRequest(request).get
+//  }
+
+  def uprnQuery(request: AddressIndexUPRNRequest)
+                  (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
+    uprnQueryWSRequest(request).get.map(_.json.as[AddressByUprnResponseContainer])
   }
 
   /**
@@ -82,7 +87,7 @@ trait AddressIndexClient {
     * @param request
     * @return
     */
-  def urpnQueryWSRequest(request: AddressIndexUPRNRequest): WSRequest = {
+  def uprnQueryWSRequest(request: AddressIndexUPRNRequest): WSRequest = {
     UprnQuery(request.uprn.toString)
       .toReq
   }
