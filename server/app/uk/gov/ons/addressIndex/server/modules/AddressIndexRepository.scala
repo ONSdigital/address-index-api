@@ -171,7 +171,22 @@ class AddressIndexRepository @Inject()(
         )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
     ).flatten
 
-    val buildingNameQuery = Seq(
+
+    val paoBuildingNameMust = for {
+      paoStartNumber <- tokens.get(Tokens.paoStartNumber)
+      paoStartSuffix <- tokens.get(Tokens.paoStartSuffix)
+    } yield constantScoreQuery(must(Seq(
+      matchQuery(
+        field = "lpi.paoStartNumber",
+        value = paoStartNumber
+      ),
+      matchQuery(
+        field = "lpi.paoStartSuffix",
+        value = paoStartSuffix
+      )
+    ))).boost(queryParams.buildingName.lpiPaoStartSuffixBoost)
+
+    val buildingNameQuery: Seq[QueryDefinition] = Seq(
       tokens.get(Tokens.buildingName).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.buildingName",
@@ -182,11 +197,9 @@ class AddressIndexRepository @Inject()(
           field = "lpi.paoText",
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoTextBoost)),
-      tokens.get(Tokens.paoStartSuffix).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.paoStartSuffix",
-          value = token
-        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoStartSuffixBoost))
+
+      paoBuildingNameMust
+
     ).flatten
 
 
@@ -274,6 +287,20 @@ class AddressIndexRepository @Inject()(
         ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
     ).flatten
 
+    val postcodeInOut = for {
+      postcodeOut <- tokens.get(Tokens.postcodeOut)
+      postcodeIn <- tokens.get(Tokens.postcodeIn)
+    } yield constantScoreQuery(must(Seq(
+      matchQuery(
+        field = "postcodeOut",
+        value = postcodeOut
+      ).fuzziness(defaultFuzziness),
+      matchQuery(
+        field = "postcodeIn",
+        value = postcodeIn
+      ).fuzziness("2")
+    ))).boost(queryParams.postcode.postcodeInBoost)
+
     val postcodeQuery = Seq(
       tokens.get(Tokens.postcode).map(token =>
         constantScoreQuery(matchQuery(
@@ -285,16 +312,9 @@ class AddressIndexRepository @Inject()(
           field = "lpi.postcodeLocator",
           value = token
         )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
-      tokens.get(Tokens.postcodeOut).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "postcodeOut",
-          value = token
-        ).fuzziness(defaultFuzziness)).boost(queryParams.postcode.postcodeOutBoost)),
-      tokens.get(Tokens.postcodeIn).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "postcodeIn",
-          value = token
-        ).fuzziness("2")).boost(queryParams.postcode.postcodeInBoost))
+
+      postcodeInOut
+
     ).flatten
 
     val organisationNameQuery = Seq(
