@@ -91,6 +91,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     language = "language",
     classScheme = "classScheme",
     localCustodianCode = "localCustodianCode",
+    localCustodianName = "localCustodianName",
+    localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
     nagAll = "nagAll"
   )

@@ -129,7 +129,11 @@ classification: Option[Map[String,String]]
                                 }
                                 }
                             </div>
-                        </div>
+                            <div class="resultRow">
+                            <strong>@messages("clerical.la"):</strong>
+                                <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianCode}</span>
+                            </div>
+                            </div>
                     </div>
                 </div>
             </div>

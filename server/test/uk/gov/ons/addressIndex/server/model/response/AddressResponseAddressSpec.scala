@@ -48,6 +48,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     language = "language",
     classScheme = "classScheme",
     localCustodianCode = "localCustodianCode",
+    localCustodianName = "localCustodianName",
+    localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
     nagAll = "nagAll"
   )
@@ -215,7 +217,10 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.locality,
         nag.organisation,
         nag.legalName,
-        nag.classificationCode
+        nag.classificationCode,
+        nag.localCustodianCode,
+        nag.localCustodianName,
+        nag.localCustodianGeogCode
       )
 
       // When
