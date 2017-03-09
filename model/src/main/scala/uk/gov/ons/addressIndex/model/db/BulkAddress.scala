@@ -49,7 +49,6 @@ object BulkAddress {
 case class BulkAddressRequestData(
   id: String,
   inputAddress: String,
-  normalizedInputAddress: String,
   tokens: Map[String, String],
   lastFailExceptionMessage: String = ""
 )
