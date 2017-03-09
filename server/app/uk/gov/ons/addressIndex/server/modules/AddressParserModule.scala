@@ -4,7 +4,7 @@ import javax.inject.Singleton
 
 import com.google.inject.ImplementedBy
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.parsers.AddressParser
+import uk.gov.ons.addressIndex.parsers.{AddressParser, Tokens}
 
 @ImplementedBy(classOf[AddressParserModule])
 trait ParserModule {

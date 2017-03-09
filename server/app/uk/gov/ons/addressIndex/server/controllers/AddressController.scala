@@ -102,7 +102,7 @@ class AddressController @Inject()(
 
       logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(offsetInt, limitInt, tokens, input)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(offsetInt, limitInt, tokens)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
