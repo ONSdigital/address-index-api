@@ -36,10 +36,9 @@ trait ElasticsearchRepository {
     * @param start  the offset for the query
     * @param limit  maximum number of returned results
     * @param tokens address tokens
-    * @param originalInput original input, used against pafAll and nagAll fields
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses]
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
 
   /**
     * Query ES using MultiSearch endpoint
@@ -87,9 +86,9 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String], originalInput: String): Future[HybridAddresses] = {
+  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, originalInput).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -103,7 +102,7 @@ class AddressIndexRepository @Inject()(
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String], originalInput: String): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
 
     val defaultFuzziness = "1"
 
@@ -386,9 +385,22 @@ class AddressIndexRepository @Inject()(
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
     ).flatten
 
+    val normalizedInput =
+      Seq(
+        Tokens.organisationName,
+        Tokens.departmentName,
+        Tokens.subBuildingName,
+        Tokens.buildingName,
+        Tokens.buildingNumber,
+        Tokens.streetName,
+        Tokens.locality,
+        Tokens.townName,
+        Tokens.postcode
+      ).map(label => tokens.getOrElse(label, "")).filter(_.nonEmpty).mkString(" ")
+
     val allQuery =
       moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
-        .like(originalInput.toUpperCase)
+        .like(normalizedInput)
         .minTermFreq(1)
         .analyser("welsh_split_analyzer")
         .boost(queryParams.allBoost)
@@ -435,7 +447,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(0, limit, requestData.tokens, requestData.normalizedInputAddress).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

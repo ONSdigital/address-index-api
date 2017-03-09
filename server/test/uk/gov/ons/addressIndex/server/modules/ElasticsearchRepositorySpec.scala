@@ -435,12 +435,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.organisationName -> hybridNagOrganisation,
         Tokens.postcode -> hybridNagPostcodeLocator
       )
-      val expectedScore = 2.3f
 
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, hybridAll).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -461,7 +460,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens, "9999").await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
 
       // Then
       results.length shouldBe 0
@@ -487,7 +486,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                "lpi.nagAll"
                             ],
                             "like":[
-                               "$input"
+                               ""
                             ],
                             "min_term_freq":1,
                             "analyzer":"welsh_split_analyzer",
@@ -500,7 +499,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens, input).toString)
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
 
       // Then
       result shouldBe expected
@@ -1221,7 +1220,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens, hybridAll).toString)
+      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
 
       // Then
       result shouldBe expected
@@ -1246,8 +1245,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       val inputs = Stream(
-        BulkAddressRequestData("1", "i1", "i1", firstAddressTokens),
-        BulkAddressRequestData("2", "i2", "i2", secondAddressTokens)
+        BulkAddressRequestData("1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", secondAddressTokens)
       )
 
       // When
@@ -1277,8 +1276,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       val inputs = Stream(
-        BulkAddressRequestData("1", "i1", "i1", firstAddressTokens),
-        BulkAddressRequestData("2", "i2", "i2", secondAddressTokens)
+        BulkAddressRequestData("1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", secondAddressTokens)
       )
 
       // When
