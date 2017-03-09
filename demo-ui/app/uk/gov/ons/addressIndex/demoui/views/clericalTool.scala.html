@@ -7,7 +7,6 @@
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 warningMessage : Option[String],
-addressFormat: String,
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
@@ -838,7 +837,7 @@ classification: Option[Map[String,String]]
                 </div>
             </div>
             }
-            @pager(addressFormat, pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total,true)
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total,true)
             }
         </div>
         <div class="panel panel-single address-panel">

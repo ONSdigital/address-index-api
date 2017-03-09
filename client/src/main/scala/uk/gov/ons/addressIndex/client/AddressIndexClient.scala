@@ -72,10 +72,6 @@ trait AddressIndexClient {
     * @param request the request
     * @return an address
     */
-//  def uprnQuery(request: AddressIndexUPRNRequest): Future[WSResponse] = {
-//    urpnQueryWSRequest(request).get
-//  }
-
   def uprnQuery(request: AddressIndexUPRNRequest)
                   (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
     uprnQueryWSRequest(request).get.map(_.json.as[AddressByUprnResponseContainer])

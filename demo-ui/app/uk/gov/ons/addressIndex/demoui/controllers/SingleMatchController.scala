@@ -41,7 +41,6 @@ class SingleMatchController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
-  val formatText = "paf"
 
   /**
     * Present empty form for user to input address
@@ -52,7 +51,6 @@ class SingleMatchController @Inject()(
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
-      addressFormat = "paf",
       pageNum = 1,
       pageSize = pageSize,
       pageMax = maxPages,
@@ -70,15 +68,11 @@ class SingleMatchController @Inject()(
   def doMatch() : Action[AnyContent] = Action.async { implicit request =>
     val optAddress: Option[String] = Try(request.body.asFormUrlEncoded.get("address").mkString).toOption
     val addressText = optAddress.getOrElse("")
-    val optFormat: Option[String] = Try(request.body.asFormUrlEncoded.get("format").mkString).toOption
-    val addressFormat = optFormat.getOrElse("paf")
-    logger info("Single Match with address format = " + addressFormat)
     if (addressText.trim.isEmpty) {
       logger info("Single Match with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressFormat = addressFormat,
         pageNum = 1,
         pageSize = pageSize,
         pageMax = maxPages,
@@ -87,9 +81,9 @@ class SingleMatchController @Inject()(
       Future.successful(
         Ok(viewToRender)
       )
-    } else if (Try(addressText.toDouble).isSuccess) {
+    } else if (Try(addressText.toLong).isSuccess) {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(1)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText))
       )
     } else {
       Future.successful(
@@ -117,7 +111,6 @@ class SingleMatchController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressFormat = formatText,
         pageNum = 1,
         pageSize = pageSize,
         pageMax = maxPages,
@@ -137,7 +130,7 @@ class SingleMatchController @Inject()(
           id = UUID.randomUUID
         )
       ) map { resp: AddressBySearchResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText))
 
         val nags = resp.response.addresses.flatMap(_.nag)
         val classCodes: Map[String, String] = nags.map(nag =>
@@ -151,7 +144,6 @@ class SingleMatchController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
           warningMessage = warningMessage,
-          addressFormat = formatText,
           pageNum = pageNum,
           pageSize = pageSize,
           pageMax = maxPages,
@@ -167,21 +159,13 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doGetUprn(input : String, page: Option[Int]) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetUprn(input : String) : Action[AnyContent] = Action.async { implicit request =>
     val addressText = StringUtils.stripAccents(input)
-    val limit = pageSize.toString()
-    logger info("Limit param = " + limit)
-    val pageNum = page.getOrElse(1)
-    val offNum = (pageNum - 1) * pageSize
-    val offset = offNum.toString
-    logger info("Offset param = " + offset)
-    logger info("Max pages = " + maxPages)
     if (addressText.trim.isEmpty) {
-      logger info("Single Match with expected input address missing")
+      logger info("UPRN with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressFormat = formatText,
         pageNum = 1,
         pageSize = pageSize,
         pageMax = maxPages,
@@ -191,15 +175,15 @@ class SingleMatchController @Inject()(
         Ok(viewToRender)
       )
     } else {
-      logger info("Single Match with supplied input address " + addressText)
-      val testuprn = BigInt(addressText)
+      logger info("UPRN with supplied input address " + addressText)
+      val numericUPRN = BigInt(addressText)
       apiClient.uprnQuery(
         AddressIndexUPRNRequest(
-          uprn = testuprn,
+          uprn = numericUPRN,
           id = UUID.randomUUID
         )
       ) map { resp: AddressByUprnResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,formatText))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText))
 
         val nags = resp.response.address.flatMap(_.nag)
         val classCodes: Map[String, String] = nags.map(nag =>
@@ -213,7 +197,6 @@ class SingleMatchController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
           singleSearchForm = filledForm,
           warningMessage = warningMessage,
-          addressFormat = formatText,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes))
         Ok(viewToRender)

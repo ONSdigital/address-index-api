@@ -39,7 +39,6 @@ class ClericalToolController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
-  val formatText = "paf"
 
   /**
     * Present empty form for user to input address
@@ -51,7 +50,6 @@ class ClericalToolController @Inject()(
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
-      addressFormat = "paf",
       pageNum = 1,
       pageSize = pageSize,
       pageMax = maxPages,
@@ -71,15 +69,11 @@ class ClericalToolController @Inject()(
   def doMatch(): Action[AnyContent] = Action.async { implicit request =>
     val optAddress: Option[String] = Try(request.body.asFormUrlEncoded.get("address").mkString).toOption
     val addressText = optAddress.getOrElse("")
-    val optFormat: Option[String] = Try(request.body.asFormUrlEncoded.get("format").mkString).toOption
-    val addressFormat = optFormat.getOrElse("paf")
-    logger info ("Clerical Tool with address format = " + addressFormat)
     if (addressText.trim.isEmpty) {
       logger info ("Clerical Tool with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressFormat = addressFormat,
         pageNum = 1,
         pageSize = pageSize,
         pageMax = maxPages,
@@ -118,7 +112,6 @@ class ClericalToolController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
-        addressFormat = formatText,
         pageNum = 1,
         pageSize = pageSize,
         pageMax = maxPages,
@@ -138,7 +131,7 @@ class ClericalToolController @Inject()(
           id = UUID.randomUUID
         )
       ) map { resp: AddressBySearchResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, formatText))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText))
 
         val nags = resp.response.addresses.flatMap(_.nag)
         val classCodes: Map[String, String] = nags.map(nag =>
@@ -152,7 +145,6 @@ class ClericalToolController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
           singleSearchForm = filledForm,
           warningMessage = warningMessage,
-          addressFormat = formatText,
           pageNum = pageNum,
           pageSize = pageSize,
           pageMax = maxPages,
