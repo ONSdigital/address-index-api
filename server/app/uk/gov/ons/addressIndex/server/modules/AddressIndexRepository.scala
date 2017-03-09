@@ -435,7 +435,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(0, limit, requestData.tokens, requestData.inputAddress).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(0, limit, requestData.tokens, requestData.normalizedInputAddress).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

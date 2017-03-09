@@ -177,6 +177,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
   val parser = new ParserModule {
     override def tag(input: String): Seq[CrfTokenResult] = Seq.empty
+
+    override def normalizeInput(input: String): String = ""
   }
   val config = new AddressIndexConfigModule
 
@@ -489,9 +491,9 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
-        BulkAddressRequestData("", "1", Map("first" -> "success")),
-        BulkAddressRequestData("", "2", Map("second" -> "success")),
-        BulkAddressRequestData("", "3", Map("third" -> "failed"))
+        BulkAddressRequestData("","1", "1", Map("first" -> "success")),
+        BulkAddressRequestData("","2", "2", Map("second" -> "success")),
+        BulkAddressRequestData("","3", "3", Map("third" -> "failed"))
       )
 
       // When
@@ -507,15 +509,15 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
-        BulkAddressRequestData("", "1", Map("first" -> "success")),
-        BulkAddressRequestData("", "2", Map("second" -> "success")),
-        BulkAddressRequestData("", "3", Map("third" -> "success")),
-        BulkAddressRequestData("", "4", Map("forth" -> "success")),
-        BulkAddressRequestData("", "5", Map("fifth" -> "success")),
-        BulkAddressRequestData("", "6", Map("sixth" -> "success")),
-        BulkAddressRequestData("", "7", Map("seventh" -> "success")),
-        BulkAddressRequestData("", "8", Map("eighth" -> "success")),
-        BulkAddressRequestData("", "9", Map("ninth" -> "success"))
+        BulkAddressRequestData("","1", "1", Map("first" -> "success")),
+        BulkAddressRequestData("","2", "2", Map("second" -> "success")),
+        BulkAddressRequestData("","3", "3", Map("third" -> "success")),
+        BulkAddressRequestData("","4", "4", Map("forth" -> "success")),
+        BulkAddressRequestData("","5", "5", Map("fifth" -> "success")),
+        BulkAddressRequestData("","6", "6", Map("sixth" -> "success")),
+        BulkAddressRequestData("","7", "7", Map("seventh" -> "success")),
+        BulkAddressRequestData("","8", "8", Map("eighth" -> "success")),
+        BulkAddressRequestData("","9", "9", Map("ninth" -> "success"))
       )
 
       // When
@@ -530,9 +532,9 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
-        BulkAddressRequestData("", "1", Map("first" -> "success")),
-        BulkAddressRequestData("", "2", Map("second" -> "success")),
-        BulkAddressRequestData("", "3", Map("third" -> "failed"))
+        BulkAddressRequestData("","1", "1", Map("first" -> "success")),
+        BulkAddressRequestData("","2", "2", Map("second" -> "success")),
+        BulkAddressRequestData("","3", "3", Map("third" -> "failed"))
       )
 
       // When Then
