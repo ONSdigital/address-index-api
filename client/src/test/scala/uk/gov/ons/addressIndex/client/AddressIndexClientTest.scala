@@ -28,7 +28,7 @@ object Resources {
 class AddressIndexClientTest extends FlatSpec with Matchers {
 
   it should "construct a correct uprn WSRequest" in {
-    val actual = apiClient.urpnQueryWSRequest(
+    val actual = apiClient.uprnQueryWSRequest(
       request = AddressIndexUPRNRequest(
         uprn = 101010,
         id = UUID.randomUUID

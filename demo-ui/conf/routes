@@ -18,22 +18,19 @@ POST    /addresses/search                       uk.gov.ons.addressIndex.demoui.c
 GET    /addresses/search                        uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search/:input/:format         uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, format: String, page: Option[Int])
+GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, page: Option[Int])
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, format: String = "paf", page: Option[Int])
+GET    /addresses/uprn/:input                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String)
 
 # ONS-Address Index Single Search Request
-POST    /clerical/search                       uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
+POST    /clerical/search                        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
 
 # ONS-Address Index Single Search Request
-GET    /clerical/search                        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
+GET    /clerical/search                         uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET    /clerical/search/:input/:format         uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, format: String, page: Option[Int], expand: Option[Int])
-
-# ONS-Address Index Single Search Request
-GET    /clerical/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, format: String = "paf", page: Option[Int], expand: Option[Int])
+GET    /clerical/search/:input                  uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, page: Option[Int], expand: Option[Int])
 
 # ONS-Address Index Bulk Mimic Upload
 POST    /bulkUpload                             uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFile
