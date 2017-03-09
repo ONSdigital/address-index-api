@@ -4,7 +4,7 @@ import javax.inject.Singleton
 
 import com.google.inject.ImplementedBy
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.parsers.AddressParser
+import uk.gov.ons.addressIndex.parsers.{AddressParser, Tokens}
 
 @ImplementedBy(classOf[AddressParserModule])
 trait ParserModule {
@@ -15,6 +15,13 @@ trait ParserModule {
     * @return List of labeled tokens
     */
   def tag(input: String): Seq[CrfTokenResult]
+
+  /**
+    * Normalizes input: removes counties, replaces synonyms, uppercase
+    * @param input input to be normalized
+    * @return normalized input
+    */
+  def normalizeInput(input: String): String
 }
 
 @Singleton
@@ -23,4 +30,6 @@ class AddressParserModule extends ParserModule{
   def tag(input: String): Seq[CrfTokenResult] = {
     AddressParser.tag(input)
   }
+
+  def normalizeInput(input: String): String = Tokens.normalizeInput(input)
 }

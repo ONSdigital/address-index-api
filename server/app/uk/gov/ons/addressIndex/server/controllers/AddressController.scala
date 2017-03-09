@@ -99,10 +99,11 @@ class AddressController @Inject()(
       futureJsonBadRequest(EmptySearch)
     } else {
       val tokens = Tokens.postTokenizeTreatment(parser.tag(input))
+      val noramalizedInput = parser.normalizeInput(input)
 
       logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(offsetInt, limitInt, tokens, input)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(offsetInt, limitInt, tokens, noramalizedInput)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -202,7 +203,7 @@ class AddressController @Inject()(
     val uuid = java.util.UUID.randomUUID.toString
 
     val requestsData: Stream[BulkAddressRequestData] = req.body.addresses.toStream.map{
-      row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
+      row => BulkAddressRequestData(row.id, row.address, parser.normalizeInput(row.address), Tokens.postTokenizeTreatment(parser.tag(row.address)))
     }
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch

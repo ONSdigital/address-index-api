@@ -58,7 +58,14 @@ object Tokens extends CrfTokenable {
     * @param input the string to be tokenized
     * @return Array of tokens
     */
-  override def apply(input: String): Array[String] ={
+  override def apply(input: String): Array[String] = normalizeInput(input).split(" ")
+
+  /**
+    * Normalizes input: removes counties, replaces synonyms, uppercase
+    * @param input input to be normalized
+    * @return normalized input
+    */
+  def normalizeInput(input: String): String = {
     val upperInput = input.toUpperCase()
 
     val inputWithoutCounties = removeCounties(upperInput)
@@ -70,7 +77,7 @@ object Tokens extends CrfTokenable {
       .replace("\\", " ")
       .split(" ")
 
-    removeCounties(replaceSynonyms(tokens).filter(_.nonEmpty).mkString(" ")).split(" ")
+    removeCounties(replaceSynonyms(tokens).filter(_.nonEmpty).mkString(" "))
   }
 
   private def removeCounties(input: String): String = {

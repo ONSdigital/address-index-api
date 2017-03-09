@@ -1246,8 +1246,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       val inputs = Stream(
-        BulkAddressRequestData("1", "i1", firstAddressTokens),
-        BulkAddressRequestData("2", "i2", secondAddressTokens)
+        BulkAddressRequestData("1", "i1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", "i2", secondAddressTokens)
       )
 
       // When
@@ -1277,8 +1277,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       val inputs = Stream(
-        BulkAddressRequestData("1", "i1", firstAddressTokens),
-        BulkAddressRequestData("2", "i2", secondAddressTokens)
+        BulkAddressRequestData("1", "i1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", "i2", secondAddressTokens)
       )
 
       // When
