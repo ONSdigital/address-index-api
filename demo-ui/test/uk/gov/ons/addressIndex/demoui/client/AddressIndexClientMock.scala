@@ -84,7 +84,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     classificationCode = "R",
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
-    localCustodianGeogCode = "E06000042"
+    localCustodianGeogCode = "E06000042",
+    relatives = "[12345]"
   )
 
   val mockAddressResponseAddress = AddressResponseAddress(

@@ -93,6 +93,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
+    relatives = "relatives",
     rpc = "rpc",
     nagAll = "nagAll"
   )

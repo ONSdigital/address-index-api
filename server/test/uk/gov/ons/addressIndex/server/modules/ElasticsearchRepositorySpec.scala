@@ -70,6 +70,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagCustCode = "1110"
   val hybridNagCustName = "EXETER"
   val hybridNagCustGeogCode = "E07000041"
+  val hybridNagRelatives = "[]"
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
   val hybridNotUsedNull = null
@@ -224,6 +225,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
     "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
+    "relatives" -> hybridNagRelatives,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> hybridAll
   )
@@ -269,6 +271,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "localCustodianCode" -> secondardyHybridNagLocalCustodianCode,
     "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
+    "relatives" -> hybridNagRelatives,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> secondaryHybridAll
   )
@@ -373,6 +376,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNagCustCode,
     hybridNagCustName,
     hybridNagCustGeogCode,
+    hybridNagRelatives,
     hybridNotUsed,
     hybridAll
   )

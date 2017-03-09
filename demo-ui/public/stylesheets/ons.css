@@ -300,15 +300,19 @@ dl {
 
 section.content {
     margin-top: 10px;
-    margin-bottom: 8%;
+    min-height: 420px;
 }
 
 #footer .footer-wrapper {
     padding-top: 10px;
 }
 
+#footer .footer-meta {
+    padding-bottom: 2px;
+}
+
 p.pad{
-    height:90px;
+    height:10px;
 }
 
 span.error:before {

@@ -50,6 +50,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
+    relatives="relatives",
     rpc = "rpc",
     nagAll = "nagAll"
   )
@@ -220,7 +221,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.classificationCode,
         nag.localCustodianCode,
         nag.localCustodianName,
-        nag.localCustodianGeogCode
+        nag.localCustodianGeogCode,
+        nag.relatives
       )
 
       // When
