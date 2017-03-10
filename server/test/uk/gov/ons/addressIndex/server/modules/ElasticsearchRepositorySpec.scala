@@ -490,7 +490,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             ],
                             "min_term_freq":1,
                             "analyzer":"welsh_split_analyzer",
-                            "minimum_should_match":"-1",
+                            "minimum_should_match":"-25%",
                             "boost":${queryParams.allBoost}
                          }
              }
