@@ -90,7 +90,7 @@ class AddressIndexRepository @Inject()(
 
     val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
-    logger.info(request.toString)
+    logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromRichSearchResponse)
   }
