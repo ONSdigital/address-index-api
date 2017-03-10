@@ -213,6 +213,14 @@ object Tokens extends CrfTokenable {
     }
   }
 
+  /**
+    * Concatenates post-processed tokens so that we could use it against special xAll fields
+    * @param tokens post-processed tokens
+    * @return concatenated resulting string
+    */
+  def concatenate(tokens: Map[String, String]): String =
+    Seq(organisationName, departmentName, subBuildingName, buildingName, buildingNumber,
+      streetName, locality, townName, postcode).map(label => tokens.getOrElse(label, "")).filter(_.nonEmpty).mkString(" ")
 
 
   // `lazy` is needed so that if this is called from other modules, during tests, it doesn't throw exception
