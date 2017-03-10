@@ -15,6 +15,8 @@ import scala.util.Try
   */
 case class HybridAddress(
   uprn: String,
+  parentUprn: String,
+  relatives: String,
   postcodeIn: String,
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
@@ -31,6 +33,8 @@ object HybridAddress {
     */
   val empty = HybridAddress(
     uprn = "",
+    parentUprn = "",
+    relatives = "",
     postcodeIn = "",
     postcodeOut = "",
     lpi = Seq.empty,
@@ -63,6 +67,8 @@ object HybridAddress {
 
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
+        parentUprn = hit.sourceAsMap("parentUprn").toString,
+        relatives = hit.sourceAsMap("relatives").toString,
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),

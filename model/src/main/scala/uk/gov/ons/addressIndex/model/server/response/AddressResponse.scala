@@ -171,6 +171,8 @@ object AddressTokens {
   */
 case class AddressResponseAddress(
   uprn: String,
+  parentUprn: String,
+  relatives: String,
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -198,6 +200,8 @@ object AddressResponseAddress {
 
     AddressResponseAddress(
       uprn = other.uprn,
+      parentUprn = other.parentUprn,
+      relatives = other.relatives,
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
