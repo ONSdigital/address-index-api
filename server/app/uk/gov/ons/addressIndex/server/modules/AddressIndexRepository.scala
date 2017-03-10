@@ -395,7 +395,7 @@ class AddressIndexRepository @Inject()(
         .boost(queryParams.allBoost)
 
     // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
-    allQuery.builder.minimumShouldMatch("-10%")
+    allQuery.builder.minimumShouldMatch("-25%")
 
     val shouldQuery = Seq(
       buildingNumberQuery,
