@@ -385,7 +385,7 @@ class AddressIndexRepository @Inject()(
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
     ).flatten
 
-    val normalizedInput = Tokens.concatenateTokens(tokens)
+    val normalizedInput = Tokens.concatenate(tokens)
 
     val allQuery =
       moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))

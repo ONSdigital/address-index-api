@@ -218,7 +218,7 @@ object Tokens extends CrfTokenable {
     * @param tokens post-processed tokens
     * @return concatenated resulting string
     */
-  def concatenateTokens(tokens: Map[String, String]): String =
+  def concatenate(tokens: Map[String, String]): String =
     Seq(organisationName, departmentName, subBuildingName, buildingName, buildingNumber,
       streetName, locality, townName, postcode).map(label => tokens.getOrElse(label, "")).filter(_.nonEmpty).mkString(" ")
 

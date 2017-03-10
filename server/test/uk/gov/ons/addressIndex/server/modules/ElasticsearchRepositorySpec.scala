@@ -474,8 +474,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val tokens: Map[String, String] = Map.empty
 
-      val input = "ORIGINAL INPUT"
-
       val expected = Json.parse(
         s"""
           {
