@@ -90,7 +90,7 @@ class AddressIndexRepository @Inject()(
 
     val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
-    logger.trace(request.toString)
+    logger.info(request.toString)
 
     client.execute(request).map(HybridAddresses.fromRichSearchResponse)
   }
@@ -395,7 +395,7 @@ class AddressIndexRepository @Inject()(
         .boost(queryParams.allBoost)
 
     // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
-    allQuery.builder.minimumShouldMatch("-1")
+    allQuery.builder.minimumShouldMatch("-10%")
 
     val shouldQuery = Seq(
       buildingNumberQuery,
