@@ -93,7 +93,6 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
-    relatives = "relatives",
     rpc = "rpc",
     nagAll = "nagAll"
   )
@@ -101,7 +100,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
   val validHybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
-    relatives = "5",
+    relatives = Array(),
     postcodeIn = "2",
     postcodeOut = "3",
     paf = Seq(validPafAddress),

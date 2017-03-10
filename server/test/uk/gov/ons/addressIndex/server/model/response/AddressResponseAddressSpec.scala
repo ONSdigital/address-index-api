@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relation}
 import uk.gov.ons.addressIndex.model.server.response._
 
 /**
@@ -50,7 +50,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
-    relatives="relatives",
     rpc = "rpc",
     nagAll = "nagAll"
   )
@@ -108,6 +107,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     entryDate = "29",
     pafAll = "pafAll"
   )
+
+  val givenRelatives: Array[Relation] = Array()
 
   "Address response Address model" should {
 
@@ -221,8 +222,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.classificationCode,
         nag.localCustodianCode,
         nag.localCustodianName,
-        nag.localCustodianGeogCode,
-        nag.relatives
+        nag.localCustodianGeogCode
       )
 
       // When
@@ -251,13 +251,13 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, givenNag.relatives, "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, givenRelatives, "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
-        relatives = givenNag.relatives,
+        relatives = givenRelatives,
         formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",

@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relation}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -172,7 +172,7 @@ object AddressTokens {
 case class AddressResponseAddress(
   uprn: String,
   parentUprn: String,
-  relatives: String,
+  relatives: Array[Relation],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -366,8 +366,7 @@ case class AddressResponseNag(
   classificationCode: String,
   localCustodianCode: String,
   localCustodianName: String,
-  localCustodianGeogCode: String,
-  relatives: String
+  localCustodianGeogCode: String
 )
 
 object AddressResponseNag {
@@ -405,8 +404,7 @@ object AddressResponseNag {
         other.classificationCode,
         other.localCustodianCode,
         other.localCustodianName,
-        other.localCustodianGeogCode,
-        other.relatives
+        other.localCustodianGeogCode
       )
   }
 

@@ -47,7 +47,6 @@ case class NationalAddressGazetteerAddress (
   localCustodianCode: String,
   localCustodianName: String,
   localCustodianGeogCode: String,
-  relatives: String,
   rpc: String,
   nagAll: String
 )
@@ -101,7 +100,6 @@ object NationalAddressGazetteerAddress {
     val localCustodianCode: String = "localCustodianCode"
     val localCustodianName: String = "localCustodianName"
     val localCustodianGeogCode: String = "localCustodianGeogCode"
-    val relatives: String = "relatives"
     val rpc: String = "rpc"
     val nagAll: String = "nagAll"
   }
@@ -155,7 +153,6 @@ object NationalAddressGazetteerAddress {
       localCustodianCode = filteredNag.getOrElse(Fields.localCustodianCode, "").toString,
       localCustodianName = LocalCustodian.getLAName(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
-      relatives = filteredNag.getOrElse(Fields.relatives, "").toString,
       rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
       nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString
     )

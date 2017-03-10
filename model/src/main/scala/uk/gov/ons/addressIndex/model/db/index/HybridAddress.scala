@@ -16,7 +16,7 @@ import scala.util.Try
 case class HybridAddress(
   uprn: String,
   parentUprn: String,
-  relatives: String,
+  relatives: Array[Relation],
   postcodeIn: String,
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
@@ -34,7 +34,7 @@ object HybridAddress {
   val empty = HybridAddress(
     uprn = "",
     parentUprn = "",
-    relatives = "",
+    relatives = Array(),
     postcodeIn = "",
     postcodeOut = "",
     lpi = Seq.empty,
@@ -65,10 +65,15 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
+      val rels: Array[Map[String, Any]] = Try {
+      // cast relations object to array
+        hit.sourceAsMap("relations").asInstanceOf[Array[Map[String, Any]]]
+      }.getOrElse(Array())
+
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = hit.sourceAsMap("relatives").toString,
+        relatives = rels.map(Relation.fromEsMap),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),

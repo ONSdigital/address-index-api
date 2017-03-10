@@ -18,7 +18,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
 
-
   // injections
   val elasticClientProvider = new ElasticClientProvider {
     override def client: ElasticClient = testClient
@@ -31,7 +30,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val hybridFirstUprn = 1L
   val hybridFirstParentUprn = 3L
-  val hybridFirstRelatives ="h03r"
+  val hybridFirstRelatives: Array[Relation] = Array()
   val hybridFirstPostcodeIn = "h01p"
   val hybridFirstPostcodeOut = "h02p"
 
@@ -81,7 +80,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // and in the Multi Search
   val hybridSecondaryUprn = 2L
   val hybridSecondaryParentUprn = 4L
-  val hybridSecondaryRelatives ="h03r"
+  val hybridSecondaryRelatives: Array[Relation] = Array()
   val hybridSecondaryPostcodeIn = "s01p"
   val hybridSecondaryPostcodeOut = "s02p"
 
@@ -384,7 +383,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNagCustCode,
     hybridNagCustName,
     hybridNagCustGeogCode,
-    hybridNagRelatives,
     hybridNotUsed,
     hybridAll
   )
