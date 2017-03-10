@@ -385,18 +385,7 @@ class AddressIndexRepository @Inject()(
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDoubleDependentLocalityBoost))
     ).flatten
 
-    val normalizedInput =
-      Seq(
-        Tokens.organisationName,
-        Tokens.departmentName,
-        Tokens.subBuildingName,
-        Tokens.buildingName,
-        Tokens.buildingNumber,
-        Tokens.streetName,
-        Tokens.locality,
-        Tokens.townName,
-        Tokens.postcode
-      ).map(label => tokens.getOrElse(label, "")).filter(_.nonEmpty).mkString(" ")
+    val normalizedInput = Tokens.concatenate(tokens)
 
     val allQuery =
       moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
@@ -406,9 +395,9 @@ class AddressIndexRepository @Inject()(
         .boost(queryParams.allBoost)
 
     // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
-    allQuery.builder.minimumShouldMatch("-1")
+    allQuery.builder.minimumShouldMatch("-25%")
 
-    val preciseMustQuery = Seq(
+    val shouldQuery = Seq(
       buildingNumberQuery,
       buildingNameQuery,
       subBuildingNameQuery,
@@ -416,27 +405,17 @@ class AddressIndexRepository @Inject()(
       townNameQuery,
       postcodeQuery,
       paoQuery,
-      saoQuery
-      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
-
-    val preciseShouldQuery = Seq(
+      saoQuery,
       organisationNameQuery,
       departmentNameQuery,
       localityQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
 
-    val preciseQuery = (preciseMustQuery, preciseShouldQuery) match {
-      case (Nil, Nil) => Seq.empty
-      case (mustQuery, Nil) => Seq(must(mustQuery))
-      case (Nil, shouldQuery) => Seq(should(shouldQuery))
-      case (mustQuery, shouldQuery) => Seq(must(mustQuery), should(shouldQuery))
-    }
-
     val query =
-      if (preciseQuery.isEmpty) allQuery
+      if (shouldQuery.isEmpty) allQuery
       else should(
-        Seq(should(preciseQuery), allQuery)
+        Seq(should(shouldQuery).minimumShouldMatch(queryParams.minimumShouldMatch), allQuery)
       )
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
