@@ -89,7 +89,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
   )
 
   val mockRelative = Relative (
-    level = 1.toInt,
+    level = 1,
     siblings = Array(6L,7L),
     parents = Array(8L,9L)
   )

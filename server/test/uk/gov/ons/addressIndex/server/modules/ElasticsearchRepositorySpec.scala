@@ -5,7 +5,6 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
-import play.api.Logger
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
@@ -15,8 +14,6 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticSugar {
-
-  val logger = Logger("ElasticsearchRepositorySpec")
 
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
@@ -34,12 +31,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridRelLevel = 1
   val hybridRelSibArray = Array(6L,7L)
   val hybridRelParArray = Array(8L,9L)
-
-  val hybridRelEs = Map(
-    "level" -> hybridRelLevel,
-    "siblings" -> hybridRelSibArray,
-    "parents" -> hybridRelParArray
-  )
 
   val firstHybridRelEs = Map(
     "level" -> hybridRelLevel,
