@@ -65,7 +65,7 @@ object Tokens extends CrfTokenable {
     * @param input input to be normalized
     * @return normalized input
     */
-  def normalizeInput(input: String): String = {
+  private def normalizeInput(input: String): String = {
     val upperInput = input.toUpperCase()
 
     val inputWithoutCounties = removeCounties(upperInput)
@@ -106,13 +106,14 @@ object Tokens extends CrfTokenable {
     * @return Map with label -> concatenated tokens ready to be sent to the ES
     */
   def postTokenizeTreatment(tokens: Seq[CrfTokenResult]): Map[String, String] = {
-    val groupedTokens = tokens.groupBy(_.label)
+    val groupedTokens = tokens.groupBy(_.label).map { case (label, crfTokenResults) =>
+      label -> crfTokenResults.map(_.value).mkString(" ")
+    }
+
     val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(postcodeTreatedTokens)
-    val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)
-    buildingNameTreatedTokens.map {
-      case (token, values) => (token, values.map(_.value).mkString(" "))
-    }
+    postTokenizeTreatmentBuildingNames(buildingNumberTreatedTokens)
+
   }
 
   /**
@@ -120,31 +121,21 @@ object Tokens extends CrfTokenable {
     * @param tokens tokens grouped by label
     * @return Map with tokens that will contain normalized postcode address
     */
-  def postTokenizeTreatmentPostCode(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]] = {
+  def postTokenizeTreatmentPostCode(tokens: Map[String, String]): Map[String, String] = {
 
-    val postcode: Option[String] = tokens.get(Tokens.postcode).map(postcodeTokens => postcodeTokens.map(_.value).mkString(""))
+    // Before analyzing the postcode, we also remove whitespaces so that they don't influence the outcome
+    val postcodeToken: Option[String] = tokens.get(postcode).map(_.replaceAll("\\s", ""))
 
-    postcode match {
-      case Some(concatenatedPostcode) if concatenatedPostcode.length >= 4 =>
-        val postcodeIn = concatenatedPostcode.substring(concatenatedPostcode.length - 3, concatenatedPostcode.length)
-        val postcodeOut = concatenatedPostcode.substring(0, concatenatedPostcode.indexOf(postcodeIn))
+    postcodeToken match {
+      case Some(concatenatedPostcode) if concatenatedPostcode.length >= 5 =>
+        val postcodeInToken = concatenatedPostcode.substring(concatenatedPostcode.length - 3, concatenatedPostcode.length)
+        val postcodeOutToken = concatenatedPostcode.substring(0, concatenatedPostcode.indexOf(postcodeInToken))
 
-        val tokensWithPostcodeUpdated = tokens.updated(Tokens.postcode, Seq(
-          CrfTokenResult(
-            value = s"$postcodeOut $postcodeIn",
-            label = Tokens.postcode
-          )
-        ))
+        val tokensWithPostcodeUpdated = tokens.updated(postcode, s"$postcodeOutToken $postcodeInToken")
 
         tokensWithPostcodeUpdated ++ Map(
-          Tokens.postcodeOut -> Seq(CrfTokenResult(
-            value = postcodeOut,
-            label = Tokens.postcodeOut
-          )),
-          Tokens.postcodeIn -> Seq(CrfTokenResult(
-            value = postcodeIn,
-            label = Tokens.postcodeIn
-          ))
+          postcodeOut -> postcodeOutToken,
+          postcodeIn -> postcodeInToken
         )
 
       case _ => tokens
@@ -157,59 +148,133 @@ object Tokens extends CrfTokenable {
     * @param tokens tokens grouped by label
     * @return map with tokens that will also contain paoStartNumberToken if buildingNumber is present
     */
-  def postTokenizeTreatmentBuildingNumber(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
-    val buildingNumberToken: Option[String] = tokens.get(Tokens.buildingNumber).flatMap(_.headOption).map(_.value)
-
+  def postTokenizeTreatmentBuildingNumber(tokens: Map[String, String]): Map[String, String]= {
     // This is a failsafe in case building number is not a number
-    val buildingNumber: Option[String] = buildingNumberToken.flatMap(token => Try(token.toShort.toString).toOption)
+    val buildingNumberToken: Option[String] = tokens.get(buildingNumber).flatMap(token => Try(token.toShort.toString).toOption)
 
-    buildingNumber match {
-      case Some(number) =>
-        val paoStartNumberToken = CrfTokenResult(
-          value = number,
-          label = Tokens.paoStartNumber
-        )
-
-        tokens + (Tokens.paoStartNumber -> Seq(paoStartNumberToken))
+    buildingNumberToken match {
+      case Some(number) => tokens + (paoStartNumber -> number)
 
       // Token is either not found or is not a number
-      case None => tokens - Tokens.buildingNumber
+      case None => tokens - buildingNumber
     }
   }
 
   /**
-    * Adds paoStartSuffix and (if no buildingNumber token is present) paoStartNumber
-    * tokens if buildingName token is present so that we can query LPI addresses
+    * Parses buildingName / subBuildingName and fills pao/sao depending on the contents
+    * (and depending if buildingNumber is present)
     * @param tokens tokens grouped by label
     * @return map with tokens that will also contain paoStartNumber and paoStartSuffix tokens if buildingName is present
     */
-  def postTokenizeTreatmentBuildingName(tokens: Map[String, Seq[CrfTokenResult]]): Map[String, Seq[CrfTokenResult]]= {
-    val buildingName: Option[String] = tokens.get(Tokens.buildingName).flatMap(_.headOption).map(_.value)
-    // To split building name into the pao tokens, it should follow a pattern of a number followed by a letter
-    val buildingNameRegexWithLetter = """(\d+)(\w)""".r
-    val buildingNameRegexWithHyphen = """(\d+)-(\d+)""".r
+  def postTokenizeTreatmentBuildingNames(tokens: Map[String, String]): Map[String, String]= {
 
+    val (buildingNameToken: Option[String], subBuildingNameToken: Option[String]) = assignBuildingNames(tokens)
+
+    val buildingNameSplit: BuildingNameSplit = splitBuildingName(buildingNameToken)
+    val subBuildingNameSplit: BuildingNameSplit = splitBuildingName(subBuildingNameToken)
+
+    // It is now safe to fill pao/sao fields because paoStartNumber filtered out buildingName in the steps before
+    // but first of all we need to remove empty parsed tokens
+    // What remains will be transformed into tuple and inserted into `tokens` map
+    val newTokens = Seq(
+      buildingNameSplit.startNumber.map(token => paoStartNumber -> token),
+      buildingNameSplit.startSuffix.map(token => paoStartSuffix -> token),
+      buildingNameSplit.endNumber.map(token => paoEndNumber -> token),
+      buildingNameSplit.endSuffix.map(token => paoEndSuffix -> token),
+      subBuildingNameSplit.startNumber.map(token => saoStartNumber -> token),
+      subBuildingNameSplit.startSuffix.map(token => saoStartSuffix -> token),
+      subBuildingNameSplit.endNumber.map(token => saoEndNumber -> token),
+      subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token)
+    ).flatten
+
+    tokens ++ newTokens
+  }
+
+  /**
+    * Similar to a table (present/not present) for three values: BuildingNumber, BuildingName, SubBuildingName,
+    * analyses every possible permutation
+    * @param tokens parsed tokens
+    * @return Tuple with BuildingName and SubBuildingName
+    */
+  private def assignBuildingNames(tokens: Map[String, String]): (Option[String], Option[String]) =
+    (tokens.get(buildingNumber), tokens.get(buildingName), tokens.get(subBuildingName)) match {
+      case (None, None, None) => (None, None)
+      case (Some(_), None, None) => (None, None)
+
+      case (None, Some(_), None) =>
+        // this is a special case where we can have 2 ranges in a building name
+        val buildingNameToken = tokens.getOrElse(buildingName, "")
+        val buildingNameNumbers = buildingNameToken.split(" ").filter(isLikeBuildingName)
+
+        if (buildingNameNumbers.length == 2) (Some(buildingNameNumbers(1)),Some(buildingNameNumbers(0)))
+        else (tokens.get(buildingName), None)
+
+      case (None, None, Some(_)) =>
+        // this is a special case where we can have 2 ranges in a sub building name
+        val subBuildingNameToken = tokens.getOrElse(subBuildingName, "")
+        val subBuildingNameNumbers = subBuildingNameToken.split(" ").filter(isLikeBuildingName)
+
+        if (subBuildingNameNumbers.length == 2) (Some(subBuildingNameNumbers(1)), Some(subBuildingNameNumbers(0)))
+        else (None, tokens.get(subBuildingName))
+
+      case (Some(_), Some(_), None) => (None, tokens.get(buildingName))
+      case (None, Some(_), Some(_)) => (tokens.get(buildingName), tokens.get(subBuildingName))
+      case (Some(_), None, Some(_)) => (None, tokens.get(subBuildingName))
+      case (Some(_), Some(_), Some(_)) => (None, tokens.get(subBuildingName))
+    }
+
+
+  private def isLikeBuildingName(token: String): Boolean = token.matches("""^\d+[A-Z]?$|^\d+[A-Z]?-\d+[A-Z]?$""")
+
+  /**
+    * Small case class that is mainly used to replace a Tuple4 and to improve readability
+    * @param startNumber pao/sao start number
+    * @param startSuffix pao/sao start suffix
+    * @param endNumber pao/sao end number
+    * @param endSuffix pao/sao end suffix
+    */
+  private case class BuildingNameSplit(
+    startNumber: Option[String] = None,
+    startSuffix: Option[String] = None,
+    endNumber: Option[String] = None,
+    endSuffix: Option[String] = None
+  )
+
+  /**
+    * Parses buildingName and extracts its parts
+    * @param buildingName building name to be parsed
+    * @return extracted parts in a form of a `BuildingNameSplit` class
+    */
+  private def splitBuildingName(buildingName: Option[String]): BuildingNameSplit = {
+
+    val buildingNameNumber = """.*?(\d+).*?""".r
+    val buildingNameLetter = """.*?(\d+)([A-Z]).*?""".r
+    val buildingNameRange = """.*?(\d+)-(\d+).*?""".r
+    val buildingNameRangeStartSuffix = """.*?(\d+)([A-Z])-(\d+).*?""".r
+    val buildingNameRangeEndSuffix = """.*?(\d+)-(\d+)([A-Z]).*?""".r
+    val buildingNameRangeStartSuffixEndSuffix = """.*?(\d+)([A-Z])-(\d+)([A-Z]).*?""".r
+
+    // order is important
     buildingName match {
-      case Some(buildingNameRegexWithLetter(number, suffix)) =>
-        val paoStartNumberToken = CrfTokenResult(number, Tokens.paoStartNumber)
+      case Some(buildingNameRangeStartSuffixEndSuffix(startNumber, startSuffix, endNumber, endSuffix)) =>
+        BuildingNameSplit(startNumber = Some(startNumber), startSuffix = Some(startSuffix), endNumber = Some(endNumber), endSuffix = Some(endSuffix))
 
-        val paoStartSuffixToken = CrfTokenResult(suffix, Tokens.paoStartSuffix)
+      case Some(buildingNameRangeEndSuffix(startNumber, endNumber, endSuffix)) =>
+        BuildingNameSplit(startNumber = Some(startNumber), endNumber = Some(endNumber), endSuffix = Some(endSuffix))
 
-        val tokensWithPaoStartSuffix = tokens + (Tokens.paoStartSuffix -> Seq(paoStartSuffixToken))
+      case Some(buildingNameRangeStartSuffix(startNumber, startSuffix, endNumber)) =>
+        BuildingNameSplit(startNumber = Some(startNumber), startSuffix = Some(startSuffix), endNumber = Some(endNumber))
 
-        if (tokens.contains(Tokens.paoStartNumber)) tokensWithPaoStartSuffix
-        else tokensWithPaoStartSuffix + (Tokens.paoStartNumber -> Seq(paoStartNumberToken))
+      case Some(buildingNameRange(startNumber, endNumber)) =>
+        BuildingNameSplit(startNumber = Some(startNumber), endNumber = Some(endNumber))
 
-      case Some(buildingNameRegexWithHyphen(firstNumber, endNumber)) =>
-        val paoStartNumberToken = CrfTokenResult(firstNumber, Tokens.paoStartNumber)
+      case Some(buildingNameLetter(startNumber, startSuffix)) =>
+        BuildingNameSplit(startNumber = Some(startNumber), startSuffix = Some(startSuffix))
 
-        val paoEndNumberToken = CrfTokenResult(endNumber, Tokens.paoEndNumber)
+      case Some(buildingNameNumber(number)) =>
+        BuildingNameSplit(startNumber = Some(number))
 
-        tokens + (Tokens.paoStartNumber -> Seq(paoStartNumberToken)) + (Tokens.paoEndNumber -> Seq(paoEndNumberToken))
-
-      case Some(_) => tokens
-
-      case None => tokens
+      case _ => BuildingNameSplit()
     }
   }
 
