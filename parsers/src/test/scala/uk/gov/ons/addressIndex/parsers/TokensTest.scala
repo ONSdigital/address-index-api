@@ -39,6 +39,20 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "produce tokens, replacing `to` with hyphen" in {
+    val input = "1 to 2 3 to 4"
+    val expected = Seq("1-2", "3-4")
+    val actual = Tokens(input)
+    actual shouldBe expected
+  }
+
+  it should "produce tokens, replacing `/` with hyphen" in {
+    val input = "1/2 3/4"
+    val expected = Seq("1-2", "3-4")
+    val actual = Tokens(input)
+    actual shouldBe expected
+  }
+
   it should "replace synonyms at the beginning, middle or the end of the input" in {
     val input = "ENGLAND THIS WALES ENGLANDLONDON LONDONWALES THAT UNITEDKINGDOM"
     val expected = Seq("THIS", "ENGLANDLONDON", "LONDONWALES", "THAT")

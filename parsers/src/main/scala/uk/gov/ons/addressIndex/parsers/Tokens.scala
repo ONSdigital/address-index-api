@@ -72,6 +72,8 @@ object Tokens extends CrfTokenable {
 
     val tokens = inputWithoutCounties
       .replaceAll("(\\d+) *- *(\\d+)", "$1-$2")
+      .replaceAll("(\\d+)/(\\d+)", "$1-$2")
+      .replace(" TO ", "-")
       .replace(" - ", " ")
       .replace(",", " ")
       .replace("\\", " ")
