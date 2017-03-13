@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{Assertion, FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import org.scalatest.{FlatSpec, Matchers}
 
 class PostCodeValidationTest extends FlatSpec with Matchers {
 
@@ -105,7 +104,8 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
 
     val expected = Map(
-      Tokens.postcode -> "RH1"
+      Tokens.postcode -> "RH1",
+      Tokens.postcodeIn -> "RH1"
     )
 
     // When
@@ -122,7 +122,8 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
 
     val expected = Map(
-      Tokens.postcode -> "L1"
+      Tokens.postcode -> "L1",
+      Tokens.postcodeIn -> "L1"
     )
 
     // When
@@ -139,7 +140,8 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
 
     val expected = Map(
-      Tokens.postcode -> "1AA"
+      Tokens.postcode -> "1AA",
+      Tokens.postcodeIn -> "1AA"
     )
 
     // When
@@ -156,7 +158,8 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
 
     val expected = Map(
-      Tokens.postcode -> "X1AA"
+      Tokens.postcode -> "X1AA",
+      Tokens.postcodeIn -> "X1AA"
     )
 
     // When

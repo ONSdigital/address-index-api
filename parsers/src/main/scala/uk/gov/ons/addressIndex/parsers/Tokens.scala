@@ -74,6 +74,8 @@ object Tokens extends CrfTokenable {
       .replaceAll("(\\d+) *- *(\\d+)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replace(" TO ", "-")
+      .replace(" IN ", " ")
+      .replace(" CO ", " ")
       .replace(" - ", " ")
       .replace(",", " ")
       .replace("\\", " ")
@@ -139,6 +141,8 @@ object Tokens extends CrfTokenable {
           postcodeOut -> postcodeOutToken,
           postcodeIn -> postcodeInToken
         )
+
+      case Some(concatenatedPostcode) => tokens + (postcodeIn -> concatenatedPostcode)
 
       case _ => tokens
     }
