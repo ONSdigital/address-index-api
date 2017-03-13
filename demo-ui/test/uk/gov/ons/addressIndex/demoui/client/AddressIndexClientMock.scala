@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.WSClient
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
-import uk.gov.ons.addressIndex.model.db.index.Relation
+import uk.gov.ons.addressIndex.model.db.index.Relative
 import uk.gov.ons.addressIndex.model.server.response._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -88,10 +88,16 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     localCustodianGeogCode = "E06000042"
   )
 
+  val mockRelative = Relative (
+    level = 1.toInt,
+    siblings = Array(6L,7L),
+    parents = Array(8L,9L)
+  )
+
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
-    relatives = Array(),
+    relatives = Seq(mockRelative),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",

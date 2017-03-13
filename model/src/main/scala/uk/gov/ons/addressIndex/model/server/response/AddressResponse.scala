@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relation}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -170,16 +170,16 @@ object AddressTokens {
   * @param underlyingScore    score from elastic search
   */
 case class AddressResponseAddress(
-  uprn: String,
-  parentUprn: String,
-  relatives: Array[Relation],
-  formattedAddress: String,
-  formattedAddressNag: String,
-  formattedAddressPaf: String,
-  paf: Option[AddressResponsePaf],
-  nag: Option[AddressResponseNag],
-  geo: Option[AddressResponseGeo],
-  underlyingScore: Float
+                                   uprn: String,
+                                   parentUprn: String,
+                                   relatives: Seq[Relative],
+                                   formattedAddress: String,
+                                   formattedAddressNag: String,
+                                   formattedAddressPaf: String,
+                                   paf: Option[AddressResponsePaf],
+                                   nag: Option[AddressResponseNag],
+                                   geo: Option[AddressResponseGeo],
+                                   underlyingScore: Float
 )
 
 object AddressResponseAddress {

@@ -14,14 +14,14 @@ import scala.util.Try
   * @param score score of the address in the returned ES result
   */
 case class HybridAddress(
-  uprn: String,
-  parentUprn: String,
-  relatives: Array[Relation],
-  postcodeIn: String,
-  postcodeOut: String,
-  lpi: Seq[NationalAddressGazetteerAddress],
-  paf: Seq[PostcodeAddressFileAddress],
-  score: Float
+                          uprn: String,
+                          parentUprn: String,
+                          relatives: Seq[Relative],
+                          postcodeIn: String,
+                          postcodeOut: String,
+                          lpi: Seq[NationalAddressGazetteerAddress],
+                          paf: Seq[PostcodeAddressFileAddress],
+                          score: Float
 )
 
 object HybridAddress {
@@ -34,7 +34,7 @@ object HybridAddress {
   val empty = HybridAddress(
     uprn = "",
     parentUprn = "",
-    relatives = Array(),
+    relatives = Seq.empty,
     postcodeIn = "",
     postcodeOut = "",
     lpi = Seq.empty,
@@ -65,15 +65,17 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
-      val rels: Array[Map[String, Any]] = Try {
-      // cast relations object to array
-        hit.sourceAsMap("relations").asInstanceOf[Array[Map[String, Any]]]
-      }.getOrElse(Array())
+      val rels: Seq[Map[String, AnyRef]] = Try {
+        // Complex logic to cast field that contains a list of PAFs into a Scala's Map[String, AnyRef] so that we could
+        // extract the information into a PAF DTO
+        hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+      }.getOrElse(Seq.empty)
+
 
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = rels.map(Relation.fromEsMap),
+        relatives = rels.map(Relative.fromEsMap),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),

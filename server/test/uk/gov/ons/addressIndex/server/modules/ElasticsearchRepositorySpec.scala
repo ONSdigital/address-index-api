@@ -5,6 +5,7 @@ import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
+import play.api.Logger
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
@@ -14,6 +15,8 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticSugar {
+
+  val logger = Logger("ElasticsearchRepositorySpec")
 
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
@@ -28,12 +31,33 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridIndex = config.config.elasticSearch.indexes.hybridIndex
   val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
 
+  val hybridRelLevel = 1.toInt
+  val hybridRelSibArray = Array(6L,7L)
+  val hybridRelParArray = Array(8L,9L)
+
+  val hybridRelEs = Map(
+    "level" -> hybridRelLevel,
+    "siblings" -> hybridRelSibArray,
+    "parents" -> hybridRelParArray
+  )
+
+  val firstHybridRelEs = Map(
+    "level" -> hybridRelLevel,
+    "siblings" -> hybridRelSibArray,
+    "parents" -> hybridRelParArray
+  )
+
+  val secondHybridRelEs = Map(
+    "level" -> hybridRelLevel,
+    "siblings" -> hybridRelSibArray,
+    "parents" -> hybridRelParArray
+  )
+
   val hybridFirstUprn = 1L
   val hybridFirstParentUprn = 3L
-  val hybridFirstRelatives: Array[Relation] = Array()
+  val hybridFirstRelative = firstHybridRelEs
   val hybridFirstPostcodeIn = "h01p"
   val hybridFirstPostcodeOut = "h02p"
-
   // Fields that are not in this list are not used for search
   val hybridPafUprn = 1L
   val hybridPafOrganizationName = "h2"
@@ -71,7 +95,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagCustCode = "1110"
   val hybridNagCustName = "EXETER"
   val hybridNagCustGeogCode = "E07000041"
-  val hybridNagRelatives = "[]"
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
   val hybridNotUsedNull = null
@@ -80,7 +103,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // and in the Multi Search
   val hybridSecondaryUprn = 2L
   val hybridSecondaryParentUprn = 4L
-  val hybridSecondaryRelatives: Array[Relation] = Array()
+  val hybridSecondaryRelative = secondHybridRelEs
   val hybridSecondaryPostcodeIn = "s01p"
   val hybridSecondaryPostcodeOut = "s02p"
 
@@ -120,7 +143,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagEasting = 11f
   val secondardyHybridNagLocalCustodianName = "EXETER"
   val secondardyHybridNagLocalCustodianCode = "1110"
-
 
   val firstHybridPafEs = Map(
     "recordIdentifier" -> hybridNotUsedNull,
@@ -228,7 +250,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
     "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
-    "relatives" -> hybridNagRelatives,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> hybridAll
   )
@@ -274,7 +295,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "localCustodianCode" -> secondardyHybridNagLocalCustodianCode,
     "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
-    "relatives" -> hybridNagRelatives,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> secondaryHybridAll
   )
@@ -282,7 +302,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val firstHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridFirstUprn,
     "parentUprn" -> hybridFirstParentUprn,
-    "relatives" -> hybridFirstRelatives,
+    "relatives" -> Seq(hybridFirstRelative),
     "postcodeIn" -> hybridFirstPostcodeIn,
     "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
@@ -293,7 +313,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridSecondaryUprn,
     "parentUprn" -> hybridSecondaryParentUprn,
-    "relatives" -> hybridSecondaryRelatives,
+    "relatives" -> Seq(hybridSecondaryRelative),
     "postcodeIn" -> hybridSecondaryPostcodeIn,
     "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
@@ -387,10 +407,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridAll
   )
 
+  val expectedRelative = Relative (
+    level = hybridRelLevel,
+    siblings = hybridRelSibArray,
+    parents = hybridRelParArray
+  )
+
   val expectedHybrid = HybridAddress(
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
-    relatives = hybridFirstRelatives,
+    relatives = Seq(expectedRelative),
     postcodeIn = hybridFirstPostcodeIn,
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedNag),
@@ -427,7 +453,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(expectedHybrid)
-
+      logger.info(expectedHybrid.relatives(0).level.toString())
+      logger.info(expectedHybrid.relatives(0).siblings(0).toString())
+      logger.info(expectedHybrid.relatives(0).parents(0).toString())
       // When
       val result = repository.queryUprn(hybridFirstUprn.toString).await
 
@@ -435,7 +463,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       result.get.lpi.head shouldBe expectedNag
       result.get.paf.head shouldBe expectedPaf
       result shouldBe expected
-
+   //   result.get.relatives(0).level.toString() shouldBe "1"
+    //  result.get.relatives(0).siblings(0).toString() shouldBe "6"
+    //  result.get.relatives(0).parents(0).toString() shouldBe "8"
     }
 
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {

@@ -1,16 +1,18 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import java.util
+
 import play.api.libs.json.{Format, Json}
 
-case class Relation (
+case class Relative(
   level: Int,
   siblings: Array[Long],
   parents: Array[Long]
 )
 
-object Relation {
+object Relative {
 
-  implicit lazy val relationFormat: Format[Relation] = Json.format[Relation]
+  implicit lazy val relationFormat: Format[Relative] = Json.format[Relative]
 
   object Fields {
 
@@ -22,9 +24,12 @@ object Relation {
     val parents: String = "parents"
   }
 
-  def fromEsMap (rels: Map[String, Any]): Relation = {
+  def fromEsMap (rels: Map[String, Any]): Relative = {
 
-    Relation (
+    val siblingArray = rels.getOrElse(Fields.siblings, new util.ArrayList()).asInstanceOf[util.ArrayList[Long]]
+    val parentArray = rels.getOrElse(Fields.parents, new util.ArrayList()).asInstanceOf[util.ArrayList[Long]]
+
+    Relative (
         level = rels.getOrElse(Fields.level, 0).asInstanceOf[Int],
         siblings = rels.getOrElse(Fields.siblings, Array()).asInstanceOf[Array[Long]],
         parents = rels.getOrElse(Fields.parents, Array()).asInstanceOf[Array[Long]]
