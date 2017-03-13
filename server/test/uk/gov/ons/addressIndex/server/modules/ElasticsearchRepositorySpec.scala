@@ -31,7 +31,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridIndex = config.config.elasticSearch.indexes.hybridIndex
   val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
 
-  val hybridRelLevel = 1.toInt
+  val hybridRelLevel = 1
   val hybridRelSibArray = Array(6L,7L)
   val hybridRelParArray = Array(8L,9L)
 
@@ -453,9 +453,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(expectedHybrid)
-      logger.info(expectedHybrid.relatives(0).level.toString())
-      logger.info(expectedHybrid.relatives(0).siblings(0).toString())
-      logger.info(expectedHybrid.relatives(0).parents(0).toString())
+
       // When
       val result = repository.queryUprn(hybridFirstUprn.toString).await
 
@@ -463,9 +461,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       result.get.lpi.head shouldBe expectedNag
       result.get.paf.head shouldBe expectedPaf
       result shouldBe expected
-   //   result.get.relatives(0).level.toString() shouldBe "1"
-    //  result.get.relatives(0).siblings(0).toString() shouldBe "6"
-    //  result.get.relatives(0).parents(0).toString() shouldBe "8"
     }
 
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
