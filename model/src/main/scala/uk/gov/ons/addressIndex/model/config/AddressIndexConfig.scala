@@ -90,6 +90,7 @@ case class TownNameConfig(
 case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
+  postcodeInOutBoost: Float,
   postcodeOutBoost: Float,
   postcodeInBoost: Float
 )
@@ -108,6 +109,9 @@ case class DepartmentNameConfig(
 )
 
 case class LocalityConfig(
+  pafPostTownBoost: Float,
+  pafWelshPostTownBoost: Float,
+  lpiTownNameBoost: Float,
   pafDependentLocalityBoost: Float,
   pafWelshDependentLocalityBoost: Float,
   lpiLocalityBoost: Float,

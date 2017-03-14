@@ -115,7 +115,8 @@ object Tokens extends CrfTokenable {
     }
 
     val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
-    val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(postcodeTreatedTokens)
+    val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
+    val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
     postTokenizeTreatmentBuildingNames(buildingNumberTreatedTokens)
 
   }
@@ -143,6 +144,31 @@ object Tokens extends CrfTokenable {
         )
 
       case Some(concatenatedPostcode) => tokens + (postcodeOut -> concatenatedPostcode)
+
+      case _ => tokens
+    }
+  }
+
+  /**
+    * Some London street names contain boroughs that are not useful for search inside street name
+    * We should extract them into locality
+    * @param tokens current tokens
+    * @return tokens with extracted borough
+    */
+  def postTokenizeTreatmentBorough(tokens: Map[String, String]): Map[String, String] ={
+    val streetNameToken = tokens.get(streetName)
+    val townNameToken = tokens.get(townName)
+
+    (streetNameToken, townNameToken) match {
+      case (Some(londonStreetName), Some("LONDON")) =>
+        val boroughToRemove = borough.find(londonStreetName.endsWith)
+
+        boroughToRemove match {
+          case Some(londonBorough) =>
+            tokens.updated(streetName, londonStreetName.replace(londonBorough, "").trim) + (locality -> londonBorough)
+
+          case _ => tokens
+        }
 
       case _ => tokens
     }
@@ -314,6 +340,8 @@ object Tokens extends CrfTokenable {
   lazy val outcodes: Seq[String] = fileToList(s"${tokenDirectory}outcode")
 
   lazy val postTown: Seq[String] = fileToList(s"${tokenDirectory}posttown")
+
+  lazy val borough: Seq[String] = fileToList(s"${tokenDirectory}borough")
 
   /**
     * Contains key-value map of synonyms (replace key by value)
