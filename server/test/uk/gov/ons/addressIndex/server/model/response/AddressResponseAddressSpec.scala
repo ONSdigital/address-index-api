@@ -114,6 +114,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     parents = Array(8L,9L)
   )
 
+  val givenRelativeResponse = AddressResponseRelative.fromRelative(givenRelative)
+
   "Address response Address model" should {
 
     "create PAF from Elastic PAF response" in {
@@ -261,7 +263,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
-        relatives = Seq(givenRelative),
+        relatives = Seq(givenRelativeResponse),
         formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",

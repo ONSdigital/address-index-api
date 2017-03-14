@@ -14,14 +14,14 @@ import scala.util.Try
   * @param score score of the address in the returned ES result
   */
 case class HybridAddress(
-                          uprn: String,
-                          parentUprn: String,
-                          relatives: Seq[Relative],
-                          postcodeIn: String,
-                          postcodeOut: String,
-                          lpi: Seq[NationalAddressGazetteerAddress],
-                          paf: Seq[PostcodeAddressFileAddress],
-                          score: Float
+  uprn: String,
+  parentUprn: String,
+  relatives: Seq[Relative],
+  postcodeIn: String,
+  postcodeOut: String,
+  lpi: Seq[NationalAddressGazetteerAddress],
+  paf: Seq[PostcodeAddressFileAddress],
+  score: Float
 )
 
 object HybridAddress {

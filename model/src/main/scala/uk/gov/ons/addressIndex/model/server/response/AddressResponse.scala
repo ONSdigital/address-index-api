@@ -170,16 +170,16 @@ object AddressTokens {
   * @param underlyingScore    score from elastic search
   */
 case class AddressResponseAddress(
-                                   uprn: String,
-                                   parentUprn: String,
-                                   relatives: Seq[Relative],
-                                   formattedAddress: String,
-                                   formattedAddressNag: String,
-                                   formattedAddressPaf: String,
-                                   paf: Option[AddressResponsePaf],
-                                   nag: Option[AddressResponseNag],
-                                   geo: Option[AddressResponseGeo],
-                                   underlyingScore: Float
+  uprn: String,
+  parentUprn: String,
+  relatives: Seq[AddressResponseRelative],
+  formattedAddress: String,
+  formattedAddressNag: String,
+  formattedAddressPaf: String,
+  paf: Option[AddressResponsePaf],
+  nag: Option[AddressResponseNag],
+  geo: Option[AddressResponseGeo],
+  underlyingScore: Float
 )
 
 object AddressResponseAddress {
@@ -201,7 +201,7 @@ object AddressResponseAddress {
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
-      relatives = other.relatives,
+      relatives = other.relatives.map(AddressResponseRelative.fromRelative),
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
@@ -226,6 +226,29 @@ object AddressResponseAddress {
   }
 }
 
+/**
+  * Wrapper response object for Relative (Relatives response comprises one Relative object per level)
+  *
+  * @param level                level number 1,2 etc. - 1 is top level
+  * @param siblings             uprns of addresses at the current level
+  * @param parents              uprns of addresses at the level above
+  *
+  */
+case class AddressResponseRelative(
+  level: Int,
+  siblings: Seq[Long],
+  parents: Seq[Long]
+)
+
+/**
+  * Compainion object providing Lazy Json formatting
+  */
+object AddressResponseRelative {
+  implicit lazy val relativeFormat: Format[AddressResponseRelative] = Json.format[AddressResponseRelative]
+
+  def fromRelative(relative: Relative): AddressResponseRelative =
+    AddressResponseRelative(relative.level, relative.siblings, relative.parents)
+}
 
 /**
   * Paf data on the address
