@@ -98,8 +98,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
 
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
-    parentUprn = "",
-    relatives = Seq(mockRelativeResponse),
+//    parentUprn = "",
+//    relatives = Seq(mockRelativeResponse),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
