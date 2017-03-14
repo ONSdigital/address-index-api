@@ -65,17 +65,19 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
-      val rels: Seq[Map[String, AnyRef]] = Try {
+   //   val rels: Seq[Map[String, AnyRef]] = Try {
         // Complex logic to cast field that contains a list of PAFs into a Scala's Map[String, AnyRef] so that we could
         // extract the information into a PAF DTO
-        hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
-      }.getOrElse(Seq.empty)
+    //    hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+    //  }.getOrElse(Seq.empty)
 
 
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
-        parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = rels.map(Relative.fromEsMap),
+        parentUprn = "0",
+        relatives = Seq.empty,
+     //   parentUprn = hit.sourceAsMap("parentUprn").toString,
+      //  relatives = rels.map(Relative.fromEsMap),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
