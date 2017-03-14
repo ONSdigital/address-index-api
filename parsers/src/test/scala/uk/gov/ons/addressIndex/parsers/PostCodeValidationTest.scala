@@ -1,61 +1,17 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{Assertion, FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import org.scalatest.{FlatSpec, Matchers}
 
 class PostCodeValidationTest extends FlatSpec with Matchers {
 
-  def testHelper(input: String, expected: String): Assertion = {
-    val anInput = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = input,
-          label = Tokens.postcode
-        )
-      )
-    )
-    val theExpected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = expected,
-          label = Tokens.postcode
-        )
-      )
-    )
-    val actual = Tokens.postTokenizeTreatmentPostCode(anInput)
-    actual shouldBe theExpected
-  }
-
   it should "BD176QL -> BD17 6QL" in {
     // Given
-    val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BD176QL",
-          label = Tokens.postcode
-        )
-      )
-    )
+    val input = Map(Tokens.postcode -> "BD176QL")
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BD17 6QL",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "BD17",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "6QL",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "BD17 6QL",
+      Tokens.postcodeOut -> "BD17",
+      Tokens.postcodeIn -> "6QL"
     )
 
     // When
@@ -65,40 +21,16 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "BD17 6QL -> BD17 6QL (if there are 2 initial postcode tokens)" in {
+  it should "BD17 6QL -> BD17 6QL (if the postcode is splitted by space)" in {
     // Given
     val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BD17",
-          label = Tokens.postcode
-        ),
-        CrfTokenResult(
-          value = "6QL",
-          label = Tokens.postcode
-        )
-      )
+      Tokens.postcode -> "BD17 6QL"
     )
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BD17 6QL",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "BD17",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "6QL",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "BD17 6QL",
+      Tokens.postcodeOut -> "BD17",
+      Tokens.postcodeIn -> "6QL"
     )
 
     // When
@@ -111,33 +43,13 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
   it should "HA62YY -> HA6 2YY" in {
     // Given
     val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "HA62YY",
-          label = Tokens.postcode
-        )
-      )
+      Tokens.postcode -> "HA62YY"
     )
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "HA6 2YY",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "HA6",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "2YY",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "HA6 2YY",
+      Tokens.postcodeOut -> "HA6",
+      Tokens.postcodeIn -> "2YY"
     )
 
     // When
@@ -150,33 +62,13 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
   it should "BH234TR -> BH23 4TR" in {
     // Given
     val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BH234TR",
-          label = Tokens.postcode
-        )
-      )
+      Tokens.postcode -> "BH234TR"
     )
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BH23 4TR",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "BH23",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "4TR",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "BH23 4TR",
+      Tokens.postcodeOut -> "BH23",
+      Tokens.postcodeIn -> "4TR"
     )
 
     // When
@@ -189,33 +81,13 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
   it should "BA140HU -> BA14 0HU" in {
     // Given
     val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BA140HU",
-          label = Tokens.postcode
-        )
-      )
+      Tokens.postcode -> "BA140HU"
     )
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "BA14 0HU",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "BA14",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "0HU",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "BA14 0HU",
+      Tokens.postcodeOut -> "BA14",
+      Tokens.postcodeIn -> "0HU"
     )
 
     // When
@@ -226,56 +98,14 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
   }
 
   it should "RH1 -> RH1" in {
-    testHelper(
-      input = "RH1",
-      expected = "RH1"
-    )
-  }
-
-  it should "L1 -> L1" in {
-    testHelper(
-      input = "L1",
-      expected = "L1"
-    )
-  }
-
-  it should "1AA -> 1AA" in {
-    testHelper(
-      input = "1AA",
-      expected = "1AA"
-    )
-  }
-
-  it should "X1AA -> X 1AA" in {
     // Given
     val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "X1AA",
-          label = Tokens.postcode
-        )
-      )
+      Tokens.postcode -> "RH1"
     )
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "X 1AA",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "X",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "1AA",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "RH1",
+      Tokens.postcodeOut -> "RH1"
     )
 
     // When
@@ -285,36 +115,71 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "L1234 -> L1 123" in { // even if the inCode does not look valid, it is still an input from the user
+  it should "L1 -> L1" in {
     // Given
     val input = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "L123",
-          label = Tokens.postcode
-        )
-      )
+      Tokens.postcode -> "L1"
     )
 
     val expected = Map(
-      Tokens.postcode -> Seq(
-        CrfTokenResult(
-          value = "L 123",
-          label = Tokens.postcode
-        )
-      ),
-      Tokens.postcodeOut -> Seq(
-        CrfTokenResult(
-          value = "L",
-          label = Tokens.postcodeOut
-        )
-      ),
-      Tokens.postcodeIn -> Seq(
-        CrfTokenResult(
-          value = "123",
-          label = Tokens.postcodeIn
-        )
-      )
+      Tokens.postcode -> "L1",
+      Tokens.postcodeOut -> "L1"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "1AA -> 1AA" in {
+    // Given
+    val input = Map(
+      Tokens.postcode -> "1AA"
+    )
+
+    val expected = Map(
+      Tokens.postcode -> "1AA",
+      Tokens.postcodeOut -> "1AA"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "X1AA -> X 1AA" in {
+    // Given
+    val input = Map(
+      Tokens.postcode -> "X1AA"
+    )
+
+    val expected = Map(
+      Tokens.postcode -> "X1AA",
+      Tokens.postcodeOut -> "X1AA"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "L1234 -> L1 234" in {
+    // even if the inCode does not look valid, it is still an input from the user
+    // Given
+    val input = Map(
+      Tokens.postcode -> "L1234"
+    )
+
+    val expected = Map(
+      Tokens.postcode -> "L1 234",
+      Tokens.postcodeOut -> "L1",
+      Tokens.postcodeIn -> "234"
     )
 
     // When
