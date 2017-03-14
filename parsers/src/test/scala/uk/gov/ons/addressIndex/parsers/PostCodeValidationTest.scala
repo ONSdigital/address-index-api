@@ -105,7 +105,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
 
     val expected = Map(
       Tokens.postcode -> "RH1",
-      Tokens.postcodeIn -> "RH1"
+      Tokens.postcodeOut -> "RH1"
     )
 
     // When
@@ -123,7 +123,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
 
     val expected = Map(
       Tokens.postcode -> "L1",
-      Tokens.postcodeIn -> "L1"
+      Tokens.postcodeOut -> "L1"
     )
 
     // When
@@ -141,7 +141,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
 
     val expected = Map(
       Tokens.postcode -> "1AA",
-      Tokens.postcodeIn -> "1AA"
+      Tokens.postcodeOut -> "1AA"
     )
 
     // When
@@ -159,7 +159,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
 
     val expected = Map(
       Tokens.postcode -> "X1AA",
-      Tokens.postcodeIn -> "X1AA"
+      Tokens.postcodeOut -> "X1AA"
     )
 
     // When

@@ -47,8 +47,8 @@ class TokensTest extends FlatSpec with Matchers {
   }
 
   it should "produce tokens without 'CO' and 'IN' tokens" in {
-    val input = "1 CO 2 3 IN 4"
-    val expected = Seq("1", "2", "3", "4")
+    val input = "1 CO 2 3 IN 4 CO IN 5"
+    val expected = Seq("1", "2", "3", "4", "5")
     val actual = Tokens(input)
     actual shouldBe expected
   }

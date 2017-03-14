@@ -142,7 +142,7 @@ object Tokens extends CrfTokenable {
           postcodeIn -> postcodeInToken
         )
 
-      case Some(concatenatedPostcode) => tokens + (postcodeIn -> concatenatedPostcode)
+      case Some(concatenatedPostcode) => tokens + (postcodeOut -> concatenatedPostcode)
 
       case _ => tokens
     }
