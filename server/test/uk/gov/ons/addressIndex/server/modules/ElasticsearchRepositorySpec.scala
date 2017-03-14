@@ -406,8 +406,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val expectedHybrid = HybridAddress(
     uprn = hybridFirstUprn.toString,
-    parentUprn = hybridFirstParentUprn.toString,
-    relatives = Seq(expectedRelative),
+//    parentUprn = hybridFirstParentUprn.toString,
+//    relatives = Seq(expectedRelative),
     postcodeIn = hybridFirstPostcodeIn,
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedNag),
