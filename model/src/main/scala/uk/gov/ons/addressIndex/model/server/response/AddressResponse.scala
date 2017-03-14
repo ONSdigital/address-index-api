@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -171,6 +171,8 @@ object AddressTokens {
   */
 case class AddressResponseAddress(
   uprn: String,
+  parentUprn: String,
+  relatives: Seq[AddressResponseRelative],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -198,6 +200,8 @@ object AddressResponseAddress {
 
     AddressResponseAddress(
       uprn = other.uprn,
+      parentUprn = other.parentUprn,
+      relatives = other.relatives.map(AddressResponseRelative.fromRelative),
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
@@ -222,6 +226,29 @@ object AddressResponseAddress {
   }
 }
 
+/**
+  * Wrapper response object for Relative (Relatives response comprises one Relative object per level)
+  *
+  * @param level                level number 1,2 etc. - 1 is top level
+  * @param siblings             uprns of addresses at the current level
+  * @param parents              uprns of addresses at the level above
+  *
+  */
+case class AddressResponseRelative(
+  level: Int,
+  siblings: Seq[Long],
+  parents: Seq[Long]
+)
+
+/**
+  * Compainion object providing Lazy Json formatting
+  */
+object AddressResponseRelative {
+  implicit lazy val relativeFormat: Format[AddressResponseRelative] = Json.format[AddressResponseRelative]
+
+  def fromRelative(relative: Relative): AddressResponseRelative =
+    AddressResponseRelative(relative.level, relative.siblings, relative.parents)
+}
 
 /**
   * Paf data on the address

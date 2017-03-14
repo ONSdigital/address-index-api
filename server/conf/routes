@@ -3,10 +3,10 @@
 #EG     /
 GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index
 
-#EG     /addresses?format=myFormat&input=myInputString
+#EG     /addresses?input=myInputString&offset=myOffsetNumber&limit=myOffsetLimit
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String])
 
-#EG     /addresses/myUprn?format=myFormat
+#EG     /addresses/myUprn
 GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn)
 
 #EG     /es

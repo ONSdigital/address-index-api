@@ -18,7 +18,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
 
-
   // injections
   val elasticClientProvider = new ElasticClientProvider {
     override def client: ElasticClient = testClient
@@ -29,10 +28,27 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridIndex = config.config.elasticSearch.indexes.hybridIndex
   val Array(hybridIndexName, hybridMappings) = hybridIndex.split("/")
 
+  val hybridRelLevel = 1
+  val hybridRelSibArray = Array(6L,7L)
+  val hybridRelParArray = Array(8L,9L)
+
+  val firstHybridRelEs = Map(
+    "level" -> hybridRelLevel,
+    "siblings" -> hybridRelSibArray,
+    "parents" -> hybridRelParArray
+  )
+
+  val secondHybridRelEs = Map(
+    "level" -> hybridRelLevel,
+    "siblings" -> hybridRelSibArray,
+    "parents" -> hybridRelParArray
+  )
+
   val hybridFirstUprn = 1L
+  val hybridFirstParentUprn = 3L
+  val hybridFirstRelative = firstHybridRelEs
   val hybridFirstPostcodeIn = "h01p"
   val hybridFirstPostcodeOut = "h02p"
-
   // Fields that are not in this list are not used for search
   val hybridPafUprn = 1L
   val hybridPafOrganizationName = "h2"
@@ -77,6 +93,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // Secondary PAF/NAG is used for single search (to have some "concurrence" for the main address)
   // and in the Multi Search
   val hybridSecondaryUprn = 2L
+  val hybridSecondaryParentUprn = 4L
+  val hybridSecondaryRelative = secondHybridRelEs
   val hybridSecondaryPostcodeIn = "s01p"
   val hybridSecondaryPostcodeOut = "s02p"
 
@@ -116,7 +134,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagEasting = 11f
   val secondardyHybridNagLocalCustodianName = "EXETER"
   val secondardyHybridNagLocalCustodianCode = "1110"
-
 
   val firstHybridPafEs = Map(
     "recordIdentifier" -> hybridNotUsedNull,
@@ -275,6 +292,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val firstHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridFirstUprn,
+    "parentUprn" -> hybridFirstParentUprn,
+    "relatives" -> Seq(hybridFirstRelative),
     "postcodeIn" -> hybridFirstPostcodeIn,
     "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
@@ -284,6 +303,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridSecondaryUprn,
+    "parentUprn" -> hybridSecondaryParentUprn,
+    "relatives" -> Seq(hybridSecondaryRelative),
     "postcodeIn" -> hybridSecondaryPostcodeIn,
     "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
@@ -377,8 +398,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridAll
   )
 
+  val expectedRelative = Relative (
+    level = hybridRelLevel,
+    siblings = hybridRelSibArray,
+    parents = hybridRelParArray
+  )
+
   val expectedHybrid = HybridAddress(
     uprn = hybridFirstUprn.toString,
+    parentUprn = hybridFirstParentUprn.toString,
+    relatives = Seq(expectedRelative),
     postcodeIn = hybridFirstPostcodeIn,
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedNag),
@@ -423,7 +452,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       result.get.lpi.head shouldBe expectedNag
       result.get.paf.head shouldBe expectedPaf
       result shouldBe expected
-
     }
 
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
