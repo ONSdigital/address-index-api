@@ -357,4 +357,55 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
+  it should "replace borough if it is in the street name and the city is London" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "ALBANY ROAD MANOR PARK",
+        label = Tokens.streetName
+      ),
+      CrfTokenResult(
+        value = "LONDON",
+        label = Tokens.townName
+      )
+    )
+
+    val expected = Map(
+      Tokens.streetName -> "ALBANY ROAD",
+      Tokens.townName -> "LONDON",
+      Tokens.locality -> "MANOR PARK"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "NOT replace borough if it is in the street name and the city is NOT London" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "ALBANY ROAD MANOR PARK",
+        label = Tokens.streetName
+      ),
+      CrfTokenResult(
+        value = "MANCHESTER",
+        label = Tokens.townName
+      )
+    )
+
+    val expected = Map(
+      Tokens.streetName -> "ALBANY ROAD MANOR PARK",
+      Tokens.townName -> "MANCHESTER"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
 }

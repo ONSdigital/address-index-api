@@ -286,7 +286,7 @@ class AddressIndexRepository @Inject()(
         ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshDoubleDependentLocalityBoost))
     ).flatten
 
-    val postcodeInOut = for {
+    val postcodeInOutMust = for {
       postcodeOut <- tokens.get(Tokens.postcodeOut)
       postcodeIn <- tokens.get(Tokens.postcodeIn)
     } yield constantScoreQuery(must(Seq(
@@ -298,7 +298,7 @@ class AddressIndexRepository @Inject()(
         field = "postcodeIn",
         value = postcodeIn
       ).fuzziness("2")
-    ))).boost(queryParams.postcode.postcodeInBoost)
+    ))).boost(queryParams.postcode.postcodeInOutBoost)
 
     val postcodeQuery = Seq(
       tokens.get(Tokens.postcode).map(token =>
@@ -311,8 +311,13 @@ class AddressIndexRepository @Inject()(
           field = "lpi.postcodeLocator",
           value = token
         )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
+      tokens.get(Tokens.postcodeIn).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "postcodeIn",
+          value = token
+        )).boost(queryParams.postcode.postcodeInBoost)),
 
-      postcodeInOut
+      postcodeInOutMust
 
     ).flatten
 
@@ -358,6 +363,21 @@ class AddressIndexRepository @Inject()(
     ).flatten
 
     val localityQuery = Seq(
+      tokens.get(Tokens.locality).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "paf.postTown",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost)),
+      tokens.get(Tokens.locality).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "paf.welshPostTown",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshPostTownBoost)),
+      tokens.get(Tokens.locality).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.townName",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.lpiTownNameBoost)),
       tokens.get(Tokens.locality).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.dependentLocality",
