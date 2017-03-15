@@ -155,6 +155,35 @@ class ClericalToolController @Inject()(
       }
     }
   }
+
+  def showQuery(): Action[AnyContent] = Action {implicit request =>
+
+    val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.queryDebug(
+      singleSearchForm = SingleMatchController.form,
+      warningMessage = None,
+      query = ""
+    )
+
+    Ok(viewToRender)
+
+   }
+
+  def fetchQuery(): Action[AnyContent] = Action.async { implicit request =>
+
+    val input: String = Try(request.body.asFormUrlEncoded.get("address").mkString).getOrElse("")
+
+    apiClient.showQuery(input).map{ query =>
+
+      val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.queryDebug(
+        singleSearchForm = SingleMatchController.form.fill(SingleSearchForm(input)),
+        warningMessage = None,
+        query = query
+      )
+
+      Ok(viewToRender)
+    }
+
+  }
 }
 
 object ClericalToolController {

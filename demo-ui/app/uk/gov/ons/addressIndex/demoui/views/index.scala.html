@@ -50,6 +50,16 @@
                         height = 120
                     )
                 </div>
+                <div class="index-nav">
+                    @nav.navItem(
+                        href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.absoluteURL,
+                        linkText = messages("home.query_debug_head"),
+                        linkBody = messages("home.query_debug_body"),
+                        imgUrl = routes.Assets.versioned("/images/clericaltool.jpg").toString,
+                        width = 280,
+                        height = 120
+                    )
+            </div>
             </div>
         </div>
     </div>

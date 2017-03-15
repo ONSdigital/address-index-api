@@ -825,6 +825,34 @@ classification: Option[Map[String,String]]
                                             }
                                             </div>
                                         </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1top">
+                                            @messages("clerical.token.all")
+                                            </div>
+                                            <div class="taColumn2">
+                                            @messages("clerical.paf_all")
+                                            </div>
+                                            <div class="taColumn3">
+                                            @Tokens.concatenate(aresponse.tokens)
+                                            </div>
+                                            <div class="taColumn4">
+                                            @address.formattedAddressPaf
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1bottom">
+                                            @messages("clerical.token.all")
+                                            </div>
+                                            <div class="taColumn2">
+                                            @messages("clerical.nag_all")
+                                            </div>
+                                            <div class="taColumn3">
+                                            @Tokens.concatenate(aresponse.tokens)
+                                            </div>
+                                            <div class="taColumn4">
+                                            @address.formattedAddressNag
+                                            </div>
+                                        </div>
 
                                     </div>
                                     <div class="clericalInfo">

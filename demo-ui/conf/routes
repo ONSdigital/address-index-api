@@ -32,6 +32,12 @@ GET    /clerical/search                         uk.gov.ons.addressIndex.demoui.c
 # ONS-Address Index Single Search Request
 GET    /clerical/search/:input                  uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, page: Option[Int], expand: Option[Int])
 
+# ONS-Address Index Single Search Request
+GET    /clerical/query-debug             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
+
+# ONS-Address Index Single Search Request
+POST    /clerical/query-debug             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.fetchQuery
+
 # ONS-Address Index Bulk Mimic Upload
 POST    /bulkUpload                             uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFile
 
