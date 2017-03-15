@@ -6,21 +6,21 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s._
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
 
   /**
-    * An ElasticClient.
+    * Queries if ES is up
     */
-  def client: ElasticClient
+  def queryHealth(): Future[String]
 
   /**
     * Query the address index by UPRN.
@@ -39,6 +39,15 @@ trait ElasticsearchRepository {
     * @return Future with found addresses and the maximum score
     */
   def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
+
+  /**
+    * Generates request to get address from ES by UPRN
+    * Public so that it could be accessible to controllers for User's debug purposes
+    *
+    * @param tokens tokens for the ES query
+    * @return Search definition containing query to the ES
+    */
+  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -63,6 +72,10 @@ class AddressIndexRepository @Inject()(
 
   val client: ElasticClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
+
+  def queryHealth(): Future[String] = client.execute {
+    get.cluster(health)
+  }.map(_.toString)
 
   def queryUprn(uprn: String): Future[Option[HybridAddress]] = {
 
@@ -95,13 +108,6 @@ class AddressIndexRepository @Inject()(
     client.execute(request).map(HybridAddresses.fromRichSearchResponse)
   }
 
-  /**
-    * Generates request to get address from ES by UPRN
-    * Public for tests
-    *
-    * @param tokens tokens for the ES query
-    * @return Search definition containing query to the ES
-    */
   def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
 
     val defaultFuzziness = "1"

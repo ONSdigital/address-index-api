@@ -8,7 +8,6 @@ import play.api.mvc.{Action, AnyContent}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
-import com.sksamuel.elastic4s.ElasticDsl._
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
@@ -26,22 +25,9 @@ class AddressController @Inject()(
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: AddressIndexConfigModule
-)(implicit ec: ExecutionContext) extends AddressIndexController {
+)(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 
   val logger = Logger("address-index-server:AddressController")
-
-  /**
-    * Test elastic is connected
-    *
-    * @return
-    */
-  def elasticTest(): Action[AnyContent] = Action async { implicit req =>
-    esRepo.client execute {
-      get cluster health
-    } map { resp =>
-      Ok(resp.toString)
-    }
-  }
 
   /**
     * Address query API

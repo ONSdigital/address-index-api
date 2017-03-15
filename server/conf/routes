@@ -10,6 +10,9 @@ GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressCo
 GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn)
 
 #EG     /es
-GET     /es                 uk.gov.ons.addressIndex.server.controllers.AddressController.elasticTest
+GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest
+
+#EG     /query-debug?input=address-input-here
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input)
 
 POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulkQuery
