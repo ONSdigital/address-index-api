@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, IndexesAndTypes, SearchDefinition}
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.common.settings.Settings
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
@@ -124,13 +125,14 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
-
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map(requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData))))
       }
 
+    override def queryHealth(): Future[String] = Future.successful("")
+
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   // mock that won't return any addresses
@@ -141,12 +143,14 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
-
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map(requestData => Right(Seq(BulkAddress.empty(requestData))))
       }
+
+    override def queryHealth(): Future[String] = Future.successful("")
+
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val sometimesFailingRepositoryMock = new ElasticsearchRepository {
@@ -157,8 +161,6 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
-
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map{
@@ -166,6 +168,10 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
           case requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData)))
         }
       }
+
+    override def queryHealth(): Future[String] = Future.successful("")
+
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val failingRepositoryMock = new ElasticsearchRepository {
@@ -176,11 +182,12 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
     override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
-    override def client: ElasticClient = ElasticClient.local(Settings.builder().build())
-
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.failed(new Exception("Test exception"))
 
+    override def queryHealth(): Future[String] = Future.successful("")
+
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val parser = new ParserModule {
