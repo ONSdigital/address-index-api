@@ -358,6 +358,28 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "NOT transform building name into numbers if they are not Short" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "123456A-123456F PICCADILLY COURT 123456-123456",
+        label = Tokens.buildingName
+      )
+    )
+
+    val expected = Map(
+      Tokens.buildingName -> "123456A-123456F PICCADILLY COURT 123456-123456",
+      Tokens.saoStartSuffix -> "A",
+      Tokens.saoEndSuffix -> "F"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "replace borough if it is in the street name and the city is London" in {
     // Given
     val input = List(

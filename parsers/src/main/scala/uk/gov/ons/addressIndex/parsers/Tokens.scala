@@ -274,6 +274,7 @@ object Tokens extends CrfTokenable {
 
   /**
     * Parses buildingName and extracts its parts
+    * All numbers should be `Short`
     * @param buildingName building name to be parsed
     * @return extracted parts in a form of a `BuildingNameSplit` class
     */
@@ -289,22 +290,41 @@ object Tokens extends CrfTokenable {
     // order is important
     buildingName match {
       case Some(buildingNameRangeStartSuffixEndSuffix(startNumber, startSuffix, endNumber, endSuffix)) =>
-        BuildingNameSplit(startNumber = Some(startNumber), startSuffix = Some(startSuffix), endNumber = Some(endNumber), endSuffix = Some(endSuffix))
+        BuildingNameSplit(
+          startNumber = Try(startNumber.toShort.toString).toOption,
+          startSuffix = Some(startSuffix),
+          endNumber = Try(endNumber.toShort.toString).toOption,
+          endSuffix = Some(endSuffix)
+        )
 
       case Some(buildingNameRangeEndSuffix(startNumber, endNumber, endSuffix)) =>
-        BuildingNameSplit(startNumber = Some(startNumber), endNumber = Some(endNumber), endSuffix = Some(endSuffix))
+        BuildingNameSplit(
+          startNumber = Try(startNumber.toShort.toString).toOption,
+          endNumber = Try(endNumber.toShort.toString).toOption,
+          endSuffix = Some(endSuffix)
+        )
 
       case Some(buildingNameRangeStartSuffix(startNumber, startSuffix, endNumber)) =>
-        BuildingNameSplit(startNumber = Some(startNumber), startSuffix = Some(startSuffix), endNumber = Some(endNumber))
+        BuildingNameSplit(
+          startNumber = Try(startNumber.toShort.toString).toOption,
+          startSuffix = Some(startSuffix),
+          endNumber = Try(endNumber.toShort.toString).toOption
+        )
 
       case Some(buildingNameRange(startNumber, endNumber)) =>
-        BuildingNameSplit(startNumber = Some(startNumber), endNumber = Some(endNumber))
+        BuildingNameSplit(
+          startNumber = Try(startNumber.toShort.toString).toOption,
+          endNumber = Try(endNumber.toShort.toString).toOption
+        )
 
       case Some(buildingNameLetter(startNumber, startSuffix)) =>
-        BuildingNameSplit(startNumber = Some(startNumber), startSuffix = Some(startSuffix))
+        BuildingNameSplit(
+          startNumber = Try(startNumber.toShort.toString).toOption,
+          startSuffix = Some(startSuffix)
+        )
 
       case Some(buildingNameNumber(number)) =>
-        BuildingNameSplit(startNumber = Some(number))
+        BuildingNameSplit(startNumber = Try(number.toShort.toString).toOption)
 
       case _ => BuildingNameSplit()
     }
@@ -312,12 +332,13 @@ object Tokens extends CrfTokenable {
 
   /**
     * Concatenates post-processed tokens so that we could use it against special xAll fields
+    * IMPORTANT! Locality is not included du to it screwing up the fallback query
     * @param tokens post-processed tokens
     * @return concatenated resulting string
     */
   def concatenate(tokens: Map[String, String]): String =
     Seq(organisationName, departmentName, subBuildingName, buildingName, buildingNumber,
-      streetName, locality, townName, postcode).map(label => tokens.getOrElse(label, "")).filter(_.nonEmpty).mkString(" ")
+      streetName, townName, postcode).map(label => tokens.getOrElse(label, "")).filter(_.nonEmpty).mkString(" ")
 
 
   // `lazy` is needed so that if this is called from other modules, during tests, it doesn't throw exception

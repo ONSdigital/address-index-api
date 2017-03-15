@@ -413,7 +413,7 @@ class AddressIndexRepository @Inject()(
 
     val normalizedInput = Tokens.concatenate(tokens)
 
-    val allQuery =
+    val fallbackQuery =
       moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
         .like(normalizedInput)
         .minTermFreq(1)
@@ -421,7 +421,7 @@ class AddressIndexRepository @Inject()(
         .boost(queryParams.allBoost)
 
     // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
-    allQuery.builder.minimumShouldMatch("-25%")
+    fallbackQuery.builder.minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
 
     val shouldQuery = Seq(
       buildingNumberQuery,
@@ -439,9 +439,9 @@ class AddressIndexRepository @Inject()(
     ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
 
     val query =
-      if (shouldQuery.isEmpty) allQuery
+      if (shouldQuery.isEmpty) fallbackQuery
       else should(
-        Seq(should(shouldQuery).minimumShouldMatch(queryParams.minimumShouldMatch), allQuery)
+        Seq(should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
       )
 
     search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)

@@ -32,7 +32,8 @@ case class QueryParamsConfig(
   disMaxTieBreaker: Double,
   allBoost: Float,
   defaultBoost: Float,
-  minimumShouldMatch: String
+  mainMinimumShouldMatch: String,
+  fallbackMinimumShouldMatch: String
 )
 
 case class ShieldConfig(
