@@ -682,3 +682,9 @@ div.taColumn4H{
     font-size:0.9em;
     white-space: nowrap;
 }
+
+.debug-query-output{
+    width: 800px;
+    margin-left: 10px;
+    padding: 10px;
+}

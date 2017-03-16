@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody, BulkResp}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, UprnQuery}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 
 
@@ -87,6 +87,14 @@ trait AddressIndexClient {
     UprnQuery(request.uprn.toString)
       .toReq
   }
+
+  def showQuery(input: String)(implicit ec: ExecutionContext): Future[String] = {
+    ShowQuery
+      .toReq
+      .withQueryString(
+        "input" -> input
+      ).get.map(response => Json.prettyPrint(response.json))
+  }
 }
 
 object AddressIndexClientHelper {
@@ -126,5 +134,10 @@ object AddressIndexClientHelper {
   object Bulk extends AddressIndexPath(
     path = "/bulk",
     method = "post"
+  )
+
+  object ShowQuery extends AddressIndexPath(
+    path = "/query-debug",
+    method = "GET"
   )
 }

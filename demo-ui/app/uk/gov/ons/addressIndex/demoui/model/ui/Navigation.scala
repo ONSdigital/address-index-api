@@ -30,6 +30,12 @@ object Links {
       label = messages("navbar.clerical")
     )
   }
+  def query(implicit messages: Messages) = {
+    Link(
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.toString,
+      label = messages("navbar.query")
+    )
+  }
 }
 
 object Navigation {
@@ -39,7 +45,8 @@ object Navigation {
         Links.home,
         Links.single,
         Links.multi,
-        Links.clerical
+        Links.clerical,
+        Links.query
       )
     )
   }
