@@ -1,44 +1,43 @@
 package uk.gov.ons.addressIndex.crfscala
 
+
 /**
   * scala wrapper of crfsuite
   *
-  * todo describe this more
   */
 object CrfScala {
 
-  type Input = String
-  type CrfToken = String
-  type CrfTokens = Array[CrfToken]
-  type FeatureName = String
-  type CrfJniInput = String
-  type FeaturesResult = Map[FeatureName, _]
-  type CrfParserResults = Seq[CrfParserResult]
+  /**
+    * This string is required to have a `\t` at the end for CrfScala to work.
+    */
+  val arbitraryString: String = "RhysBradbury\t"
 
-  case class CrfParserResult(originalInput: CrfToken, crfLabel: String)
+  case class CrfParserResult(originalInput: String, crfLabel: String)
 
   /**
-    * todo scaladoc
+    * A description of how to transform a String to tokens.
     */
   trait CrfTokenable {
-    def apply(input : CrfToken) : CrfTokens
-    def normalise(tokens : CrfTokens): CrfTokens
+    def apply(input : String) : Array[String]
+    def normalise(tokens : Array[String]): Array[String]
   }
 
   trait CrfFeaturable
 
+  /**
+    * A DTO for the result of one token being parsed and labeled.
+    * @param value the original token value.
+    * @param label the label the CRF model deduced.
+    */
   case class CrfTokenResult(
-    token: CrfToken,
-    next: Option[CrfToken] = None,
-    previous: Option[CrfToken] = None,
-    results: FeaturesResult
-  ) {
-    def toCrfJniInput(): CrfJniInput = {
-      "" //TODO
-    }
-  }
+    value: String,
+    label: String
+  )
 
-  //todo scaladoc
+  /**
+    * A type class which can be used to extend the IWA string builder.
+    * @tparam T the underlying type of the value.
+    */
   trait CrfType[T] {
     def value: T
   }

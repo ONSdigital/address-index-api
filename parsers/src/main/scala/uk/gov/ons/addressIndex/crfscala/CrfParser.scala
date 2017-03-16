@@ -2,22 +2,54 @@ package uk.gov.ons.addressIndex.crfscala
 
 import uk.gov.ons.addressIndex.crfscala.CrfScala._
 
-//TODO scaladoc
 trait CrfParser {
 
-  //TODO scaladoc
-  val crfScala: CrfScalaJniImpl = new CrfScalaJniImpl()
+  /**
+    * @return The file path to the parser lib.
+    */
+  def parserLibPath: String
 
-  //TODO scaladoc
-  def tag(i: Input, features: CrfFeatures, tokenable: CrfTokenable): String = {
-    val currentDirectory = new java.io.File(".").getCanonicalPath
-    val modelPath = s"$currentDirectory/parsers/src/main/resources/addressCRFA.crfsuite"
-    val actual = parse(i, features, tokenable)
+  /**
+    * JNI object.
+    */
+  val tagger: CrfScalaJniImpl = new CrfScalaJniImpl
+
+  /**
+    * Produce a collection of results from an input string.
+    *
+    * Step 1 parse to IWA String,
+    * Step 2 pass IWA string to tagger.
+    *
+    * @param input the input
+    * @param features an object which contains your features.
+    * @param tokenable an object which describes the transformation to tokens.
+    * @return a collection of results of the tag.
+    */
+  def tag(input: String, features: CrfFeatures, tokenable: CrfTokenable): Seq[CrfTokenResult] = {
+    val actual = parse(input, features, tokenable)
     val augmentedActual = augmentCrfJniInput(actual)
-    crfScala.tag(modelPath, augmentedActual)
+    val resp = tagger.tag(augmentedActual)
+    
+    val tokenResults = resp.split(CrfScalaJni.lineEnd)
+    val tokens = tokenable(input).toSeq
+
+    tokens.zipWithIndex.map { case (token, i) =>
+      val result = tokenResults(i)
+      CrfTokenResult(
+        value = token,
+        label = result.split(": ").head
+      )
+    }
   }
 
-  def augmentCrfJniInput(crfJniInput: CrfJniInput): CrfJniInput = {
+  /**
+    * A helper method which will order the input string to produce
+    * correct label probabilities.
+    *
+    * @param crfJniInput IWA String
+    * @return ordered and formatted IWA string
+    */
+  def augmentCrfJniInput(crfJniInput: String): String = {
     crfJniInput
       .split(CrfScalaJni.lineEnd)
       .map(
@@ -28,8 +60,15 @@ trait CrfParser {
       .mkString(CrfScalaJni.lineEnd) + CrfScalaJni.lineEnd
   }
 
-  //TODO scaladoc
-  def parse(i: Input, features: CrfFeatures, tokenable: CrfTokenable): CrfJniInput = {
+  /**
+    * A method which produces a IWA string from a given input
+    *
+    * @param i input
+    * @param features an object which contains your features.
+    * @param tokenable an object which describes the transformation to tokens.
+    * @return IWA string
+    */
+  def parse(i: String, features: CrfFeatures, tokenable: CrfTokenable): String = {
     val tokens = tokenable(i)
     val preprocessedTokens = tokenable normalise tokens
     val onlyOneToken = preprocessedTokens.length == 1
@@ -120,6 +159,6 @@ trait CrfParser {
         }
       }
     }
-    sb toString: CrfJniInput
+    sb toString: String
   }
 }

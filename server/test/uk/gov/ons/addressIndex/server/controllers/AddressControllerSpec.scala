@@ -1,21 +1,24 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules.ElasticsearchRepository
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, IndexesAndTypes, SearchDefinition}
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.common.settings.Settings
+import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Results
+import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NationalAddressGazetteerAddresses, PostcodeAddressFileAddress, PostcodeAddressFileAddresses}
+import play.api.test.Helpers._
+import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
+import uk.gov.ons.addressIndex.model.db.index._
+import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.server.modules._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.test._
-import org.scalatestplus.play._
-import play.api.test.Helpers._
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec extends PlaySpec with Results {
+class AddressControllerSpec extends PlaySpec with Results with AddressIndexCannedResponse {
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
@@ -47,7 +50,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     endDate = "27",
     lastUpdateDate = "28",
     entryDate = "29",
-    score = 1.0f
+    pafAll = "30"
   )
 
   val validNagAddress = NationalAddressGazetteerAddress(
@@ -75,71 +78,140 @@ class AddressControllerSpec extends PlaySpec with Results {
     saoEndSuffix = "15",
     level = "16",
     officialFlag = "17",
-    logicalStatus = "18",
     streetDescriptor = "19",
     townName = "20",
     locality = "21",
-    score = 1.0f
+    lpiLogicalStatus = "lpiLogicalStatus",
+    blpuLogicalStatus = "blpuLogicalStatus",
+    source = "source",
+    usrnMatchIndicator = "usrnMatchIndicator",
+    parentUprn = "parentUprn",
+    crossReference = "crossReference",
+    streetClassification = "streetClassification",
+    multiOccCount = "multiOccCount",
+    language = "language",
+    classScheme = "classScheme",
+    localCustodianCode = "localCustodianCode",
+    localCustodianName = "localCustodianName",
+    localCustodianGeogCode = "localCustodianGeogCode",
+    rpc = "rpc",
+    nagAll = "nagAll"
+  )
+
+   val validRelative = Relative (
+    level = 1.toInt,
+    siblings = Array(6L,7L),
+    parents = Array(8L,9L)
+  )
+
+  val validHybridAddress = HybridAddress(
+    uprn = "1",
+//    parentUprn = "4",
+//    relatives = Seq(validRelative),
+    postcodeIn = "2",
+    postcodeOut = "3",
+    paf = Seq(validPafAddress),
+    lpi = Seq(validNagAddress),
+    score = 1f
   )
 
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
 
-    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] =
-      Future.successful(Some(validPafAddress))
+    override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
+      Future.successful(Some(validHybridAddress))
 
-    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] =
-      Future.successful(Some(validNagAddress))
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPafAddresses(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
-      Future.successful(PostcodeAddressFileAddresses(Seq(validPafAddress), 1.0f))
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+      Future.successful{
+        requestsData.map(requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData))))
+      }
 
-    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] =
-      Future.successful(NationalAddressGazetteerAddresses(Seq(validNagAddress), 1.0f))
+    override def queryHealth(): Future[String] = Future.successful("")
 
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   // mock that won't return any addresses
   val emptyElasticRepositoryMock = new ElasticsearchRepository {
 
-    override def queryPafUprn(uprn: String): Future[Option[PostcodeAddressFileAddress]] = Future.successful(None)
+    override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryNagUprn(uprn: String): Future[Option[NationalAddressGazetteerAddress]] = Future.successful(None)
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryPafAddresses(tokens: AddressTokens): Future[PostcodeAddressFileAddresses] =
-      Future.successful(PostcodeAddressFileAddresses(Seq.empty, 1.0f))
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+      Future.successful{
+        requestsData.map(requestData => Right(Seq(BulkAddress.empty(requestData))))
+      }
 
-    override def queryNagAddresses(tokens: AddressTokens): Future[NationalAddressGazetteerAddresses] =
-      Future.successful(NationalAddressGazetteerAddresses(Seq.empty, 1.0f))
+    override def queryHealth(): Future[String] = Future.successful("")
 
-    override def client(): ElasticClient = ElasticClient.local(Settings.builder().build())
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
+
+  val sometimesFailingRepositoryMock = new ElasticsearchRepository {
+
+    override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
+
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+      if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
+      else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+      Future.successful{
+        requestsData.map{
+          case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
+          case requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData)))
+        }
+      }
+
+    override def queryHealth(): Future[String] = Future.successful("")
+
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+  }
+
+  val failingRepositoryMock = new ElasticsearchRepository {
+
+    override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
+      Future.failed(new Exception("test failure"))
+
+    override def queryAddresses(start:Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] =
+      Future.failed(new Exception("Test exception"))
+
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+      Future.failed(new Exception("Test exception"))
+
+    override def queryHealth(): Future[String] = Future.successful("")
+
+    override def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+  }
+
+  val parser = new ParserModule {
+    override def tag(input: String): Seq[CrfTokenResult] = Seq.empty
+  }
+  val config = new AddressIndexConfigModule
+
+  val queryController = new AddressController(elasticRepositoryMock, parser, config)
 
   "Address controller" should {
 
-    "reply with a found PAF address (by address query)" in {
+    "reply on a found address (by uprn)" in {
       // Given
-      val controller = new AddressController(elasticRepositoryMock)
+      val controller = queryController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        AddressBySearchResponse(
-          tokens = AddressTokens(
-            uprn = "",
-            buildingNumber = "10",
-            postcode = "B16 8TH"
-          ),
-          addresses = Seq(AddressResponseAddress.fromPafAddress(1.0f)(validPafAddress)),
-          limit = 10,
-          offset = 0,
-          total = 1
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        response = AddressByUprnResponse(
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress))
         ),
         OkAddressResponseStatus
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "paf").apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -147,27 +219,24 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a found NAG address (by address query)" in {
+    "reply with a found address (by address query)" in {
       // Given
-      val controller = new AddressController(elasticRepositoryMock)
+      val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = AddressTokens(
-            uprn = "",
-            buildingNumber = "72",
-            postcode = "B16 8TH"
-          ),
-          addresses = Seq(AddressResponseAddress.fromNagAddress(1.0f)(validNagAddress)),
+          tokens = Map.empty,
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),
           limit = 10,
           offset = 0,
-          total = 1
+          total = 1,
+          maxScore = 1.0f
         ),
         OkAddressResponseStatus
       ))
 
       // When
-      val result = controller.addressQuery("72 B16 8TH", "bs").apply(FakeRequest())
+      val result = controller.addressQuery("some query").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -175,24 +244,155 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a 400 error if address format is not supported (by address query)" in {
+    "reply on a 400 error if a non-numeric offset parameter is supplied" in {
       // Given
-      val controller = new AddressController(elasticRepositoryMock)
+      val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = AddressTokens.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
-          total = 0
+          total = 0,
+          maxScore = 0.0f
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(FormatNotSupportedAddressResponseError)
+        errors = Seq(OffsetNotNumericAddressResponseError)
       ))
 
       // When
-      val result = controller.addressQuery("10 B16 8TH", "format is not supported").apply(FakeRequest())
+      val result = controller.addressQuery("some query", Some("thing"), Some("1")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a non-numeric limit parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LimitNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("thing")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a negative offset parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(OffsetTooSmallAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("-1"), Some("1")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a negative or zero limit parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LimitTooSmallAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("0"), Some("0")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if an offset parameter greater than the maximum allowed is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(OffsetTooLargeAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("9999999"), Some("1")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a limit parameter larger than the maximum allowed is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LimitTooLargeAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("0"), Some("999999")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -202,22 +402,23 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply on a 400 error if query is empty (by address query)" in {
       // Given
-      val controller = new AddressController(elasticRepositoryMock)
+      val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         AddressBySearchResponse(
-          tokens = AddressTokens.empty,
+          tokens = Map.empty,
           addresses = Seq.empty,
           limit = 10,
           offset = 0,
-          total = 0
+          total = 0,
+          maxScore = 0.0f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
       ))
 
       // When
-      val result = controller.addressQuery("", "paf").apply(FakeRequest())
+      val result = controller.addressQuery("").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -225,49 +426,61 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a found PAF address (by uprn)" in {
+    "reply on a 500 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
-      val controller = new AddressController(elasticRepositoryMock)
+      val controller = new AddressController(failingRepositoryMock, parser, config)
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromPafAddress(validPafAddress))
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
         ),
-        OkAddressResponseStatus
+        InternalServerErrorAddressResponseStatus,
+        errors = Seq(FailedRequestToEsError)
       ))
 
       // When
-      val result = controller.uprnQuery("4", "paf").apply(FakeRequest())
+      val result = controller.addressQuery("some query").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe OK
+      status(result) mustBe INTERNAL_SERVER_ERROR
       actual mustBe expected
     }
 
-    "reply on a found NAG address (by uprn)" in {
+    "reply on a 500 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
-      val controller = new AddressController(elasticRepositoryMock)
+      val controller = new AddressController(failingRepositoryMock, parser, config)
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromNagAddress(validNagAddress))
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
         ),
-        OkAddressResponseStatus
+        InternalServerErrorAddressResponseStatus,
+        errors = Seq(FailedRequestToEsError)
       ))
 
       // When
-      val result = controller.uprnQuery("1", "bs").apply(FakeRequest())
+      val result = controller.uprnQuery("12345").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe OK
+      status(result) mustBe INTERNAL_SERVER_ERROR
       actual mustBe expected
     }
 
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
-      val controller = new AddressController(emptyElasticRepositoryMock)
+      val controller = new AddressController(emptyElasticRepositoryMock, parser, config)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         response = AddressByUprnResponse(
@@ -278,7 +491,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.uprnQuery("doesn't exist", "paf").apply(FakeRequest())
+      val result = controller.uprnQuery("doesn't exist").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -286,25 +499,59 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply a 400 error if address format is not supported (by uprn)" in {
+    "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
       // Given
-      val controller = new AddressController(emptyElasticRepositoryMock)
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
 
-      val expected = Json.toJson(AddressByUprnResponseContainer(
-        response = AddressByUprnResponse(
-          address = None
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(FormatNotSupportedAddressResponseError)
-      ))
+      val requestsData: Stream[BulkAddressRequestData] = Stream(
+        BulkAddressRequestData("","1", Map("first" -> "success")),
+        BulkAddressRequestData("","2", Map("second" -> "success")),
+        BulkAddressRequestData("","3", Map("third" -> "failed"))
+      )
 
       // When
-      val result = controller.uprnQuery("4", "format is not supported").apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3), Duration.Inf )
 
       // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
+      result.successfulBulkAddresses.size mustBe 2
+      result.failedRequests.size mustBe 1
+    }
+
+    "have process bulk addresses using back-pressure" in {
+      // Given
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+
+      val requestsData: Stream[BulkAddressRequestData] = Stream(
+        BulkAddressRequestData("","1", Map("first" -> "success")),
+        BulkAddressRequestData("","2", Map("second" -> "success")),
+        BulkAddressRequestData("","3", Map("third" -> "success")),
+        BulkAddressRequestData("","4", Map("forth" -> "success")),
+        BulkAddressRequestData("","5", Map("fifth" -> "success")),
+        BulkAddressRequestData("","6", Map("sixth" -> "success")),
+        BulkAddressRequestData("","7", Map("seventh" -> "success")),
+        BulkAddressRequestData("","8", Map("eighth" -> "success")),
+        BulkAddressRequestData("","9", Map("ninth" -> "success"))
+      )
+
+      // When
+      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, Seq.empty)
+
+      // Then
+      result.size mustBe requestsData.size
+    }
+
+    "have back-pressure that should throw an exception if there is an always failing request" in {
+      // Given
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+
+      val requestsData: Stream[BulkAddressRequestData] = Stream(
+        BulkAddressRequestData("","1", Map("first" -> "success")),
+        BulkAddressRequestData("","2", Map("second" -> "success")),
+        BulkAddressRequestData("","3", Map("third" -> "failed"))
+      )
+
+      // When Then
+      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, Seq.empty)
     }
 
   }

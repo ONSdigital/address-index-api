@@ -11,5 +11,5 @@ import scala.util.Try
 @Singleton
 class DemouiConfigModule() {
   private val tryConfig : Try[DemouiConfig] = loadConfig[DemouiConfig]("demoui")
-  val config : DemouiConfig = tryConfig getOrElse DemouiConfig.default
+  val config : DemouiConfig = tryConfig.getOrElse(throw new IllegalArgumentException("Address Index (Demo UI) config is corrupted, verify if application.conf does not contain any typos"))
 }

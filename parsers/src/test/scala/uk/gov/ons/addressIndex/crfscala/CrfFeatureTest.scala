@@ -65,6 +65,9 @@ class CrfFeatureTest extends FlatSpec with Matchers  {
     def feature = CrfFeatureTestImpl[T](name)(analyser)
   }
 
+  /**
+    * Helper for tests
+    */
   object Instances {
     def apply[T]()(implicit ev: TestInstance[T]): TestInstance[T] = ev
 

@@ -30,6 +30,10 @@ package object parsers {
             .countIn(str.toLowerCase) > 0
         )
       }
+
+      def toOption(): Option[String] = {
+        if (str.isEmpty) None else Some(str)
+      }
     }
   }
 }

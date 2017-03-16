@@ -3,11 +3,16 @@
 #EG     /
 GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index
 
-#EG     /addresses?format=myFormat&input=myInputString
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, format)
+#EG     /addresses?input=myInputString&offset=myOffsetNumber&limit=myOffsetLimit
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String])
 
-#EG     /addresses/myUprn?format=myFormat
-GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, format)
+#EG     /addresses/myUprn
+GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn)
 
 #EG     /es
-GET     /es                 uk.gov.ons.addressIndex.server.controllers.AddressController.elasticTest
+GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest
+
+#EG     /query-debug?input=address-input-here
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input)
+
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulkQuery
