@@ -304,6 +304,48 @@ classification: Option[Map[String,String]]
                                             @messages("clerical.token.locality")
                                             </div>
                                             <div class="taColumn2">
+                                            @messages("clerical.post_town")
+                                            </div>
+                                            <div class="taColumn3">
+                                            @aresponse.tokens.getOrElse(Tokens.locality, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                            @address.paf.map{ paf => @paf.postTown }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                            @messages("clerical.token.locality")
+                                            </div>
+                                            <div class="taColumn2">
+                                            @messages("clerical.welsh_post_town")
+                                            </div>
+                                            <div class="taColumn3">
+                                            @aresponse.tokens.getOrElse(Tokens.locality, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                            @address.paf.map{ paf => @paf.welshPostTown }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                            @messages("clerical.token.town_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                            @messages("clerical.town_name")
+                                            </div>
+                                            <div class="taColumn3">
+                                            @aresponse.tokens.getOrElse(Tokens.locality, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                            @address.nag.map{ nag => @nag.townName }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                            @messages("clerical.token.locality")
+                                            </div>
+                                            <div class="taColumn2">
                                             @messages("clerical.dependent_locality")
                                             </div>
                                             <div class="taColumn3">
@@ -382,6 +424,20 @@ classification: Option[Map[String,String]]
                                             </div>
                                             <div class="taColumn4">
                                             @address.paf.map{ paf => @paf.welshPostTown }
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                            @messages("clerical.token.town_name")
+                                            </div>
+                                            <div class="taColumn2">
+                                            @messages("clerical.town_name")
+                                            </div>
+                                            <div class="taColumn3">
+                                            @aresponse.tokens.getOrElse(Tokens.townName, "")
+                                            </div>
+                                            <div class="taColumn4">
+                                            @address.nag.map{ nag => @nag.townName }
                                             </div>
                                         </div>
                                         <div class="taRow">
@@ -801,9 +857,9 @@ classification: Option[Map[String,String]]
                                             </div>
                                             <div class="taColumn4">
                                             @if(address.paf.isEmpty){
-                                                @address.nag.map{ nag => @nag.postcodeLocator }
+                                                @address.nag.map{ nag => @nag.postcodeLocator.split(" ").headOption.getOrElse("") }
                                                 } else {
-                                                @address.paf.map{ paf => @paf.postcode }
+                                                @address.paf.map{ paf => @paf.postcode.split(" ").headOption.getOrElse("") }
                                             }
                                             </div>
                                         </div>
@@ -819,9 +875,9 @@ classification: Option[Map[String,String]]
                                             </div>
                                             <div class="taColumn4">
                                             @if(address.paf.isEmpty){
-                                                @address.nag.map{ nag => @nag.postcodeLocator }
+                                                @address.nag.map{ nag => @nag.postcodeLocator.split(" ").lastOption.getOrElse("") }
                                                 } else {
-                                                @address.paf.map{ paf => @paf.postcode }
+                                                @address.paf.map{ paf => @paf.postcode.split(" ").lastOption.getOrElse("") }
                                             }
                                             </div>
                                         </div>

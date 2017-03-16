@@ -35,7 +35,7 @@ warningMessage : Option[String],
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@messages("clerical.sfatext")</h3>&nbsp;&nbsp;<h4 class="panel-subtitle">@messages("single.sfatext")</h4>
             <div class="panel-body">
-                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.fetchQuery) {
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery) {
                 <div id="search-form" class="search-bar-active">
                     @forms.singleAddressForm(singleSearchForm)
                 </div>

@@ -106,6 +106,7 @@ navbar.home=Home
 navbar.singlematch=Single Match
 navbar.multimatch=Multiple Match
 navbar.clerical=Clerical Tool
+navbar.query=Query Debug
 single.pleasesupply=Please enter an address
 single.sfatext=Search for Addresses
 single.searchbut=Search

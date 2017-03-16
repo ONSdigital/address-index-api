@@ -106,6 +106,7 @@ navbar.home=Cartref
 navbar.singlematch=Match sengl
 navbar.multimatch=Match lluosog
 navbar.clerical=Offeryn clerigol
+navbar.query=Dadfygio ymholiad
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am Cyfeiriadau
 single.searchbut=Chwilio
