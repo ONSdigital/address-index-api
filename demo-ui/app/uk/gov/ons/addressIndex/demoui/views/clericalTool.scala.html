@@ -892,7 +892,7 @@ classification: Option[Map[String,String]]
                                             @Tokens.concatenate(aresponse.tokens)
                                             </div>
                                             <div class="taColumn4">
-                                            @address.formattedAddressPaf
+                                            @address.formattedAddressPaf.replaceAll(",", "")
                                             </div>
                                         </div>
                                         <div class="taRow">
@@ -906,7 +906,7 @@ classification: Option[Map[String,String]]
                                             @Tokens.concatenate(aresponse.tokens)
                                             </div>
                                             <div class="taColumn4">
-                                            @address.formattedAddressNag
+                                            @address.formattedAddressNag.replaceAll(",", "")
                                             </div>
                                         </div>
 
