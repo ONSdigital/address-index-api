@@ -15,8 +15,8 @@ import scala.util.Try
   */
 case class HybridAddress(
   uprn: String,
-//  parentUprn: String,
-//  relatives: Seq[Relative],
+  parentUprn: String,
+  relatives: Seq[Relative],
   postcodeIn: String,
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
@@ -33,8 +33,8 @@ object HybridAddress {
     */
   val empty = HybridAddress(
     uprn = "",
-//    parentUprn = "",
-//    relatives = Seq.empty,
+    parentUprn = "",
+    relatives = Seq.empty,
     postcodeIn = "",
     postcodeOut = "",
     lpi = Seq.empty,
@@ -66,16 +66,16 @@ object HybridAddress {
       }.getOrElse(Seq.empty)
 
       val rels: Seq[Map[String, AnyRef]] = Try {
-        // Complex logic to cast field that contains a list of PAFs into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a PAF DTO
+        // Complex logic to cast field that contains a list of Relatives into a Scala's Map[String, AnyRef] so that we could
+        // extract the information into a Relatives DTO
         hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
 
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
-//        parentUprn = hit.sourceAsMap("parentUprn").toString,
-//        relatives = rels.map(Relative.fromEsMap),
+        parentUprn = hit.sourceAsMap("parentUprn").toString,
+        relatives = rels.map(Relative.fromEsMap),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
