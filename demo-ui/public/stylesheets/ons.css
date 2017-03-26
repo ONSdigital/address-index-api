@@ -494,9 +494,7 @@ div.paf-nag-switch-buttons span:hover{
 }
 
 .hiderow {
-    visibility:hidden;
-    overflow:auto;
-    height:0px;
+    display: none
 }
 
 .clerical1 {

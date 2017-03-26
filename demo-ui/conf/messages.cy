@@ -1,3 +1,5 @@
+debug.sfatext=Offeryn Dadnamu Ymholiad
+
 clerical.sfatext=Offeryn clerigol
 clerical.addinfo=Gwybodaeth Clerigol Ychwanegol
 clerical.logicalstatus=Statws rhesymegol
