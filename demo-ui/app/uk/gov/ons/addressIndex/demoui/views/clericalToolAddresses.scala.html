@@ -7,6 +7,7 @@
     pageSize: Int,
     pageMax: Int,
     expandRow: Int,
+    pagerAction: String,
     addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
     classification: Option[Map[String, String]]
 )(implicit messages: Messages)
@@ -73,9 +74,9 @@
 
                             <div class="resultRow">
                                 <div class="clericalInfo">
-                                    <a href="#" class="clerical-button">@messages("clerical.addinfo")</a>
+                                    <a href="?page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
                                 </div>
-                                <div class="clerical-div hiderow">
+                                <div class='@{if (index == expandRow) {"showrow"} else {"hiderow"}}'>
                                     <div class="clericalInfo">
                                         <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>
                                     </div>
@@ -864,5 +865,5 @@
                 </div>
             </div>
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total,true)
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total, pagerAction)
             }

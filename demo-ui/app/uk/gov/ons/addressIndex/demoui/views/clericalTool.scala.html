@@ -6,6 +6,7 @@
 @import uk.gov.ons.addressIndex.parsers.Tokens
 @(
 title: String,
+action: Call,
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 warningMessage : Option[String],
 query: String,
@@ -13,6 +14,7 @@ pageNum: Int,
 pageSize: Int,
 pageMax: Int,
 expandRow: Int,
+pagerAction: String,
 addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
 classification: Option[Map[String,String]]
 )(implicit messages: Messages)
@@ -49,7 +51,7 @@ classification: Option[Map[String,String]]
         });
 
         $(".clerical-button").click(function(e){
-            $(this).parent().parent().find(".clerical-div").toggleClass(".hiderow");
+            $(this).parent().parent().find(".clerical-div").toggleClass("hiderow");
             return false;
         })
     });
@@ -72,7 +74,7 @@ classification: Option[Map[String,String]]
         <div class="panel panel-single address-panel">
             <h3 class="panel-title">@title</h3>&nbsp;&nbsp;<h4 class="panel-subtitle">@messages("single.sfatext")</h4>
             <div class="panel-body">
-                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch) {
+                @helper.form(action = action) {
                 <div id="search-form" class="search-bar-active">
                     @forms.singleAddressForm(singleSearchForm)
                 </div>
@@ -86,7 +88,7 @@ classification: Option[Map[String,String]]
             }
 
 
-            @clericalToolAddresses(singleSearchForm, pageNum, pageSize, pageMax, expandRow, addressBySearchResponse, classification)
+            @clericalToolAddresses(singleSearchForm, pageNum, pageSize, pageMax, expandRow, pagerAction, addressBySearchResponse, classification)
 
 
         </div>
