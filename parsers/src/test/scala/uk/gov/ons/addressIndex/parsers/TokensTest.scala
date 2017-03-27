@@ -40,7 +40,7 @@ class TokensTest extends FlatSpec with Matchers {
   }
 
   it should "produce tokens, replacing `to` with hyphen" in {
-    val input = "1 to 2 3 to 4"
+    val input = "1 TO 2 3 TO 4"
     val expected = Seq("1-2", "3-4")
     val actual = Tokens(input)
     actual shouldBe expected
