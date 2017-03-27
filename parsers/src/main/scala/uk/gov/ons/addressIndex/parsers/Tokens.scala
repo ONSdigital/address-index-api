@@ -74,7 +74,7 @@ object Tokens extends CrfTokenable {
       .replaceAll("(\\d+) *- *(\\d+)", "$1-$2")
       .replaceAll("(\\d+[A-Z]) *- *(\\d+[A-Z])", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
-      .replace("(\\d+) *TO *(\\d+)", "$1-$2")
+      .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replace(" IN ", " ")
       .replace(" CO ", " ")
       .replace(" - ", " ")
