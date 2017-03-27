@@ -171,8 +171,8 @@ object AddressTokens {
   */
 case class AddressResponseAddress(
   uprn: String,
-//  parentUprn: String,
-//  relatives: Seq[AddressResponseRelative],
+  parentUprn: String,
+  relatives: Seq[AddressResponseRelative],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -200,8 +200,8 @@ object AddressResponseAddress {
 
     AddressResponseAddress(
       uprn = other.uprn,
-//      parentUprn = other.parentUprn,
-//      relatives = other.relatives.map(AddressResponseRelative.fromRelative),
+      parentUprn = other.parentUprn,
+      relatives = other.relatives.map(AddressResponseRelative.fromRelative),
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
