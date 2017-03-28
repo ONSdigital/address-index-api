@@ -430,4 +430,50 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
+  it should "add FLAT name to the subBuildingName if paoStartSuffix is set" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "A",
+        label = Tokens.paoStartSuffix
+      )
+    )
+
+    val expected = Map(
+      Tokens.paoStartSuffix -> "A",
+      Tokens.subBuildingName -> "FLAT A"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "NOT add FLAT name to the subBuildingName if subBuildingName is already set" in {
+    // Given
+    val input = List(
+      CrfTokenResult(
+        value = "A",
+        label = Tokens.paoStartSuffix
+      ),
+      CrfTokenResult(
+        value = "B",
+        label = Tokens.subBuildingName
+      )
+    )
+
+    val expected = Map(
+      Tokens.paoStartSuffix -> "A",
+      Tokens.subBuildingName -> "B"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatment(input)
+
+    // Then
+    actual shouldBe expected
+  }
 }
