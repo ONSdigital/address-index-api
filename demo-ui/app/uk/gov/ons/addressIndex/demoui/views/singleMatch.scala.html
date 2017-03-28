@@ -137,7 +137,7 @@ classification: Option[Map[String,String]]
                 </div>
             </div>
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total,false)
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total, "single")
             }
         </div>
         <div class="panel panel-single address-panel">
