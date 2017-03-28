@@ -118,9 +118,10 @@ object Tokens extends CrfTokenable {
     val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
     val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
-    val subBuildingNameTreatedTokens = postTokenizeTreatmentSubBuildingName(buildingNumberTreatedTokens)
-    postTokenizeTreatmentBuildingNames(subBuildingNameTreatedTokens)
+    val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)
+    val subBuildingNameTreatedTokens = postTokenizeTreatmentSubBuildingName(buildingNameTreatedTokens)
 
+    subBuildingNameTreatedTokens
   }
 
   /**
@@ -200,7 +201,7 @@ object Tokens extends CrfTokenable {
     * @param tokens tokens grouped by label
     * @return map with tokens that will also contain paoStartNumber and paoStartSuffix tokens if buildingName is present
     */
-  def postTokenizeTreatmentBuildingNames(tokens: Map[String, String]): Map[String, String]= {
+  def postTokenizeTreatmentBuildingName(tokens: Map[String, String]): Map[String, String]= {
 
     val (buildingNameToken: Option[String], subBuildingNameToken: Option[String]) = assignBuildingNames(tokens)
 
@@ -339,7 +340,7 @@ object Tokens extends CrfTokenable {
     * @param tokens current tokens
     * @return tokens with updated subBuildingName if needed
     */
-  private def postTokenizeTreatmentSubBuildingName(tokens: Map[String, String]): Map[String, String] = {
+  def postTokenizeTreatmentSubBuildingName(tokens: Map[String, String]): Map[String, String] = {
     val paoStartSuffixToken = tokens.get(paoStartSuffix)
     val subBuildingNameToken = tokens.get(subBuildingName)
     val subBuildingNamePrefix = "FLAT "
