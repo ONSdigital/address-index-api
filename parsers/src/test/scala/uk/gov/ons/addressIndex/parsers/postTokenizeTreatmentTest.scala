@@ -7,12 +7,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName into paoStartNumber and paoStartSuffix" in {
     // Given
-    val input = List(
-        CrfTokenResult(
-          value = "65B",
-          label = Tokens.buildingName
-        )
-      )
+    val input = Map(
+      Tokens.buildingName -> "65B"
+    )
 
     val expected = Map(
       Tokens.buildingName -> "65B",
@@ -21,7 +18,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
 
     // Then
     actual shouldBe expected
@@ -29,11 +26,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingNumber into paoStartNumber" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "65",
-        label = Tokens.buildingNumber
-      )
+    val input = Map(
+      Tokens.buildingNumber -> "65"
     )
 
     val expected = Map(
@@ -42,7 +36,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenizeTreatmentBuildingNumber(input)
 
     // Then
     actual shouldBe expected
@@ -252,11 +246,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform complex building name (with many ranges) into pao and sao fields" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "311C-311B 311A-311",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "311C-311B 311A-311"
     )
 
     val expected = Map(
@@ -271,7 +262,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
 
     // Then
     actual shouldBe expected
@@ -308,11 +299,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform building name with a range, a number and everything has a suffix" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "8B-8C THE MEWS 15A",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "8B-8C THE MEWS 15A"
     )
 
     val expected = Map(
@@ -326,7 +314,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
 
     // Then
     actual shouldBe expected
