@@ -118,7 +118,8 @@ object Tokens extends CrfTokenable {
     val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
     val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
-    postTokenizeTreatmentBuildingNames(buildingNumberTreatedTokens)
+    val subBuildingNameTreatedTokens = postTokenizeTreatmentSubBuildingName(buildingNumberTreatedTokens)
+    postTokenizeTreatmentBuildingNames(subBuildingNameTreatedTokens)
 
   }
 
@@ -332,8 +333,26 @@ object Tokens extends CrfTokenable {
   }
 
   /**
+    * Some flat names are written into the building name
+    * Example: "50A" buildingName may actually mean "50" building number and "FLAT A"
+    * as subBuildingName
+    * @param tokens current tokens
+    * @return tokens with updated subBuildingName if needed
+    */
+  private def postTokenizeTreatmentSubBuildingName(tokens: Map[String, String]): Map[String, String] = {
+    val paoStartSuffixToken = tokens.get(paoStartSuffix)
+    val subBuildingNameToken = tokens.get(subBuildingName)
+    val subBuildingNamePrefix = "FLAT "
+
+    (paoStartSuffixToken, subBuildingNameToken) match {
+      case (Some(flatName), None) => tokens + (subBuildingName -> s"$subBuildingNamePrefix$flatName")
+      case _ => tokens
+    }
+  }
+
+  /**
     * Concatenates post-processed tokens so that we could use it against special xAll fields
-    * IMPORTANT! Locality is not included du to it screwing up the fallback query
+    * IMPORTANT! Locality is not included due to it screwing up the fallback query
     * @param tokens post-processed tokens
     * @return concatenated resulting string
     */
