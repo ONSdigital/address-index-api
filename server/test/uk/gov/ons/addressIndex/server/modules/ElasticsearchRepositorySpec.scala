@@ -519,7 +519,20 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             "minimum_should_match":"-25%",
                             "boost":${queryParams.allBoost}
                          }
-             }
+             },
+             "sort": [
+               {
+                 "_score": {
+                   "order": "desc"
+                 }
+               },
+               {
+                 "uprn": {
+                   "order": "asc"
+                 }
+               }
+             ],
+             "track_scores": true
           }
         """
       )
