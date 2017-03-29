@@ -39,7 +39,7 @@ GET    /clerical/uprn/:input                   uk.gov.ons.addressIndex.demoui.co
 GET    /clerical/query-debug                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
 
 # ONS-Address Index Single Search Request
-GET    /clerical/query-debug/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input)
+GET    /clerical/query-debug/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, page: Option[Int], expand: Option[Int])
 
 # ONS-Address Index Single Search Request
 POST    /clerical/query-debug                   uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery

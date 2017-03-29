@@ -7,6 +7,7 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s._
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
+import org.elasticsearch.search.sort.SortOrder
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
@@ -444,7 +445,10 @@ class AddressIndexRepository @Inject()(
         Seq(should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
       )
 
-    search.in(hybridIndex).query(query).searchType(SearchType.DfsQueryThenFetch)
+    search.in(hybridIndex).query(query)
+      .sort(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      .trackScores(true)
+      .searchType(SearchType.DfsQueryThenFetch)
 
   }
 
