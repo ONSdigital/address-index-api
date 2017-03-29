@@ -88,6 +88,13 @@
                                     </div>
                                     <div class="clerical2">
                                         <strong>@messages("clerical.parentuprn"):</strong>
+                                        <span class="clericalgrey">
+                                            @if(address.parentUprn == "0"){
+                                                &nbsp;N/A
+                                            } else {
+                                                &nbsp;@address.parentUprn
+                                            }
+                                        </span>
                                     </div>
                                     <div class="clerical2">
                                         <strong>@messages("clerical.la"):</strong><span class="clericalgrey"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
