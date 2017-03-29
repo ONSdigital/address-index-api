@@ -118,14 +118,12 @@ classification: Option[Map[String,String]]
                                 }
                             </div>
                             <div class="resultRow">
-                                <div>
-                                    <div class="uprn-txt"><strong>@messages("single.parentuprn"):</strong>
-                                        @if(address.parentUprn == "0"){
-                                    &nbsp;N/A</div>
-                                    } else {
-                                    &nbsp;@address.parentUprn</div>
-                                    }
-                                </div>
+                                <div class="uprn-txt"><strong>@messages("single.parentuprn"):</strong>
+                                    @if(address.parentUprn == "0"){
+                                &nbsp;N/A</div>
+                                } else {
+                                &nbsp;@address.parentUprn</div>
+                                }
                             </div>
                             <div class="resultRow">
                                 <strong>@messages("single.classification"): </strong>
