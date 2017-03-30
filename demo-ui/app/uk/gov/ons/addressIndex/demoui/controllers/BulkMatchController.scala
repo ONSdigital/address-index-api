@@ -68,7 +68,7 @@ class BulkMatchController @Inject()(
               }
             }
           ) map { resp =>
-            logger info s"Response size: ${resp.resp.size}"
+            logger info s"Response size: ${resp.bulkAddresses.size}"
             Ok(
               uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
                 nav = Navigation.default,
