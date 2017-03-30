@@ -424,20 +424,26 @@ class AddressIndexRepository @Inject()(
     // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
     fallbackQuery.builder.minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
 
-    val shouldQuery = Seq(
+    val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
       buildingNameQuery,
       subBuildingNameQuery,
       streetNameQuery,
       townNameQuery,
       postcodeQuery,
-      paoQuery,
-      saoQuery,
       organisationNameQuery,
       departmentNameQuery,
       localityQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.disMaxTieBreaker))
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+
+    val everythingMattersQueries = Seq(
+      paoQuery,
+      saoQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.includingDisMaxTieBreaker))
+
+    val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
