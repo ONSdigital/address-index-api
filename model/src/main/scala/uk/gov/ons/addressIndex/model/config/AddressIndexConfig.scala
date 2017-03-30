@@ -31,7 +31,7 @@ case class QueryParamsConfig(
   locality: LocalityConfig,
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
-  allBoost: Float,
+  fallbackQueryBoost: Float,
   defaultBoost: Float,
   mainMinimumShouldMatch: String,
   fallbackMinimumShouldMatch: String

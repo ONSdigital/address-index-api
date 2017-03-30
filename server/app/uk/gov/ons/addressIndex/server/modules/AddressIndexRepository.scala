@@ -419,7 +419,7 @@ class AddressIndexRepository @Inject()(
         .like(normalizedInput)
         .minTermFreq(1)
         .analyser("welsh_split_analyzer")
-        .boost(queryParams.allBoost)
+        .boost(queryParams.fallbackQueryBoost)
 
     // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
     fallbackQuery.builder.minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
