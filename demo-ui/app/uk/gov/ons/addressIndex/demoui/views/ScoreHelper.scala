@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.demoui.views
 
-import uk.gov.ons.addressIndex.model.BulkResp
+import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
 
 object ScoreHelper {
   /**
@@ -21,20 +21,7 @@ object ScoreHelper {
     * @param set
     * @return
     */
-  def getRelativePercentageScore(score: Float, set: BulkResp): Int = {
-    ((score / set.resp.maxBy(_.score).score) * 100).toInt
-  }
-
-  /**
-    * filter the results for a BulkResp for items
-    * with a relative score weighing of less than or equal to 66
-    *
-    * @param set
-    * @return
-    */
-  def filterSetByScore(set: BulkResp): BulkResp = {
-    BulkResp(
-      resp = set.resp.filter(i => getRelativePercentageScore(i.score, set) >= 66)
-    )
+  def getRelativePercentageScore(score: Float, set: AddressBulkResponseContainer): Int = {
+    ((score / set.bulkAddresses.maxBy(_.score).score) * 100).toInt
   }
 }

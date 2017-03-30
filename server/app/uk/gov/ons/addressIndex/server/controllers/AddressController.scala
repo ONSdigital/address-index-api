@@ -9,7 +9,7 @@ import play.api.mvc.{Action, AnyContent}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import play.api.libs.json.Json
-import uk.gov.ons.addressIndex.model.{BulkBody, BulkItem, BulkResp}
+import uk.gov.ons.addressIndex.model.BulkBody
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
@@ -177,15 +177,12 @@ class AddressController @Inject()(
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
-    *
+    * cluttered with logs
     * @return
     */
   def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
     logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
     val startingTime = System.currentTimeMillis()
-
-    // Used to distinguish individual bulk logs
-    val uuid = java.util.UUID.randomUUID.toString
 
     val requestsData: Stream[BulkAddressRequestData] = req.body.addresses.toStream.map{
       row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
@@ -197,19 +194,26 @@ class AddressController @Inject()(
 
     logger.info(s"#bulkQuery processed")
 
+    // Used to distinguish individual bulk logs
+    val uuid = java.util.UUID.randomUUID.toString
+
+    val bulkItems = results.map { bulkAddress =>
+
+        val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress)
+
+        // Side effects
+        Splunk.log(IP = req.remoteAddress, url = req.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
+          formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
+          score = addressBulkResponseAddress.score.toString, uuid = uuid)
+
+        addressBulkResponseAddress
+      }
+
     val response =
       jsonOk(
-        BulkResp(
-          resp = results.map { bulkAddress =>
-
-            val bulkItem = BulkItem.fromBulkAddress(bulkAddress)
-
-            // Side effects
-            Splunk.log(IP = req.remoteAddress, url = req.uri, input = bulkItem.inputAddress, isBulk = true,
-              formattedOutput = bulkItem.matchedFormattedAddress, score = bulkItem.score.toString, uuid = uuid)
-
-            bulkItem
-          }
+        AddressBulkResponseContainer(
+          bulkAddresses = bulkItems,
+          status = OkAddressResponseStatus
         )
       )
 

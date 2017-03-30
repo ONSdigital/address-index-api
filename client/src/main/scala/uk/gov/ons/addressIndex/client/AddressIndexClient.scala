@@ -3,10 +3,10 @@ package uk.gov.ons.addressIndex.client
 import play.api.libs.json.Json
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody, BulkResp}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 
 
 trait AddressIndexClient {
@@ -51,8 +51,7 @@ trait AddressIndexClient {
       )
   }
 
-  def bulk(request: BulkBody)
-    (implicit ec: ExecutionContext): Future[BulkResp] = {
+  def bulk(request: BulkBody)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
     Bulk
       .toReq
       .withHeaders(
@@ -63,7 +62,7 @@ trait AddressIndexClient {
           request
         )
       )
-      .map(_.json.as[BulkResp])
+      .map(_.json.as[AddressBulkResponseContainer])
   }
 
   /**
