@@ -29,8 +29,9 @@ case class QueryParamsConfig(
   organisationName: OrganisationNameConfig,
   departmentName: DepartmentNameConfig,
   locality: LocalityConfig,
-  disMaxTieBreaker: Double,
-  allBoost: Float,
+  excludingDisMaxTieBreaker: Double,
+  includingDisMaxTieBreaker: Double,
+  fallbackQueryBoost: Float,
   defaultBoost: Float,
   mainMinimumShouldMatch: String,
   fallbackMinimumShouldMatch: String
