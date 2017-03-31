@@ -517,7 +517,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             "min_term_freq":1,
                             "analyzer":"welsh_split_analyzer",
                             "minimum_should_match":"-25%",
-                            "boost":${queryParams.allBoost}
+                            "boost":${queryParams.fallbackQueryBoost}
                          }
              },
              "sort": [
@@ -583,7 +583,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                      "must":[  
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -615,7 +615,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -662,7 +662,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -705,7 +705,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -778,7 +778,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -889,7 +889,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -946,7 +946,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                             "dis_max":{
-                                                "tie_breaker":${queryParams.disMaxTieBreaker},
+                                                "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                                 "queries":[
                                                    {
                                                      "constant_score" : {
@@ -1001,7 +1001,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -1062,7 +1062,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                      "should":[  
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -1129,7 +1129,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -1160,7 +1160,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                         },
                                         {  
                                            "dis_max":{
-                                              "tie_breaker":${queryParams.disMaxTieBreaker},
+                                              "tie_breaker":${queryParams.excludingDisMaxTieBreaker},
                                               "queries":[
                                                  {
                                                    "constant_score" : {
@@ -1248,7 +1248,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             "min_term_freq":1,
                             "analyzer":"welsh_split_analyzer",
                             "minimum_should_match":"-1",
-                            "boost":${queryParams.allBoost}
+                            "boost":${queryParams.fallbackQueryBoost}
                          }
                       }
                    ]
