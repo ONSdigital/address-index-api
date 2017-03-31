@@ -50,7 +50,7 @@ object Tokens extends CrfTokenable {
     postcode
   )
 
-  private val currentDirectory = new java.io.File(".").getCanonicalPath
+  private val currentDirectory = new java.io.File(".").getCanonicalPath.replace("parsers","").replace("server","")
   private val tokenDirectory = s"$currentDirectory${config.getString("parser.input-pre-post-processing.folder")}"
 
   /**

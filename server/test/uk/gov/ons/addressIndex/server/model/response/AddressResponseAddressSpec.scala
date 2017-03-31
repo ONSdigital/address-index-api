@@ -275,7 +275,15 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           easting = 291398,
           northing = 93861
         )),
-        underlyingScore = 1
+        underlyingScore = 1,
+        objectScore = 0,
+        structuralScore = 0,
+        buildingScore = 0,
+        localityScore = 0,
+        unitScore = 0,
+        buildingScoreDebug = "0",
+        localityScoreDebug = "0",
+        unitScoreDebug = "0"
       )
 
       // When

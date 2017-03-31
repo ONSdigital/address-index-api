@@ -106,7 +106,15 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    objectScore = 0d,
+    structuralScore = 0d,
+    buildingScore = 0d,
+    localityScore = 0d,
+    unitScore = 0d,
+    buildingScoreDebug = "0",
+    localityScoreDebug = "0",
+    unitScoreDebug = "0"
   )
 
   val mockAddressBySearchResponse = AddressBySearchResponse (

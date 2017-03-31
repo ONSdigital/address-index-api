@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
+import javax.inject.Inject
+
 import com.sksamuel.elastic4s.{ElasticClient, IndexesAndTypes, SearchDefinition}
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.common.settings.Settings
@@ -8,17 +10,19 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.i18n.{I18nSupport, Lang, MessagesApi}
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
+import uk.gov.ons.addressIndex.server.utils.HopperScoreHelper
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec extends PlaySpec with Results with AddressIndexCannedResponse {
+class AddressControllerSpec @Inject()(val messagesApi: MessagesApi) extends PlaySpec with Results with AddressIndexCannedResponse {
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",

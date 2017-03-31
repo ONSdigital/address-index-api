@@ -183,7 +183,15 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  underlyingScore: Float
+  underlyingScore: Float,
+  objectScore: Double,
+  structuralScore: Double,
+  buildingScore: Double,
+  localityScore: Double,
+  unitScore: Double,
+  buildingScoreDebug: String,
+  localityScoreDebug: String,
+  unitScoreDebug: String
 )
 
 object AddressResponseAddress {
@@ -212,7 +220,15 @@ object AddressResponseAddress {
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      underlyingScore = other.score
+      underlyingScore = other.score,
+      objectScore =0f,
+      structuralScore = 0f,
+      buildingScore = 0f,
+      localityScore = 0f,
+      unitScore = 0f,
+      buildingScoreDebug = "0",
+      localityScoreDebug = "0",
+      unitScoreDebug = "0"
     )
   }
 
