@@ -33,8 +33,15 @@ class TokensTest extends FlatSpec with Matchers {
   }
 
   it should "produce tokens, removing spaces around hyphen" in {
-    val input = "1 -2 3 - 4 5- 6 a - b 7   - 8 9 -    1"
+    val input = "1 -2 3 - 4 5- 6 A - B 7   - 8 9 -    1"
     val expected = Seq("1-2", "3-4", "5-6", "A", "B", "7-8", "9-1")
+    val actual = Tokens(input)
+    actual shouldBe expected
+  }
+
+  it should "produce tokens, removing spaces around hyphen (numbers with letters)" in {
+    val input = "1A -2B 3A - 4 5- 6B 9 - 1"
+    val expected = Seq("1A-2B", "3A-4", "5-6B", "9-1")
     val actual = Tokens(input)
     actual shouldBe expected
   }

@@ -71,8 +71,7 @@ object Tokens extends CrfTokenable {
     val inputWithoutCounties = removeCounties(upperInput)
 
     val tokens = inputWithoutCounties
-      .replaceAll("(\\d+) *- *(\\d+)", "$1-$2")
-      .replaceAll("(\\d+[A-Z]) *- *(\\d+[A-Z])", "$1-$2")
+      .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replace(" IN ", " ")
@@ -119,9 +118,8 @@ object Tokens extends CrfTokenable {
     val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
     val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)
-    val subBuildingNameTreatedTokens = postTokenizeTreatmentSubBuildingName(buildingNameTreatedTokens)
 
-    subBuildingNameTreatedTokens
+    buildingNameTreatedTokens
   }
 
   /**
@@ -330,24 +328,6 @@ object Tokens extends CrfTokenable {
         BuildingNameSplit(startNumber = Try(number.toShort.toString).toOption)
 
       case _ => BuildingNameSplit()
-    }
-  }
-
-  /**
-    * Some flat names are written into the building name
-    * Example: "50A" buildingName may actually mean "50" building number and "FLAT A"
-    * as subBuildingName
-    * @param tokens current tokens
-    * @return tokens with updated subBuildingName if needed
-    */
-  def postTokenizeTreatmentSubBuildingName(tokens: Map[String, String]): Map[String, String] = {
-    val paoStartSuffixToken = tokens.get(paoStartSuffix)
-    val subBuildingNameToken = tokens.get(subBuildingName)
-    val subBuildingNamePrefix = "FLAT "
-
-    (paoStartSuffixToken, subBuildingNameToken) match {
-      case (Some(flatName), None) => tokens + (subBuildingName -> s"$subBuildingNamePrefix$flatName")
-      case _ => tokens
     }
   }
 
