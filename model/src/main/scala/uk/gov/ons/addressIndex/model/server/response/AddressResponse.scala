@@ -115,7 +115,7 @@ case class AddressBulkResponseAddress(
   inputAddress: String,
   uprn: String,
   matchedFormattedAddress: String,
-  matchedAddress: AddressResponseAddress,
+  matchedAddress: Option[AddressResponseAddress],
   tokens: Map[String, String],
   score: Float
 )
@@ -123,7 +123,7 @@ case class AddressBulkResponseAddress(
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
-  def fromBulkAddress(bulkAddress: BulkAddress): AddressBulkResponseAddress = {
+  def fromBulkAddress(bulkAddress: BulkAddress, includeFullAddress: Boolean): AddressBulkResponseAddress = {
     val addressResponseAddress = AddressResponseAddress.fromHybridAddress(bulkAddress.hybridAddress)
 
     AddressBulkResponseAddress(
@@ -131,7 +131,7 @@ object AddressBulkResponseAddress {
       inputAddress = bulkAddress.inputAddress,
       uprn = bulkAddress.hybridAddress.uprn,
       matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
-      matchedAddress = addressResponseAddress,
+      matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
       tokens = bulkAddress.tokens,
       score = bulkAddress.hybridAddress.score
     )

@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.duration._
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
@@ -177,14 +177,27 @@ class AddressController @Inject()(
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
-    * cluttered with logs
-    * @return
+    * @return reduced information on founded addresses (uprn, formatted address)
     */
-  def bulkQuery(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
-    logger.info(s"#bulkQuery with ${req.body.addresses.size} items")
+  def bulk(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
+    bulkQuery()
+  }
+
+  /**
+    * a POST route which will process all `BulkQuery` items in the `BulkBody`
+    * this version is slower and more memory-consuming
+    * @return all the information on founded addresses (uprn, formatted address, found address json object)
+    */
+  def bulkFull(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
+    bulkQuery(includeFullAddress = true)
+  }
+
+
+  private def bulkQuery(includeFullAddress: Boolean = false)(implicit request: Request[BulkBody]): Result = {
+    logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     val startingTime = System.currentTimeMillis()
 
-    val requestsData: Stream[BulkAddressRequestData] = req.body.addresses.toStream.map{
+    val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map{
       row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
     }
 
@@ -199,10 +212,10 @@ class AddressController @Inject()(
 
     val bulkItems = results.map { bulkAddress =>
 
-        val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress)
+        val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress, includeFullAddress)
 
         // Side effects
-        Splunk.log(IP = req.remoteAddress, url = req.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
+        Splunk.log(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
           formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
           score = addressBulkResponseAddress.score.toString, uuid = uuid)
 
@@ -218,7 +231,7 @@ class AddressController @Inject()(
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
-    Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString, isBulk = true, bulkSize = requestsData.size.toString)
+    Splunk.log(IP = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString, isBulk = true, bulkSize = requestsData.size.toString)
 
     response
   }
