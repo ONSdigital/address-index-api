@@ -11,9 +11,7 @@ import scala.util.Try
   */
 object Tokens extends CrfTokenable {
 
-
   private val config = ConfigFactory.load()
-
 
   val organisationName: String = "OrganisationName"
   val departmentName: String = "DepartmentName"
@@ -384,6 +382,10 @@ object Tokens extends CrfTokenable {
     */
   lazy val nonCountyIdentification: Seq[String] = fileToList(s"${tokenDirectory}non_county_identification")
 
-  private def fileToList(path: String): Seq[String] = Source.fromURL(getClass.getResource(path)).getLines().toList
+  private def fileToList(path: String): Seq[String] = {
+    println("PATH")
+    println(getClass.getResource(path))
+    Source.fromURL(getClass.getResource(path)).getLines().toList
+  }
 
 }
