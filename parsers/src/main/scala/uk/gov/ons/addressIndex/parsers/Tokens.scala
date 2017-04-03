@@ -11,9 +11,7 @@ import scala.util.Try
   */
 object Tokens extends CrfTokenable {
 
-
   private val config = ConfigFactory.load()
-
 
   val organisationName: String = "OrganisationName"
   val departmentName: String = "DepartmentName"
@@ -50,8 +48,7 @@ object Tokens extends CrfTokenable {
     postcode
   )
 
-  private val currentDirectory = new java.io.File(".").getCanonicalPath
-  private val tokenDirectory = s"$currentDirectory${config.getString("parser.input-pre-post-processing.folder")}"
+  private val tokenDirectory = config.getString("parser.input-pre-post-processing.folder")
 
   /**
     * Tokenizes input into tokens (also removes counties, replaces synonyms)
@@ -385,6 +382,10 @@ object Tokens extends CrfTokenable {
     */
   lazy val nonCountyIdentification: Seq[String] = fileToList(s"${tokenDirectory}non_county_identification")
 
-  private def fileToList(path: String): Seq[String] = Source.fromFile(path).getLines().toList
+  private def fileToList(path: String): Seq[String] = {
+    println("PATH")
+    println(getClass.getResource(path))
+    Source.fromURL(getClass.getResource(path)).getLines().toList
+  }
 
 }
