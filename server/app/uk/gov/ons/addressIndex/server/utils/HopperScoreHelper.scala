@@ -23,8 +23,10 @@ object HopperScoreHelper  {
   val logger = Logger("HopperScoreHelper")
 
   // load score matrix from external file
-  private val currentDirectory = new java.io.File(".").getCanonicalPath.replace("server","")
-  private val tokenDirectory = s"$currentDirectory${config.getString("addressIndex.serverResourcePath")}"
+  private val currentDirectory = new java.io.File(".").getCanonicalPath
+
+  val trimmedDirectory = if (currentDirectory.endsWith("server")) currentDirectory.dropRight(7) else currentDirectory
+  private val tokenDirectory = s"$trimmedDirectory${config.getString("addressIndex.serverResourcePath")}"
   lazy val scoreMatrix: Map[String,String] = fileToMap(s"${tokenDirectory}scorematrix.txt")
 
   /**

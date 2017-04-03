@@ -14,7 +14,6 @@ object Tokens extends CrfTokenable {
 
   private val config = ConfigFactory.load()
 
-
   val organisationName: String = "OrganisationName"
   val departmentName: String = "DepartmentName"
   val subBuildingName: String = "SubBuildingName"
@@ -50,8 +49,9 @@ object Tokens extends CrfTokenable {
     postcode
   )
 
-  private val currentDirectory = new java.io.File(".").getCanonicalPath.replace("parsers","").replace("server","")
-  private val tokenDirectory = s"$currentDirectory${config.getString("parser.input-pre-post-processing.folder")}"
+  private val currentDirectory = new java.io.File(".").getCanonicalPath
+  val trimmedDirectory = if (currentDirectory.endsWith("server")) currentDirectory.dropRight(7) else currentDirectory
+  private val tokenDirectory = s"$trimmedDirectory${config.getString("parser.input-pre-post-processing.folder")}"
 
   /**
     * Tokenizes input into tokens (also removes counties, replaces synonyms)
