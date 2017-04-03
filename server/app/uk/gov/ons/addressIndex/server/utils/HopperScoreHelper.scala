@@ -132,7 +132,7 @@ object HopperScoreHelper  {
 
     val ambiguityPenalty = caluclateAmbiguityPenalty(localityScoreDebug,localityParams);
    // logger.info("penatly = "+ambiguityPenalty)
-    val localityScore = Try(scoreMatrix(localityScoreDebug).toDouble).getOrElse(0d) * ambiguityPenalty
+    val localityScore = Try(scoreMatrix(localityScoreDebug).toDouble).getOrElse(0d) / ambiguityPenalty
 
     val unitScoreDebug = calculateUnitScore(
       address,
@@ -619,7 +619,7 @@ object HopperScoreHelper  {
       else if (pafBuildingMatchScore < 2) 2
       else if ( pafBuildingMatchScore < 3) 3
       else if (subBuildingName == "@"  && Try(address.paf.get.subBuildingName).getOrElse("") == "" ) 9
-      else if (!((subBuildingName != "@" && Try(address.paf.get.subBuildingName).getOrElse("") != "" ) )) 7
+      else if (!((subBuildingName != "@" && Try(address.paf.get.subBuildingName).getOrElse("") != "" ) )) 8
       else 6
     }
  //    logger.info("sub building name paf score = " + sub_building_name_paf_score)
@@ -630,7 +630,7 @@ object HopperScoreHelper  {
       else if (nagBuildingMatchScore < 2) 2
       else if (nagBuildingMatchScore < 3) 3
       else if (subBuildingName == "@" && Try(address.nag.get.sao.saoText).getOrElse("") == "" ) 9
-      else if (!((subBuildingName != "@" && Try(address.nag.get.sao.saoText).getOrElse("") != "" ) )) 7
+      else if (!((subBuildingName != "@" && Try(address.nag.get.sao.saoText).getOrElse("") != "" ) )) 8
       else 6
     }
    //  logger.info("sub building name nag score = " + sub_building_name_nag_score)
