@@ -500,8 +500,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
-      println(Tokens.directions)
-
       val tokens: Map[String, String] = Map.empty
 
       val expected = Json.parse(
