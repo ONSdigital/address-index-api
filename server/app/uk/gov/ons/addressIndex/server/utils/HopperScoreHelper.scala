@@ -1,33 +1,24 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import com.typesafe.config.ConfigFactory
 import play.api.Logger
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.collection.mutable.ListBuffer
-import scala.io.Source
 import scala.util.Try
 
 /**
   * Utility class to calculate Hopper matching scores
   * Takes the address response and adds the scores to each result
-  * Uses the messages file to lookup the scoring matrices
-  * @param messagesApi
+  * Uses an external file to lookup the scoring matrices
   */
 object HopperScoreHelper  {
 
-  private val config = ConfigFactory.load()
-
   val logger = Logger("HopperScoreHelper")
 
-  // load score matrix from external file
-  private val currentDirectory = new java.io.File(".").getCanonicalPath
-
-  val trimmedDirectory = if (currentDirectory.endsWith("server")) currentDirectory.dropRight(7) else currentDirectory
-  private val tokenDirectory = s"$trimmedDirectory${config.getString("addressIndex.serverResourcePath")}"
-  lazy val scoreMatrix: Map[String,String] = fileToMap(s"${tokenDirectory}scorematrix.txt")
+  // load score matrix from external file in parsers
+  lazy val scoreMatrix: Map[String,String] = Tokens.fileToMap(s"scorematrix.txt")
 
   /**
     * Creates a new immutable sequence of addresses with the scores set
@@ -874,17 +865,6 @@ object HopperScoreHelper  {
     }
     val penalty = if (postcodeScore < 4) 1 else sectors.distinct.size
     penalty.toDouble
-  }
-
-  /**
-    * Make score matrix file into Map
-    * @param path
-    * @return
-    */
-  def fileToMap(path: String): Map[String,String] = {
-    Source.fromFile(path).getLines().map { l =>
-      val Array(k,v1,_*) = l.split('=')
-      k -> (v1) }.toMap
   }
 
 }

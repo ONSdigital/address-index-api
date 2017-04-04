@@ -362,6 +362,9 @@ object Tokens extends CrfTokenable {
 
   lazy val borough: Seq[String] = fileToList(s"borough")
 
+  // score matrix is used by server but held in parsers for convenience
+  lazy val scoreMatrix: Map[String,String] = fileToMap(s"scorematrix.txt")
+
   /**
     * Contains key-value map of synonyms (replace key by value)
     */
@@ -387,12 +390,29 @@ object Tokens extends CrfTokenable {
     val directory = config.getString("parser.input-pre-post-processing.folder")
     val path = directory + fileName
     val currentDirectory = new java.io.File(".").getCanonicalPath
+    // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
+    // `getResource` may return null, that's why we wrap it into an `Option`
+    val resource = Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
+    resource.getLines().toList
+  }
 
+  /**
+    * Make score matrix file into Map
+    * @param path
+    * @return
+    */
+  def fileToMap(fileName: String): Map[String,String] = {
+
+    val directory = config.getString("parser.scoring.folder")
+    val path = directory + fileName
+    val currentDirectory = new java.io.File(".").getCanonicalPath
     // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
     // `getResource` may return null, that's why we wrap it into an `Option`
     val resource = Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
 
-    resource.getLines().toList
+    resource.getLines().map { l =>
+      val Array(k,v1,_*) = l.split('=')
+      k -> (v1) }.toMap
   }
 
 }
