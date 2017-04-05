@@ -38,6 +38,7 @@ class ClericalToolController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
+  val apiUrl = conf.config.apiURL.host
 
   /**
     * Present empty form for user to input address
@@ -58,7 +59,8 @@ class ClericalToolController @Inject()(
       expandRow = -1,
       pagerAction = "clerical",
       addressBySearchResponse = None,
-      classification = None)
+      classification = None,
+      apiUrl = apiUrl)
 
       Ok(viewToRender)
   }
@@ -84,7 +86,8 @@ class ClericalToolController @Inject()(
         expandRow = -1,
         pagerAction = "clerical",
         addressBySearchResponse = None,
-        classification = None)
+        classification = None,
+        apiUrl = apiUrl)
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
         Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doUprnWithInput(addressText.toLong))
@@ -128,7 +131,8 @@ class ClericalToolController @Inject()(
         expandRow = -1,
         pagerAction = pagerAction,
         addressBySearchResponse = None,
-        classification = None)
+        classification = None,
+        apiUrl = apiUrl)
       Future.successful(
         Ok(viewToRender)
       )
@@ -165,7 +169,8 @@ class ClericalToolController @Inject()(
           expandRow = expandr,
           pagerAction = pagerAction,
           addressBySearchResponse = Some(resp.response),
-          classification = Some(classCodes)))
+          classification = Some(classCodes),
+          apiUrl = apiUrl))
       }
     }
   }
@@ -217,7 +222,8 @@ class ClericalToolController @Inject()(
       expandRow = -1,
       pagerAction = "debug",
       addressBySearchResponse = None,
-      classification = None
+      classification = None,
+      apiUrl = apiUrl
     )
 
     Ok(viewToRender)

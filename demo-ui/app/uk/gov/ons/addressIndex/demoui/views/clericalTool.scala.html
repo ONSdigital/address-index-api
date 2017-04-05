@@ -16,7 +16,8 @@ pageMax: Int,
 expandRow: Int,
 pagerAction: String,
 addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
-classification: Option[Map[String,String]]
+classification: Option[Map[String,String]],
+apiUrl: String
 )(implicit messages: Messages)
 
 @*
@@ -55,6 +56,19 @@ classification: Option[Map[String,String]]
             return false;
         })
     });
+
+    function formattedAddress(uprn, position, apiUrl) {
+        var url = apiUrl.concat("/addresses/").concat(uprn);
+
+        $.getJSON(url).done(function( data ) {
+            var resUprn = data.response.address.uprn;
+            var formattedAddress = data.response.address.formattedAddress;
+
+            if (typeof formattedAddress !== 'undefined') {
+                $(position).append("<div id='" + resUprn + "'>" + formattedAddress + " (" + resUprn + ")" + "</div>");
+            }
+        });
+    }
 </script>
 
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
@@ -88,7 +102,7 @@ classification: Option[Map[String,String]]
             }
 
 
-            @clericalToolAddresses(singleSearchForm, pageNum, pageSize, pageMax, expandRow, pagerAction, addressBySearchResponse, classification)
+            @clericalToolAddresses(singleSearchForm, pageNum, pageSize, pageMax, expandRow, pagerAction, addressBySearchResponse, classification, apiUrl)
 
 
         </div>
