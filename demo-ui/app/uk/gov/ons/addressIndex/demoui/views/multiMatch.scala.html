@@ -2,13 +2,13 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
 
-@import uk.gov.ons.addressIndex.model.BulkResp
 @import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
 @import uk.gov.ons.addressIndex.demoui.views.MatchTypeHelper
+@import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
 @(
     nav: Navigation,
     fileFormName: String,
-    results: Option[BulkResp] = None
+    results: Option[AddressBulkResponseContainer] = None
 )(
     implicit
     messages: Messages,
@@ -142,8 +142,8 @@
                                         @tableHeaderHelper(messages("multi.table.actual.score"))
                                     </thead>
                                     <tbody>
-                                        @for((result, i) <- bulkResp.resp.zipWithIndex) {
-                                            @defining(MatchTypeHelper.matchType(result.id, bulkResp.resp.map(_.id), result.matchedFormattedAddress)) { matchType =>
+                                        @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
+                                            @defining(MatchTypeHelper.matchType(result.id, bulkResp.bulkAddresses.map(_.id), result.matchedFormattedAddress)) { matchType =>
                                                 <tr>
                                                     <td align="center">@{result.id}</td>
                                                     <td>@{result.inputAddress}</td>

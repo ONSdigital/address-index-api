@@ -15,4 +15,6 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #EG     /query-debug?input=address-input-here
 GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input)
 
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulkQuery
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk
+
+POST    /bulk-full               uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull

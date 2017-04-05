@@ -84,14 +84,15 @@ object AddressBySearchResponse {
 
 /**
   * Contains relevant information about the result of the bulk request
+  *
   * @param bulkAddresses found bulk addresses
-  * @param totalSuccessful number of successful results
-  * @param totalFailed number of failed results
+  * @param status   status code / message
+  * @param errors   encountred errors (or an empty list if there is no errors)
   */
 case class AddressBulkResponseContainer(
-  bulkAddresses: List[AddressBulkResponseAddress],
-  totalSuccessful: Int,
-  totalFailed: Int
+  bulkAddresses: Seq[AddressBulkResponseAddress],
+  status: AddressResponseStatus,
+  errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
 )
 
 object AddressBulkResponseContainer {
@@ -99,39 +100,42 @@ object AddressBulkResponseContainer {
 }
 
 /**
-  * Container for relevent information on each of the address result in bulk search
-  * @param id
-  * @param uprn
-  * @param organisationName
-  * @param departmentName
-  * @param subBuildingName
-  * @param buildingName
-  * @param buildingNumber
-  * @param streetName
-  * @param locality
-  * @param townName
-  * @param postcode
-  * @param formattedAddress
-  * @param score
+  *
+  * Container for relevant information on each of the address result in bulk search
+  * @param id address's id provided in the input
+  * @param inputAddress input address
+  * @param uprn found address' uprn
+  * @param matchedFormattedAddress formatted found address
+  * @param matchedAddress found address
+  * @param tokens tokens into which the input address was split
+  * @param score resulting address score
   */
 case class AddressBulkResponseAddress(
   id: String,
+  inputAddress: String,
   uprn: String,
-  organisationName: String,
-  departmentName: String,
-  subBuildingName: String,
-  buildingName: String,
-  buildingNumber: String,
-  streetName: String,
-  locality: String,
-  townName: String,
-  postcode: String,
-  formattedAddress: String,
+  matchedFormattedAddress: String,
+  matchedAddress: Option[AddressResponseAddress],
+  tokens: Map[String, String],
   score: Float
 )
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
+
+  def fromBulkAddress(bulkAddress: BulkAddress, includeFullAddress: Boolean): AddressBulkResponseAddress = {
+    val addressResponseAddress = AddressResponseAddress.fromHybridAddress(bulkAddress.hybridAddress)
+
+    AddressBulkResponseAddress(
+      id = bulkAddress.id,
+      inputAddress = bulkAddress.inputAddress,
+      uprn = bulkAddress.hybridAddress.uprn,
+      matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
+      matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
+      tokens = bulkAddress.tokens,
+      score = bulkAddress.hybridAddress.score
+    )
+  }
 }
 
 
