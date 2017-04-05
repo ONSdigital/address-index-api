@@ -68,7 +68,7 @@ class AddressIndexRepository @Inject()(
 )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
-  private val hybridIndex = esConf.indexes.hybridIndex
+  private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
   private val queryParams = conf.config.elasticSearch.queryParams
 
   val client: ElasticClient = elasticClientProvider.client

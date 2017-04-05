@@ -45,7 +45,8 @@ case class ShieldConfig(
 )
 
 case class IndexesConfig(
-  hybridIndex: String
+  hybridIndex: String,
+  hybridMapping: String
 )
 
 case class SubBuildingNameConfig(

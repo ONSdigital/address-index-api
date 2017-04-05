@@ -26,7 +26,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val queryParams = config.config.elasticSearch.queryParams
 
   val hybridIndexName = config.config.elasticSearch.indexes.hybridIndex
-  val hybridMappings = "address"
+  val hybridMappings = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
   val hybridRelSibArray = Array(6L,7L)
