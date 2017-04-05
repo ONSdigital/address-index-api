@@ -1,8 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import com.sksamuel.elastic4s.{ElasticClient, IndexesAndTypes, SearchDefinition}
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
-import org.elasticsearch.common.settings.Settings
+import com.sksamuel.elastic4s.{IndexesAndTypes, SearchDefinition}
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
@@ -18,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec extends PlaySpec with Results with AddressIndexCannedResponse {
+class AddressControllerSpec extends PlaySpec with Results{
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
@@ -99,7 +97,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
   )
 
    val validRelative = Relative (
-    level = 1.toInt,
+    level = 1,
     siblings = Array(6L,7L),
     parents = Array(8L,9L)
   )
@@ -195,7 +193,15 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
   }
   val config = new AddressIndexConfigModule
 
-  val queryController = new AddressController(elasticRepositoryMock, parser, config)
+  val apiVersionExpected = "testApi"
+  val dataVersionExpected = "testData"
+
+  val versions = new VersionModule {
+    val apiVersion = apiVersionExpected
+    val dataVersion = dataVersionExpected
+  }
+
+  val queryController = new AddressController(elasticRepositoryMock, parser, config, versions)
 
   "Address controller" should {
 
@@ -204,6 +210,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
           address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress))
         ),
@@ -224,6 +232,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
@@ -249,6 +259,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -275,6 +287,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -301,6 +315,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -327,6 +343,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -353,6 +371,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -379,6 +399,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -405,6 +427,8 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
       val controller = queryController
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -428,9 +452,11 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     "reply on a 500 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
-      val controller = new AddressController(failingRepositoryMock, parser, config)
+      val controller = new AddressController(failingRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -454,9 +480,11 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     "reply on a 500 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
-      val controller = new AddressController(failingRepositoryMock, parser, config)
+      val controller = new AddressController(failingRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
@@ -480,9 +508,11 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
-      val controller = new AddressController(emptyElasticRepositoryMock, parser, config)
+      val controller = new AddressController(emptyElasticRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
           address = None
         ),
@@ -501,7 +531,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),
@@ -519,7 +549,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     "have process bulk addresses using back-pressure" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),
@@ -542,7 +572,7 @@ class AddressControllerSpec extends PlaySpec with Results with AddressIndexCanne
 
     "have back-pressure that should throw an exception if there is an always failing request" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config)
+      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),

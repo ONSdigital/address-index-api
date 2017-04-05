@@ -13,11 +13,15 @@ import scala.util.Try
 /**
   * Contains the reply for address by uprn request
   *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
   * @param response found content
   * @param status   response status / message
   * @param errors   encountered errors (or an empty list if there is no errors)
   */
 case class AddressByUprnResponseContainer(
+  apiVersion: String,
+  dataVersion: String,
   response: AddressByUprnResponse,
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
@@ -44,11 +48,15 @@ object AddressByUprnResponse {
 /**
   * Contains the reply for the address search request
   *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
   * @param response relevant data
   * @param status   status code / message
   * @param errors   encountred errors (or an empty list if there is no errors)
   */
 case class AddressBySearchResponseContainer(
+  apiVersion: String,
+  dataVersion: String,
   response: AddressBySearchResponse,
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
@@ -85,11 +93,15 @@ object AddressBySearchResponse {
 /**
   * Contains relevant information about the result of the bulk request
   *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
   * @param bulkAddresses found bulk addresses
   * @param status   status code / message
   * @param errors   encountred errors (or an empty list if there is no errors)
   */
 case class AddressBulkResponseContainer(
+  apiVersion: String,
+  dataVersion: String,
   bulkAddresses: Seq[AddressBulkResponseAddress],
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]

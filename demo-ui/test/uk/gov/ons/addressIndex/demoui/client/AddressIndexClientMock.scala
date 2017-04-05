@@ -127,6 +127,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
   )
 
   val mockSearchResponseContainer = AddressBySearchResponseContainer (
+    apiVersion = "mockApi",
+    dataVersion = "mockData",
     response = mockAddressBySearchResponse,
     status = mockAddressResponseStatus,
     errors = Seq.empty[AddressResponseError]

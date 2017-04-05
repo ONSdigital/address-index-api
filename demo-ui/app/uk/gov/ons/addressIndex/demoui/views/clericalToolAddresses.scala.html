@@ -9,7 +9,8 @@
     expandRow: Int,
     pagerAction: String,
     addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
-    classification: Option[Map[String, String]]
+    classification: Option[Map[String, String]],
+    apiUrl: String
 )(implicit messages: Messages)
 
 
@@ -105,7 +106,6 @@
                                     <div class="clerical2">
                                         <strong>@messages("clerical.ta"):</strong>
                                     </div>
-
                                     <div class="taTable">
                                         @*PAF TABLE*@
                                         <div class="taRowH">
@@ -861,6 +861,20 @@
                                             </div>
                                         </div>
 
+                                    </div>
+                                    <div class="clerical2">
+                                        <details>
+                                            <summary><strong>See Hierarchy Information</strong></summary>
+
+                                            @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map{case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
+                                            <details id="@position@address.uprn">
+                                                <summary><strong>@position</strong></summary>
+                                                    @relative.siblings.sorted.map{uprn =>
+                                                    <script>formattedAddress(@uprn, @position@address.uprn, '@apiUrl')</script>
+                                                }
+                                            </details>
+                                            }
+                                        </details>
                                     </div>
                                     <div class="clericalInfo">
                                         <a href="?page=@{pageNum}&expand=-1#@index">Hide</a>

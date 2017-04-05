@@ -24,10 +24,14 @@ import scala.util.control.NonFatal
 class AddressController @Inject()(
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
-  conf: AddressIndexConfigModule
+  conf: ConfigModule,
+  versionProvider: VersionModule
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 
   val logger = Logger("address-index-server:AddressController")
+
+  override val apiVersion: String = versionProvider.apiVersion
+  override val dataVersion: String = versionProvider.dataVersion
 
   /**
     * Address query API
@@ -105,6 +109,8 @@ class AddressController @Inject()(
 
         jsonOk(
           AddressBySearchResponseContainer(
+            apiVersion = apiVersion,
+            dataVersion = dataVersion,
             response = AddressBySearchResponse(
               tokens = tokens,
               addresses = scoredAdresses,
@@ -154,6 +160,8 @@ class AddressController @Inject()(
 
         jsonOk(
           AddressByUprnResponseContainer(
+            apiVersion = apiVersion,
+            dataVersion = dataVersion,
             response = AddressByUprnResponse(
               address = Some(address)
             ),
@@ -227,6 +235,8 @@ class AddressController @Inject()(
     val response =
       jsonOk(
         AddressBulkResponseContainer(
+          apiVersion = apiVersion,
+          dataVersion = dataVersion,
           bulkAddresses = bulkItems,
           status = OkAddressResponseStatus
         )
