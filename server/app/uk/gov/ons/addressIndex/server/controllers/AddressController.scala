@@ -24,7 +24,7 @@ import scala.util.control.NonFatal
 class AddressController @Inject()(
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
-  conf: AddressIndexConfigModule,
+  conf: ConfigModule,
   versionProvider: VersionModule
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 
