@@ -1,5 +1,3 @@
-package uk.gov.ons.addressIndex.server
-
 import javax.inject.Inject
 
 import play.api.http.DefaultHttpFilters
