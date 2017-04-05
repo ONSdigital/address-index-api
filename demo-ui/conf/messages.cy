@@ -689,3 +689,15 @@ category.ZW99SU = Stupa
 category.ZW99SY = Synagogue
 category.ZW99TP = Temple
 category.ZW99LG = Lych Gate
+
+upload= Llwytho i fyny
+multi.table.id = ID
+multi.table.input.address = Cyfeiriad Mewnbwn
+multi.table.matched.address = Cyfeiriad Cyfatebol
+multi.table.match.type = Math Match
+multi.table.uprn = UPRN
+multi.table.score = Sgôr
+multi.table.comparable.score = Sgôr cymaradwy
+multi.table.actual.score = Gwirioneddol Score
+multi.table.rank = Rank
+not.found = Heb Ganfod
