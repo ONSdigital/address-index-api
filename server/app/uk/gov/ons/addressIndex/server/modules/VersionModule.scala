@@ -40,7 +40,6 @@ class AddressIndexVersionModule @Inject()(
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
     val indexes: List[String] = Await.result(requestForIdexes, 10 seconds).indexNames.toList
 
-    println(indexes)
     // the format of index should be following s"${baseIndexName}_${epoch}_${date}_${System.currentTimeMillis()}"
     // and the important information for us is the epoch
     val sortedIndexes = indexes
