@@ -3,9 +3,14 @@ package uk.gov.ons.addressIndex.server.modules
 import uk.gov.ons.addressIndex.model.server.response._
 
 trait AddressIndexCannedResponse {
+  
+  def apiVersion: String
+  def dataVersion: String
 
   def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = optAddresses
       ),
@@ -15,6 +20,8 @@ trait AddressIndexCannedResponse {
 
   def NoAddressFoundUprn: AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None
       ),
@@ -25,6 +32,8 @@ trait AddressIndexCannedResponse {
 
   def UnsupportedFormatUprn: AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None
       ),
@@ -35,6 +44,8 @@ trait AddressIndexCannedResponse {
 
   private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
       response = Error,
       status = BadRequestAddressResponseStatus,
       errors = errors
@@ -75,6 +86,8 @@ trait AddressIndexCannedResponse {
 
   def FailedRequestToEs: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
       response = Error,
       status = InternalServerErrorAddressResponseStatus,
       errors = Seq(FailedRequestToEsError)

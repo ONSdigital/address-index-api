@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.model.config
 
 case class AddressIndexConfig(
   parserLibPath: String,
+  pathToResources: String,
   elasticSearch: ElasticSearchConfig,
   bulk: BulkConfig
 )
