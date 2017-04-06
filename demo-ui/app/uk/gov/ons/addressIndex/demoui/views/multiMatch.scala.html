@@ -1,0 +1,171 @@
+@import helper._
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
+
+@import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
+@import uk.gov.ons.addressIndex.demoui.views.MatchTypeHelper
+@import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
+@(
+    nav: Navigation,
+    fileFormName: String,
+    results: Option[AddressBulkResponseContainer] = None
+)(
+    implicit
+    messages: Messages,
+    request: RequestHeader
+)
+
+@tableHeaderHelper(text: String) = {
+    <td align="center"><b>@text</b></td>
+}
+
+@main(title = messages("single.title")) {
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
+    <script>
+            $(document).ready(function () {
+                function exportTableToCSV($table, filename) {
+                    var $headers = $table.find('tr:has(th)')
+                            ,$rows = $table.find('tr:has(td)')
+
+                            // Temporary delimiter characters unlikely to be typed by keyboard
+                            // This is to avoid accidentally splitting the actual contents
+                            ,tmpColDelim = String.fromCharCode(11) // vertical tab character
+                            ,tmpRowDelim = String.fromCharCode(0) // null character
+
+                            // actual delimiter characters for CSV format
+                            ,colDelim = '","'
+                            ,rowDelim = '"\r\n"';
+
+                    // Grab text from table into CSV formatted string
+                    var csv = '"';
+                    csv += formatRows($headers.map(grabRow));
+                    csv += rowDelim;
+                    csv += formatRows($rows.map(grabRow)) + '"';
+
+                    // Data URI
+                    var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+                    // For IE (tested 10+)
+                    if (window.navigator.msSaveOrOpenBlob) {
+                        var blob = new Blob([decodeURIComponent(encodeURI(csv))], {
+                            type: "text/csv;charset=utf-8;"
+                        });
+                        navigator.msSaveBlob(blob, filename);
+                    } else {
+                        $(this)
+                                .attr({
+                                    'download': filename
+                                    ,'href': csvData
+                                    //,'target' : '_blank' //if you want it to open in a new window
+                                });
+                    }
+
+                    //------------------------------------------------------------
+                    // Helper Functions
+                    //------------------------------------------------------------
+                    // Format the output so it has the appropriate delimiters
+                    function formatRows(rows){
+                        return rows.get().join(tmpRowDelim)
+                                .split(tmpRowDelim).join(rowDelim)
+                                .split(tmpColDelim).join(colDelim);
+                    }
+                    // Grab and format a row from the table
+                    function grabRow(i,row){
+
+                        var $row = $(row);
+                        //for some reason $cols = $row.find('td') || $row.find('th') won't work...
+                        var $cols = $row.find('td');
+                        if(!$cols.length) $cols = $row.find('th');
+
+                        return $cols.map(grabCol)
+                                .get().join(tmpColDelim);
+                    }
+                    // Grab and format a column from the table
+                    function grabCol(j,col){
+                        var $col = $(col),
+                                $text = $col.text();
+
+                        return $text.replace('"', '""'); // escape double quotes
+
+                    }
+                }
+
+
+                // This must be a hyperlink
+                $("#export").click(function (event) {
+                    // var outputFile = 'export'
+                    var outputFile = window.prompt("What do you want to name your output file (Note: This won't have any effect on Safari)") || 'export';
+                    outputFile = outputFile.replace('.csv','') + '.csv'
+
+                    // CSV
+                    exportTableToCSV.apply(this, [$('#dvData > table'), outputFile]);
+
+                    // IF CSV, don't do event.preventDefault() or return false
+                    // We actually need this to be a typical hyperlink
+                });
+            });
+    </script>
+    <div class="container">
+        <div class="panel panel-single">
+            <div class="panel-heading sub-nav-heading">
+                @navigation(nav)
+            </div>
+            <div class="panel panel-single address-panel">
+                <h3 class="panel-title">@messages("multi.sfatext")</h3>
+                <div class="panel-body">
+                    <div id="search-form" class="search-bar-active">
+                        @form(
+                            action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFile,
+                            'enctype -> "multipart/form-data"
+                        ) {
+                            <p>
+                                <input type="file" accept=".csv" name="@fileFormName" />
+                                <button class="btn btn-success btn-search" type="submit">@messages("upload")</button>
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+            @results.map { bulkResp =>
+                <div class="panel panel-single address-panel">
+                    <div class="panel-body">
+                        <div class='container'>
+                            <div id="dvData">
+                                <table border="1px;black;black;" cellpadding="5px" cellspacing="0px">
+                                    <thead style="background-color: #DFE0E2;">
+                                        @tableHeaderHelper(messages("multi.table.id"))
+                                        @tableHeaderHelper(messages("multi.table.input.address"))
+                                        @tableHeaderHelper(messages("multi.table.matched.address"))
+                                        @tableHeaderHelper(messages("multi.table.uprn"))
+                                        @tableHeaderHelper(messages("multi.table.match.type"))
+                                        @tableHeaderHelper(messages("multi.table.score"))
+                                        @tableHeaderHelper(messages("multi.table.actual.score"))
+                                    </thead>
+                                    <tbody>
+                                        @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
+                                            @defining(MatchTypeHelper.matchType(result.id, bulkResp.bulkAddresses.map(_.id), result.matchedFormattedAddress)) { matchType =>
+                                                <tr>
+                                                    <td align="center">@{result.id}</td>
+                                                    <td>@{result.inputAddress}</td>
+                                                    <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
+                                                    <td align="center">@{result.uprn}</td>
+                                                    <td align="center" class="match-type-@matchType">@matchType</td>
+                                                    <td align="center">@{ScoreHelper.getRelativePercentageScore(result.score, bulkResp)}&#37;</td>
+                                                    <td align="center">@{result.score}</td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id ="export" role="button">Download</a>
+            }
+        </div>
+    </div>
+    <div class="panel panel-single address-panel">
+        <p class="pad">&nbsp;</p>
+    </div>
+}

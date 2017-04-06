@@ -2,3 +2,7 @@
 *.iml
 **/target/**
 logs
+*.log
+.DS_Store
+.history
+RUNNING_PID

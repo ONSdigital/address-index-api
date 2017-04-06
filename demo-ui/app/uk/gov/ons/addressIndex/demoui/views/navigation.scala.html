@@ -1,0 +1,17 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+
+@(
+    nav: Navigation
+)(
+    implicit
+    messages: Messages
+)
+<div>
+    <nav class="nav-container">
+        <ul>
+            @for(link <- nav.links) {
+                <li><a href="@{link.href}">@{link.label}</a></li>
+            }
+        </ul>
+    </nav>
+</div>
