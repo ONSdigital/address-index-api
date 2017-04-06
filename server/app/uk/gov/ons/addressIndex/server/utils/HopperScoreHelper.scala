@@ -58,7 +58,9 @@ object HopperScoreHelper  {
     val postcodeIn = tokens.getOrElse("PostcodeIn", empty)
     val postcodeOut = tokens.getOrElse("PostcodeOut", empty)
 
-    // should it be the same param mumbers or the exact same town name, street name etc.?
+    val pafPostcode = address.paf.map(_.postcode).getOrElse("")
+    val nagPostcode = address.nag.map(_.postcodeLocator).getOrElse("")
+    val postcodeToUse = if (pafPostcode != "") pafPostcode else nagPostcode
 
     (calculateLocalityScore(
       address,
@@ -70,7 +72,7 @@ object HopperScoreHelper  {
       streetName,
       organisationName,
       buildingName),
-      getSector(Try(address.paf.get.postcode).getOrElse(address.nag.get.postcodeLocator)))
+      getSector(postcodeToUse))
   }
 
   /**
@@ -125,7 +127,7 @@ object HopperScoreHelper  {
       organisationName,
       buildingName)
 
-    val ambiguityPenalty = caluclateAmbiguityPenalty(localityScoreDebug,localityParams);
+    val ambiguityPenalty = calculateAmbiguityPenalty(localityScoreDebug,localityParams);
    // logger.info("penatly = "+ambiguityPenalty)
     val localityScore = Try(scoreMatrix(localityScoreDebug).toDouble).getOrElse(0d) / ambiguityPenalty
 
@@ -212,8 +214,6 @@ object HopperScoreHelper  {
     paoEndSuffix: String,
     organisationName: String): String = {
 
-    // each element score is the better match of paf and nag
-
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
     val pafBuildingNumber = address.paf.map(_.buildingNumber).getOrElse("")
@@ -227,45 +227,73 @@ object HopperScoreHelper  {
     val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
     val nagOrganisationName = address.nag.map(_.organisation).getOrElse("")
 
-    // match building numbers, ranges and suffixes
-    val tokenBuildingLowNum = getRangeBottom(buildingName)
-    val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(buildingName))
-    val pafBuildingLowNum = getRangeBottom(pafBuildingName)
-    val pafBuildingHighNum = pafBuildingLowNum.max(getRangeTop(pafBuildingName))
-    val pafTestBN = Try(pafBuildingNumber.toInt).getOrElse(-1)
-    val nagBuildingLowNum = Try(nagPaoStartNumber.toInt).getOrElse(-1)
-    val nagBuildingHighNum = nagBuildingLowNum.max(Try(nagPaoEndNumber.toInt).getOrElse(-1))
-    val pafInRange = (((pafBuildingLowNum >= tokenBuildingLowNum && pafBuildingHighNum <= tokenBuildingHighNum)
-      || (pafTestBN >= tokenBuildingLowNum && pafTestBN <= tokenBuildingHighNum))
-      && (pafBuildingLowNum > -1 || pafTestBN > -1) && tokenBuildingLowNum > -1)
-    val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
-    && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
-    val pafBuildingStartSuffix = getStartSuffix(pafBuildingName)
-    val pafBuildingEndSuffix = getEndSuffix(pafBuildingName)
-    val nagBuildingStartSuffix = if ( nagPaoStartSuffix == "" ) empty else nagPaoStartSuffix
-    val nagBuildingEndSuffix = if (nagPaoEndSuffix == "" ) empty else nagPaoEndSuffix
-    val pafSuffixInRange = ((paoStartSuffix == pafBuildingStartSuffix && paoEndSuffix == pafBuildingEndSuffix)
-    || (paoEndSuffix == empty && paoStartSuffix >= pafBuildingStartSuffix && paoStartSuffix <= pafBuildingEndSuffix)
-    || (pafBuildingEndSuffix == empty && pafBuildingStartSuffix >= paoStartSuffix && pafBuildingStartSuffix <= paoEndSuffix ))
-    val nagSuffixInRange = ((paoStartSuffix == nagBuildingStartSuffix && paoEndSuffix == nagBuildingEndSuffix)
-      || (paoEndSuffix == empty && paoStartSuffix >=nagBuildingStartSuffix && paoStartSuffix <= nagBuildingEndSuffix)
-      || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= paoStartSuffix && nagBuildingStartSuffix <= paoEndSuffix ))
+    // each element score is the better match of paf and nag
+
+    val detailedOrganisationBuildingNamePafScore = calculateDetailedOrganisationBuildingNamePafScore (
+      buildingName,
+      pafBuildingName,
+      organisationName,
+      pafOrganisationName)
+
+    val detailedOrganisationBuildingNameNagScore = calculateDetailedOrganisationBuildingNameNagScore (
+      buildingName,
+      nagPaoText,
+      organisationName,
+      nagOrganisationName)
+
+    val detailedOrganisationBuildingNameParam = detailedOrganisationBuildingNamePafScore.min(detailedOrganisationBuildingNameNagScore)
+
+    val buildingNumberPafScore = calculateBuildingNumPafScore (
+      buildingName,
+      pafBuildingName,
+      pafBuildingNumber,
+      paoStartSuffix,
+      paoEndSuffix,
+      buildingNumber,
+      paoStartNumber,
+      paoEndNumber)
+
+    val buildingNumberNagScore = calculateBuildingNumNagScore (
+      buildingName,
+      nagPaoStartNumber,
+      nagPaoEndNumber,
+      nagPaoStartSuffix,
+      nagPaoEndSuffix,
+      paoEndSuffix,
+      paoStartSuffix,
+      buildingNumber,
+      paoStartNumber,
+      paoEndNumber)
+
+    val buildingNumberParam = buildingNumberPafScore.min(buildingNumberNagScore)
+
+    "building." + detailedOrganisationBuildingNameParam + buildingNumberParam
+  }
+
+  /**
+    * Detailed match of origaisation and building name using PAF
+    * @param buildingName
+    * @param pafBuildingName
+    * @param organisationName
+    * @param pafOrganisationName
+    * @return
+    */
+  def calculateDetailedOrganisationBuildingNamePafScore (
+    buildingName: String,
+    pafBuildingName:  String,
+    organisationName: String,
+    pafOrganisationName: String) : Int = {
 
     // match building name
     val pafBuildingMatchScore = if (buildingName == empty) 4
-      else matchNames(buildingName,pafBuildingName).min(matchNames(pafBuildingName,buildingName))
-    val nagBuildingMatchScore = if (buildingName == empty) 4
-      else matchNames(buildingName,nagPaoText).min(matchNames(nagPaoText,buildingName))
+    else matchNames(buildingName,pafBuildingName).min(matchNames(pafBuildingName,buildingName))
 
     // match  organisation
     val pafOrganisationMatchScore = if (organisationName == empty) 4
     else matchNames(organisationName,pafOrganisationName).min(matchNames(pafOrganisationName,organisationName))
-    val nagOrganisationMatchScore = if (organisationName == empty) 4
-    else matchNames(organisationName,nagOrganisationName).min(matchNames(nagOrganisationName,organisationName))
 
     // Match buildingName against buildingName and organisationName against OrganisationName (cross-ref?)
-    val detailed_organisation_building_name_paf_score: Int = {
-      if (buildingName == pafBuildingName || organisationName == pafOrganisationName) 1
+    if (buildingName == pafBuildingName || organisationName == pafOrganisationName) 1
       else if (pafOrganisationMatchScore < 2 || pafBuildingMatchScore < 2) 2
       else if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3) 3
       else if (buildingName == empty && organisationName == empty &&
@@ -273,12 +301,32 @@ object HopperScoreHelper  {
       else if (!((buildingName != empty && pafBuildingName != "" ) ||
         (organisationName != empty && pafOrganisationName != "" ))) 7
       else 6
-    }
-  //  logger.info("detailed organisation building name paf score = " + detailed_organisation_building_name_paf_score)
+   }
+
+  /**
+    * Detailed match of origaisation and building name using NAG
+    * @param buildingName
+    * @param nagPaoText
+    * @param organisationName
+    * @param nagOrganisationName
+    * @return
+    */
+  def calculateDetailedOrganisationBuildingNameNagScore (
+    buildingName: String,
+    nagPaoText: String,
+    organisationName: String,
+    nagOrganisationName: String) : Int = {
+
+    // match building name
+    val nagBuildingMatchScore = if (buildingName == empty) 4
+    else matchNames(buildingName,nagPaoText).min(matchNames(nagPaoText,buildingName))
+
+    // match  organisation
+    val nagOrganisationMatchScore = if (organisationName == empty) 4
+    else matchNames(organisationName,nagOrganisationName).min(matchNames(nagOrganisationName,organisationName))
 
     // Match buildingName against paoText and organisationName against Organisation (cross-ref?)
-    val detailed_organisation_building_name_nag_score: Int = {
-      if (buildingName == nagPaoText || organisationName == nagOrganisationName) 1
+    if (buildingName == nagPaoText || organisationName == nagOrganisationName) 1
       else if (nagOrganisationMatchScore < 2 || nagBuildingMatchScore < 2) 2
       else if (nagOrganisationMatchScore < 3 || nagBuildingMatchScore < 3) 3
       else if (buildingName == empty && organisationName == empty
@@ -286,29 +334,76 @@ object HopperScoreHelper  {
       else if (!((buildingName != empty && nagPaoText != "" ) ||
         (organisationName != empty && nagOrganisationName != "" ))) 7
       else 6
-    }
-  //  logger.info("detailed organisation building name nag score = " + detailed_organisation_building_name_nag_score)
+  }
+
+  def calculateBuildingNumPafScore (
+    buildingName: String,
+    pafBuildingName: String,
+    pafBuildingNumber: String,
+    paoStartSuffix: String,
+    paoEndSuffix: String,
+    buildingNumber: String,
+    paoStartNumber: String,
+    paoEndNumber: String) : Int = {
+
+    // match building numbers, ranges and suffixes
+    val tokenBuildingLowNum = getRangeBottom(buildingName)
+    val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(buildingName))
+    val pafBuildingLowNum = getRangeBottom(pafBuildingName)
+    val pafBuildingHighNum = pafBuildingLowNum.max(getRangeTop(pafBuildingName))
+    val pafTestBN = Try(pafBuildingNumber.toInt).getOrElse(-1)
+    val pafInRange = (((pafBuildingLowNum >= tokenBuildingLowNum && pafBuildingHighNum <= tokenBuildingHighNum)
+      || (pafTestBN >= tokenBuildingLowNum && pafTestBN <= tokenBuildingHighNum))
+      && (pafBuildingLowNum > -1 || pafTestBN > -1) && tokenBuildingLowNum > -1)
+    val pafBuildingStartSuffix = getStartSuffix(pafBuildingName)
+    val pafBuildingEndSuffix = getEndSuffix(pafBuildingName)
+    val pafSuffixInRange = ((paoStartSuffix == pafBuildingStartSuffix && paoEndSuffix == pafBuildingEndSuffix)
+      || (paoEndSuffix == empty && paoStartSuffix >= pafBuildingStartSuffix && paoStartSuffix <= pafBuildingEndSuffix)
+      || (pafBuildingEndSuffix == empty && pafBuildingStartSuffix >= paoStartSuffix && pafBuildingStartSuffix <= paoEndSuffix ))
 
     // 7 Gate Reach TOKENS: buildingNumber = 7 and PaoStartNumber =7 MATCHTO: paf.BuildingNumber = 7
     // 4A-5B Gate Reach gives TOKENS: buildingName = 4A-5B (buildingNumber empty), PaoStartNumber = 4, PaoStartSuffix = A, PaoEndNumber = 5, PaoEndSuffix = B
     // MATCHTO:  paf.buildingNumber = 4 (for single num) or paf.buildingName = 4B (suffix and/or range)
-    val building_number_paf_score: Int = {
-      if (buildingNumber == pafBuildingNumber || (buildingNumber == empty && buildingName == pafBuildingName)) 1
-        else if (pafSuffixInRange && (pafBuildingNumber == paoStartNumber ||
+    if (buildingNumber == pafBuildingNumber || (buildingNumber == empty && buildingName == pafBuildingName)) 1
+      else if (pafSuffixInRange && (pafBuildingNumber == paoStartNumber ||
         pafBuildingName.startsWith(paoStartNumber) || pafBuildingName.endsWith(paoEndNumber))) 2
-        else if (pafInRange) 3
-        else if (pafBuildingNumber == paoStartNumber ||
+      else if (pafInRange) 3
+      else if (pafBuildingNumber == paoStartNumber ||
         pafBuildingName.startsWith(paoStartNumber) || pafBuildingName.endsWith(paoEndNumber)) 4
-        else if (!((tokenBuildingLowNum == -1 && buildingNumber == empty ) ||
+      else if (!((tokenBuildingLowNum == -1 && buildingNumber == empty ) ||
         (pafTestBN == -1 && pafBuildingNumber == ""))) 6
-        else 9
-    }
-   // logger.info("building number paf score = " + building_number_paf_score)
+      else 9
+  }
+
+  def calculateBuildingNumNagScore (
+    buildingName: String,
+    nagPaoStartNumber: String,
+    nagPaoEndNumber: String,
+    nagPaoStartSuffix: String,
+    nagPaoEndSuffix: String,
+    paoEndSuffix: String,
+    paoStartSuffix: String,
+    buildingNumber: String,
+    paoStartNumber: String,
+    paoEndNumber: String) : Int = {
+
+    // match building numbers, ranges and suffixes
+    val tokenBuildingLowNum = getRangeBottom(buildingName)
+    val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(buildingName))
+    val nagBuildingLowNum = Try(nagPaoStartNumber.toInt).getOrElse(-1)
+    val nagBuildingHighNum = nagBuildingLowNum.max(Try(nagPaoEndNumber.toInt).getOrElse(-1))
+    val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
+      && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
+    val nagBuildingStartSuffix = if (nagPaoStartSuffix == "" ) empty else nagPaoStartSuffix
+    val nagBuildingEndSuffix = if (nagPaoEndSuffix == "" ) empty else nagPaoEndSuffix
+     val nagSuffixInRange = ((paoStartSuffix == nagBuildingStartSuffix && paoEndSuffix == nagBuildingEndSuffix)
+      || (paoEndSuffix == empty && paoStartSuffix >=nagBuildingStartSuffix && paoStartSuffix <= nagBuildingEndSuffix)
+      || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= paoStartSuffix && nagBuildingStartSuffix <= paoEndSuffix ))
 
     // 7 Gate Reach TOKENS: buildingNumber = 7 and PaoStartNumber =7 MATCHTO: nag.PaoStartNumber = 7
     // 4A-5B Gate TOKENS: buildingName = 4A-5B (buildingNumber empty), PaoStartNumber = 4, PaoStartSuffix = A, PaoEndNumber = 5, PaoEndSuffix = B
     // MATCHTO: nag.Paotext = 4A-5B, nag.paoStartNumber = 4, nag.paoStartSuffix = A, nag.paoEndNumber = 5, nag.paoEndSuffix = B
-    val building_number_nag_score: Int = {
+
       if (buildingNumber == nagPaoStartNumber) 1
       else if (nagSuffixInRange &&
         (paoStartNumber == nagPaoStartNumber || paoEndNumber == nagPaoEndNumber )) 2
@@ -316,12 +411,6 @@ object HopperScoreHelper  {
       else if (nagPaoStartNumber == paoStartNumber || paoEndNumber == nagPaoEndNumber) 4
       else if (!((tokenBuildingLowNum == -1 && buildingNumber == empty ) || (nagBuildingLowNum == -1))) 6
       else 9
-    }
-  //  logger.info("building number nag score = " + building_number_nag_score)
-
-    val detailed_organisation_building_name_param = detailed_organisation_building_name_paf_score.min(detailed_organisation_building_name_nag_score)
-    val building_number_param = building_number_paf_score.min(building_number_nag_score)
-    "building."+detailed_organisation_building_name_param+building_number_param
   }
 
   /**
@@ -347,8 +436,6 @@ object HopperScoreHelper  {
     organisationName: String,
     buildingName: String): String = {
 
-    // each element score is the better match of paf and nag
-
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
     val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
@@ -372,17 +459,149 @@ object HopperScoreHelper  {
     val nagLocality = address.nag.map(_.locality).getOrElse("")
     val nagPostcode = address.nag.map(_.postcodeLocator).getOrElse("")
 
-    // match buidlings
+    // create test fields for postcode match
+    val postcodeWithInvertedIncode = if (postcodeIn.length < 3) empty else swap(postcodeIn,1,2)
+    val postcodeSector = if (postcodeIn.length < 3) empty else postcodeOut + " " + postcodeIn.substring(0,1)
+    val postcodeArea = if (postcodeOut.length == 1) empty else
+      if (postcodeOut.length == 2) postcodeOut.substring(0,1) else postcodeOut.substring(0,2)
+
+    // each element score is the better match of paf and nag
+
+    val OrganisationBuildingNamePafScore = calculateOrganisationBuildingNamePafScore (
+      buildingName,
+      pafBuildingName,
+      organisationName,
+      pafOrganisationName)
+
+    val OrganisationBuildingNameNagScore = calculateOrganisationBuildingNameNagScore (
+      buildingName: String,
+      nagPaoText: String,
+      organisationName: String,
+      nagOrganisationName: String)
+
+    val organisationBuildingNameParam = OrganisationBuildingNamePafScore.min(OrganisationBuildingNameNagScore)
+
+    val streetPafScore = calculateStreetPafScore (
+      streetName: String,
+      pafThoroughfare: String,
+      pafDependentThoroughfare: String,
+      pafWelshThoroughfare: String,
+      pafWelshDependentThoroughfare: String)
+
+    val streetNagScore = calculateStreetNagScore(streetName, nagStreetDescriptor)
+
+    val streetParam = streetPafScore.min(streetNagScore)
+
+    val townLocalityPafScore = calculateTownLocalityPafScore (
+      townName,
+      locality,
+      pafPostTown,
+      pafWelshPostTown,
+      pafDependentLocality,
+      pafWelshDependentLocality,
+      pafDoubleDependentLocality,
+      pafWelshDoubleDependentLocality,
+      streetName)
+
+    val townLocalityNagScore = calculateTownLocalityNagScore (
+      townName: String,
+      nagTownName: String,
+      locality: String,
+      nagLocality: String,
+      streetName: String)
+
+    val townLocalityParam = townLocalityPafScore.min(townLocalityNagScore)
+
+    val postcodePafScore = calculatePostcodePafScore (
+      postcode: String,
+      pafPostcode: String,
+      postcodeOut: String,
+      postcodeWithInvertedIncode: String,
+      postcodeSector: String,
+      postcodeArea: String)
+
+    val postcodeNagScore = calculatePostcodeNagScore (
+      postcode: String,
+      nagPostcode: String,
+      postcodeOut: String,
+      postcodeWithInvertedIncode: String,
+      postcodeSector: String,
+      postcodeArea: String)
+
+    val postcodeParam = postcodePafScore.min(postcodeNagScore)
+
+    "locality." + organisationBuildingNameParam + streetParam + townLocalityParam + postcodeParam
+  }
+
+
+  /**
+    * Match building and organisation using PAF
+    * @param buildingName
+    * @param pafBuildingName
+    * @param organisationName
+    * @param pafOrganisationName
+    * @return
+    */
+  def calculateOrganisationBuildingNamePafScore (
+    buildingName: String,
+    pafBuildingName: String,
+    organisationName: String,
+    pafOrganisationName: String) : Int = {
+
     val pafBuildingMatchScore = if (buildingName == empty) 4
     else matchNames(buildingName,pafBuildingName).min(matchNames(pafBuildingName,buildingName))
-    val nagBuildingMatchScore = if (buildingName == empty) 4
-      else matchNames(buildingName,nagPaoText).min(matchNames(nagPaoText,buildingName))
     val pafOrganisationMatchScore = if (organisationName == empty) 4
-      else matchNames(organisationName,pafOrganisationName).min(matchNames(pafOrganisationName,organisationName))
+    else matchNames(organisationName,pafOrganisationName).min(matchNames(pafOrganisationName,organisationName))
+
+    // Accept a PAF match via organisation or building with edit distance of 2 or less
+    if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3) 1
+      else if ((buildingName != empty && pafBuildingName != "" ) ||
+        (organisationName != empty && pafOrganisationName != "" )) 6
+      else 9
+  }
+
+  /**
+    * Match organisation and building name using NAG
+    * @param buildingName
+    * @param nagPaoText
+    * @param organisationName
+    * @param nagOrganisationName
+    * @return
+    */
+  def calculateOrganisationBuildingNameNagScore (
+    buildingName: String,
+    nagPaoText: String,
+    organisationName: String,
+    nagOrganisationName: String) : Int = {
+
+    val nagBuildingMatchScore = if (buildingName == empty) 4
+    else matchNames(buildingName,nagPaoText).min(matchNames(nagPaoText,buildingName))
     val nagOrganisationMatchScore = if (organisationName == empty) 4
     else matchNames(organisationName,nagOrganisationName).min(matchNames(nagOrganisationName,organisationName))
 
-    //  match streets
+    // Accept a NAG match via organisation or building with edit distance of 2 or less
+    if (nagOrganisationMatchScore < 3 || nagBuildingMatchScore < 3) 1
+      else if ((buildingName != empty && nagPaoText != "" ) ||
+        (organisationName != empty && nagOrganisationName != "" )) 6
+      else 9
+  }
+
+  /**
+    * Match Street using PAF
+    * @param streetName
+    * @param pafThoroughfare
+    * @param pafDependentThoroughfare
+    * @param pafWelshThoroughfare
+    * @param pafWelshDependentThoroughfare
+    * @return
+    */
+  def calculateStreetPafScore (
+    streetName: String,
+    pafThoroughfare: String,
+    pafDependentThoroughfare: String,
+    pafWelshThoroughfare: String,
+    pafWelshDependentThoroughfare: String) : Int = {
+
     val pafThoroStreetMatchScore = matchStreets(streetName,pafThoroughfare).min(matchStreets(pafThoroughfare,streetName))
     val pafDepThoroStreetMatchScore = matchStreets(streetName,pafDependentThoroughfare)
       .min(matchStreets(pafDependentThoroughfare,streetName))
@@ -391,9 +610,56 @@ object HopperScoreHelper  {
     val pafDepWelshStreetMatchScore = matchStreets(streetName,pafWelshDependentThoroughfare)
       .min(matchStreets(pafWelshDependentThoroughfare,streetName))
     val pafStreetMatchScore = if (streetName == empty) 4
-      else min(pafThoroStreetMatchScore,pafDepThoroStreetMatchScore,pafWelshStreetMatchScore,pafDepWelshStreetMatchScore)
+    else min(pafThoroStreetMatchScore,pafDepThoroStreetMatchScore,pafWelshStreetMatchScore,pafDepWelshStreetMatchScore)
+
+    if (pafStreetMatchScore == 0) 1
+      else if (pafStreetMatchScore == 1) 2
+      else if (pafStreetMatchScore == 2) 5
+      else if (streetName == empty) 9
+      else 6
+  }
+
+  /**
+    * Match Street using NAG
+    * @param streetName
+    * @param nagStreetDescriptor
+    * @return
+    */
+  def calculateStreetNagScore(streetName: String, nagStreetDescriptor: String) : Int = {
+
     val nagStreetMatchScore = if (streetName == empty) 4
     else matchStreets(streetName,nagStreetDescriptor).min(matchStreets(nagStreetDescriptor,streetName))
+
+    if (nagStreetMatchScore == 0) 1
+      else if (nagStreetMatchScore == 1) 2
+      else if (nagStreetMatchScore == 2) 5
+      else if (streetName == empty) 9
+      else 6
+  }
+
+  /**
+    * Attempt to  match town and locality using PAF
+    * @param townName
+    * @param locality
+    * @param pafPostTown
+    * @param pafWelshPostTown
+    * @param pafDependentLocality
+    * @param pafWelshDependentLocality
+    * @param pafDoubleDependentLocality
+    * @param pafWelshDoubleDependentLocality
+    * @param streetName
+    * @return
+    */
+  def calculateTownLocalityPafScore (
+    townName: String,
+    locality: String,
+    pafPostTown: String,
+    pafWelshPostTown: String,
+    pafDependentLocality: String,
+    pafWelshDependentLocality: String,
+    pafDoubleDependentLocality: String,
+    pafWelshDoubleDependentLocality: String,
+    streetName: String) : Int = {
 
     // match town name
     val pafPostTownTownNameMatchScore = matchNames(townName,pafPostTown).min(matchNames(pafPostTown,townName))
@@ -414,10 +680,6 @@ object HopperScoreHelper  {
       pafWelshDependentLocalityTownNameMatchScore,
       pafDoubleDependentLocalityTownNameMatchScore,
       pafWelshDoubleDependentLocalityTownNameMatchScore)
-    val nagTownNameTownNameMatchScore = matchNames(townName,nagTownName).min(matchNames(nagTownName,townName))
-    val nagLocalityTownNameMatchScore = matchNames(townName,nagLocality).min(matchNames(nagLocality,townName))
-    val nagTownNameMatchScore = if (townName == empty) 4
-      else min(nagTownNameTownNameMatchScore,nagLocalityTownNameMatchScore)
 
     // match locality
     val pafPostTownlocalityMatchScore = matchNames(locality,pafPostTown).min(matchNames(pafPostTown,locality))
@@ -438,89 +700,96 @@ object HopperScoreHelper  {
       pafWelshDependentLocalitylocalityMatchScore,
       pafDoubleDependentLocalitylocalityMatchScore,
       pafWelshDoubleDependentLocalitylocalityMatchScore)
+
+    // Accept a PAF match via locality with an edit distance of 2 or less
+    if (pafTownNameMatchScore < 2 || pafLocalityMatchScore < 2) 1
+      else if (streetName == empty) 9
+      else 6
+  }
+
+  /**
+    * Attempt to match town and locality using NAG
+    * @param townName
+    * @param nagTownName
+    * @param locality
+    * @param nagLocality
+    * @param streetName
+    * @return
+    */
+  def calculateTownLocalityNagScore (
+    townName: String,
+    nagTownName: String,
+    locality: String,
+    nagLocality: String,
+    streetName: String) : Int = {
+
+    // town name
+    val nagTownNameTownNameMatchScore = matchNames(townName,nagTownName).min(matchNames(nagTownName,townName))
+    val nagLocalityTownNameMatchScore = matchNames(townName,nagLocality).min(matchNames(nagLocality,townName))
+    val nagTownNameMatchScore = if (townName == empty) 4
+    else min(nagTownNameTownNameMatchScore,nagLocalityTownNameMatchScore)
+
+    // locality
     val nagTownNamelocalityMatchScore = matchNames(locality,nagTownName).min(matchNames(nagTownName,locality))
     val nagLocalitylocalityMatchScore = matchNames(locality,nagLocality).min(matchNames(nagLocality,locality))
     val nagLocalityMatchScore = if (locality == empty) 4
-      else min(nagTownNamelocalityMatchScore,nagLocalitylocalityMatchScore)
-
-    // create test fields for postcode match
-    val postcodeWithInvertedIncode = if (postcodeIn.length < 3) empty else
-      swap(postcodeIn,1,2)
-    val postcodeSector = if (postcodeIn.length < 3) empty else
-      postcodeOut + " " + postcodeIn.substring(0,1)
-    val postcodeArea = if (postcodeOut.length == 1) empty else
-    if (postcodeOut.length == 2) postcodeOut.substring(0,1) else postcodeOut.substring(0,2)
-
-    // Accept a PAF match via organisation or building with edit distance of 2 or less
-    val organisation_building_name_paf_score: Int = {
-      if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3) 1
-       else if ((buildingName != empty && pafBuildingName != "" ) ||
-        (organisationName != empty && pafOrganisationName != "" )) 6
-       else 9
-    }
-    // logger.info("organisation building name paf score = " + organisation_building_name_paf_score)
-
-    // Accept a NAG match via organisation or building with edit distance of 2 or less
-    val organisation_building_name_nag_score: Int = {
-      if (nagOrganisationMatchScore < 3 || nagBuildingMatchScore < 3) 1
-      else if ((buildingName != empty && nagPaoText != "" ) ||
-        (organisationName != empty && nagOrganisationName != "" )) 6
-       else 9
-    }
-    // logger.info("organisation building name nag score = " + organisation_building_name_nag_score)
-
-    // Set the PAF Street score according to quality of match
-    val street_paf_score: Int = {
-      if (pafStreetMatchScore == 0) 1
-      else if (pafStreetMatchScore == 1) 2
-      else if (pafStreetMatchScore == 2) 5
-      else if (streetName == empty) 9
-      else 6
-    }
-  //  logger.info("street paf score = " + street_paf_score)
-
-    // Set the NAG Street score according to quality of match
-    val street_nag_score: Int = {
-      if (nagStreetMatchScore == 0) 1
-      else if (nagStreetMatchScore == 1) 2
-      else if (nagStreetMatchScore == 2) 5
-      else if (streetName == empty) 9
-      else 6
-    }
- //   logger.info("street nag score = " + street_nag_score)
-
-    // Accept a PAF match via locality with an edit distance of 2 or less
-    val town_locality_paf_score: Int = {
-      if (pafTownNameMatchScore < 2 || pafLocalityMatchScore < 2) 1
-      else if (streetName == empty) 9
-      else 6
-    }
-   // logger.info("town locality paf score = " + town_locality_paf_score)
+    else min(nagTownNamelocalityMatchScore,nagLocalitylocalityMatchScore)
 
     // Accept a NAG match via locality with an edit distance of 2 or less
-    val town_locality_nag_score: Int = {
       if (nagTownNameMatchScore < 2 || nagLocalityMatchScore < 2) 1
       else if (streetName == empty) 9
       else 6
-    }
-  //  logger.info("town locality nag score = " + town_locality_nag_score)
+  }
 
-    // postcode token is formatted with space so can do exact match
-    // Use helpers to match inversion, sector, outcode and area
-    val postcode_paf_score: Int = {
-      if (postcode == pafPostcode) 1
+  /**
+    * Match PAF postocde
+    * Postcode token is formatted with space so can do exact match
+    * Use helpers to match inversion, sector, outcode and area
+    * @param postcode
+    * @param pafPostcode
+    * @param postcodeOut
+    * @param postcodeWithInvertedIncode
+    * @param postcodeSector
+    * @param postcodeArea
+    * @return
+    */
+  def calculatePostcodePafScore (
+    postcode: String,
+    pafPostcode: String,
+    postcodeOut: String,
+    postcodeWithInvertedIncode: String,
+    postcodeSector: String,
+    postcodeArea: String) : Int = {
+
+    if (postcode == pafPostcode) 1
       else if ((postcodeOut + " " + postcodeWithInvertedIncode) == pafPostcode) 2
       else if (postcodeSector == getSector(pafPostcode)) 3
       else if (postcodeOut == getOutcode(pafPostcode)) 4
       else if (postcodeArea == Try(pafPostcode.substring(0,2)).getOrElse("")) 5
       else if (postcode == empty) 9
       else 6
-    }
-  //  logger.info(address.paf.get.postcode + " postcode paf score = " + postcode_paf_score)
+  }
 
-    // postcode token is formatted with space so can do exact match
-    // Use helpers to match inversion, sector, outcode and area
-    val postcode_nag_score: Int = {
+  /**
+    * Match NAG postcode
+    * Postcode token is formatted with space so can do exact match
+    * Use helpers to match inversion, sector, outcode and area
+    * @param postcode
+    * @param nagPostcode
+    * @param postcodeOut
+    * @param postcodeWithInvertedIncode
+    * @param postcodeSector
+    * @param postcodeArea
+    * @return
+    */
+  def calculatePostcodeNagScore (
+    postcode: String,
+    nagPostcode: String,
+    postcodeOut: String,
+    postcodeWithInvertedIncode: String,
+    postcodeSector: String,
+    postcodeArea: String) : Int = {
+
       if (postcode == nagPostcode) 1
       else if ((postcodeOut + " " + postcodeWithInvertedIncode) == nagPostcode) 2
       else if (postcodeSector == getSector(nagPostcode)) 3
@@ -528,15 +797,6 @@ object HopperScoreHelper  {
       else if (postcodeArea == Try(nagPostcode.substring(0,2)).getOrElse("")) 5
       else if (postcode == empty) 9
       else 6
-    }
- //   logger.info(address.nag.get.postcodeLocator + " postcode nag score = " + postcode_nag_score)
-
-    val organisation_building_name_param = organisation_building_name_paf_score.min(organisation_building_name_nag_score)
-    val street_param = street_paf_score.min(street_nag_score)
-    val town_locality_param = town_locality_paf_score.min(town_locality_nag_score)
-    val postcode_param = postcode_paf_score.min(postcode_nag_score)
-
-    "locality." + organisation_building_name_param + street_param+town_locality_param + postcode_param
   }
 
   /**
@@ -564,125 +824,208 @@ object HopperScoreHelper  {
     saoEndSuffix: String,
     organisationName: String): String = {
 
+     // get paf values
+    val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
+    val pafBuildingNumber = address.paf.map(_.buildingNumber).getOrElse("")
+    val pafSubBuildingName = address.paf.map(_.subBuildingName).getOrElse("")
+
+    //get nag values
+    val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
+    val nagSaoText = address.nag.map(_.sao).map(_.saoText).getOrElse("")
+    val nagOrganisationName = address.nag.map(_.organisation).getOrElse("")
+    val nagSaoStartNumber = address.nag.map(_.sao).map(_.saoStartNumber).getOrElse("")
+    val nagSaoEndNumber = address.nag.map(_.sao).map(_.saoEndNumber).getOrElse("")
+    val nagSaoStartSuffix = address.nag.map(_.sao).map(_.saoStartSuffix).getOrElse("")
+    val nagSaoEndSuffix = address.nag.map(_.sao).map(_.saoEndSuffix).getOrElse("")
+
+    // test for more than 1 layer - may need to expand this into separate method with more logic
+    val numRels = address.relatives.size
+    val refHierarchyParam = if (numRels > 1) 1 else 0
+
     // each element score is the better match of paf and nag
 
-    // match oganisation
-    val nagPAOOrganisationMatchScore = if (organisationName == empty) 4 else
-      matchNames(organisationName,Try(address.nag.get.pao.paoText).getOrElse(""))
-        .min(matchNames(Try(address.nag.get.pao.paoText).getOrElse(""),organisationName))
-    val nagSAOOrganisationMatchScore = if (organisationName == empty) 4 else
-      matchNames(organisationName,Try(address.nag.get.sao.saoText).getOrElse(""))
-        .min(matchNames(Try(address.nag.get.sao.saoText).getOrElse(""),organisationName))
-    val nagOrganisationMatchScore = if (organisationName == empty) 4 else
-      matchNames(organisationName,Try(address.nag.get.organisation).getOrElse(""))
-        .min(matchNames(Try(address.nag.get.organisation).getOrElse(""),organisationName))
+    val orgainisationNameNagScore =
+      calculateOrganisationNameNagScore(organisationName,nagPaoText,nagSaoText,nagOrganisationName)
+    // no PAF value
+    val organisationNameParam = orgainisationNameNagScore
 
-    // match subbuilding number / suffix
+    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(subBuildingName,pafSubBuildingName)
+    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(subBuildingName,nagSaoText)
+    val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
+
+    val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
+      subBuildingName,
+      pafSubBuildingName,
+      pafBuildingName,
+      saoStartSuffix,
+      saoEndSuffix,
+      saoStartNumber,
+      saoEndNumber,
+      pafBuildingNumber)
+
+    val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
+      subBuildingName,
+      nagSaoStartNumber,
+      nagSaoEndNumber,
+      nagSaoStartSuffix,
+      nagSaoEndSuffix,
+      saoStartSuffix,
+      saoEndSuffix,
+      saoStartNumber,
+      saoEndNumber,
+      pafBuildingNumber)
+
+    val subBuildingNumberParam = subBuildingNumberPafScore.min(subBuildingNumberNagScore)
+
+    "unit." + refHierarchyParam + organisationNameParam + subBuildingNameParam + subBuildingNumberParam
+  }
+
+  def calculateOrganisationNameNagScore (
+    organisationName: String,
+    nagPaoText: String,
+    nagSaoText: String,
+    nagOrganisationName: String) : Int = {
+
+    // match oganisation
+    val nagPAOOrganisationMatchScore = if (organisationName == empty) 4
+      else matchNames(organisationName,nagPaoText).min(matchNames(nagPaoText,organisationName))
+    val nagSAOOrganisationMatchScore = if (organisationName == empty) 4
+      else matchNames(organisationName,nagSaoText).min(matchNames(nagSaoText,organisationName))
+    val nagOrganisationMatchScore = if (organisationName == empty) 4
+      else matchNames(organisationName,nagOrganisationName).min(matchNames(nagOrganisationName,organisationName))
+
+    // Look for organisation match agaings PAO, SAO, or Organisation (NAG only)
+    if (nagPAOOrganisationMatchScore < 3 || nagSAOOrganisationMatchScore < 3 || nagOrganisationMatchScore < 3 ) 1
+    else if (organisationName == empty && nagOrganisationName == "" && nagPaoText == "" && nagSaoText == "") 9
+    else if (!((organisationName != empty && nagPaoText != "" )
+      || (organisationName != empty && nagSaoText != "" )
+      || (organisationName != empty && nagOrganisationName != "" ))) 8
+    else 6
+  }
+
+  /**
+    * Match subbuildingname using PAF
+    * @param subBuildingName
+    * @param pafSubBuildingName
+    * @return
+    */
+  def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String ) : Int = {
+    val pafBuildingMatchScore = if (subBuildingName == empty) 4
+    else matchNames(subBuildingName,pafSubBuildingName).min(matchNames(pafSubBuildingName,subBuildingName))
+      if (subBuildingName == pafSubBuildingName) 1
+      else if (pafBuildingMatchScore < 2) 2
+      else if ( pafBuildingMatchScore < 3) 3
+      else if (subBuildingName == empty  && pafSubBuildingName == "" ) 9
+      else if (!((subBuildingName != empty && pafSubBuildingName != "" ) )) 8
+      else 6
+  }
+
+  /**
+    * Match buildingName against saoText
+    * @param subBuildingName
+    * @param nagSaoText
+    * @return
+    */
+  def calculateSubBuildingNameNagScore (subBuildingName: String, nagSaoText: String) : Int = {
+    val nagBuildingMatchScore = if (subBuildingName == empty) 4 else
+      matchNames(subBuildingName,nagSaoText).min(matchNames(nagSaoText,subBuildingName))
+      if (subBuildingName == nagSaoText) 1
+      else if (nagBuildingMatchScore < 2) 2
+      else if (nagBuildingMatchScore < 3) 3
+      else if (subBuildingName == empty && nagSaoText == "" ) 9
+      else if (!((subBuildingName != empty && nagSaoText != "" ) )) 8
+      else 6
+  }
+
+  /**
+    * Match subbuilding number / suffix using PAF
+    * @param subBuildingName
+    * @param pafSubBuildingName
+    * @param pafBuildingName
+    * @param saoStartSuffix
+    * @param saoEndSuffix
+    * @param saoStartNumber
+    * @param saoEndNumber
+    * @param pafBuildingNumber
+    * @return
+    */
+  def calculateSubBuildingNumberPafScore (
+    subBuildingName: String,
+    pafSubBuildingName: String,
+    pafBuildingName: String,
+    saoStartSuffix: String,
+    saoEndSuffix: String,
+    saoStartNumber: String,
+    saoEndNumber: String,
+    pafBuildingNumber: String) : Int = {
+
     val tokenBuildingLowNum = getRangeBottom(subBuildingName)
     val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
-    val pafBuildingLowNum = getRangeBottom(Try(address.paf.get.subBuildingName).getOrElse(""))
-    val pafBuildingHighNum = pafBuildingLowNum.max(getRangeTop(Try(address.paf.get.subBuildingName).getOrElse("")))
-    val nagBuildingLowNum = Try(Try(address.nag.get.sao.saoStartNumber).getOrElse("").toInt).getOrElse(-1)
-    val nagBuildingHighNum = nagBuildingLowNum.max(Try(Try(address.nag.get.sao.saoEndNumber).getOrElse("").toInt).getOrElse(-1))
+    val pafBuildingLowNum = getRangeBottom(pafSubBuildingName)
+    val pafBuildingHighNum = pafBuildingLowNum.max(getRangeTop(pafSubBuildingName))
     val pafInRange = (((pafBuildingLowNum >= tokenBuildingLowNum && pafBuildingHighNum <= tokenBuildingHighNum)
       && tokenBuildingLowNum > -1))
-    val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
-      && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
-    val pafBuildingStartSuffix = getStartSuffix(Try(address.paf.get.buildingName).getOrElse(""))
-    val pafBuildingEndSuffix = getEndSuffix(Try(address.paf.get.buildingName).getOrElse(""))
-    val nagBuildingStartSuffix = if (Try(address.nag.get.sao.saoStartSuffix).getOrElse("") == "" ) empty
-    else Try(address.nag.get.sao.saoStartSuffix).getOrElse("")
-    val nagBuildingEndSuffix = if (Try(address.nag.get.pao.paoEndSuffix).getOrElse("") == "" ) empty
-    else Try(address.nag.get.sao.saoEndSuffix).getOrElse("")
+    val pafBuildingStartSuffix = getStartSuffix(pafBuildingName)
+    val pafBuildingEndSuffix = getEndSuffix(pafBuildingName)
     val pafSuffixInRange = ((saoStartSuffix == pafBuildingStartSuffix && saoEndSuffix == pafBuildingEndSuffix)
       || (saoEndSuffix == empty && saoStartSuffix >= pafBuildingStartSuffix && saoStartSuffix <= pafBuildingEndSuffix)
       || (pafBuildingEndSuffix == empty && pafBuildingStartSuffix >= saoStartSuffix && pafBuildingStartSuffix <= saoEndSuffix ))
+
+    if (pafSuffixInRange && (pafSubBuildingName.startsWith(saoStartNumber) ||
+        pafSubBuildingName.endsWith(saoEndNumber))) 1
+    else if (pafInRange) 1
+    else if (pafBuildingNumber == saoStartNumber ||
+        pafSubBuildingName.startsWith(saoStartNumber) ||
+        pafSubBuildingName.endsWith(saoEndNumber)) 6
+    else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ))) 8
+    else 9
+  }
+
+  /**
+    * Match subbuilding number / suffix
+    * @param subBuildingName
+    * @param nagSaoStartNumber
+    * @param nagSaoEndNumber
+    * @param nagSaoStartSuffix
+    * @param nagSaoEndSuffix
+    * @param saoStartSuffix
+    * @param saoEndSuffix
+    * @param saoStartNumber
+    * @param saoEndNumber
+    * @param pafBuildingNumber
+    * @return
+    */
+  def calculateSubBuildingNumberNagScore (
+    subBuildingName: String,
+    nagSaoStartNumber: String,
+    nagSaoEndNumber: String,
+    nagSaoStartSuffix: String,
+    nagSaoEndSuffix: String,
+    saoStartSuffix: String,
+    saoEndSuffix: String,
+    saoStartNumber: String,
+    saoEndNumber: String,
+    pafBuildingNumber: String) : Int = {
+
+    val tokenBuildingLowNum = getRangeBottom(subBuildingName)
+    val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
+    val nagBuildingLowNum = Try(nagSaoStartNumber.toInt).getOrElse(-1)
+    val nagBuildingHighNum = nagBuildingLowNum.max(Try(nagSaoEndNumber.toInt).getOrElse(-1))
+    val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
+      && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
+    val nagBuildingStartSuffix = if (nagSaoStartSuffix == "" ) empty else nagSaoStartSuffix
+    val nagBuildingEndSuffix = if (nagSaoEndSuffix == "" ) empty else nagSaoEndSuffix
     val nagSuffixInRange = ((saoStartSuffix == nagBuildingStartSuffix && saoEndSuffix == nagBuildingEndSuffix)
       || (saoEndSuffix == empty && saoStartSuffix >=nagBuildingStartSuffix && saoStartSuffix <= nagBuildingEndSuffix)
       || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= saoStartSuffix && nagBuildingStartSuffix <= saoEndSuffix ))
 
-    //  match subbuilding  name
-    val pafBuildingMatchScore = if (subBuildingName == empty) 4 else
-      matchNames(subBuildingName,Try(address.paf.get.subBuildingName).getOrElse(""))
-        .min(matchNames(Try(address.paf.get.subBuildingName).getOrElse(""),subBuildingName))
-    val nagBuildingMatchScore = if (subBuildingName == empty) 4 else
-      matchNames(subBuildingName,Try(address.nag.get.sao.saoText).getOrElse(""))
-        .min(matchNames(Try(address.nag.get.sao.saoText).getOrElse(""),subBuildingName))
-
-    // test for more than 1 layer
-    val numRels = address.relatives.size
- //   logger.info("num rels = " + numRels)
-
-    val ref_hierarchy_param = if (numRels > 1) 1 else 0
-
-    // Look for organisation match agaings PAO, SAO, or Organisation (NAG only)
-    val organisation_name_nag_score: Int = {
-      if (nagPAOOrganisationMatchScore < 3 || nagSAOOrganisationMatchScore < 3 || nagOrganisationMatchScore < 3 ) 1
-      else if (organisationName == empty && Try(address.nag.get.organisation).getOrElse("") == "" &&
-        Try(address.nag.get.pao.paoText).getOrElse("") == "" &&
-        Try(address.nag.get.sao.saoText).getOrElse("") == "") 9
-      else if (!((organisationName != empty &&
-        Try(address.nag.get.pao.paoText).getOrElse("") != "" )
-        || (organisationName != empty && Try(address.nag.get.sao.saoText).getOrElse("") != "" )
-        || (organisationName != empty && Try(address.paf.get.organisationName).getOrElse("") != "" )))
-      {8} else {6}
-    }
-  //    logger.info("organisation name nag score = " + organisation_name_nag_score)
-
-    // Match sub Building name using PAF
-    val sub_building_name_paf_score: Int = {
-      if (subBuildingName == Try(address.paf.get.subBuildingName).getOrElse("")) 1
-      else if (pafBuildingMatchScore < 2) 2
-      else if ( pafBuildingMatchScore < 3) 3
-      else if (subBuildingName == empty  && Try(address.paf.get.subBuildingName).getOrElse("") == "" ) 9
-      else if (!((subBuildingName != empty && Try(address.paf.get.subBuildingName).getOrElse("") != "" ) )) 8
-      else 6
-    }
- //    logger.info("sub building name paf score = " + sub_building_name_paf_score)
-
-    // Match buildingName against saoText
-    val sub_building_name_nag_score: Int = {
-      if (subBuildingName == Try(address.nag.get.sao.saoText)) 1
-      else if (nagBuildingMatchScore < 2) 2
-      else if (nagBuildingMatchScore < 3) 3
-      else if (subBuildingName == empty && Try(address.nag.get.sao.saoText).getOrElse("") == "" ) 9
-      else if (!((subBuildingName != empty && Try(address.nag.get.sao.saoText).getOrElse("") != "" ) )) 8
-      else 6
-    }
-   //  logger.info("sub building name nag score = " + sub_building_name_nag_score)
-
-    // Get Sample address for SAO suffixes and ranges - currently suing same method as PAO
-    val sub_building_number_paf_score: Int = {
-      if (pafSuffixInRange && (Try(address.paf.get.buildingName).getOrElse("").startsWith(saoStartNumber) ||
-        Try(address.paf.get.subBuildingName).getOrElse("").endsWith(saoEndNumber))) 1
-      else if (pafInRange) 1
-      else if (Try(address.paf.get.buildingNumber).getOrElse("") == saoStartNumber ||
-        Try(address.paf.get.subBuildingName).getOrElse("").startsWith(saoStartNumber) ||
-        Try(address.paf.get.subBuildingName).getOrElse("").endsWith(saoEndNumber)) 6
-      else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ))) 8
-      else 9
-    }
-  //     logger.info("sub building number paf score = " + sub_building_number_paf_score)
-
-    // Get Sample address for SAO suffixes and ranges - currently suing same method as PAO
-    val sub_building_number_nag_score: Int = {
-      if (saoStartNumber == Try(address.nag.get.sao.saoStartNumber).getOrElse("")) 1
-      else if (nagSuffixInRange &&
-        (saoStartNumber == Try(address.nag.get.sao.saoStartNumber).getOrElse("") ||
-          saoEndNumber == Try(address.nag.get.pao.paoEndNumber).getOrElse("") )) 1
-      else if (nagInRange) 1
-      else if (Try(address.nag.get.sao.saoStartNumber).getOrElse("") == saoStartNumber ||
-        saoEndNumber == Try(address.nag.get.pao.paoEndNumber).getOrElse("")) 6
-      else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ) || (nagBuildingLowNum == -1)))  8
-      else 9
-    }
-  //  logger.info("sub building number nag score = " + sub_building_number_nag_score)
-
-    val organisation_name_param = organisation_name_nag_score
-    val sub_building_number_param = sub_building_number_paf_score.min(sub_building_number_nag_score)
-    val sub_building_name_param = sub_building_name_paf_score.min(sub_building_name_nag_score)
-
-    "unit."+ref_hierarchy_param+organisation_name_param+sub_building_name_param+sub_building_number_param
+    if (saoStartNumber == nagSaoStartNumber) 1
+    else if (nagSuffixInRange &&
+        (saoStartNumber == nagSaoStartNumber || saoEndNumber == nagSaoEndNumber )) 1
+    else if (nagInRange) 1
+    else if (nagSaoStartNumber == saoStartNumber || saoEndNumber == nagSaoEndNumber) 6
+    else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ) || (nagBuildingLowNum == -1)))  8
+    else 9
   }
 
   /**
@@ -880,7 +1223,7 @@ object HopperScoreHelper  {
     * @param localityParams
     * @return
     */
-  def caluclateAmbiguityPenalty(localityScoreDebug: String, localityParams: ListBuffer[Tuple2[String,String]]): Double = {
+  def calculateAmbiguityPenalty(localityScoreDebug: String, localityParams: ListBuffer[Tuple2[String,String]]): Double = {
     val postcodeScore = Try(Try(localityScoreDebug.substring(12,13)).getOrElse("9").toInt).getOrElse(9)
     val sectors = new ListBuffer[String]
     for (localityTuple <- localityParams){

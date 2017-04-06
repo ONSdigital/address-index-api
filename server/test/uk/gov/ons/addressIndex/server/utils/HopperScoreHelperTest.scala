@@ -146,7 +146,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 2.0d
 
     // When
-    val actual = HopperScoreHelper.caluclateAmbiguityPenalty(localityScoreToTest, mockLocalityParams)
+    val actual = HopperScoreHelper.calculateAmbiguityPenalty(localityScoreToTest, mockLocalityParams)
 
     // Then
     actual shouldBe expected
