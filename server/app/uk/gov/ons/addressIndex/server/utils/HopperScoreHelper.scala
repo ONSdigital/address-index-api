@@ -5,7 +5,6 @@ import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
-import scala.collection.mutable.ListBuffer
 import scala.util.Try
 
 /**
@@ -33,30 +32,23 @@ object HopperScoreHelper  {
     */
   def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String]): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
-    val localityParams = new ListBuffer[(String,String)]
-    addresses.foreach { address =>
-      localityParams += getLocalityParams(address, tokens)
-    }
-//    logger.info(localityParams.mkString)
-    val scoredAddressBuffer = new ListBuffer[AddressResponseAddress]
-    addresses.foreach { address =>
-      scoredAddressBuffer += addScoresToAddress(address, tokens, localityParams)
-    }
+    val localityParams = addresses.map(address => getLocalityParams(address,tokens))
+    val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams))
     val endingTime = System.currentTimeMillis()
     logger.info("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
-    scoredAddressBuffer.toSeq
+    scoredAddresses
   }
 
   def getLocalityParams(address: AddressResponseAddress, tokens: Map[String, String]): (String,String) = {
 
-    val organisationName = tokens.getOrElse("OrganisationName", empty)
-    val buildingName = tokens.getOrElse("BuildingName", empty)
-    val streetName = tokens.getOrElse("StreetName", empty)
-    val locality = tokens.getOrElse("Locality", empty)
-    val townName = tokens.getOrElse("TownName", empty)
-    val postcode = tokens.getOrElse("Postcode", empty)
-    val postcodeIn = tokens.getOrElse("PostcodeIn", empty)
-    val postcodeOut = tokens.getOrElse("PostcodeOut", empty)
+    val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
+    val buildingName = tokens.getOrElse(Tokens.buildingName, empty)
+    val streetName = tokens.getOrElse(Tokens.streetName, empty)
+    val locality = tokens.getOrElse(Tokens.locality, empty)
+    val townName = tokens.getOrElse(Tokens.townName, empty)
+    val postcode = tokens.getOrElse(Tokens.postcode, empty)
+    val postcodeIn = tokens.getOrElse(Tokens.postcodeIn, empty)
+    val postcodeOut = tokens.getOrElse(Tokens.postcodeOut, empty)
 
     val pafPostcode = address.paf.map(_.postcode).getOrElse("")
     val nagPostcode = address.nag.map(_.postcodeLocator).getOrElse("")
@@ -83,27 +75,27 @@ object HopperScoreHelper  {
     */
   def addScoresToAddress(address: AddressResponseAddress,
     tokens: Map[String, String],
-    localityParams: ListBuffer[(String,String)]): AddressResponseAddress = {
+    localityParams: Seq[(String,String)]): AddressResponseAddress = {
 
-    val organisationName = tokens.getOrElse("OrganisationName", empty)
-    val departmentName = tokens.getOrElse("DepartmentName", empty)
-    val subBuildingName = tokens.getOrElse("SubBuildingName", empty)
-    val buildingName = tokens.getOrElse("BuildingName", empty)
-    val buildingNumber = tokens.getOrElse("BuildingNumber", empty)
-    val paoStartNumber = tokens.getOrElse("PaoStartNumber", empty)
-    val paoStartSuffix = tokens.getOrElse("PaoStartSuffix", empty)
-    val paoEndNumber = tokens.getOrElse("PaoEndNumber", empty)
-    val paoEndSuffix = tokens.getOrElse("PaoEndSuffix", empty)
-    val saoStartNumber = tokens.getOrElse("SaoStartNumber", empty)
-    val saoStartSuffix = tokens.getOrElse("SaoStartSuffix", empty)
-    val saoEndNumber = tokens.getOrElse("SaoEndNumber", empty)
-    val saoEndSuffix = tokens.getOrElse("SaoEndSuffix", empty)
-    val streetName = tokens.getOrElse("StreetName", empty)
-    val locality = tokens.getOrElse("Locality", empty)
-    val townName = tokens.getOrElse("TownName", empty)
-    val postcode = tokens.getOrElse("Postcode", empty)
-    val postcodeIn = tokens.getOrElse("PostcodeIn", empty)
-    val postcodeOut = tokens.getOrElse("PostcodeOut", empty)
+    val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
+    val departmentName = tokens.getOrElse(Tokens.departmentName, empty)
+    val subBuildingName = tokens.getOrElse(Tokens.subBuildingName, empty)
+    val buildingName = tokens.getOrElse(Tokens.buildingName, empty)
+    val buildingNumber = tokens.getOrElse(Tokens.buildingNumber, empty)
+    val paoStartNumber = tokens.getOrElse(Tokens.paoStartNumber, empty)
+    val paoStartSuffix = tokens.getOrElse(Tokens.paoStartSuffix, empty)
+    val paoEndNumber = tokens.getOrElse(Tokens.paoEndNumber, empty)
+    val paoEndSuffix = tokens.getOrElse(Tokens.paoEndSuffix, empty)
+    val saoStartNumber = tokens.getOrElse(Tokens.saoStartNumber, empty)
+    val saoStartSuffix = tokens.getOrElse(Tokens.saoStartSuffix, empty)
+    val saoEndNumber = tokens.getOrElse(Tokens.saoEndNumber, empty)
+    val saoEndSuffix = tokens.getOrElse(Tokens.saoEndSuffix, empty)
+    val streetName = tokens.getOrElse(Tokens.streetName, empty)
+    val locality = tokens.getOrElse(Tokens.locality, empty)
+    val townName = tokens.getOrElse(Tokens.townName, empty)
+    val postcode = tokens.getOrElse(Tokens.postcode, empty)
+    val postcodeIn = tokens.getOrElse(Tokens.postcodeIn, empty)
+    val postcodeOut = tokens.getOrElse(Tokens.postcodeOut, empty)
 
     val buildingScoreDebug = calculateBuildingScore(address,
       buildingName,
@@ -479,19 +471,19 @@ object HopperScoreHelper  {
       pafOrganisationName)
 
     val OrganisationBuildingNameNagScore = calculateOrganisationBuildingNameNagScore (
-      buildingName: String,
-      nagPaoText: String,
-      organisationName: String,
-      nagOrganisationName: String)
+      buildingName,
+      nagPaoText,
+      organisationName,
+      nagOrganisationName)
 
     val organisationBuildingNameParam = OrganisationBuildingNamePafScore.min(OrganisationBuildingNameNagScore)
 
     val streetPafScore = calculateStreetPafScore (
-      streetName: String,
-      pafThoroughfare: String,
-      pafDependentThoroughfare: String,
-      pafWelshThoroughfare: String,
-      pafWelshDependentThoroughfare: String)
+      streetName,
+      pafThoroughfare,
+      pafDependentThoroughfare,
+      pafWelshThoroughfare,
+      pafWelshDependentThoroughfare)
 
     val streetNagScore = calculateStreetNagScore(streetName, nagStreetDescriptor)
 
@@ -509,29 +501,29 @@ object HopperScoreHelper  {
       streetName)
 
     val townLocalityNagScore = calculateTownLocalityNagScore (
-      townName: String,
-      nagTownName: String,
-      locality: String,
-      nagLocality: String,
-      streetName: String)
+      townName,
+      nagTownName,
+      locality,
+      nagLocality,
+      streetName)
 
     val townLocalityParam = townLocalityPafScore.min(townLocalityNagScore)
 
     val postcodePafScore = calculatePostcodePafScore (
-      postcode: String,
-      pafPostcode: String,
-      postcodeOut: String,
-      postcodeWithInvertedIncode: String,
-      postcodeSector: String,
-      postcodeArea: String)
+      postcode,
+      pafPostcode,
+      postcodeOut,
+      postcodeWithInvertedIncode,
+      postcodeSector,
+      postcodeArea)
 
     val postcodeNagScore = calculatePostcodeNagScore (
-      postcode: String,
-      nagPostcode: String,
-      postcodeOut: String,
-      postcodeWithInvertedIncode: String,
-      postcodeSector: String,
-      postcodeArea: String)
+      postcode,
+      nagPostcode,
+      postcodeOut,
+      postcodeWithInvertedIncode,
+      postcodeSector,
+      postcodeArea)
 
     val postcodeParam = postcodePafScore.min(postcodeNagScore)
 
@@ -1126,16 +1118,10 @@ object HopperScoreHelper  {
   def matchNames(name1: String, name2: String): Int = {
     val nameArray1 = name1.split(" ")
     val nameArray2 = name2.split(" ")
-    // TODO replace mutable object with map
-    val scoreBuff1 = new ListBuffer[Int]
-    for (name1 <- nameArray1) {
-      val scoreBuff2 = new ListBuffer[Int]
-      for (name2 <- nameArray2){
-        scoreBuff2 += levenshtein(name1,name2)
-      }
-      scoreBuff1 += scoreBuff2.min
-    }
-    scoreBuff1.max
+    nameArray1.map {name1 =>
+      val levenshteins = nameArray2.map {name2 => levenshtein(name1,name2)}
+      levenshteins.min
+    }.max
   }
 
   /**
@@ -1150,19 +1136,15 @@ object HopperScoreHelper  {
     val nameArray2 = name2.split(" ")
     val name1concat = Try(nameArray1(0)).getOrElse("") + Try(nameArray1(1)).getOrElse("")
     val name2concat = Try(nameArray2(0)).getOrElse("") + Try(nameArray2(1)).getOrElse("")
-    // TODO replace mutable object with map
-    val scoreBuff1 = new ListBuffer[Int]
-    for (name1 <- nameArray1) {
-      val scoreBuff2 = new ListBuffer[Int]
-      for (name2 <- nameArray2){
-        scoreBuff2 += levenshtein(name1,name2)
-        scoreBuff2 += levenshtein(name1concat,name2)
-        scoreBuff2 += levenshtein(name1,name2concat)
-        if (isRoadWord(name1) && isRoadWord(name2)) scoreBuff2 += 2
+    nameArray1.map {name1 =>
+      val levenshteins = nameArray2.map {name2 =>
+       min(levenshtein(name1,name2),
+         levenshtein(name1concat,name2),
+         levenshtein(name1,name2concat),
+         if (isRoadWord(name1) && isRoadWord(name2)) 2 else 4)
       }
-      scoreBuff1 += scoreBuff2.min
-    }
-    scoreBuff1.max
+      levenshteins.min
+    }.max
   }
 
   /**
@@ -1220,11 +1202,13 @@ object HopperScoreHelper  {
     * @param localityParams
     * @return
     */
-  def calculateAmbiguityPenalty(localityScoreDebug: String, localityParams: ListBuffer[(String,String)]): Double = {
+  def calculateAmbiguityPenalty(localityScoreDebug: String, localityParams: Seq[(String,String)]): Double = {
     val postcodeScore = Try(localityScoreDebug.substring(12,13).toInt).getOrElse(9)
     val sectors = localityParams.collect {case (locality, sector) if locality == localityScoreDebug => sector }
     val penalty = if (postcodeScore < 4) 1 else sectors.distinct.size
     penalty.toDouble
   }
+
+
 
 }

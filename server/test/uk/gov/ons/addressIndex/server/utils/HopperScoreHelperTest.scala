@@ -7,8 +7,6 @@ import uk.gov.ons.addressIndex.model.db.index.Relative
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
-import scala.collection.mutable.ListBuffer
-
 /**
   * Unit tests for all the methods in the hopperScore calculation class
   */
@@ -141,8 +139,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     bespokeScore = Some(mockBespokeScore)
   )
 
-  val mockLocalityParams: ListBuffer[Tuple2[String, String]] =
-    ListBuffer(("locality.9111", "EX2 6"), ("locality.9615", "EX1 1"), ("locality.9615", "EX1 1"),
+  val mockLocalityParams: Seq[(String, String)] =
+    Seq(("locality.9111", "EX2 6"), ("locality.9615", "EX1 1"), ("locality.9615", "EX1 1"),
       ("locality.9615", "EX1 1"), ("locality.9615", "EX1 1"), ("locality.9615", "EX1 1"), ("locality.9615", "EX1 1"),
       ("locality.9615", "EX1 3"), ("locality.9615", "EX1 3"), ("locality.9615", "EX1 3"))
 
@@ -197,7 +195,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   it should "match two streets according to the rules " in {
     // Given
     val street1 = "HOPPER STREET"
-    val street2 = "CHOPPER ROAD"
+    val street2 = "CHOPPER COURT"
     val expected = 2
 
     // When
@@ -512,109 +510,77 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  /**
+  it should "calculate the organisation building name paf score for an address " in {
+    // Given
+    val buildingName = "THE PRIORY"
+    val pafBuildingName = "THE OLD PRIORY"
+    val organisationName = "BOBS BANANA RIPENERS"
+    val pafOrganisationName =  "BIBS AND BANDANAS"
+    val expected = 1
 
-
-      val OrganisationBuildingNamePafScore = calculateOrganisationBuildingNamePafScore (
+    // When
+    val actual = HopperScoreHelper.calculateOrganisationBuildingNamePafScore (
       buildingName,
       pafBuildingName,
       organisationName,
       pafOrganisationName)
 
-    val OrganisationBuildingNameNagScore = calculateOrganisationBuildingNameNagScore (
-      buildingName: String,
-      nagPaoText: String,
-      organisationName: String,
-      nagOrganisationName: String)
+    // Then
+    actual shouldBe expected
+  }
 
-    val organisationBuildingNameParam = OrganisationBuildingNamePafScore.min(OrganisationBuildingNameNagScore)
+  it should "calculate the organisation building name nag score for an address " in {
+    // Given
+    val buildingName = "THE PRIORY"
+    val nagPaoText = "THE OLD PRIORY"
+    val organisationName = "BOBS BANANA RIPENERS"
+    val nagOrganisationName =  "BIBS AND BANDANAS"
+    val expected = 1
 
-    val streetPafScore = calculateStreetPafScore (
-      streetName: String,
-      pafThoroughfare: String,
-      pafDependentThoroughfare: String,
-      pafWelshThoroughfare: String,
-      pafWelshDependentThoroughfare: String)
+    // When
+    val actual = HopperScoreHelper.calculateOrganisationBuildingNamePafScore (
+      buildingName,
+      nagPaoText,
+      organisationName,
+      nagOrganisationName)
 
-    val streetNagScore = calculateStreetNagScore(streetName, nagStreetDescriptor)
+    // Then
+    actual shouldBe expected
+  }
 
-    val streetParam = streetPafScore.min(streetNagScore)
+  it should "calculate the street name paf score for an address " in {
+    // Given
+    val streetName = "WOMBAT STREET"
+    val pafThoroughfare = "AARDVARK AVENUE"
+    val pafDependentThoroughfare = "WOMBAT STREET"
+    val pafWelshThoroughfare= ""
+    val pafWelshDependentThoroughfare = ""
+    val expected = 1
 
-    val townLocalityPafScore = calculateTownLocalityPafScore (
-      townName,
-      locality,
-      pafPostTown,
-      pafWelshPostTown,
-      pafDependentLocality,
-      pafWelshDependentLocality,
-      pafDoubleDependentLocality,
-      pafWelshDoubleDependentLocality,
-      streetName)
+    // When
+    val actual = HopperScoreHelper.calculateStreetPafScore (
+      streetName,
+      pafThoroughfare,
+      pafDependentThoroughfare,
+      pafWelshThoroughfare,
+      pafWelshDependentThoroughfare)
 
-    val townLocalityNagScore = calculateTownLocalityNagScore (
-      townName: String,
-      nagTownName: String,
-      locality: String,
-      nagLocality: String,
-      streetName: String)
+    // Then
+    actual shouldBe expected
+  }
 
-    val townLocalityParam = townLocalityPafScore.min(townLocalityNagScore)
+  it should "calculate the street name nag score for an address " in {
+    // Given
+    val streetName = "WOMBAT STREET"
+    val nagStreetDescriptor = "AARDVARK AVENUE"
+    val expected = 6
 
-    val postcodePafScore = calculatePostcodePafScore (
-      postcode: String,
-      pafPostcode: String,
-      postcodeOut: String,
-      postcodeWithInvertedIncode: String,
-      postcodeSector: String,
-      postcodeArea: String)
+    // When
+    val actual = HopperScoreHelper.calculateStreetNagScore(streetName, nagStreetDescriptor)
 
-    val postcodeNagScore = calculatePostcodeNagScore (
-      postcode: String,
-      nagPostcode: String,
-      postcodeOut: String,
-      postcodeWithInvertedIncode: String,
-      postcodeSector: String,
-      postcodeArea: String)
-
-
-       val orgainisationNameNagScore =
-      calculateOrganisationNameNagScore(organisationName,nagPaoText,nagSaoText,nagOrganisationName)
-    // no PAF value
-    val organisationNameParam = orgainisationNameNagScore
-
-    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(subBuildingName,pafSubBuildingName)
-    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(subBuildingName,nagSaoText)
-    val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
-
-    val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
-      subBuildingName,
-      pafSubBuildingName,
-      pafBuildingName,
-      saoStartSuffix,
-      saoEndSuffix,
-      saoStartNumber,
-      saoEndNumber,
-      pafBuildingNumber)
-
-    val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
-      subBuildingName,
-      nagSaoStartNumber,
-      nagSaoEndNumber,
-      nagSaoStartSuffix,
-      nagSaoEndSuffix,
-      saoStartSuffix,
-      saoEndSuffix,
-      saoStartNumber,
-      saoEndNumber,
-      pafBuildingNumber)
-
-
-
-
-
-    */
-
-
+    // Then
+    actual shouldBe expected
+  }
 
 }
 
