@@ -699,4 +699,5 @@ multi.table.uprn=UPRN
 multi.table.score=Score
 multi.table.comparable.score=Comparable Score
 multi.table.actual.score=Actual Score
+multi.table.rank=Rank
 not.found=Not Found

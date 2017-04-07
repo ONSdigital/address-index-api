@@ -152,7 +152,7 @@ class AddressController @Inject()(
     request.map {
       case Some(hybridAddress) =>
 
-        val address =AddressResponseAddress.fromHybridAddress(hybridAddress)
+        val address = AddressResponseAddress.fromHybridAddress(hybridAddress)
 
         writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = "1", score = hybridAddress.score.toString)
 
