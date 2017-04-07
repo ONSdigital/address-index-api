@@ -582,5 +582,36 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "calculate the town locality paf score for an address " in {
+    // Given
+    val townName = "LUTON"
+    val locality = ""
+    val pafPostTown = "LOOTON"
+    val pafWelshPostTown = ""
+    val pafDependentLocality = ""
+    val pafWelshDependentLocality = ""
+    val pafDoubleDependentLocality = ""
+    val pafWelshDoubleDependentLocality = ""
+    val streetName = "WOMBAT STREET"
+    val expected = 1
+
+    // When
+    val actual = HopperScoreHelper.
+      calculateTownLocalityPafScore (
+      townName,
+      locality,
+      pafPostTown,
+      pafWelshPostTown,
+      pafDependentLocality,
+      pafWelshDependentLocality,
+      pafDoubleDependentLocality,
+      pafWelshDoubleDependentLocality,
+      streetName)
+
+    // Then
+    actual shouldBe expected
+  }
+
+
 }
 

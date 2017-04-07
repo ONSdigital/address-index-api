@@ -1083,14 +1083,11 @@ object HopperScoreHelper  {
     * @return
     */
   def getStartSuffix(range: String): String = {
-    val input = List(
-      CrfTokenResult(
-        value = range,
-        label = Tokens.buildingName
-      )
-    )
-    val results = Tokens.postTokenizeTreatment(input)
-    results.getOrElse(key=Tokens.paoStartSuffix, default=empty)
+    val reg = """.*?\d+([A-Z])-\d+.*?""".r
+    range match {
+      case reg(suffix) => suffix
+      case _ => empty
+    }
   }
 
   /**
@@ -1099,14 +1096,11 @@ object HopperScoreHelper  {
     * @return
     */
   def getEndSuffix(range: String): String = {
-    val input = List(
-      CrfTokenResult(
-        value = range,
-        label = Tokens.buildingName
-      )
-    )
-    val results = Tokens.postTokenizeTreatment(input)
-    results.getOrElse(key=Tokens.paoEndSuffix, default=empty)
+    val reg = """.*?\d+[A-Z]?-\d+([A-Z]).*?""".r
+    range match {
+      case reg(suffix) => suffix
+      case _ => empty
+    }
   }
 
   /**
