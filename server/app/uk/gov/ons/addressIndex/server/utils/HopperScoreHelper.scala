@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
 import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress}
+import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.collection.mutable.ListBuffer
@@ -33,7 +33,7 @@ object HopperScoreHelper  {
     */
   def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String]): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
-    val localityParams = new ListBuffer[Tuple2[String,String]]
+    val localityParams = new ListBuffer[(String,String)]
     addresses.foreach { address =>
       localityParams += getLocalityParams(address, tokens)
     }
@@ -47,7 +47,7 @@ object HopperScoreHelper  {
     scoredAddressBuffer.toSeq
   }
 
-  def getLocalityParams(address: AddressResponseAddress, tokens: Map[String, String]): Tuple2[String,String] = {
+  def getLocalityParams(address: AddressResponseAddress, tokens: Map[String, String]): (String,String) = {
 
     val organisationName = tokens.getOrElse("OrganisationName", empty)
     val buildingName = tokens.getOrElse("BuildingName", empty)
@@ -83,7 +83,7 @@ object HopperScoreHelper  {
     */
   def addScoresToAddress(address: AddressResponseAddress,
     tokens: Map[String, String],
-    localityParams: ListBuffer[Tuple2[String,String]]): AddressResponseAddress = {
+    localityParams: ListBuffer[(String,String)]): AddressResponseAddress = {
 
     val organisationName = tokens.getOrElse("OrganisationName", empty)
     val departmentName = tokens.getOrElse("DepartmentName", empty)
@@ -128,7 +128,7 @@ object HopperScoreHelper  {
       buildingName)
 
     val ambiguityPenalty = calculateAmbiguityPenalty(localityScoreDebug,localityParams);
-   // logger.info("penatly = "+ambiguityPenalty)
+
     val localityScore = Try(scoreMatrix(localityScoreDebug).toDouble).getOrElse(0d) / ambiguityPenalty
 
     val unitScoreDebug = calculateUnitScore(
@@ -145,6 +145,18 @@ object HopperScoreHelper  {
 
     val structuralScore = calculateStructuralScore(buildingScore, localityScore)
     val objectScore = calculateObjectScore(buildingScore,localityScore,unitScore)
+    val respBuildingScoreDebug = Try(buildingScoreDebug.substring(buildingScoreDebug.indexOf(".") + 1)).getOrElse("99")
+    val respLocalityScoreDebug = Try(localityScoreDebug.substring(localityScoreDebug.indexOf(".") + 1)).getOrElse("9999")
+    val respUnitScoreDebug = Try(unitScoreDebug.substring(unitScoreDebug.indexOf(".") + 1)).getOrElse("9999")
+    val bespokeScore = AddressResponseScore(
+      objectScore,
+      structuralScore,
+      buildingScore,
+      localityScore,
+      unitScore,
+      respBuildingScoreDebug,
+      respLocalityScoreDebug,
+      respUnitScoreDebug)
 
     AddressResponseAddress(
       uprn = address.uprn,
@@ -157,14 +169,7 @@ object HopperScoreHelper  {
       nag = address.nag,
       geo = address.geo,
       underlyingScore = address.underlyingScore,
-      objectScore = objectScore,
-      structuralScore = structuralScore,
-      buildingScore = buildingScore,
-      localityScore = localityScore,
-      unitScore = unitScore,
-      buildingScoreDebug = Try(buildingScoreDebug.substring(buildingScoreDebug.indexOf(".") + 1)).getOrElse("99"),
-      localityScoreDebug = Try(localityScoreDebug.substring(localityScoreDebug.indexOf(".") + 1)).getOrElse("9999"),
-      unitScoreDebug = Try(unitScoreDebug.substring(unitScoreDebug.indexOf(".") + 1)).getOrElse("9999")
+      bespokeScore = Some(bespokeScore)
     )
   }
 
@@ -1064,14 +1069,9 @@ object HopperScoreHelper  {
     * @return
     */
   def getRangeBottom(range: String): Int = {
-    val input = List(
-      CrfTokenResult(
-        value = range,
-        label = Tokens.buildingName
-      )
-    )
-    val results = Tokens.postTokenizeTreatment(input)
-    results.getOrElse(key=Tokens.paoStartNumber, default="-1").toInt
+    val reg = """\d+""".r
+    val numlist = reg.findAllIn(range).toList
+    if (numlist.isEmpty) -1 else Try(numlist.min.toInt).getOrElse(-1)
   }
 
   /**
@@ -1080,14 +1080,9 @@ object HopperScoreHelper  {
     * @return
     */
   def getRangeTop(range: String): Int = {
-    val input = List(
-      CrfTokenResult(
-        value = range,
-        label = Tokens.buildingName
-      )
-    )
-    val results = Tokens.postTokenizeTreatment(input)
-    results.getOrElse(key=Tokens.paoEndNumber, default="-1").toInt
+    val reg = """\d+""".r
+    val numlist = reg.findAllIn(range).toList
+    if (numlist.isEmpty) -1 else Try(numlist.max.toInt).getOrElse(-1)
   }
 
   /**
@@ -1131,6 +1126,7 @@ object HopperScoreHelper  {
   def matchNames(name1: String, name2: String): Int = {
     val nameArray1 = name1.split(" ")
     val nameArray2 = name2.split(" ")
+    // TODO replace mutable object with map
     val scoreBuff1 = new ListBuffer[Int]
     for (name1 <- nameArray1) {
       val scoreBuff2 = new ListBuffer[Int]
@@ -1154,6 +1150,7 @@ object HopperScoreHelper  {
     val nameArray2 = name2.split(" ")
     val name1concat = Try(nameArray1(0)).getOrElse("") + Try(nameArray1(1)).getOrElse("")
     val name2concat = Try(nameArray2(0)).getOrElse("") + Try(nameArray2(1)).getOrElse("")
+    // TODO replace mutable object with map
     val scoreBuff1 = new ListBuffer[Int]
     for (name1 <- nameArray1) {
       val scoreBuff2 = new ListBuffer[Int]
@@ -1223,14 +1220,9 @@ object HopperScoreHelper  {
     * @param localityParams
     * @return
     */
-  def calculateAmbiguityPenalty(localityScoreDebug: String, localityParams: ListBuffer[Tuple2[String,String]]): Double = {
-    val postcodeScore = Try(Try(localityScoreDebug.substring(12,13)).getOrElse("9").toInt).getOrElse(9)
-    val sectors = new ListBuffer[String]
-    for (localityTuple <- localityParams){
-      if (localityScoreDebug == localityTuple._1){
-        sectors += localityTuple._2
-      }
-    }
+  def calculateAmbiguityPenalty(localityScoreDebug: String, localityParams: ListBuffer[(String,String)]): Double = {
+    val postcodeScore = Try(localityScoreDebug.substring(12,13).toInt).getOrElse(9)
+    val sectors = localityParams.collect {case (locality, sector) if locality == localityScoreDebug => sector }
     val penalty = if (postcodeScore < 4) 1 else sectors.distinct.size
     penalty.toDouble
   }

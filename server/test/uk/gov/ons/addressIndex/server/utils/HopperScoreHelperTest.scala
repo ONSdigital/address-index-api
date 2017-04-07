@@ -93,6 +93,26 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
 
+  val mockBespokeScoreEmpty = AddressResponseScore(
+    objectScore = 0d,
+    structuralScore = 0d,
+    buildingScore = 0d,
+    localityScore = 0d,
+    unitScore = 0d,
+    buildingScoreDebug = "0",
+    localityScoreDebug = "0",
+    unitScoreDebug = "0")
+
+  val mockBespokeScore = AddressResponseScore(
+    objectScore = -1.0d,
+    structuralScore = 1.0d,
+    buildingScore = 1.0d,
+    localityScore = 1.0d,
+    unitScore = -1.0d,
+    buildingScoreDebug = "91",
+    localityScoreDebug = "9111",
+    unitScoreDebug = "0999")
+
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
@@ -104,14 +124,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     nag = Some(mockNagAddress1),
     geo = None,
     underlyingScore = 1.0f,
-    objectScore = 0d,
-    structuralScore = 0d,
-    buildingScore = 0d,
-    localityScore = 0d,
-    unitScore = 0d,
-    buildingScoreDebug = "0",
-    localityScoreDebug = "0",
-    unitScoreDebug = "0"
+    bespokeScore = Some(mockBespokeScoreEmpty)
   )
 
   val mockAddressResponseAddressWithScores = AddressResponseAddress(
@@ -125,14 +138,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     nag = Some(mockNagAddress1),
     geo = None,
     underlyingScore = 1.0f,
-    objectScore = -1.0d,
-    structuralScore = 1.0d,
-    buildingScore = 1.0d,
-    localityScore = 1.0d,
-    unitScore = -1.0d,
-    buildingScoreDebug = "91",
-    localityScoreDebug = "9111",
-    unitScoreDebug = "0999"
+    bespokeScore = Some(mockBespokeScore)
   )
 
   val mockLocalityParams: ListBuffer[Tuple2[String, String]] =
@@ -408,6 +414,207 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
+  it should "calculate the detailed organisation building name paf score for an address " in {
+    // Given
+    val buildingName = "MESSAGE TOWERS"
+    val organisationName = "NICE MESSAGES"
+    val pafBuildingName = "MASSAGE TOWERS"
+    val pafOrganisationName = "NICE MASSAGES"
+    val expected = 2
+
+    // When
+    val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNamePafScore (
+      buildingName,
+      pafBuildingName,
+      organisationName,
+      pafOrganisationName)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "calculate the detailed organisation building name nag score for an address " in {
+    // Given
+    val buildingName = "MESSAGE TOWERS"
+    val organisationName = "NICE MESSAGES"
+    val nagPaoText = "MASSAGE TOWERS UNIT 3"
+    val nagOrganisationName = "NICE MASSAGES"
+    val expected = 2
+
+    // When
+    val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNameNagScore (
+      buildingName,
+      nagPaoText,
+      organisationName,
+      nagOrganisationName)
+
+    // Then
+    actual shouldBe expected
+  }
+
+
+  it should "calculate the building number paf score for an address " in {
+    // Given
+    val buildingName = "UNIT 3A"
+    val pafBuildingName = "UNIT 3A"
+    val pafBuildingNumber ="42"
+    val paoStartSuffix = "A"
+    val paoEndSuffix = ""
+    val buildingNumber = "42"
+    val paoStartNumber = "42"
+    val paoEndNumber = ""
+    val expected = 1
+
+    // When
+    val actual = HopperScoreHelper.calculateBuildingNumPafScore (
+      buildingName,
+      pafBuildingName,
+      pafBuildingNumber,
+      paoStartSuffix,
+      paoEndSuffix,
+      buildingNumber,
+      paoStartNumber,
+      paoEndNumber)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "calculate the building number nag score for an address " in {
+    // Given
+    val buildingName = "UNIT 3A"
+    val nagPaoStartSuffix = "A"
+    val nagPaoEndSuffix = ""
+    val paoStartSuffix = "A"
+    val paoEndSuffix = ""
+    val buildingNumber = "42"
+    val nagPaoStartNumber = "42"
+    val nagPaoEndNumber = ""
+    val paoStartNumber = "42"
+    val paoEndNumber = ""
+    val expected = 1
+
+    // When
+    val actual = HopperScoreHelper.calculateBuildingNumNagScore (
+      buildingName,
+      nagPaoStartNumber,
+      nagPaoEndNumber,
+      nagPaoStartSuffix,
+      nagPaoEndSuffix,
+      paoEndSuffix,
+      paoStartSuffix,
+      buildingNumber,
+      paoStartNumber,
+      paoEndNumber)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  /**
+
+
+      val OrganisationBuildingNamePafScore = calculateOrganisationBuildingNamePafScore (
+      buildingName,
+      pafBuildingName,
+      organisationName,
+      pafOrganisationName)
+
+    val OrganisationBuildingNameNagScore = calculateOrganisationBuildingNameNagScore (
+      buildingName: String,
+      nagPaoText: String,
+      organisationName: String,
+      nagOrganisationName: String)
+
+    val organisationBuildingNameParam = OrganisationBuildingNamePafScore.min(OrganisationBuildingNameNagScore)
+
+    val streetPafScore = calculateStreetPafScore (
+      streetName: String,
+      pafThoroughfare: String,
+      pafDependentThoroughfare: String,
+      pafWelshThoroughfare: String,
+      pafWelshDependentThoroughfare: String)
+
+    val streetNagScore = calculateStreetNagScore(streetName, nagStreetDescriptor)
+
+    val streetParam = streetPafScore.min(streetNagScore)
+
+    val townLocalityPafScore = calculateTownLocalityPafScore (
+      townName,
+      locality,
+      pafPostTown,
+      pafWelshPostTown,
+      pafDependentLocality,
+      pafWelshDependentLocality,
+      pafDoubleDependentLocality,
+      pafWelshDoubleDependentLocality,
+      streetName)
+
+    val townLocalityNagScore = calculateTownLocalityNagScore (
+      townName: String,
+      nagTownName: String,
+      locality: String,
+      nagLocality: String,
+      streetName: String)
+
+    val townLocalityParam = townLocalityPafScore.min(townLocalityNagScore)
+
+    val postcodePafScore = calculatePostcodePafScore (
+      postcode: String,
+      pafPostcode: String,
+      postcodeOut: String,
+      postcodeWithInvertedIncode: String,
+      postcodeSector: String,
+      postcodeArea: String)
+
+    val postcodeNagScore = calculatePostcodeNagScore (
+      postcode: String,
+      nagPostcode: String,
+      postcodeOut: String,
+      postcodeWithInvertedIncode: String,
+      postcodeSector: String,
+      postcodeArea: String)
+
+
+       val orgainisationNameNagScore =
+      calculateOrganisationNameNagScore(organisationName,nagPaoText,nagSaoText,nagOrganisationName)
+    // no PAF value
+    val organisationNameParam = orgainisationNameNagScore
+
+    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(subBuildingName,pafSubBuildingName)
+    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(subBuildingName,nagSaoText)
+    val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
+
+    val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
+      subBuildingName,
+      pafSubBuildingName,
+      pafBuildingName,
+      saoStartSuffix,
+      saoEndSuffix,
+      saoStartNumber,
+      saoEndNumber,
+      pafBuildingNumber)
+
+    val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
+      subBuildingName,
+      nagSaoStartNumber,
+      nagSaoEndNumber,
+      nagSaoStartSuffix,
+      nagSaoEndSuffix,
+      saoStartSuffix,
+      saoEndSuffix,
+      saoStartNumber,
+      saoEndNumber,
+      pafBuildingNumber)
+
+
+
+
+
+    */
+
+
 
 }
 
