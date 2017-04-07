@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, Bu
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.server.utils.Splunk
+import uk.gov.ons.addressIndex.server.utils.{Splunk, HopperScoreHelper}
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -99,6 +99,8 @@ class AddressController @Inject()(
 
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
+        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
         }
@@ -111,7 +113,7 @@ class AddressController @Inject()(
             dataVersion = dataVersion,
             response = AddressBySearchResponse(
               tokens = tokens,
-              addresses = addresses,
+              addresses = scoredAdresses,
               limit = limitInt,
               offset = offsetInt,
               total = total,
