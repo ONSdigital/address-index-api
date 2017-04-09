@@ -77,6 +77,7 @@ val clientDeps = Seq(ws) ++ commonDeps
 val parsersDeps = commonDeps
 
 val serverDeps = Seq(
+  filters,
   specs2 % Test,
   "org.elasticsearch.plugin" % "shield"              % Versions.elastic4s,
   "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test
@@ -130,7 +131,13 @@ lazy val `address-index-server` = project.in(file("server"))
     routesGenerator := InjectedRoutesGenerator,
     Revolver.settings ++ Seq(
       mainClass in reStart := Some("play.core.server.ProdServerStart")
-    )
+    ),
+    resourceGenerators in Compile += Def.task {
+      val file = (resourceManaged in Compile).value / "version.app"
+      val contents = git.gitHeadCommit.value.map{ sha => s"v_$sha" }.getOrElse("develop")
+      IO.write(file, contents)
+      Seq(file)
+    }.taskValue
   )
   .dependsOn(
     `address-index-model`
@@ -138,7 +145,8 @@ lazy val `address-index-server` = project.in(file("server"))
   .enablePlugins(
     PlayScala,
     SbtWeb,
-    JavaAppPackaging
+    JavaAppPackaging,
+    GitVersioning
   )
 
 lazy val `address-index-parsers` = project.in(file("parsers"))

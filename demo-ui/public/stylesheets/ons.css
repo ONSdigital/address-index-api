@@ -686,3 +686,17 @@ div.taColumn4H{
     margin-left: 10px;
     padding: 10px;
 }
+
+details{
+    min-width: 900px;
+}
+
+details details summary{
+    margin-left: 17px;
+}
+
+details details div{
+    text-indent: 53px;
+}
+
+

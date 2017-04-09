@@ -1,6 +1,6 @@
 The shared objects are built from C code in the ONSdigital repository:
 
-##Build Lib LBFGS:
+## Build Lib LBFGS:
 ```
 git clone https://github.com/ONSdigital/liblbfgs.git
 cd liblbfgs
@@ -9,7 +9,7 @@ cd liblbfgs
 make
 make install
 ```
-##Build CRFSuite:
+## Build CRFSuite:
 ```
 git clone https://github.com/ONSdigital/crfsuite.git
 cd crfsuite
@@ -18,7 +18,7 @@ cd crfsuite
 make
 make install
 ```
-##Build Shim for OSX or Linux:
+## Build Shim for OSX or Linux:
 ```
 git clone https://github.com/ONSdigital/crftagger.git
 cd crftagger
@@ -26,7 +26,7 @@ make clean
 make
 ```
 
-##Build Shim for Windows:
+## Build Shim for Windows:
 ```
 git clone https://github.com/ONSdigital/crftagger.git
 cd crftagger

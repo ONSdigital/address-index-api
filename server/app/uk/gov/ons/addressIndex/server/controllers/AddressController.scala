@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, Bu
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.server.utils.Splunk
+import uk.gov.ons.addressIndex.server.utils.{Splunk, HopperScoreHelper}
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -24,10 +24,14 @@ import scala.util.control.NonFatal
 class AddressController @Inject()(
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
-  conf: AddressIndexConfigModule
+  conf: ConfigModule,
+  versionProvider: VersionModule
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 
   val logger = Logger("address-index-server:AddressController")
+
+  override val apiVersion: String = versionProvider.apiVersion
+  override val dataVersion: String = versionProvider.dataVersion
 
   /**
     * Address query API
@@ -95,6 +99,8 @@ class AddressController @Inject()(
 
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
+        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
         }
@@ -103,9 +109,11 @@ class AddressController @Inject()(
 
         jsonOk(
           AddressBySearchResponseContainer(
+            apiVersion = apiVersion,
+            dataVersion = dataVersion,
             response = AddressBySearchResponse(
               tokens = tokens,
-              addresses = addresses,
+              addresses = scoredAdresses,
               limit = limitInt,
               offset = offsetInt,
               total = total,
@@ -146,12 +154,14 @@ class AddressController @Inject()(
     request.map {
       case Some(hybridAddress) =>
 
-        val address =AddressResponseAddress.fromHybridAddress(hybridAddress)
+        val address = AddressResponseAddress.fromHybridAddress(hybridAddress)
 
         writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = "1", score = hybridAddress.score.toString)
 
         jsonOk(
           AddressByUprnResponseContainer(
+            apiVersion = apiVersion,
+            dataVersion = dataVersion,
             response = AddressByUprnResponse(
               address = Some(address)
             ),
@@ -225,6 +235,8 @@ class AddressController @Inject()(
     val response =
       jsonOk(
         AddressBulkResponseContainer(
+          apiVersion = apiVersion,
+          dataVersion = dataVersion,
           bulkAddresses = bulkItems,
           status = OkAddressResponseStatus
         )

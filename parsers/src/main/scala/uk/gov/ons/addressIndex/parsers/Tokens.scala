@@ -50,9 +50,6 @@ object Tokens extends CrfTokenable {
     postcode
   )
 
-  private val currentDirectory = new java.io.File(".").getCanonicalPath
-  private val tokenDirectory = s"$currentDirectory${config.getString("parser.input-pre-post-processing.folder")}"
-
   /**
     * Tokenizes input into tokens (also removes counties, replaces synonyms)
     * @param input the string to be tokenized
@@ -343,32 +340,35 @@ object Tokens extends CrfTokenable {
 
 
   // `lazy` is needed so that if this is called from other modules, during tests, it doesn't throw exception
-  lazy val directions: Seq[String] = fileToList(s"${tokenDirectory}direction")
+  lazy val directions: Seq[String] = fileToList(s"direction")
 
-  lazy val flat: Seq[String] = fileToList(s"${tokenDirectory}flat")
+  lazy val flat: Seq[String] = fileToList(s"flat")
 
-  lazy val company: Seq[String] = fileToList(s"${tokenDirectory}company")
+  lazy val company: Seq[String] = fileToList(s"company")
 
-  lazy val road: Seq[String] = fileToList(s"${tokenDirectory}road")
+  lazy val road: Seq[String] = fileToList(s"road")
 
-  lazy val residential: Seq[String] = fileToList(s"${tokenDirectory}residential")
+  lazy val residential: Seq[String] = fileToList(s"residential")
 
-  lazy val business: Seq[String] = fileToList(s"${tokenDirectory}business")
+  lazy val business: Seq[String] = fileToList(s"business")
 
-  lazy val locational: Seq[String] = fileToList(s"${tokenDirectory}locational")
+  lazy val locational: Seq[String] = fileToList(s"locational")
 
-  lazy val ordinal: Seq[String] = fileToList(s"${tokenDirectory}ordinal")
+  lazy val ordinal: Seq[String] = fileToList(s"ordinal")
 
-  lazy val outcodes: Seq[String] = fileToList(s"${tokenDirectory}outcode")
+  lazy val outcodes: Seq[String] = fileToList(s"outcode")
 
-  lazy val postTown: Seq[String] = fileToList(s"${tokenDirectory}posttown")
+  lazy val postTown: Seq[String] = fileToList(s"posttown")
 
-  lazy val borough: Seq[String] = fileToList(s"${tokenDirectory}borough")
+  lazy val borough: Seq[String] = fileToList(s"borough")
+
+  // score matrix is used by server but held in parsers for convenience
+  lazy val scoreMatrix: Map[String,String] = fileToMap(s"scorematrix.txt")
 
   /**
     * Contains key-value map of synonyms (replace key by value)
     */
-  lazy val synonym: Map[String, String] = fileToList(s"${tokenDirectory}synonym")
+  lazy val synonym: Map[String, String] = fileToList(s"synonym")
     // The "-1" in split is to catch the trailing empty space on the lines like "ENGLAND,"
     .map(_.split(",", -1))
     .filter(_.nonEmpty)
@@ -378,13 +378,41 @@ object Tokens extends CrfTokenable {
   /**
     * List of counties to be removed from the input
     */
-  lazy val county: Seq[String] = fileToList(s"${tokenDirectory}county")
+  lazy val county: Seq[String] = fileToList(s"county")
 
   /**
     * A county is a county if it is not followed by following suffixes
     */
-  lazy val nonCountyIdentification: Seq[String] = fileToList(s"${tokenDirectory}non_county_identification")
+  lazy val nonCountyIdentification: Seq[String] = fileToList(s"non_county_identification")
 
-  private def fileToList(path: String): Seq[String] = Source.fromFile(path).getLines().toList
+  private def fileToList(fileName: String): Seq[String] = {
+
+    val directory = config.getString("parser.input-pre-post-processing.folder")
+    val path = directory + fileName
+    val currentDirectory = new java.io.File(".").getCanonicalPath
+    // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
+    // `getResource` may return null, that's why we wrap it into an `Option`
+    val resource = Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
+    resource.getLines().toList
+  }
+
+  /**
+    * Make score matrix file into Map
+    * @param path
+    * @return
+    */
+  def fileToMap(fileName: String): Map[String,String] = {
+
+    val directory = config.getString("parser.scoring.folder")
+    val path = directory + fileName
+    val currentDirectory = new java.io.File(".").getCanonicalPath
+    // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
+    // `getResource` may return null, that's why we wrap it into an `Option`
+    val resource = Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
+
+    resource.getLines().map { l =>
+      val Array(k,v1,_*) = l.split('=')
+      k -> (v1) }.toMap
+  }
 
 }

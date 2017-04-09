@@ -13,11 +13,15 @@ import scala.util.Try
 /**
   * Contains the reply for address by uprn request
   *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
   * @param response found content
   * @param status   response status / message
   * @param errors   encountered errors (or an empty list if there is no errors)
   */
 case class AddressByUprnResponseContainer(
+  apiVersion: String,
+  dataVersion: String,
   response: AddressByUprnResponse,
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
@@ -44,11 +48,15 @@ object AddressByUprnResponse {
 /**
   * Contains the reply for the address search request
   *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
   * @param response relevant data
   * @param status   status code / message
   * @param errors   encountred errors (or an empty list if there is no errors)
   */
 case class AddressBySearchResponseContainer(
+  apiVersion: String,
+  dataVersion: String,
   response: AddressBySearchResponse,
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
@@ -85,11 +93,15 @@ object AddressBySearchResponse {
 /**
   * Contains relevant information about the result of the bulk request
   *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
   * @param bulkAddresses found bulk addresses
   * @param status   status code / message
   * @param errors   encountred errors (or an empty list if there is no errors)
   */
 case class AddressBulkResponseContainer(
+  apiVersion: String,
+  dataVersion: String,
   bulkAddresses: Seq[AddressBulkResponseAddress],
   status: AddressResponseStatus,
   errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
@@ -183,7 +195,8 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  underlyingScore: Float
+  underlyingScore: Float,
+  bespokeScore: Option[AddressResponseScore]
 )
 
 object AddressResponseAddress {
@@ -201,6 +214,15 @@ object AddressResponseAddress {
 
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
+    val emptyScore = AddressResponseScore(
+      objectScore = 0f,
+      structuralScore = 0f,
+      buildingScore = 0f,
+      localityScore = 0f,
+      unitScore = 0f,
+      buildingScoreDebug = "0",
+      localityScoreDebug = "0",
+      unitScoreDebug = "0")
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -212,7 +234,8 @@ object AddressResponseAddress {
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      underlyingScore = other.score
+      underlyingScore = other.score,
+      bespokeScore = Some(emptyScore)
     )
   }
 
@@ -550,6 +573,31 @@ object AddressResponseGeo {
 
 }
 
+/**
+  * Hopper Score - this class contains debug fields that may not be in final product
+  * @param objectScore
+  * @param structuralScore
+  * @param buildingScore
+  * @param localityScore
+  * @param unitScore
+  * @param buildingScoreDebug
+  * @param localityScoreDebug
+  * @param unitScoreDebug
+  */
+case class AddressResponseScore (
+  objectScore: Double,
+  structuralScore: Double,
+  buildingScore: Double,
+  localityScore: Double,
+  unitScore: Double,
+  buildingScoreDebug: String,
+  localityScoreDebug: String,
+  unitScoreDebug: String
+)
+
+object AddressResponseScore {
+  implicit lazy val addressResponseScoreFormat: Format[AddressResponseScore] = Json.format[AddressResponseScore]
+}
 /**
   * Contains response status
   *

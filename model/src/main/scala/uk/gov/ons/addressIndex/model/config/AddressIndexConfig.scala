@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.model.config
 
 case class AddressIndexConfig(
   parserLibPath: String,
+  pathToResources: String,
   elasticSearch: ElasticSearchConfig,
   bulk: BulkConfig
 )
@@ -44,7 +45,8 @@ case class ShieldConfig(
 )
 
 case class IndexesConfig(
-  hybridIndex: String
+  hybridIndex: String,
+  hybridMapping: String
 )
 
 case class SubBuildingNameConfig(

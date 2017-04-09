@@ -104,6 +104,13 @@
                     // IF CSV, don't do event.preventDefault() or return false
                     // We actually need this to be a typical hyperlink
                 });
+
+                $("#search-form form").submit(function (e) {
+                    $("#search-button").css("opacity", 0.3).prop('disabled', true);
+                    $("#search-loading").append('<img style="margin-left:40px" src="@{routes.Assets.versioned("/images/progress.gif").toString}"/>');
+                })
+
+
             });
     </script>
     <div class="container">
@@ -121,12 +128,13 @@
                         ) {
                             <p>
                                 <input type="file" accept=".csv" name="@fileFormName" />
-                                <button class="btn btn-success btn-search" type="submit">@messages("upload")</button>
+                                <button id="search-button" class="btn btn-success btn-search" type="submit">@messages("upload")</button>
                             </p>
                         }
                     </div>
                 </div>
             </div>
+            <div id="search-loading"></div>
             @results.map { bulkResp =>
                 <div class="panel panel-single address-panel">
                     <div class="panel-body">
@@ -141,6 +149,7 @@
                                         @tableHeaderHelper(messages("multi.table.match.type"))
                                         @tableHeaderHelper(messages("multi.table.score"))
                                         @tableHeaderHelper(messages("multi.table.actual.score"))
+                                        @tableHeaderHelper(messages("multi.table.rank"))
                                     </thead>
                                     <tbody>
                                         @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
@@ -153,6 +162,7 @@
                                                     <td align="center" class="match-type-@matchType">@matchType</td>
                                                     <td align="center">@{ScoreHelper.getRelativePercentageScore(result.score, bulkResp)}&#37;</td>
                                                     <td align="center">@{result.score}</td>
+                                                    <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
                                                 </tr>
                                             }
                                         }
