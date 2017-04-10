@@ -147,11 +147,14 @@ class AddressIndexRepository @Inject()(
           field = "lpi.saoText",
           value = token
         )).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
-      tokens.get(Tokens.saoStartSuffix).map(token =>
+      tokens.get(Tokens.paoStartSuffix).map(token =>
         constantScoreQuery(matchQuery(
-          field = "lpi.saoStartSuffix",
+          field = "lpi.saoText",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
+        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)),
+
+      Option(saoQuery).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.includingDisMaxTieBreaker))
+
     ).flatten
 
     val paoQuery = Seq(
@@ -204,7 +207,9 @@ class AddressIndexRepository @Inject()(
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoTextBoost)),
 
-      paoBuildingNameMust
+      paoBuildingNameMust,
+
+      Option(paoQuery).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
     ).flatten
 
@@ -437,13 +442,7 @@ class AddressIndexRepository @Inject()(
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
-    val everythingMattersQueries = Seq(
-      paoQuery,
-      saoQuery
-      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.includingDisMaxTieBreaker))
-
-    val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
+    val shouldQuery = bestOfTheLotQueries
 
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
