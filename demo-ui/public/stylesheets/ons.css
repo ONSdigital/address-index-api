@@ -257,6 +257,15 @@ nav.nav-container {
     margin-right:2px;
 }
 
+nav.nav-container-mobile {
+    width:100%;
+    background-color: #DFE0E2 ;
+    overflow:auto;
+    clear:left;
+    margin-left:2px;
+    margin-right:2px;
+}
+
 nav {
     margin:0 auto;
     border:1px solid #ddd;
@@ -655,10 +664,41 @@ div.taColumn4H{
     background: #FF0000;
 }
 
+nav select {
+    display: none;
+}
+
+select {
+    font-family: "nta", Arial, sans-serif;
+    font-size: 1.1em
+}
+
 @media only screen and (max-width: 800px) {
     td {
         font-size: 0.6em;
         padding: 1px;
+    }
+
+    nav ul     {
+        display: none;
+    }
+
+    nav select {
+        display: inline-block;
+        padding-bottom:2px;
+        padding-top:2px;
+        margin-bottom:4px;
+        margin-top:4px;
+        margin-left:4px;
+    }
+
+    details{
+        min-width: 400px;
+    }
+
+    details details div{
+        text-indent: 20px;
+        font-size:0.6em
     }
 }
 
@@ -682,7 +722,7 @@ div.taColumn4H{
 }
 
 .debug-query-output{
-    width: 800px;
+    max-width: 800px;
     margin-left: 10px;
     padding: 10px;
 }

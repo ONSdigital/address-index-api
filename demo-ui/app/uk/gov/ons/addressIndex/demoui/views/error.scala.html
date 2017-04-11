@@ -1,4 +1,5 @@
 @import helper._
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @(statusCode: Int, error: String)(implicit messages: Messages)
 @*
 * Call the `main` template with two arguments. The first
@@ -8,6 +9,9 @@
 
 @main(title = messages("home.title")) {
 <div class="container">
+    <div class="panel-heading sub-nav-heading">
+        @navigation(Navigation.default)
+    </div>
     <div class="row">
         <div><h2 class="panel-title">@messages("home.servicetext") <span class="beta">Beta</span></h2></div>
     </div>

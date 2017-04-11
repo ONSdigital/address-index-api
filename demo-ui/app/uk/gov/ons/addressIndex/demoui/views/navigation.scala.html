@@ -14,4 +14,17 @@
             }
         </ul>
     </nav>
+    <nav class="nav-container-mobile">
+        <select>
+            <option value="#">Go to...</option>
+            @for(link <- nav.links) {
+            <option value="@{link.href}">@{link.label}</option>
+            }
+        </select>
+    </nav>
+    <script>
+        $("nav select").change(function() {
+  window.location = $(this).find("option:selected").val();
+});
+    </script>
 </div>
