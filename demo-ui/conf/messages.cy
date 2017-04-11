@@ -103,6 +103,7 @@ main.licence2=Trwydded Llywodraeth Agored
 main.licence3=ac eithrio lle nodir yn wahanol
 main.licenceurl=https://www.nationalarchives.gov.uk/doc/open-government-licence-cymraeg/version/3/
 main.copyright=hawlfraint y Goron
+main.goto=Ewch i
 multi.sfatext=Cydweddu cyfeiriadau lluosog
 navbar.home=Cartref
 navbar.singlematch=Match sengl

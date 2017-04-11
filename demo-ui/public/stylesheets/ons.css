@@ -43,6 +43,7 @@ p.toptext {
     margin-top: 2px;
     margin-right: 4px;
     font-size: 16px;
+    padding-top: 8px;
 }
 
 .panel-heading {
@@ -67,7 +68,7 @@ p.toptext {
     font-size: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
-    margin-left: 120px;
+    margin-left: 20px;
     text-align: left;
     color: darkred;
 }
@@ -127,10 +128,29 @@ p.toptext {
 .beta-banner {
     background-color: #FF9900;
     color: #fff;
-    padding: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 6px;
+    padding-bottom: 6px;
     font-weight: bold;
     font-size: 16px;
     letter-spacing: 4px;
+}
+
+.beta-banner-version {
+    background-color: #fff;
+    color: #FF9900;
+    border: 1px solid #FF9900;
+    padding: 2px;
+    margin-top: 2px;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.beta-para {
+    padding: 1px;
+    margin: 1px;
+    background-color: #fff;
 }
 
 .logo {
@@ -226,12 +246,19 @@ input[type="radio"]#format.form-control {
 }
 
 .index-nav {
-    margin: 5px 5px 5px 5px ;
-    width: 280px ;
-    border:1px solid #ddd;
-    padding: 10px;
-    float:left;
-}
+     margin: 5px 5px 5px 5px ;
+     width: 280px ;
+     border:1px solid #ddd;
+     padding: 10px;
+     float:left;
+ }
+
+ .index-nav-error {
+     margin: 5px 5px 5px 5px ;
+     border:1px solid #ddd;
+     padding: 10px;
+     float:left;
+ }
 
 .index-nav a:link {
     text-decoration: none;

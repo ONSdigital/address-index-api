@@ -16,7 +16,7 @@
     </nav>
     <nav class="nav-container-mobile">
         <select>
-            <option value="#">Go to...</option>
+            <option value="#">@messages("main.goto")</option>
             @for(link <- nav.links) {
             <option value="@{link.href}">@{link.label}</option>
             }

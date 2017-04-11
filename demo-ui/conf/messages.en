@@ -103,6 +103,7 @@ main.licence2=Open Government Licence
 main.licence3=except where otherwise stated
 main.licenceurl=https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
 main.copyright=Crown copyright
+main.goto=Go to ...
 multi.sfatext=Match multiple addresses
 navbar.home=Home
 navbar.singlematch=Single Match

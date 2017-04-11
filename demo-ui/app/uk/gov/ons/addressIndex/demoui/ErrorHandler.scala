@@ -36,7 +36,7 @@ class ErrorHandler @Inject() (
   // Boolean to determine whether or not to use custom error processing
   // Settings for each mode come from application.conf file
   val processError : Boolean = mode match {
-    case Mode.Dev => conf.config.customErrorDev
+    case Mode.Dev => conf.config.customErrorProd
     case Mode.Test => conf.config.customErrorTest
     case Mode.Prod => conf.config.customErrorProd
   }

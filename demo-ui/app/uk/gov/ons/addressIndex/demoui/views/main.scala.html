@@ -5,7 +5,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -48,7 +48,12 @@
                     <img alt="ONS" src="/assets/images/ons-logo.png" width="204" height="40">
                 </div>
                 <div class="beta-header">
-                    <p><strong class="beta-banner">@messages("main.beta")</strong></p>
+                    <p class="beta-para"><strong class="beta-banner">@messages("main.beta")</strong></p>
+                    <p class="beta-para"><strong class="beta-banner-version">Version:
+                        @uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule.apiVersion
+                        | Epoch:
+                        @uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule.dataVersion
+                    </strong></p>
                 </div>
             </div>
         </div>
