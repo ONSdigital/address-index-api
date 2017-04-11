@@ -15,12 +15,12 @@
         @*<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>*@
 
                 @*<form action="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.doLogin()}" method="POST">*@
-                    <form action="/action_page.php" method="post"></form>
+                    <form action="/placeholder.twirl" method="post"></form>
 
 
         <div id="userbox">
         <form action="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.doLogin()}" method="post">
-            <h1 id="logintxt" style="background-color: rgb(11, 146, 9); background-position: initial initial; background-repeat: initial initial;">Address Matching Service <b>ß</b>eta</h1>
+            <h1 id="logintxt" style="background-color: rgb(11, 146, 9); background-position: initial; background-repeat: initial;">Address Matching Service <b>ß</b>eta</h1>
                 <!--div id="sumsk" style="display: none;">Sending</div-->
             <div style="color:red">@errorMessage</div>
             <input id="name" placeholder="ID" style="opacity: 1; background-color: rgb(255, 255, 255); background-position: initial; background-repeat: initial;">
@@ -32,8 +32,5 @@
         </form>
 
         </div>
-
-        @*<script src="js/login.js"></script>*@
-
     }
 }

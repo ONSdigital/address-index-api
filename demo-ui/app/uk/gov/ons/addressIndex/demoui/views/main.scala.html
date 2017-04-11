@@ -1,16 +1,16 @@
 @(title: String)(content: Html)(implicit messages: Messages)
-    @*
-    * This template is called from the `index` template. This template
-    * handles the rendering of the page header and body tags. It takes
-    * two arguments, a `String` for the title of the page and an `Html`
-    * object to insert into the body of the page.
-    *@
+@*
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <title>@title</title>
         <meta charset="utf-8" />
-        <!--meta name="viewport" content="width=device-width, initial-scale=1.0"-->
+            <!--meta name="viewport" content="width=device-width, initial-scale=1.0"-->
 
             <!--[if gt IE 8]><!-->
         <link href='@routes.Assets.versioned("stylesheets/govuk-template.css")' media="screen" rel="stylesheet" />
@@ -79,7 +79,8 @@
                     <div class="footer-meta-inner">
 
                         <div class="open-government-licence">
-                            <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">Open Government Licence</a></p>
+                            <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">
+                                Open Government Licence</a></p>
 
                             <p>@messages("main.licence1") <a href='@messages("main.licenceurl")' rel="license">@messages("main.licence2")
                                 v3.0</a>, @messages("main.licence3")</p>
@@ -97,9 +98,10 @@
 
         <div id="global-app-error" class="app-error hidden"></div>
 
-        <script src="/assets/javascripts/govuk-template.js"></script>
-        <script src="/assets/javascripts/jquery-3.2.0.min.js"></script>
-        <script src="/assets/javascripts/bootstrap.min.js"></script>
+        <script src='(@routes.Assets.versioned("/assets/javascripts/govuk-template.js")'></script>
+        <script src='@routes.Assets.versioned("/assets/javascripts/jquery-3.2.0.min.js")'></script>
+        <script src=' @routes.Assets.versioned("javascripts/login.js")'></script>
+
 
         <script>if (typeof window.GOVUK === 'undefined') document.body.className = document.body.className.replace('js-enabled', '');</script>
         </body>
