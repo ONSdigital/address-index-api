@@ -869,8 +869,7 @@ object HopperScoreHelper  {
       saoStartSuffix,
       saoEndSuffix,
       saoStartNumber,
-      saoEndNumber,
-      pafBuildingNumber)
+      saoEndNumber)
 
     val subBuildingNumberParam = subBuildingNumberPafScore.min(subBuildingNumberNagScore)
 
@@ -1001,8 +1000,7 @@ object HopperScoreHelper  {
     saoStartSuffix: String,
     saoEndSuffix: String,
     saoStartNumber: String,
-    saoEndNumber: String,
-    pafBuildingNumber: String) : Int = {
+    saoEndNumber: String) : Int = {
 
     val tokenBuildingLowNum = getRangeBottom(subBuildingName)
     val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
