@@ -395,7 +395,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNagCustName,
     hybridNagCustGeogCode,
     hybridNotUsed,
-    hybridAll
+    hybridAll,
+    hybridNotUsed
   )
 
   val expectedRelative = Relative (
