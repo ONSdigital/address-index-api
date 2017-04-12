@@ -2,6 +2,7 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @import uk.gov.ons.addressIndex.demoui.model.ui.Links
 @import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
+@import java.text.SimpleDateFormat
 
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
@@ -132,6 +133,11 @@ classification: Option[Map[String,String]]
                             <strong>@messages("clerical.la"):</strong>
                                 <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
                             </div>
+                            @if(address.nag.map{nag => nag.logicalStatus} == Some("8")) {
+                            <div class="resultRow">
+                                <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map{nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate)))}
+                            </div>
+                            }
                             </div>
                     </div>
                 </div>
