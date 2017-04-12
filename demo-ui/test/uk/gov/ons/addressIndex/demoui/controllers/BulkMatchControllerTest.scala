@@ -7,6 +7,8 @@ import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class BulkMatchControllerTest extends PlaySpec with Results with GuiceOneAppPerTest {
@@ -16,10 +18,11 @@ class BulkMatchControllerTest extends PlaySpec with Results with GuiceOneAppPerT
       implicit val mtzr = app.injector.instanceOf[akka.stream.Materializer]
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val api = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val expectedString = "<input type=\"file\""
 
       // When
-      val response = new BulkMatchController(messagesApi, api).bulkMatchPage().apply(FakeRequest())
+      val response = new BulkMatchController(messagesApi, api, version).bulkMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
       // Then

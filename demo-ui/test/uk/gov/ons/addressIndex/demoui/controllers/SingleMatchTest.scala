@@ -5,11 +5,10 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.Results
 import play.api.test.Helpers._
 import play.api.test.WithApplication
-import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -24,11 +23,12 @@ class SingleMatchTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val expectedString = "Search for Addresses"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy)
+      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
         .showSingleMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
@@ -42,11 +42,12 @@ class SingleMatchTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy)
+      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
         .showSingleMatchPage().apply(FakeRequest())
       val content = contentAsString(response)
 
@@ -60,11 +61,12 @@ class SingleMatchTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val expectedString = "<span class=\"error\" onclick=\"setFocus('address');\">Please enter an address</span>"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy)
+      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
         .doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> ""))
       val content = contentAsString(response)
 
@@ -78,6 +80,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val expectedString = "<h3 class=\"green\">1 addresses found</h3>"
       val inputAddress = "7 EX2 6GA"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
@@ -87,7 +90,8 @@ class SingleMatchTest extends PlaySpec with Results {
         configuration,
         messagesApi,
         apiClient.asInstanceOf[AddressIndexClientInstance],
-        classHierarchy)
+        classHierarchy,
+        version)
       .doMatchWithInput(inputAddress, Some(1)).apply(FakeRequest())
       val content = contentAsString(response)
 
