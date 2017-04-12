@@ -24,7 +24,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     proOrder = "3",
     uprn = "4",
     udprn = "5",
-    organizationName = "6",
+    organisationName = "6",
     departmentName = "7",
     subBuildingName = "8",
     buildingName = "9",

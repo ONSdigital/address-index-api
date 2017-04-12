@@ -82,7 +82,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     proOrder = "3",
     uprn = "4",
     udprn = "5",
-    organizationName = "6",
+    organisationName = "6",
     departmentName = "7",
     subBuildingName = "8",
     buildingName = "9",
@@ -135,7 +135,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       val expected = AddressResponsePaf(
         udprn = paf.udprn,
-        organisationName = paf.organizationName,
+        organisationName = paf.organisationName,
         departmentName = paf.departmentName,
         subBuildingName = paf.subBuildingName,
         buildingName = paf.buildingName,

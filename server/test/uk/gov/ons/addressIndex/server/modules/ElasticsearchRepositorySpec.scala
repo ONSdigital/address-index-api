@@ -51,7 +51,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridFirstPostcodeOut = "h02p"
   // Fields that are not in this list are not used for search
   val hybridPafUprn = 1L
-  val hybridPafOrganizationName = "h2"
+  val hybridPafOrganisationName = "h2"
   val hybridPafDepartmentName = "h3"
   val hybridPafSubBuildingName = "h4"
   val hybridPafBuildingName = "h5"
@@ -73,8 +73,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagSaoEndNumber = 17.toShort
   val hybridNagSaoEndSuffix = "h18"
   val hybridNagLocality = "h20"
-  val hybridNagOrganisation = hybridPafOrganizationName
-  val hybridNagLegalName = hybridPafOrganizationName
+  val hybridNagOrganisation = hybridPafOrganisationName
+  val hybridNagLegalName = hybridPafOrganisationName
   val hybridNagSaoText = hybridPafSubBuildingName
   val hybridNagPaoText = hybridPafBuildingName
   val hybridNagStreetDescriptor = hybridPafThoroughfare
@@ -100,7 +100,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   // Fields that are not in this list are not used for search
   val secondaryHybridPafUprn = 2L
-  val secondaryHybridPafOrganizationName = "s2"
+  val secondaryHybridPafOrganisationName = "s2"
   val secondaryHybridPafDepartmentName = "s3"
   val secondaryHybridPafSubBuildingName = "s4"
   val secondaryHybridPafBuildingName = "s5"
@@ -122,8 +122,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagSaoEndNumber = 23.toShort
   val secondaryHybridNagSaoEndSuffix = "s18"
   val secondaryHybridNagLocality = "s20"
-  val secondaryHybridNagOrganisation = secondaryHybridPafOrganizationName
-  val secondaryHybridNagLegalName = secondaryHybridPafOrganizationName
+  val secondaryHybridNagOrganisation = secondaryHybridPafOrganisationName
+  val secondaryHybridNagLegalName = secondaryHybridPafOrganisationName
   val secondaryHybridNagSaoText = secondaryHybridPafSubBuildingName
   val secondaryHybridNagPaoText = secondaryHybridPafBuildingName
   val secondaryHybridNagStreetDescriptor = secondaryHybridPafThoroughfare
@@ -141,7 +141,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "proOrder" -> hybridNotUsedNull,
     "uprn" -> hybridPafUprn,
     "udprn" -> hybridNotUsedNull,
-    "organizationName" -> hybridPafOrganizationName,
+    "organisationName" -> hybridPafOrganisationName,
     "departmentName" -> hybridPafDepartmentName,
     "subBuildingName" -> hybridPafSubBuildingName,
     "buildingName" -> hybridPafBuildingName,
@@ -174,7 +174,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "proOrder" -> hybridNotUsedNull,
     "uprn" -> hybridSecondaryUprn,
     "udprn" -> hybridNotUsedNull,
-    "organizationName" -> secondaryHybridPafOrganizationName,
+    "organisationName" -> secondaryHybridPafOrganisationName,
     "departmentName" -> secondaryHybridPafDepartmentName,
     "subBuildingName" -> secondaryHybridPafSubBuildingName,
     "buildingName" -> secondaryHybridPafBuildingName,
@@ -326,7 +326,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridPafUprn.toString,
     hybridNotUsed,
-    hybridPafOrganizationName,
+    hybridPafOrganisationName,
     hybridPafDepartmentName,
     hybridPafSubBuildingName,
     hybridPafBuildingName,
@@ -1069,7 +1069,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                    "constant_score" : {
                                                    "filter" : {
                                                     "match":{
-                                                       "paf.organizationName":{
+                                                       "paf.organisationName":{
                                                           "query":"$hybridNagOrganisation",
                                                           "type":"boolean"
                                                        }
