@@ -195,7 +195,8 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  underlyingScore: Float
+  underlyingScore: Float,
+  bespokeScore: Option[AddressResponseScore]
 )
 
 object AddressResponseAddress {
@@ -213,6 +214,15 @@ object AddressResponseAddress {
 
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
+    val emptyScore = AddressResponseScore(
+      objectScore = 0f,
+      structuralScore = 0f,
+      buildingScore = 0f,
+      localityScore = 0f,
+      unitScore = 0f,
+      buildingScoreDebug = "0",
+      localityScoreDebug = "0",
+      unitScoreDebug = "0")
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -224,7 +234,8 @@ object AddressResponseAddress {
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      underlyingScore = other.score
+      underlyingScore = other.score,
+      bespokeScore = Some(emptyScore)
     )
   }
 
@@ -564,6 +575,31 @@ object AddressResponseGeo {
 
 }
 
+/**
+  * Hopper Score - this class contains debug fields that may not be in final product
+  * @param objectScore
+  * @param structuralScore
+  * @param buildingScore
+  * @param localityScore
+  * @param unitScore
+  * @param buildingScoreDebug
+  * @param localityScoreDebug
+  * @param unitScoreDebug
+  */
+case class AddressResponseScore (
+  objectScore: Double,
+  structuralScore: Double,
+  buildingScore: Double,
+  localityScore: Double,
+  unitScore: Double,
+  buildingScoreDebug: String,
+  localityScoreDebug: String,
+  unitScoreDebug: String
+)
+
+object AddressResponseScore {
+  implicit lazy val addressResponseScoreFormat: Format[AddressResponseScore] = Json.format[AddressResponseScore]
+}
 /**
   * Contains response status
   *

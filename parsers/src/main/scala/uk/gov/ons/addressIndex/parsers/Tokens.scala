@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.parsers
 import com.typesafe.config.ConfigFactory
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
 
-import scala.io.Source
+import scala.io.{BufferedSource, Source}
 import scala.util.Try
 
 /**
@@ -34,6 +34,10 @@ object Tokens extends CrfTokenable {
   val postcode: String = "Postcode"
   val postcodeIn: String = "PostcodeIn"
   val postcodeOut: String = "PostcodeOut"
+
+  val defaultPreProcessFolder = "parser.input-pre-post-processing.folder"
+  val defaultMapFolder = "parser.scoring.folder"
+  val defaultDelimiter = "="
 
   val all: Seq[String] = Seq(
     organisationName,
@@ -362,6 +366,9 @@ object Tokens extends CrfTokenable {
 
   lazy val borough: Seq[String] = fileToList(s"borough")
 
+  // score matrix is used by server but held in parsers for convenience
+  lazy val scoreMatrix: Map[String,String] = fileToMap(s"scorematrix.txt")
+
   /**
     * Contains key-value map of synonyms (replace key by value)
     */
@@ -382,17 +389,42 @@ object Tokens extends CrfTokenable {
     */
   lazy val nonCountyIdentification: Seq[String] = fileToList(s"non_county_identification")
 
-  private def fileToList(fileName: String): Seq[String] = {
+  /**
+    * Convert external file into list
+    * @param folder
+    * @param fileName
+    * @return
+    */
+  private def fileToList(fileName: String, folder: String = defaultPreProcessFolder): Seq[String] = {
+    val resource = getResource(fileName, folder)
+    resource.getLines().toList
+  }
 
-    val directory = config.getString("parser.input-pre-post-processing.folder")
+  /**
+    * Make external file such as score matrix file into Map
+    * @param path
+    * @return
+    */
+  def fileToMap(fileName: String, folder: String = defaultMapFolder, delimiter: String = defaultDelimiter): Map[String,String] = {
+    val resource = getResource(fileName, folder)
+    resource.getLines().map { l =>
+      val Array(k,v1,_*) = l.split(delimiter)
+      k -> (v1) }.toMap
+  }
+
+  /**
+    * Fetch file stream as buffered source
+    * @param folder
+    * @param fileName
+    * @return
+    */
+  def getResource(fileName: String, folder: String): BufferedSource = {
+    val directory = config.getString(folder)
     val path = directory + fileName
     val currentDirectory = new java.io.File(".").getCanonicalPath
-
     // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
     // `getResource` may return null, that's why we wrap it into an `Option`
-    val resource = Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
-
-    resource.getLines().toList
+    Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
   }
 
 }

@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
-
+import uk.gov.ons.addressIndex.server.utils.HopperScoreHelper
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -237,7 +237,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
           limit = 10,
           offset = 0,
           total = 1,

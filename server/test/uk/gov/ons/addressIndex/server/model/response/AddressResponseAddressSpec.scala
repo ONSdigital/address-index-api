@@ -115,6 +115,16 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     parents = Array(8L,9L)
   )
 
+  val givenBespokeScore = AddressResponseScore (
+    objectScore = 0,
+    structuralScore = 0,
+    buildingScore = 0,
+    localityScore = 0,
+    unitScore = 0,
+    buildingScoreDebug = "0",
+    localityScoreDebug = "0",
+    unitScoreDebug = "0")
+
   val givenRelativeResponse = AddressResponseRelative.fromRelative(givenRelative)
 
   "Address response Address model" should {
@@ -262,6 +272,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
+      val expectedBespokeScore = Some(givenBespokeScore)
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
@@ -277,7 +288,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           easting = 291398,
           northing = 93861
         )),
-        underlyingScore = 1
+        underlyingScore = 1,
+        bespokeScore = expectedBespokeScore
       )
 
       // When
