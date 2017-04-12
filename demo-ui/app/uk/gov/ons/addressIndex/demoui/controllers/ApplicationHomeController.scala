@@ -32,8 +32,6 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
     )(LoginCredentials.apply)(LoginCredentials.unapply)
   )
 
-
-
   /**
     * Render index page
     *
@@ -53,13 +51,12 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
 
   def doLogin: Action[AnyContent] = Action { implicit req =>
     val formValidationResult = loginForm.bindFromRequest.data
-
     (for {
       userName <- formValidationResult.get("userName") if userName.nonEmpty
       password <- formValidationResult.get("password") if userName.nonEmpty
     } yield {
       // there is userName and password values, both are filled
-println(userName)
+      println(userName)
       // Here you have access to userName and password values, if you want, you can do some validation
 
       /*
@@ -90,11 +87,10 @@ println(userName)
        */
 
 
-
       /*
       how  to store (and read) a session is written here https://www.playframework.com/documentation/2.5.x/ScalaSessionFlash
 
-      pay attention that you will need to read this value on every other request here (the lisst is in routes file)
+      pay attention that you will need to read this value on every other request here (the list is in routes file)
       it the value is absent, you should redirect the user to the login page:
 
       def index = Action { request =>
@@ -135,15 +131,17 @@ println(userName)
 
       DONT FORGET TO MODIFY THE URL THAT IS USED FOR THE REQUEST, currently it's api, it will need to be CI gateway
 
-      The haandling of the response of the CI gateway is the same as the actual one, no modification required
+      The handling of the response of the CI gateway is the same as the actual one, no modification required
 
        */
 
 
-      // if tempate is red, just re-run the app
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset())
+      // if template is red, just re-run the app
+//      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset()).withNewSession
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
 
-    }).getOrElse{
+
+    }).getOrElse {
       // bad, data is not filled or not exist
       Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password"))
     }
@@ -155,10 +153,3 @@ println(userName)
   //    Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
 
 }
-
-//logger info ("ApplicationHome: Rendering Index page")
-//Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset(loginForm)).withNewSession
-//    loginForm.bindFromRequest(req).fold(
-//      formWithErrors => BadRequest(views.html.login(formWithErrors)),
-//      credentials => Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
-//    )

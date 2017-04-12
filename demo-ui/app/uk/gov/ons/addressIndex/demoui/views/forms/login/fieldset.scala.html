@@ -11,26 +11,36 @@
     @main(title = messages("single.title")) {
 
 
-        @*<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">*@
-        @*<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>*@
-
-                @*<form action="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.doLogin()}" method="POST">*@
-                    <form action="/placeholder.twirl" method="post"></form>
-
-
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <div id="userbox">
-        <form action="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.doLogin()}" method="post">
-            <h1 id="logintxt" style="background-color: rgb(11, 146, 9); background-position: initial; background-repeat: initial;">Address Matching Service <b>ß</b>eta</h1>
-                <!--div id="sumsk" style="display: none;">Sending</div-->
-            <div style="color:red">@errorMessage</div>
-            <input id="name" placeholder="ID" style="opacity: 1; background-color: rgb(255, 255, 255); background-position: initial; background-repeat: initial;">
-            <input id="pass" type="password" placeholder="Password" style="opacity: 1; background-color: rgb(255, 255, 255); background-position: initial; background-repeat: initial;">
+            <form action="@{
+                routes.ApplicationHomeController.doLogin()
+            }" method="post">
+                <h1 id="logintxt" style="background-color: rgb(11, 146, 9);
+                    background-position: initial;
+                    background-repeat: initial;">Address Matching Service <b>ß</b>eta</h1>
 
-            <p id="namealert" style="display: none; opacity: 1;">ID:</p>
-            <p id="passal" style="display: none; opacity: 1;">Password:</p>
-            <input id="loginbtn" style="opacity: 0.2; cursor: default;" type="submit" value="Login">
-        </form>
+                <div id="submit_giff" style="display: none;">
+                    <hi> Authenticating: <img src="/assets/images/loader-bar.gif" align="absmiddle">  </hi>
+                </div>
+                <input id="name" placeholder="Username" style="opacity: 1;
+                    background-color: rgb(255, 255, 255);
+                    background-position: initial;
+                    background-repeat: initial;">
+                <input id="pass" type="password" placeholder="Password" style="opacity: 1;
+                    background-color: rgb(255, 255, 255);
+                    background-position: initial;
+                    background-repeat: initial;">
 
+                <p id="namealert" style="display: none;
+                    opacity: 1;">Username:</p>
+                <p id="passal" style="display: none;
+                    opacity: 1;">Password:</p>
+                <button id="loginbtn" style="opacity: 0.2;
+                    cursor: default;">Login</button>
+            </form>
         </div>
+        <script src="/assets/javascripts/login.js"></script>
     }
 }

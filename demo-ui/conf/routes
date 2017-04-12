@@ -2,6 +2,8 @@
 # Definition of all applications routes
 # Routes are called in priority order
 
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)
 
 # ONS-Address Login page
 GET         /                                   uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.login
@@ -13,9 +15,6 @@ GET         /indexPage                          uk.gov.ons.addressIndex.demoui.c
 
 # ONS-Address Index Single Search View
 GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
-
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)
 
 # ONS-Address Index Single Search Request
 POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatch

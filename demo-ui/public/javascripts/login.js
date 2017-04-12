@@ -1,7 +1,7 @@
 /*!
  * Sign Up/Login Box v0.0.1 (http://codepen.io/koheishingai/FLvgs)
  * Copyright 2014 Kohei Shingai.
- * Licensed under MIT 
+ * Licensed under MIT
  */
 
 $(function () {
@@ -9,11 +9,6 @@ $(function () {
     var passlen;
     var namelen;
     initub();
-    
-    $('#login').click(function () {
-        initub();
-        $('#logmsk').fadeIn();
-    });
 
     $("#name").keyup(function () {
         var namelen = $('#name').val().length;
@@ -34,7 +29,7 @@ $(function () {
         }
     });
     $("#pass").keyup(function () {
-         passlen = $('#pass').val().length;
+        passlen = $('#pass').val().length;
         if (passlen > 10 || passlen == 0) {
             $('#pass').css('background', 'rgb(255, 214, 190)');
             blsp();
@@ -61,7 +56,7 @@ $(function () {
     }
     $('#loginbtn').click(function () {
         if (flg.name == 1 && flg.pass == 1) {
-            $('#sumsk').fadeIn();
+            $('#submit_giff').fadeIn();
             $('#name, #pass, #namealert, #passal, #loginbtn').css('opacity', '0.2');
             $('#close').fadeIn()
 
@@ -76,12 +71,11 @@ $(function () {
     function initub() {
         flg.name = -1;
         flg.pass = -1;
-        $('#sumsk').hide();
+        $('#submit_giff').hide();
         $('#namealert').hide();
         $('#passal').hide();
         $('#name').css('background', 'rgb(255, 255, 255)');
         $('#pass').css('background', 'rgb(255, 255, 255)');
-        $('#loginbtn').css('opacity', '0.2').css('cursor', 'default');
         $('#name, #pass').val('')
     }
 
