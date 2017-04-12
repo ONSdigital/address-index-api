@@ -141,7 +141,10 @@ p.toptext {
     background-color: #fff;
     color: #FF9900;
     border: 1px solid #FF9900;
-    padding: 2px;
+    padding-top: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 1px;
     margin-top: 2px;
     font-weight: bold;
     font-size: 10px;
@@ -527,6 +530,11 @@ div.paf-nag-switch-buttons span:hover{
 
 .prtrue  a {
     color:white;
+}
+
+.beta-banner-version  a {
+    color: #FF9900;
+    text-decoration: none;
 }
 
 .hiderow {

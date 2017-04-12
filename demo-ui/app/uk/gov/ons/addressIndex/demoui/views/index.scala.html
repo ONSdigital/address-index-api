@@ -1,5 +1,7 @@
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+
 @import helper._
-@()(
+@(version: DemoUIAddressIndexVersionModule)(
     implicit
     requestHeader: RequestHeader,
     messages: Messages
@@ -10,7 +12,7 @@
  * argument is an `Html` object containing the body of the page.
  *@
 
-@main(title = messages("home.title")) {
+@main(title = messages("home.title"), version = version) {
     <div class="container">
         <div>
             <h2 class="panel-title">

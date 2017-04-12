@@ -14,6 +14,7 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -31,7 +32,8 @@ class ClericalToolController @Inject()(
                                        conf : DemouiConfigModule,
                                        val messagesApi: MessagesApi,
                                        apiClient: AddressIndexClientInstance,
-                                       classHierarchy: ClassHierarchy
+                                       classHierarchy: ClassHierarchy,
+                                       version: DemoUIAddressIndexVersionModule
                                      )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("ClericalToolController")
@@ -60,7 +62,8 @@ class ClericalToolController @Inject()(
       pagerAction = "clerical",
       addressBySearchResponse = None,
       classification = None,
-      apiUrl = apiUrl)
+      apiUrl = apiUrl,
+      version = version)
 
       Ok(viewToRender)
   }
@@ -87,7 +90,8 @@ class ClericalToolController @Inject()(
         pagerAction = "clerical",
         addressBySearchResponse = None,
         classification = None,
-        apiUrl = apiUrl)
+        apiUrl = apiUrl,
+        version = version)
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
         Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doUprnWithInput(addressText.toLong))
@@ -132,7 +136,8 @@ class ClericalToolController @Inject()(
         pagerAction = pagerAction,
         addressBySearchResponse = None,
         classification = None,
-        apiUrl = apiUrl)
+        apiUrl = apiUrl,
+        version = version)
       Future.successful(
         Ok(viewToRender)
       )
@@ -170,7 +175,8 @@ class ClericalToolController @Inject()(
           pagerAction = pagerAction,
           addressBySearchResponse = Some(resp.response),
           classification = Some(classCodes),
-          apiUrl = apiUrl))
+          apiUrl = apiUrl,
+          version = version))
       }
     }
   }
@@ -203,7 +209,8 @@ class ClericalToolController @Inject()(
           singleSearchForm = filledForm,
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
-          classification = Some(classCodes))
+          classification = Some(classCodes),
+          version = version)
         Ok(viewToRender)
       }
   }
@@ -223,7 +230,8 @@ class ClericalToolController @Inject()(
       pagerAction = "debug",
       addressBySearchResponse = None,
       classification = None,
-      apiUrl = apiUrl
+      apiUrl = apiUrl,
+      version = version
     )
 
     Ok(viewToRender)
