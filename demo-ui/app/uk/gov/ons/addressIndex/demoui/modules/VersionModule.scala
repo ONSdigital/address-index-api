@@ -32,7 +32,7 @@ class DemoUIAddressIndexVersionModule @Inject()(
     apiClient.versionQuery()
       .map { resp: AddressResponseVersion =>
       resp.apiVersion
-    }, 10 seconds)).getOrElse(exampleApiVersion)
+    }, 10 seconds)).getOrElse(dummyVersion)
   }
 
   lazy val dataVersion: String = {
@@ -41,10 +41,9 @@ class DemoUIAddressIndexVersionModule @Inject()(
       apiClient.versionQuery()
         .map { resp: AddressResponseVersion =>
           resp.dataVersion
-        }, 10 seconds)).getOrElse(exampleDataVersion)
+        }, 10 seconds)).getOrElse(dummyVersion)
   }
 
-  val exampleApiVersion = "e1234b"
-  val exampleDataVersion = "39"
+  val dummyVersion = "not found"
 
 }
