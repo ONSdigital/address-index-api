@@ -9,6 +9,7 @@ import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, 
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIVersionModuleMock
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
