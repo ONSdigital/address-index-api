@@ -95,7 +95,7 @@ trait AddressIndexClient {
       ).get.map(response => Json.prettyPrint(response.json))
   }
 
-  def verisonQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
+  def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
     VersionQuery
       .toReq().get.map(_.json.as[AddressResponseVersion])
   }

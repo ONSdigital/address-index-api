@@ -6,9 +6,11 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
+
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Await}
+import scala.concurrent.{Await, ExecutionContext}
 import scala.language.implicitConversions
+import scala.util.Try
 
 @ImplementedBy(classOf[DemoUIAddressIndexVersionModule])
 trait VersionModule {
@@ -26,19 +28,23 @@ class DemoUIAddressIndexVersionModule @Inject()(
 
   lazy val apiVersion: String = {
 
-    Await.result(
-    apiClient.verisonQuery()
+    Try(Await.result(
+    apiClient.versionQuery()
       .map { resp: AddressResponseVersion =>
       resp.apiVersion
-    }, 10 seconds)
+    }, 10 seconds)).getOrElse(exampleApiVersion)
   }
 
   lazy val dataVersion: String = {
 
-    Await.result(
-      apiClient.verisonQuery()
+    Try(Await.result(
+      apiClient.versionQuery()
         .map { resp: AddressResponseVersion =>
           resp.dataVersion
-        }, 10 seconds)
+        }, 10 seconds)).getOrElse(exampleDataVersion)
   }
+
+  val exampleApiVersion = "e1234b"
+  val exampleDataVersion = "39"
+
 }
