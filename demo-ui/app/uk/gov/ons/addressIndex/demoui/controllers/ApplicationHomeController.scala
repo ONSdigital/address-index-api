@@ -6,11 +6,13 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration._
 import scala.language.implicitConversions
 
 /**
@@ -21,7 +23,7 @@ import scala.language.implicitConversions
   * @param ec
   */
 @Singleton
-class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messagesApi: MessagesApi)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
+class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messagesApi: MessagesApi, ws: WSClient)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("ApplicationHomeController")
 
@@ -38,11 +40,14 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
     * @return result to view
     */
 
-  def indexPage(): Action[AnyContent] = Action.async { implicit req =>
-    logger info ("ApplicationHome: Rendering Index page")
-    Future.successful(
+  def indexPage(): Action[AnyContent] = Action { implicit req =>
+    req.session.get("api-key").map { apiKey =>
+      logger info ("ApplicationHome: Rendering Index page")
       Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
-    )
+    }.getOrElse {
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login())
+    }
+
   }
 
   def login: Action[AnyContent] = Action {
@@ -86,6 +91,23 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
 
 
        */
+
+      val prod = false // config param
+
+      val key = if (prod){
+        val request: WSRequest = ws.url("http://ldap_stuff")
+
+        val complexRequest: WSRequest =
+          request.withHeaders("Accept" -> "application/json")
+            .withRequestTimeout(10000.millis)
+            .withQueryString("userName" -> userName, "password" -> password)
+
+        val futureResponse: Future[WSResponse] = complexRequest.get()
+
+        val result = Await.result(futureResponse, 10000.millis)
+
+        (result.json \ "key").as[String]
+      } else ""
 
 
       /*
@@ -136,12 +158,9 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
 
        */
 
-
-      // if template is red, just re-run the app
-//      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset()).withNewSession
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
-
-
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
+        .withSession("api-key" -> key)
+     // Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password"))
     }).getOrElse {
       // bad, data is not filled or not exist
       Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password"))

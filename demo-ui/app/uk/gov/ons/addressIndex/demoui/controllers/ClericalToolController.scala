@@ -103,10 +103,14 @@ class ClericalToolController @Inject()(
     * @return result to view
     */
   def doMatchWithInput(input: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
-    generateClericalView(input, page, expand, messagesApi("clerical.sfatext"), uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch, "clerical")
+    request.session.get("api-key").map { apiKey =>
+      generateClericalView(input, page, expand, messagesApi("clerical.sfatext"), uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch, "clerical", apiKey)
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+    }
   }
 
-  private def generateClericalView(input: String, page: Option[Int], expand: Option[Int], title: String, action: Call, pagerAction: String, query: String = ""): Future[Result] = {
+  private def generateClericalView(input: String, page: Option[Int], expand: Option[Int], title: String, action: Call, pagerAction: String, apiKey: String, query: String = ""): Future[Result] = {
     val addressText = input
     val expandr = expand.getOrElse(-1)
     logger info ("expand param = " + expandr)
@@ -143,7 +147,8 @@ class ClericalToolController @Inject()(
           input = addressText,
           limit = limit,
           offset = offset,
-          id = UUID.randomUUID
+          id = UUID.randomUUID,
+          apiKey = apiKey
         )
       ) map { resp: AddressBySearchResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText))
@@ -181,11 +186,13 @@ class ClericalToolController @Inject()(
     * @return result to view
     */
   def doUprnWithInput(input : Long) : Action[AnyContent] = Action.async { implicit request =>
+    request.session.get("api-key").map { apiKey =>
       logger info("UPRN with supplied input address " + input)
       apiClient.uprnQuery(
         AddressIndexUPRNRequest(
           uprn = input,
-          id = UUID.randomUUID
+          id = UUID.randomUUID,
+          apiKey = apiKey
         )
       ) map { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString))
@@ -206,6 +213,9 @@ class ClericalToolController @Inject()(
           classification = Some(classCodes))
         Ok(viewToRender)
       }
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+    }
   }
 
   def showQuery(): Action[AnyContent] = Action {implicit request =>
@@ -238,8 +248,12 @@ class ClericalToolController @Inject()(
   }
 
   def showQueryWithInput(input: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
-    apiClient.showQuery(input).flatMap{ query =>
-      generateClericalView(input, page, expand, messagesApi("debug.sfatext"),  uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery, "debug", query)
+    request.session.get("api-key").map { apiKey =>
+      apiClient.showQuery(input, apiKey).flatMap{ query =>
+        generateClericalView(input, page, expand, messagesApi("debug.sfatext"),  uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery, "debug", apiKey, query)
+      }
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
     }
   }
 }
