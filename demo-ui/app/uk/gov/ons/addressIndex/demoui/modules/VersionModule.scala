@@ -5,10 +5,9 @@ import java.util.UUID
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
-import uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer
-import scala.concurrent.Await
+import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Await}
 import scala.language.implicitConversions
 
 @ImplementedBy(classOf[DemoUIAddressIndexVersionModule])
@@ -28,14 +27,8 @@ class DemoUIAddressIndexVersionModule @Inject()(
   lazy val apiVersion: String = {
 
     Await.result(
-    apiClient.addressQuery(
-      AddressIndexSearchRequest(
-        input = "7 GATE REACH EXETER",
-        limit = "1",
-        offset = "0",
-        id = UUID.randomUUID
-      )
-    ) map { resp: AddressBySearchResponseContainer =>
+    apiClient.verisonQuery()
+      .map { resp: AddressResponseVersion =>
       resp.apiVersion
     }, 10 seconds)
   }
@@ -43,15 +36,9 @@ class DemoUIAddressIndexVersionModule @Inject()(
   lazy val dataVersion: String = {
 
     Await.result(
-    apiClient.addressQuery(
-      AddressIndexSearchRequest(
-        input = "7 GATE REACH EXETER",
-        limit = "1",
-        offset = "0",
-        id = UUID.randomUUID
-      )
-    ) map { resp: AddressBySearchResponseContainer =>
-      resp.dataVersion
-    }, 10 seconds)
+      apiClient.verisonQuery()
+        .map { resp: AddressResponseVersion =>
+          resp.dataVersion
+        }, 10 seconds)
   }
 }

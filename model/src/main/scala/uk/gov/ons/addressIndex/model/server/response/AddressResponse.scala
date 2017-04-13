@@ -620,6 +620,20 @@ object OkAddressResponseStatus extends AddressResponseStatus(
   message = "Ok"
 )
 
+/**
+  * Container for version info
+  * @param apiVersion
+  * @param dataVersion
+  */
+case class AddressResponseVersion(
+  apiVersion: String,
+  dataVersion: String
+)
+
+object AddressResponseVersion {
+  implicit lazy val addressResponseVersionFormat: Format[AddressResponseVersion] = Json.format[AddressResponseVersion]
+}
+
 object NotFoundAddressResponseStatus extends AddressResponseStatus(
   code = Status.NOT_FOUND,
   message = "Not Found"

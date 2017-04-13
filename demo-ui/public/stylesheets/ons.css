@@ -708,7 +708,7 @@ select {
     font-size: 1.1em
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 768px) {
     td {
         font-size: 0.6em;
         padding: 1px;
@@ -727,13 +727,16 @@ select {
         margin-left:4px;
     }
 
-    details{
-        min-width: 400px;
+    details details div{
+        font-size:0.6em;
     }
 
-    details details div{
-        text-indent: 20px;
-        font-size:0.6em
+    .beta-banner-version {
+        font-size:8px;
+    }
+
+    .showrow {
+        font-size: 0.8em;
     }
 }
 
