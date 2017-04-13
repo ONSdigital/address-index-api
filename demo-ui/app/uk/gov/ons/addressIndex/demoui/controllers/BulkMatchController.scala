@@ -1,16 +1,16 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import com.github.tototoshi.csv._
 import javax.inject.{Inject, Singleton}
+
+import com.github.tototoshi.csv._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
-import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
@@ -48,7 +48,7 @@ class BulkMatchController @Inject()(
       10 * 1024 * 1024, //10MB
       parse.multipartFormData
     )
-  ) { implicit request =>
+  )  { implicit request =>
     request.session.get("api-key").map { apiKey =>
       logger info "invoked"
 
