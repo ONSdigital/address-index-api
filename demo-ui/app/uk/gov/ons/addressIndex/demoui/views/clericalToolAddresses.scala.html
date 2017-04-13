@@ -101,9 +101,6 @@
                                         <strong>@messages("clerical.la"):</strong><span class="clericalgrey"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
                                     </div>
                                     <div class="clerical2">
-                                        <strong>@messages("clerical.hierarchy"):</strong>
-                                    </div>
-                                    <div class="clerical2">
                                         <strong>@messages("clerical.ta"):</strong>
                                     </div>
                                     <div class="taTable">
@@ -361,20 +358,6 @@
                                             </div>
                                             <div class="taColumn4">
                                             @address.paf.map{ paf => @paf.welshPostTown }
-                                            </div>
-                                        </div>
-                                        <div class="taRow">
-                                            <div class="taColumn1inner">
-                                            @messages("clerical.token.town_name")
-                                            </div>
-                                            <div class="taColumn2">
-                                            @messages("clerical.town_name")
-                                            </div>
-                                            <div class="taColumn3">
-                                            @aresponse.tokens.getOrElse(Tokens.townName, "")
-                                            </div>
-                                            <div class="taColumn4">
-                                            @address.nag.map{ nag => @nag.townName }
                                             </div>
                                         </div>
                                         <div class="taRow">

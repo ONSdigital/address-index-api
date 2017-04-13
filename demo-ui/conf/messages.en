@@ -122,6 +122,7 @@ single.confidence=Confidence
 single.found=addresses found
 single.openmap=Open Map
 single.classification=Classification
+single.enddate=Historical End Date
 singlesearchform.placeholder=E.g. 7 Gate Reach Exeter EX2 6GA
 uprn.notfound=UPRN Not Found
 uprn.found=UPRN Found

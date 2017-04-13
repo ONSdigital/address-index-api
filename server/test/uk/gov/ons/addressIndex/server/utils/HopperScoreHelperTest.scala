@@ -80,7 +80,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     classificationCode = "R",
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
-    localCustodianGeogCode = "E06000042"
+    localCustodianGeogCode = "E06000042",
+    lpiEndDate = ""
   )
 
   val mockRelative = Relative(
