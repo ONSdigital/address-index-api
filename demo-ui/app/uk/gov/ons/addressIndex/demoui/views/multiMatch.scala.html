@@ -5,10 +5,12 @@
 @import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
 @import uk.gov.ons.addressIndex.demoui.views.MatchTypeHelper
 @import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @(
     nav: Navigation,
     fileFormName: String,
-    results: Option[AddressBulkResponseContainer] = None
+    results: Option[AddressBulkResponseContainer] = None,
+    version: DemoUIAddressIndexVersionModule
 )(
     implicit
     messages: Messages,
@@ -19,7 +21,7 @@
     <td align="center"><b>@text</b></td>
 }
 
-@main(title = messages("single.title")) {
+@main(title = messages("single.title"), version = version) {
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
     <script>
             $(document).ready(function () {

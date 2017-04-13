@@ -8,8 +8,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
-import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -24,7 +23,8 @@ import scala.language.postfixOps
 @Singleton
 class BulkMatchController @Inject()(
   val messagesApi: MessagesApi,
-  apiClient: AddressIndexClientInstance
+  apiClient: AddressIndexClientInstance,
+  version: DemoUIAddressIndexVersionModule
  )(
   implicit
   ec: ExecutionContext,
@@ -38,7 +38,8 @@ class BulkMatchController @Inject()(
     Future successful Ok(
       uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
         nav = Navigation.default,
-        fileFormName = multiMatchFormName
+        fileFormName = multiMatchFormName,
+        version = version
       )
     )
   }
@@ -73,7 +74,8 @@ class BulkMatchController @Inject()(
               uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
                 nav = Navigation.default,
                 fileFormName = multiMatchFormName,
-                results = Some(resp)
+                results = Some(resp),
+                version = version
               )
             )
           }

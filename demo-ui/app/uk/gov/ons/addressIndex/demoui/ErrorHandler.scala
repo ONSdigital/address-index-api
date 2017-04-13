@@ -12,6 +12,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Results._
 import play.api.Mode.Mode
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 /**
   * Error Handler class for Demo UI - creates tidy error pages
@@ -26,7 +27,8 @@ class ErrorHandler @Inject() (
   val messagesApi: MessagesApi,
   environment: Environment,
   conf : DemouiConfigModule,
-  defaultHttpErrorHandler: DefaultHttpErrorHandler
+  defaultHttpErrorHandler: DefaultHttpErrorHandler,
+  version: DemoUIAddressIndexVersionModule
 ) extends HttpErrorHandler with I18nSupport {
 
   val logger = Logger("ErrorHandler")
@@ -51,7 +53,7 @@ class ErrorHandler @Inject() (
     */
   def onBadRequest(request: RequestHeader, error: String): Result = {
     logger error s"bad request: 400 $error"
-    BadRequest(uk.gov.ons.addressIndex.demoui.views.html.error(400, error))
+    BadRequest(uk.gov.ons.addressIndex.demoui.views.html.error(400, error, version))
   }
 
   /**
@@ -65,9 +67,9 @@ class ErrorHandler @Inject() (
     if (processError) {
       logger error s"client error: $statusCode $message"
       val response = if (statusCode == 404) {
-        NotFound(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
+        NotFound(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message, version))
       } else {
-        Ok(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message))
+        Ok(uk.gov.ons.addressIndex.demoui.views.html.error(statusCode, message, version))
       }
       Future.successful(response)
     } else {
@@ -85,7 +87,7 @@ class ErrorHandler @Inject() (
     if (processError) {
       logger error s"server error: 500 ${exception.getMessage}"
       Future.successful(
-        InternalServerError(uk.gov.ons.addressIndex.demoui.views.html.error(500, exception.getMessage))
+        InternalServerError(uk.gov.ons.addressIndex.demoui.views.html.error(500, exception.getMessage, version))
       )
     } else {
       defaultHttpErrorHandler.onServerError(request, exception)

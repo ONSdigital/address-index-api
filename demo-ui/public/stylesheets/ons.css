@@ -43,6 +43,7 @@ p.toptext {
     margin-top: 2px;
     margin-right: 4px;
     font-size: 16px;
+    padding-top: 8px;
 }
 
 .panel-heading {
@@ -67,7 +68,7 @@ p.toptext {
     font-size: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
-    margin-left: 120px;
+    margin-left: 20px;
     text-align: left;
     color: darkred;
 }
@@ -127,10 +128,32 @@ p.toptext {
 .beta-banner {
     background-color: #FF9900;
     color: #fff;
-    padding: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 6px;
+    padding-bottom: 6px;
     font-weight: bold;
     font-size: 16px;
     letter-spacing: 4px;
+}
+
+.beta-banner-version {
+    background-color: #fff;
+    color: #FF9900;
+    border: 1px solid #FF9900;
+    padding-top: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 1px;
+    margin-top: 2px;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.beta-para {
+    padding: 1px;
+    margin: 1px;
+    background-color: #fff;
 }
 
 .logo {
@@ -226,12 +249,19 @@ input[type="radio"]#format.form-control {
 }
 
 .index-nav {
-    margin: 5px 5px 5px 5px ;
-    width: 280px ;
-    border:1px solid #ddd;
-    padding: 10px;
-    float:left;
-}
+     margin: 5px 5px 5px 5px ;
+     width: 280px ;
+     border:1px solid #ddd;
+     padding: 10px;
+     float:left;
+ }
+
+ .index-nav-error {
+     margin: 5px 5px 5px 5px ;
+     border:1px solid #ddd;
+     padding: 10px;
+     float:left;
+ }
 
 .index-nav a:link {
     text-decoration: none;
@@ -249,6 +279,15 @@ input[type="radio"]#format.form-control {
 
 
 nav.nav-container {
+    width:100%;
+    background-color: #DFE0E2 ;
+    overflow:auto;
+    clear:left;
+    margin-left:2px;
+    margin-right:2px;
+}
+
+nav.nav-container-mobile {
     width:100%;
     background-color: #DFE0E2 ;
     overflow:auto;
@@ -493,6 +532,11 @@ div.paf-nag-switch-buttons span:hover{
     color:white;
 }
 
+.beta-banner-version  a {
+    color: #FF9900;
+    text-decoration: none;
+}
+
 .hiderow {
     display: none
 }
@@ -655,10 +699,44 @@ div.taColumn4H{
     background: #FF0000;
 }
 
-@media only screen and (max-width: 800px) {
+nav select {
+    display: none;
+}
+
+select {
+    font-family: "nta", Arial, sans-serif;
+    font-size: 1.1em
+}
+
+@media only screen and (max-width: 768px) {
     td {
         font-size: 0.6em;
         padding: 1px;
+    }
+
+    nav ul     {
+        display: none;
+    }
+
+    nav select {
+        display: inline-block;
+        padding-bottom:2px;
+        padding-top:2px;
+        margin-bottom:4px;
+        margin-top:4px;
+        margin-left:4px;
+    }
+
+    details details div{
+        font-size:0.6em;
+    }
+
+    .beta-banner-version {
+        font-size:8px;
+    }
+
+    .showrow {
+        font-size: 0.8em;
     }
 }
 
@@ -682,7 +760,7 @@ div.taColumn4H{
 }
 
 .debug-query-output{
-    width: 800px;
+    max-width: 800px;
     margin-left: 10px;
     padding: 10px;
 }

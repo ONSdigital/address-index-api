@@ -17,6 +17,7 @@ import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -34,7 +35,8 @@ class SingleMatchController @Inject()(
    conf : DemouiConfigModule,
    val messagesApi: MessagesApi,
    apiClient: AddressIndexClientInstance,
-   classHierarchy: ClassHierarchy
+   classHierarchy: ClassHierarchy,
+   version: DemoUIAddressIndexVersionModule
 )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("SingleMatchController")
@@ -55,7 +57,8 @@ class SingleMatchController @Inject()(
       pageSize = pageSize,
       pageMax = maxPages,
       addressBySearchResponse = None,
-      classification = None)
+      classification = None,
+      version = version)
     Future.successful(
         Ok(viewToRender)
     )
@@ -77,7 +80,8 @@ class SingleMatchController @Inject()(
         pageSize = pageSize,
         pageMax = maxPages,
         addressBySearchResponse = None,
-        classification = None)
+        classification = None,
+        version = version)
       Future.successful(
         Ok(viewToRender)
       )
@@ -115,7 +119,8 @@ class SingleMatchController @Inject()(
         pageSize = pageSize,
         pageMax = maxPages,
         addressBySearchResponse = None,
-        classification = None)
+        classification = None,
+        version = version)
         Future.successful(
           Ok(viewToRender)
       )
@@ -148,7 +153,8 @@ class SingleMatchController @Inject()(
           pageSize = pageSize,
           pageMax = maxPages,
           addressBySearchResponse = Some(resp.response),
-          classification = Some(classCodes))
+          classification = Some(classCodes),
+          version = version)
         Ok(viewToRender)
       }
     }
@@ -170,7 +176,8 @@ class SingleMatchController @Inject()(
         pageSize = pageSize,
         pageMax = maxPages,
         addressBySearchResponse = None,
-        classification = None)
+        classification = None,
+        version = version)
       Future.successful(
         Ok(viewToRender)
       )
@@ -198,7 +205,8 @@ class SingleMatchController @Inject()(
           singleSearchForm = filledForm,
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
-          classification = Some(classCodes))
+          classification = Some(classCodes),
+          version = version)
         Ok(viewToRender)
       }
     }

@@ -5,8 +5,8 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
 
 
 trait AddressIndexClient {
@@ -24,7 +24,7 @@ trait AddressIndexClient {
   protected implicit lazy val iClient: WSClient = client
   protected implicit lazy val iHost: AddressIndexServerHost = host
 
-  /**
+   /**
     * perform an address search query
     *
     * @param request the request
@@ -94,6 +94,12 @@ trait AddressIndexClient {
         "input" -> input
       ).get.map(response => Json.prettyPrint(response.json))
   }
+
+  def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
+    VersionQuery
+      .toReq().get.map(_.json.as[AddressResponseVersion])
+  }
+
 }
 
 object AddressIndexClientHelper {
@@ -127,6 +133,11 @@ object AddressIndexClientHelper {
 
   object AddressQuery extends AddressIndexPath(
     path = "/addresses",
+    method = "GET"
+  )
+
+  object VersionQuery extends AddressIndexPath(
+    path = "/version",
     method = "GET"
   )
 
