@@ -9,7 +9,7 @@ case class PostcodeAddressFileAddress(
   proOrder: String,
   uprn: String,
   udprn: String,
-  organizationName: String,
+  organisationName: String,
   departmentName: String,
   subBuildingName: String,
   buildingName: String,
@@ -53,7 +53,7 @@ object PostcodeAddressFileAddress {
     val proOrder: String = "proOrder"
     val uprn: String = "uprn"
     val udprn: String = "udprn"
-    val organizationName: String = "organizationName"
+    val organisationName: String = "organisationName"
     val departmentName: String = "departmentName"
     val subBuildingName: String = "subBuildingName"
     val buildingName: String = "buildingName"
@@ -87,7 +87,7 @@ object PostcodeAddressFileAddress {
       proOrder = filteredPaf.getOrElse(Fields.proOrder, "").toString,
       uprn = filteredPaf.getOrElse(Fields.uprn, "").toString,
       udprn = filteredPaf.getOrElse(Fields.udprn, "").toString,
-      organizationName = filteredPaf.getOrElse(Fields.organizationName, "").toString,
+      organisationName = filteredPaf.getOrElse(Fields.organisationName, "").toString,
       departmentName = filteredPaf.getOrElse(Fields.departmentName, "").toString,
       subBuildingName = filteredPaf.getOrElse(Fields.subBuildingName, "").toString,
       buildingName = filteredPaf.getOrElse(Fields.buildingName, "").toString,

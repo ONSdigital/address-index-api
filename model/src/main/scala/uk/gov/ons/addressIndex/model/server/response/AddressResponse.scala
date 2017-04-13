@@ -334,7 +334,7 @@ object AddressResponsePaf {
   def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponsePaf =
     AddressResponsePaf(
       other.udprn,
-      other.organizationName,
+      other.organisationName,
       other.departmentName,
       other.subBuildingName,
       other.buildingName,
@@ -373,7 +373,7 @@ object AddressResponsePaf {
     val buildingNumberWithStreetName =
       s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
 
-    Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
+    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
       poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
       paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
@@ -416,7 +416,8 @@ case class AddressResponseNag(
   classificationCode: String,
   localCustodianCode: String,
   localCustodianName: String,
-  localCustodianGeogCode: String
+  localCustodianGeogCode: String,
+  lpiEndDate: String
 )
 
 object AddressResponseNag {
@@ -454,7 +455,8 @@ object AddressResponseNag {
         other.classificationCode,
         other.localCustodianCode,
         other.localCustodianName,
-        other.localCustodianGeogCode
+        other.localCustodianGeogCode,
+        other.lpiEndDate
       )
   }
 
