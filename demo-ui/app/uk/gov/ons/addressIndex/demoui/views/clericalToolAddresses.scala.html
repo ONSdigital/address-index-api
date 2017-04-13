@@ -277,20 +277,6 @@
                                         </div>
                                         <div class="taRow">
                                             <div class="taColumn1inner">
-                                            @messages("clerical.token.town_name")
-                                            </div>
-                                            <div class="taColumn2">
-                                            @messages("clerical.town_name")
-                                            </div>
-                                            <div class="taColumn3">
-                                            @aresponse.tokens.getOrElse(Tokens.locality, "")
-                                            </div>
-                                            <div class="taColumn4">
-                                            @address.nag.map{ nag => @nag.townName }
-                                            </div>
-                                        </div>
-                                        <div class="taRow">
-                                            <div class="taColumn1inner">
                                             @messages("clerical.token.locality")
                                             </div>
                                             <div class="taColumn2">
@@ -372,20 +358,6 @@
                                             </div>
                                             <div class="taColumn4">
                                             @address.paf.map{ paf => @paf.welshPostTown }
-                                            </div>
-                                        </div>
-                                        <div class="taRow">
-                                            <div class="taColumn1inner">
-                                            @messages("clerical.token.town_name")
-                                            </div>
-                                            <div class="taColumn2">
-                                            @messages("clerical.town_name")
-                                            </div>
-                                            <div class="taColumn3">
-                                            @aresponse.tokens.getOrElse(Tokens.townName, "")
-                                            </div>
-                                            <div class="taColumn4">
-                                            @address.nag.map{ nag => @nag.townName }
                                             </div>
                                         </div>
                                         <div class="taRow">
