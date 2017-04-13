@@ -416,7 +416,8 @@ case class AddressResponseNag(
   classificationCode: String,
   localCustodianCode: String,
   localCustodianName: String,
-  localCustodianGeogCode: String
+  localCustodianGeogCode: String,
+  lpiEndDate: String
 )
 
 object AddressResponseNag {
@@ -454,7 +455,8 @@ object AddressResponseNag {
         other.classificationCode,
         other.localCustodianCode,
         other.localCustodianName,
-        other.localCustodianGeogCode
+        other.localCustodianGeogCode,
+        other.lpiEndDate
       )
   }
 

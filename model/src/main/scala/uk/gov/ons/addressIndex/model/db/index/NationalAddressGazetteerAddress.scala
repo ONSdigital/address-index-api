@@ -48,7 +48,8 @@ case class NationalAddressGazetteerAddress (
   localCustodianName: String,
   localCustodianGeogCode: String,
   rpc: String,
-  nagAll: String
+  nagAll: String,
+  lpiEndDate: String
 )
 
 /**
@@ -102,6 +103,7 @@ object NationalAddressGazetteerAddress {
     val localCustodianGeogCode: String = "localCustodianGeogCode"
     val rpc: String = "rpc"
     val nagAll: String = "nagAll"
+    val lpiEndDate: String = "lpiEndDate"
   }
 
   def fromEsMap (nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
@@ -154,7 +156,8 @@ object NationalAddressGazetteerAddress {
       localCustodianName = LocalCustodian.getLAName(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
-      nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString
+      nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
+      lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString
     )
   }
 }

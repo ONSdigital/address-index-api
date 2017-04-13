@@ -93,7 +93,8 @@ class AddressControllerSpec extends PlaySpec with Results{
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
-    nagAll = "nagAll"
+    nagAll = "nagAll",
+    lpiEndDate = "lpiEndDate"
   )
 
    val validRelative = Relative (
