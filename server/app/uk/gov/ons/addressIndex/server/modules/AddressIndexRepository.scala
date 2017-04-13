@@ -331,7 +331,7 @@ class AddressIndexRepository @Inject()(
     val organisationNameQuery = Seq(
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
-          field = "paf.organizationName",
+          field = "paf.organisationName",
           value = token
         )).boost(queryParams.organisationName.pafOrganisationNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
