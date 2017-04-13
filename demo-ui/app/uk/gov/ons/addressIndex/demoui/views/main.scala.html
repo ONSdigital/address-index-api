@@ -1,11 +1,13 @@
-@(title: String)(content: Html)(implicit messages: Messages)
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+
+@(title: String, version: DemoUIAddressIndexVersionModule)(content: Html)(implicit messages: Messages)
 @*
  * This template is called from the `index` template. This template
  * handles the rendering of the page header and body tags. It takes
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -42,16 +44,7 @@
             }
     </script>
     <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="logo">
-                    <img alt="ONS" src="/assets/images/ons-logo.png" width="204" height="40">
-                </div>
-                <div class="beta-header">
-                    <p><strong class="beta-banner">@messages("main.beta")</strong></p>
-                </div>
-            </div>
-        </div>
+        @banner(version)
     </nav>
     <section class="content">@content</section>
     <footer class="group js-footer" id="footer" role="contentinfo">

@@ -51,7 +51,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
-    nagAll = "nagAll"
+    nagAll = "nagAll",
+    lpiEndDate = "lpiEndDate"
   )
 
   val givenRealisticNag = givenNag.copy(
@@ -238,7 +239,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.classificationCode,
         nag.localCustodianCode,
         nag.localCustodianName,
-        nag.localCustodianGeogCode
+        nag.localCustodianGeogCode,
+        nag.lpiEndDate
       )
 
       // When
