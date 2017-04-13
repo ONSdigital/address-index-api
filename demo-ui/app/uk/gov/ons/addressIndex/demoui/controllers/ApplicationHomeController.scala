@@ -50,6 +50,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
   }
 
   def doLogin: Action[AnyContent] = Action { implicit req =>
+    println("TEST")
     val formValidationResult = loginForm.bindFromRequest.data
     (for {
       userName <- formValidationResult.get("userName") if userName.nonEmpty
