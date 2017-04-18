@@ -138,10 +138,10 @@
             <div id="search-loading"></div>
             @results.map { bulkResp =>
                     <div>
-                        <b>Number of addresses searched:</b> @{MatchTypeHelper.countSearched(bulkResp.bulkAddresses)} <br>
-                        <b>Single matches:</b> @{MatchTypeHelper.countSingles(bulkResp.bulkAddresses)}<br>
-                        <b>Multiple matches:</b> @{MatchTypeHelper.countMultiples(bulkResp.bulkAddresses)}<br>
-                        <b>No match:</b> @{MatchTypeHelper.countEmpty(bulkResp.bulkAddresses)}
+                        <strong>@messages("multi.counter.total"):</strong> @{MatchTypeHelper.countSearched(bulkResp.bulkAddresses)} <br>
+                        <strong>@messages("multi.counter.single"):</strong> @{MatchTypeHelper.countSingles(bulkResp.bulkAddresses)}<br>
+                        <strong>@messages("multi.counter.multiple"):</strong> @{MatchTypeHelper.countMultiples(bulkResp.bulkAddresses)}<br>
+                        <strong>@messages("multi.counter.empty"):</strong> @{MatchTypeHelper.countEmpty(bulkResp.bulkAddresses)}
                     </div>
                 <div class="panel panel-single address-panel">
                     <div class="panel-body">
