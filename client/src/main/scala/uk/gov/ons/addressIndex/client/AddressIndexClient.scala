@@ -7,6 +7,7 @@ import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPR
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
+import scala.concurrent.duration._
 
 
 trait AddressIndexClient {
@@ -54,6 +55,7 @@ trait AddressIndexClient {
   def bulk(request: BulkBody)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
     Bulk
       .toReq
+      .withRequestTimeout(Duration.Inf)
       .withHeaders(
         "Content-Type" -> "application/json"
       )
