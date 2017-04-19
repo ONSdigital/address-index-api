@@ -419,10 +419,10 @@ class AddressIndexRepository @Inject()(
       dismax.query(
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")),
+          .analyzer(CustomAnalyzer("welsh_split_analyzer")),
         matchQuery("nag.nagAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+          .analyzer(CustomAnalyzer("welsh_split_analyzer"))
       ).boost(queryParams.fallbackQueryBoost)
 
     val bestOfTheLotQueries = Seq(
