@@ -644,6 +644,38 @@ div.taColumn4{
     margin:0;
 }
 
+div.taColumn4top{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 1px;
+    border-style: solid;
+    border-width: 1px 1px 0px 1px;
+    border-color: black;
+    margin:0;
+}
+
+div.taColumn4inner{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 1px;
+    color: white;
+    border-style: solid;
+    border-width: 0px 1px 0px 1px;
+    border-color: black;
+    margin:0;
+}
+
+div.taColumn4bottom{
+    display: table-cell; height:100%; min-width: 40%;
+    vertical-align:top;
+    padding: 1px;
+    color: white;
+    border-style: solid;
+    border-width: 0px 1px 1px 1px;
+    border-color: black;
+    margin:0;
+}
+
 div.taColumn1H{
     display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
@@ -727,12 +759,8 @@ select {
         margin-left:4px;
     }
 
-    details details div{
-        font-size:0.6em;
-    }
-
     .beta-banner-version {
-        font-size:8px;
+        font-size: 8px;
     }
 
     .showrow {
