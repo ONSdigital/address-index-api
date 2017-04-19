@@ -74,6 +74,20 @@ clerical.town=Town
 clerical.postcodetype=Postcode Type
 clerical.deliverypointsuffix=Delivery Point Suffix
 
+clerical.score=Score
+clerical.param=Parameter
+clerical.paramvalue=Param Value
+clerical.scorevalue=Score Value
+clerical.building=Building
+clerical.sub_building_number=Sub Building Number
+clerical.unit=Unit
+clerical.townlocality = Town Locality
+clerical.street=Street
+clerical.organisation_building_name=Organisation Building Name
+clerical.detailed_organisation_building_name=Detailed Organisation Building Name
+clerical.ref_hierarchy = Ref Hierarchy
+
+
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
 home.singlehead=Find an address
