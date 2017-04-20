@@ -216,8 +216,7 @@ class SingleMatchController @Inject()(
 object SingleMatchController {
   val form = Form(
     mapping(
-      "address" -> text,
-      "format" -> text
+      "address" -> text
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }

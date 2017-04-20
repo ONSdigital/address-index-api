@@ -73,6 +73,7 @@ version: DemoUIAddressIndexVersionModule
             @addressBySearchResponse.map { aresponse =>
             <div id="match-count" class="panel panel-single address-panel">
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
+                <a onclick="javascript:window.location='mailto:alistair.calder@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(single%20search)&body=Input: %22@{singleSearchForm.value.map(_.address).getOrElse("")}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
             </div>
             @aresponse.addresses.map{ address =>
             <div class="panel panel-match address-panel">

@@ -7,8 +7,7 @@ import play.api.libs.json._
   */
 
 case class SingleSearchForm(
- address: String,
- format: String = "paf"
+ address: String
 )
 
 object SingleSearchForm {
