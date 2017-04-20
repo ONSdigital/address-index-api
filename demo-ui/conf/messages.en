@@ -86,18 +86,17 @@ clerical.organisation_building_name=Organisation Building Name
 clerical.detailed_organisation_building_name=Detailed Organisation Building Name
 clerical.ref_hierarchy = Ref Hierarchy
 
-
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
 home.singlehead=Find an address
-home.singlebody=This feature allows you to match for a single address
+home.singlebody=Search for a single address
 home.title=Address index demo - Home
 home.multihead=Match multiple addresses
-home.query_debug_head=Query debug
-home.query_debug_body=Show the query that is sent to Elastic Search
-home.multibody=This feature allows you to upload a batch of addresses for matching
+home.query_debug_head=Display ES query
+home.query_debug_body=Expert users only
+home.multibody=Upload a batch of addresses to be matched
 home.clericalhead=Clerical tool
-home.clericalbody=Investigate address matching errors or discrepancies
+home.clericalbody=Inspect address details and investigate errors
 logical.1=Approved
 logical.5=Candidate (reserved for the NLPG Candidate process)
 logical.6=Provisional

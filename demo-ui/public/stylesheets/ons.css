@@ -251,6 +251,7 @@ input[type="radio"]#format.form-control {
 .index-nav {
      margin: 5px 5px 5px 5px ;
      width: 280px ;
+     height: 222px;
      border:1px solid #ddd;
      padding: 10px;
      float:left;
