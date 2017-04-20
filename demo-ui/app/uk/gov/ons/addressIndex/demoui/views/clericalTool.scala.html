@@ -19,7 +19,8 @@ pagerAction: String,
 addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
 classification: Option[Map[String,String]],
 apiUrl: String,
-version: DemoUIAddressIndexVersionModule
+version: DemoUIAddressIndexVersionModule,
+placeholder: String
 )(implicit messages: Messages)
 
 @*
@@ -92,7 +93,7 @@ version: DemoUIAddressIndexVersionModule
             <div class="panel-body">
                 @helper.form(action = action) {
                 <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm)
+                    @forms.singleAddressForm(singleSearchForm, placeholder)
                 </div>
                 }
             </div>
