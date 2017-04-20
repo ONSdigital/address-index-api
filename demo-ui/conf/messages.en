@@ -722,3 +722,5 @@ multi.counter.single=Single matches
 multi.counter.multiple=Multiple matches
 multi.counter.empty=No match
 not.found=Not Found
+feedback.link=Feedback
+feedback.individual_link=Found an issue with matched address(es)?
