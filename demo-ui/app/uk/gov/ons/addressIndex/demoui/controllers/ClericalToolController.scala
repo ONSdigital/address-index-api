@@ -260,7 +260,7 @@ class ClericalToolController @Inject()(
   def showQueryWithInput(input: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
     apiClient.showQuery(input).flatMap{ query =>
       generateClericalView(input, page, expand, messagesApi("debug.sfatext"),
-        uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery, "debug", query, messagesApi("debugsearchform.placeholder"))
+        uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery, "debug", messagesApi("debugsearchform.placeholder"), query)
     }
   }
 }
