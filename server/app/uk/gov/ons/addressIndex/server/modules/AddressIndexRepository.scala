@@ -420,7 +420,7 @@ class AddressIndexRepository @Inject()(
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")),
-        matchQuery("nag.nagAll", normalizedInput)
+        matchQuery("lpi.nagAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
       ).boost(queryParams.fallbackQueryBoost)
