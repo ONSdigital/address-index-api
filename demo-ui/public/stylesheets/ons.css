@@ -805,4 +805,66 @@ details details div{
     text-indent: 53px;
 }
 
+#multi-match-results{
+    padding-left: 10px
+}
 
+.inputfile-box {
+    position: relative;
+    margin-left: 10px;
+}
+
+.inputfile {
+    display: none;
+}
+
+.container {
+    display: inline-block;
+    width: 100%;
+}
+
+.file-box {
+    -webkit-border-radius: 0 6px 6px 0;
+    -moz-border-radius: 0 6px 6px 0;
+    border-radius: 0 6px 6px 0;
+    display: inline-block;
+    width: 100%;
+    border: 1px #ccc3cc solid;
+    padding-left: 5px;
+    color: #474547;
+    box-sizing: border-box;
+    height: 23px;
+}
+
+.upload-btn {
+    -webkit-border-radius: 0 6px 6px 0;
+    -moz-border-radius: 0 6px 6px 0;
+    border-radius: 0 6px 6px 0;
+    font-family: Arial;
+    color: #474547;
+    font-size: 13px;
+    background: #f5f5f5;
+    padding: 1px 30px 1px 30px;
+    border: solid #b5acb5 1px;
+    text-decoration: none;
+    cursor: pointer;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.upload-btn:hover {
+    background: #e0e0e0;
+    text-decoration: none;
+}
+button.no-margin{
+    margin-left: 0;
+}
+
+#search-button{
+    margin-top: 10px;
+}
+
+#search-button.disabled{
+    opacity: 0.3;
+}
