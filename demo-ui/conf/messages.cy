@@ -708,3 +708,5 @@ multi.counter.single = Sengl
 multi.counter.multiple = gemau Lluosog
 multi.counter.empty = Dim gêm
 not.found = Heb Ganfod
+feedback.link = Adborth
+feedback.individual_link = Wedi dod o hyd yn broblem gyda cyfeiriad cyfatebol?

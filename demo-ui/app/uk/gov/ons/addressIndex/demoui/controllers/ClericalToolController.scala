@@ -268,8 +268,7 @@ class ClericalToolController @Inject()(
 object ClericalToolController {
   val form = Form(
     mapping(
-      "address" -> text,
-      "format" -> text
+      "address" -> text
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }
