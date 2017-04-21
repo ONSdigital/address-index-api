@@ -6,9 +6,8 @@ import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServ
 import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
-import play.api.libs.json.Json
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexClient {
 
@@ -102,9 +101,11 @@ trait AddressIndexClient {
       ).get.map(response => Json.prettyPrint(response.json))
   }
 
-  def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
+  def versionQuery(apiKey: String)(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
     VersionQuery
-      .toReq().get.map(_.json.as[AddressResponseVersion])
+      .toReq
+      .withHeaders("authorization" -> apiKey)
+      .get.map(_.json.as[AddressResponseVersion])
   }
 
 }

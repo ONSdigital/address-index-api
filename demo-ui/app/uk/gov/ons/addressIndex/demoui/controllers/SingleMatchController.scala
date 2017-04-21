@@ -8,16 +8,13 @@ import play.api.Logger
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Controller, Result}
+import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
-import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
-import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
-import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
-import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -160,7 +157,9 @@ class SingleMatchController @Inject()(
           pageMax = maxPages,
           addressBySearchResponse = Some(resp.response),
           classification = Some(classCodes),
-        version = version)Ok(viewToRender)}
+        version = version)
+          Ok(viewToRender)
+        }
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
@@ -185,7 +184,8 @@ class SingleMatchController @Inject()(
         pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None,
-      version = version)Future.successful(
+      version = version)
+      Future.successful(
         Ok(viewToRender)
       )
     } else {
@@ -214,7 +214,8 @@ class SingleMatchController @Inject()(
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
-        version = version)Ok(viewToRender)}
+        version = version)
+        Ok(viewToRender)}
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))

@@ -9,13 +9,11 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
-import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
-import play.api.i18n.{I18nSupport, MessagesApi}
-import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 /**
   * Simple controller for home page
@@ -53,7 +51,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
   }
 
   def login: Action[AnyContent] = Action {
-    Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset())
+    Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("",version))
   }
 
   def doLogin: Action[AnyContent] = Action { implicit req =>
@@ -84,7 +82,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
 
           Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
             .withSession("api-key" -> key)
-        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Authentication failed"))
+        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Authentication failed",version))
 
 
       } else Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
@@ -92,14 +90,11 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
 
     }).getOrElse {
       // bad, data is not filled or not exist
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password"))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password",version))
     }
   }
 }
 /* Responses
-
-password <-!CapGateway23
-user <- omidii
 {
 "Status": 401,
 "ErrorCode": "Authentication Error",

@@ -1,14 +1,16 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @import helper._
 @import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
+
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import uk.gov.ons.addressIndex.demoui.views.html.main
 @import uk.gov.ons.addressIndex.demoui.controllers.routes
 
 
-@(errorMessage: String = "")(implicit messages: Messages)
+@(errorMessage: String = "", version: DemoUIAddressIndexVersionModule)(implicit messages: Messages)
 
 @helper.form(routes.ApplicationHomeController.login) {
-    @main(title = messages("single.title")) {
+    @main(title = messages("single.title"), version = version) {
 
 
         <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
