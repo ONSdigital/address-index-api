@@ -14,6 +14,8 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.language.implicitConversions
+import play.api.i18n.{I18nSupport, MessagesApi}
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 /**
   * Simple controller for home page
@@ -23,7 +25,7 @@ import scala.language.implicitConversions
   * @param ec
   */
 @Singleton
-class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messagesApi: MessagesApi, ws: WSClient)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
+class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: DemoUIAddressIndexVersionModule, val messagesApi: MessagesApi, ws: WSClient)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("ApplicationHomeController")
 
@@ -43,7 +45,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, val messages
   def indexPage(): Action[AnyContent] = Action { implicit req =>
     req.session.get("api-key").map { apiKey =>
       logger info ("ApplicationHome: Rendering Index page")
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.index())
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.index(version))
     }.getOrElse {
       Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login())
     }

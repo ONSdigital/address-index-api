@@ -17,6 +17,7 @@ import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -34,7 +35,8 @@ class SingleMatchController @Inject()(
    conf : DemouiConfigModule,
    val messagesApi: MessagesApi,
    apiClient: AddressIndexClientInstance,
-   classHierarchy: ClassHierarchy
+   classHierarchy: ClassHierarchy,
+   version: DemoUIAddressIndexVersionModule
 )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("SingleMatchController")
@@ -56,7 +58,8 @@ class SingleMatchController @Inject()(
       pageSize = pageSize,
       pageMax = maxPages,
       addressBySearchResponse = None,
-      classification = None)
+      classification = None,
+      version = version)
     Future.successful(
       Ok(viewToRender)
     )
@@ -79,7 +82,8 @@ class SingleMatchController @Inject()(
         pageSize = pageSize,
         pageMax = maxPages,
         addressBySearchResponse = None,
-        classification = None)
+        classification = None,
+        version = version)
       Future.successful(
         Ok(viewToRender)
       )
@@ -120,7 +124,8 @@ class SingleMatchController @Inject()(
           pageSize = pageSize,
           pageMax = maxPages,
           addressBySearchResponse = None,
-          classification = None)
+          classification = None,
+        version = version)
         Future.successful(
           Ok(viewToRender)
         )
@@ -147,16 +152,15 @@ class SingleMatchController @Inject()(
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
 
-          val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-            singleSearchForm = filledForm,
-            warningMessage = warningMessage,
-            pageNum = pageNum,
-            pageSize = pageSize,
-            pageMax = maxPages,
-            addressBySearchResponse = Some(resp.response),
-            classification = Some(classCodes))
-          Ok(viewToRender)
-        }
+        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+          singleSearchForm = filledForm,
+          warningMessage = warningMessage,
+          pageNum = pageNum,
+          pageSize = pageSize,
+          pageMax = maxPages,
+          addressBySearchResponse = Some(resp.response),
+          classification = Some(classCodes),
+        version = version)Ok(viewToRender)}
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
@@ -169,33 +173,32 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doGetUprn(input: String): Action[AnyContent] = Action.async { implicit request =>
-    request.session.get("api-key").map { apiKey =>
-      val addressText = StringUtils.stripAccents(input)
-      if (addressText.trim.isEmpty) {
-        logger info ("UPRN with expected input address missing")
-        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-          singleSearchForm = SingleMatchController.form,
-          warningMessage = Some(messagesApi("single.pleasesupply")),
-          pageNum = 1,
-          pageSize = pageSize,
-          pageMax = maxPages,
-          addressBySearchResponse = None,
-          classification = None)
-        Future.successful(
-          Ok(viewToRender)
-        )
-      } else {
-        logger info ("UPRN with supplied input address " + addressText)
-        val numericUPRN = BigInt(addressText)
-        apiClient.uprnQuery(
-          AddressIndexUPRNRequest(
-            uprn = numericUPRN,
-            id = UUID.randomUUID,
+  def doGetUprn(input : String) : Action[AnyContent] = Action.async { implicit request =>
+    request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
+    if (addressText.trim.isEmpty) {
+      logger info("UPRN with expected input address missing")
+      val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+        singleSearchForm = SingleMatchController.form,
+        warningMessage = Some(messagesApi("single.pleasesupply")),
+        pageNum = 1,
+        pageSize = pageSize,
+        pageMax = maxPages,
+        addressBySearchResponse = None,
+        classification = None,
+      version = version)Future.successful(
+        Ok(viewToRender)
+      )
+    } else {
+      logger info("UPRN with supplied input address " + addressText)
+      val numericUPRN = BigInt(addressText)
+      apiClient.uprnQuery(
+        AddressIndexUPRNRequest(
+          uprn = numericUPRN,
+          id = UUID.randomUUID,
             apiKey = apiKey
-          )
-        ) map { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText))
+        )
+      ) map { resp: AddressByUprnResponseContainer =>
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText))
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -206,13 +209,12 @@ class SingleMatchController @Inject()(
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
 
-          val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
-            singleSearchForm = filledForm,
-            warningMessage = warningMessage,
-            addressByUprnResponse = Some(resp.response),
-            classification = Some(classCodes))
-          Ok(viewToRender)
-        }
+        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
+          singleSearchForm = filledForm,
+          warningMessage = warningMessage,
+          addressByUprnResponse = Some(resp.response),
+          classification = Some(classCodes),
+        version = version)Ok(viewToRender)}
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
@@ -224,8 +226,7 @@ class SingleMatchController @Inject()(
 object SingleMatchController {
   val form = Form(
     mapping(
-      "address" -> text,
-      "format" -> text
+      "address" -> text
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }

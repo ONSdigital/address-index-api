@@ -1,6 +1,8 @@
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+
 @import helper._
 
-@()(
+@(version: DemoUIAddressIndexVersionModule)(
     implicit
     requestHeader: RequestHeader,
     messages: Messages
@@ -11,7 +13,7 @@
  * argument is an `Html` object containing the body of the page.
  *@
 
-@main(title = messages("home.title")) {
+@main(title = messages("home.title"), version = version) {
     <div class="container">
         <div>
             <h2 class="panel-title">
@@ -56,7 +58,7 @@
                 href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.absoluteURL,
                 linkText = messages("home.query_debug_head"),
                 linkBody = messages("home.query_debug_body"),
-                imgUrl = routes.Assets.versioned("/images/clericaltool.jpg").toString,
+                imgUrl = routes.Assets.versioned("/images/debug.jpg").toString,
                 width = 280,
                 height = 120
             )

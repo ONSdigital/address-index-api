@@ -17,6 +17,7 @@
             @addressBySearchResponse.map { aresponse =>
             <div id="match-count" class="panel panel-single address-panel">
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
+                <a onclick="javascript:window.location='mailto:neil.hopper@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(clerical%20tool)&body=Input: %22@{singleSearchForm.value.map(_.address).getOrElse("")}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
             </div>
             @aresponse.addresses.zipWithIndex.map{ case (address, index) =>
             <div class="panel panel-match address-panel">
@@ -830,6 +831,163 @@
                                             </div>
                                         </div>
 
+                                        @* hopper score *@
+                                        <div class="taRowH">
+                                            <div class="taColumn1H">
+                                                @messages("clerical.score")
+                                            </div>
+                                            <div class="taColumn2H">
+                                                @messages("clerical.param")
+                                            </div>
+                                            <div class="taColumn3H">
+                                                @messages("clerical.paramvalue")
+                                            </div>
+                                            <div class="taColumn4H">
+                                                @messages("clerical.scorevalue")
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                        <div class="taColumn1top">
+                                            @messages("clerical.locality")
+                                        </div>
+                                        <div class="taColumn2">
+                                            @messages("clerical.organisation_building_name")
+                                        </div>
+                                        <div class="taColumn3">
+                                            @address.bespokeScore.map {score => @score.localityScoreDebug.take(1)}
+                                        </div>
+                                        <div class="taColumn4top">
+                                            @address.bespokeScore.map {score => @score.localityScore}
+                                        </div>
+                                    </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.locality")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.street")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.localityScoreDebug.drop(1).take(1)}
+                                            </div>
+                                            <div class="taColumn4inner">
+                                                @address.bespokeScore.map {score => @score.localityScore}
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.locality")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.townlocality")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.localityScoreDebug.drop(2).take(1)}
+                                            </div>
+                                            <div class="taColumn4inner">
+                                                @address.bespokeScore.map {score => @score.localityScore}
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1bottom">
+                                                @messages("clerical.locality")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.postcode")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.localityScoreDebug.drop(3).take(1)}
+                                            </div>
+                                            <div class="taColumn4bottom">
+                                                @address.bespokeScore.map {score => @score.localityScore}
+                                            </div>
+                                        </div>
+
+                                        <div class="taRow">
+                                            <div class="taColumn1top">
+                                                @messages("clerical.building")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.detailed_organisation_building_name")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.buildingScoreDebug.take(1)}
+                                            </div>
+                                            <div class="taColumn4top">
+                                                @address.bespokeScore.map {score => @score.buildingScore}
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1bottom">
+                                                @messages("clerical.building")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.buildingnumber")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.buildingScoreDebug.drop(1).take(1)}
+                                            </div>
+                                            <div class="taColumn4bottom">
+                                                @address.bespokeScore.map {score => @score.buildingScore}
+                                            </div>
+                                        </div>
+
+                                        <div class="taRow">
+                                            <div class="taColumn1top">
+                                                @messages("clerical.unit")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.ref_hierarchy")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.unitScoreDebug.take(1)}
+                                            </div>
+                                            <div class="taColumn4top">
+                                                @address.bespokeScore.map {score => @score.unitScore}
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.unit")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.organisation_name")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.unitScoreDebug.drop(1).take(1)}
+                                            </div>
+                                            <div class="taColumn4inner">
+                                                @address.bespokeScore.map {score => @score.unitScore}
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1inner">
+                                                @messages("clerical.unit")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.subbuildingname")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.unitScoreDebug.drop(2).take(1)}
+                                            </div>
+                                            <div class="taColumn4inner">
+                                                @address.bespokeScore.map {score => @score.unitScore}
+                                            </div>
+                                        </div>
+                                        <div class="taRow">
+                                            <div class="taColumn1bottom">
+                                                @messages("clerical.unit")
+                                            </div>
+                                            <div class="taColumn2">
+                                                @messages("clerical.sub_building_number")
+                                            </div>
+                                            <div class="taColumn3">
+                                                @address.bespokeScore.map {score => @score.unitScoreDebug.drop(3).take(1)}
+                                            </div>
+                                            <div class="taColumn4bottom">
+                                                @address.bespokeScore.map {score => @score.unitScore}
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="clerical2">
                                         <details>

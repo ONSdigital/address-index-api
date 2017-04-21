@@ -9,6 +9,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,7 +25,8 @@ import scala.language.postfixOps
 @Singleton
 class BulkMatchController @Inject()(
   val messagesApi: MessagesApi,
-  apiClient: AddressIndexClientInstance
+  apiClient: AddressIndexClientInstance,
+  version: DemoUIAddressIndexVersionModule
  )(
   implicit
   ec: ExecutionContext,
@@ -38,7 +40,8 @@ class BulkMatchController @Inject()(
     Future successful Ok(
       uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
         nav = Navigation.default,
-        fileFormName = multiMatchFormName
+        fileFormName = multiMatchFormName,
+        version = version
       )
     )
   }
@@ -52,43 +55,40 @@ class BulkMatchController @Inject()(
     request.session.get("api-key").map { apiKey =>
       logger info "invoked"
 
-      val optRes = request.body match {
-        case Right(file) => {
-          file.file(multiMatchFormName) map { file =>
-            apiClient bulk BulkBody(
-              addresses = CSVReader.open(file.ref.file).all().zipWithIndex.flatMap { case (lines, index) =>
-                if (index == 0) {
-                  None
-                } else {
-                  Some(
-                    BulkQuery(
-                      id = lines.head,
-                      address = lines(1)
-                    )
+    val optRes = request.body match {
+      case Right(file) => {
+        file.file(multiMatchFormName) map { file =>
+          apiClient bulk BulkBody(
+            addresses = CSVReader.open(file.ref.file).all().zipWithIndex.flatMap { case (lines, index) =>
+              if(index == 0) {
+                None
+              } else {
+                Some(
+                  BulkQuery(
+                    id = lines.head,
+                    address = lines(1)
                   )
-                }
-              },
-              apiKey = apiKey
-            ) map { resp =>
-              logger info s"Response size: ${resp.bulkAddresses.size}"
-              Ok(
-                uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
-                  nav = Navigation.default,
-                  fileFormName = multiMatchFormName,
-                  results = Some(resp)
                 )
-              )
-            }
+              }
+            },
+          apiKey = apiKey) map { resp =>
+            logger info s"Response size: ${resp.bulkAddresses.size}"
+            Ok(
+              uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
+                nav = Navigation.default,
+                fileFormName = multiMatchFormName,
+                results = Some(resp),
+              version = version)
+            )
           }
         }
-        case Left(maxSizeExceeded) => {
-          logger info "Max size exceeded"
-          Some(Future.successful(EntityTooLarge))
-        }
       }
-      optRes.getOrElse(Future.successful(InternalServerError))
-
-    }.getOrElse {
+      case Left(maxSizeExceeded) => {
+        logger info "Max size exceeded"
+        Some(Future.successful(EntityTooLarge))
+      }
+    }
+    optRes.getOrElse(Future.successful(InternalServerError))}.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
     }
   }

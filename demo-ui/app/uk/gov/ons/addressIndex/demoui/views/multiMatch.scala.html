@@ -5,11 +5,13 @@
 @import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
 @import uk.gov.ons.addressIndex.demoui.views.MatchTypeHelper
 @import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import uk.gov.ons.addressIndex.demoui.views.html.main
 @(
     nav: Navigation,
     fileFormName: String,
-    results: Option[AddressBulkResponseContainer] = None
+    results: Option[AddressBulkResponseContainer] = None,
+    version: DemoUIAddressIndexVersionModule
 )(
     implicit
     messages: Messages,
@@ -20,7 +22,7 @@
     <td align="center"><b>@text</b></td>
 }
 
-@main(title = messages("single.title")) {
+@main(title = messages("single.title"), version = version) {
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
     <script>
             $(document).ready(function () {
@@ -110,6 +112,15 @@
                     $("#search-loading").append('<img style="margin-left:40px" src="@{routes.Assets.versioned("/images/progress.gif").toString}"/>');
                 })
 
+                $("#multi-match").change(function(e)
+                {
+                    var fileName = $(this).val().split('\\').pop();
+
+                    if( fileName ) {
+                        $("#file-name").text(fileName);
+                        $("#search-button").removeClass("disabled").prop('disabled', false);
+                    }
+                });
 
             });
     </script>
@@ -126,54 +137,67 @@
                             action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFile,
                             'enctype -> "multipart/form-data"
                         ) {
-                            <p>
-                                <input type="file" accept=".csv" name="@fileFormName" />
-                                <button id="search-button" class="btn btn-success btn-search" type="submit">@messages("upload")</button>
+                            <p class="inputfile-box">
+                                <input type="file" id="multi-match" class="inputfile" accept=".csv" name="@fileFormName" />
+                                <label for="multi-match">
+                                    <span id="file-name" class="file-box">&nbsp;</span>
+                                    <span class="upload-btn"> <i class="fa fa-upload" aria-hidden="true"></i> @messages("select_file")</span>
+                                </label>
+
+                                <button id="search-button" class="btn btn-success btn-search no-margin disabled" type="submit" disabled="disabled">@messages("upload")</button>
                             </p>
                         }
                     </div>
                 </div>
             </div>
             <div id="search-loading"></div>
-            @results.map { bulkResp =>
-                <div class="panel panel-single address-panel">
-                    <div class="panel-body">
-                        <div class='container'>
-                            <div id="dvData">
-                                <table border="1px;black;black;" cellpadding="5px" cellspacing="0px">
-                                    <thead style="background-color: #DFE0E2;">
-                                        @tableHeaderHelper(messages("multi.table.id"))
-                                        @tableHeaderHelper(messages("multi.table.input.address"))
-                                        @tableHeaderHelper(messages("multi.table.matched.address"))
-                                        @tableHeaderHelper(messages("multi.table.uprn"))
-                                        @tableHeaderHelper(messages("multi.table.match.type"))
-                                        @tableHeaderHelper(messages("multi.table.score"))
-                                        @tableHeaderHelper(messages("multi.table.actual.score"))
-                                        @tableHeaderHelper(messages("multi.table.rank"))
-                                    </thead>
-                                    <tbody>
-                                        @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
-                                            @defining(MatchTypeHelper.matchType(result.id, bulkResp.bulkAddresses.map(_.id), result.matchedFormattedAddress)) { matchType =>
-                                                <tr>
-                                                    <td align="center">@{result.id}</td>
-                                                    <td>@{result.inputAddress}</td>
-                                                    <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
-                                                    <td align="center">@{result.uprn}</td>
-                                                    <td align="center" class="match-type-@matchType">@matchType</td>
-                                                    <td align="center">@{ScoreHelper.getRelativePercentageScore(result.score, bulkResp)}&#37;</td>
-                                                    <td align="center">@{result.score}</td>
-                                                    <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
-                                                </tr>
+            <div id="multi-match-results">
+                @results.map { bulkResp =>
+                        <div>
+                            <strong>@messages("multi.counter.total"):</strong> @{MatchTypeHelper.countSearched(bulkResp.bulkAddresses)} <br>
+                            <strong>@messages("multi.counter.single"):</strong> @{MatchTypeHelper.countSingles(bulkResp.bulkAddresses)}<br>
+                            <strong>@messages("multi.counter.multiple"):</strong> @{MatchTypeHelper.countMultiples(bulkResp.bulkAddresses)}<br>
+                            <strong>@messages("multi.counter.empty"):</strong> @{MatchTypeHelper.countEmpty(bulkResp.bulkAddresses)}
+                        </div>
+                    <div class="panel panel-single address-panel">
+                        <div class="panel-body">
+                            <div class='container'>
+                                <div id="dvData">
+                                    <table border="1px;black;black;" cellpadding="5px" cellspacing="0px">
+                                        <thead style="background-color: #DFE0E2;">
+                                            @tableHeaderHelper(messages("multi.table.id"))
+                                            @tableHeaderHelper(messages("multi.table.input.address"))
+                                            @tableHeaderHelper(messages("multi.table.matched.address"))
+                                            @tableHeaderHelper(messages("multi.table.uprn"))
+                                            @tableHeaderHelper(messages("multi.table.match.type"))
+                                            @tableHeaderHelper(messages("multi.table.score"))
+                                            @tableHeaderHelper(messages("multi.table.actual.score"))
+                                            @tableHeaderHelper(messages("multi.table.rank"))
+                                        </thead>
+                                        <tbody>
+                                            @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
+                                                @defining(MatchTypeHelper.matchType(result.id, bulkResp.bulkAddresses.map(_.id), result.matchedFormattedAddress)) { matchType =>
+                                                    <tr>
+                                                        <td align="center">@{result.id}</td>
+                                                        <td>@{result.inputAddress}</td>
+                                                        <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
+                                                        <td align="center">@{result.uprn}</td>
+                                                        <td align="center" class="match-type-@matchType">@matchType</td>
+                                                        <td align="center">@{ScoreHelper.getRelativePercentageScore(result.score, bulkResp)}&#37;</td>
+                                                        <td align="center">@{result.score}</td>
+                                                        <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
+                                                    </tr>
+                                                }
                                             }
-                                        }
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <a href="#" id ="export" role="button">Download</a>
-            }
+                    <a href="#" id ="export" role="button">Download</a>
+                }
+            </div>
         </div>
     </div>
     <div class="panel panel-single address-panel">

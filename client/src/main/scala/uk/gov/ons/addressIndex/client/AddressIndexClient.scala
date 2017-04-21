@@ -2,12 +2,13 @@ package uk.gov.ons.addressIndex.client
 
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
 
 import scala.concurrent.{ExecutionContext, Future}
-
+import scala.concurrent.duration._
+import play.api.libs.json.Json
 
 trait AddressIndexClient {
 
@@ -24,7 +25,7 @@ trait AddressIndexClient {
   protected implicit lazy val iClient: WSClient = client
   protected implicit lazy val iHost: AddressIndexServerHost = host
 
-  /**
+   /**
     * perform an address search query
     *
     * @param request the request
@@ -57,6 +58,7 @@ trait AddressIndexClient {
   def bulk(request: BulkBody)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
     Bulk
       .toReq
+      .withRequestTimeout(Duration.Inf)
       .withHeaders(
         "Content-Type" -> "application/json",
         "authorization" -> request.apiKey
@@ -99,6 +101,12 @@ trait AddressIndexClient {
         "input" -> input
       ).get.map(response => Json.prettyPrint(response.json))
   }
+
+  def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
+    VersionQuery
+      .toReq().get.map(_.json.as[AddressResponseVersion])
+  }
+
 }
 
 object AddressIndexClientHelper {
@@ -132,6 +140,11 @@ object AddressIndexClientHelper {
 
   object AddressQuery extends AddressIndexPath(
     path = "/addresses",
+    method = "GET"
+  )
+
+  object VersionQuery extends AddressIndexPath(
+    path = "/version",
     method = "GET"
   )
 
