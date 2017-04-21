@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
@@ -311,6 +312,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "lpi" -> Seq(secondHybridNagEs)
   )
 
+  testClient.execute{
+    create.index(hybridIndexName).mappings(hybridMappings)
+      .analysis(CustomAnalyzerDefinition(
+        "welsh_split_synonyms_analyzer",
+        // Pay attention that those other parameters pay no role in the test, they are just here because they are
+        // required, the only important thing is that the analyzer exists
+        StandardTokenizer("myTokenizer1"),
+        LengthTokenFilter("myTokenFilter2"),
+        UniqueTokenFilter("myTokenFilter3")
+      ))
+  }
+
   testClient.execute {
     bulk(
       indexInto(hybridIndexName / hybridMappings).fields(firstHybridEs),
@@ -505,36 +518,48 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         s"""
-          {
-             "query":{
-                         "mlt":{
-                            "fields":[
-                               "paf.pafAll",
-                               "lpi.nagAll"
-                            ],
-                            "like":[
-                               ""
-                            ],
-                            "min_term_freq":1,
-                            "analyzer":"welsh_split_analyzer",
-                            "minimum_should_match":"-25%",
-                            "boost":${queryParams.fallbackQueryBoost}
-                         }
-             },
-             "sort": [
-               {
-                 "_score": {
-                   "order": "desc"
+           {
+              "query":{
+                 "dis_max":{
+                    "boost":${queryParams.fallbackQueryBoost},
+                    "queries":[
+                       {
+                          "match":{
+                             "paf.pafAll":{
+                                "query":"",
+                                "type":"boolean",
+                                "analyzer":"welsh_split_synonyms_analyzer",
+                                "minimum_should_match":"-25%"
+                             }
+                          }
+                       },
+                       {
+                          "match":{
+                             "nag.nagAll":{
+                                "query":"",
+                                "type":"boolean",
+                                "analyzer":"welsh_split_synonyms_analyzer",
+                                "minimum_should_match":"-25%"
+                             }
+                          }
+                       }
+                    ]
                  }
-               },
-               {
-                 "uprn": {
-                   "order": "asc"
+              },
+              "sort":[
+                 {
+                    "_score":{
+                       "order":"desc"
+                    }
+                 },
+                 {
+                    "uprn":{
+                       "order":"asc"
+                    }
                  }
-               }
-             ],
-             "track_scores": true
-          }
+              ],
+              "track_scores":true
+           }
         """
       )
 
