@@ -1,13 +1,13 @@
 package uk.gov.ons.addressIndex.client
 
 import java.util.UUID
-import AddressIndexClientHelper._
+
 import org.scalatest.{FlatSpec, Matchers}
+import play.api.http.Port
 import play.api.libs.ws.WSClient
 import play.api.test.WsTestClient
+import uk.gov.ons.addressIndex.client.Resources._
 import uk.gov.ons.addressIndex.model._
-import play.api.http.Port
-import Resources._
 
 object Resources {
   val apiHost = "host"
@@ -31,7 +31,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     val actual = apiClient.uprnQueryWSRequest(
       request = AddressIndexUPRNRequest(
         uprn = 101010,
-        id = UUID.randomUUID
+        id = UUID.randomUUID,""
       )
     ).url
     val expected = s"${apiHost}/addresses/101010"
@@ -45,7 +45,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         input = input,
         id = UUID.randomUUID,
         limit = "10",
-        offset = "0"
+        offset = "0",apiKey=""
       )
     ).queryString
     val expected = Map(
