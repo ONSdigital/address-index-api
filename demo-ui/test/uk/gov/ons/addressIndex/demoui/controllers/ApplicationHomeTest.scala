@@ -10,6 +10,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.Results
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WsTestClient}
+import play.api.Environment
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -25,9 +26,9 @@ class ApplicationHomeTest extends PlaySpec with Results with GuiceOneAppPerTest 
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val expectedString = "<a href=\"http:///addresses\">Find an address</a>"
-
+      val environment = app.injector.instanceOf[Environment]
       // When
-      val response = new ApplicationHomeController(configuration, version, messagesApi,WsTestClient.withClient[WSClient](identity)(new Port(9000))).indexPage().apply(FakeRequest().withSession("api-key" -> ""))
+      val response = new ApplicationHomeController(configuration, version, messagesApi, environment, WsTestClient.withClient[WSClient](identity)(new Port(9000))).indexPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

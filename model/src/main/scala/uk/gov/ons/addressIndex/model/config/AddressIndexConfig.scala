@@ -141,9 +141,11 @@ case class ApiConfig(
 )
 
 case class DemouiConfig (
+  loginRequired: Boolean,
   customErrorDev: Boolean,
   customErrorTest: Boolean,
   customErrorProd: Boolean,
+  gatewayURL: String,
   apiURL: ApiConfig,
   limit: Int,
   offset: Int,

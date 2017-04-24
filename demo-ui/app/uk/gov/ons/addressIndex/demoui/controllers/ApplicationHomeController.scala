@@ -2,7 +2,8 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.Logger
+import play.api.{Environment, Logger, Mode}
+import play.api.Mode.Mode
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -23,7 +24,7 @@ import scala.language.implicitConversions
   * @param ec
   */
 @Singleton
-class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: DemoUIAddressIndexVersionModule, val messagesApi: MessagesApi, ws: WSClient)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
+class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: DemoUIAddressIndexVersionModule, val messagesApi: MessagesApi, environment: Environment, ws: WSClient)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   val logger = Logger("ApplicationHomeController")
 
@@ -41,6 +42,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     */
 
   def indexPage(): Action[AnyContent] = Action { implicit req =>
+
     req.session.get("api-key").map { apiKey =>
       logger info ("ApplicationHome: Rendering Index page")
       Ok(uk.gov.ons.addressIndex.demoui.views.html.index(version))
@@ -50,23 +52,43 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
 
   }
 
+  /**
+    * Load login viewlet unless config says login is not required in the conf
+    * @return
+    */
   def login: Action[AnyContent] = Action {
-    Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("",version))
+    logger.info("loginRequired " + conf.config.loginRequired )
+    if (!conf.config.loginRequired)
+    {
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
+        .withSession("api-key" -> "")
+    }
+    else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("", version))
+    }
   }
 
+  /**
+    * Redirect to the API gateway to perform login
+    * @return
+    */
   def doLogin: Action[AnyContent] = Action { implicit req =>
-//    println("TEST")
+
     val formValidationResult = loginForm.bindFromRequest.data
     (for {
       userName <- formValidationResult.get("userName") if userName.nonEmpty
       password <- formValidationResult.get("password") if userName.nonEmpty
     } yield {
-//      println(userName)
-
-      val prod = false // Add to config param
-
-      if (prod) {
-        val request: WSRequest = ws.url("http://localhost:9443/login")
+    //  probably don't need to test the mode as we have a config param
+      val mode: Mode = environment.mode
+      val loginRequired : Boolean = mode match {
+        case Mode.Dev => false
+        case Mode.Test => false
+        case Mode.Prod => true
+      }
+    //  val loginRequired = true;
+      if (loginRequired) {
+        val request: WSRequest = ws.url(conf.config.gatewayURL+"/login")
 
         val complexRequest: WSRequest =
           request.withHeaders("Accept" -> "application/json")
@@ -93,6 +115,8 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
       Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password",version))
     }
   }
+
+
 }
 /* Responses
 {
