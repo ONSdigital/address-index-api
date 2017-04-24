@@ -12,7 +12,7 @@ $(function () {
 
     $("#name").keyup(function () {
         var namelen = $('#name').val().length;
-        if (namelen > 6 || namelen == 0) {
+        if (namelen > 7 || namelen == 0) {
             $('#name').css('background', 'rgb(255, 214, 190)');
             blsp();
             if (namelen != 0) {
@@ -30,7 +30,7 @@ $(function () {
     });
     $("#pass").keyup(function () {
         passlen = $('#pass').val().length;
-        if (passlen > 10 || passlen == 0) {
+        if (passlen > 15 || passlen == 0) {
             $('#pass').css('background', 'rgb(255, 214, 190)');
             blsp();
             if (passlen != 0) {
