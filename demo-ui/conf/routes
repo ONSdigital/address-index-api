@@ -11,7 +11,7 @@ POST        /login                              uk.gov.ons.addressIndex.demoui.c
 
 
 # ONS-Address Index home page
-GET         /indexPage                          uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.indexPage
+GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home
 
 # ONS-Address Index Single Search View
 GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage

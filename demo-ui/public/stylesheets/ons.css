@@ -170,6 +170,8 @@ p.toptext {
     color: #FFFFFF;
     font-size: 1.2em;
     margin-left: 10px;
+    padding-left: 12px;
+    padding-right: 14px;
     }
 
 .btn-search:link,
@@ -187,6 +189,35 @@ p.toptext {
     border-color: #353633;
 }
 
+.btn-clear {
+    height: 2em;
+    background-color: #606060;
+    border-color: #606060;
+    color: #FFFFFF;
+    font-size: 1.2em;
+    margin-left: 10px;
+    padding-left: 12px;
+    padding-right: 14px;
+    }
+
+.btn-clear:link,
+.btn-clear:active,
+.btn-clear:hover,
+.btn-clear:visited {
+    height: 2em;
+    background-color: #353633 ;
+    border-color: #353633 ;
+}
+
+.btn-clear:focus {
+    height: 2em;
+    background-color: #353633;
+    border-color: #353633;
+}
+
+
+
+
 .btn-clean {
     height: 2em;
 }
@@ -195,6 +226,20 @@ input#address.form-control {
     width: 100%;
     height: 40px;
     font-size: 1.1em;
+}
+
+input#name.form-control {
+    width: 240px;
+    height: 40px;
+    font-size: 1.1em;
+    margin-bottom: 12px;
+}
+
+input#pass.form-control {
+    width: 240px;
+    height: 40px;
+    font-size: 1.1em;
+    margin-bottom: 4px;
 }
 
 input[type="radio"].form-control {
@@ -239,8 +284,20 @@ input[type="radio"]#format.form-control {
     color: #FF9900;
 }
 
+input::-webkit-input-placeholder {
+    color: #D8D8D8;
+}
+
 .panel-body {
     margin-top: 2px ;
+}
+
+.panel-body-login {
+    margin-top: 2px;
+    margin-left: 10px;
+    width: 270px;
+    background-color:#E8E8E8;
+    padding: 20px 20px 16px 20px
 }
 
 .thumbnail {
@@ -886,4 +943,8 @@ button.no-margin{
 }
 #match-count a{
     margin-left: 7px;
+}
+
+label {
+    margin-left:10px;
 }

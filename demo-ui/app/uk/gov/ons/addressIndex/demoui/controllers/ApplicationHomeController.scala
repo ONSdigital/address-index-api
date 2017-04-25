@@ -7,10 +7,12 @@ import play.api.Mode.Mode
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.{Format, Json}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
+import uk.gov.ons.addressIndex.demoui.utils.GatewaySimulator
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -41,7 +43,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     * @return result to view
     */
 
-  def indexPage(): Action[AnyContent] = Action { implicit req =>
+  def home(): Action[AnyContent] = Action { implicit req =>
 
     req.session.get("api-key").map { apiKey =>
       logger info ("ApplicationHome: Rendering Index page")
@@ -60,11 +62,11 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     logger.info("loginRequired " + conf.config.loginRequired )
     if (!conf.config.loginRequired)
     {
-      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
         .withSession("api-key" -> "")
     }
     else {
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("", version))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", version))
     }
   }
 
@@ -79,15 +81,14 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
       userName <- formValidationResult.get("userName") if userName.nonEmpty
       password <- formValidationResult.get("password") if userName.nonEmpty
     } yield {
-    //  probably don't need to test the mode as we have a config param
+    //  use fake gateway in dev or test
       val mode: Mode = environment.mode
-      val loginRequired : Boolean = mode match {
+      val realGateway : Boolean = mode match {
         case Mode.Dev => false
         case Mode.Test => false
         case Mode.Prod => true
       }
-    //  val loginRequired = true;
-      if (loginRequired) {
+      if (realGateway) {
         val request: WSRequest = ws.url(conf.config.gatewayURL+"/login")
 
         val complexRequest: WSRequest =
@@ -102,30 +103,25 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         if (result.status != OK) {
           val key = (result.json \ "key").as[String]
 
-          Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
+          Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
             .withSession("api-key" -> key)
-        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Authentication failed",version))
+        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
 
+      } else
+        {
+          val fakeResponse = GatewaySimulator.getApiKey(userName,password)
+          logger.info("fakeResponse = " + Json.toJson(fakeResponse))
+          if (fakeResponse.errorCode == "") {
+            val key = fakeResponse.key
 
-      } else Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage())
-        .withSession("api-key" -> "")
-
+            Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
+              .withSession("api-key" -> key)
+          } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
+        }
     }).getOrElse {
       // bad, data is not filled or not exist
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.forms.login.fieldset("Empty Username or Password",version))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Empty Username or Password",version))
     }
   }
 
-
 }
-/* Responses
-{
-"Status": 401,
-"ErrorCode": "Authentication Error",
-"ErrorMessage": "Authentication failed. Invalid username or password."
-}
-
-{
-"Status": 200,
-"key": "ea15dc73-1991-46db-8c02-e3c483bf9e3e"
-}*/
