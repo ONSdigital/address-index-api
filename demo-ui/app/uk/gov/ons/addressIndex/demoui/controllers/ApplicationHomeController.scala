@@ -89,8 +89,10 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         case Mode.Prod => true
       }
       if (realGateway) {
+
         val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
 
+        logger.info("about to run request")
         val complexRequest: WSRequest =
           request.withHeaders("Accept" -> "application/json")
             .withAuth(userName, password, WSAuthScheme.BASIC)
@@ -100,6 +102,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         val futureResponse: Future[WSResponse] = complexRequest.get()
 
         val result = Await.result(futureResponse, 10000.millis)
+        logger.info("request run + result.status")
 
         if (result.status != OK) {
           val key = (result.json \ "key").as[String]
