@@ -7,9 +7,9 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s._
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.search.sort.SortOrder
 import play.api.Logger
+import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -40,7 +40,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -49,7 +49,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -59,7 +59,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
 }
 
 @Singleton
@@ -70,7 +70,6 @@ class AddressIndexRepository @Inject()(
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
-  private val queryParams = conf.config.elasticSearch.queryParams
 
   val client: ElasticClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
@@ -101,7 +100,7 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
 
     val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
 
@@ -110,8 +109,9 @@ class AddressIndexRepository @Inject()(
     client.execute(request).map(HybridAddresses.fromRichSearchResponse)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
 
+    val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
 
     val saoQuery = Seq(
@@ -459,11 +459,11 @@ class AddressIndexRepository @Inject()(
 
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, limit).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
