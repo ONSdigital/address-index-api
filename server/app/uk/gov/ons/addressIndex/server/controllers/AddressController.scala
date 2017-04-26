@@ -10,11 +10,12 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.BulkBody
+import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.server.utils.{Splunk, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -92,7 +93,7 @@ class AddressController @Inject()(
 
       logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(offsetInt, limitInt, tokens)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -211,9 +212,11 @@ class AddressController @Inject()(
       row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
     }
 
+    val configOverwrite: Option[QueryParamsConfig] = request.body.config
+
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestsData, defaultBatchSize, Seq.empty)
+    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestsData, defaultBatchSize, configOverwrite)
 
     logger.info(s"#bulkQuery processed")
 
@@ -262,8 +265,12 @@ class AddressController @Inject()(
     * @return Queried addresses
     */
   @tailrec
-  final def iterateOverRequestsWithBackPressure(requests: Stream[BulkAddressRequestData], miniBatchSize: Int,
-    successfulResults: Seq[BulkAddress]): Seq[BulkAddress] = {
+  final def iterateOverRequestsWithBackPressure(
+    requests: Stream[BulkAddressRequestData],
+    miniBatchSize: Int,
+    configOverwrite: Option[QueryParamsConfig] = None,
+    successfulResults: Seq[BulkAddress] = Seq.empty
+  ): Seq[BulkAddress] = {
 
     Splunk.log(isBulk = true, batchSize = miniBatchSize.toString)
 
@@ -276,7 +283,7 @@ class AddressController @Inject()(
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress), Duration.Inf)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress, configOverwrite), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -293,7 +300,7 @@ class AddressController @Inject()(
         if (result.failedRequests.isEmpty) math.ceil(miniBatchSize * miniBatchUpscale).toInt
         else math.floor(miniBatchSize * miniBatchDownscale).toInt
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, configOverwrite, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -305,7 +312,11 @@ class AddressController @Inject()(
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(inputs: Stream[BulkAddressRequestData], limitPerAddress: Int): Future[BulkAddresses] = {
+  def queryBulkAddresses(
+    inputs: Stream[BulkAddressRequestData],
+    limitPerAddress: Int,
+    configOverwrite: Option[QueryParamsConfig] = None
+  ): Future[BulkAddresses] = {
 
     val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress)
 

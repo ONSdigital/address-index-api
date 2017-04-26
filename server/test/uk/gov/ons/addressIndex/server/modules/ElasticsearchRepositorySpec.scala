@@ -481,7 +481,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10).await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -502,7 +502,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10).await
 
       // Then
       results.length shouldBe 0
