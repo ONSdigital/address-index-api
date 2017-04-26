@@ -89,7 +89,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         case Mode.Prod => true
       }
       if (realGateway) {
-        val request: WSRequest = ws.url(conf.config.gatewayURL+"/login")
+        val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
 
         val complexRequest: WSRequest =
           request.withHeaders("Accept" -> "application/json")
