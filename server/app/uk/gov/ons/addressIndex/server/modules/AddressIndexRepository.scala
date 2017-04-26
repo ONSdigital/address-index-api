@@ -6,6 +6,7 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s._
+import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
 import org.elasticsearch.search.sort.SortOrder
 import play.api.Logger
@@ -415,14 +416,14 @@ class AddressIndexRepository @Inject()(
     val normalizedInput = Tokens.concatenate(tokens)
 
     val fallbackQuery =
-      moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
-        .like(normalizedInput)
-        .minTermFreq(1)
-        .analyser("welsh_split_analyzer")
-        .boost(queryParams.fallbackQueryBoost)
-
-    // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
-    fallbackQuery.builder.minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+      dismax.query(
+        matchQuery("paf.pafAll", normalizedInput)
+          .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")),
+        matchQuery("lpi.nagAll", normalizedInput)
+          .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+      ).boost(queryParams.fallbackQueryBoost)
 
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
