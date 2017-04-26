@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm])(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], placeholder: String)(implicit messages: Messages)
 @import helper._
 
 <fieldset class="searchfield">
@@ -7,7 +7,7 @@
     args = '_id -> "numberOrName",
     'class -> "form-control",
     '_label -> "",
-    'placeholder -> messages("singlesearchform.placeholder")
+    'placeholder -> placeholder
     )
 </fieldset>
 
