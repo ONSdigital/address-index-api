@@ -8,7 +8,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{Format, Json}
-import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest, WSResponse}
 import play.api.mvc.{Action, AnyContent, Controller}
 import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
@@ -93,8 +93,9 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
 
         val complexRequest: WSRequest =
           request.withHeaders("Accept" -> "application/json")
+            .withAuth(userName, password, WSAuthScheme.BASIC)
             .withRequestTimeout(10000.millis)
-            .withQueryString("userName" -> userName, "password" -> password)
+      //      .withQueryString("userName" -> userName, "password" -> password)
 
         val futureResponse: Future[WSResponse] = complexRequest.get()
 
