@@ -25,7 +25,7 @@ case class AddressIndexSearchRequest(
   *               of env vars or a new pull request if you want to
   *               do more permanent configuration values)
   */
-case class BulkBody(addresses: Seq[BulkQuery], config: Option[QueryParamsConfig])
+case class BulkBody(addresses: Seq[BulkQuery], config: Option[QueryParamsConfig] = None)
 
 object BulkBody {
   implicit lazy val fmt: Format[BulkBody] = Json.format[BulkBody]
