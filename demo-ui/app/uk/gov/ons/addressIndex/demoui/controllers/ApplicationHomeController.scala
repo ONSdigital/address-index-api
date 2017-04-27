@@ -97,7 +97,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
           request.withHeaders("Accept" -> "application/json")
             .withAuth(userName, password, WSAuthScheme.BASIC)
             .withRequestTimeout(10000.millis)
-      //      .withQueryString("userName" -> userName, "password" -> password)
+            .withVirtualHost("10.50.14.22")
 
         val futureResponse: Future[WSResponse] = complexRequest.get()
 
