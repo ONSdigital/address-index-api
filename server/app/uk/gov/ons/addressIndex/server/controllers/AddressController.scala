@@ -9,7 +9,7 @@ import play.api.mvc.{Action, AnyContent, Request, Result}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import play.api.libs.json.Json
-import uk.gov.ons.addressIndex.model.BulkBody
+import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
@@ -188,35 +188,64 @@ class AddressController @Inject()(
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
-    * @return reduced information on founded addresses (uprn, formatted address)
+    * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
-    bulkQuery()
+  def bulk(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+    logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
+
+    val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
+
+    val configOverwrite: Option[QueryParamsConfig] = request.body.config
+
+    bulkQuery(requestsData, configOverwrite)
+  }
+
+  private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
+    row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
   }
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * this version is slower and more memory-consuming
-    * @return all the information on founded addresses (uprn, formatted address, found address json object)
+    * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit req =>
-    bulkQuery(includeFullAddress = true)
-  }
+  def bulkFull(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+    logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
 
-
-  private def bulkQuery(includeFullAddress: Boolean = false)(implicit request: Request[BulkBody]): Result = {
-    logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
-    val startingTime = System.currentTimeMillis()
-
-    val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map{
-      row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
-    }
+    val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
     val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
+    bulkQuery(requestsData, configOverwrite, includeFullAddress = true)
+  }
+
+  /**
+    * Bulk endpoint that accepts tokens instead of input texts for each address
+    * @return reduced info on found addresses
+    */
+  def bulkDebug(): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+    logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
+
+    val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
+      row => BulkAddressRequestData(row.id, row.tokens.values.mkString(" "), row.tokens)
+    }
+    val configOverwrite: Option[QueryParamsConfig] = request.body.config
+
+    bulkQuery(requestsData, configOverwrite)
+  }
+
+
+  private def bulkQuery(
+    requestData: Stream[BulkAddressRequestData],
+    configOverwrite: Option[QueryParamsConfig],
+    includeFullAddress: Boolean = false
+  )(implicit request: Request[_]): Result = {
+
+    val startingTime = System.currentTimeMillis()
+
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestsData, defaultBatchSize, configOverwrite)
+    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, configOverwrite)
 
     logger.info(s"#bulkQuery processed")
 
@@ -246,7 +275,7 @@ class AddressController @Inject()(
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
-    Splunk.log(IP = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString, isBulk = true, bulkSize = requestsData.size.toString)
+    Splunk.log(IP = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString, isBulk = true, bulkSize = requestData.size.toString)
 
     response
   }

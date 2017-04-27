@@ -45,3 +45,22 @@ object BulkQuery {
   implicit lazy val fmt: Format[BulkQuery] = Json.format[BulkQuery]
 }
 
+/**
+  * Specific request format where we directly provide tokens instead of the input
+  * @param addresses collection of addresses (tokens instead of input) to be queried
+  * @param config optional configuration that will overwrite current one
+  */
+case class BulkBodyDebug(addresses: Seq[BulkQueryDebug], config: Option[QueryParamsConfig] = None)
+
+object BulkBodyDebug {
+  implicit lazy val bulkQueryDebugFormat: Format[BulkQueryDebug] = Json.format[BulkQueryDebug]
+  implicit lazy val bulkBodyDebugFormat: Format[BulkBodyDebug] = Json.format[BulkBodyDebug]
+}
+
+/**
+  * An element in the collection of a bulk request, this time we have tokens
+  * instead of text input
+  * @param id the id of the address
+  * @param tokens tokens to be queried (thus this bypasses the parser step)
+  */
+case class BulkQueryDebug(id: String, tokens: Map[String, String])
