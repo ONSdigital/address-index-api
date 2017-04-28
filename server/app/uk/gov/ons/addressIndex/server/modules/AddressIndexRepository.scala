@@ -147,7 +147,7 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
+        ).minimumShouldMatch("-45%")).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
       tokens.get(Tokens.saoStartSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartSuffix",
@@ -203,7 +203,7 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
-        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoTextBoost)),
+        ).fuzziness(defaultFuzziness).minimumShouldMatch("-45%")).boost(queryParams.buildingName.lpiPaoTextBoost)),
 
       paoBuildingNameMust
 
@@ -334,27 +334,27 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "paf.organisationName",
           value = token
-        )).boost(queryParams.organisationName.pafOrganisationNameBoost)),
+        ).minimumShouldMatch("30%")).boost(queryParams.organisationName.pafOrganisationNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.organisation",
           value = token
-        )).boost(queryParams.organisationName.lpiOrganisationBoost)),
+        ).minimumShouldMatch("30%")).boost(queryParams.organisationName.lpiOrganisationBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
-        )).boost(queryParams.organisationName.lpiPaoTextBoost)),
+        ).minimumShouldMatch("30%")).boost(queryParams.organisationName.lpiPaoTextBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.legalName",
           value = token
-        )).boost(queryParams.organisationName.lpiLegalNameBoost)),
+        ).minimumShouldMatch("30%")).boost(queryParams.organisationName.lpiLegalNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        )).boost(queryParams.organisationName.lpiSaoTextBoost))
+        ).minimumShouldMatch("30%")).boost(queryParams.organisationName.lpiSaoTextBoost))
     ).flatten
 
     val departmentNameQuery = Seq(
@@ -362,12 +362,12 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "paf.departmentName",
           value = token
-        )).boost(queryParams.departmentName.pafDepartmentNameBoost)),
+        ).minimumShouldMatch("30%")).boost(queryParams.departmentName.pafDepartmentNameBoost)),
       tokens.get(Tokens.departmentName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.legalName",
           value = token
-        )).boost(queryParams.departmentName.lpiLegalNameBoost))
+        ).minimumShouldMatch("30%")).boost(queryParams.departmentName.lpiLegalNameBoost))
     ).flatten
 
     val localityQuery = Seq(
