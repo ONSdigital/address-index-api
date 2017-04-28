@@ -37,6 +37,9 @@ class BulkMatchController @Inject()(
   private val logger = Logger("BulkMatchController")
 
   def bulkMatchPage(): Action[AnyContent] = Action.async { implicit request =>
+    val refererUrl = request.uri
+    logger.info("referer = " + refererUrl)
+    request.session.get("api-key").map { apiKey =>
     Future successful Ok(
       uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
         nav = Navigation.default,
@@ -44,6 +47,9 @@ class BulkMatchController @Inject()(
         version = version
       )
     )
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+    }
   }
 
   def uploadFile(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = Action.async(

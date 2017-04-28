@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{Format, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest, WSResponse}
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc.{Action, AnyContent, Call, Controller}
 import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.GatewaySimulator
@@ -58,7 +58,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     * Load login viewlet unless config says login is not required in the conf
     * @return
     */
-  def login: Action[AnyContent] = Action {
+  def login: Action[AnyContent] = Action { implicit req =>
     logger.info("loginRequired " + conf.config.loginRequired )
     if (!conf.config.loginRequired)
     {
@@ -108,9 +108,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
 
         if (result.status != OK) {
           val key = (result.json \ "key").as[String]
-
-          Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
-            .withSession("api-key" -> key)
+          Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
         } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
 
       } else
@@ -119,9 +117,8 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
           logger.info("fakeResponse = " + Json.toJson(fakeResponse))
           if (fakeResponse.errorCode == "") {
             val key = fakeResponse.key
-
-            Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
-              .withSession("api-key" -> key)
+            logger.info("stored referer = " + req.session.get("referer") )
+            Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
           } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
         }
     }).getOrElse {

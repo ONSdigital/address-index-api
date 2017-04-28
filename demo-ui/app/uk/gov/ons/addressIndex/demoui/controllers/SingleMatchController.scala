@@ -48,6 +48,9 @@ class SingleMatchController @Inject()(
     */
   def showSingleMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     logger info ("SingleMatch: Rendering Single Match Page")
+    val refererUrl = request.uri
+    logger.info("referer = " + refererUrl)
+    request.session.get("api-key").map { apiKey =>
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
@@ -60,6 +63,9 @@ class SingleMatchController @Inject()(
     Future.successful(
       Ok(viewToRender)
     )
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+    }
   }
 
   /**
@@ -103,6 +109,8 @@ class SingleMatchController @Inject()(
     */
   def doMatchWithInput(input: String, page: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
 
+    val refererUrl = request.uri
+    logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val limit = pageSize.toString()
@@ -162,7 +170,7 @@ class SingleMatchController @Inject()(
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 
