@@ -21,3 +21,5 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk
 
 POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull
+
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug
