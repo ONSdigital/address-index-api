@@ -261,6 +261,8 @@ class AddressController @Inject()(
     * a time and this request fails)
     * @param requests Stream of data that will be used to query ES
     * @param miniBatchSize the size of the bulk to use
+    * @param configOverwrite optional configuration that will overwrite current queryParam
+    * @param canUpScale wether or not this particular iteration can upscale the mini-batch size
     * @param successfulResults accumulator of successfull results
     * @return Queried addresses
     */
@@ -269,6 +271,7 @@ class AddressController @Inject()(
     requests: Stream[BulkAddressRequestData],
     miniBatchSize: Int,
     configOverwrite: Option[QueryParamsConfig] = None,
+    canUpScale: Boolean = true,
     successfulResults: Seq[BulkAddress] = Seq.empty
   ): Seq[BulkAddress] = {
 
@@ -297,10 +300,13 @@ class AddressController @Inject()(
       val miniBatchUpscale = conf.config.bulk.batch.upscale
       val miniBatchDownscale = conf.config.bulk.batch.downscale
       val newMiniBatchSize =
-        if (result.failedRequests.isEmpty) math.ceil(miniBatchSize * miniBatchUpscale).toInt
+        if (result.failedRequests.isEmpty && canUpScale) math.ceil(miniBatchSize * miniBatchUpscale).toInt
+        else if (result.failedRequests.isEmpty) miniBatchSize
         else math.floor(miniBatchSize * miniBatchDownscale).toInt
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, configOverwrite, successfulResults ++ result.successfulBulkAddresses)
+      val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
+
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
