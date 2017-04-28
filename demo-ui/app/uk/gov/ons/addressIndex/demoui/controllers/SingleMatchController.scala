@@ -110,16 +110,16 @@ class SingleMatchController @Inject()(
   def doMatchWithInput(input: String, page: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
 
     val refererUrl = request.uri
-    logger.info("referer = " + refererUrl)
+ //   logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val limit = pageSize.toString()
-      logger info ("Limit param = " + limit)
+//      logger info ("Limit param = " + limit)
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
       val offset = offNum.toString
-      logger info ("Offset param = " + offset)
-      logger info ("Max pages = " + maxPages)
+ //     logger info ("Offset param = " + offset)
+ //     logger info ("Max pages = " + maxPages)
       if (addressText.trim.isEmpty) {
         logger info ("Single Match with expected input address missing")
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -181,6 +181,7 @@ class SingleMatchController @Inject()(
     * @return result to view
     */
   def doGetUprn(input : String) : Action[AnyContent] = Action.async { implicit request =>
+    val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
     if (addressText.trim.isEmpty) {
       logger info("UPRN with expected input address missing")
@@ -226,7 +227,7 @@ class SingleMatchController @Inject()(
         Ok(viewToRender)}
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 }

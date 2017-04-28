@@ -83,19 +83,21 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     } yield {
     //  use fake gateway in dev or test
       val mode: Mode = environment.mode
-      val realGateway : Boolean = mode match {
-        case Mode.Dev => false
-        case Mode.Test => false
-        case Mode.Prod => true
-      }
+ //     val realGateway: Boolean = mode match {
+  //      case Mode.Dev => false
+  //      case Mode.Test => false
+  //      case Mode.Prod => true
+  //    }
+
+      val realGateway: Boolean = false
 
       val fullURL = conf.config.gatewayURL+"/ai/login"
-      logger.info("full request = " + fullURL )
+  //    logger.info("full request = " + fullURL )
       if (realGateway) {
 
         val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
 
-        logger.info("about to run request")
+    //    logger.info("about to run request")
         val complexRequest: WSRequest =
           request.withHeaders("Accept" -> "application/json")
             .withAuth(userName, password, WSAuthScheme.BASIC)
@@ -104,7 +106,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         val futureResponse: Future[WSResponse] = complexRequest.get()
 
         val result = Await.result(futureResponse, 10000.millis)
-        logger.info("request run + result.status")
+     //   logger.info("request run + result.status")
 
         if (result.status != OK) {
           val key = (result.json \ "key").as[String]
@@ -114,10 +116,10 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
       } else
         {
           val fakeResponse = GatewaySimulator.getApiKey(userName,password)
-          logger.info("fakeResponse = " + Json.toJson(fakeResponse))
+      //    logger.info("fakeResponse = " + Json.toJson(fakeResponse))
           if (fakeResponse.errorCode == "") {
             val key = fakeResponse.key
-            logger.info("stored referer = " + req.session.get("referer") )
+        //    logger.info("stored referer = " + req.session.get("referer") )
             Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
           } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
         }
