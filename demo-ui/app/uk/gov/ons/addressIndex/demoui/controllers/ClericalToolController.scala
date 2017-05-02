@@ -49,7 +49,6 @@ class ClericalToolController @Inject()(
     */
   def showSingleMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
-   // logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
     logger info ("Clerial Tool: Rendering Single Match Page")
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
@@ -117,7 +116,6 @@ class ClericalToolController @Inject()(
     */
   def doMatchWithInput(input: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
- //   logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
       generateClericalView(input, page, expand, messagesApi("clerical.sfatext"), uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch, "clerical", messagesApi("clericalsearchform.placeholder"), apiKey)
     }.getOrElse {
@@ -129,14 +127,10 @@ class ClericalToolController @Inject()(
     pagerAction: String, placeholder: String, apiKey: String, query: String = ""): Future[Result] = {
     val addressText = input
     val expandr = expand.getOrElse(-1)
- //   logger info ("expand param = " + expandr)
     val limit = pageSize.toString()
- //   logger info ("Limit param = " + limit)
     val pageNum = page.getOrElse(1)
     val offNum = (pageNum - 1) * pageSize
     val offset = offNum.toString
-//    logger info ("Offset param = " + offset)
- //   logger info ("Max pages = " + maxPages)
     if (addressText.trim.isEmpty) {
       logger info ("Clerical Tool with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
@@ -210,7 +204,6 @@ class ClericalToolController @Inject()(
     */
   def doUprnWithInput(input : Long) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
- //   logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
       logger info("UPRN with supplied input address " + input)
       apiClient.uprnQuery(
@@ -282,7 +275,6 @@ class ClericalToolController @Inject()(
 
   def showQueryWithInput(input: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
- //   logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
       apiClient.showQuery(input, apiKey).flatMap{ query =>
         generateClericalView(input, page, expand, messagesApi("debug.sfatext"),  uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery, "debug", messagesApi("debugsearchform.placeholder"), apiKey, query)

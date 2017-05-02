@@ -59,14 +59,14 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     * @return
     */
   def login: Action[AnyContent] = Action { implicit req =>
-    logger.info("loginRequired " + conf.config.loginRequired )
-    if (!conf.config.loginRequired)
+    logger.info("Login Required =  " + conf.config.loginRequired )
+    if (conf.config.loginRequired)
     {
-      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
-        .withSession("api-key" -> "")
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", version))
     }
     else {
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", version))
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
+        .withSession("api-key" -> "")
     }
   }
 
@@ -81,33 +81,27 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
       userName <- formValidationResult.get("userName") if userName.nonEmpty
       password <- formValidationResult.get("password") if userName.nonEmpty
     } yield {
-    //  use fake gateway in dev or test
+    //  use fake gateway in dev or test (and prod until connectivity problem fixed)
       val mode: Mode = environment.mode
       val realGateway: Boolean = mode match {
-        case Mode.Dev => false
-        case Mode.Test => false
-        case Mode.Prod => true
+        case Mode.Dev => conf.config.realGatewayDev
+        case Mode.Test => conf.config.realGatewayTest
+        case Mode.Prod => conf.config.realGatewayProd
       }
 
- //     val realGateway: Boolean = false
-
       val fullURL = conf.config.gatewayURL+"/ai/login"
-  //    logger.info("full request = " + fullURL )
       if (realGateway) {
-
         val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
-
-    //    logger.info("about to run request")
+        logger.info("attempting to login via gateway")
         val complexRequest: WSRequest =
           request.withHeaders("Accept" -> "application/json")
             .withAuth(userName, password, WSAuthScheme.BASIC)
             .withRequestTimeout(10000.millis)
 
         val futureResponse: Future[WSResponse] = complexRequest.get()
-
         val result = Await.result(futureResponse, 10000.millis)
-     //   logger.info("request run + result.status")
 
+        // Any response other than a 200 is assumed to be an authentication failure (e.g. 401)
         if (result.status != OK) {
           val key = (result.json \ "key").as[String]
           Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
@@ -116,10 +110,8 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
       } else
         {
           val fakeResponse = GatewaySimulator.getApiKey(userName,password)
-      //    logger.info("fakeResponse = " + Json.toJson(fakeResponse))
           if (fakeResponse.errorCode == "") {
             val key = fakeResponse.key
-        //    logger.info("stored referer = " + req.session.get("referer") )
             Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
           } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
         }

@@ -185,6 +185,9 @@ case class ApiConfig(
 
 case class DemouiConfig (
   loginRequired: Boolean,
+  realGatewayDev: Boolean,
+  realGatewayTest: Boolean,
+  realGatewayProd: Boolean,
   customErrorDev: Boolean,
   customErrorTest: Boolean,
   customErrorProd: Boolean,

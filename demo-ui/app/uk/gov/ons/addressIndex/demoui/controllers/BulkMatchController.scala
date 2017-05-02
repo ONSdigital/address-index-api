@@ -38,7 +38,6 @@ class BulkMatchController @Inject()(
 
   def bulkMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
-  //  logger.info("referer = " + refererUrl)
     request.session.get("api-key").map { apiKey =>
     Future successful Ok(
       uk.gov.ons.addressIndex.demoui.views.html.multiMatch(

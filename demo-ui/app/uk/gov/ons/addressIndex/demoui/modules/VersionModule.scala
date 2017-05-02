@@ -26,7 +26,7 @@ class DemoUIAddressIndexVersionModule @Inject()(conf: DemouiConfigModule,
   lazy val apiVersion: String = {
 
     Try(Await.result(
-    apiClient.versionQuery(tempApiKey)
+    apiClient.versionQuery()
       .map { resp: AddressResponseVersion =>
       resp.apiVersion
     }, 10 seconds)).getOrElse(dummyVersion)
@@ -35,15 +35,12 @@ class DemoUIAddressIndexVersionModule @Inject()(conf: DemouiConfigModule,
   lazy val dataVersion: String = {
 
     Try(Await.result(
-      apiClient.versionQuery(tempApiKey)
+      apiClient.versionQuery()
         .map { resp: AddressResponseVersion =>
           resp.dataVersion
         }, 10 seconds)).getOrElse(dummyVersion)
   }
 
   val dummyVersion = "not found"
-  /** PLEASE Remember to modify module
-    * Add move to config -
-  */
-  val tempApiKey = "exxx-xxxxx-xxxxx-xxxxx-xxxxxx"
+
 }
