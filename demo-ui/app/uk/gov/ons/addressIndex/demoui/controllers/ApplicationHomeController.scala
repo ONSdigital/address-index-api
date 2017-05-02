@@ -83,13 +83,13 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     } yield {
     //  use fake gateway in dev or test
       val mode: Mode = environment.mode
- //     val realGateway: Boolean = mode match {
-  //      case Mode.Dev => false
-  //      case Mode.Test => false
-  //      case Mode.Prod => true
-  //    }
+      val realGateway: Boolean = mode match {
+        case Mode.Dev => false
+        case Mode.Test => false
+        case Mode.Prod => true
+      }
 
-      val realGateway: Boolean = false
+ //     val realGateway: Boolean = false
 
       val fullURL = conf.config.gatewayURL+"/ai/login"
   //    logger.info("full request = " + fullURL )
