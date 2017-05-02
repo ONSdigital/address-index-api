@@ -7,14 +7,16 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 
 case class AddressIndexUPRNRequest(
   uprn: BigInt,
-  id: UUID
+  id: UUID,
+  apiKey: String
 )
 
 case class AddressIndexSearchRequest(
   input: String,
   limit: String,
   offset: String,
-  id: UUID
+  id: UUID,
+  apiKey: String
 )
 
 
@@ -25,7 +27,7 @@ case class AddressIndexSearchRequest(
   *               of env vars or a new pull request if you want to
   *               do more permanent configuration values)
   */
-case class BulkBody(addresses: Seq[BulkQuery], config: Option[QueryParamsConfig] = None)
+case class BulkBody(addresses: Seq[BulkQuery], config: Option[QueryParamsConfig] = None, apiKey: String)
 
 object BulkBody {
   implicit lazy val fmt: Format[BulkBody] = Json.format[BulkBody]

@@ -22,7 +22,7 @@ class BulkMatchControllerTest extends PlaySpec with Results with GuiceOneAppPerT
       val expectedString = "<input type=\"file\""
 
       // When
-      val response = new BulkMatchController(messagesApi, api, version).bulkMatchPage().apply(FakeRequest())
+      val response = new BulkMatchController(messagesApi, api, version).bulkMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

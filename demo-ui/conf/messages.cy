@@ -97,6 +97,14 @@ logical.letter8=H
 logical.class1=ls-approved
 logical.class6=ls-provisional
 logical.class8=ls-historical
+
+login.title=Os gwelwch yn dda Mewngofnodi
+login.heading=Address Matching Service
+login.username=Gwasanaeth Paru Cyfeiriad
+login.password=cyfrinair
+login.usernameph=Rhif adnabod y Rhwydwaith ONS
+login.passwordph=cyfrinair rhwydwaith
+
 main.beta=BETA
 main.licence1=Mae''r holl gynnwys ar gael o dan y
 main.licence2=Trwydded Llywodraeth Agored

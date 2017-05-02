@@ -109,6 +109,15 @@ logical.letter8=H
 logical.class1=ls-approved
 logical.class6=ls-provisional
 logical.class8=ls-historical
+
+login.title=Please Login
+login.heading=Address Matching Service
+login.username=Username
+login.password=Password
+login.usernameph=ONS Network id
+login.passwordph=Network password
+
+
 main.beta=BETA
 main.licence1=All content is available under the
 main.licence2=Open Government Licence

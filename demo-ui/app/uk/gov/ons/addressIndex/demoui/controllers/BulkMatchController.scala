@@ -1,7 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import com.github.tototoshi.csv._
 import javax.inject.{Inject, Singleton}
+
+import com.github.tototoshi.csv._
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
@@ -10,6 +11,7 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
@@ -32,9 +34,11 @@ class BulkMatchController @Inject()(
 ) extends Controller with I18nSupport {
 
   private val multiMatchFormName = "file"
-  private val logger =  Logger("BulkMatchController")
+  private val logger = Logger("BulkMatchController")
 
   def bulkMatchPage(): Action[AnyContent] = Action.async { implicit request =>
+    val refererUrl = request.uri
+    request.session.get("api-key").map { apiKey =>
     Future successful Ok(
       uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
         nav = Navigation.default,
@@ -42,6 +46,9 @@ class BulkMatchController @Inject()(
         version = version
       )
     )
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+    }
   }
 
   def uploadFile(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = Action.async(
@@ -49,8 +56,9 @@ class BulkMatchController @Inject()(
       10 * 1024 * 1024, //10MB
       parse.multipartFormData
     )
-  ) { implicit request =>
-    logger info "invoked"
+  )  { implicit request =>
+    request.session.get("api-key").map { apiKey =>
+      logger info "invoked"
 
     val optRes = request.body match {
       case Right(file) => {
@@ -67,16 +75,15 @@ class BulkMatchController @Inject()(
                   )
                 )
               }
-            }
-          ) map { resp =>
+            },
+          apiKey = apiKey) map { resp =>
             logger info s"Response size: ${resp.bulkAddresses.size}"
             Ok(
               uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
                 nav = Navigation.default,
                 fileFormName = multiMatchFormName,
                 results = Some(resp),
-                version = version
-              )
+              version = version)
             )
           }
         }
@@ -86,6 +93,8 @@ class BulkMatchController @Inject()(
         Some(Future.successful(EntityTooLarge))
       }
     }
-    optRes.getOrElse(Future.successful(InternalServerError))
+    optRes.getOrElse(Future.successful(InternalServerError))}.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+    }
   }
 }

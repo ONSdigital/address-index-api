@@ -4,12 +4,10 @@ import org.scalatestplus.play.PlaySpec
 import play.api.i18n.MessagesApi
 import play.api.mvc.Results
 import play.api.test.Helpers._
-import play.api.test.WithApplication
-import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
+import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.demoui.modules.DemoUIVersionModuleMock
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -30,7 +28,7 @@ class SingleMatchTest extends PlaySpec with Results {
 
       // When
       val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
-        .showSingleMatchPage().apply(FakeRequest())
+        .showSingleMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -49,7 +47,7 @@ class SingleMatchTest extends PlaySpec with Results {
 
       // When
       val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
-        .showSingleMatchPage().apply(FakeRequest())
+        .showSingleMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -68,7 +66,7 @@ class SingleMatchTest extends PlaySpec with Results {
 
       // When
       val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
-        .doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> ""))
+        .doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -93,7 +91,7 @@ class SingleMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-      .doMatchWithInput(inputAddress, Some(1)).apply(FakeRequest())
+      .doMatchWithInput(inputAddress, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

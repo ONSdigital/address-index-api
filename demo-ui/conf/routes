@@ -2,50 +2,55 @@
 # Definition of all applications routes
 # Routes are called in priority order
 
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)
+
+# ONS-Address Login page
+GET         /                                   uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.login
+POST        /login                              uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.doLogin
+
+
 # ONS-Address Index home page
-GET     /                                       uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.indexPage
+GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home
 
 # ONS-Address Index Single Search View
-GET     /addresses                              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)
+GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-POST    /addresses/search                       uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatch
+POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatch
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search                        uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
+GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET    /addresses/search/:input                 uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, page: Option[Int])
+GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, page: Option[Int])
 
 # ONS-Address Index Single Search Request
-GET    /addresses/uprn/:input                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String)
+GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String)
 
 # ONS-Address Index Single Search Request
-POST    /clerical/search                        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
+POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
 
 # ONS-Address Index Single Search Request
-GET    /clerical/search                         uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
+GET         /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET    /clerical/search/:input                  uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, page: Option[Int], expand: Option[Int])
+GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, page: Option[Int], expand: Option[Int])
 
 # ONS-Address Index Single Search Request
-GET    /clerical/uprn/:input                   uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long)
+GET         /clerical/uprn/:input               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long)
 
 # ONS-Address Index Single Search Request
-GET    /clerical/query-debug                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
+GET         /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
 
 # ONS-Address Index Single Search Request
-GET    /clerical/query-debug/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, page: Option[Int], expand: Option[Int])
+GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, page: Option[Int], expand: Option[Int])
 
 # ONS-Address Index Single Search Request
-POST    /clerical/query-debug                   uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery
+POST        /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery
 
 # ONS-Address Index Bulk Mimic Upload
-POST    /bulkUpload                             uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFile
+POST        /bulkUpload                         uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFile
 
 # ONS-Address Index Single Search View
-GET     /bulkAddresses                          uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage
+GET         /bulkAddresses                      uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage

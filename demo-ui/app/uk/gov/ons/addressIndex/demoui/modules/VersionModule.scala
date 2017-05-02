@@ -1,10 +1,7 @@
 package uk.gov.ons.addressIndex.demoui.modules
 
-import java.util.UUID
-
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
-import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
 
 import scala.concurrent.duration._
@@ -23,7 +20,7 @@ trait VersionModule {
   * @param apiClient
   */
 @Singleton
-class DemoUIAddressIndexVersionModule @Inject()(
+class DemoUIAddressIndexVersionModule @Inject()(conf: DemouiConfigModule,
   apiClient: AddressIndexClientInstance) (implicit ec : ExecutionContext) extends VersionModule{
 
   lazy val apiVersion: String = {
