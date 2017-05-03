@@ -55,10 +55,11 @@ class AddressController @Inject()(
 
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
+      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isInput = true, input = input, offset = offval,
         limit = limval, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score)
+        numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
     val limitInvalid = Try(limval.toInt).isFailure
@@ -147,8 +148,10 @@ class AddressController @Inject()(
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
+      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
-        isUprn = true, uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput, numOfResults = numOfResults, score = score)
+        isUprn = true, uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
+        numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
     val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
@@ -255,11 +258,11 @@ class AddressController @Inject()(
     val bulkItems = results.map { bulkAddress =>
 
         val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress, includeFullAddress)
-
+        val networkid = request.headers.get("authorization").getOrElse("Anon").split("_")(0)
         // Side effects
         Splunk.log(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
           formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
-          score = addressBulkResponseAddress.score.toString, uuid = uuid)
+          score = addressBulkResponseAddress.score.toString, uuid = uuid, networkid = networkid)
 
         addressBulkResponseAddress
       }

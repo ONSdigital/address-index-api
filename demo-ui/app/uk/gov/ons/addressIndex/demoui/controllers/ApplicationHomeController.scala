@@ -103,7 +103,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
 
         // Any response other than a 200 is assumed to be an authentication failure (e.g. 401)
         if (result.status != OK) {
-          val key = (result.json \ "key").as[String]
+          val key = userName + "_" + (result.json \ "key").as[String]
           Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
         } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
 
@@ -111,7 +111,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         {
           val fakeResponse = GatewaySimulator.getApiKey(userName,password)
           if (fakeResponse.errorCode == "") {
-            val key = fakeResponse.key
+            val key = userName + "_" + fakeResponse.key
             Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
           } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
         }
