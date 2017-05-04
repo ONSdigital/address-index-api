@@ -54,13 +54,13 @@ trait AddressIndexClient {
       )
   }
 
-  def bulk(request: BulkBody)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
+  def bulk(request: BulkBody, apiKey: String)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
     Bulk
       .toReq
       .withRequestTimeout(Duration.Inf)
       .withHeaders(
         "Content-Type" -> "application/json",
-        "authorization" -> request.apiKey
+        "authorization" -> apiKey
       )
       .post(
         Json.toJson(

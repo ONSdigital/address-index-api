@@ -63,7 +63,7 @@ class BulkMatchController @Inject()(
     val optRes = request.body match {
       case Right(file) => {
         file.file(multiMatchFormName) map { file =>
-          apiClient bulk BulkBody(
+          apiClient.bulk(BulkBody(
             addresses = CSVReader.open(file.ref.file).all().zipWithIndex.flatMap { case (lines, index) =>
               if(index == 0) {
                 None
@@ -75,8 +75,8 @@ class BulkMatchController @Inject()(
                   )
                 )
               }
-            },
-          apiKey = apiKey) map { resp =>
+            }
+            ),apiKey) map { resp =>
             logger info s"Response size: ${resp.bulkAddresses.size}"
             Ok(
               uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
