@@ -1201,6 +1201,40 @@ object HopperScoreHelper  {
     penalty.toDouble
   }
 
+  /**
+    * Method 1 to separate the number and name parts e.g 6A HEDGEHOG HOUSE
+    * Return just the number bit, discard the rest
+    * @param name
+    * @return String containing just e.g 6A
+    * */
+  def getNumberPartsFromName(name: String): String = {
 
+  val parts = name.split(" ")
+    val numberParts = for (part <- parts if containsNumber(part)) yield part
+    numberParts.mkString(" ")
+}
+  /**
+    * Method 2 to separate the number and name parts e.g 6A HEDGEHOG HOUSE
+    * Remove the number part and return the rest
+    * @param name
+    * @return String containing just e.g HEDEGEHOG HOUSE
+    * */
+  def getNonNumberPartsFromName(name: String): String = {
+
+    val parts = name.split(" ")
+
+    val stringParts = for (part <- parts if !containsNumber(part)) yield part
+    stringParts.mkString(" ")
+  }
+
+  /**
+    * Test there is at least one number in a String
+    * @param namepart
+    * @return
+    */
+  def containsNumber(namepart: String): Boolean = {
+    val numPattern = "[0-9]+".r
+    !numPattern.findAllIn(namepart).toArray.isEmpty
+  }
 
 }
