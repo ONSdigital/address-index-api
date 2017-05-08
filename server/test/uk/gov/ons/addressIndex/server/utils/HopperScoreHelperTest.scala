@@ -298,7 +298,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the unit score for an address " in {
     // Given
-    val expected = "unit.0828"
+    val expected = "unit.0888"
 
     // When
     val actual = HopperScoreHelper.calculateUnitScore(

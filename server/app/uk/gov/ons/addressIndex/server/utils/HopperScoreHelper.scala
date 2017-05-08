@@ -227,22 +227,22 @@ object HopperScoreHelper  {
     // each element score is the better match of paf and nag
 
     val detailedOrganisationBuildingNamePafScore = calculateDetailedOrganisationBuildingNamePafScore (
-      buildingName,
-      pafBuildingName,
+      getNonNumberPartsFromName(buildingName),
+      getNonNumberPartsFromName(pafBuildingName),
       organisationName,
       pafOrganisationName)
 
     val detailedOrganisationBuildingNameNagScore = calculateDetailedOrganisationBuildingNameNagScore (
-      buildingName,
-      nagPaoText,
+      getNonNumberPartsFromName(buildingName),
+      getNonNumberPartsFromName(nagPaoText),
       organisationName,
       nagOrganisationName)
 
     val detailedOrganisationBuildingNameParam = detailedOrganisationBuildingNamePafScore.min(detailedOrganisationBuildingNameNagScore)
 
     val buildingNumberPafScore = calculateBuildingNumPafScore (
-      buildingName,
-      pafBuildingName,
+      getNumberPartsFromName(buildingName),
+      getNumberPartsFromName(pafBuildingName),
       pafBuildingNumber,
       paoStartSuffix,
       paoEndSuffix,
@@ -251,7 +251,7 @@ object HopperScoreHelper  {
       paoEndNumber)
 
     val buildingNumberNagScore = calculateBuildingNumNagScore (
-      buildingName,
+      getNumberPartsFromName(buildingName),
       nagPaoStartNumber,
       nagPaoEndNumber,
       nagPaoStartSuffix,
@@ -465,14 +465,14 @@ object HopperScoreHelper  {
     // each element score is the better match of paf and nag
 
     val OrganisationBuildingNamePafScore = calculateOrganisationBuildingNamePafScore (
-      buildingName,
-      pafBuildingName,
+      getNonNumberPartsFromName(buildingName),
+      getNonNumberPartsFromName(pafBuildingName),
       organisationName,
       pafOrganisationName)
 
     val OrganisationBuildingNameNagScore = calculateOrganisationBuildingNameNagScore (
-      buildingName,
-      nagPaoText,
+      getNonNumberPartsFromName(buildingName),
+      getNonNumberPartsFromName(nagPaoText),
       organisationName,
       nagOrganisationName)
 
@@ -846,14 +846,18 @@ object HopperScoreHelper  {
     // no PAF value
     val organisationNameParam = orgainisationNameNagScore
 
-    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(subBuildingName,pafSubBuildingName)
-    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(subBuildingName,nagSaoText)
+    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(
+      getNonNumberPartsFromName(subBuildingName),
+      getNonNumberPartsFromName(pafSubBuildingName))
+    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(
+      getNonNumberPartsFromName(subBuildingName),
+      getNonNumberPartsFromName(nagSaoText))
     val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
 
     val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
-      subBuildingName,
-      pafSubBuildingName,
-      pafBuildingName,
+      getNumberPartsFromName(subBuildingName),
+      getNumberPartsFromName(pafSubBuildingName),
+      getNumberPartsFromName(pafBuildingName),
       saoStartSuffix,
       saoEndSuffix,
       saoStartNumber,
@@ -861,7 +865,7 @@ object HopperScoreHelper  {
       pafBuildingNumber)
 
     val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
-      subBuildingName,
+      getNumberPartsFromName(subBuildingName),
       nagSaoStartNumber,
       nagSaoEndNumber,
       nagSaoStartSuffix,
