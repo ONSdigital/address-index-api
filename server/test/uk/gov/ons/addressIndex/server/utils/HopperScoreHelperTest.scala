@@ -832,5 +832,17 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
+  it should "convert an empty string to an at sign " in {
+    // Given
+    val token = ""
+    val expected = "@"
+
+    // When
+    val actual = HopperScoreHelper.atSignForEmpty(token)
+
+    // Then
+    actual shouldBe expected
+  }
 }
 
