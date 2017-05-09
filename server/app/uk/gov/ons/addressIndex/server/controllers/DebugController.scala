@@ -32,7 +32,7 @@ class DebugController@Inject()(
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
   def queryDebug(input: String): Action[AnyContent] = Action { implicit req =>
-    val tokens = Tokens.postTokenizeTreatment(parser.tag(input))
+    val tokens = parser.parse(input)
     val query = esRepo.generateQueryAddressRequest(tokens).toString()
     Ok(Json.parse(query))
   }

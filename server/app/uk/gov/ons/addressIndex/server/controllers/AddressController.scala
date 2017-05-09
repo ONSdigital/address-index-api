@@ -90,7 +90,7 @@ class AddressController @Inject()(
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
     } else {
-      val tokens = Tokens.postTokenizeTreatment(parser.tag(input))
+      val tokens = parser.parse(input)
 
       logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
@@ -204,7 +204,7 @@ class AddressController @Inject()(
   }
 
   private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
-    row => BulkAddressRequestData(row.id, row.address, Tokens.postTokenizeTreatment(parser.tag(row.address)))
+    row => BulkAddressRequestData(row.id, row.address, parser.parse(row.address))
   }
 
   /**

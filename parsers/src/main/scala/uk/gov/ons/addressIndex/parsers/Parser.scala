@@ -1,17 +1,14 @@
 package uk.gov.ons.addressIndex.parsers
 
+import uk.gov.ons.addressIndex.crfscala.CrfScalaJni
+
 import scala.annotation.tailrec
-
-trait JniTagger {
-  def tag(input: String): String
-}
-
 
 /**
   * Main entry-point to parse input from user into tokens
   * @param tagger injected instance of a tagger (main instance should use native code)
   */
-class Parser(val tagger: JniTagger) {
+class Parser(val tagger: CrfScalaJni) {
 
   /**
     * Parse user's input into labelised tokens
