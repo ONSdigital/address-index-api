@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.parsers
 import com.typesafe.config.ConfigFactory
 import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
 
+import org.apache.commons.lang3.StringUtils
 import scala.io.{BufferedSource, Source}
 import scala.util.Try
 
@@ -61,6 +62,8 @@ object Tokens extends CrfTokenable {
     */
   override def apply(input: String): Array[String] = normalizeInput(input).split(" ")
 
+  def preTokenize(input: String): List[String] = normalizeInput(input).split(" ").toList
+
   /**
     * Normalizes input: removes counties, replaces synonyms, uppercase
     * @param input input to be normalized
@@ -69,7 +72,9 @@ object Tokens extends CrfTokenable {
   private def normalizeInput(input: String): String = {
     val upperInput = input.toUpperCase()
 
-    val inputWithoutCounties = removeCounties(upperInput)
+    val inputWithoutAccents = StringUtils.stripAccents(upperInput)
+
+    val inputWithoutCounties = removeCounties(inputWithoutAccents)
 
     val tokens = inputWithoutCounties
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
@@ -116,6 +121,15 @@ object Tokens extends CrfTokenable {
     }
 
     val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
+    val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
+    val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
+    val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)
+
+    buildingNameTreatedTokens
+  }
+
+  def postTokenize(tokens: Map[String, String]): Map[String, String] = {
+    val postcodeTreatedTokens = postTokenizeTreatmentPostCode(tokens)
     val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
     val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)

@@ -27,7 +27,7 @@ object AddressParser extends CrfParser {
   override def parserLibPath: String = ConfigFactory.load.getString("addressIndex.parserLibPath")
 }
 
-case class Features(override val features : Feature[_]*)(override val aggregateFeatures: FeatureAggregate[_]*) extends CrfFeatures
+case class FeaturesOld(override val features : Feature[_]*)(override val aggregateFeatures: FeatureAggregate[_]*) extends CrfFeatures
 
 case class Feature[T](override val name: String)(override val analyser: CrfFeatureAnalyser[T]) extends CrfFeature[T]
 

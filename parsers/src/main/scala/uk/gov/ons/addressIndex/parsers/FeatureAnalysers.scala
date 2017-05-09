@@ -16,8 +16,8 @@ object FeatureAnalysers {
   /**
     * @return all of the predefined features
     */
-  def allFeatures: Features = {
-    Features(
+  def allFeatures: FeaturesOld = {
+    FeaturesOld(
       Seq(
         Feature[String](digits)(digitsAnalyser),
         Feature[Root[_]](word)(wordAnalyser),

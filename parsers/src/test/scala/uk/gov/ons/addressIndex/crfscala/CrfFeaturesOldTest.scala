@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.crfscala
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class CrfFeaturesTest extends FlatSpec with Matchers {
+class CrfFeaturesOldTest extends FlatSpec with Matchers {
 
   it should "return all feature analysers" in {
     val expected = Seq(CrfFeatureTestImpl[Boolean]("name")(str => true))
