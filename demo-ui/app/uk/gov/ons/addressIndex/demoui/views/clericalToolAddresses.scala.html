@@ -1,5 +1,6 @@
 @import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
 @import uk.gov.ons.addressIndex.parsers.Tokens
+@import java.text.SimpleDateFormat
 
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
@@ -85,6 +86,11 @@
                                     <div class="clerical2">
                                         <strong>@messages("clerical.logicalstatus"):</strong><span class="clericalgrey"> @address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }</span>
                                     </div>
+                                    @if(address.nag.map{nag => nag.logicalStatus} == Some("8")) {
+                                    <div class="clerical2">
+                                        <strong>@messages("single.enddate"): </strong><span class="clericalgrey">&nbsp;@address.nag.map{nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate)))}</span>
+                                    </div>
+                                    }
                                     <div class="clerical2">
                                         <strong>@messages("clerical.elasticscore"):</strong><span class="clericalgrey"> @address.underlyingScore</span>
                                     </div>
