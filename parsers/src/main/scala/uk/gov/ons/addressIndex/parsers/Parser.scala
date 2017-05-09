@@ -36,7 +36,7 @@ class Parser(val tagger: CrfScalaJni) {
   * TODO:
   * - replace prepend with something more describing (like "features")
   * - but with previous/rawstart in case of 3 tokens
-  * - maybe remove the sort step as it's not useful
+  * - maybe remove the sort step as it's no longer (allegedly) useful
   */
 object Parser {
 
@@ -56,7 +56,7 @@ object Parser {
 
     val crfInputLinesWithContext: List[String] = appendSpecialDataToCrfLines(crfInputLines)
 
-    // This step may not be required anymore
+    // This step may not be required anymore (it is only here so that the output is exactly the same as before)
     val crfInputSortedLines: List[String] = sortCrfInputLines(crfInputLinesWithContext)
 
     val crfInputLinesWithPrepend: List[String] = crfInputSortedLines.map(prepend + _)
