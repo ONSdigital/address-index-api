@@ -356,7 +356,7 @@ class AddressController @Inject()(
     configOverwrite: Option[QueryParamsConfig] = None
   ): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress, configOverwrite)
 
     val successfulAddresses: Future[Stream[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
 
