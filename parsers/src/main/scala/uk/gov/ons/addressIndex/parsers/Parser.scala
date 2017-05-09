@@ -35,7 +35,7 @@ class Parser(val tagger: CrfScalaJni) {
   * Those that are just `private`, are tested through other methods
   * TODO:
   * - replace prepend with something more describing (like "features")
-  * - but with previous/rawstart in case of 3 tokens
+  * - bug with previous/rawstart in case of 3 tokens
   * - maybe remove the sort step as it's no longer (allegedly) useful
   */
 object Parser {
