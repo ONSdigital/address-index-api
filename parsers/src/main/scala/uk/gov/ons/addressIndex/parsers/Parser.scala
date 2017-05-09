@@ -87,8 +87,8 @@ object Parser {
     */
   private[parsers] def tokensToCrfLinesData(tokens: List[String]): List[CrfLineData] = tokens match {
     case Nil => Nil
-    case head :: Nil => List(CrfLineData(head, None, None))
-    case head :: next :: _ => tokensTailToCrfLinesData(tokens, List(CrfLineData(head, Some(next), None)))
+    case first :: Nil => List(CrfLineData(first, None, None))
+    case first :: second :: _ => tokensTailToCrfLinesData(tokens, List(CrfLineData(first, Some(second), None)))
   }
 
   /**
