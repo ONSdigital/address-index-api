@@ -64,7 +64,14 @@ object Parser {
     crfInputLinesWithPrepend.mkString(linesSeparator) + linesSeparator
   }
 
-  private[parsers] case class CrfLineData(current: String, next: Option[String], previous: Option[String])
+  /**
+    * Small data-holding object that could be replaced by a Tuple3, but this way
+    * it's more readable
+    * @param previous optional previous token
+    * @param current current token
+    * @param next optional next token
+    */
+  private[parsers] case class CrfLineData(previous: Option[String], current: String, next: Option[String])
 
   /**
     * We need to transform a list of tokens into a list of CrfLineData structures
@@ -76,9 +83,9 @@ object Parser {
     * Example:
     * tokens: List("31", "EXETER", "CLOSE")
     * result: List(
-    * CrfLineData("31", Some("EXETER"), None),
-    * CrfLineData("EXETER", Some("CLOSE"), Some("31")),
-    * CrfLineData("CLOSE", None, Some("EXETER"))
+    * CrfLineData(None, "31", Some("EXETER")),
+    * CrfLineData(Some("31"), "EXETER", Some("CLOSE")),
+    * CrfLineData(Some("EXETER"), "CLOSE", None)
     * )
     *
     * @param tokens list of tokens from the input
@@ -87,8 +94,8 @@ object Parser {
     */
   private[parsers] def tokensToCrfLinesData(tokens: List[String]): List[CrfLineData] = tokens match {
     case Nil => Nil
-    case first :: Nil => List(CrfLineData(first, None, None))
-    case first :: second :: _ => tokensTailToCrfLinesData(tokens, List(CrfLineData(first, Some(second), None)))
+    case first :: Nil => List(CrfLineData(None, first, None))
+    case first :: second :: _ => tokensTailToCrfLinesData(tokens, List(CrfLineData(None, first, Some(second))))
   }
 
   /**
@@ -106,8 +113,8 @@ object Parser {
   @tailrec
   private def tokensTailToCrfLinesData(tokens: List[String], result: List[CrfLineData]): List[CrfLineData] = tokens match {
     case previous :: current :: next :: tail =>
-      tokensTailToCrfLinesData(current :: next :: tail, result :+ CrfLineData(current, Some(next), Some(previous)))
-    case previous :: current :: Nil => result :+ CrfLineData(current, None, Some(previous))
+      tokensTailToCrfLinesData(current :: next :: tail, result :+ CrfLineData(Some(previous), current, Some(next)))
+    case previous :: current :: Nil => result :+ CrfLineData(Some(previous), current, None)
     case _ => throw new IllegalArgumentException(
       s"`tokensTailToCrfLinesData()` method is called with illegal parameters (`tokens` should have at least 2 elements): $tokens"
     )

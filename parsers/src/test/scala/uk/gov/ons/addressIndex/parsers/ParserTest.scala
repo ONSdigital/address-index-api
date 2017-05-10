@@ -106,11 +106,11 @@ class ParserTest extends FlatSpec with Matchers {
     // Given
     val tokens = List("31", "EXETER", "CLOSE", "LONDON", "ONS")
     val expected = List(
-      CrfLineData("31", Some("EXETER"), None),
-      CrfLineData("EXETER", Some("CLOSE"), Some("31")),
-      CrfLineData("CLOSE", Some("LONDON"), Some("EXETER")),
-      CrfLineData("LONDON", Some("ONS"), Some("CLOSE")),
-      CrfLineData("ONS", None, Some("LONDON"))
+      CrfLineData(None, "31", Some("EXETER")),
+      CrfLineData(Some("31"), "EXETER", Some("CLOSE")),
+      CrfLineData(Some("EXETER"), "CLOSE", Some("LONDON")),
+      CrfLineData(Some("CLOSE"), "LONDON", Some("ONS")),
+      CrfLineData(Some("LONDON"), "ONS", None)
     )
 
     // When
@@ -124,8 +124,8 @@ class ParserTest extends FlatSpec with Matchers {
     // Given
     val tokens = List("31", "ONS")
     val expected = List(
-      CrfLineData("31", Some("ONS"), None),
-      CrfLineData("ONS", None, Some("31"))
+      CrfLineData(None, "31", Some("ONS")),
+      CrfLineData(Some("31"), "ONS", None)
     )
 
     // When
@@ -138,7 +138,7 @@ class ParserTest extends FlatSpec with Matchers {
   it should "transform one element tokens into one element tokens data" in {
     // Given
     val tokens = List("31")
-    val expected = List(CrfLineData("31", None, None))
+    val expected = List(CrfLineData(None, "31", None))
 
     // When
     val result = Parser.tokensToCrfLinesData(tokens)
@@ -161,7 +161,7 @@ class ParserTest extends FlatSpec with Matchers {
 
   it should "transform a lonely token data into a CRF line" in {
     // Given
-    val lineData = CrfLineData("31", None, None)
+    val lineData = CrfLineData(None, "31", None)
     val expected = "business:0.0\tcompany:0.0\tdigits\\:all_digits:1.0\tdirectional:0.0\tendsinpunc:0.0\tflat:0.0\thas.vowels:0.0\thyphenations:0.0\tlength\\:d\\:2:1.0\tlocational:0.0\tordinal:0.0\toutcode:0.0\tposttown:0.0\tresidential:0.0\troad:0.0\tword:0.0"
 
     // When
@@ -173,7 +173,7 @@ class ParserTest extends FlatSpec with Matchers {
 
   it should "transform a token data (with previous and next token) into a CRF line" in {
     // Given
-    val lineData = CrfLineData("CURLEW", Some("WAY"), Some("31"))
+    val lineData = CrfLineData(Some("31"), "CURLEW", Some("WAY"))
     val expected = "business:0.0\tcompany:0.0\tdigits\\:no_digits:1.0\tdirectional:0.0\tendsinpunc:0.0\tflat:0.0\thas.vowels:1.0\thyphenations:0.0\tlength\\:w\\:6:1.0\tlocational:0.0\tordinal:0.0\toutcode:0.0\tposttown:0.0\tresidential:0.0\troad:0.0\tword\\:CURLEW:1.0" +
       "\tnext\\:business:0.0\tnext\\:company:0.0\tnext\\:digits\\:no_digits:1.0\tnext\\:directional:0.0\tnext\\:endsinpunc:0.0\tnext\\:flat:0.0\tnext\\:has.vowels:1.0\tnext\\:hyphenations:0.0\tnext\\:length\\:w\\:3:1.0\tnext\\:locational:0.0\tnext\\:ordinal:0.0\tnext\\:outcode:0.0\tnext\\:posttown:0.0\tnext\\:residential:0.0\tnext\\:road:1.0\tnext\\:word\\:WAY:1.0" +
       "\tprevious\\:business:0.0\tprevious\\:company:0.0\tprevious\\:digits\\:all_digits:1.0\tprevious\\:directional:0.0\tprevious\\:endsinpunc:0.0\tprevious\\:flat:0.0\tprevious\\:has.vowels:0.0\tprevious\\:hyphenations:0.0\tprevious\\:length\\:d\\:2:1.0\tprevious\\:locational:0.0\tprevious\\:ordinal:0.0\tprevious\\:outcode:0.0\tprevious\\:posttown:0.0\tprevious\\:residential:0.0\tprevious\\:road:0.0\tprevious\\:word:0.0"
@@ -187,7 +187,7 @@ class ParserTest extends FlatSpec with Matchers {
 
   it should "transform a token data (with only previous token) into a CRF line" in {
     // Given
-    val lineData = CrfLineData("CURLEW", None, Some("31"))
+    val lineData = CrfLineData(Some("31"), "CURLEW", None)
     val expected = "business:0.0\tcompany:0.0\tdigits\\:no_digits:1.0\tdirectional:0.0\tendsinpunc:0.0\tflat:0.0\thas.vowels:1.0\thyphenations:0.0\tlength\\:w\\:6:1.0\tlocational:0.0\tordinal:0.0\toutcode:0.0\tposttown:0.0\tresidential:0.0\troad:0.0\tword\\:CURLEW:1.0" +
       "\tprevious\\:business:0.0\tprevious\\:company:0.0\tprevious\\:digits\\:all_digits:1.0\tprevious\\:directional:0.0\tprevious\\:endsinpunc:0.0\tprevious\\:flat:0.0\tprevious\\:has.vowels:0.0\tprevious\\:hyphenations:0.0\tprevious\\:length\\:d\\:2:1.0\tprevious\\:locational:0.0\tprevious\\:ordinal:0.0\tprevious\\:outcode:0.0\tprevious\\:posttown:0.0\tprevious\\:residential:0.0\tprevious\\:road:0.0\tprevious\\:word:0.0"
 
@@ -200,7 +200,7 @@ class ParserTest extends FlatSpec with Matchers {
 
   it should "transform a token data (with only next token) into a CRF line" in {
     // Given
-    val lineData = CrfLineData("CURLEW", Some("WAY"), None)
+    val lineData = CrfLineData(None, "CURLEW", Some("WAY"))
     val expected = "business:0.0\tcompany:0.0\tdigits\\:no_digits:1.0\tdirectional:0.0\tendsinpunc:0.0\tflat:0.0\thas.vowels:1.0\thyphenations:0.0\tlength\\:w\\:6:1.0\tlocational:0.0\tordinal:0.0\toutcode:0.0\tposttown:0.0\tresidential:0.0\troad:0.0\tword\\:CURLEW:1.0" +
       "\tnext\\:business:0.0\tnext\\:company:0.0\tnext\\:digits\\:no_digits:1.0\tnext\\:directional:0.0\tnext\\:endsinpunc:0.0\tnext\\:flat:0.0\tnext\\:has.vowels:1.0\tnext\\:hyphenations:0.0\tnext\\:length\\:w\\:3:1.0\tnext\\:locational:0.0\tnext\\:ordinal:0.0\tnext\\:outcode:0.0\tnext\\:posttown:0.0\tnext\\:residential:0.0\tnext\\:road:1.0\tnext\\:word\\:WAY:1.0"
 
