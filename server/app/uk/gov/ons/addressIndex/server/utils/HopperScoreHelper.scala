@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -992,7 +991,6 @@ object HopperScoreHelper  {
     * @param saoEndSuffix
     * @param saoStartNumber
     * @param saoEndNumber
-    * @param pafBuildingNumber
     * @return
     */
   def calculateSubBuildingNumberNagScore (
