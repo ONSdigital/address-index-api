@@ -12,6 +12,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+import uk.gov.ons.addressIndex.demoui.views.{MatchTypeHelper, ScoreHelper}
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -127,8 +128,27 @@ class BulkMatchController @Inject()(
               }
             ),apiKey) map { resp =>
               logger info s"Response size: ${resp.bulkAddresses.size}"
-              val csv = resp.bulkAddresses.map(_.id.toString).to[collection.immutable.Iterable]
-              Ok.chunked(Source[String](csv)).withHeaders(("Content-Disposition", """attachment;filename="test.csv""""))
+
+              val header = "id,inputAddress,matchedAddress,uprn,matchType,score,rank"
+
+              val ids = resp.bulkAddresses.map(_.id)
+              val data = resp.bulkAddresses.zipWithIndex.map{ case (bulkAddress, index) =>
+                Seq(
+                  bulkAddress.id.toString,
+                  "\"" + bulkAddress.inputAddress + "\"",
+
+                  "\"" + bulkAddress.matchedFormattedAddress + "\"",
+                  bulkAddress.uprn,
+                  MatchTypeHelper.matchType(bulkAddress.id, ids, bulkAddress.matchedFormattedAddress),
+                  bulkAddress.score,
+                  ScoreHelper.getRank(index, resp)
+                ).mkString(",")
+              }.toList
+
+              val csv = (header :: data).mkString("\n")
+              val filename = s"result_${file.filename}.csv"
+
+              Ok(csv).withHeaders(("Content-Disposition", s"""attachment;filename="$filename""""))
             }
           }
         }
