@@ -2,8 +2,10 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import javax.inject.{Inject, Singleton}
 
+import akka.stream.scaladsl.Source
 import com.github.tototoshi.csv._
 import play.api.Logger
+import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
@@ -94,6 +96,48 @@ class BulkMatchController @Inject()(
       }
     }
     optRes.getOrElse(Future.successful(InternalServerError))}.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+    }
+  }
+
+  def uploadFileDownloadCsv(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = Action.async(
+    parse.maxLength(
+      10 * 1024 * 1024, //10MB
+      parse.multipartFormData
+    )
+  )  { implicit request =>
+    request.session.get("api-key").map { apiKey =>
+      logger info "invoked"
+
+      val optRes = request.body match {
+        case Right(file) => {
+          file.file(multiMatchFormName) map { file =>
+            apiClient.bulk(BulkBody(
+              addresses = CSVReader.open(file.ref.file).all().zipWithIndex.flatMap { case (lines, index) =>
+                if(index == 0) {
+                  None
+                } else {
+                  Some(
+                    BulkQuery(
+                      id = lines.head,
+                      address = lines(1)
+                    )
+                  )
+                }
+              }
+            ),apiKey) map { resp =>
+              logger info s"Response size: ${resp.bulkAddresses.size}"
+              val csv = resp.bulkAddresses.map(_.id.toString).to[collection.immutable.Iterable]
+              Ok.chunked(Source[String](csv)).withHeaders(("Content-Disposition", """attachment;filename="test.csv""""))
+            }
+          }
+        }
+        case Left(maxSizeExceeded) => {
+          logger info "Max size exceeded"
+          Some(Future.successful(EntityTooLarge))
+        }
+      }
+      optRes.getOrElse(Future.successful(InternalServerError))}.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
     }
   }
