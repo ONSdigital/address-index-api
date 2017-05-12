@@ -137,7 +137,7 @@ class BulkMatchController @Inject()(
 
             file.file(multiMatchFormName).map { file =>
 
-              val addresses = CSVReader.open(file.ref.file).all().tail.map { case List(id, address) =>
+              val addresses = CSVReader.open(file.ref.file).all().tail.collect { case List(id, address) if address.nonEmpty =>
                 BulkQuery(id, address)
               }
 
