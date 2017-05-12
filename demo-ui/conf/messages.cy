@@ -701,7 +701,8 @@ category.ZW99SY = Synagogue
 category.ZW99TP = Temple
 category.ZW99LG = Lych Gate
 
-upload= Llwytho i fyny
+upload=Ddychmygu canlyniad
+upload-download=Lawrlwytho canlyniad
 multi.table.id = ID
 multi.table.input.address = Cyfeiriad Mewnbwn
 multi.table.matched.address = Cyfeiriad Cyfatebol
