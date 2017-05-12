@@ -50,7 +50,9 @@ GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.c
 POST        /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery
 
 # ONS-Address Index Bulk Mimic Upload
-POST        /bulkUpload                         uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileDownloadCsv
+POST        /bulkUpload                         uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileVisualise
+
+POST        /bulkUploadDownloadCsv              uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileDownloadCsv
 
 # ONS-Address Index Single Search View
 GET         /bulkAddresses                      uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage
