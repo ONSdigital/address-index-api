@@ -923,7 +923,7 @@ button.no-margin{
     margin-top: 10px;
 }
 
-#search-button.disabled{
+.search-button.disabled{
     opacity: 0.3;
 }
 
