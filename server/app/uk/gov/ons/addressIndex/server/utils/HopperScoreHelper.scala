@@ -1211,7 +1211,7 @@ object HopperScoreHelper  {
     * */
   def getNumberPartsFromName(name: String): String = {
     val parts = name.split(" ")
-    val numberParts = for (part <- parts if containsNumber(part)) yield part
+    val numberParts = for {part <- parts if containsNumber(part)} yield part
     numberParts.mkString(" ")
 }
   /**
@@ -1222,7 +1222,7 @@ object HopperScoreHelper  {
     * */
   def getNonNumberPartsFromName(name: String): String = {
     val parts = name.split(" ")
-    val stringParts = for (part <- parts if !containsNumber(part)) yield part
+    val stringParts = for {part <- parts if !containsNumber(part)} yield part
     stringParts.mkString(" ")
   }
 
