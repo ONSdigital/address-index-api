@@ -456,13 +456,10 @@ div.uprn-txt{
     white-space:nowrap;
     text-align:left;
     float: left;
-    width: 70%;
 }
 
 div.map-link-txt{
     text-align:right;
-    float: left;
-    width: 30%;
 }
 
 div.resultRow{
