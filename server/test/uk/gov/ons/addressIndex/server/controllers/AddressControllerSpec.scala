@@ -6,7 +6,6 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
@@ -192,7 +191,7 @@ class AddressControllerSpec extends PlaySpec with Results{
   }
 
   val parser = new ParserModule {
-    override def tag(input: String): Seq[CrfTokenResult] = Seq.empty
+    override def parse(input: String): Map[String, String] = Map.empty
   }
   val config = new AddressIndexConfigModule
 

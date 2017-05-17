@@ -1,9 +1,8 @@
 package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 
-class postTokenizeTreatmentTest extends FlatSpec with Matchers {
+class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName into paoStartNumber and paoStartSuffix" in {
     // Given
@@ -44,17 +43,14 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "NOT transform buildingNumber if it is not a number" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "not a number",
-        label = Tokens.buildingNumber
-      )
+    val input = Map(
+      Tokens.buildingNumber -> "not a number"
     )
 
-    val expected = Map.empty[String, Seq[CrfTokenResult]]
+    val expected = Map.empty[String, String]
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -62,15 +58,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingNumber and buildingName into paoStartNumber and paoStartSuffix" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "65B",
-        label = Tokens.buildingName
-      ),
-      CrfTokenResult(
-        value = "12",
-        label = Tokens.buildingNumber
-      )
+    val input = Map(
+      Tokens.buildingName -> "65B",
+      Tokens.buildingNumber -> "12"
     )
 
     val expected = Map(
@@ -82,7 +72,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -90,11 +80,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName into paoStartNumber and paoEndSuffix" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "120-122",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "120-122"
     )
 
     val expected = Map(
@@ -104,7 +91,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -112,11 +99,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName even if it doesn't follow the pattern" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "120-A",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "120-A"
     )
 
     val expected = Map(
@@ -125,7 +109,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -133,11 +117,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName if it is a number + a range" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "65 120-122",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "65 120-122"
     )
 
     val expected = Map(
@@ -148,7 +129,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -156,15 +137,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform subBuildingName into saoStartNumber and buildingName into paoStartNumber and paoEndNumber" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "FLAT 2",
-        label = Tokens.subBuildingName
-      ),
-      CrfTokenResult(
-        value = "SHIRE HOUSE 75-77",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.subBuildingName -> "FLAT 2",
+      Tokens.buildingName -> "SHIRE HOUSE 75-77"
     )
 
     val expected = Map(
@@ -176,7 +151,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -184,15 +159,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform subBuildingName into sao fields and buildingName into paoStartNumber and paoStartSuffix" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "11A-111A FIRST FLOOR FLAT",
-        label = Tokens.subBuildingName
-      ),
-      CrfTokenResult(
-        value = "237A",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.subBuildingName -> "11A-111A FIRST FLOOR FLAT",
+      Tokens.buildingName -> "237A"
     )
 
     val expected = Map(
@@ -207,7 +176,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -215,15 +184,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform subBuildingName into sao fields and buildingName into paoStartNumber and paoEndNumber" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "1B-1C",
-        label = Tokens.subBuildingName
-      ),
-      CrfTokenResult(
-        value = "COLEMAN HOUSE 1-3",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.subBuildingName -> "1B-1C",
+      Tokens.buildingName -> "COLEMAN HOUSE 1-3"
     )
 
     val expected = Map(
@@ -238,7 +201,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -270,15 +233,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform building name with a range even if there is already a building number" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "4-5D ASHFORD BUSINESS COMPLEX",
-        label = Tokens.buildingName
-      ),
-      CrfTokenResult(
-        value = "166",
-        label = Tokens.buildingNumber
-      )
+    val input = Map(
+      Tokens.buildingName -> "4-5D ASHFORD BUSINESS COMPLEX",
+      Tokens.buildingNumber -> "166"
     )
 
     val expected = Map(
@@ -291,7 +248,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -322,11 +279,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform building name with 2 ranges and some siffixes" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "44A-44F PICCADILLY COURT 457-463",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "44A-44F PICCADILLY COURT 457-463"
     )
 
     val expected = Map(
@@ -340,7 +294,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -348,11 +302,8 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "NOT transform building name into numbers if they are not Short" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "123456A-123456F PICCADILLY COURT 123456-123456",
-        label = Tokens.buildingName
-      )
+    val input = Map(
+      Tokens.buildingName -> "123456A-123456F PICCADILLY COURT 123456-123456"
     )
 
     val expected = Map(
@@ -362,7 +313,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -370,15 +321,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "replace borough if it is in the street name and the city is London" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "ALBANY ROAD MANOR PARK",
-        label = Tokens.streetName
-      ),
-      CrfTokenResult(
-        value = "LONDON",
-        label = Tokens.townName
-      )
+    val input = Map(
+      Tokens.streetName -> "ALBANY ROAD MANOR PARK",
+      Tokens.townName -> "LONDON"
     )
 
     val expected = Map(
@@ -388,7 +333,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected
@@ -396,15 +341,9 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "NOT replace borough if it is in the street name and the city is NOT London" in {
     // Given
-    val input = List(
-      CrfTokenResult(
-        value = "ALBANY ROAD MANOR PARK",
-        label = Tokens.streetName
-      ),
-      CrfTokenResult(
-        value = "MANCHESTER",
-        label = Tokens.townName
-      )
+    val input = Map(
+      Tokens.streetName -> "ALBANY ROAD MANOR PARK",
+      Tokens.townName -> "MANCHESTER"
     )
 
     val expected = Map(
@@ -413,7 +352,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens.postTokenizeTreatment(input)
+    val actual = Tokens.postTokenize(input)
 
     // Then
     actual shouldBe expected

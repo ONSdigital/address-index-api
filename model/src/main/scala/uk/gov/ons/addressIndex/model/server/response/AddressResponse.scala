@@ -3,9 +3,7 @@ package uk.gov.ons.addressIndex.model.server.response
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
 
@@ -87,7 +85,6 @@ case class AddressBySearchResponse(
 
 object AddressBySearchResponse {
   implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
-  implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
 }
 
 /**
