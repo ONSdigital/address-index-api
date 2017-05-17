@@ -7,7 +7,6 @@ import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFi
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
