@@ -226,22 +226,22 @@ object HopperScoreHelper  {
     // each element score is the better match of paf and nag
 
     val detailedOrganisationBuildingNamePafScore = calculateDetailedOrganisationBuildingNamePafScore (
-      buildingName,
-      pafBuildingName,
+      atSignForEmpty(getNonNumberPartsFromName(buildingName)),
+      getNonNumberPartsFromName(pafBuildingName),
       organisationName,
       pafOrganisationName)
 
     val detailedOrganisationBuildingNameNagScore = calculateDetailedOrganisationBuildingNameNagScore (
-      buildingName,
-      nagPaoText,
+      atSignForEmpty(getNonNumberPartsFromName(buildingName)),
+      getNonNumberPartsFromName(nagPaoText),
       organisationName,
       nagOrganisationName)
 
     val detailedOrganisationBuildingNameParam = detailedOrganisationBuildingNamePafScore.min(detailedOrganisationBuildingNameNagScore)
 
     val buildingNumberPafScore = calculateBuildingNumPafScore (
-      buildingName,
-      pafBuildingName,
+      atSignForEmpty(getNumberPartsFromName(buildingName)),
+      getNumberPartsFromName(pafBuildingName),
       pafBuildingNumber,
       paoStartSuffix,
       paoEndSuffix,
@@ -250,7 +250,7 @@ object HopperScoreHelper  {
       paoEndNumber)
 
     val buildingNumberNagScore = calculateBuildingNumNagScore (
-      buildingName,
+      atSignForEmpty(getNumberPartsFromName(buildingName)),
       nagPaoStartNumber,
       nagPaoEndNumber,
       nagPaoStartSuffix,
@@ -464,14 +464,14 @@ object HopperScoreHelper  {
     // each element score is the better match of paf and nag
 
     val OrganisationBuildingNamePafScore = calculateOrganisationBuildingNamePafScore (
-      buildingName,
-      pafBuildingName,
+      atSignForEmpty(getNonNumberPartsFromName(buildingName)),
+      getNonNumberPartsFromName(pafBuildingName),
       organisationName,
       pafOrganisationName)
 
     val OrganisationBuildingNameNagScore = calculateOrganisationBuildingNameNagScore (
-      buildingName,
-      nagPaoText,
+      atSignForEmpty(getNonNumberPartsFromName(buildingName)),
+      getNonNumberPartsFromName(nagPaoText),
       organisationName,
       nagOrganisationName)
 
@@ -845,14 +845,18 @@ object HopperScoreHelper  {
     // no PAF value
     val organisationNameParam = orgainisationNameNagScore
 
-    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(subBuildingName,pafSubBuildingName)
-    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(subBuildingName,nagSaoText)
+    val subBuildingNamePafScore = calculateSubBuildingNamePafScore(
+      atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
+      getNonNumberPartsFromName(pafSubBuildingName))
+    val subBuildingNameNagScore = calculateSubBuildingNameNagScore(
+      atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
+      getNonNumberPartsFromName(nagSaoText))
     val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
 
     val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
-      subBuildingName,
-      pafSubBuildingName,
-      pafBuildingName,
+      atSignForEmpty(getNumberPartsFromName(subBuildingName)),
+      getNumberPartsFromName(pafSubBuildingName),
+      getNumberPartsFromName(pafBuildingName),
       saoStartSuffix,
       saoEndSuffix,
       saoStartNumber,
@@ -860,7 +864,7 @@ object HopperScoreHelper  {
       pafBuildingNumber)
 
     val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
-      subBuildingName,
+      atSignForEmpty(getNumberPartsFromName(subBuildingName)),
       nagSaoStartNumber,
       nagSaoEndNumber,
       nagSaoStartSuffix,
@@ -1199,6 +1203,46 @@ object HopperScoreHelper  {
     penalty.toDouble
   }
 
+  /**
+    * Method 1 to separate the number and name parts e.g 6A HEDGEHOG HOUSE
+    * Return just the number bit, discard the rest
+    * @param name
+    * @return String containing just e.g 6A
+    * */
+  def getNumberPartsFromName(name: String): String = {
+    val parts = name.split(" ")
+    val numberParts = for (part <- parts if containsNumber(part)) yield part
+    numberParts.mkString(" ")
+}
+  /**
+    * Method 2 to separate the number and name parts e.g 6A HEDGEHOG HOUSE
+    * Remove the number part and return the rest
+    * @param name
+    * @return String containing just e.g HEDEGEHOG HOUSE
+    * */
+  def getNonNumberPartsFromName(name: String): String = {
+    val parts = name.split(" ")
+    val stringParts = for (part <- parts if !containsNumber(part)) yield part
+    stringParts.mkString(" ")
+  }
 
+  /**
+    * Test there is at least one number in a String
+    * @param namepart
+    * @return
+    */
+  def containsNumber(namepart: String): Boolean = {
+    val numPattern = "[0-9]+".r
+    !numPattern.findAllIn(namepart).toArray.isEmpty
+  }
+
+  /**
+    * If token becomes empty treat it as missing by setting it to the atsign character
+    * @param tokenString
+    * @return
+    */
+  def atSignForEmpty (tokenString: String): String = {
+    if  (tokenString == "") empty else tokenString
+  }
 
 }

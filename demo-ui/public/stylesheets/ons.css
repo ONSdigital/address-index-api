@@ -923,7 +923,7 @@ button.no-margin{
     margin-top: 10px;
 }
 
-#search-button.disabled{
+.search-button.disabled{
     opacity: 0.3;
 }
 
@@ -945,6 +945,6 @@ button.no-margin{
     margin-left: 7px;
 }
 
-label {
+#loginbox label {
     margin-left:10px;
 }

@@ -107,10 +107,16 @@
                     // We actually need this to be a typical hyperlink
                 });
 
+                //------------------------------------------------------------
+                // Form functions
+                //------------------------------------------------------------
+                var visualiseAction = "@{uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFileVisualise}";
+                var downloadAction  = "@{uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFileDownloadCsv}";
+
                 $("#search-form form").submit(function (e) {
-                    $("#search-button").css("opacity", 0.3).prop('disabled', true);
-                    $("#search-loading").append('<img style="margin-left:40px" src="@{routes.Assets.versioned("/images/progress.gif").toString}"/>');
-                })
+                    $(".search-button").addClass("disabled").prop('disabled', true);
+                    $("#search-loading").append('<img id="search-ajax-load" style="margin-left:40px" src="@{routes.Assets.versioned("/images/progress.gif").toString}"/>');
+                });
 
                 $("#multi-match").change(function(e)
                 {
@@ -118,10 +124,39 @@
 
                     if( fileName ) {
                         $("#file-name").text(fileName);
-                        $("#search-button").removeClass("disabled").prop('disabled', false);
+                        $(".search-button").removeClass("disabled").prop('disabled', false);
                     }
                 });
 
+                $("#search-button-download").click(function(){
+                    $("#search-form form").prop("action", downloadAction).submit()
+                });
+
+                function getCookie( name ) {
+                    var parts = document.cookie.split(name + "=");
+                    if (parts.length === 2) return parts.pop().split(";").shift();
+                }
+
+                // this token is needed so that in case of a download, we'd know when the download has started
+                function resetToken() {
+                    var token = + new Date();
+                    $('#search-token').val(token);
+                    return token
+                }
+
+                var value = resetToken();
+
+                window.setInterval(function(){
+                    var token = getCookie("token");
+
+                    if(token === value.toString()) {
+                        $('#search-ajax-load').remove();
+                        $("#search-form form").prop("action", visualiseAction);
+                        $(".search-button").removeClass("disabled").prop('disabled', false);
+                        value = resetToken();
+                    }
+
+                }, 1000);
             });
     </script>
     <div class="container">
@@ -134,7 +169,7 @@
                 <div class="panel-body">
                     <div id="search-form" class="search-bar-active">
                         @form(
-                            action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFile,
+                            action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFileVisualise,
                             'enctype -> "multipart/form-data"
                         ) {
                             <p class="inputfile-box">
@@ -143,8 +178,11 @@
                                     <span id="file-name" class="file-box">&nbsp;</span>
                                     <span class="upload-btn"> <i class="fa fa-upload" aria-hidden="true"></i> @messages("select_file")</span>
                                 </label>
+                                @*this token is needed so that in case of a download, we'd know when the download has started*@
+                                <input id="search-token" type="hidden" name="token" value="some default" />
 
-                                <button id="search-button" class="btn btn-success btn-search no-margin disabled" type="submit" disabled="disabled">@messages("upload")</button>
+                                <button id="search-button" class="btn btn-success search-button btn-search no-margin disabled" type="submit" disabled="disabled">@messages("upload")</button>
+                                <button id="search-button-download" class="btn btn-success search-button btn-search no-margin disabled" disabled="disabled">@messages("upload-download")</button>
                             </p>
                         }
                     </div>
