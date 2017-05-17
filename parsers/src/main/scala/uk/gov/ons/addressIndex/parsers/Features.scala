@@ -9,7 +9,7 @@ import com.google.common.base.CharMatcher
   * classes and tests)
   */
 object Features {
-  private val vowels = Seq('A', 'E', 'I', 'U', 'O')
+  private val vowels = Seq('A', 'E', 'I', 'O', 'U')
   
   private def isAllDigits(token: String): Boolean = CharMatcher.DIGIT.countIn(token) == token.length
 
