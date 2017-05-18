@@ -193,14 +193,14 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
 
     val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
     val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-    bulkQuery(requestsData, configOverwrite)
+    bulkQuery(requestsData, configOverwrite, limitPerAddress)
   }
 
   private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
@@ -212,21 +212,21 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
 
     val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
     val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-    bulkQuery(requestsData, configOverwrite, includeFullAddress = true)
+    bulkQuery(requestsData, configOverwrite, limitPerAddress, includeFullAddress = true)
   }
 
   /**
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitPerAddress: Option[Int]): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
 
     val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
@@ -234,13 +234,14 @@ class AddressController @Inject()(
     }
     val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-    bulkQuery(requestsData, configOverwrite)
+    bulkQuery(requestsData, configOverwrite, limitPerAddress)
   }
 
 
   private def bulkQuery(
     requestData: Stream[BulkAddressRequestData],
     configOverwrite: Option[QueryParamsConfig],
+    limitPerAddress: Option[Int],
     includeFullAddress: Boolean = false
   )(implicit request: Request[_]): Result = {
 
@@ -248,7 +249,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, configOverwrite)
+    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite)
 
     logger.info(s"#bulkQuery processed")
 
@@ -302,6 +303,7 @@ class AddressController @Inject()(
   final def iterateOverRequestsWithBackPressure(
     requests: Stream[BulkAddressRequestData],
     miniBatchSize: Int,
+    limitPerAddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
     canUpScale: Boolean = true,
     successfulResults: Seq[BulkAddress] = Seq.empty
@@ -318,7 +320,8 @@ class AddressController @Inject()(
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress, configOverwrite), Duration.Inf)
+    val addressesPerAddress = limitPerAddress.getOrElse(conf.config.bulk.limitPerAddress)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -338,7 +341,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
