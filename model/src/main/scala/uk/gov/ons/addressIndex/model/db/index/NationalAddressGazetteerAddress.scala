@@ -106,6 +106,11 @@ object NationalAddressGazetteerAddress {
     val lpiEndDate: String = "lpiEndDate"
   }
 
+  object Languages {
+    val english: String = "ENG"
+    val welsh: String = "CYM"
+  }
+
   def fromEsMap (nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
     val filteredNag = nag.filter{ case (_, value) => value != null }
 
