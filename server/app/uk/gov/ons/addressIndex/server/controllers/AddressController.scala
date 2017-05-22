@@ -448,11 +448,10 @@ class AddressController @Inject()(
   def checkAPIkey(apiKey: String): String = {
     val keyRequired = conf.config.apiKeyRequired
     if (keyRequired) {
-      val MasterKey = conf.config.masterKey
-      val Missing = missing
+      val masterKey = conf.config.masterKey
       apiKey match {
-        case Missing => missing
-        case MasterKey => valid
+        case key if key == missing => missing
+        case key if key == masterKey => valid
         case _ => invalid
       }
     } else {
