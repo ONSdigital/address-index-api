@@ -641,6 +641,11 @@ object BadRequestAddressResponseStatus extends AddressResponseStatus(
   message = "Bad request"
 )
 
+object UnauthorizedRequestAddressResponseStatus extends AddressResponseStatus(
+  code = Status.UNAUTHORIZED,
+  message = "Unauthorized"
+)
+
 object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
   code = Status.INTERNAL_SERVER_ERROR,
   message = "Internal server error"
@@ -710,6 +715,16 @@ object OffsetTooLargeAddressResponseError extends AddressResponseError(
 object FailedRequestToEsError extends AddressResponseError(
   code = 10,
   message = "Failed request to the Elastic Search (check api logs)"
+)
+
+object ApiKeyMissingError extends AddressResponseError(
+  code = 11,
+  message = "Api key not supplied"
+)
+
+object ApiKeyInvalidError extends AddressResponseError(
+  code = 12,
+  message = "Invalid Api key supplied"
 )
 
 

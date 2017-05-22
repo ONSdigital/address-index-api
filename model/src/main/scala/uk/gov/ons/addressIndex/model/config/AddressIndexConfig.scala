@@ -3,6 +3,8 @@ package uk.gov.ons.addressIndex.model.config
 import play.api.libs.json.{Format, Json}
 
 case class AddressIndexConfig(
+  apiKeyRequired: Boolean,
+  masterKey: String,
   parserLibPath: String,
   pathToResources: String,
   elasticSearch: ElasticSearchConfig,
