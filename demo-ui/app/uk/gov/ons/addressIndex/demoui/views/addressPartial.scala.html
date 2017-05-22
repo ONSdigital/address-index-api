@@ -19,9 +19,15 @@
         <div class="alert alert-success">
             <div class="matchResults">
                 <div class="resultRow">
-                    <div class="paf-nag-switch-buttons">
-                        <span class="formatted-nag-button formatted-button-active">LA</span>
-                        <span class="formatted-paf-button">PAF</span>
+                    <div class="address-switches">
+                        <div class="paf-nag-switch-buttons address-switch-buttons">
+                            <span class="formatted-nag-button active">LA</span>
+                            <span class="formatted-paf-button">PAF</span>
+                        </div>
+                        <div class="eng-wyc-switch-buttons address-switch-buttons">
+                            <span class="formatted-language-button active">ENG</span>
+                            <span class="formatted-language-button">WYC</span>
+                        </div>
                     </div>
                     <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
                         (
@@ -80,15 +86,6 @@
                 @if(address.nag.map(_.logicalStatus).contains("8")) {
                     <div class="resultRow">
                         <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }
-                    </div>
-                }
-
-                @if(address.welshFormattedAddressNag.nonEmpty || address.welshFormattedAddressPaf.nonEmpty) {
-                    <div class="resultRow">
-                        <a class="address-toggle-welsh">
-                        <span class="address-toggle-welsh-text">@messages("single.welsh_version")</span>
-                        <span style="display:none" class="address-toggle-english-text">@messages("single.english_version")</span>
-                        </a>
                     </div>
                 }
 
@@ -1028,10 +1025,10 @@
                                 <summary><strong>See Hierarchy Information</strong></summary>
 
                                 @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
-                                <details id="@position @address.uprn">
+                                <details id="@position@address.uprn">
                                     <summary><strong>@position</strong></summary>
                                     @relative.siblings.sorted.map { uprn =>
-                                        <script>formattedAddress(@uprn, @position@address.uprn, '@apiUrl')</script>
+                                        <script>formattedAddress("@uprn", "@position@address.uprn", '@apiUrl')</script>
                                     }
                                 </details>
                                 }

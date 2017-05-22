@@ -31,28 +31,6 @@ placeholder: String
 
 @main(title = messages("single.title"), version = version) {
 
-<script>
-    $(function () {
-        $(".clerical-button").click(function(e){
-            $(this).parent().parent().find(".clerical-div").toggleClass("hiderow");
-            return false;
-        })
-    });
-
-    function formattedAddress(uprn, position, apiUrl) {
-        var url = apiUrl.concat("/addresses/").concat(uprn);
-
-        $.getJSON(url).done(function( data ) {
-            var resUprn = data.response.address.uprn;
-            var formattedAddress = data.response.address.formattedAddress;
-
-            if (typeof formattedAddress !== 'undefined') {
-                $(position).append("<div id='" + resUprn + "'>" + formattedAddress + " (" + resUprn + ")" + "</div>");
-            }
-        });
-    }
-</script>
-
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
 <div class="container">

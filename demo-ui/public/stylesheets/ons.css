@@ -504,7 +504,7 @@ p.errorBody{
     color: darkred;
 }
 
-div.paf-nag-switch-buttons{
+div.address-switch-buttons{
     color: #aaa;
     text-align:left;
     background: #eee;
@@ -512,17 +512,21 @@ div.paf-nag-switch-buttons{
     float:left;
 }
 
-div.paf-nag-switch-buttons span{
+div.paf-nag-switch-buttons{
+    float:left;
+}
+
+div.address-switch-buttons span{
     padding: 0px 10px;
     border: 1px solid #999;
 }
 
-.formatted-button-active{
+.address-switches .active{
     background-color: #00914E;
     color: #fff;
 }
 
-div.paf-nag-switch-buttons span:hover{
+div.address-switch-buttons span:hover{
     background-color: #00914E;
     color: #fff;
     cursor:pointer;
