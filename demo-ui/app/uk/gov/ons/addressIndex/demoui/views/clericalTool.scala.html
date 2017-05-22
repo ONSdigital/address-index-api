@@ -30,30 +30,9 @@ placeholder: String
 *@
 
 @main(title = messages("single.title"), version = version) {
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
 <script>
     $(function () {
-       $(".formatted-nag-button").click(function (e) {
-           $(this).addClass("formatted-button-active");
-           var parent = $(this).closest(".resultRow");
-           parent.find(".formatted-paf-button").removeClass("formatted-button-active");
-           var parent2 = $(parent).next(".resultRow");
-           parent2.find(".formatted-nag").show();
-           parent2.find(".formatted-paf").hide();
-           e.preventDefault()
-       });
-
-        $(".formatted-paf-button").click(function (e) {
-            $(this).addClass("formatted-button-active");
-            var parent = $(this).closest(".resultRow");
-            parent.find(".formatted-nag-button").removeClass("formatted-button-active");
-            var parent2 = $(parent).next(".resultRow");
-            parent2.find(".formatted-paf").show();
-            parent2.find(".formatted-nag").hide();
-            e.preventDefault()
-        });
-
         $(".clerical-button").click(function(e){
             $(this).parent().parent().find(".clerical-div").toggleClass("hiderow");
             return false;

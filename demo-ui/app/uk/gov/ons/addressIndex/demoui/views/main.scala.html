@@ -31,33 +31,69 @@
         </script>
         <![endif]-->
 
-                <link rel="shortcut icon" href='@routes.Assets.versioned("images/favicon.ico")
-        ' type="image/x-icon" />
-        <link rel="mask-icon" href='@routes.Assets.versioned("images/gov.uk_logotype_crown.svg")
-        '>
-        <link rel="apple-touch-icon-precomposed" sizes="152x152" href='@routes.Assets.versioned("images/apple-touch-icon-152x152.png")
-        '>
-        <link rel="apple-touch-icon-precomposed" sizes="120x120" href='@routes.Assets.versioned("images/apple-touch-icon-120x120.png")
-        '>
-        <link rel="apple-touch-icon-precomposed" sizes="76x76" href='@routes.Assets.versioned("images/apple-touch-icon-76x76.png")
-        '>
-        <link rel="apple-touch-icon-precomposed" href='@routes.Assets.versioned("images/apple-touch-icon-60x60.png")
-        '>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <link rel="shortcut icon" href='@routes.Assets.versioned("images/favicon.ico")' type="image/x-icon" />
+        <link rel="mask-icon" href='@routes.Assets.versioned("images/gov.uk_logotype_crown.svg")'>
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href='@routes.Assets.versioned("images/apple-touch-icon-152x152.png")'>
+        <link rel="apple-touch-icon-precomposed" sizes="120x120" href='@routes.Assets.versioned("images/apple-touch-icon-120x120.png")'>
+        <link rel="apple-touch-icon-precomposed" sizes="76x76" href='@routes.Assets.versioned("images/apple-touch-icon-76x76.png")'>
+        <link rel="apple-touch-icon-precomposed" href='@routes.Assets.versioned("images/apple-touch-icon-60x60.png")'>
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta property="og:image" content='@routes.Assets.versioned("images/opengraph-image.png")
-        '>
+        <meta property="og:image" content='@routes.Assets.versioned("images/opengraph-image.png")'>
 
-        <link rel="stylesheet" media="screen" href='@routes.Assets.versioned("stylesheets/ons.css")
-        '>
-        <link rel="shortcut icon" type="image/png" href='@routes.Assets.versioned("images/favicon.ico")
-        '>
+        <link rel="stylesheet" media="screen" href='@routes.Assets.versioned("stylesheets/ons.css")'>
+        <link rel="shortcut icon" type="image/png" href='@routes.Assets.versioned("images/favicon.ico")'>
     </head>
     <body>
-    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+    <script>
+    document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
             function setFocus (elem) {
             document.getElementById(elem).focus();
             }
+
+    $(function () {
+
+        var englishAddressLanguageClass = ".address-english";
+        var welshAddressLanguageClass = ".address-welsh";
+        var currentAddressLanguageClass = englishAddressLanguageClass;
+
+        var nagFormattedAddressClass = ".formatted-nag";
+        var pafFormattedAddressClass = ".formatted-paf";
+        var currentFormattedAddress = nagFormattedAddressClass;
+
+        $(".formatted-nag-button").click(function (e) {
+            $(this).addClass("formatted-button-active");
+            var parent = $(this).closest(".resultRow");
+            parent.find(".formatted-paf-button").removeClass("formatted-button-active");
+            var parent2 = $(parent).next(".resultRow");
+            parent2.find(currentAddressLanguageClass + ".formatted-nag").show();
+            parent2.find(currentAddressLanguageClass + ".formatted-paf").hide();
+            currentFormattedAddress = nagFormattedAddressClass;
+            e.preventDefault()
+        });
+        $(".formatted-paf-button").click(function (e) {
+            $(this).addClass("formatted-button-active");
+            var parent = $(this).closest(".resultRow");
+            parent.find(".formatted-nag-button").removeClass("formatted-button-active");
+            var parent2 = $(parent).next(".resultRow");
+            parent2.find(currentAddressLanguageClass + ".formatted-paf").show();
+            parent2.find(currentAddressLanguageClass + ".formatted-nag").hide();
+            currentFormattedAddress = pafFormattedAddressClass;
+            e.preventDefault()
+        });
+
+        $(".address-toggle-welsh").click(function(e){
+            var parent = $(this).closest(".matchResults");
+            parent.find(".address-toggle-welsh-text").toggle();
+            parent.find(".address-toggle-english-text").toggle();
+            parent.find(currentAddressLanguageClass).hide();
+            currentAddressLanguageClass = (currentAddressLanguageClass === welshAddressLanguageClass) ? englishAddressLanguageClass : welshAddressLanguageClass;
+            parent.find(currentAddressLanguageClass + currentFormattedAddress).show();
+            return false;
+        })
+    });
+
     </script>
     <nav class="navbar navbar-default">
         @banner(version)

@@ -9,10 +9,10 @@
     classification: Option[Map[String, String]],
     tokens: Map[String, String],
     pageNum: Int,
-    expandRow: Int,
-    apiUrl: String,
-    index: Int,
-    isClerical: Boolean = false
+    index: Int = 0,
+    isClerical: Boolean = false,
+    expandRow: Int = 0,
+    apiUrl: String = ""
 )(implicit messages: Messages)
 <div class="panel panel-match address-panel">
     <div class="result-content">
@@ -34,8 +34,10 @@
                 <div class="resultRow">
                     <div>
                         <strong>@messages("single.address"): </strong>
-                        <span class="formatted-nag">@address.formattedAddressNag</span>
-                        <span style="display: none" class="formatted-paf">@address.formattedAddressPaf</span>
+                        <span class="address-english formatted-nag">@address.formattedAddressNag</span>
+                        <span style="display: none" class="address-english formatted-paf">@address.formattedAddressPaf</span>
+                        <span style="display: none" class="address-welsh formatted-nag">@address.welshFormattedAddressNag</span>
+                        <span style="display: none" class="address-welsh formatted-paf">@address.welshFormattedAddressPaf</span>
                         <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
                         title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
                                 &nbsp;@address.nag.map{ nag => @messages("logical.letter"+nag.logicalStatus) }&nbsp;
@@ -70,13 +72,35 @@
                         }
                     }
                 </div>
+                <div class="resultRow">
+                    <strong>@messages("clerical.la"):</strong>
+                    <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
+                </div>
 
+                @if(address.nag.map(_.logicalStatus).contains("8")) {
+                    <div class="resultRow">
+                        <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }
+                    </div>
+                }
+
+                @if(address.welshFormattedAddressNag.nonEmpty || address.welshFormattedAddressPaf.nonEmpty) {
+                    <div class="resultRow">
+                        <a class="address-toggle-welsh">
+                        <span class="address-toggle-welsh-text">@messages("single.welsh_version")</span>
+                        <span style="display:none" class="address-toggle-english-text">@messages("single.english_version")</span>
+                        </a>
+                    </div>
+                }
+
+                @if(isClerical) {
                 <div class="resultRow">
                     <div class="clericalInfo">
                         <a href="?page=@{
                             pageNum
                         }&expand=@index#@index">@messages("clerical.addinfo")</a>
                     </div>
+
+
                     <div class='@{ if(index == expandRow) "showrow"  else  "hiderow"  }'>
                         <div class="clericalInfo">
                             <a href="?page=@{
@@ -1020,6 +1044,7 @@
                         </div>
                     </div>
                 </div>
+                }
             </div>
         </div>
     </div>

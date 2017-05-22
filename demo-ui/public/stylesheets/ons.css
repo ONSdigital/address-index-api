@@ -945,3 +945,14 @@ button.no-margin{
 #loginbox label {
     margin-left:10px;
 }
+.address-toggle-welsh {
+    border: 1px solid #489DC4;
+    display: inline-block;
+    padding: 3px 15px;
+    color: #489DC4;
+    cursor: pointer;
+}
+a.address-toggle-welsh:hover {
+    color: #489DC4;
+    cursor: pointer;
+}
