@@ -26,18 +26,22 @@
                         </div>
                         <div class="eng-wyc-switch-buttons address-switch-buttons">
                             <span class="formatted-language-button active">ENG</span>
-                            <span class="formatted-language-button">WYC</span>
+                            <span class="formatted-language-button">CYM</span>
                         </div>
                     </div>
                     <div class="match-conf">
-                        <div>@messages("single.matchscore"):
-                            @("%.2f".format(address.underlyingScore)) /
+                        <div>
+                            @messages("single.matchscore"):
+                            @("%.2f".format(address.underlyingScore))
+                        </div>
+                        <div class="hopper-score">
+                            @messages("single.hopper_score"):
                             @("%.2f".format(address.bespokeScore.map(score => score.structuralScore).getOrElse(0))) /
                             @("%.2f".format(address.bespokeScore.map(score => score.objectScore).getOrElse(0)))
                         </div>
                     </div>
                 </div>
-                <div class="resultRow">
+                <div class="resultRow formatted-address">
                     <div>
                         <strong>@messages("single.address"): </strong>
                         <span class="address-english formatted-nag">@address.formattedAddressNag</span>
