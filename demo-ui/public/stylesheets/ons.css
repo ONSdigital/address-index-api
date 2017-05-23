@@ -512,6 +512,10 @@ div.address-switch-buttons{
     float:left;
 }
 
+div.address-switch-buttons.disabled{
+    opacity:0.2;
+}
+
 div.paf-nag-switch-buttons{
     float:left;
 }

@@ -24,7 +24,7 @@
                             <span class="formatted-nag-button active">LA</span>
                             <span class="formatted-paf-button">PAF</span>
                         </div>
-                        <div class="eng-wyc-switch-buttons address-switch-buttons">
+                       <div  class="eng-wyc-switch-buttons address-switch-buttons @if(address.welshFormattedAddressNag.isEmpty && address.welshFormattedAddressPaf) { disabled " title="No welsh address found"} else {"}>
                             <span class="formatted-language-button active">ENG</span>
                             <span class="formatted-language-button">WYC</span>
                         </div>
