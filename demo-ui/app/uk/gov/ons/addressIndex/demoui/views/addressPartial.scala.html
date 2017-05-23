@@ -1,0 +1,1049 @@
+@import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+@import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
+@import uk.gov.ons.addressIndex.parsers.Tokens
+@import java.text.SimpleDateFormat
+
+@(
+    address: AddressResponseAddress,
+    maxScore: Float,
+    classification: Option[Map[String, String]],
+    tokens: Map[String, String],
+    pageNum: Int,
+    index: Int = 0,
+    isClerical: Boolean = false,
+    expandRow: Int = 0,
+    apiUrl: String = ""
+)(implicit messages: Messages)
+<div class="panel panel-match address-panel">
+    <div class="result-content">
+        <div class="alert alert-success">
+            <div class="matchResults">
+                <div class="resultRow">
+                    <div class="address-switches">
+                        <div class="paf-nag-switch-buttons address-switch-buttons">
+                            <span class="formatted-nag-button active">LA</span>
+                            <span class="formatted-paf-button">PAF</span>
+                        </div>
+                        <div class="eng-wyc-switch-buttons address-switch-buttons">
+                            <span class="formatted-language-button active">ENG</span>
+                            <span class="formatted-language-button">WYC</span>
+                        </div>
+                    </div>
+                    <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
+                        (
+                        @defining(if(ScoreHelper.getPercentageFromScore(address.underlyingScore, maxScore) > 70) "#c6ffb3" else "#ffcccc") { color =>
+                            <span style="background-color: @color">
+                        }
+                        @{"%.2f".format((address.underlyingScore / maxScore) * 100)}</span>%)
+                    </div>
+                </div>
+                <div class="resultRow">
+                    <div>
+                        <strong>@messages("single.address"): </strong>
+                        <span class="address-english formatted-nag">@address.formattedAddressNag</span>
+                        <span style="display: none" class="address-english formatted-paf">@address.formattedAddressPaf</span>
+                        <span style="display: none" class="address-welsh formatted-nag">@address.welshFormattedAddressNag</span>
+                        <span style="display: none" class="address-welsh formatted-paf">@address.welshFormattedAddressPaf</span>
+                        <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
+                        title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
+                                &nbsp;@address.nag.map{ nag => @messages("logical.letter"+nag.logicalStatus) }&nbsp;
+                        </span>
+                    </div>
+                </div>
+                <div class="resultRow">
+                    <div class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
+                    @if(address.geo.isEmpty) {
+                        @if(address.nag.isEmpty) {
+                            <div class="map-link-txt">
+                                <a href="https://maps.google.com/?q=@address.paf.map { paf =>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h }" target="_blank">@messages("single.openmap")</a>
+                            </div>
+                        } else {
+                            <div class="map-link-txt">
+                                <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("single.openmap")</a>
+                            </div>
+                        }
+                    } else {
+                        <div class="map-link-txt">
+                            <a href="https://maps.google.com/?q=@address.geo.map { geo => @geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h }" target="_blank">@messages("single.openmap")</a>
+                        </div>
+                    }
+                </div>
+                <div class="resultRow">
+                    <strong>@messages("single.classification"): </strong>
+                    @if(address.nag.isEmpty) {
+                        @messages("category.notfound")
+                    } else {
+                        @address.nag.map { nag =>
+                            @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                        }
+                    }
+                </div>
+                <div class="resultRow">
+                    <strong>@messages("clerical.la"):</strong>
+                    <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
+                </div>
+
+                @if(address.nag.map(_.logicalStatus).contains("8")) {
+                    <div class="resultRow">
+                        <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }
+                    </div>
+                }
+
+                @if(isClerical) {
+                <div class="resultRow">
+                    <div class="clericalInfo">
+                        <a href="?page=@{
+                            pageNum
+                        }&expand=@index#@index">@messages("clerical.addinfo")</a>
+                    </div>
+
+
+                    <div class='@{ if(index == expandRow) "showrow"  else  "hiderow"  }'>
+                        <div class="clericalInfo">
+                            <a href="?page=@{
+                                pageNum
+                            }&expand=-1#@index">Hide</a>
+                        </div>
+                        <div class="clerical2">
+                            <strong>@messages("clerical.logicalstatus"): </strong>
+                            <span class="clericalgrey"> @address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</span>
+                        </div>
+                        @if(address.nag.map { nag => nag.logicalStatus }.contains("8")) {
+                            <div class="clerical2">
+                                <strong>@messages("single.enddate"): </strong>
+                                <span class="clericalgrey">&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }</span>
+                            </div>
+                        }
+                        <div class="clerical2">
+                            <strong>@messages("clerical.elasticscore"): </strong>
+                            <span class="clericalgrey"> @address.underlyingScore</span>
+                        </div>
+                        <div class="clerical2">
+                            <strong>@messages("clerical.parentuprn"): </strong>
+                            <span class="clericalgrey">
+                            @if(address.parentUprn == "0") {
+                                    &nbsp;N/A
+                                } else {
+                                &nbsp;@address.parentUprn
+                            }
+                            </span>
+                        </div>
+                        <div class="clerical2">
+                            <strong>@messages("clerical.la"):</strong>
+                            <span class="clericalgrey"> @address.nag.map { nag => @nag.localCustodianName } | @address.nag.map { nag => @nag.localCustodianGeogCode }</span>
+                        </div>
+                        <div class="clerical2">
+                            <strong>@messages("clerical.ta"):</strong>
+                        </div>
+                        <div class="taTable">
+                            @*PAF TABLE*@
+                            <div class="taRowH">
+                                <div class="taColumn1H">
+                                @messages("clerical.token_description")
+                                </div>
+                                <div class="taColumn2H">
+                                @messages("clerical.fieldnamePAF")
+                                </div>
+                                <div class="taColumn3H">
+                                @messages("clerical.inputdata")
+                                </div>
+                                <div class="taColumn4H">
+                                @messages("clerical.outputdata")
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.organisation_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.organisation_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.organisationName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.organisationName }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.department_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.department_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.departmentName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.departmentName }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.sub_building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sub_building_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.subBuildingName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.subBuildingName }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.building_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.buildingName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.buildingName }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.building_number")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.building_number")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.buildingNumber, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.buildingNumber }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.street_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.thoroughfare")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.streetName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.thoroughfare }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.street_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_thoroughfare")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.streetName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshThoroughfare }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.street_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.dependent_thoroughfare")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.streetName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.dependentThoroughfare }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.street_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_dependent_thoroughfare")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.streetName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshDependentThoroughfare }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.post_town")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.postTown }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_post_town")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshPostTown }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.dependentLocality }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshDependentLocality }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.double_dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.doubleDependentLocality }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_double_dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshDoubleDependentLocality }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.post_town")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.postTown }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_post_town")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshPostTown }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.dependentLocality }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshDependentLocality }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.double_dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.doubleDependentLocality }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.welsh_double_dependent_locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.welshDoubleDependentLocality }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.postcode")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.postcode")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.postcode, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.paf.map { paf => @paf.postcode }
+                                </div>
+                            </div>
+
+                            @*NAG TABLE*@
+                            <div class="taRowH">
+                                <div class="taColumn1H">
+                                @messages("clerical.token_description")
+                                </div>
+                                <div class="taColumn2H">
+                                @messages("clerical.fieldnameNAG")
+                                </div>
+                                <div class="taColumn3H">
+                                @messages("clerical.inputdata")
+                                </div>
+                                <div class="taColumn4H">
+                                @messages("clerical.outputdata")
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.organisation_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.organisation")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.organisationName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.organisation }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.organisation_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_text")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.organisationName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoText }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.organisation_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.legal_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.organisationName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.legalName }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.organisation_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sao_text")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.organisationName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.sao.saoText }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.department_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.legal_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.departmentName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.legalName }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.sub_building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sao_text")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.subBuildingName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.sao.saoText }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.sub_building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sao_start_number")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.saoStartNumber, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.sao.saoStartNumber }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.sub_building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sao_start_suffix")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.saoStartSuffix, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.sao.saoStartSuffix }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.sub_building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sao_end_number")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.saoEndNumber, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.sao.saoEndNumber }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.sub_building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sao_end_suffix")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.saoEndSuffix, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.sao.saoEndSuffix }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_text")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.buildingName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoText }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_start_number")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.paoStartNumber, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoStartNumber }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_start_suffix")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.paoStartSuffix, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoStartSuffix }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.token.building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_end_number")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.paoEndNumber, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoEndNumber }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.building_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_end_suffix")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.paoEndSuffix, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoEndSuffix }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.building_number")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.pao_start_number")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.paoStartNumber, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.pao.paoStartNumber }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.street_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.street_descriptor")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.streetName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.streetDescriptor }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.locality, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.locality }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.town_name")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.townName }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.town_name")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.townName, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.locality }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1">
+                                @messages("clerical.token.postcode")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.postcode_locator")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.postcode, "")
+                                </div>
+                                <div class="taColumn4">
+                                @address.nag.map { nag => @nag.postcodeLocator }
+                                </div>
+                            </div>
+                            @*NAG TABLE*@
+                            <div class="taRowH">
+                                <div class="taColumn1H">
+                                @messages("clerical.token_description")
+                                </div>
+                                <div class="taColumn2H">
+                                @messages("clerical.fieldname_derived")
+                                </div>
+                                <div class="taColumn3H">
+                                @messages("clerical.inputdata")
+                                </div>
+                                <div class="taColumn4H">
+                                @messages("clerical.outputdata")
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.postcode")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.postcode_out")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.postcodeOut, "")
+                                </div>
+                                <div class="taColumn4">
+                                @if(address.paf.isEmpty) {
+                                    @address.nag.map { nag => @nag.postcodeLocator.split(" ").headOption.getOrElse("") }
+                                } else {
+                                    @address.paf.map { paf => @paf.postcode.split(" ").headOption.getOrElse("") }
+                                }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.postcode")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.postcode_in")
+                                </div>
+                                <div class="taColumn3">
+                                @tokens.getOrElse(Tokens.postcodeIn, "")
+                                </div>
+                                <div class="taColumn4">
+                                @if(address.paf.isEmpty) {
+                                    @address.nag.map { nag => @nag.postcodeLocator.split(" ").lastOption.getOrElse("") }
+                                } else {
+                                    @address.paf.map { paf => @paf.postcode.split(" ").lastOption.getOrElse("") }
+                                }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.token.all")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.paf_all")
+                                </div>
+                                <div class="taColumn3">
+                                @Tokens.concatenate(tokens)
+                                </div>
+                                <div class="taColumn4">
+                                @address.formattedAddressPaf.replaceAll(",", "")
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.token.all")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.nag_all")
+                                </div>
+                                <div class="taColumn3">
+                                @Tokens.concatenate(tokens)
+                                </div>
+                                <div class="taColumn4">
+                                @address.formattedAddressNag.replaceAll(",", "")
+                                </div>
+                            </div>
+
+                            @* hopper score *@
+                            <div class="taRowH">
+                                <div class="taColumn1H">
+                                @messages("clerical.score")
+                                </div>
+                                <div class="taColumn2H">
+                                @messages("clerical.param")
+                                </div>
+                                <div class="taColumn3H">
+                                @messages("clerical.paramvalue")
+                                </div>
+                                <div class="taColumn4H">
+                                @messages("clerical.scorevalue")
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.organisation_building_name")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.localityScoreDebug.take(1) }
+                                </div>
+                                <div class="taColumn4top">
+                                @address.bespokeScore.map { score => @score.localityScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.street")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.localityScoreDebug.drop(1).take(1) }
+                                </div>
+                                <div class="taColumn4inner">
+                                @address.bespokeScore.map { score => @score.localityScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.townlocality")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.localityScoreDebug.drop(2).take(1) }
+                                </div>
+                                <div class="taColumn4inner">
+                                @address.bespokeScore.map { score => @score.localityScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.postcode")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.localityScoreDebug.drop(3).take(1) }
+                                </div>
+                                <div class="taColumn4bottom">
+                                @address.bespokeScore.map { score => @score.localityScore }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.building")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.detailed_organisation_building_name")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.buildingScoreDebug.take(1) }
+                                </div>
+                                <div class="taColumn4top">
+                                @address.bespokeScore.map { score => @score.buildingScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.building")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.buildingnumber")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.buildingScoreDebug.drop(1).take(1) }
+                                </div>
+                                <div class="taColumn4bottom">
+                                @address.bespokeScore.map { score => @score.buildingScore }
+                                </div>
+                            </div>
+
+                            <div class="taRow">
+                                <div class="taColumn1top">
+                                @messages("clerical.unit")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.ref_hierarchy")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.unitScoreDebug.take(1) }
+                                </div>
+                                <div class="taColumn4top">
+                                @address.bespokeScore.map { score => @score.unitScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.unit")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.organisation_name")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.unitScoreDebug.drop(1).take(1) }
+                                </div>
+                                <div class="taColumn4inner">
+                                @address.bespokeScore.map { score => @score.unitScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1inner">
+                                @messages("clerical.unit")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.subbuildingname")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.unitScoreDebug.drop(2).take(1) }
+                                </div>
+                                <div class="taColumn4inner">
+                                @address.bespokeScore.map { score => @score.unitScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                @messages("clerical.unit")
+                                </div>
+                                <div class="taColumn2">
+                                @messages("clerical.sub_building_number")
+                                </div>
+                                <div class="taColumn3">
+                                @address.bespokeScore.map { score => @score.unitScoreDebug.drop(3).take(1) }
+                                </div>
+                                <div class="taColumn4bottom">
+                                @address.bespokeScore.map { score => @score.unitScore }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clerical2">
+                            <details>
+                                <summary><strong>See Hierarchy Information</strong></summary>
+
+                                @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
+                                <details id="@position@address.uprn">
+                                    <summary><strong>@position</strong></summary>
+                                    @relative.siblings.sorted.map { uprn =>
+                                        <script>formattedAddress("@uprn", "@position@address.uprn", '@apiUrl')</script>
+                                    }
+                                </details>
+                                }
+                            </details>
+                        </div>
+                        <div class="clericalInfo">
+                            <a href="?page=@{
+                                pageNum
+                            }&expand=-1#@index">Hide</a>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
