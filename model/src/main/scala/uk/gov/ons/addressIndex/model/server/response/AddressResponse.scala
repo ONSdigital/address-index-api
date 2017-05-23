@@ -189,6 +189,8 @@ case class AddressResponseAddress(
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
+  welshFormattedAddressNag: String,
+  welshFormattedAddressPaf: String,
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
@@ -206,11 +208,15 @@ object AddressResponseAddress {
     */
   def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
 
-    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi)
+    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+
+    val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
+    val welshFormattedAddressNag = chosenWelshNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
 
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
+    val welshFormattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateWelshFormattedAddress).getOrElse("")
     val emptyScore = AddressResponseScore(
       objectScore = 0f,
       structuralScore = 0f,
@@ -228,6 +234,8 @@ object AddressResponseAddress {
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
+      welshFormattedAddressNag = welshFormattedAddressNag,
+      welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
@@ -241,11 +249,14 @@ object AddressResponseAddress {
     * @param addresses list of Nag addresses
     * @return the NAG address that corresponds to the returned address
     */
-  def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress]): Option[NationalAddressGazetteerAddress] ={
+  def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress], language: String): Option[NationalAddressGazetteerAddress] ={
     // "if" is more readable than "getOrElse" in this case
-    if (addresses.exists(_.lpiLogicalStatus == "1")) addresses.find(_.lpiLogicalStatus == "1")
-    else if (addresses.exists(_.lpiLogicalStatus == "6")) addresses.find(_.lpiLogicalStatus == "6")
-    else if (addresses.exists(_.lpiLogicalStatus == "8")) addresses.find(_.lpiLogicalStatus == "8")
+    if (addresses.exists(address => address.lpiLogicalStatus == "1" && address.language == language ))
+      addresses.find(_.lpiLogicalStatus == "1")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "6" && address.language == language))
+      addresses.find(_.lpiLogicalStatus == "6")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "8" && address.language == language))
+      addresses.find(_.lpiLogicalStatus == "8")
     else addresses.headOption
   }
 }
@@ -374,6 +385,28 @@ object AddressResponsePaf {
       poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
       paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
+
+  /**
+    * Creates Welsh formatted address from PAF address
+    * @param paf PAF address
+    * @return String of Welsh formatted address
+    */
+  def generateWelshFormattedAddress(paf: PostcodeAddressFileAddress): String = {
+
+    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
+
+    val trimmedBuildingNumber = paf.buildingNumber.trim
+    val trimmedDependentThoroughfare = paf.welshDependentThoroughfare.trim
+    val trimmedThoroughfare = paf.welshThoroughfare.trim
+
+    val buildingNumberWithStreetName =
+      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
+
+    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
+      poBoxNumber, buildingNumberWithStreetName, paf.welshDoubleDependentLocality, paf.welshDependentLocality,
+      paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
+  }
+
 }
 
 /**
@@ -641,6 +674,11 @@ object BadRequestAddressResponseStatus extends AddressResponseStatus(
   message = "Bad request"
 )
 
+object UnauthorizedRequestAddressResponseStatus extends AddressResponseStatus(
+  code = Status.UNAUTHORIZED,
+  message = "Unauthorized"
+)
+
 object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
   code = Status.INTERNAL_SERVER_ERROR,
   message = "Internal server error"
@@ -710,6 +748,16 @@ object OffsetTooLargeAddressResponseError extends AddressResponseError(
 object FailedRequestToEsError extends AddressResponseError(
   code = 10,
   message = "Failed request to the Elastic Search (check api logs)"
+)
+
+object ApiKeyMissingError extends AddressResponseError(
+  code = 11,
+  message = "Api key not supplied"
+)
+
+object ApiKeyInvalidError extends AddressResponseError(
+  code = 12,
+  message = "Invalid Api key supplied"
 )
 
 

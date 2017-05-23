@@ -34,6 +34,11 @@ class AddressController @Inject()(
   override val apiVersion: String = versionProvider.apiVersion
   override val dataVersion: String = versionProvider.dataVersion
 
+  val missing: String = "missing"
+  val invalid: String = "invalid"
+  val valid: String = "valid"
+  val notRequired: String = "not required"
+
   /**
     * Address query API
     *
@@ -43,6 +48,10 @@ class AddressController @Inject()(
   def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
+
+    // check API key
+    val apiKey = req.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
@@ -67,8 +76,14 @@ class AddressController @Inject()(
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    // Check the offset and limit parameters before proceeding with the request
-    if (limitInvalid) {
+    // Check the api key, offset and limit parameters before proceeding with the request
+    if (keyStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
+      futureJsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
+      futureJsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
       writeSplunkLogs(badRequestErrorMessage = LimitNotNumericAddressResponseError.message)
       futureJsonBadRequest(LimitNotNumeric)
     } else if (limitInt < 1) {
@@ -145,6 +160,10 @@ class AddressController @Inject()(
   def uprnQuery(uprn: String): Action[AnyContent] = Action async { implicit req =>
     logger.info(s"#uprnQuery: uprn: $uprn")
 
+    // check API key
+    val apiKey = req.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
@@ -154,36 +173,44 @@ class AddressController @Inject()(
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
-    val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
-    request.map {
-      case Some(hybridAddress) =>
+    if (keyStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
+      futureJsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
+      futureJsonUnauthorized(KeyInvalid)
+    } else {
+      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
+      request.map {
+        case Some(hybridAddress) =>
 
-        val address = AddressResponseAddress.fromHybridAddress(hybridAddress)
+          val address = AddressResponseAddress.fromHybridAddress(hybridAddress)
 
-        writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = "1", score = hybridAddress.score.toString)
+          writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = "1", score = hybridAddress.score.toString)
 
-        jsonOk(
-          AddressByUprnResponseContainer(
-            apiVersion = apiVersion,
-            dataVersion = dataVersion,
-            response = AddressByUprnResponse(
-              address = Some(address)
-            ),
-            status = OkAddressResponseStatus
+          jsonOk(
+            AddressByUprnResponseContainer(
+              apiVersion = apiVersion,
+              dataVersion = dataVersion,
+              response = AddressByUprnResponse(
+                address = Some(address)
+              ),
+              status = OkAddressResponseStatus
+            )
           )
-        )
 
-      case None =>
-        writeSplunkLogs(notFound = true)
-        jsonNotFound(NoAddressFoundUprn)
+        case None =>
+          writeSplunkLogs(notFound = true)
+          jsonNotFound(NoAddressFoundUprn)
 
-    }.recover {
-      case NonFatal(exception) =>
+      }.recover {
+        case NonFatal(exception) =>
 
-        writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
-        logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-        InternalServerError(Json.toJson(FailedRequestToEs))
+          logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+          InternalServerError(Json.toJson(FailedRequestToEs))
+      }
     }
   }
 
@@ -193,14 +220,24 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
+    // check API key
+    val apiKey = request.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+    if (keyStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
+      jsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
+      jsonUnauthorized(KeyInvalid)
+    } else {
+      val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
-    val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
+      val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-    val configOverwrite: Option[QueryParamsConfig] = request.body.config
-
-    bulkQuery(requestsData, configOverwrite)
+      bulkQuery(requestsData, configOverwrite, limitPerAddress)
+    }
   }
 
   private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
@@ -212,35 +249,56 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
+    // check API key
+    val apiKey = request.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+    if (keyStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
+      jsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
+      jsonUnauthorized(KeyInvalid)
+    } else {
+      val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
-    val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
+      val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-    val configOverwrite: Option[QueryParamsConfig] = request.body.config
-
-    bulkQuery(requestsData, configOverwrite, includeFullAddress = true)
+      bulkQuery(requestsData, configOverwrite, limitPerAddress, includeFullAddress = true)
+    }
   }
 
   /**
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitPerAddress: Option[Int]): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
+    // check API key
+    val apiKey = request.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+    if (keyStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
+      jsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
+      jsonUnauthorized(KeyInvalid)
+    } else {
+      val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
+        row => BulkAddressRequestData(row.id, row.tokens.values.mkString(" "), row.tokens)
+      }
+      val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-    val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
-      row => BulkAddressRequestData(row.id, row.tokens.values.mkString(" "), row.tokens)
+      bulkQuery(requestsData, configOverwrite, limitPerAddress)
     }
-    val configOverwrite: Option[QueryParamsConfig] = request.body.config
-
-    bulkQuery(requestsData, configOverwrite)
   }
 
 
   private def bulkQuery(
     requestData: Stream[BulkAddressRequestData],
     configOverwrite: Option[QueryParamsConfig],
+    limitPerAddress: Option[Int],
     includeFullAddress: Boolean = false
   )(implicit request: Request[_]): Result = {
 
@@ -248,7 +306,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, configOverwrite)
+    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite)
 
     logger.info(s"#bulkQuery processed")
 
@@ -302,6 +360,7 @@ class AddressController @Inject()(
   final def iterateOverRequestsWithBackPressure(
     requests: Stream[BulkAddressRequestData],
     miniBatchSize: Int,
+    limitPerAddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
     canUpScale: Boolean = true,
     successfulResults: Seq[BulkAddress] = Seq.empty
@@ -318,7 +377,8 @@ class AddressController @Inject()(
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, conf.config.bulk.limitPerAddress, configOverwrite), Duration.Inf)
+    val addressesPerAddress = limitPerAddress.getOrElse(conf.config.bulk.limitPerAddress)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -338,7 +398,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -379,5 +439,24 @@ class AddressController @Inject()(
     addresses.collect {
       case Left(address) => address
     }
+
+  /**
+    * Method to validate api key
+    * @param apiKey
+    * @return not required, valid, invalid or missing
+    */
+  def checkAPIkey(apiKey: String): String = {
+    val keyRequired = conf.config.apiKeyRequired
+    if (keyRequired) {
+      val masterKey = conf.config.masterKey
+      apiKey match {
+        case key if key == missing => missing
+        case key if key == masterKey => valid
+        case _ => invalid
+      }
+    } else {
+      notRequired
+    }
+  }
 
 }

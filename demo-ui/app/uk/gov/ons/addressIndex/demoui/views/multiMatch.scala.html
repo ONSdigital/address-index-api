@@ -23,7 +23,6 @@
 }
 
 @main(title = messages("single.title"), version = version) {
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
     <script>
             $(document).ready(function () {
                 function exportTableToCSV($table, filename) {
@@ -208,7 +207,6 @@
                                             @tableHeaderHelper(messages("multi.table.matched.address"))
                                             @tableHeaderHelper(messages("multi.table.uprn"))
                                             @tableHeaderHelper(messages("multi.table.match.type"))
-                                            @tableHeaderHelper(messages("multi.table.score"))
                                             @tableHeaderHelper(messages("multi.table.actual.score"))
                                             @tableHeaderHelper(messages("multi.table.rank"))
                                         </thead>
@@ -221,7 +219,6 @@
                                                         <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
                                                         <td align="center">@{result.uprn}</td>
                                                         <td align="center" class="match-type-@matchType">@matchType</td>
-                                                        <td align="center">@{ScoreHelper.getRelativePercentageScore(result.score, bulkResp)}&#37;</td>
                                                         <td align="center">@{result.score}</td>
                                                         <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
                                                     </tr>
