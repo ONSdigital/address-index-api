@@ -52,6 +52,23 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  private def UnauthorizedRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = Error,
+      status = UnauthorizedRequestAddressResponseStatus,
+      errors = errors
+    )
+  }
+
+  def KeyMissing: AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(ApiKeyMissingError)
+  }
+
+  def KeyInvalid: AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(ApiKeyInvalidError)
+  }
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
   }
