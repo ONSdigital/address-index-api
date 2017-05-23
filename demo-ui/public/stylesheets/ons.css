@@ -452,6 +452,10 @@ div.match-conf{
     width: 65%;
 }
 
+div.match-conf .hopper-score {
+    margin-top: -20px;
+}
+
 div.uprn-txt{
     white-space:nowrap;
     text-align:left;
@@ -467,6 +471,10 @@ div.resultRow{
     padding-bottom: 4px;
     clear: both;
     min-height:24px;
+}
+
+div.resultRow.formatted-address{
+    margin-top: 20px;
 }
 
 .map-link-txt a:link {
