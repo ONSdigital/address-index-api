@@ -156,6 +156,8 @@ object HopperScoreHelper  {
       formattedAddress = address.formattedAddress,
       formattedAddressNag = address.formattedAddressNag,
       formattedAddressPaf = address.formattedAddressPaf,
+      welshFormattedAddressNag = address.welshFormattedAddressNag,
+      welshFormattedAddressPaf = address.welshFormattedAddressPaf,
       paf = address.paf,
       nag = address.nag,
       geo = address.geo,

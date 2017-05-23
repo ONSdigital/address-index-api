@@ -45,7 +45,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     crossReference = "crossReference",
     streetClassification = "streetClassification",
     multiOccCount = "multiOccCount",
-    language = "language",
+    language = NationalAddressGazetteerAddress.Languages.english,
     classScheme = "classScheme",
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
@@ -53,6 +53,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     rpc = "rpc",
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate"
+  )
+
+  val givenWelshNag = givenNag.copy(
+    townName = "wn20",
+    locality = "wn21",
+    language = NationalAddressGazetteerAddress.Languages.welsh
   )
 
   val givenRealisticNag = givenNag.copy(
@@ -71,6 +77,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     saoEndNumber = "",
     saoEndSuffix = "",
     level = "",
+    language = NationalAddressGazetteerAddress.Languages.english,
     streetDescriptor = "BRIBERY ROAD",
     townName = "EXTER",
     locality = ""
@@ -280,6 +287,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",
+        welshFormattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
+        welshFormattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 19, 20, 21, 22, 23, 16",
         paf = Some(expectedPaf),
         nag = Some(expectedNag),
         geo = Some(AddressResponseGeo(
@@ -422,7 +431,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "6"))
 
       // When
-      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
 
       // Then
       result shouldBe Some(expectedNag)
@@ -434,7 +443,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "8"))
 
       // When
-      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
 
       // Then
       result shouldBe Some(expectedNag)
@@ -446,7 +455,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "11"))
 
       // When
-      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
 
       // Then
       result shouldBe Some(expectedNag)
@@ -458,7 +467,19 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val nagAddresses = Seq(expectedNag, expectedNag.copy(lpiLogicalStatus = "10") , expectedNag.copy(lpiLogicalStatus = "11"))
 
       // When
-      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses)
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
+
+      // Then
+      result shouldBe Some(expectedNag)
+    }
+
+    "choose the nag with a specified language if it exists" in {
+      // Given
+      val expectedNag = givenNag.copy(lpiLogicalStatus = "1", language = NationalAddressGazetteerAddress.Languages.welsh)
+      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "6"))
+
+      // When
+      val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.welsh)
 
       // Then
       result shouldBe Some(expectedNag)

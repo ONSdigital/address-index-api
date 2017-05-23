@@ -43,7 +43,6 @@ clerical.double_dependent_locality = Dwbl Ardal Dibynnol
 clerical.welsh_double_dependent_locality = Dwbl Ardal Dibynnol
 clerical.post_town = Tref Bost
 clerical.welsh_post_town = Tref Cymraeg Post
-clerical.postcode = Cod post
 clerical.paf_all=Paf all
 clerical.nag_all=Nag all
 
@@ -125,6 +124,8 @@ single.title=Mynd i''r afael mynegai demo - Dod o hyd i gyfeiriad
 single.notyet=Paru heb ei weithredu eto
 single.uprn=UPRN
 single.address=cyfeiriad
+single.welsh_version=fersiwn Cymraeg
+single.english_version=fersiwn Saesneg
 single.matchscore=Cyfateb Sgôr
 single.confidence=hyder
 single.found=dod o hyd i gyfeiriadau
