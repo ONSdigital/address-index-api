@@ -83,7 +83,7 @@
             e.preventDefault()
         });
 
-        $(".formatted-language-button").click(function(e){
+        $(".eng-wyc-switch-buttons:not(.disabled) .formatted-language-button").click(function(e){
             var parent = $(this).closest(".matchResults");
             parent.find(".formatted-language-button").toggleClass("active");
             parent.find(currentAddressLanguageClass).hide();

@@ -24,20 +24,24 @@
                             <span class="formatted-nag-button active">LA</span>
                             <span class="formatted-paf-button">PAF</span>
                         </div>
-                        <div class="eng-wyc-switch-buttons address-switch-buttons">
+                       <div  class="eng-wyc-switch-buttons address-switch-buttons @if(address.welshFormattedAddressNag.isEmpty && address.welshFormattedAddressPaf) { disabled " title="No welsh address found"} else {"}>
                             <span class="formatted-language-button active">ENG</span>
-                            <span class="formatted-language-button">WYC</span>
+                            <span class="formatted-language-button">CYM</span>
                         </div>
                     </div>
-                    <div class="match-conf">@messages("single.matchscore"): @("%.2f".format(address.underlyingScore))
-                        (
-                        @defining(if(ScoreHelper.getPercentageFromScore(address.underlyingScore, maxScore) > 70) "#c6ffb3" else "#ffcccc") { color =>
-                            <span style="background-color: @color">
-                        }
-                        @{"%.2f".format((address.underlyingScore / maxScore) * 100)}</span>%)
+                    <div class="match-conf">
+                        <div>
+                            @messages("single.matchscore"):
+                            @("%.2f".format(address.underlyingScore))
+                        </div>
+                        <div class="hopper-score">
+                            @messages("single.hopper_score"):
+                            @("%.2f".format(address.bespokeScore.map(score => score.structuralScore).getOrElse(0))) /
+                            @((address.bespokeScore.map(score => "%.2f".format(score.objectScore)).filter(_ != "-1.00").getOrElse("N/A")))
+                        </div>
                     </div>
                 </div>
-                <div class="resultRow">
+                <div class="resultRow formatted-address">
                     <div>
                         <strong>@messages("single.address"): </strong>
                         <span class="address-english formatted-nag">@address.formattedAddressNag</span>
