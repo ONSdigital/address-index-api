@@ -449,7 +449,8 @@ class AddressController @Inject()(
     val keyRequired = conf.config.apiKeyRequired
     if (keyRequired) {
       val masterKey = conf.config.masterKey
-      apiKey match {
+      val apiKeyTest = apiKey.drop(apiKey.indexOf("_")+1)
+      apiKeyTest match {
         case key if key == missing => missing
         case key if key == masterKey => valid
         case _ => invalid
