@@ -826,6 +826,7 @@ object HopperScoreHelper  {
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
     val pafBuildingNumber = address.paf.map(_.buildingNumber).getOrElse("")
     val pafSubBuildingName = address.paf.map(_.subBuildingName).getOrElse("")
+    val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
 
     //get nag values
     val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
@@ -843,7 +844,7 @@ object HopperScoreHelper  {
     // each element score is the better match of paf and nag
 
     val orgainisationNameNagScore =
-      calculateOrganisationNameNagScore(organisationName,nagPaoText,nagSaoText,nagOrganisationName)
+      calculateOrganisationNameNagScore(organisationName,nagPaoText,nagSaoText,nagOrganisationName,pafOrganisationName)
     // no PAF value
     val organisationNameParam = orgainisationNameNagScore
 
@@ -885,7 +886,8 @@ object HopperScoreHelper  {
     organisationName: String,
     nagPaoText: String,
     nagSaoText: String,
-    nagOrganisationName: String) : Int = {
+    nagOrganisationName: String,
+    pafOrganisationName: String) : Int = {
 
     // match oganisation
     val nagPAOOrganisationMatchScore = if (organisationName == empty) 4
@@ -897,7 +899,7 @@ object HopperScoreHelper  {
 
     // Look for organisation match agaings PAO, SAO, or Organisation (NAG only)
     if (nagPAOOrganisationMatchScore < 3 || nagSAOOrganisationMatchScore < 3 || nagOrganisationMatchScore < 3 ) 1
-    else if (organisationName == empty && nagOrganisationName == "" && nagPaoText == "" && nagSaoText == "") 9
+    else if (organisationName == empty && nagOrganisationName == "" && ((nagPaoText == "" && nagSaoText == "") || (pafOrganisationName == ""))) 9
     else if (!((organisationName != empty && nagPaoText != "" )
       || (organisationName != empty && nagSaoText != "" )
       || (organisationName != empty && nagOrganisationName != "" ))) 8
