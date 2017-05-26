@@ -91,10 +91,8 @@
             parent.find(currentAddressLanguageClass + currentFormattedAddress).show();
             return false;
         })
-    });
 
-    $('a[href^=mailto]').each(function() {
-        $(this).click(function() {
+        $('.mailto').click(function() {
             var timeout;
 
             $(window).blur(function() {
@@ -106,8 +104,11 @@
                 // The browser did not respond after 500ms.
                 alert("@messages("mailto.fallback")")
             }, 500);
+
         });
+
     });
+
 
 
     function formattedAddress(uprn, position, apiUrl) {
