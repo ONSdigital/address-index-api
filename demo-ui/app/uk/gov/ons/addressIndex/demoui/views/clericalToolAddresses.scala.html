@@ -18,7 +18,7 @@
             @addressBySearchResponse.map { aresponse =>
             <div id="match-count" class="panel panel-single address-panel">
                 <h3 class="green">@aresponse.total @messages("single.found")</h3>
-                <a onclick="javascript:window.location='mailto:neil.hopper@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(clerical%20tool)&body=Input: %22@{HtmlFormat.escape(singleSearchForm.value.map(_.address.replaceAll("'", "%27").replaceAll("&", "%26")).getOrElse(""))}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
+                <a class="mailto" onclick="javascript:window.location='mailto:ai.users@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(clerical%20tool)&body=Input: %22@{HtmlFormat.escape(singleSearchForm.value.map(_.address.replaceAll("'", "%27").replaceAll("&", "%26")).getOrElse(""))}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
             </div>
             @aresponse.addresses.zipWithIndex.map{ case (address, index) =>
 
