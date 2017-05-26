@@ -683,12 +683,13 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "calculate the orgainisation name nag score for an address " in {
+  it should "calculate the organisation name nag score for an address " in {
     // Given
     val organisationName = "BONGO WONGO"
     val nagPaoText = "WINGO BINGO"
     val nagSaoText = "GAMBLING DEN 2"
     val nagOrganisationName = "WINGO BINGO"
+    val pafOrganisationName = ""
     val expected = 1
 
     // When
@@ -696,7 +697,30 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
       organisationName,
       nagPaoText,
       nagSaoText,
-      nagOrganisationName)
+      nagOrganisationName,
+      pafOrganisationName)
+
+    // Then
+    actual shouldBe expected
+  }
+
+
+  it should "calculate the organisation name nag score for amendment #1 special case for an address " in {
+    // Given
+    val organisationName = "@"
+    val nagPaoText = "FRED'S FISH"
+    val nagSaoText = "FINGERS DEPT."
+    val nagOrganisationName = ""
+    val pafOrganisationName = ""
+    val expected = 9
+
+    // When
+    val actual = HopperScoreHelper.calculateOrganisationNameNagScore(
+      organisationName,
+      nagPaoText,
+      nagSaoText,
+      nagOrganisationName,
+      pafOrganisationName)
 
     // Then
     actual shouldBe expected
