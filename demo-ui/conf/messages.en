@@ -154,6 +154,7 @@ uprn.notfound=UPRN Not Found
 uprn.found=UPRN Found
 error.error=Error
 error.detail=Message Detail
+mailto.fallback=Your default e-mail client is not set up, please refer to the "Help" page for the instructions or directly send an e-mail to ai.users@ons.gov.uk with url, input and the description of the problem
 category.notfound = Classification Unknown
 category.C=Commercial
 category.CA=Agricultural
