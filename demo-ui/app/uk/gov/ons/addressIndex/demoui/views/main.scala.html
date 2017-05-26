@@ -56,41 +56,54 @@
 
         var englishAddressLanguageClass = ".address-english";
         var welshAddressLanguageClass = ".address-welsh";
-        var currentAddressLanguageClass = englishAddressLanguageClass;
 
         var nagFormattedAddressClass = ".formatted-nag";
         var pafFormattedAddressClass = ".formatted-paf";
-        var currentFormattedAddress = nagFormattedAddressClass;
+
+        $(".matchResults")
+                .data("format", nagFormattedAddressClass)
+                .data("language", englishAddressLanguageClass);
 
         $(".formatted-nag-button").click(function (e) {
             $(this).addClass("active");
-            var parent = $(this).closest(".resultRow");
+            var parent = $(this).closest(".matchResults");
             parent.find(".formatted-paf-button").removeClass("active");
-            var parent2 = $(parent).next(".resultRow");
-            parent2.find(currentAddressLanguageClass + ".formatted-nag").show();
-            parent2.find(currentAddressLanguageClass + ".formatted-paf").hide();
-            currentFormattedAddress = nagFormattedAddressClass;
-            e.preventDefault()
-        });
-        $(".formatted-paf-button").click(function (e) {
-            $(this).addClass("active");
-            var parent = $(this).closest(".resultRow");
-            parent.find(".formatted-nag-button").removeClass("active");
-            var parent2 = $(parent).next(".resultRow");
-            parent2.find(currentAddressLanguageClass + ".formatted-paf").show();
-            parent2.find(currentAddressLanguageClass + ".formatted-nag").hide();
-            currentFormattedAddress = pafFormattedAddressClass;
-            e.preventDefault()
+            parent.find(parent.data("language") + nagFormattedAddressClass).show();
+            parent.find(parent.data("language") + pafFormattedAddressClass).hide();
+            parent.data("format", nagFormattedAddressClass);
+            return false;
         });
 
-        $(".eng-wyc-switch-buttons:not(.disabled) .formatted-language-button").click(function(e){
+        $(".formatted-paf-button").click(function (e) {
+            $(this).addClass("active");
             var parent = $(this).closest(".matchResults");
-            parent.find(".formatted-language-button").toggleClass("active");
-            parent.find(currentAddressLanguageClass).hide();
-            currentAddressLanguageClass = (currentAddressLanguageClass === welshAddressLanguageClass) ? englishAddressLanguageClass : welshAddressLanguageClass;
-            parent.find(currentAddressLanguageClass + currentFormattedAddress).show();
+            parent.find(".formatted-nag-button").removeClass("active");
+            parent.find(parent.data("language") + pafFormattedAddressClass).show();
+            parent.find(parent.data("language") + nagFormattedAddressClass).hide();
+            parent.data("format", pafFormattedAddressClass);
             return false;
-        })
+        });
+
+        $(".eng-wyc-switch-buttons:not(.disabled) .formatted-language-button-eng").click(function(e){
+            $(this).addClass("active");
+            var parent = $(this).closest(".matchResults");
+            parent.find(".formatted-language-button-cym").removeClass("active");
+            parent.find(parent.data("format") + englishAddressLanguageClass).show();
+            parent.find(parent.data("format") + welshAddressLanguageClass).hide();
+            parent.data("language", englishAddressLanguageClass);
+            return false;
+        });
+
+        $(".eng-wyc-switch-buttons:not(.disabled) .formatted-language-button-cym").click(function(e){
+            $(this).addClass("active");
+            var parent = $(this).closest(".matchResults");
+            parent.find(".formatted-language-button-eng").removeClass("active");
+            parent.find(parent.data("format") + welshAddressLanguageClass).show();
+            parent.find(parent.data("format") + englishAddressLanguageClass).hide();
+            parent.data("language", welshAddressLanguageClass);
+            return false;
+        });
+
     });
 
 
