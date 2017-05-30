@@ -7,8 +7,8 @@
     address: AddressResponseAddress,
     maxScore: Float,
     classification: Option[Map[String, String]],
-    tokens: Map[String, String],
-    pageNum: Int,
+    tokens: Map[String, String] = Map.empty[String, String],
+    pageNum: Int = 0,
     index: Int = 0,
     isClerical: Boolean = false,
     expandRow: Int = 0,
@@ -95,19 +95,23 @@
 
                 @if(isClerical) {
                 <div class="resultRow">
-                    <div class="clericalInfo">
-                        <a href="?page=@{
-                            pageNum
-                        }&expand=@index#@index">@messages("clerical.addinfo")</a>
-                    </div>
+                    @if(index != expandRow) {
+                        <div class="clericalInfo">
+                            <a href="?page=@{
+                                pageNum
+                            }&expand=@index#@index">@messages("clerical.addinfo")</a>
+                        </div>
+                    }
 
 
                     <div class='@{ if(index == expandRow) "showrow"  else  "hiderow"  }'>
+                        @if(index >= 0) {
                         <div class="clericalInfo">
                             <a href="?page=@{
                                 pageNum
                             }&expand=-1#@index">Hide</a>
                         </div>
+                        }
                         <div class="clerical2">
                             <strong>@messages("clerical.logicalstatus"): </strong>
                             <span class="clericalgrey"> @address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</span>
@@ -1038,11 +1042,13 @@
                                 }
                             </details>
                         </div>
-                        <div class="clericalInfo">
-                            <a href="?page=@{
-                                pageNum
-                            }&expand=-1#@index">Hide</a>
-                        </div>
+                        @if(index >= 0) {
+                            <div class="clericalInfo">
+                                <a href="?page=@{
+                                    pageNum
+                                }&expand=-1#@index">Hide</a>
+                            </div>
+                        }
                     </div>
                 </div>
                 }

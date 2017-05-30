@@ -58,9 +58,7 @@ version: DemoUIAddressIndexVersionModule
                 @addressPartial(
                     address,
                     aresponse.maxScore,
-                    classification,
-                    aresponse.tokens,
-                    pageNum
+                    classification
                 )
             }
             @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),aresponse.total, "single")
