@@ -218,7 +218,9 @@ class SingleMatchController @Inject()(
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
-        version = version)
+          version = version,
+          isClerical = false
+        )
         Ok(viewToRender)}
       }
     }.getOrElse {

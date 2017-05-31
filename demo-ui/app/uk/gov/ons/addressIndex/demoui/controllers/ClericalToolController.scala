@@ -229,7 +229,10 @@ class ClericalToolController @Inject()(
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
-          version = version)
+          version = version,
+          isClerical = true,
+          apiUrl = apiUrl
+        )
         Ok(viewToRender)
       }
     }.getOrElse {
