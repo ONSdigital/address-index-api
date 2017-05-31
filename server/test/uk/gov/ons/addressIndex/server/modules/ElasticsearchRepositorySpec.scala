@@ -528,7 +528,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                 "query":"",
                                 "type":"boolean",
                                 "analyzer":"welsh_split_synonyms_analyzer",
-                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}"
+                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}",
+                                "boost":${queryParams.fallbackPafBoost}
                              }
                           }
                        },
