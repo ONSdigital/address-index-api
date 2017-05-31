@@ -520,6 +520,27 @@ div.address-switch-buttons{
     float:left;
 }
 
+.matched-yes,.matched-no {
+    cursor: pointer;
+}
+
+.matched-all-container {
+    text-align: right;
+}
+
+.matched-all {
+    display: inline-block;
+    padding: 5px;
+    border: 2px solid grey;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+#dvData {
+    display: table;
+}
+
 div.address-switch-buttons.disabled{
     opacity:0.2;
 }

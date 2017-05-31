@@ -19,7 +19,7 @@
 )
 
 @tableHeaderHelper(text: String) = {
-    <td align="center"><b>@text</b></td>
+    <th align="center"><b>@text</b></th>
 }
 
 @main(title = messages("single.title"), version = version) {
@@ -27,7 +27,7 @@
             $(document).ready(function () {
                 function exportTableToCSV($table, filename) {
                     var $headers = $table.find('tr:has(th)')
-                            ,$rows = $table.find('tr:has(td)')
+                            ,$rows = $table.find('tr:has(td):has(.matched-yes:checked)')
 
                             // Temporary delimiter characters unlikely to be typed by keyboard
                             // This is to avoid accidentally splitting the actual contents
@@ -43,7 +43,6 @@
                     csv += formatRows($headers.map(grabRow));
                     csv += rowDelim;
                     csv += formatRows($rows.map(grabRow)) + '"';
-
                     // Data URI
                     var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
 
@@ -76,8 +75,8 @@
 
                         var $row = $(row);
                         //for some reason $cols = $row.find('td') || $row.find('th') won't work...
-                        var $cols = $row.find('td');
-                        if(!$cols.length) $cols = $row.find('th');
+                        var $cols = $row.find('td:not(:last)');
+                        if(!$cols.length) $cols = $row.find('th:not(:last)');
 
                         return $cols.map(grabCol)
                                 .get().join(tmpColDelim);
@@ -104,6 +103,13 @@
 
                     // IF CSV, don't do event.preventDefault() or return false
                     // We actually need this to be a typical hyperlink
+                });
+
+                $("#matched-all-yes").click(function () {
+                    $(".matched-yes").prop("checked", true)
+                });
+                $("#matched-all-no").click(function () {
+                    $(".matched-no").prop("checked", true)
                 });
 
                 //------------------------------------------------------------
@@ -156,6 +162,9 @@
                     }
 
                 }, 1000);
+
+
+
             });
     </script>
     <div class="container">
@@ -200,6 +209,10 @@
                         <div class="panel-body">
                             <div class='container'>
                                 <div id="dvData">
+                                    <div class="matched-all-container">
+                                        <div id="matched-all-yes" class="matched-all">@messages("multi.table.all.yes")</div>
+                                        <div id="matched-all-no" class="matched-all">@messages("multi.table.all.no")</div>
+                                    </div>
                                     <table border="1px;black;black;" cellpadding="5px" cellspacing="0px">
                                         <thead style="background-color: #DFE0E2;">
                                             @tableHeaderHelper(messages("multi.table.id"))
@@ -209,6 +222,7 @@
                                             @tableHeaderHelper(messages("multi.table.match.type"))
                                             @tableHeaderHelper(messages("multi.table.actual.score"))
                                             @tableHeaderHelper(messages("multi.table.rank"))
+                                            @tableHeaderHelper(messages("multi.table.matched"))
                                         </thead>
                                         <tbody>
                                             @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
@@ -221,6 +235,10 @@
                                                         <td align="center" class="match-type-@matchType">@matchType</td>
                                                         <td align="center">@{result.score}</td>
                                                         <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
+                                                        <td align="center">
+                                                            <input type="radio" id="matched-@i-yes" class="matched-yes" name="matched-@i" checked="checked"/> <label for="matched-@i-yes">@messages("multi.table.yes")</label>
+                                                            <input type="radio" id="matched-@i-no" class="matched-no" name="matched-@i" /> <label for="matched-@i-no">@messages("multi.table.no")</label>
+                                                        </td>
                                                     </tr>
                                                 }
                                             }
