@@ -104,7 +104,23 @@
             return false;
         });
 
+        $('.mailto').click(function() {
+            var timeout;
+
+            $(window).blur(function() {
+                // The browser apparently responded, so stop the timeout.
+                clearTimeout(timeout);
+            });
+
+            timeout = setTimeout(function() {
+                // The browser did not respond after 500ms.
+                alert("@messages("mailto.fallback")")
+            }, 500);
+
+        });
+
     });
+
 
 
 
