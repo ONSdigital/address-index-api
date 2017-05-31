@@ -38,8 +38,11 @@ case class QueryParamsConfig(
   includingDisMaxTieBreaker: Double,
   fallbackQueryBoost: Float,
   defaultBoost: Float,
+  paoSaoMinimumShouldMatch: String,
+  organisationDepartmentMinimumShouldMatch: String,
   mainMinimumShouldMatch: String,
-  fallbackMinimumShouldMatch: String
+  fallbackMinimumShouldMatch: String,
+  fallbackPafBoost: Float
 )
 
 // This is required for the bulk request as Data Scientists want to provide query params dynamically
