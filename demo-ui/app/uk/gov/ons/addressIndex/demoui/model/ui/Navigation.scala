@@ -8,7 +8,7 @@ case class Link(href: String, label: String)
 object Links {
   def home(implicit messages: Messages) = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.indexPage.toString,
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home.toString,
       label = messages("navbar.home")
     )
   }

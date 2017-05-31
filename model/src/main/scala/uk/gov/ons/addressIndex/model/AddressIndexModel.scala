@@ -7,14 +7,16 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 
 case class AddressIndexUPRNRequest(
   uprn: BigInt,
-  id: UUID
+  id: UUID,
+  apiKey: String
 )
 
 case class AddressIndexSearchRequest(
   input: String,
   limit: String,
   offset: String,
-  id: UUID
+  id: UUID,
+  apiKey: String
 )
 
 

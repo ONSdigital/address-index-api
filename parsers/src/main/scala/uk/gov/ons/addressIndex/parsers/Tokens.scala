@@ -1,19 +1,16 @@
 package uk.gov.ons.addressIndex.parsers
 
 import com.typesafe.config.ConfigFactory
-import uk.gov.ons.addressIndex.crfscala.CrfScala.{CrfTokenResult, CrfTokenable}
-
+import org.apache.commons.lang3.StringUtils
 import scala.io.{BufferedSource, Source}
 import scala.util.Try
 
 /**
-  * Tokenizer for the input
+  * Hold
   */
-object Tokens extends CrfTokenable {
-
+object Tokens {
 
   private val config = ConfigFactory.load()
-
 
   val organisationName: String = "OrganisationName"
   val departmentName: String = "DepartmentName"
@@ -39,27 +36,12 @@ object Tokens extends CrfTokenable {
   val defaultMapFolder = "parser.scoring.folder"
   val defaultDelimiter = "="
 
-  val all: Seq[String] = Seq(
-    organisationName,
-    departmentName,
-    subBuildingName,
-    buildingName,
-    buildingNumber,
-    paoStartNumber,
-    paoStartSuffix,
-    paoEndNumber,
-    streetName,
-    locality,
-    townName,
-    postcode
-  )
-
   /**
-    * Tokenizes input into tokens (also removes counties, replaces synonyms)
-    * @param input the string to be tokenized
-    * @return Array of tokens
+    * Does pre-tokenization treatment to the input (normalization + splitting)
+    * @param input input from user
+    * @return tokensm ready to be sent to the parser
     */
-  override def apply(input: String): Array[String] = normalizeInput(input).split(" ")
+  def preTokenize(input: String): List[String] = normalizeInput(input).split(" ").toList
 
   /**
     * Normalizes input: removes counties, replaces synonyms, uppercase
@@ -69,7 +51,9 @@ object Tokens extends CrfTokenable {
   private def normalizeInput(input: String): String = {
     val upperInput = input.toUpperCase()
 
-    val inputWithoutCounties = removeCounties(upperInput)
+    val inputWithoutAccents = StringUtils.stripAccents(upperInput)
+
+    val inputWithoutCounties = removeCounties(inputWithoutAccents)
 
     val tokens = inputWithoutCounties
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
@@ -101,21 +85,14 @@ object Tokens extends CrfTokenable {
   private def replaceSynonyms(tokens: Array[String]): Array[String] =
     tokens.map(token => synonym.getOrElse(token, token))
 
-  override def normalise(tokens: Array[String]): Array[String] = tokens.map(_.toUpperCase)
-
-
   /**
     * Normalizes tokens after they were tokenized and labeled
     *
     * @param tokens labeled tokens from the parser
     * @return Map with label -> concatenated tokens ready to be sent to the ES
     */
-  def postTokenizeTreatment(tokens: Seq[CrfTokenResult]): Map[String, String] = {
-    val groupedTokens = tokens.groupBy(_.label).map { case (label, crfTokenResults) =>
-      label -> crfTokenResults.map(_.value).mkString(" ")
-    }
-
-    val postcodeTreatedTokens = postTokenizeTreatmentPostCode(groupedTokens)
+  def postTokenize(tokens: Map[String, String]): Map[String, String] = {
+    val postcodeTreatedTokens = postTokenizeTreatmentPostCode(tokens)
     val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
     val buildingNameTreatedTokens = postTokenizeTreatmentBuildingName(buildingNumberTreatedTokens)
@@ -401,14 +378,18 @@ object Tokens extends CrfTokenable {
 
   /**
     * Make external file such as score matrix file into Map
-    * @param path
-    * @return
+    *
+    * @param fileName name of the file
+    * @param folder optional, config field that holds path to the folder
+    * @param delimiter optional, delimiter of values in the file, defaults to "="
+    * @return Map containing key -> value from the file
     */
   def fileToMap(fileName: String, folder: String = defaultMapFolder, delimiter: String = defaultDelimiter): Map[String,String] = {
     val resource = getResource(fileName, folder)
     resource.getLines().map { l =>
       val Array(k,v1,_*) = l.split(delimiter)
-      k -> (v1) }.toMap
+      k -> v1
+    }.toMap
   }
 
   /**

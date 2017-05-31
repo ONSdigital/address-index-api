@@ -35,7 +35,7 @@ class ClientToolTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(1), Some(1)).apply(FakeRequest())
+        .doMatchWithInput(inputAddress, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

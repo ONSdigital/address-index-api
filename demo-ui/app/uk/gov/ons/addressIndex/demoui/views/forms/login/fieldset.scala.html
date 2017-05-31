@@ -1,0 +1,48 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import helper._
+@import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
+
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import uk.gov.ons.addressIndex.demoui.views.html.main
+@import uk.gov.ons.addressIndex.demoui.controllers.routes
+
+
+@(errorMessage: String = "", version: DemoUIAddressIndexVersionModule)(implicit messages: Messages)
+
+@helper.form(routes.ApplicationHomeController.login) {
+    @main(title = messages("single.title"), version = version) {
+
+        <link href="/assets/stylesheets/login.css" rel="stylesheet" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <div id="userbox">
+            <form action="@{routes.ApplicationHomeController.doLogin()}" method="post"></form>
+
+            <form action="@{routes.ApplicationHomeController.doLogin()}" method="post">
+                <div style="color: red">@errorMessage</div>
+                <h1 id="logintxt" style="background-color: rgb(11, 146, 9);
+                    background-position: initial;
+                    background-repeat: initial;">Address Matching Service <b>ß</b>eta</h1>
+
+                <div id="submit_giff" style="display: none;">
+                    <hi> Authenticating: <img src="/assets/images/loader-bar.gif" align="absmiddle">  </hi>
+                </div>
+                <input id="name" name="userName" placeholder="Username" style="opacity: 1;
+                    background-color: rgb(255, 255, 255);
+                    background-position: initial;
+                    background-repeat: initial;">
+                <input id="pass" name="password" type="password" placeholder="Password" style="opacity: 1;
+                    background-color: rgb(255, 255, 255);
+                    background-position: initial;
+                    background-repeat: initial;">
+
+                <p id="namealert" style="display: none;
+                    opacity: 1;">Username:</p>
+                <p id="passal" style="display: none;
+                    opacity: 1;">Password:</p>
+                <input id="loginbtn" style="opacity: 0.2;
+                    cursor: default;" type="submit" value="Login">
+            </form>
+        </div>
+        <script src="/assets/javascripts/login.js"></script>
+    }
+}

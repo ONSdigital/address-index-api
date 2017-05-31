@@ -119,6 +119,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
+    welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
@@ -133,6 +135,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
+    welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
@@ -298,7 +302,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the unit score for an address " in {
     // Given
-    val expected = "unit.0828"
+    val expected = "unit.0888"
 
     // When
     val actual = HopperScoreHelper.calculateUnitScore(
@@ -679,12 +683,13 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "calculate the orgainisation name nag score for an address " in {
+  it should "calculate the organisation name nag score for an address " in {
     // Given
     val organisationName = "BONGO WONGO"
     val nagPaoText = "WINGO BINGO"
     val nagSaoText = "GAMBLING DEN 2"
     val nagOrganisationName = "WINGO BINGO"
+    val pafOrganisationName = ""
     val expected = 1
 
     // When
@@ -692,7 +697,30 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
       organisationName,
       nagPaoText,
       nagSaoText,
-      nagOrganisationName)
+      nagOrganisationName,
+      pafOrganisationName)
+
+    // Then
+    actual shouldBe expected
+  }
+
+
+  it should "calculate the organisation name nag score for amendment #1 special case for an address " in {
+    // Given
+    val organisationName = "@"
+    val nagPaoText = "FRED'S FISH"
+    val nagSaoText = "FINGERS DEPT."
+    val nagOrganisationName = ""
+    val pafOrganisationName = ""
+    val expected = 9
+
+    // When
+    val actual = HopperScoreHelper.calculateOrganisationNameNagScore(
+      organisationName,
+      nagPaoText,
+      nagSaoText,
+      nagOrganisationName,
+      pafOrganisationName)
 
     // Then
     actual shouldBe expected
@@ -784,6 +812,65 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "determine that a string contains a number when it does " in {
+    // Given
+    val stringWithNum = "Level42"
+    val expected = true
 
+    // When
+    val actual = HopperScoreHelper.containsNumber(stringWithNum)
+
+    // Then
+    actual shouldBe expected
+
+  }
+
+  it should "determine that a string does not contain a number when it doesn't " in {
+    // Given
+    val stringWithoutNum = "LevelFortyTwo"
+    val expected = false
+
+    // When
+    val actual = HopperScoreHelper.containsNumber(stringWithoutNum)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "extract the parts containing numbers from a multipart string " in {
+    // Given
+    val parts = "2B OR NOT 2B"
+    val expected = "2B 2B"
+
+    // When
+    val actual = HopperScoreHelper.getNumberPartsFromName(parts)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "extract the number-free parts from a multipart string " in {
+    // Given
+    val parts = "2B OR NOT 2B"
+    val expected = "OR NOT"
+
+    // When
+    val actual = HopperScoreHelper.getNonNumberPartsFromName(parts)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "convert an empty string to an at sign " in {
+    // Given
+    val token = ""
+    val expected = "@"
+
+    // When
+    val actual = HopperScoreHelper.atSignForEmpty(token)
+
+    // Then
+    actual shouldBe expected
+  }
 }
 
