@@ -60,7 +60,7 @@ case class BulkAddressRequestData(
   * @param failedRequests stream containing the data used to create failed requests
   */
 case class BulkAddresses(
-  successfulBulkAddresses: Seq[BulkAddress],
+  successfulBulkAddresses: Stream[Seq[BulkAddress]],
   failedRequests: Stream[BulkAddressRequestData]
 )
 

@@ -14,7 +14,6 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.utils.{HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
@@ -302,21 +301,28 @@ class AddressController @Inject()(
     includeFullAddress: Boolean = false
   )(implicit request: Request[_]): Result = {
 
+    val networkid = request.headers.get("authorization").getOrElse("Anon").split("_").headOption.getOrElse("")
+
     val startingTime = System.currentTimeMillis()
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Seq[BulkAddress] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite)
+    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite)
 
     logger.info(s"#bulkQuery processed")
 
     // Used to distinguish individual bulk logs
     val uuid = java.util.UUID.randomUUID.toString
 
-    val bulkItems = results.map { bulkAddress =>
+    val scoredResults = results.flatMap { addresses =>
+      val addressResponseAddresses = addresses.map(_.hybridAddress).map(AddressResponseAddress.fromHybridAddress)
+      val tokens = addresses.headOption.map(_.tokens).getOrElse(Map.empty)
+      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens)
+    }
 
-        val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress, includeFullAddress)
-        val networkid = request.headers.get("authorization").getOrElse("Anon").split("_")(0)
+    val bulkItems = results.flatten.zip(scoredResults).map { case(bulkAddress, scoredAddressResponseAddress) =>
+
+        val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress, scoredAddressResponseAddress, includeFullAddress)
         // Side effects
         Splunk.log(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
           formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
@@ -363,8 +369,8 @@ class AddressController @Inject()(
     limitPerAddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
     canUpScale: Boolean = true,
-    successfulResults: Seq[BulkAddress] = Seq.empty
-  ): Seq[BulkAddress] = {
+    successfulResults: Stream[Seq[BulkAddress]] = Stream.empty
+  ): Stream[Seq[BulkAddress]] = {
 
     Splunk.log(isBulk = true, batchSize = miniBatchSize.toString)
 
@@ -418,7 +424,7 @@ class AddressController @Inject()(
 
     val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress, configOverwrite)
 
-    val successfulAddresses: Future[Stream[BulkAddress]] = bulkAddresses.map(collectSuccessfulAddresses)
+    val successfulAddresses: Future[Stream[Seq[BulkAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
 
     val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
 
@@ -430,10 +436,10 @@ class AddressController @Inject()(
   }
 
 
-  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddress] =
+  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[Seq[BulkAddress]] =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
-    }.flatten
+    }
 
   private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddressRequestData] =
     addresses.collect {

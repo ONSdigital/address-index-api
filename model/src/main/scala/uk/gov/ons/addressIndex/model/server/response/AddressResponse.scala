@@ -126,25 +126,27 @@ case class AddressBulkResponseAddress(
   matchedFormattedAddress: String,
   matchedAddress: Option[AddressResponseAddress],
   tokens: Map[String, String],
-  score: Float
+  score: Float,
+  bespokeScore: Option[AddressResponseScore]
 )
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
-  def fromBulkAddress(bulkAddress: BulkAddress, includeFullAddress: Boolean): AddressBulkResponseAddress = {
-    val addressResponseAddress = AddressResponseAddress.fromHybridAddress(bulkAddress.hybridAddress)
-
-    AddressBulkResponseAddress(
-      id = bulkAddress.id,
-      inputAddress = bulkAddress.inputAddress,
-      uprn = bulkAddress.hybridAddress.uprn,
-      matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
-      matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
-      tokens = bulkAddress.tokens,
-      score = bulkAddress.hybridAddress.score
-    )
-  }
+  def fromBulkAddress(
+    bulkAddress: BulkAddress,
+    addressResponseAddress: AddressResponseAddress,
+    includeFullAddress: Boolean
+  ): AddressBulkResponseAddress = AddressBulkResponseAddress(
+    id = bulkAddress.id,
+    inputAddress = bulkAddress.inputAddress,
+    uprn = bulkAddress.hybridAddress.uprn,
+    matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
+    matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
+    tokens = bulkAddress.tokens,
+    score = bulkAddress.hybridAddress.score,
+    bespokeScore = addressResponseAddress.bespokeScore
+  )
 }
 
 
@@ -219,15 +221,6 @@ object AddressResponseAddress {
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
     val welshFormattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateWelshFormattedAddress).getOrElse("")
-    val emptyScore = AddressResponseScore(
-      objectScore = 0f,
-      structuralScore = 0f,
-      buildingScore = 0f,
-      localityScore = 0f,
-      unitScore = 0f,
-      buildingScoreDebug = "0",
-      localityScoreDebug = "0",
-      unitScoreDebug = "0")
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -242,7 +235,7 @@ object AddressResponseAddress {
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       underlyingScore = other.score,
-      bespokeScore = Some(emptyScore)
+      bespokeScore = None
     )
   }
 
