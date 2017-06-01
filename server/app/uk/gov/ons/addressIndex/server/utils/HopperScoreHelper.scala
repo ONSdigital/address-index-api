@@ -118,7 +118,7 @@ object HopperScoreHelper  {
       organisationName,
       buildingName)
 
-    val ambiguityPenalty = calculateAmbiguityPenalty(localityScoreDebug,localityParams);
+    val ambiguityPenalty = calculateAmbiguityPenalty(localityScoreDebug,localityParams)
 
     val localityScore = Try(scoreMatrix(localityScoreDebug).toDouble).getOrElse(0d) / ambiguityPenalty
 
@@ -149,21 +149,7 @@ object HopperScoreHelper  {
       respLocalityScoreDebug,
       respUnitScoreDebug)
 
-    AddressResponseAddress(
-      uprn = address.uprn,
-      parentUprn = address.parentUprn,
-      relatives = address.relatives,
-      formattedAddress = address.formattedAddress,
-      formattedAddressNag = address.formattedAddressNag,
-      formattedAddressPaf = address.formattedAddressPaf,
-      welshFormattedAddressNag = address.welshFormattedAddressNag,
-      welshFormattedAddressPaf = address.welshFormattedAddressPaf,
-      paf = address.paf,
-      nag = address.nag,
-      geo = address.geo,
-      underlyingScore = address.underlyingScore,
-      bespokeScore = Some(bespokeScore)
-    )
+    address.copy(bespokeScore = Some(bespokeScore))
   }
 
   /**

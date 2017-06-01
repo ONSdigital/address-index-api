@@ -279,7 +279,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
-      val expectedBespokeScore = Some(givenBespokeScore)
+      val expectedBespokeScore = None
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
