@@ -18,7 +18,7 @@
                         <a href="#introduction">Introduction</a>
                     </li>
                     <li>
-                        <a href="#logging">Logging on to Address Index</a>
+                        <a href="#login">Logging on to Address Index</a>
                     </li>
                     <li>
                         <a href="#search_single">Search for a Single Address</a>
@@ -29,27 +29,34 @@
                     <li>
                         <a href="#clerical">Perform an advanced search using the Clerical Tool</a>
                     </li>
+                    <li>
+                        <a href="#debug">Debug the ElasticSearch Query</a>
+                    </li>
+                    <li>
+                        <a href="#notes">Additional Notes</a>
+                    </li>
+
                 </ul>
 
                 <div>
                     <a name="introduction"></a>
                     <h1>Introduction</h1>
                     <p>The Address Index User Interface (UI) provides an address searching and matching service to users on the ONS network. To log in to the service, enter the same username and password used to log into your PC/Laptop.</p>
-                    <p>If you are on the ONS network and are unable to access the service, please contact:</p>
-                    <p>To provide access to users outside the ONS network, mainly OGDs, the Address Index service can be accessed through the use of an Application Program Interface (API)</p>
-                    <p>To get more information on how the API works, go here:</p>
+                    <p>If you are on the ONS network and are unable to access the service, please email <a href="mailto:ai.users@@ons.gov.uk">Address Index</a></p>
+                    <p>To provide access to users outside the ONS network, mainly OGDs, the Address Index service will be accessible through the use of an Application Program Interface (API)</p>
+                    <p>During the Private Beta external users are supplying bulk input files via MoveIt</p>
                 </div>
 
                 <div>
-                    <a name="logging"></a>
-                    <h1>Log in</h1>
+                    <a name="login"></a>
+                    <h1>Login</h1>
                     <ol>
                         <li>Open a web browser and go to <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
 
-                        <li>Enter a username and password, and click “Login” button</li>
+                        <li>If login is required, enter your ons network username and password, and click “Login” button</li>
                     </ol>
 
-                    <img src="@routes.Assets.versioned("/images/help/log_in_1.jpg").toString">
+                    <img src="@routes.Assets.versioned("/images/help/log_in_2.jpg").toString">
                 </div>
 
                 <div>
@@ -67,17 +74,17 @@
 
 
                     <ol>
-                        <li><b>Number of addresses found</b> - The total number of addresses found in the search.</li>
-                        <li><b>Feedback</b> - Press to submit a feedback for this particular input</li>
-                        <li><b>LA | PAF</b> - Toggle functionality to view either a formatted LA (Local Authority) or PAF (Postal Address Finder) version of the address.</li>
-                        <li><b>Language</b> - Language switch between English and Welsh</li>
-                        <li><b>Matching Score</b> – TO BE UPDATED WITH SCREENSHOT</li>
-                        <li><b>Address</b> – A formatted matched address. As default, the formatted LA version of the matched address is displayed.</li>
-                        <li><b>Logical Status Icon</b> – The logical status of a matched address. A is approved, P is provisional and H is Historical.</li>
-                        <li><b>UPRN</b> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
-                        <li><b>Classification</b> - Allow users to view the high level and low level classification of a matched address e.g. High level (Residential, Commercial etc.) and Low Level (Self-Contained Flat, Bank, Restaurant, Shop/Showroom etc.)</li>
-                        <li><b>Local Authority</b> – This is the local authority that the matched address is currently assigned to.</li>
-                        <li><b>Open Map</b> – Allow users to pinpoint the matched address on a map using AddressBase’s coordinates</li>
+                        <li><strong>Number of addresses found</strong> - The total number of addresses found in the search.</li>
+                        <li><strong>Feedback</strong> - Press to submit a feedback for this particular input</li>
+                        <li><strong>LA | PAF</strong> - Toggle functionality to view either a formatted LA (Local Authority) or PAF (Postal Address Finder) version of the address.</li>
+                        <li><strong>Language</strong> - Language switch between English and Welsh</li>
+                        <li><strong>Matching Score</strong> – Document score comes from the search engine, Building score is a calculated probability that the building is correct, and the unit score is for the sub-building if appropriate </li>
+                        <li><strong>Address</strong> – A formatted matched address. As default, the formatted LA version of the matched address is displayed.</li>
+                        <li><strong>Logical Status Icon</strong> – The logical status of a matched address. A is approved, P is provisional and H is Historical.</li>
+                        <li><strong>UPRN</strong> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
+                        <li><strong>Classification</strong> - Allow users to view the high level and low level classification of a matched address e.g. High level (Residential, Commercial etc.) and Low Level (Self-Contained Flat, Bank, Restaurant, Shop/Showroom etc.)</li>
+                        <li><strong>Local Authority</strong> – This is the local authority that the matched address is currently assigned to.</li>
+                        <li><strong>Open Map</strong> – Allow users to pinpoint the matched address on a map using AddressBase’s coordinates</li>
                     </ol>
 
                 </div>
@@ -102,18 +109,18 @@
                     <img src="@routes.Assets.versioned("/images/help/multiple_4.jpg").toString">
 
                     <ul>
-                        <li><b>ID</b>
+                        <li><strong>ID</strong>
                             – This is the ID that was provided by the user in the input file.</li>
-                        <li><b>Input Address</b>
+                        <li><strong>Input Address</strong>
                             – The input address is the address that was uploaded by the user</li>
-                        <li><b>Matched Address</b> – Address found during matching.</li>
-                        <li><b>UPRN</b>
+                        <li><strong>Matched Address</strong> – Address found during matching.</li>
+                        <li><strong>UPRN</strong>
                             – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
-                        <li><b>Document Score</b> - Elastic Search score</li>
-                        <li><b>Building Score</b> - Custom score for addresses score</li>
-                        <li><b>Building Score</b> - Custom score for addresses with Flats score</li>
-                        <li><b>Rank</b> - Rank of the address in a list of matched addresses for the same input</li>
-                        <li><b>Matched?</b> - Switch that allows to choose which address to download as a .csv file</li>
+                        <li><strong>Document Score</strong> - Elastic Search score</li>
+                        <li><strong>Building Score</strong> - Custom score for addresses score</li>
+                        <li><strong>Building Score</strong> - Custom score for addresses with Flats score</li>
+                        <li><strong>Rank</strong> - Rank of the address in a list of matched addresses for the same input</li>
+                        <li><strong>Matched?</strong> - Switch that allows to choose which address to download as a .csv file</li>
                     </ul>
 
                     <div>4. To export results to a .csv file, click Download link at the bottom of the table, or directly press "Download Result" instead of visualising it</div>
@@ -135,6 +142,27 @@
 
                     <div>3. Click on "Hide" to hide the additional information</div>
                 </div>
+
+                <div>
+                    <a name="debug"></a>
+                    <h1>Debug the Elastic Search Query</h1>
+                    <div>This tool allows data scientists to see the underlying elastic search query</div>
+                </div>
+
+                <div>
+                    <a name="notes"></a>
+                    <h1>Additional Notes</h1>
+                <ol>
+                    <li><strong>Viewing Site In Welsh</strong> - In Chrome go to Settings, Advanced settings, Languages, if Welsh is not on the list, add it with the Add button. Drag Welsh to the top and click Finish. The UI is now in Welsh mode. Drag Welsh below English to toggle back.
+                    <li><strong>Validation and Address Format</strong> - The only validation done is to check that an address string is supplied (if not get clickable error message). No checks are made as to what address parts are included. Whatever is supplied is processed by the API and if there are no matches there are no matches.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
+                    <li><strong>Bookmarking</strong> - The address string (URL encoded) and other parameters are echoed to the URL bar so you can bookmark a single search or clerical tool result and send it to someone else. It will recreate the page as saved such as expanding the chosen address in the clerical tool. Note that the PAF / LA toggle is done on the client so is not bookmarkable.</li>
+                    <li><strong>Paging</strong> - The maximum number of pages is 100 or the number of results / number of results per page. In the UI the number of results per page is set to 10 and cannot be overridden in the URL. Note that as well as next / previous buttons you can jump to a page number using the page= query string parameter in the URL.</li>
+                    <li><strong>Google Maps</strong> - Note that this takes you to the exact Lat / Lon from Addressbase rather than where Google thinks the marker should go.</li>
+                    <li><strong>Epochs</strong> - A major new version of Addressbase is supplied every 6 weeks. These versions are called Epochs. The current Epoch number is shown the top left of the screen, along with the version number of the code which is also a link to GitHub. </li>
+                </ol>
+                </div>
+
+
             </div>
         </div>
     </div>
