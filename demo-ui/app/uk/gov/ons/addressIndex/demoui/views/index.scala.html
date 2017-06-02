@@ -63,6 +63,16 @@
                 height = 120
             )
             </div>
+            <div class="index-nav">
+                @nav.navItem(
+                href = uk.gov.ons.addressIndex.demoui.controllers.routes.StaticController.help.absoluteURL,
+                linkText = messages("home.help_head"),
+                linkBody = messages("home.help_body"),
+                imgUrl = routes.Assets.versioned("/images/help.jpg").toString,
+                width = 280,
+                height = 120
+                )
+            </div>
             </div>
         </div>
     </div>
