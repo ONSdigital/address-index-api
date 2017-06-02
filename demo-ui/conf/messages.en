@@ -131,6 +131,7 @@ navbar.singlematch=Single Search
 navbar.multimatch=Multiple Match
 navbar.clerical=Clerical Tool
 navbar.query=Display Query
+navbar.help=Help
 single.pleasesupply=Please enter an address
 single.sfatext=Search for an address
 single.searchbut=Search

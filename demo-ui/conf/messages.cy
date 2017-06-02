@@ -117,6 +117,7 @@ navbar.singlematch=Chwilio sengl
 navbar.multimatch=Match lluosog
 navbar.clerical=Offeryn clerigol
 navbar.query=Ymholiad arddangos
+navbar.help=Helpu
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad
 single.searchbut=Chwilio

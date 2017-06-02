@@ -1,0 +1,142 @@
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+
+@(
+    version: DemoUIAddressIndexVersionModule
+)(implicit messages: Messages)
+
+@main(title = messages("single.title"), version = version) {
+
+    <div class="container">
+        <div class="panel panel-single">
+            <div class="panel-heading sub-nav-heading">
+            @navigation(Navigation.default)
+            </div>
+            <div class="help-container" id="help-container">
+                <ul>
+                    <li>
+                        <a href="#introduction">Introduction</a>
+                    </li>
+                    <li>
+                        <a href="#logging">Logging on to Address Index</a>
+                    </li>
+                    <li>
+                        <a href="#search_single">Search for a Single Address</a>
+                    </li>
+                    <li>
+                        <a href="#search_multiple">Search for multiple addresses</a>
+                    </li>
+                    <li>
+                        <a href="#clerical">Perform an advanced search using the Clerical Tool</a>
+                    </li>
+                </ul>
+
+                <div>
+                    <a name="introduction"></a>
+                    <h1>Introduction</h1>
+                    <p>The Address Index User Interface (UI) provides an address searching and matching service to users on the ONS network. To log in to the service, enter the same username and password used to log into your PC/Laptop.</p>
+                    <p>If you are on the ONS network and are unable to access the service, please contact:</p>
+                    <p>To provide access to users outside the ONS network, mainly OGDs, the Address Index service can be accessed through the use of an Application Program Interface (API)</p>
+                    <p>To get more information on how the API works, go here:</p>
+                </div>
+
+                <div>
+                    <a name="logging"></a>
+                    <h1>Log in</h1>
+                    <ol>
+                        <li>Open a web browser and go to <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
+
+                        <li>Enter a username and password, and click “Login” button</li>
+                    </ol>
+
+                    <img src="@routes.Assets.versioned("/images/help/log_in_1.jpg").toString">
+                </div>
+
+                <div>
+                    <a name="search_single"></a>
+                    <h1>Search for a Single Address</h1>
+
+                    <div>1. From the Address Index home page, click Find an address</div>
+                    <img src="@routes.Assets.versioned("/images/help/single_1.jpg").toString">
+
+                    <div>2. Enter an address and click the Search button</div>
+                    <img src="@routes.Assets.versioned("/images/help/single_2.jpg").toString">
+
+                    <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.</div>
+                    <img src="@routes.Assets.versioned("/images/help/single_3.jpg").toString">
+
+
+                    <ol>
+                        <li><b>Number of addresses found</b> - The total number of addresses found in the search.</li>
+                        <li><b>Feedback</b> - Press to submit a feedback for this particular input</li>
+                        <li><b>LA | PAF</b> - Toggle functionality to view either a formatted LA (Local Authority) or PAF (Postal Address Finder) version of the address.</li>
+                        <li><b>Language</b> - Language switch between English and Welsh</li>
+                        <li><b>Matching Score</b> – TO BE UPDATED WITH SCREENSHOT</li>
+                        <li><b>Address</b> – A formatted matched address. As default, the formatted LA version of the matched address is displayed.</li>
+                        <li><b>Logical Status Icon</b> – The logical status of a matched address. A is approved, P is provisional and H is Historical.</li>
+                        <li><b>UPRN</b> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
+                        <li><b>Classification</b> - Allow users to view the high level and low level classification of a matched address e.g. High level (Residential, Commercial etc.) and Low Level (Self-Contained Flat, Bank, Restaurant, Shop/Showroom etc.)</li>
+                        <li><b>Local Authority</b> – This is the local authority that the matched address is currently assigned to.</li>
+                        <li><b>Open Map</b> – Allow users to pinpoint the matched address on a map using AddressBase’s coordinates</li>
+                    </ol>
+
+                </div>
+
+                <div>
+                    <a name="search_multiple"></a>
+                    <h1>Search for  Multiple Addresses</h1>
+
+                    <div>1. From the Address Index home page, click Match multiple addresses</div>
+                    <img src="@routes.Assets.versioned("/images/help/multiple_1.jpg").toString">
+
+                    <div> 2. Click Choose File to select a file from your computer. </div>
+                    <div><i>Note: The selected file must be a CSV (Comma Delimited) format, less than 10MB in size and must have only two columns with headers:  ID and Address. See Sample file attached below</i></div>
+                    <img src="@routes.Assets.versioned("/images/help/multiple_2.jpg").toString">
+
+                     
+                    <div>3. Once the file is selected from your computer, click "Visualise" button</div>
+                    <img src="@routes.Assets.versioned("/images/help/multiple_3.jpg").toString">
+
+                    <div>Once the file is uploaded successfully, the matching engine will process the search query and return the results.</div>
+
+                    <img src="@routes.Assets.versioned("/images/help/multiple_4.jpg").toString">
+
+                    <ul>
+                        <li><b>ID</b>
+                            – This is the ID that was provided by the user in the input file.</li>
+                        <li><b>Input Address</b>
+                            – The input address is the address that was uploaded by the user</li>
+                        <li><b>Matched Address</b> – Address found during matching.</li>
+                        <li><b>UPRN</b>
+                            – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
+                        <li><b>Document Score</b> - Elastic Search score</li>
+                        <li><b>Building Score</b> - Custom score for addresses score</li>
+                        <li><b>Building Score</b> - Custom score for addresses with Flats score</li>
+                        <li><b>Rank</b> - Rank of the address in a list of matched addresses for the same input</li>
+                        <li><b>Matched?</b> - Switch that allows to choose which address to download as a .csv file</li>
+                    </ul>
+
+                    <div>4. To export results to a .csv file, click Download link at the bottom of the table, or directly press "Download Result" instead of visualising it</div>
+
+
+                </div>
+
+                <div>
+                    <a name="clerical"></a>
+                    <h1>Perform an advanced search using the Clerical Tool</h1>
+
+                    <div>1. From the Address Index home page, click Clerical tool</div>
+                    <img src="@routes.Assets.versioned("/images/help/clerical_1.jpg").toString">
+
+                    <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the one in Single search, the user may click on "Additional Clerical Information" to see more information about tokens and hierarchy.</div>
+
+                    <img src="@routes.Assets.versioned("/images/help/clerical_2.jpg").toString">
+                    <img src="@routes.Assets.versioned("/images/help/clerical_3.jpg").toString">
+
+                    <div>3. Click on "Hide" to hide the additional information</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

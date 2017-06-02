@@ -36,6 +36,13 @@ object Links {
       label = messages("navbar.query")
     )
   }
+
+  def help(implicit messages: Messages) = {
+    Link(
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.StaticController.help.toString,
+      label = messages("navbar.help")
+    )
+  }
 }
 
 object Navigation {
@@ -46,7 +53,8 @@ object Navigation {
         Links.single,
         Links.multi,
         Links.clerical,
-        Links.query
+        Links.query,
+        Links.help
       )
     )
   }

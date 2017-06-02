@@ -993,3 +993,26 @@ a.address-toggle-welsh:hover {
     color: #489DC4;
     cursor: pointer;
 }
+
+.help-container {
+    width: 600px;
+    margin: 10px auto
+}
+
+.help-container img {
+    display: block;
+    border: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.help-container ol {
+    list-style: decimal;
+}
+
+.help-container ul {
+    list-style: none;
+}
+
+.help-container h1 {
+    margin-top: 70px;
+}
