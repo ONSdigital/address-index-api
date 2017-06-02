@@ -37,6 +37,36 @@ trait PlayHelperController extends Controller {
   }
 
   /**
+    * Use this instead of Future.successful(BadRequest(Json.toJson(toJsonable)))
+    *
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a Future BadRequest with a Json body
+    */
+  def futureJsonUnauthorized[T](toJsonable: T)(implicit writes: Writes[T]): Future[Result] = {
+    futureJson[T](
+      status = Unauthorized,
+      toJsonable = toJsonable
+    )
+  }
+
+  /**
+    * Use this instead of Future.successful(BadRequest(Json.toJson(toJsonable)))
+    *
+    * @param toJsonable an object which has an implicit Writes (PlayJson)
+    * @param writes implicit Writes
+    * @tparam T type of the toJsonable
+    * @return a Future BadRequest with a Json body
+    */
+  def jsonUnauthorized[T](toJsonable: T)(implicit writes: Writes[T]): Result = {
+    json[T](
+      status = Unauthorized,
+      toJsonable = toJsonable
+    )
+  }
+
+  /**
     * Use this instead of Future.successful(NotFound(Json.toJson(toJsonable)))
     *
     * @param toJsonable an object which has an implicit Writes (PlayJson)

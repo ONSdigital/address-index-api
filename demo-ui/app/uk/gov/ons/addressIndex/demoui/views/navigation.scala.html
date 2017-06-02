@@ -1,11 +1,6 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 
-@(
-    nav: Navigation
-)(
-    implicit
-    messages: Messages
-)
+@(nav: Navigation)(implicit messages: Messages)
 <div>
     <nav class="nav-container">
         <ul>
@@ -14,4 +9,21 @@
             }
         </ul>
     </nav>
+    <nav class="nav-container-mobile">
+        <select>
+            <option value="#">@messages("main.goto")</option>
+            @for(link <- nav.links) {
+            <option value="@{link.href}">@{link.label}</option>
+            }
+        </select>
+    </nav>
+    <script>
+        $("nav select").change(function() {
+  window.location = $(this).find("option:selected").val();
+});
+    </script>
+</div>
+
+<div id="feedback">
+    <a class="mailto" href="mailto:ai.users@@ons.gov.uk?subject=Feedback%20on%20Address%20Index">@messages("feedback.link")</a>
 </div>

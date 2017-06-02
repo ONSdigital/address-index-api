@@ -51,16 +51,3 @@ class CrfScalaJniImpl extends CrfScalaJni {
     */
   @native def unloadModel(): Void
 }
-
-/**
-  * Helper companion for constants
-  */
-object CrfScalaJni {
-  val tab = "\t"
-  val newLine = "\n"
-  val lineStart = tab
-  val delimiter = tab
-  val lineEnd = newLine
-  val previous = "previous\\:"
-  val next = "next\\:"
-}

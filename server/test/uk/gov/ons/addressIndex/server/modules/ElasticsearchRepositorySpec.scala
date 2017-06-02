@@ -3,10 +3,10 @@ package uk.gov.ons.addressIndex.server.modules
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -51,7 +51,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridFirstPostcodeOut = "h02p"
   // Fields that are not in this list are not used for search
   val hybridPafUprn = 1L
-  val hybridPafOrganizationName = "h2"
+  val hybridPafOrganisationName = "h2"
   val hybridPafDepartmentName = "h3"
   val hybridPafSubBuildingName = "h4"
   val hybridPafBuildingName = "h5"
@@ -73,8 +73,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNagSaoEndNumber = 17.toShort
   val hybridNagSaoEndSuffix = "h18"
   val hybridNagLocality = "h20"
-  val hybridNagOrganisation = hybridPafOrganizationName
-  val hybridNagLegalName = hybridPafOrganizationName
+  val hybridNagOrganisation = hybridPafOrganisationName
+  val hybridNagLegalName = hybridPafOrganisationName
   val hybridNagSaoText = hybridPafSubBuildingName
   val hybridNagPaoText = hybridPafBuildingName
   val hybridNagStreetDescriptor = hybridPafThoroughfare
@@ -100,7 +100,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   // Fields that are not in this list are not used for search
   val secondaryHybridPafUprn = 2L
-  val secondaryHybridPafOrganizationName = "s2"
+  val secondaryHybridPafOrganisationName = "s2"
   val secondaryHybridPafDepartmentName = "s3"
   val secondaryHybridPafSubBuildingName = "s4"
   val secondaryHybridPafBuildingName = "s5"
@@ -122,8 +122,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val secondaryHybridNagSaoEndNumber = 23.toShort
   val secondaryHybridNagSaoEndSuffix = "s18"
   val secondaryHybridNagLocality = "s20"
-  val secondaryHybridNagOrganisation = secondaryHybridPafOrganizationName
-  val secondaryHybridNagLegalName = secondaryHybridPafOrganizationName
+  val secondaryHybridNagOrganisation = secondaryHybridPafOrganisationName
+  val secondaryHybridNagLegalName = secondaryHybridPafOrganisationName
   val secondaryHybridNagSaoText = secondaryHybridPafSubBuildingName
   val secondaryHybridNagPaoText = secondaryHybridPafBuildingName
   val secondaryHybridNagStreetDescriptor = secondaryHybridPafThoroughfare
@@ -141,7 +141,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "proOrder" -> hybridNotUsedNull,
     "uprn" -> hybridPafUprn,
     "udprn" -> hybridNotUsedNull,
-    "organizationName" -> hybridPafOrganizationName,
+    "organisationName" -> hybridPafOrganisationName,
     "departmentName" -> hybridPafDepartmentName,
     "subBuildingName" -> hybridPafSubBuildingName,
     "buildingName" -> hybridPafBuildingName,
@@ -174,7 +174,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "proOrder" -> hybridNotUsedNull,
     "uprn" -> hybridSecondaryUprn,
     "udprn" -> hybridNotUsedNull,
-    "organizationName" -> secondaryHybridPafOrganizationName,
+    "organisationName" -> secondaryHybridPafOrganisationName,
     "departmentName" -> secondaryHybridPafDepartmentName,
     "subBuildingName" -> secondaryHybridPafSubBuildingName,
     "buildingName" -> secondaryHybridPafBuildingName,
@@ -311,6 +311,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "lpi" -> Seq(secondHybridNagEs)
   )
 
+  testClient.execute{
+    create.index(hybridIndexName).mappings(hybridMappings)
+      .analysis(CustomAnalyzerDefinition(
+        "welsh_split_synonyms_analyzer",
+        // Pay attention that those other parameters pay no role in the test, they are just here because they are
+        // required, the only important thing is that the analyzer exists
+        StandardTokenizer("myTokenizer1"),
+        LengthTokenFilter("myTokenFilter2"),
+        UniqueTokenFilter("myTokenFilter3")
+      ))
+  }
+
   testClient.execute {
     bulk(
       indexInto(hybridIndexName / hybridMappings).fields(firstHybridEs),
@@ -326,7 +338,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridPafUprn.toString,
     hybridNotUsed,
-    hybridPafOrganizationName,
+    hybridPafOrganisationName,
     hybridPafDepartmentName,
     hybridPafSubBuildingName,
     hybridPafBuildingName,
@@ -395,7 +407,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNagCustName,
     hybridNagCustGeogCode,
     hybridNotUsed,
-    hybridAll
+    hybridAll,
+    hybridNotUsed
   )
 
   val expectedRelative = Relative (
@@ -467,7 +480,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10).await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -488,7 +501,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(0, 10, tokens).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10).await
 
       // Then
       results.length shouldBe 0
@@ -504,36 +517,49 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         s"""
-          {
-             "query":{
-                         "mlt":{
-                            "fields":[
-                               "paf.pafAll",
-                               "lpi.nagAll"
-                            ],
-                            "like":[
-                               ""
-                            ],
-                            "min_term_freq":1,
-                            "analyzer":"welsh_split_analyzer",
-                            "minimum_should_match":"-25%",
-                            "boost":${queryParams.fallbackQueryBoost}
-                         }
-             },
-             "sort": [
-               {
-                 "_score": {
-                   "order": "desc"
+           {
+              "query":{
+                 "dis_max":{
+                    "boost":${queryParams.fallbackQueryBoost},
+                    "queries":[
+                       {
+                          "match":{
+                             "paf.pafAll":{
+                                "query":"",
+                                "type":"boolean",
+                                "analyzer":"welsh_split_synonyms_analyzer",
+                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}",
+                                "boost":${queryParams.fallbackPafBoost}
+                             }
+                          }
+                       },
+                       {
+                          "match":{
+                             "lpi.nagAll":{
+                                "query":"",
+                                "type":"boolean",
+                                "analyzer":"welsh_split_synonyms_analyzer",
+                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}"
+                             }
+                          }
+                       }
+                    ]
                  }
-               },
-               {
-                 "uprn": {
-                   "order": "asc"
+              },
+              "sort":[
+                 {
+                    "_score":{
+                       "order":"desc"
+                    }
+                 },
+                 {
+                    "uprn":{
+                       "order":"asc"
+                    }
                  }
-               }
-             ],
-             "track_scores": true
-          }
+              ],
+              "track_scores":true
+           }
         """
       )
 
@@ -1068,7 +1094,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                    "constant_score" : {
                                                    "filter" : {
                                                     "match":{
-                                                       "paf.organizationName":{
+                                                       "paf.organisationName":{
                                                           "query":"$hybridNagOrganisation",
                                                           "type":"boolean"
                                                        }

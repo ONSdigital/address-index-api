@@ -48,7 +48,8 @@ case class NationalAddressGazetteerAddress (
   localCustodianName: String,
   localCustodianGeogCode: String,
   rpc: String,
-  nagAll: String
+  nagAll: String,
+  lpiEndDate: String
 )
 
 /**
@@ -102,6 +103,12 @@ object NationalAddressGazetteerAddress {
     val localCustodianGeogCode: String = "localCustodianGeogCode"
     val rpc: String = "rpc"
     val nagAll: String = "nagAll"
+    val lpiEndDate: String = "lpiEndDate"
+  }
+
+  object Languages {
+    val english: String = "ENG"
+    val welsh: String = "CYM"
   }
 
   def fromEsMap (nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
@@ -154,7 +161,8 @@ object NationalAddressGazetteerAddress {
       localCustodianName = LocalCustodian.getLAName(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
-      nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString
+      nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
+      lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString
     )
   }
 }
@@ -164,27 +172,10 @@ case class LocalCustodian (custodians: Map[String,String])
 
 object LocalCustodian {
 
-  def getLAName(code: String): String = {
+  def getLAName(code: String): String = custodians.getOrElse( "N" + code, "N" + code)
 
-    val custKey = "N" + code
-    if(custodians.contains(custKey)) {
-      custodians(custKey)
-    } else {
-      custKey
-    }
 
-  }
-
-  def getLACode(code: String): String = {
-
-    val custKey = "C" + code
-    if(custodians.contains(custKey)) {
-      custodians(custKey)
-    } else {
-      custKey
-    }
-
-  }
+  def getLACode(code: String): String = custodians.getOrElse("C" + code, "C" + code)
 
   val custodians = Map(
     "N114" -> "BATH AND NORTH EAST SOMERSET",

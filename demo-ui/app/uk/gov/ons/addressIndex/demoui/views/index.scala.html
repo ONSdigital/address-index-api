@@ -1,5 +1,8 @@
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+
 @import helper._
-@()(
+
+@(version: DemoUIAddressIndexVersionModule)(
     implicit
     requestHeader: RequestHeader,
     messages: Messages
@@ -10,7 +13,7 @@
  * argument is an `Html` object containing the body of the page.
  *@
 
-@main(title = messages("home.title")) {
+@main(title = messages("home.title"), version = version) {
     <div class="container">
         <div>
             <h2 class="panel-title">
@@ -20,45 +23,45 @@
         </div>
         <p class="toptext">@messages("home.headertext")</p>
         <div class="panel panel-default">
-                <div class="index-nav">
-                    @nav.navItem(
-                        href = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage.absoluteURL,
-                        linkText = messages("home.singlehead"),
-                        linkBody = messages("home.singlebody"),
-                        imgUrl = routes.Assets.versioned("/images/singlesearch.jpg").toString,
-                        width = 280,
-                        height = 120
-                    )
-                </div>
-                <div class="index-nav">
-                    @nav.navItem(
-                        href = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.bulkMatchPage.absoluteURL,
-                        linkText = messages("home.multihead"),
-                        linkBody = messages("home.multibody"),
-                        imgUrl = routes.Assets.versioned("/images/multiple.jpg").toString,
-                        width = 280,
-                        height = 120
-                    )
-                </div>
-                <div class="index-nav">
-                    @nav.navItem(
-                        href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showSingleMatchPage.absoluteURL,
-                        linkText = messages("home.clericalhead"),
-                        linkBody = messages("home.clericalbody"),
-                        imgUrl = routes.Assets.versioned("/images/clericaltool.jpg").toString,
-                        width = 280,
-                        height = 120
-                    )
-                </div>
-                <div class="index-nav">
-                    @nav.navItem(
-                        href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.absoluteURL,
-                        linkText = messages("home.query_debug_head"),
-                        linkBody = messages("home.query_debug_body"),
-                        imgUrl = routes.Assets.versioned("/images/clericaltool.jpg").toString,
-                        width = 280,
-                        height = 120
-                    )
+            <div class="index-nav">
+            @nav.navItem(
+                href = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage.absoluteURL,
+                linkText = messages("home.singlehead"),
+                linkBody = messages("home.singlebody"),
+                imgUrl = routes.Assets.versioned("/images/singlesearch.jpg").toString,
+                width = 280,
+                height = 120
+            )
+            </div>
+            <div class="index-nav">
+            @nav.navItem(
+                href = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.bulkMatchPage.absoluteURL,
+                linkText = messages("home.multihead"),
+                linkBody = messages("home.multibody"),
+                imgUrl = routes.Assets.versioned("/images/multiple.jpg").toString,
+                width = 280,
+                height = 120
+            )
+            </div>
+            <div class="index-nav">
+            @nav.navItem(
+                href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showSingleMatchPage.absoluteURL,
+                linkText = messages("home.clericalhead"),
+                linkBody = messages("home.clericalbody"),
+                imgUrl = routes.Assets.versioned("/images/clericaltool.jpg").toString,
+                width = 280,
+                height = 120
+            )
+            </div>
+            <div class="index-nav">
+            @nav.navItem(
+                href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.absoluteURL,
+                linkText = messages("home.query_debug_head"),
+                linkBody = messages("home.query_debug_body"),
+                imgUrl = routes.Assets.versioned("/images/debug.jpg").toString,
+                width = 280,
+                height = 120
+            )
             </div>
             </div>
         </div>

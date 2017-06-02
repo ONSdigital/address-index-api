@@ -1,13 +1,13 @@
 package uk.gov.ons.addressIndex.client
 
 import play.api.libs.json.Json
-
-import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.ws.{WSClient, WSRequest}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
-import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AddressIndexClient {
 
@@ -24,7 +24,7 @@ trait AddressIndexClient {
   protected implicit lazy val iClient: WSClient = client
   protected implicit lazy val iHost: AddressIndexServerHost = host
 
-  /**
+   /**
     * perform an address search query
     *
     * @param request the request
@@ -32,7 +32,9 @@ trait AddressIndexClient {
     */
   def addressQuery(request: AddressIndexSearchRequest)
     (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
-    addressQueryWSRequest(request).get.map(_.json.as[AddressBySearchResponseContainer])
+    addressQueryWSRequest(request)
+      .get
+      .map(_.json.as[AddressBySearchResponseContainer])
   }
 
   /**
@@ -44,6 +46,7 @@ trait AddressIndexClient {
   def addressQueryWSRequest(request: AddressIndexSearchRequest): WSRequest = {
     AddressQuery
       .toReq
+      .withHeaders("authorization" -> request.apiKey)
       .withQueryString(
         "input" -> request.input,
         "limit" -> request.limit,
@@ -51,11 +54,13 @@ trait AddressIndexClient {
       )
   }
 
-  def bulk(request: BulkBody)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
+  def bulk(request: BulkBody, apiKey: String)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
     Bulk
       .toReq
+      .withRequestTimeout(Duration.Inf)
       .withHeaders(
-        "Content-Type" -> "application/json"
+        "Content-Type" -> "application/json",
+        "authorization" -> apiKey
       )
       .post(
         Json.toJson(
@@ -73,7 +78,7 @@ trait AddressIndexClient {
     */
   def uprnQuery(request: AddressIndexUPRNRequest)
                   (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
-    uprnQueryWSRequest(request).get.map(_.json.as[AddressByUprnResponseContainer])
+    uprnQueryWSRequest(request).withHeaders("authorization" -> request.apiKey).get.map(_.json.as[AddressByUprnResponseContainer])
   }
 
   /**
@@ -87,13 +92,21 @@ trait AddressIndexClient {
       .toReq
   }
 
-  def showQuery(input: String)(implicit ec: ExecutionContext): Future[String] = {
+  def showQuery(input: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
     ShowQuery
       .toReq
+      .withHeaders("authorization" -> apiKey)
       .withQueryString(
         "input" -> input
       ).get.map(response => Json.prettyPrint(response.json))
   }
+
+  def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
+    VersionQuery
+      .toReq()
+      .get.map(_.json.as[AddressResponseVersion])
+  }
+
 }
 
 object AddressIndexClientHelper {
@@ -127,6 +140,11 @@ object AddressIndexClientHelper {
 
   object AddressQuery extends AddressIndexPath(
     path = "/addresses",
+    method = "GET"
+  )
+
+  object VersionQuery extends AddressIndexPath(
+    path = "/version",
     method = "GET"
   )
 

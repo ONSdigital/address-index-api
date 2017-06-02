@@ -85,7 +85,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     classificationCode = "R",
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
-    localCustodianGeogCode = "E06000042"
+    localCustodianGeogCode = "E06000042",
+    lpiEndDate = ""
   )
 
   val mockRelative = Relative (
@@ -96,6 +97,16 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
 
   val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
 
+  val mockBespokeScore = AddressResponseScore(
+    objectScore = 0d,
+    structuralScore = 0d,
+    buildingScore = 0d,
+    localityScore = 0d,
+    unitScore = 0d,
+    buildingScoreDebug = "0",
+    localityScoreDebug = "0",
+    unitScoreDebug = "0")
+
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
@@ -103,10 +114,13 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
+    welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    bespokeScore = Some(mockBespokeScore)
   )
 
   val mockAddressBySearchResponse = AddressBySearchResponse (

@@ -6,9 +6,10 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s._
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse
+import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import org.elasticsearch.search.sort.SortOrder
 import play.api.Logger
+import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -39,7 +40,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -48,7 +49,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -58,7 +59,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
 }
 
 @Singleton
@@ -69,7 +70,6 @@ class AddressIndexRepository @Inject()(
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
-  private val queryParams = conf.config.elasticSearch.queryParams
 
   val client: ElasticClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
@@ -100,17 +100,18 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(start: Int, limit: Int, tokens: Map[String, String]): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, queryParamsConfig).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromRichSearchResponse)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String]): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
 
+    val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
 
     val saoQuery = Seq(
@@ -146,7 +147,7 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
       tokens.get(Tokens.saoStartSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartSuffix",
@@ -202,7 +203,7 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
-        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoTextBoost)),
+        ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost)),
 
       paoBuildingNameMust
 
@@ -331,29 +332,29 @@ class AddressIndexRepository @Inject()(
     val organisationNameQuery = Seq(
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
-          field = "paf.organizationName",
+          field = "paf.organisationName",
           value = token
-        )).boost(queryParams.organisationName.pafOrganisationNameBoost)),
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.pafOrganisationNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.organisation",
           value = token
-        )).boost(queryParams.organisationName.lpiOrganisationBoost)),
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.lpiOrganisationBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
-        )).boost(queryParams.organisationName.lpiPaoTextBoost)),
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.lpiPaoTextBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.legalName",
           value = token
-        )).boost(queryParams.organisationName.lpiLegalNameBoost)),
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.lpiLegalNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        )).boost(queryParams.organisationName.lpiSaoTextBoost))
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.lpiSaoTextBoost))
     ).flatten
 
     val departmentNameQuery = Seq(
@@ -361,12 +362,12 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "paf.departmentName",
           value = token
-        )).boost(queryParams.departmentName.pafDepartmentNameBoost)),
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.departmentName.pafDepartmentNameBoost)),
       tokens.get(Tokens.departmentName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.legalName",
           value = token
-        )).boost(queryParams.departmentName.lpiLegalNameBoost))
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.departmentName.lpiLegalNameBoost))
     ).flatten
 
     val localityQuery = Seq(
@@ -415,14 +416,14 @@ class AddressIndexRepository @Inject()(
     val normalizedInput = Tokens.concatenate(tokens)
 
     val fallbackQuery =
-      moreLikeThisQuery(Seq("paf.pafAll", "lpi.nagAll"))
-        .like(normalizedInput)
-        .minTermFreq(1)
-        .analyser("welsh_split_analyzer")
-        .boost(queryParams.fallbackQueryBoost)
-
-    // minimumShouldMatch method does not exits for moreLikeThisQuery. This a mutation (side effect) of the code above
-    fallbackQuery.builder.minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+      dismax.query(
+        matchQuery("paf.pafAll", normalizedInput)
+          .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")).boost(queryParams.fallbackPafBoost),
+        matchQuery("lpi.nagAll", normalizedInput)
+          .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+      ).boost(queryParams.fallbackQueryBoost)
 
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
@@ -458,11 +459,11 @@ class AddressIndexRepository @Inject()(
 
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(0, limit, requestData.tokens).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, limit, queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

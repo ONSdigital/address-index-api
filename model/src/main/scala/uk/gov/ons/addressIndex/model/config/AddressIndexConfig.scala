@@ -1,6 +1,10 @@
 package uk.gov.ons.addressIndex.model.config
 
+import play.api.libs.json.{Format, Json}
+
 case class AddressIndexConfig(
+  apiKeyRequired: Boolean,
+  masterKey: String,
   parserLibPath: String,
   pathToResources: String,
   elasticSearch: ElasticSearchConfig,
@@ -34,9 +38,17 @@ case class QueryParamsConfig(
   includingDisMaxTieBreaker: Double,
   fallbackQueryBoost: Float,
   defaultBoost: Float,
+  paoSaoMinimumShouldMatch: String,
+  organisationDepartmentMinimumShouldMatch: String,
   mainMinimumShouldMatch: String,
-  fallbackMinimumShouldMatch: String
+  fallbackMinimumShouldMatch: String,
+  fallbackPafBoost: Float
 )
+
+// This is required for the bulk request as Data Scientists want to provide query params dynamically
+object QueryParamsConfig {
+  implicit val queryParamsConfigFormat: Format[QueryParamsConfig] = Json.format[QueryParamsConfig]
+}
 
 case class ShieldConfig(
   ssl: Boolean,
@@ -58,6 +70,10 @@ case class SubBuildingNameConfig(
   lpiSaoTextBoost: Float
  )
 
+object SubBuildingNameConfig {
+  implicit val subBuildingNameConfigFormat: Format[SubBuildingNameConfig] = Json.format[SubBuildingNameConfig]
+}
+
 case class BuildingNameConfig(
   lpiPaoStartNumberBoost: Float,
   lpiPaoStartSuffixBoost: Float,
@@ -67,10 +83,18 @@ case class BuildingNameConfig(
   lpiPaoTextBoost: Float
 )
 
+object BuildingNameConfig {
+  implicit val buildingNameConfigFormat: Format[BuildingNameConfig] = Json.format[BuildingNameConfig]
+}
+
 case class BuildingNumberConfig(
   pafBuildingNumberBoost: Float,
   lpiPaoStartNumberBoost: Float
 )
+
+object BuildingNumberConfig {
+  implicit val buildingNumberConfigFormat: Format[BuildingNumberConfig] = Json.format[BuildingNumberConfig]
+}
 
 case class StreetNameConfig(
   pafThoroughfareBoost: Float,
@@ -79,6 +103,10 @@ case class StreetNameConfig(
   pafWelshDependentThoroughfareBoost: Float,
   lpiStreetDescriptorBoost: Float
 )
+
+object StreetNameConfig {
+  implicit val streetNameConfigFormat: Format[StreetNameConfig] = Json.format[StreetNameConfig]
+}
 
 case class TownNameConfig(
   pafPostTownBoost: Float,
@@ -91,6 +119,10 @@ case class TownNameConfig(
   pafWelshDoubleDependentLocalityBoost: Float
 )
 
+object TownNameConfig {
+  implicit val townNameConfigFormat: Format[TownNameConfig] = Json.format[TownNameConfig]
+}
+
 case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
@@ -98,6 +130,10 @@ case class PostcodeConfig(
   postcodeOutBoost: Float,
   postcodeInBoost: Float
 )
+
+object PostcodeConfig {
+  implicit val postcodeConfigFormat: Format[PostcodeConfig] = Json.format[PostcodeConfig]
+}
 
 case class OrganisationNameConfig(
   pafOrganisationNameBoost: Float,
@@ -107,10 +143,18 @@ case class OrganisationNameConfig(
   lpiSaoTextBoost: Float
 )
 
+object OrganisationNameConfig {
+  implicit val organisationNameConfigFormat: Format[OrganisationNameConfig] = Json.format[OrganisationNameConfig]
+}
+
 case class DepartmentNameConfig(
   pafDepartmentNameBoost: Float,
   lpiLegalNameBoost: Float
 )
+
+object DepartmentNameConfig {
+  implicit val departmentConfigFormat: Format[DepartmentNameConfig] = Json.format[DepartmentNameConfig]
+}
 
 case class LocalityConfig(
   pafPostTownBoost: Float,
@@ -122,6 +166,10 @@ case class LocalityConfig(
   pafDoubleDependentLocalityBoost: Float,
   pafWelshDoubleDependentLocalityBoost: Float
 )
+
+object LocalityConfig {
+  implicit val localityConfigFormat: Format[LocalityConfig] = Json.format[LocalityConfig]
+}
 
 case class BulkConfig(
   batch: BatchConfig,
@@ -141,9 +189,14 @@ case class ApiConfig(
 )
 
 case class DemouiConfig (
+  loginRequired: Boolean,
+  realGatewayDev: Boolean,
+  realGatewayTest: Boolean,
+  realGatewayProd: Boolean,
   customErrorDev: Boolean,
   customErrorTest: Boolean,
   customErrorProd: Boolean,
+  gatewayURL: String,
   apiURL: ApiConfig,
   limit: Int,
   offset: Int,

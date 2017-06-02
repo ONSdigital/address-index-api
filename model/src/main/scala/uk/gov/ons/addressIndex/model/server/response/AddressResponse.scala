@@ -3,9 +3,7 @@ package uk.gov.ons.addressIndex.model.server.response
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
-import uk.gov.ons.addressIndex.crfscala.CrfScala.CrfTokenResult
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
 
@@ -87,7 +85,6 @@ case class AddressBySearchResponse(
 
 object AddressBySearchResponse {
   implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]
-  implicit lazy val tokenResultFmt: Format[CrfTokenResult] = Json.format[CrfTokenResult]
 }
 
 /**
@@ -129,25 +126,27 @@ case class AddressBulkResponseAddress(
   matchedFormattedAddress: String,
   matchedAddress: Option[AddressResponseAddress],
   tokens: Map[String, String],
-  score: Float
+  score: Float,
+  bespokeScore: Option[AddressResponseScore]
 )
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
-  def fromBulkAddress(bulkAddress: BulkAddress, includeFullAddress: Boolean): AddressBulkResponseAddress = {
-    val addressResponseAddress = AddressResponseAddress.fromHybridAddress(bulkAddress.hybridAddress)
-
-    AddressBulkResponseAddress(
-      id = bulkAddress.id,
-      inputAddress = bulkAddress.inputAddress,
-      uprn = bulkAddress.hybridAddress.uprn,
-      matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
-      matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
-      tokens = bulkAddress.tokens,
-      score = bulkAddress.hybridAddress.score
-    )
-  }
+  def fromBulkAddress(
+    bulkAddress: BulkAddress,
+    addressResponseAddress: AddressResponseAddress,
+    includeFullAddress: Boolean
+  ): AddressBulkResponseAddress = AddressBulkResponseAddress(
+    id = bulkAddress.id,
+    inputAddress = bulkAddress.inputAddress,
+    uprn = bulkAddress.hybridAddress.uprn,
+    matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
+    matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
+    tokens = bulkAddress.tokens,
+    score = bulkAddress.hybridAddress.score,
+    bespokeScore = addressResponseAddress.bespokeScore
+  )
 }
 
 
@@ -184,6 +183,8 @@ object AddressTokens {
   * @param paf                optional, information from Paf index
   * @param nag                optional, information from Nag index
   * @param underlyingScore    score from elastic search
+  * @param bespokeScore       custom scoring, optional so that it can be added during additional
+  *                           step in the HopperScoreHelper
   */
 case class AddressResponseAddress(
   uprn: String,
@@ -192,10 +193,13 @@ case class AddressResponseAddress(
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
+  welshFormattedAddressNag: String,
+  welshFormattedAddressPaf: String,
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  underlyingScore: Float
+  underlyingScore: Float,
+  bespokeScore: Option[AddressResponseScore]
 )
 
 object AddressResponseAddress {
@@ -208,11 +212,15 @@ object AddressResponseAddress {
     */
   def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
 
-    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi)
+    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+
+    val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
+    val welshFormattedAddressNag = chosenWelshNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
 
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
+    val welshFormattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateWelshFormattedAddress).getOrElse("")
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -221,10 +229,13 @@ object AddressResponseAddress {
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
+      welshFormattedAddressNag = welshFormattedAddressNag,
+      welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      underlyingScore = other.score
+      underlyingScore = other.score,
+      bespokeScore = None
     )
   }
 
@@ -233,11 +244,14 @@ object AddressResponseAddress {
     * @param addresses list of Nag addresses
     * @return the NAG address that corresponds to the returned address
     */
-  def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress]): Option[NationalAddressGazetteerAddress] ={
+  def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress], language: String): Option[NationalAddressGazetteerAddress] ={
     // "if" is more readable than "getOrElse" in this case
-    if (addresses.exists(_.lpiLogicalStatus == "1")) addresses.find(_.lpiLogicalStatus == "1")
-    else if (addresses.exists(_.lpiLogicalStatus == "6")) addresses.find(_.lpiLogicalStatus == "6")
-    else if (addresses.exists(_.lpiLogicalStatus == "8")) addresses.find(_.lpiLogicalStatus == "8")
+    if (addresses.exists(address => address.lpiLogicalStatus == "1" && address.language == language ))
+      addresses.find(_.lpiLogicalStatus == "1")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "6" && address.language == language))
+      addresses.find(_.lpiLogicalStatus == "6")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "8" && address.language == language))
+      addresses.find(_.lpiLogicalStatus == "8")
     else addresses.headOption
   }
 }
@@ -323,7 +337,7 @@ object AddressResponsePaf {
   def fromPafAddress(other: PostcodeAddressFileAddress): AddressResponsePaf =
     AddressResponsePaf(
       other.udprn,
-      other.organizationName,
+      other.organisationName,
       other.departmentName,
       other.subBuildingName,
       other.buildingName,
@@ -362,10 +376,32 @@ object AddressResponsePaf {
     val buildingNumberWithStreetName =
       s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
 
-    Seq(paf.departmentName, paf.organizationName, paf.subBuildingName, paf.buildingName,
+    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
       poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
       paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
+
+  /**
+    * Creates Welsh formatted address from PAF address
+    * @param paf PAF address
+    * @return String of Welsh formatted address
+    */
+  def generateWelshFormattedAddress(paf: PostcodeAddressFileAddress): String = {
+
+    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
+
+    val trimmedBuildingNumber = paf.buildingNumber.trim
+    val trimmedDependentThoroughfare = paf.welshDependentThoroughfare.trim
+    val trimmedThoroughfare = paf.welshThoroughfare.trim
+
+    val buildingNumberWithStreetName =
+      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
+
+    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
+      poBoxNumber, buildingNumberWithStreetName, paf.welshDoubleDependentLocality, paf.welshDependentLocality,
+      paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
+  }
+
 }
 
 /**
@@ -405,7 +441,8 @@ case class AddressResponseNag(
   classificationCode: String,
   localCustodianCode: String,
   localCustodianName: String,
-  localCustodianGeogCode: String
+  localCustodianGeogCode: String,
+  lpiEndDate: String
 )
 
 object AddressResponseNag {
@@ -443,7 +480,8 @@ object AddressResponseNag {
         other.classificationCode,
         other.localCustodianCode,
         other.localCustodianName,
-        other.localCustodianGeogCode
+        other.localCustodianGeogCode,
+        other.lpiEndDate
       )
   }
 
@@ -563,6 +601,31 @@ object AddressResponseGeo {
 }
 
 /**
+  * Hopper Score - this class contains debug fields that may not be in final product
+  * @param objectScore
+  * @param structuralScore
+  * @param buildingScore
+  * @param localityScore
+  * @param unitScore
+  * @param buildingScoreDebug
+  * @param localityScoreDebug
+  * @param unitScoreDebug
+  */
+case class AddressResponseScore (
+  objectScore: Double,
+  structuralScore: Double,
+  buildingScore: Double,
+  localityScore: Double,
+  unitScore: Double,
+  buildingScoreDebug: String,
+  localityScoreDebug: String,
+  unitScoreDebug: String
+)
+
+object AddressResponseScore {
+  implicit lazy val addressResponseScoreFormat: Format[AddressResponseScore] = Json.format[AddressResponseScore]
+}
+/**
   * Contains response status
   *
   * @param code    http code
@@ -582,6 +645,20 @@ object OkAddressResponseStatus extends AddressResponseStatus(
   message = "Ok"
 )
 
+/**
+  * Container for version info
+  * @param apiVersion
+  * @param dataVersion
+  */
+case class AddressResponseVersion(
+  apiVersion: String,
+  dataVersion: String
+)
+
+object AddressResponseVersion {
+  implicit lazy val addressResponseVersionFormat: Format[AddressResponseVersion] = Json.format[AddressResponseVersion]
+}
+
 object NotFoundAddressResponseStatus extends AddressResponseStatus(
   code = Status.NOT_FOUND,
   message = "Not Found"
@@ -590,6 +667,11 @@ object NotFoundAddressResponseStatus extends AddressResponseStatus(
 object BadRequestAddressResponseStatus extends AddressResponseStatus(
   code = Status.BAD_REQUEST,
   message = "Bad request"
+)
+
+object UnauthorizedRequestAddressResponseStatus extends AddressResponseStatus(
+  code = Status.UNAUTHORIZED,
+  message = "Unauthorized"
 )
 
 object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
@@ -661,6 +743,16 @@ object OffsetTooLargeAddressResponseError extends AddressResponseError(
 object FailedRequestToEsError extends AddressResponseError(
   code = 10,
   message = "Failed request to the Elastic Search (check api logs)"
+)
+
+object ApiKeyMissingError extends AddressResponseError(
+  code = 11,
+  message = "Api key not supplied"
+)
+
+object ApiKeyInvalidError extends AddressResponseError(
+  code = 12,
+  message = "Invalid Api key supplied"
 )
 
 
