@@ -10,7 +10,6 @@ import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @Singleton
 class StaticController @Inject()(
   val messagesApi: MessagesApi,
-  langs: Langs,
   version: DemoUIAddressIndexVersionModule
  ) extends Controller with I18nSupport{
   val logger = Logger("ApplicationHomeController")

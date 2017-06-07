@@ -81,10 +81,10 @@ clerical.scorevalue=Score Value
 clerical.building=Building
 clerical.sub_building_number=Sub Building Number
 clerical.unit=Unit
-clerical.townlocality = Town Locality
+clerical.townlocality=Town Locality
 clerical.organisation_building_name=Organisation Building Name
 clerical.detailed_organisation_building_name=Detailed Organisation Building Name
-clerical.ref_hierarchy = Ref Hierarchy
+clerical.ref_hierarchy=Ref Hierarchy
 
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
@@ -118,7 +118,8 @@ login.username=Username
 login.password=Password
 login.usernameph=ONS Network id
 login.passwordph=Network password
-
+login.login=Login
+login.clear=Clear
 
 main.beta=BETA
 main.licence1=All content is available under the

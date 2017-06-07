@@ -56,7 +56,7 @@ version: DemoUIAddressIndexVersionModule
                     <li>If login is required, enter your ons network username and password, and click “Login” button</li>
                 </ol>
 
-                <img src="@routes.Assets.versioned("/images/help/log_in_2.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/login_1_cy.jpg").toString">
             </div>
 
             <div>
@@ -64,13 +64,13 @@ version: DemoUIAddressIndexVersionModule
                 <h1>Search for a Single Address</h1>
 
                 <div>1. From the Address Index home page, click Find an address</div>
-                <img src="@routes.Assets.versioned("/images/help/single_1.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/single_1_cy.jpg").toString">
 
                 <div>2. Enter an address and click the Search button</div>
-                <img src="@routes.Assets.versioned("/images/help/single_2.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/single_2_cy.jpg").toString">
 
                 <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.</div>
-                <img src="@routes.Assets.versioned("/images/help/single_3.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/single_3_cy.jpg").toString">
 
 
                 <ol>
@@ -94,19 +94,19 @@ version: DemoUIAddressIndexVersionModule
                 <h1>Search for  Multiple Addresses</h1>
 
                 <div>1. From the Address Index home page, click Match multiple addresses</div>
-                <img src="@routes.Assets.versioned("/images/help/multiple_1.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/multiple_1_cy.jpg").toString">
 
                 <div> 2. Click Choose File to select a file from your computer. </div>
                 <div><i>Note: The selected file must be a CSV (Comma Delimited) format, less than 10MB in size and must have only two columns with headers:  ID and Address. See Sample file attached below</i></div>
-                <img src="@routes.Assets.versioned("/images/help/multiple_2.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/multiple_2_cy.jpg").toString">
 
                  
                 <div>3. Once the file is selected from your computer, click "Visualise" button</div>
-                <img src="@routes.Assets.versioned("/images/help/multiple_3.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/multiple_3_cy.jpg").toString">
 
                 <div>Once the file is uploaded successfully, the matching engine will process the search query and return the results.</div>
 
-                <img src="@routes.Assets.versioned("/images/help/multiple_4.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/multiple_4_cy.jpg").toString">
 
                 <ul>
                     <li><strong>ID</strong>
@@ -133,12 +133,14 @@ version: DemoUIAddressIndexVersionModule
                 <h1>Perform an advanced search using the Clerical Tool</h1>
 
                 <div>1. From the Address Index home page, click Clerical tool</div>
-                <img src="@routes.Assets.versioned("/images/help/clerical_1.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/clerical_1_cy.jpg").toString">
 
                 <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the one in Single search, the user may click on "Additional Clerical Information" to see more information about tokens and hierarchy.</div>
 
-                <img src="@routes.Assets.versioned("/images/help/clerical_2.jpg").toString">
-                <img src="@routes.Assets.versioned("/images/help/clerical_3.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/clerical_2_cy.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/clerical_3_cy.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/clerical_4_cy.jpg").toString">
+                <img src="@routes.Assets.versioned("/images/help/clerical_5_cy.jpg").toString">
 
                 <div>3. Click on "Hide" to hide the additional information</div>
             </div>
@@ -146,7 +148,15 @@ version: DemoUIAddressIndexVersionModule
             <div>
                 <a name="debug"></a>
                 <h1>Debug the Elastic Search Query</h1>
+
                 <div>This tool allows data scientists to see the underlying elastic search query</div>
+                <div>1. From the Address Index home page, click Display ES Query</div>
+
+                <img src="@routes.Assets.versioned("/images/help/debug_1_cy.jpg").toString">
+
+                <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the Clerical tool, except there is a large text box above the results containing the elastic search query that the API has generated and used. This query can be copied into a tool such as Kopf or Postman for testing.</div>
+
+                <img src="@routes.Assets.versioned("/images/help/debug_3_cy.jpg").toString">
             </div>
 
             <div>

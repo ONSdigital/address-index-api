@@ -56,7 +56,7 @@
                         <li>If login is required, enter your ons network username and password, and click “Login” button</li>
                     </ol>
 
-                    <img src="@routes.Assets.versioned("/images/help/log_in_2.jpg").toString">
+                    <img src="@routes.Assets.versioned("/images/help/login_1.jpg").toString">
                 </div>
 
                 <div>
@@ -146,7 +146,15 @@
                 <div>
                     <a name="debug"></a>
                     <h1>Debug the Elastic Search Query</h1>
+
                     <div>This tool allows data scientists to see the underlying elastic search query</div>
+                    <div>1. From the Address Index home page, click Display ES Query</div>
+
+                    <img src="@routes.Assets.versioned("/images/help/debug_1.jpg").toString">
+
+                    <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the Clerical tool, except there is a large text box above the results containing the elastic search query that the API has generated and used. This query can be copied into a tool such as Kopf or Postman for testing.</div>
+
+                    <img src="@routes.Assets.versioned("/images/help/debug_3.jpg").toString">
                 </div>
 
                 <div>
