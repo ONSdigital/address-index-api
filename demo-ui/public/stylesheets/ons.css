@@ -860,6 +860,13 @@ select {
     }
 }
 
+@media print {
+.no-print, .no-print *
+    {
+        display: none;
+    }
+}
+
 .ls-approved{
     color:white;
     background-color:#00CC00;
@@ -1023,5 +1030,5 @@ a.address-toggle-welsh:hover {
 }
 
 .help-container h1 {
-    margin-top: 70px;
+    margin-top: 46px;
 }
