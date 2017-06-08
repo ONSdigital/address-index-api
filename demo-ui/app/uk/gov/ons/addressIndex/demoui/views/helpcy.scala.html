@@ -16,45 +16,45 @@ version: DemoUIAddressIndexVersionModule
             <div class="no-print">
                 <ul>
                     <li>
-                        <a href="#introduction">Introduction</a>
+                        <a href="#introduction">Cyflwyniad</a>
                     </li>
                     <li>
-                        <a href="#login">Logging on to Address Index</a>
+                        <a href="#login">Fynd i Cyfeiriad Index</a>
                     </li>
                     <li>
-                        <a href="#search_single">Search for a Single Address</a>
+                        <a href="#search_single">Chwilio am Cyfeiriad Sengl</a>
                     </li>
                     <li>
-                        <a href="#search_multiple">Search for multiple addresses</a>
+                        <a href="#search_multiple">Chwilio am gyfeiriadau lluosog</a>
                     </li>
                     <li>
-                        <a href="#clerical">Perform an advanced search using the Clerical Tool</a>
+                        <a href="#clerical">Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</a>
                     </li>
                     <li>
-                        <a href="#debug">Debug the ElasticSearch Query</a>
+                        <a href="#debug">Debug y ElasticSearch Ymholiad</a>
                     </li>
                     <li>
-                        <a href="#notes">Additional Notes</a>
+                        <a href="#notes">Nodiadau ychwanegol</a>
                     </li>
                 </ul>
             </div>
 
             <div>
                 <a name="introduction"></a>
-                <h1>Introduction</h1>
-                <p>The Address Index User Interface (UI) provides an address searching and matching service to users on the ONS network. To log in to the service, enter the same username and password used to log into your PC/Laptop.</p>
-                <p>If you are on the ONS network and are unable to access the service, please email <a href="mailto:ai.users@@ons.gov.uk">Address Index</a></p>
-                <p>To provide access to users outside the ONS network, mainly OGDs, the Address Index service will be accessible through the use of an Application Program Interface (API)</p>
-                <p>During the Private Beta external users are supplying bulk input files via MoveIt</p>
+                <h1>Cyflwyniad</h1>
+                <p>Mae'r Rhyngwyneb Defnyddiwr Mynegai Cyfeiriad (UI) yn cynnig chwilio gyfeiriad a gwasanaeth paru ar gyfer defnyddwyr ar y rhwydwaith y Swyddfa Ystadegau Gwladol. I logio i mewn i'r gwasanaeth, rhowch yr un enw defnyddiwr a'r cyfrinair a ddefnyddiwyd i fewngofnodi i mewn i'ch cyfrifiadur / Laptop.</p>
+                <p>Os ydych chi ar y rhwydwaith SYG ac yn gallu cael mynediad i'r gwasanaeth, anfonwch e-bost <a href="mailto:ai.users@@ons.gov.uk">Mynegai Cyfeiriad</a></p>
+                <p>Darparu mynediad i ddefnyddwyr y tu allan i'r rhwydwaith ONS, OGDs bennaf, bydd y gwasanaeth Mynegai Cyfeiriad fod yn hygyrch drwy ddefnyddio Rhaglen Rhyngwyneb Cais (API)</p>
+                <p>Yn ystod y Beta Preifat defnyddwyr allanol yn cyflenwi ffeiliau swmp mewnbwn drwy MoveIt</p>
             </div>
 
             <div>
                 <a name="login"></a>
-                <h1>Login</h1>
+                <h1>Mewngofnodi</h1>
                 <ol>
-                    <li>Open a web browser and go to <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
+                    <li>Agor porwr gwe ac yn mynd i <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
 
-                    <li>If login is required, enter your ons network username and password, and click “Login” button</li>
+                    <li>Os oes angen mewngofnodi, rhowch eich enw defnyddiwr rhwydwaith ons a chyfrinair, a chliciwch "Mewngofnodi" botwm</li>
                 </ol>
 
                 <img src="@routes.Assets.versioned("/images/help/login_1_cy.jpg").toString">
@@ -62,115 +62,115 @@ version: DemoUIAddressIndexVersionModule
 
             <div>
                 <a name="search_single"></a>
-                <h1>Search for a Single Address</h1>
+                <h1>Chwilio am Cyfeiriad Sengl</h1>
 
-                <div>1. From the Address Index home page, click Find an address</div>
+                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Dod o hyd i gyfeiriad</div>
                 <img src="@routes.Assets.versioned("/images/help/single_1_cy.jpg").toString">
 
-                <div>2. Enter an address and click the Search button</div>
+                <div>2. Rhowch gyfeiriad a chliciwch ar y botwm Chwilio</div>
                 <img src="@routes.Assets.versioned("/images/help/single_2_cy.jpg").toString">
 
-                <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.</div>
+                <div>3. Unwaith y bydd y botwm chwilio ei glicio, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
                 <img src="@routes.Assets.versioned("/images/help/single_3_cy.jpg").toString">
 
 
                 <ol>
-                    <li><strong>Number of addresses found</strong> - The total number of addresses found in the search.</li>
-                    <li><strong>Feedback</strong> - Press to submit a feedback for this particular input</li>
-                    <li><strong>LA | PAF</strong> - Toggle functionality to view either a formatted LA (Local Authority) or PAF (Postal Address Finder) version of the address.</li>
-                    <li><strong>Language</strong> - Language switch between English and Welsh</li>
-                    <li><strong>Matching Score</strong> – Document score comes from the search engine, Building score is a calculated probability that the building is correct, and the unit score is for the sub-building if appropriate </li>
-                    <li><strong>Address</strong> – A formatted matched address. As default, the formatted LA version of the matched address is displayed.</li>
-                    <li><strong>Logical Status Icon</strong> – The logical status of a matched address. A is approved, P is provisional and H is Historical.</li>
-                    <li><strong>UPRN</strong> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
-                    <li><strong>Classification</strong> - Allow users to view the high level and low level classification of a matched address e.g. High level (Residential, Commercial etc.) and Low Level (Self-Contained Flat, Bank, Restaurant, Shop/Showroom etc.)</li>
-                    <li><strong>Local Authority</strong> – This is the local authority that the matched address is currently assigned to.</li>
-                    <li><strong>Open Map</strong> – Allow users to pinpoint the matched address on a map using AddressBase’s coordinates</li>
+                    <li><strong>Nifer y cyfeiriadau a geir</strong> - Cyfanswm y nifer o gyfeiriadau a geir yn y chwiliad.</li>
+                    <li><strong>Adborth</strong> - Gwasgwch i gyflwyno adborth ar gyfer y mewnbwn penodol</li>
+                    <li><strong>LA | PAF</strong> - ymarferoldeb Toggle i weld naill ai ALl fformatio (Awdurdod Lleol) neu PAF (Post Finder Cyfeiriad) fersiwn o'r cyfeiriad.</li>
+                    <li><strong>Iaith</strong> - newid iaith rhwng y Gymraeg a'r Saesneg</li>
+                    <li><strong>paru Sgôr</strong> – Daw sgôr Dogfennau o beiriant chwilio, Adeilad sgôr tebygolrwydd gyfrifo bod yr adeilad yn gywir, a'r sgôr uned hon ar gyfer yr is-adeilad os yn briodol </li>
+                    <li><strong>Cyfeiriad</strong> – Mae cyfeiriad cyfateb fformatio. Fel ball, y fersiwn ALl fformatio o'r cyfeiriad cyfatebol yn cael ei arddangos.</li>
+                    <li><strong>Statws Icon Rhesymegol</strong> – Mae statws rhesymegol cyfeiriad cyfatebol. A ei gymeradwyo, P yn un dros dro ac H yn Hanesyddol.</li>
+                    <li><strong>UPRN</strong> – Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
+                    <li><strong>Dosbarthiad</strong> - Yn galluogi defnyddwyr i weld y lefel uchel a dosbarthu lefel isel o gyfeiriad cyfatebol, e.e. Lefel uchel (Preswyl, ac ati Masnachol) a Lefel Isel (fflat hunangynhwysol, Bank, Bwyty, Siop / Ystafell Arddangos ac ati)</li>
+                    <li><strong>Awdurdod lleol</strong> – Mae hyn yn yr awdurdod lleol bod y cyfeiriad yn cyfateb ar hyn o bryd neilltuo i.</li>
+                    <li><strong>Map agored</strong> – Yn galluogi defnyddwyr i binbwyntio y cyfeiriad cyfatebol ar fap gan ddefnyddio cyfesurynnau AddressBase yn</li>
                 </ol>
 
             </div>
 
             <div>
                 <a name="search_multiple"></a>
-                <h1>Search for  Multiple Addresses</h1>
+                <h1>Chwilio am Cyfeiriadau Lluosog</h1>
 
-                <div>1. From the Address Index home page, click Match multiple addresses</div>
+                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Match cyfeiriadau lluosog</div>
                 <img src="@routes.Assets.versioned("/images/help/multiple_1_cy.jpg").toString">
 
-                <div> 2. Click Choose File to select a file from your computer. </div>
-                <div><i>Note: The selected file must be a CSV (Comma Delimited) format, less than 10MB in size and must have only two columns with headers:  ID and Address. See Sample file attached below</i></div>
+                <div>2. Cliciwch Dewiswch Ffeil i ddewis ffeil o'ch cyfrifiadur. </div>
+                <div><i>Sylwer: Rhaid i'r ffeil a ddewisir fod yn CSV (Comma delimited) fformat, llai na 10MB o ran maint ac mae'n rhaid bod dim ond dwy golofn gyda penawdau: ID a chyfeiriad. Gweld <a href="@routes.Assets.versioned("/images/help/exsample.csv").toString">ffeil enghreifftiol</a></i></div>
                 <img src="@routes.Assets.versioned("/images/help/multiple_2_cy.jpg").toString">
 
                  
-                <div>3. Once the file is selected from your computer, click "Visualise" button</div>
+                <div>3. Unwaith y bydd y ffeil yn cael ei ddewis gan eich cyfrifiadur, cliciwch "Delweddu" botwm</div>
                 <img src="@routes.Assets.versioned("/images/help/multiple_3_cy.jpg").toString">
 
-                <div>Once the file is uploaded successfully, the matching engine will process the search query and return the results.</div>
+                <div>Unwaith y bydd y ffeil yn cael ei llwytho i fyny yn llwyddiannus, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
 
                 <img src="@routes.Assets.versioned("/images/help/multiple_4_cy.jpg").toString">
 
                 <ul>
                     <li><strong>ID</strong>
-                        – This is the ID that was provided by the user in the input file.</li>
-                    <li><strong>Input Address</strong>
-                        – The input address is the address that was uploaded by the user</li>
-                    <li><strong>Matched Address</strong> – Address found during matching.</li>
+                        – Mae hyn yn y ID a ddarparwyd gan y defnyddiwr yn y ffeil mewnbwn.</li>
+                    <li><strong>Cyfeiriad mewnbwn</strong>
+                        – Gall y cyfeiriad mewnbwn yn y cyfeiriad a llwytho gan y defnyddiwr</li>
+                    <li><strong>Cyfeiriad Cyfatebol</strong> – dod o hyd i gyfeiriad yn ystod cyfateb.</li>
                     <li><strong>UPRN</strong>
-                        – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by the local government.</li>
-                    <li><strong>Document Score</strong> - Elastic Search score</li>
-                    <li><strong>Building Score</strong> - Custom score for addresses score</li>
-                    <li><strong>Building Score</strong> - Custom score for addresses with Flats score</li>
-                    <li><strong>Rank</strong> - Rank of the address in a list of matched addresses for the same input</li>
-                    <li><strong>Matched?</strong> - Switch that allows to choose which address to download as a .csv file</li>
+                        – Rhif Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
+                    <li><strong>Sgôr Document</strong> - sgôr Chwilio elastig</li>
+                    <li><strong>Sgôr adeiladu</strong> - sgôr arfer ar gyfer sgorio cyfeiriadau</li>
+                    <li><strong>Sgôr Uned</strong> - sgôr Custom ar gyfer cyfeiriadau gyda sgôr Fflatiau</li>
+                    <li><strong>Rheng</strong> - Rank y cyfeiriad mewn rhestr o gyfeiriadau cyfatebol ar gyfer yr un mewnbwn</li>
+                    <li><strong>Cyfatebol?</strong> - Switch sy'n caniatáu i ddewis pa gyfeiriad i'w llwytho i lawr fel ffeil .csv</li>
                 </ul>
 
-                <div>4. To export results to a .csv file, click Download link at the bottom of the table, or directly press "Download Result" instead of visualising it</div>
+                <div>4. canlyniadau allforio i ffeil .csv, cliciwch Download ddolen ar waelod y tabl, neu pwyswch uniongyrchol "Download Canlyniad" yn lle ddelweddu ei.</div>
 
 
             </div>
 
             <div>
                 <a name="clerical"></a>
-                <h1>Perform an advanced search using the Clerical Tool</h1>
+                <h1>Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</h1>
 
-                <div>1. From the Address Index home page, click Clerical tool</div>
+                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch offeryn Clerigol</div>
                 <img src="@routes.Assets.versioned("/images/help/clerical_1_cy.jpg").toString">
 
-                <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the one in Single search, the user may click on "Additional Clerical Information" to see more information about tokens and hierarchy.</div>
+                <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union yr un i chwilio sengl, gall y defnyddiwr cliciwch ar "Gwybodaeth Clerigol Ychwanegol" i weld mwy o wybodaeth am docynnau a hierarchaeth</div>
 
                 <img src="@routes.Assets.versioned("/images/help/clerical_2_cy.jpg").toString">
                 <img src="@routes.Assets.versioned("/images/help/clerical_3_cy.jpg").toString">
                 <img src="@routes.Assets.versioned("/images/help/clerical_4_cy.jpg").toString">
                 <img src="@routes.Assets.versioned("/images/help/clerical_5_cy.jpg").toString">
 
-                <div>3. Click on "Hide" to hide the additional information</div>
+                <div>3. Cliciwch ar "Cuddio" i guddio y wybodaeth ychwanegol</div>
             </div>
 
             <div>
                 <a name="debug"></a>
-                <h1>Debug the Elastic Search Query</h1>
+                <h1>Debug y Elastig Ymholiad Chwilio</h1>
 
-                <div>This tool allows data scientists to see the underlying elastic search query</div>
-                <div>1. From the Address Index home page, click Display ES Query</div>
+                <div>Mae'r offeryn hwn yn caniatáu i wyddonwyr data i weld yr ymholiad chwilio elastig sylfaenol</div>
+                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Arddangos ES Ymholiad</div>
 
                 <img src="@routes.Assets.versioned("/images/help/debug_1_cy.jpg").toString">
 
-                <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the Clerical tool, except there is a large text box above the results containing the elastic search query that the API has generated and used. This query can be copied into a tool such as Kopf or Postman for testing.</div>
+                <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union offeryn Clerigol, ac eithrio mae blwch testun mawr uwchben y canlyniadau sy'n cynnwys yr ymholiad chwilio elastig y mae'r API wedi creu a defnyddio. Gall yr ymholiad hwn yn cael ei gopïo i mewn i offeryn megis Kopf neu Postman ar gyfer profi.</div>
 
                 <img src="@routes.Assets.versioned("/images/help/debug_3_cy.jpg").toString">
             </div>
 
             <div>
                 <a name="notes"></a>
-                <h1>Additional Notes</h1>
+                <h1>Nodiadau ychwanegol</h1>
                 <ol>
-                    <li><strong>Viewing Site In Welsh</strong> - In Chrome go to Settings, Advanced settings, Languages, if Welsh is not on the list, add it with the Add button. Drag Welsh to the top and click Finish. The UI is now in Welsh mode. Drag Welsh below English to toggle back.
-                    <li><strong>Validation and Address Format</strong> - The only validation done is to check that an address string is supplied (if not get clickable error message). No checks are made as to what address parts are included. Whatever is supplied is processed by the API and if there are no matches there are no matches.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
-                    <li><strong>Bookmarking</strong> - The address string (URL encoded) and other parameters are echoed to the URL bar so you can bookmark a single search or clerical tool result and send it to someone else. It will recreate the page as saved such as expanding the chosen address in the clerical tool. Note that the PAF / LA toggle is done on the client so is not bookmarkable.</li>
-                    <li><strong>Paging</strong> - The maximum number of pages is 100 or the number of results / number of results per page. In the UI the number of results per page is set to 10 and cannot be overridden in the URL. Note that as well as next / previous buttons you can jump to a page number using the page= query string parameter in the URL.</li>
-                    <li><strong>Google Maps</strong> - Note that this takes you to the exact Lat / Lon from Addressbase rather than where Google thinks the marker should go.</li>
-                    <li><strong>Epochs</strong> - A major new version of Addressbase is supplied every 6 weeks. These versions are called Epochs. The current Epoch number is shown the top right of the screen, along with the version number of the code which is also a link to GitHub. </li>
-                    <li><strong>Internet Explorer</strong> - This site works on all modern browsers. However, Internet Explorer should have Compatability View off (right click cog icon top right to show the menu bar, Tools, Compatability View Settings, ensure Display Intranet Sites In Compatibility Mode is unticked). </li>
+                    <li><strong>Edrych ar y Safle Yn Gymraeg</strong> - Yn Chrome ewch i Settings, lleoliadau Uwch, Ieithoedd, os nad y Gymraeg ar y rhestr, ychwanegu 'i ag y botwm Ychwanegu. Llusgwch Gymraeg i'r top a chliciwch Gorffen. Mae'r UI yn awr yn y modd y Gymraeg. Llusgwch y Gymraeg yn is na Saesneg i toggle yn ôl.</li>
+                    <li><strong>Dilysu a Chyfeiriad Fformat</strong> - Yr unig dilysu wneud yw i wirio bod llinyn cyfeiriad yn cael ei gyflenwi (os nad yn cael neges gwall cliciadwy). Dim gwiriadau yn cael eu gwneud o ran pa gyfeiriad rannau yn cael eu cynnwys. Beth bynnag yn cael ei gyflenwi yn cael ei brosesu gan y API ac os nad oes unrhyw gemau nad oes unrhyw gemau. Yr eithriad i hyn yw os yw'r mewnbwn yn dim ond nifer, tybir i fod yn UPRN ac yn cyfateb yn unol â hynny.</li>
+                    <li><strong>Llyfrnodi</strong> - Mae'r llinyn cyfeiriad (URL hamgodio) a pharamedrau eraill yn cael eu hadleisio i'r bar URL er mwyn i chi nod tudalen chwiliad sengl neu canlyniad offeryn clerigol a'i hanfon at rywun arall. Bydd yn ail-greu dudalen fel arbed megis ehangu y cyfeiriad a ddewiswyd yn yr offeryn clerigol. Noder bod y togl PAF / ALl yn cael ei wneud ar y cleient, felly nid yw ei farcio â dalennod.</li>
+                    <li><strong>Paging</strong> - Y nifer uchaf o dudalennau yn 100 neu nifer y canlyniadau / nifer y canlyniadau ar bob tudalen. Yn y UI nifer y canlyniadau ar bob tudalen wedi ei osod i 10 ac ni ellir eu diystyru yn yr URL. Nodwch fod yn ogystal â botymau nesaf / blaenorol gallwch neidio i nifer dudalen gan ddefnyddio'r paramedr llinyn dudalen = ymholiad yn yr URL.</li>
+                    <li><strong>Mapiau Gwgl</strong> - Noder bod hyn yn mynd â chi i'r union Lat / Lon rhag Cyfeiriad Bar yn hytrach na lle y Google yn credu y dylai'r marciwr fynd.</li>
+                    <li><strong>Epochs</strong> - Mae fersiwn newydd o bwys o Addressbase ei gyflenwi bob 6 wythnos. Gelwir y rhain yn cael eu fersiynau gyfnodau. Y rhif Epoch cyfredol yn cael ei ddangos y dde uchaf y sgrin, ynghyd â rhif fersiwn o'r cod sydd hefyd yn ddolen i GitHub. </li>
+                    <li><strong>Rhyngrwyd archwiliwr</strong> - Mae'r safle hwn yn gweithio ar bob porwyr modern. Fodd bynnag, dylai Internet Explorer gael Chydweddoldeb View off (dde chlecia eicon cog uchaf ar y dde i ddangos y ddewislen bar, Tools, Chydweddoldeb View Settings, yn sicrhau Safleoedd Mewnrwyd Arddangos Yn Chytunedd Ddelw yn unticked).</li>
                 </ol>
             </div>
 
