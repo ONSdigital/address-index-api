@@ -36,7 +36,7 @@
                         </div>
                         <div class="hopper-score">
                             @messages("single.hopper_score"):
-                            @("%.2f".format(address.bespokeScore.map(score => score.structuralScore).getOrElse(0))) /
+                            @("%.2f".format(address.bespokeScore.map(score => score.structuralScore).getOrElse(0.0))) /
                             @((address.bespokeScore.map(score => "%.2f".format(score.objectScore)).filter(_ != "-1.00").getOrElse("N/A")))
                         </div>
                     </div>
