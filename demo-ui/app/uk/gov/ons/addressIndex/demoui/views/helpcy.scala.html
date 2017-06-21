@@ -5,7 +5,7 @@
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
 
-@main(title = messages("single.title"), version = version) {
+@main(title = messages("help.title"), version = version) {
 
 <div class="container">
     <div class="panel panel-single">
@@ -19,7 +19,7 @@ version: DemoUIAddressIndexVersionModule
                         <a href="#introduction">Cyflwyniad</a>
                     </li>
                     <li>
-                        <a href="#login">Fynd i Cyfeiriad Index</a>
+                        <a href="#login">Mewngofnodi</a>
                     </li>
                     <li>
                         <a href="#search_single">Chwilio am Cyfeiriad Sengl</a>
@@ -34,7 +34,7 @@ version: DemoUIAddressIndexVersionModule
                         <a href="#debug">Debug y ElasticSearch Ymholiad</a>
                     </li>
                     <li>
-                        <a href="#notes">Nodiadau ychwanegol</a>
+                        <a href="#notes">Nodiadau Technegoll</a>
                     </li>
                 </ul>
             </div>
@@ -67,7 +67,10 @@ version: DemoUIAddressIndexVersionModule
                 <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Dod o hyd i gyfeiriad</div>
                 <img src="@routes.Assets.versioned("/images/help/single_1_cy.jpg").toString">
 
-                <div>2. Rhowch gyfeiriad a chliciwch ar y botwm Chwilio</div>
+                <div>2. Rhowch gyfeiriad a chliciwch ar y botwm Chwilio
+                    Rhowch gymaint o'r cyfeiriad ag y bo modd ar gyfer canlyniadau gorau.
+                    Mae'r chwiliad ei optimeiddio ar gyfer paru cyfeiriadau mewn data gweinyddol, nid, er enghraifft arddangos yr holl gyfeiriadau yn y cod post a roddwyd.
+                </div>
                 <img src="@routes.Assets.versioned("/images/help/single_2_cy.jpg").toString">
 
                 <div>3. Unwaith y bydd y botwm chwilio ei glicio, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
@@ -76,16 +79,16 @@ version: DemoUIAddressIndexVersionModule
 
                 <ol>
                     <li><strong>Nifer y cyfeiriadau a geir</strong> - Cyfanswm y nifer o gyfeiriadau a geir yn y chwiliad.</li>
-                    <li><strong>Adborth</strong> - Gwasgwch i gyflwyno adborth ar gyfer y mewnbwn penodol</li>
-                    <li><strong>LA | PAF</strong> - ymarferoldeb Toggle i weld naill ai ALl fformatio (Awdurdod Lleol) neu PAF (Post Finder Cyfeiriad) fersiwn o'r cyfeiriad.</li>
-                    <li><strong>Iaith</strong> - newid iaith rhwng y Gymraeg a'r Saesneg</li>
-                    <li><strong>paru Sgôr</strong> – Daw sgôr Dogfennau o beiriant chwilio, Adeilad sgôr tebygolrwydd gyfrifo bod yr adeilad yn gywir, a'r sgôr uned hon ar gyfer yr is-adeilad os yn briodol </li>
+                    <li><strong>Adborth</strong> - Gwasgwch i gyflwyno adborth am yr gyfeiriad penodol.</li>
+                    <li><strong>LA | PAF</strong> - Toggle i weld naill ai fersiwn ALl (Awdurdod Lleol) neu PAF (Cyfeiriad Post Ffeil) fformatio y cyfeiriad.</li>
+                    <li><strong>Iaith</strong> - Togl rhwng fersiwn Saesneg a Chymraeg y cyfeiriad (lle maent yn bodoli)</li>
+                    <li><strong>paru Sgôr</strong> – Mae'r sgôr yn rhoi arwydd o ansawdd y gêm a bydd o ddiddordeb mwyaf i ddefnyddwyr arbenigol. sgôr y ddogfen yn cael ei ddychwelyd o elastig Search, Adeilad sgôr tebygolrwydd gyfrifo bod yr adeilad yn gywir, a'r sgôr uned hon ar gyfer yr is-adeilad os yn briodol. </li>
                     <li><strong>Cyfeiriad</strong> – Mae cyfeiriad cyfateb fformatio. Fel ball, y fersiwn ALl fformatio o'r cyfeiriad cyfatebol yn cael ei arddangos.</li>
-                    <li><strong>Statws Icon Rhesymegol</strong> – Mae statws rhesymegol cyfeiriad cyfatebol. A ei gymeradwyo, P yn un dros dro ac H yn Hanesyddol.</li>
+                    <li><strong>Statws Icon Rhesymegol</strong> – Mae statws rhesymegol cyfeiriad cyfateb fewn <a href="https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/addressbase-premium.html">AddressBase</a>. A ei gymeradwyo, P yn un dros dro ac H yn Hanesyddol. Gweler dogfennaeth AddressBase am fanylion dosbarthiad hwn.</li>
                     <li><strong>UPRN</strong> – Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
-                    <li><strong>Dosbarthiad</strong> - Yn galluogi defnyddwyr i weld y lefel uchel a dosbarthu lefel isel o gyfeiriad cyfatebol, e.e. Lefel uchel (Preswyl, ac ati Masnachol) a Lefel Isel (fflat hunangynhwysol, Bank, Bwyty, Siop / Ystafell Arddangos ac ati)</li>
+                    <li><strong>Dosbarthiad</strong> - Mae dosbarthiad y cyfeiriad cyfateb e.e. Preswyl, Masnachol, Hunangynhwysol Fflat, Siop ac ati)</li>
                     <li><strong>Awdurdod lleol</strong> – Mae hyn yn yr awdurdod lleol bod y cyfeiriad yn cyfateb ar hyn o bryd neilltuo i.</li>
-                    <li><strong>Map agored</strong> – Yn galluogi defnyddwyr i binbwyntio y cyfeiriad cyfatebol ar fap gan ddefnyddio cyfesurynnau AddressBase yn</li>
+                    <li><strong>Map agored</strong> – Dangoswch y cyfeiriad cyfatebol ar fap gan ddefnyddio cyfesurynnau AddressBase yn.</li>
                 </ol>
 
             </div>
@@ -117,14 +120,14 @@ version: DemoUIAddressIndexVersionModule
                     <li><strong>Cyfeiriad Cyfatebol</strong> – dod o hyd i gyfeiriad yn ystod cyfateb.</li>
                     <li><strong>UPRN</strong>
                         – Rhif Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
-                    <li><strong>Sgôr Document</strong> - sgôr Chwilio elastig</li>
-                    <li><strong>Sgôr adeiladu</strong> - sgôr arfer ar gyfer sgorio cyfeiriadau</li>
-                    <li><strong>Sgôr Uned</strong> - sgôr Custom ar gyfer cyfeiriadau gyda sgôr Fflatiau</li>
+                    <li><strong>Sgôr Document</strong> - sgôr Match dychwelyd o Chwilio elastig</li>
+                    <li><strong>Sgôr adeiladu</strong> - sgôr Custom sy'n tebygolrwydd gyfrifo bod yr adeilad yn gywir</li>
+                    <li><strong>Sgôr Uned</strong> - sgôr Custom ar gyfer yr is-adeilad os yw'n briodol.</li>
                     <li><strong>Rheng</strong> - Rank y cyfeiriad mewn rhestr o gyfeiriadau cyfatebol ar gyfer yr un mewnbwn</li>
-                    <li><strong>Cyfatebol?</strong> - Switch sy'n caniatáu i ddewis pa gyfeiriad i'w llwytho i lawr fel ffeil .csv</li>
+                    <li><strong>Cyfatebol?</strong> - Yn eich galluogi i eithrio rhai o'r canlyniadau o'r cynnyrch a grëwyd gan y download ddolen isod.</li>
                 </ul>
 
-                <div>4. canlyniadau allforio i ffeil .csv, cliciwch Download ddolen ar waelod y tabl, neu pwyswch uniongyrchol "Download Canlyniad" yn lle ddelweddu ei.</div>
+                <div>4. I allforio canlyniadau i ffeil .csv, cliciwch download ddolen ar waelod y tabl, neu pwyswch uniongyrchol "Download Canlyniad" (sy'n ofynnol ar gyfer sypiau mawr).</div>
 
 
             </div>

@@ -5,7 +5,7 @@
     version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
 
-@main(title = messages("single.title"), version = version) {
+@main(title = messages("help.title"), version = version) {
 
     <div class="container">
         <div class="panel panel-single">
@@ -76,7 +76,6 @@
 
                     <img src="@routes.Assets.versioned("/images/help/single_3.jpg").toString">
 
-
                     <ol>
                         <li><strong>Number of addresses found</strong> - The total number of addresses found in the search.</li>
                         <li><strong>Feedback</strong> - Press to submit feedback about this particular address.</li>
@@ -87,8 +86,8 @@
                         <li><strong>Logical Status Icon</strong> – The logical status of a matched address within <a href="https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/addressbase-premium.html">AddressBase</a>. A is approved, P is provisional and H is Historical. See AddressBase documentation for details of this classification.</li>
                         <li><strong>UPRN</strong> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by local government.</li>
                         <li><strong>Classification</strong> - The classification of the matched address e.g. Residential, Commercial, Self-Contained Flat, Shop etc.)</li>
-                        <li><strong>Local Authority</strong> – The local authority that the matched address is currently assigned to.</li>
-                        <li><strong>Open Map</strong> – Display the matched address on a map using AddressBase’s coordinates</li>
+                        <li><strong>Local Authority</strong> – The LA that the matched address is currently assigned to.</li>
+                        <li><strong>Open Map</strong> – Display the matched address on a map using AddressBase’s coordinates.</li>
                     </ol>
 
                 </div>
