@@ -87,6 +87,7 @@ clerical.organisation_building_name=Enw'r Adeilad Sefydliad
 clerical.detailed_organisation_building_name=Manwl Enw'r Adeilad Sefydliad
 clerical.ref_hierarchy=Cyf Hierarchaeth
 
+help.title="Mynd i'r afael Mynegai UI Tudalen Gymorth"
 
 home.servicetext=Gwasanaeth Paru Cyfeiriad
 home.headertext=Mae''r gwasanaeth hwn yn eich galluogi i chwilio am gyfeiriad unigol, neu yn cyd-fynd swp o gyfeiriadau o ffeil mewnbwn.
@@ -725,8 +726,8 @@ category.ZW99SY = Synagogue
 category.ZW99TP = Temple
 category.ZW99LG = Lych Gate
 
-upload=Ddychmygu canlyniad
-upload-download=Lawrlwytho canlyniad
+upload=Dangos canlyniadau
+upload-download=Canlyniadau lawrlwytho
 multi.table.id = ID
 multi.table.input.address = Cyfeiriad Mewnbwn
 multi.table.matched.address = Cyfeiriad Cyfatebol

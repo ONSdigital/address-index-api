@@ -86,6 +86,8 @@ clerical.organisation_building_name=Organisation Building Name
 clerical.detailed_organisation_building_name=Detailed Organisation Building Name
 clerical.ref_hierarchy=Ref Hierarchy
 
+help.title="Address Index UI Help Page"
+
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
 home.singlehead=Find an address
@@ -723,8 +725,8 @@ category.ZW99SU=Stupa
 category.ZW99SY=Synagogue
 category.ZW99TP=Temple
 category.ZW99LG=Lych Gate
-upload=Visualise result
-upload-download=Download result
+upload=Show results
+upload-download=Download results
 select_file=Browse file
 multi.table.id=ID
 multi.table.input.address=Input Address
