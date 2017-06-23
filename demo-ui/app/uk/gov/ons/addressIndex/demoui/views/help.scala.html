@@ -103,7 +103,13 @@
                     <div><i>Note: The selected file must be a CSV (Comma Delimited) format, less than 10MB in size and must have only two columns with headers:  ID and Address. See <a href="@routes.Assets.versioned("/images/help/exsample.csv").toString">Sample file</a></i></div>
                     <img src="@routes.Assets.versioned("/images/help/multiple_2.jpg").toString">
                      
-                    <div>3. Once the file is selected from your computer, click the "Show" button to view the results on screen.</div>
+                    <div>3.
+                        Having selected the file you wish to match, you then have 2 options:
+                        <ol>
+                            <li>Download the results using the Download Results button - this option will download all the match results to a CSV file (recommended for large batches).</li>
+                            <li>Show the results in the UI using the Show Results button - this options will display the results in your browser and allows users to select the match results they wish to download.</li>
+                        </ol>
+                    </div>
                     <img src="@routes.Assets.versioned("/images/help/multiple_3.jpg").toString">
 
                     <div>Once the file is uploaded successfully, the matching engine will process the search query and return the results.</div>
@@ -125,7 +131,7 @@
                         <li><strong>Matched?</strong> - Allows you to exclude some of the results from the output created by the download link described below.</li>
                     </ul>
 
-                    <div>4. To export results to a .csv file, click download link at the bottom of the table, or directly press "Download Result" (required for large batches)</div>
+                    <div>4. Having selected the match results to download, to proceed click the download link at the bottom of the table. </div>
 
 
                 </div>
@@ -164,7 +170,7 @@
                     <h1>Technical Notes</h1>
                 <ol>
                     <li><strong>Viewing Site In Welsh</strong> - In Chrome go to Settings, Advanced settings, Languages, if Welsh is not on the list, add it with the Add button. Drag Welsh to the top and click Finish. The UI is now in Welsh mode. Drag Welsh below English to toggle back.</li>
-                    <li><strong>Validation and Address Format</strong> - The only validation done on the input string is to check that an non-empty string is supplied. No checks are made as to what address parts are included. Whatever is supplied is processed by the API.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
+                    <li><strong>Validation and Address Format</strong> - The only validation done on the input string is to check that a non-empty string is supplied. No checks are made as to what address parts are included. Whatever is supplied is processed by the API.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
                     <li><strong>Bookmarking</strong> - The address string (URL encoded) and other parameters are echoed to the URL bar so you can bookmark a single search or clerical tool result and send it to someone else. It will recreate the page as saved such as expanding the chosen address in the clerical tool. Note that the PAF / LA toggle is done on the client so is not bookmarkable.</li>
                     <li><strong>Paging</strong> - The maximum number of pages is 100 or the number of results / number of results per page. In the UI the number of results per page is set to 10 and cannot be overridden in the URL. Note that as well as next / previous buttons you can jump to a page number using the page= query string parameter in the URL.</li>
                     <li><strong>Google Maps</strong> - Note that this takes you to the exact latitude / longitude from AddressBase rather than where Google thinks the marker should go.</li>
