@@ -73,6 +73,22 @@ clerical.town=tref
 clerical.postcode=Cod post
 clerical.postcodetype=Math cod post
 clerical.deliverypointsuffix=Ôl-ddodiad Cyflenwi Point
+
+
+clerical.score=sgôr
+clerical.param=paramedr
+clerical.paramvalue=Gwerth paramedr
+clerical.scorevalue=sgôr Gwerth
+clerical.building=adeiladu
+clerical.sub_building_number=Is Rhif yr Adeilad
+clerical.unit=Uned
+clerical.townlocality=Ardal Town
+clerical.organisation_building_name=Enw'r Adeilad Sefydliad
+clerical.detailed_organisation_building_name=Manwl Enw'r Adeilad Sefydliad
+clerical.ref_hierarchy=Cyf Hierarchaeth
+
+help.title="Mynd i'r afael Mynegai UI Tudalen Gymorth"
+
 home.servicetext=Gwasanaeth Paru Cyfeiriad
 home.headertext=Mae''r gwasanaeth hwn yn eich galluogi i chwilio am gyfeiriad unigol, neu yn cyd-fynd swp o gyfeiriadau o ffeil mewnbwn.
 home.singlehead=Dod o hyd i gyfeiriad
@@ -84,6 +100,8 @@ home.query_debug_head=Debug ymholiad
 home.query_debug_body=Dangoswch yr ymholiad a anfonir at elastic Chwilio
 home.clericalhead=Offeryn clerigol
 home.clericalbody=Ymchwilio i gyfeiriad camgymeriadau paru neu anghysondebau
+home.help_head=Helpu
+home.help_body=cymorth ar-sgrîn ar gyfer y wefan hon
 logical.1=Cymeradwy
 logical.5=Ymgeisydd (neilltuo ar gyfer y broses Ymgeisydd NLPG)
 logical.6=dro
@@ -98,11 +116,13 @@ logical.class6=ls-provisional
 logical.class8=ls-historical
 
 login.title=Os gwelwch yn dda Mewngofnodi
-login.heading=Address Matching Service
-login.username=Gwasanaeth Paru Cyfeiriad
+login.heading=Gwasanaeth Paru Cyfeiriad
+login.username=enw defnyddiwr
 login.password=cyfrinair
 login.usernameph=Rhif adnabod y Rhwydwaith ONS
 login.passwordph=cyfrinair rhwydwaith
+login.login=Mewngofnodi
+login.clear=Glir
 
 main.beta=BETA
 main.licence1=Mae''r holl gynnwys ar gael o dan y
@@ -117,6 +137,7 @@ navbar.singlematch=Chwilio sengl
 navbar.multimatch=Match lluosog
 navbar.clerical=Offeryn clerigol
 navbar.query=Ymholiad arddangos
+navbar.help=Helpu
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad
 single.searchbut=Chwilio
@@ -705,8 +726,8 @@ category.ZW99SY = Synagogue
 category.ZW99TP = Temple
 category.ZW99LG = Lych Gate
 
-upload=Ddychmygu canlyniad
-upload-download=Lawrlwytho canlyniad
+upload=Dangos canlyniadau
+upload-download=Canlyniadau lawrlwytho
 multi.table.id = ID
 multi.table.input.address = Cyfeiriad Mewnbwn
 multi.table.matched.address = Cyfeiriad Cyfatebol
