@@ -509,7 +509,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       total shouldBe 0f
     }
 
-    "remove empty boolean queries from the query " in {
+    "remove empty boolean queries from the query " ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
