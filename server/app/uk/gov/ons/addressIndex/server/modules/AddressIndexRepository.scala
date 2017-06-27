@@ -434,60 +434,6 @@ class AddressIndexRepository @Inject()(
               .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")).boost(queryParams.fallbackPafBigramBoost)),
           Seq())).boost(queryParams.fallbackQueryBoost).tieBreaker(0.0)
 
-
-    logger.info (fallbackQuery.builder.toString())
-    /*{
-      "query": {
-        "dis_max": {
-        "tie_breaker": 0,
-        "queries": [
-      {
-        "query": {
-        "bool": {
-        "must": {
-        "match": {
-        "lpi.nagAll": {
-        "query": "WEST AMESBURY HOUSE C42 WOODFORD VALLEY ROAD NORMANTON DOWN HOUSE NORTH TO STONEHENGE ROAD WEST AMESBURY WEST AMESBURY SP4 7BZ",
-        "minimum_should_match": "-40%"
-      }
-      }
-      },
-        "should": {
-        "match": {
-        "lpi.nagAll.bigram": {
-        "query": "WEST AMESBURY HOUSE C42 WOODFORD VALLEY ROAD NORMANTON DOWN HOUSE NORTH TO STONEHENGE ROAD WEST AMESBURY WEST AMESBURY SP4 7BZ"
-      }
-      }
-      }
-      }
-      }
-      },
-      {
-        "query": {
-        "bool": {
-        "must": {
-        "match": {
-        "paf.pafAll": {
-        "query": "WEST AMESBURY HOUSE C42 WOODFORD VALLEY ROAD NORMANTON DOWN HOUSE NORTH TO STONEHENGE ROAD WEST AMESBURY WEST AMESBURY SP4 7BZ",
-        "minimum_should_match": "-40%"
-      }
-      }
-      },
-        "should": {
-        "match": {
-        "paf.pafAll.bigram": {
-        "query": "WEST AMESBURY HOUSE C42 WOODFORD VALLEY ROAD NORMANTON DOWN HOUSE NORTH TO STONEHENGE ROAD WEST AMESBURY WEST AMESBURY SP4 7BZ"
-      }
-      }
-      }
-      }
-      }
-      }
-        ]
-      }
-      }
-    }
-*/
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
       buildingNameQuery,

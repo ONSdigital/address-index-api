@@ -509,7 +509,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       total shouldBe 0f
     }
 
-    "remove empty boolean queries from the query " ignore {
+    "remove empty boolean queries from the query " in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
@@ -517,49 +517,78 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         s"""
-           {
-              "query":{
-                 "dis_max":{
-                    "boost":${queryParams.fallbackQueryBoost},
-                    "queries":[
-                       {
-                          "match":{
-                             "paf.pafAll":{
-                                "query":"",
-                                "type":"boolean",
-                                "analyzer":"welsh_split_synonyms_analyzer",
-                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}",
-                                "boost":${queryParams.fallbackPafBoost}
-                             }
-                          }
-                       },
-                       {
-                          "match":{
-                             "lpi.nagAll":{
-                                "query":"",
-                                "type":"boolean",
-                                "analyzer":"welsh_split_synonyms_analyzer",
-                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}"
-                             }
-                          }
-                       }
-                    ]
-                 }
+          {
+            "query":{
+              "dis_max" : {
+                "tie_breaker" : 0.0,
+                "boost" : 0.1,
+                "queries" : [ {
+                  "bool" : {
+                    "must" : {
+                      "match" : {
+                        "lpi.nagAll" : {
+                          "query" : "",
+                          "type" : "boolean",
+                          "analyzer" : "welsh_split_synonyms_analyzer",
+                          "boost" : ${queryParams.fallbackLpiBoost},
+                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
+                        }
+                      }
+                    },
+                    "should" : {
+                      "match" : {
+                        "lpi.nagAll.bigram" : {
+                          "query" : "",
+                          "type" : "boolean",
+                          "analyzer" : "welsh_split_synonyms_analyzer",
+                          "boost" : ${queryParams.fallbackLpiBigramBoost},
+                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
+                        }
+                      }
+                    }
+                  }
+                }, {
+                  "bool" : {
+                    "must" : {
+                      "match" : {
+                        "paf.pafAll" : {
+                          "query" : "",
+                          "type" : "boolean",
+                          "analyzer" : "welsh_split_synonyms_analyzer",
+                          "boost" : ${queryParams.fallbackPafBoost},
+                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
+                        }
+                      }
+                    },
+                    "should" : {
+                      "match" : {
+                        "paf.pafAll.bigram" : {
+                          "query" : "",
+                          "type" : "boolean",
+                          "analyzer" : "welsh_split_synonyms_analyzer",
+                          "boost" : ${queryParams.fallbackPafBigramBoost},
+                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
+                        }
+                      }
+                    }
+                  }
+                } ]
+              }
+            },
+            "sort":[
+              {
+                "_score":{
+                  "order":"desc"
+                }
               },
-              "sort":[
-                 {
-                    "_score":{
-                       "order":"desc"
-                    }
-                 },
-                 {
-                    "uprn":{
-                       "order":"asc"
-                    }
-                 }
-              ],
-              "track_scores":true
-           }
+              {
+                "uprn":{
+                  "order":"asc"
+                }
+              }
+            ],
+            "track_scores":true
+          }
         """
       )
 
