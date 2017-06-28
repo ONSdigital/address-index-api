@@ -420,18 +420,16 @@ class AddressIndexRepository @Inject()(
         bool(
           Seq(matchQuery("lpi.nagAll", normalizedInput)
             .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-            .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")).boost(queryParams.fallbackLpiBoost)),
+            .boost(queryParams.fallbackLpiBoost)),
           Seq(matchQuery("lpi.nagAll.bigram", normalizedInput)
-            .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-            .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")).boost(queryParams.fallbackLpiBigramBoost)),
+            .boost(queryParams.fallbackLpiBigramBoost)),
           Seq()),
         bool(
           Seq( matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")).boost(queryParams.fallbackPafBoost)),
+          .boost(queryParams.fallbackPafBoost)),
           Seq( matchQuery("paf.pafAll.bigram", normalizedInput)
-              .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-              .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer")).boost(queryParams.fallbackPafBigramBoost)),
+              .boost(queryParams.fallbackPafBigramBoost)),
           Seq())).boost(queryParams.fallbackQueryBoost).tieBreaker(0.0)
 
     val bestOfTheLotQueries = Seq(

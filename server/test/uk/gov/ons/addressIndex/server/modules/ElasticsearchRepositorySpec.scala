@@ -529,7 +529,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "lpi.nagAll" : {
                           "query" : "",
                           "type" : "boolean",
-                          "analyzer" : "welsh_split_synonyms_analyzer",
                           "boost" : ${queryParams.fallbackLpiBoost},
                           "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
                         }
@@ -540,9 +539,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "lpi.nagAll.bigram" : {
                           "query" : "",
                           "type" : "boolean",
-                          "analyzer" : "welsh_split_synonyms_analyzer",
-                          "boost" : ${queryParams.fallbackLpiBigramBoost},
-                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
+                          "boost" : ${queryParams.fallbackLpiBigramBoost}
                         }
                       }
                     }
@@ -554,7 +551,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "paf.pafAll" : {
                           "query" : "",
                           "type" : "boolean",
-                          "analyzer" : "welsh_split_synonyms_analyzer",
                           "boost" : ${queryParams.fallbackPafBoost},
                           "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
                         }
@@ -565,9 +561,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "paf.pafAll.bigram" : {
                           "query" : "",
                           "type" : "boolean",
-                          "analyzer" : "welsh_split_synonyms_analyzer",
-                          "boost" : ${queryParams.fallbackPafBigramBoost},
-                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
+                          "boost" : ${queryParams.fallbackPafBigramBoost}
                         }
                       }
                     }
