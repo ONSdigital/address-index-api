@@ -529,6 +529,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "lpi.nagAll" : {
                           "query" : "",
                           "type" : "boolean",
+                          "analyzer": "welsh_split_synonyms_analyzer",
                           "boost" : ${queryParams.fallbackLpiBoost},
                           "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
                         }
@@ -539,7 +540,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "lpi.nagAll.bigram" : {
                           "query" : "",
                           "type" : "boolean",
-                          "boost" : ${queryParams.fallbackLpiBigramBoost}
+                          "boost" : ${queryParams.fallbackLpiBigramBoost},
+                          "fuzziness" : "${queryParams.bigramFuzziness}"
                         }
                       }
                     }
@@ -551,6 +553,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "paf.pafAll" : {
                           "query" : "",
                           "type" : "boolean",
+                          "analyzer": "welsh_split_synonyms_analyzer",
                           "boost" : ${queryParams.fallbackPafBoost},
                           "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
                         }
@@ -561,7 +564,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                         "paf.pafAll.bigram" : {
                           "query" : "",
                           "type" : "boolean",
-                          "boost" : ${queryParams.fallbackPafBigramBoost}
+                          "boost" : ${queryParams.fallbackPafBigramBoost},
+                          "fuzziness" : "${queryParams.bigramFuzziness}"
                         }
                       }
                     }

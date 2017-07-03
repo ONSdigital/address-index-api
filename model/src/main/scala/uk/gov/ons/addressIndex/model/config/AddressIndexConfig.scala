@@ -45,7 +45,8 @@ case class QueryParamsConfig(
   fallbackPafBoost: Float,
   fallbackLpiBoost: Float,
   fallbackPafBigramBoost: Float,
-  fallbackLpiBigramBoost: Float
+  fallbackLpiBigramBoost: Float,
+  bigramFuzziness: String
 )
 
 // This is required for the bulk request as Data Scientists want to provide query params dynamically
