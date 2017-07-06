@@ -527,9 +527,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                              "paf.pafAll":{
                                 "query":"",
                                 "type":"boolean",
-                                "analyzer":"welsh_split_synonyms_analyzer",
-                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}",
-                                "boost":${queryParams.fallbackPafBoost}
+                                "boost":${queryParams.fallbackPafBoost},
+                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}"
                              }
                           }
                        },
@@ -538,7 +537,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                              "lpi.nagAll":{
                                 "query":"",
                                 "type":"boolean",
-                                "analyzer":"welsh_split_synonyms_analyzer",
                                 "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}"
                              }
                           }
