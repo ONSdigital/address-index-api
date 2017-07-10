@@ -46,7 +46,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
   def home(): Action[AnyContent] = Action { implicit req =>
 
     req.session.get("api-key").map { apiKey =>
-      logger info ("ApplicationHome: Rendering Index page")
+   //   logger info ("ApplicationHome: Rendering Index page")
       Ok(uk.gov.ons.addressIndex.demoui.views.html.index(version))
     }.getOrElse {
       Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login())
@@ -59,7 +59,7 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
     * @return
     */
   def login: Action[AnyContent] = Action { implicit req =>
-    logger.info("Login Required =  " + conf.config.loginRequired )
+    //logger.info("Login Required =  " + conf.config.loginRequired )
     if (conf.config.loginRequired)
     {
       Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", version))

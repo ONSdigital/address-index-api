@@ -50,7 +50,7 @@ class ClericalToolController @Inject()(
   def showSingleMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
-    logger info ("Clerial Tool: Rendering Single Match Page")
+  //  logger info ("Clerial Tool: Rendering Single Match Page")
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
       title = messagesApi("clerical.sfatext"),
       action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch,
@@ -148,7 +148,7 @@ class ClericalToolController @Inject()(
           Ok(viewToRender)
         )
       } else {
-        logger info ("Clerical Tool with supplied input address " + addressText)
+   //     logger info ("Clerical Tool with supplied input address " + addressText)
         apiClient.addressQuery(
           AddressIndexSearchRequest(
             input = addressText,
@@ -276,7 +276,7 @@ class ClericalToolController @Inject()(
   def doUprnWithInput(input : Long) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
-      logger info("UPRN with supplied input address " + input)
+   //   logger info("UPRN with supplied input address " + input)
       apiClient.uprnQuery(
         AddressIndexUPRNRequest(
           uprn = input,

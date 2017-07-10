@@ -34,7 +34,7 @@ object HopperScoreHelper  {
     val localityParams = addresses.map(address => getLocalityParams(address,tokens))
     val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams))
     val endingTime = System.currentTimeMillis()
-    logger.info("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
+  //  logger.info("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses
   }
 
