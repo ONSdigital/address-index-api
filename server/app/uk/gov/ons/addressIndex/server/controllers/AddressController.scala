@@ -45,7 +45,7 @@ class AddressController @Inject()(
     * @return Json response with addresses information
     */
   def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
-    logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
+   // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
     // check API key
@@ -106,7 +106,7 @@ class AddressController @Inject()(
     } else {
       val tokens = parser.parse(input)
 
-      logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
+    //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
       val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt)
 
@@ -157,7 +157,7 @@ class AddressController @Inject()(
     * @return
     */
   def uprnQuery(uprn: String): Action[AnyContent] = Action async { implicit req =>
-    logger.info(s"#uprnQuery: uprn: $uprn")
+   // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
     val apiKey = req.headers.get("authorization").getOrElse(missing)
@@ -324,7 +324,8 @@ class AddressController @Inject()(
 
         val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress, scoredAddressResponseAddress, includeFullAddress)
         // Side effects
-        Splunk.log(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
+        // this is to verbose to log by default
+        Splunk.trace(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
           formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
           score = addressBulkResponseAddress.score.toString, uuid = uuid, networkid = networkid)
 
