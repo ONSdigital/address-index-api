@@ -47,7 +47,7 @@ class SingleMatchController @Inject()(
     * @return result to view
     */
   def showSingleMatchPage(): Action[AnyContent] = Action.async { implicit request =>
-    logger info ("SingleMatch: Rendering Single Match Page")
+  //  logger info ("SingleMatch: Rendering Single Match Page")
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -130,7 +130,7 @@ class SingleMatchController @Inject()(
           Ok(viewToRender)
         )
       } else {
-        logger info ("Single Match with supplied input address " + addressText)
+     //   logger info ("Single Match with supplied input address " + addressText)
 
         apiClient.addressQuery(
           AddressIndexSearchRequest(
@@ -193,7 +193,7 @@ class SingleMatchController @Inject()(
         Ok(viewToRender)
       )
     } else {
-      logger info("UPRN with supplied input address " + addressText)
+   //   logger info("UPRN with supplied input address " + addressText)
       val numericUPRN = BigInt(addressText)
       apiClient.uprnQuery(
         AddressIndexUPRNRequest(
