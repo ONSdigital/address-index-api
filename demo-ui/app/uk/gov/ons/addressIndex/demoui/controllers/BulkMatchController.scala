@@ -18,6 +18,7 @@ import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
+import scala.util.Try
 
 /**
   * Controller class for a multiple addresses to be matched
@@ -92,7 +93,7 @@ class BulkMatchController @Inject()(
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
-      val header = "id,inputAddress,matchedAddress,uprn,matchType,score,rank\n"
+      val header = "id,inputAddress,matchedAddress,uprn,matchType,documentScore,buildingScore,unitScore,rank\n"
 
       val ids = apiResponse.bulkAddresses.map(_.id)
       val data = apiResponse.bulkAddresses.zipWithIndex.map { case (bulkAddress, index) =>
@@ -103,6 +104,8 @@ class BulkMatchController @Inject()(
           bulkAddress.uprn,
           MatchTypeHelper.matchType(bulkAddress.id, ids, bulkAddress.matchedFormattedAddress),
           bulkAddress.score,
+          Try(bulkAddress.bespokeScore.get.structuralScore).getOrElse(0),
+          Try(bulkAddress.bespokeScore.get.objectScore).getOrElse(-1),
           ScoreHelper.getRank(index, apiResponse)
         ).mkString(",") + "\n"
       }.toList
