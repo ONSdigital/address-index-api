@@ -104,8 +104,8 @@ class BulkMatchController @Inject()(
           bulkAddress.uprn,
           MatchTypeHelper.matchType(bulkAddress.id, ids, bulkAddress.matchedFormattedAddress),
           bulkAddress.score,
-          Try(bulkAddress.bespokeScore.get.structuralScore).getOrElse(0),
-          Try(bulkAddress.bespokeScore.get.objectScore).getOrElse(-1),
+          bulkAddress.bespokeScore.map(_.structuralScore).getOrElse(0),
+          bulkAddress.bespokeScore.map(_.objectScore).getOrElse(-1),
           ScoreHelper.getRank(index, apiResponse)
         ).mkString(",") + "\n"
       }.toList
