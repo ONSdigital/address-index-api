@@ -518,61 +518,61 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "query":{
-              "dis_max" : {
-                "tie_breaker" : 0.0,
-                "boost" : 0.1,
-                "queries" : [ {
-                  "bool" : {
-                    "must" : {
-                      "match" : {
-                        "lpi.nagAll" : {
-                          "query" : "",
-                          "type" : "boolean",
-                          "analyzer": "welsh_split_synonyms_analyzer",
-                          "boost" : ${queryParams.fallbackLpiBoost},
-                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
-                        }
-                      }
-                    },
-                    "should" : {
-                      "match" : {
-                        "lpi.nagAll.bigram" : {
-                          "query" : "",
-                          "type" : "boolean",
-                          "boost" : ${queryParams.fallbackLpiBigramBoost},
-                          "fuzziness" : "${queryParams.bigramFuzziness}"
-                        }
-                      }
-                    }
-                  }
-                }, {
-                  "bool" : {
-                    "must" : {
-                      "match" : {
-                        "paf.pafAll" : {
-                          "query" : "",
-                          "type" : "boolean",
-                          "analyzer": "welsh_split_synonyms_analyzer",
-                          "boost" : ${queryParams.fallbackPafBoost},
-                          "minimum_should_match" : "${queryParams.fallbackMinimumShouldMatch}"
-                        }
-                      }
-                    },
-                    "should" : {
-                      "match" : {
-                        "paf.pafAll.bigram" : {
-                          "query" : "",
-                          "type" : "boolean",
-                          "boost" : ${queryParams.fallbackPafBigramBoost},
-                          "fuzziness" : "${queryParams.bigramFuzziness}"
-                        }
-                      }
-                    }
-                  }
-                } ]
-              }
-            },
+           	"query": {
+           		"bool": {
+           			"must": {
+           				"dis_max": {
+           					"tie_breaker": 0,
+           					"queries": [{
+           						"match": {
+           							"lpi.nagAll": {
+           								"query": "",
+           								"type": "boolean",
+           								"analyzer": "welsh_split_synonyms_analyzer",
+           								"boost": ${queryParams.fallbackLpiBoost},
+           								"minimum_should_match": "${queryParams.fallbackMinimumShouldMatch}"
+           							}
+           						}
+           					}, {
+           						"match": {
+           							"paf.pafAll": {
+           								"query": "",
+           								"type": "boolean",
+           								"analyzer": "welsh_split_synonyms_analyzer",
+           								"boost": ${queryParams.fallbackPafBoost},
+           								"minimum_should_match": "${queryParams.fallbackMinimumShouldMatch}"
+           							}
+           						}
+           					}]
+           				}
+           			},
+           			"should": {
+           				"dis_max": {
+           					"tie_breaker": 0,
+           					"queries": [{
+           						"match": {
+           							"lpi.nagAll.bigram": {
+           								"query": "",
+           								"type": "boolean",
+           								"boost": ${queryParams.fallbackLpiBigramBoost},
+           								"fuzziness": "${queryParams.bigramFuzziness}"
+           							}
+           						}
+           					}, {
+           						"match": {
+           							"paf.pafAll.bigram": {
+           								"query": "",
+           								"type": "boolean",
+           								"boost": ${queryParams.fallbackPafBigramBoost},
+           								"fuzziness": "${queryParams.bigramFuzziness}"
+           							}
+           						}
+           					}]
+           				}
+           			},
+           			"boost": 0.1
+           		}
+           	},
             "sort":[
               {
                 "_score":{

@@ -416,26 +416,26 @@ class AddressIndexRepository @Inject()(
     val normalizedInput = Tokens.concatenate(tokens)
 
     val fallbackQuery =
-      dismax.query(
-        bool(
-          Seq(matchQuery("lpi.nagAll", normalizedInput)
+      bool(
+        Seq(dismax.query(
+          matchQuery("lpi.nagAll", normalizedInput)
             .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
             .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-            .boost(queryParams.fallbackLpiBoost)),
-          Seq(matchQuery("lpi.nagAll.bigram", normalizedInput)
+            .boost(queryParams.fallbackLpiBoost),
+          matchQuery("paf.pafAll", normalizedInput)
+            .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
+            .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+            .boost(queryParams.fallbackPafBoost))
+          .tieBreaker(0.0)),
+        Seq(dismax.query(
+          matchQuery("lpi.nagAll.bigram", normalizedInput)
             .fuzziness(queryParams.bigramFuzziness)
-            .boost(queryParams.fallbackLpiBigramBoost)),
-          Seq()),
-        bool(
-          Seq( matchQuery("paf.pafAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-          .boost(queryParams.fallbackPafBoost)),
-          Seq( matchQuery("paf.pafAll.bigram", normalizedInput)
+            .boost(queryParams.fallbackLpiBigramBoost),
+          matchQuery("paf.pafAll.bigram", normalizedInput)
             .fuzziness(queryParams.bigramFuzziness)
-            .boost(queryParams.fallbackPafBigramBoost)),
-          Seq())).boost(queryParams.fallbackQueryBoost).tieBreaker(0.0)
-
+            .boost(queryParams.fallbackPafBigramBoost))
+          .tieBreaker(0.0)),
+        Seq()).boost(queryParams.fallbackQueryBoost)
 
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
