@@ -570,7 +570,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            					}]
            				}
            			},
-           			"boost": 0.1
+           			"boost": 0.075
            		}
            	},
             "sort":[
