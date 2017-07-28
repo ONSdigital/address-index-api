@@ -388,7 +388,9 @@ object HopperScoreHelper  {
     // 4A-5B Gate TOKENS: buildingName = 4A-5B (buildingNumber empty), PaoStartNumber = 4, PaoStartSuffix = A, PaoEndNumber = 5, PaoEndSuffix = B
     // MATCHTO: nag.Paotext = 4A-5B, nag.paoStartNumber = 4, nag.paoStartSuffix = A, nag.paoEndNumber = 5, nag.paoEndSuffix = B
 
-      if (buildingNumber == nagPaoStartNumber) 1
+      if (((buildingNumber == nagPaoStartNumber && atSignForEmpty(nagPaoEndNumber) == empty) ||
+        (paoStartNumber == atSignForEmpty(nagPaoStartNumber) && paoEndNumber == atSignForEmpty(nagPaoEndNumber)))
+        && (atSignForEmpty(nagPaoStartSuffix) == paoStartSuffix) && (atSignForEmpty(nagPaoEndSuffix) == paoEndSuffix)) 1
       else if (nagSuffixInRange &&
         (paoStartNumber == nagPaoStartNumber || paoEndNumber == nagPaoEndNumber )) 2
       else if (nagInRange) 3
