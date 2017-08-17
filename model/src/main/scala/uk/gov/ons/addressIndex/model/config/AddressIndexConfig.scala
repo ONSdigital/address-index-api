@@ -42,7 +42,11 @@ case class QueryParamsConfig(
   organisationDepartmentMinimumShouldMatch: String,
   mainMinimumShouldMatch: String,
   fallbackMinimumShouldMatch: String,
-  fallbackPafBoost: Float
+  fallbackPafBoost: Float,
+  fallbackLpiBoost: Float,
+  fallbackPafBigramBoost: Float,
+  fallbackLpiBigramBoost: Float,
+  bigramFuzziness: String
 )
 
 // This is required for the bulk request as Data Scientists want to provide query params dynamically

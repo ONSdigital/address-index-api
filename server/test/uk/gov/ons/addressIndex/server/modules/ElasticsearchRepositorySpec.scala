@@ -517,49 +517,76 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         s"""
-           {
-              "query":{
-                 "dis_max":{
-                    "boost":${queryParams.fallbackQueryBoost},
-                    "queries":[
-                       {
-                          "match":{
-                             "paf.pafAll":{
-                                "query":"",
-                                "type":"boolean",
-                                "analyzer":"welsh_split_synonyms_analyzer",
-                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}",
-                                "boost":${queryParams.fallbackPafBoost}
-                             }
-                          }
-                       },
-                       {
-                          "match":{
-                             "lpi.nagAll":{
-                                "query":"",
-                                "type":"boolean",
-                                "analyzer":"welsh_split_synonyms_analyzer",
-                                "minimum_should_match":"${queryParams.fallbackMinimumShouldMatch}"
-                             }
-                          }
-                       }
-                    ]
-                 }
+          {
+           	"query": {
+           		"bool": {
+           			"must": {
+           				"dis_max": {
+           					"tie_breaker": 0,
+           					"queries": [{
+           						"match": {
+           							"lpi.nagAll": {
+           								"query": "",
+           								"type": "boolean",
+           								"analyzer": "welsh_split_synonyms_analyzer",
+           								"boost": ${queryParams.fallbackLpiBoost},
+           								"minimum_should_match": "${queryParams.fallbackMinimumShouldMatch}"
+           							}
+           						}
+           					}, {
+           						"match": {
+           							"paf.pafAll": {
+           								"query": "",
+           								"type": "boolean",
+           								"analyzer": "welsh_split_synonyms_analyzer",
+           								"boost": ${queryParams.fallbackPafBoost},
+           								"minimum_should_match": "${queryParams.fallbackMinimumShouldMatch}"
+           							}
+           						}
+           					}]
+           				}
+           			},
+           			"should": {
+           				"dis_max": {
+           					"tie_breaker": 0,
+           					"queries": [{
+           						"match": {
+           							"lpi.nagAll.bigram": {
+           								"query": "",
+           								"type": "boolean",
+           								"boost": ${queryParams.fallbackLpiBigramBoost},
+           								"fuzziness": "${queryParams.bigramFuzziness}"
+           							}
+           						}
+           					}, {
+           						"match": {
+           							"paf.pafAll.bigram": {
+           								"query": "",
+           								"type": "boolean",
+           								"boost": ${queryParams.fallbackPafBigramBoost},
+           								"fuzziness": "${queryParams.bigramFuzziness}"
+           							}
+           						}
+           					}]
+           				}
+           			},
+           			"boost": 0.075
+           		}
+           	},
+            "sort":[
+              {
+                "_score":{
+                  "order":"desc"
+                }
               },
-              "sort":[
-                 {
-                    "_score":{
-                       "order":"desc"
-                    }
-                 },
-                 {
-                    "uprn":{
-                       "order":"asc"
-                    }
-                 }
-              ],
-              "track_scores":true
-           }
+              {
+                "uprn":{
+                  "order":"asc"
+                }
+              }
+            ],
+            "track_scores":true
+          }
         """
       )
 
