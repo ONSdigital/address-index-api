@@ -402,7 +402,7 @@ object HopperScoreHelper  {
       && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
     val nagBuildingStartSuffix = if (nagPaoStartSuffix == "" ) empty else nagPaoStartSuffix
     val nagBuildingEndSuffix = if (nagPaoEndSuffix == "" ) empty else nagPaoEndSuffix
-     val nagSuffixInRange = ((paoStartSuffix == nagBuildingStartSuffix && paoEndSuffix == nagBuildingEndSuffix)
+    val nagSuffixInRange = ((paoStartSuffix == nagBuildingStartSuffix && paoEndSuffix == nagBuildingEndSuffix)
       || (paoEndSuffix == empty && paoStartSuffix >=nagBuildingStartSuffix && paoStartSuffix <= nagBuildingEndSuffix)
       || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= paoStartSuffix && nagBuildingStartSuffix <= paoEndSuffix ))
 
@@ -1109,12 +1109,12 @@ object HopperScoreHelper  {
   }
 
   /**
-    * Try to get the lowest numbers in a range
+    * Try to get the first letter that follows a number
     * @param range
     * @return
     */
   def getStartSuffix(range: String): String = {
-    val reg = """.*?\d+([A-Z])-\d+.*?""".r
+    val reg = """.*?\d+([A-Z])+.*?""".r
     range match {
       case reg(suffix) => suffix
       case _ => empty
@@ -1122,7 +1122,7 @@ object HopperScoreHelper  {
   }
 
   /**
-    * Try to get the highest number in a range
+    * Try to get the last letter that follows a number
     * @param range
     * @return
     */
