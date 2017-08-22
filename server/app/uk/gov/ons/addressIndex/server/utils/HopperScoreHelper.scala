@@ -209,6 +209,7 @@ object HopperScoreHelper  {
     val nagPaoStartSuffix = address.nag.map(_.pao).map(_.paoStartSuffix).getOrElse("")
     val nagPaoEndSuffix = address.nag.map(_.pao).map(_.paoEndSuffix).getOrElse("")
     val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
+    val nagSaoText = address.nag.map(_.sao).map(_.saoText).getOrElse("")
     val nagOrganisationName = address.nag.map(_.organisation).getOrElse("")
 
     // each element score is the better match of paf and nag
@@ -222,6 +223,7 @@ object HopperScoreHelper  {
     val detailedOrganisationBuildingNameNagScore = calculateDetailedOrganisationBuildingNameNagScore (
       atSignForEmpty(getNonNumberPartsFromName(buildingName)),
       getNonNumberPartsFromName(nagPaoText),
+      getNonNumberPartsFromName(nagSaoText),
       organisationName,
       nagOrganisationName)
 
@@ -276,10 +278,14 @@ object HopperScoreHelper  {
     val pafOrganisationMatchScore = if (organisationName == empty) 4
     else matchNames(organisationName,pafOrganisationName).min(matchNames(pafOrganisationName,organisationName))
 
-    // Match buildingName against buildingName and organisationName against OrganisationName (cross-ref?)
-    if (buildingName == pafBuildingName || organisationName == pafOrganisationName) 1
-      else if (pafOrganisationMatchScore < 2 || pafBuildingMatchScore < 2) 2
-      else if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3) 3
+    // cross reference
+    val pafXrefMatchScore = if (organisationName == empty || buildingName == empty) 4
+    else matchNames(organisationName,pafBuildingName).min(matchNames(pafOrganisationName,buildingName))
+
+    // Match buildingName against buildingName and organisationName against OrganisationName (and cross-ref)
+    if (buildingName == pafBuildingName || organisationName == pafOrganisationName || buildingName == pafOrganisationName || organisationName == pafBuildingName ) 1
+      else if (pafOrganisationMatchScore < 2 || pafBuildingMatchScore < 2 || pafXrefMatchScore < 2) 2
+      else if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3 || pafXrefMatchScore < 3) 3
       else if (buildingName == empty && organisationName == empty &&
         pafOrganisationName == "" && pafBuildingName == "" ) 9
       else if (!((buildingName != empty && pafBuildingName != "" ) ||
@@ -298,19 +304,35 @@ object HopperScoreHelper  {
   def calculateDetailedOrganisationBuildingNameNagScore (
     buildingName: String,
     nagPaoText: String,
+    nagSaoText: String,
     organisationName: String,
     nagOrganisationName: String) : Int = {
 
-    // match building name
+    // match building name against Pao text, Sao text and organisation name
     val nagBuildingMatchScore = if (buildingName == empty) 4
-    else matchNames(buildingName,nagPaoText).min(matchNames(nagPaoText,buildingName))
+    else min(
+      matchNames(buildingName,nagPaoText),
+      matchNames(nagPaoText,buildingName),
+      matchNames(buildingName,nagSaoText),
+      matchNames(nagSaoText,buildingName),
+      matchNames(buildingName,nagOrganisationName),
+      matchNames(nagOrganisationName,buildingName)
+    )
 
-    // match  organisation
+    // match organisationa against Pao text, Sao text and organisation name
     val nagOrganisationMatchScore = if (organisationName == empty) 4
-    else matchNames(organisationName,nagOrganisationName).min(matchNames(nagOrganisationName,organisationName))
+    else min(
+      matchNames(organisationName,nagPaoText),
+      matchNames(nagPaoText,organisationName),
+      matchNames(organisationName,nagSaoText),
+      matchNames(nagSaoText,organisationName),
+      matchNames(organisationName,nagOrganisationName),
+      matchNames(nagOrganisationName,organisationName)
+    )
 
-    // Match buildingName against paoText and organisationName against Organisation (cross-ref?)
-    if (buildingName == nagPaoText || organisationName == nagOrganisationName) 1
+    // Take the best match of organisation and building
+    if (buildingName == nagPaoText || buildingName == nagSaoText || buildingName == nagOrganisationName ||
+      organisationName == nagPaoText || organisationName == nagSaoText || organisationName == nagOrganisationName) 1
       else if (nagOrganisationMatchScore < 2 || nagBuildingMatchScore < 2) 2
       else if (nagOrganisationMatchScore < 3 || nagBuildingMatchScore < 3) 3
       else if (buildingName == empty && organisationName == empty

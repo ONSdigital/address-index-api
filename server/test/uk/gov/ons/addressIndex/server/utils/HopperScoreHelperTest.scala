@@ -439,16 +439,24 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the detailed organisation building name nag score for an address " in {
     // Given
-    val buildingName = "MESSAGE TOWERS"
-    val organisationName = "NICE MESSAGES"
-    val nagPaoText = "MASSAGE TOWERS UNIT 3"
-    val nagOrganisationName = "NICE MASSAGES"
+  //  val buildingName = "MESSAGE TOWERS"
+  //  val organisationName = "NICE MESSAGES"
+  //  val nagPaoText = "MASSAGE TOWERS UNIT 3"
+  //  val nagOrganisationName = "NICE MASSAGES"
+ //   val expected = 2
+
+    val buildingName = "ZOG"
+    val organisationName = "MESSAGE TOWERS UNIT 3"
+    val nagPaoText = "MASSAGE TOWERS"
+    val nagSaoText = "MADAME WHIPLASH"
+    val nagOrganisationName = "PINGU"
     val expected = 2
 
     // When
     val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNameNagScore (
       buildingName,
       nagPaoText,
+      nagSaoText,
       organisationName,
       nagOrganisationName)
 
