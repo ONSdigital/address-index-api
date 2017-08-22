@@ -223,7 +223,19 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "capture the start suffix from a building name or number " in {
+  it should "capture the start suffix from a singlevbuilding name or number " in {
+    // Given
+    val building1 = "16A"
+    val expected = "A"
+
+    // When
+    val actual = HopperScoreHelper.getStartSuffix(building1)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "capture the start suffix from a ranged building name or number " in {
     // Given
     val building1 = "72C-84E"
     val expected = "C"
@@ -234,6 +246,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
 
   it should "capture the end suffix from a building name or number " in {
     // Given
@@ -439,16 +452,24 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the detailed organisation building name nag score for an address " in {
     // Given
-    val buildingName = "MESSAGE TOWERS"
-    val organisationName = "NICE MESSAGES"
-    val nagPaoText = "MASSAGE TOWERS UNIT 3"
-    val nagOrganisationName = "NICE MASSAGES"
+  //  val buildingName = "MESSAGE TOWERS"
+  //  val organisationName = "NICE MESSAGES"
+  //  val nagPaoText = "MASSAGE TOWERS UNIT 3"
+  //  val nagOrganisationName = "NICE MASSAGES"
+ //   val expected = 2
+
+    val buildingName = "ZOG"
+    val organisationName = "MESSAGE TOWERS UNIT 3"
+    val nagPaoText = "MASSAGE TOWERS"
+    val nagSaoText = "MADAME WHIPLASH"
+    val nagOrganisationName = "PINGU"
     val expected = 2
 
     // When
     val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNameNagScore (
       buildingName,
       nagPaoText,
+      nagSaoText,
       organisationName,
       nagOrganisationName)
 
@@ -459,14 +480,14 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the building number paf score for an address " in {
     // Given
-    val buildingName = ""
+    val buildingName = "@"
     val pafBuildingName = "16A"
     val pafBuildingNumber =""
-    val paoStartSuffix = ""
-    val paoEndSuffix = ""
+    val paoStartSuffix = "@"
+    val paoEndSuffix = "@"
     val buildingNumber = "16"
     val paoStartNumber = "16"
-    val paoEndNumber = ""
+    val paoEndNumber = "@"
     val expected = 4
 
     // When
@@ -486,16 +507,16 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the building number nag score for an address " in {
     // Given
-    val buildingName = ""
+    val buildingName = "@"
     val nagPaoStartSuffix = "A"
     val nagPaoEndSuffix = ""
-    val paoStartSuffix = ""
-    val paoEndSuffix = ""
+    val paoStartSuffix = "@"
+    val paoEndSuffix = "@"
     val buildingNumber = "16"
     val nagPaoStartNumber = "16"
     val nagPaoEndNumber = ""
     val paoStartNumber = "16"
-    val paoEndNumber = ""
+    val paoEndNumber = "@"
     val expected = 4
 
     // When
