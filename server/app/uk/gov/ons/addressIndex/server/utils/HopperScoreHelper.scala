@@ -556,10 +556,21 @@ object HopperScoreHelper  {
     organisationName: String,
     pafOrganisationName: String) : Int = {
 
+    // building with paf building only
     val pafBuildingMatchScore = if (buildingName == empty) 4
-    else matchNames(buildingName,pafBuildingName).min(matchNames(pafBuildingName,buildingName))
+    else min(
+      matchNames(buildingName,pafBuildingName),
+      matchNames(pafBuildingName,buildingName)
+    )
+
+   // organisation can match with paf organisation or building
     val pafOrganisationMatchScore = if (organisationName == empty) 4
-    else matchNames(organisationName,pafOrganisationName).min(matchNames(pafOrganisationName,organisationName))
+    else min(
+      matchNames(organisationName,pafOrganisationName),
+      matchNames(pafOrganisationName,organisationName),
+      matchNames(organisationName,pafBuildingName),
+      matchNames(pafBuildingName,organisationName)
+    )
 
     // Accept a PAF match via organisation or building with edit distance of 2 or less
     if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3) 1
@@ -584,8 +595,14 @@ object HopperScoreHelper  {
 
     val nagBuildingMatchScore = if (buildingName == empty) 4
     else matchNames(buildingName,nagPaoText).min(matchNames(nagPaoText,buildingName))
+
     val nagOrganisationMatchScore = if (organisationName == empty) 4
-    else matchNames(organisationName,nagOrganisationName).min(matchNames(nagOrganisationName,organisationName))
+    else min(
+      matchNames(organisationName,nagOrganisationName),
+      matchNames(nagOrganisationName,organisationName),
+      matchNames(organisationName,nagPaoText),
+      matchNames(nagPaoText,organisationName)
+    )
 
     // Accept a NAG match via organisation or building with edit distance of 2 or less
     if (nagOrganisationMatchScore < 3 || nagBuildingMatchScore < 3) 1
