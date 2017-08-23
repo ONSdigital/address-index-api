@@ -34,7 +34,7 @@ object HopperScoreHelper  {
     val localityParams = addresses.map(address => getLocalityParams(address,tokens))
     val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams))
     val endingTime = System.currentTimeMillis()
-  //  logger.info("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
+    logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses
   }
 
@@ -371,14 +371,14 @@ object HopperScoreHelper  {
     // 4A-5B Gate Reach gives TOKENS: buildingName = 4A-5B (buildingNumber empty), PaoStartNumber = 4, PaoStartSuffix = A, PaoEndNumber = 5, PaoEndSuffix = B
     // MATCHTO:  paf.buildingNumber = 4 (for single num) or paf.buildingName = 4B (suffix and/or range)
     if (buildingNumber == pafBuildingNumber || (buildingNumber == empty && buildingName == pafBuildingName)) 1
-      else if (pafSuffixInRange && (pafBuildingNumber == paoStartNumber ||
-        pafBuildingName.startsWith(paoStartNumber) || pafBuildingName.endsWith(paoEndNumber))) 2
-      else if (pafInRange) 3
-      else if (pafBuildingNumber == paoStartNumber ||
-        pafBuildingName.startsWith(paoStartNumber) || pafBuildingName.endsWith(paoEndNumber)) 4
-      else if (!((tokenBuildingLowNum == -1 && buildingNumber == empty ) ||
-        (pafTestBN == -1 && pafBuildingNumber == ""))) 6
-      else 9
+    else if (pafSuffixInRange && (pafBuildingNumber == paoStartNumber ||
+      pafBuildingLowNum.toString() == paoStartNumber || pafBuildingHighNum.toString() == paoEndNumber)) 2
+    else if (pafInRange) 3
+    else if (pafBuildingNumber == paoStartNumber ||
+      pafBuildingLowNum.toString() == paoStartNumber || pafBuildingHighNum.toString() == paoEndNumber) 4
+    else if ((tokenBuildingLowNum != -1 || buildingNumber != empty ) &&
+      (pafBuildingLowNum != -1 || pafBuildingNumber != "" )) 6
+    else 9
   }
 
   def calculateBuildingNumNagScore (
@@ -1001,12 +1001,12 @@ object HopperScoreHelper  {
       || (saoEndSuffix == empty && saoStartSuffix >= pafBuildingStartSuffix && saoStartSuffix <= pafBuildingEndSuffix)
       || (pafBuildingEndSuffix == empty && pafBuildingStartSuffix >= saoStartSuffix && pafBuildingStartSuffix <= saoEndSuffix ))
 
-    if (pafSuffixInRange && (pafSubBuildingName.startsWith(saoStartNumber) ||
-        pafSubBuildingName.endsWith(saoEndNumber))) 1
+    if (pafSuffixInRange && (pafBuildingLowNum.toString() == saoStartNumber ||
+      pafBuildingHighNum.toString() == saoEndNumber)) 1
     else if (pafInRange) 1
     else if (pafBuildingNumber == saoStartNumber ||
-        pafSubBuildingName.startsWith(saoStartNumber) ||
-        pafSubBuildingName.endsWith(saoEndNumber)) 6
+      pafBuildingLowNum.toString() == saoStartNumber ||
+      pafBuildingHighNum.toString() == saoEndNumber) 6
     else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ))) 8
     else 9
   }
