@@ -114,7 +114,13 @@ class AddressIndexRepository @Inject()(
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
 
-    val saoQuery = Seq(
+    // this part of query should be blank unless there is an end number or end suffix
+    val saoEndNumber = tokens.getOrElse(Tokens.saoEndNumber, "")
+    val saoEndSuffix = tokens.getOrElse(Tokens.saoEndSuffix, "")
+    val skipSao = (saoEndNumber == "" && saoEndSuffix == "")
+
+    val saoQuery = if (skipSao) Seq() else
+    Seq(
       tokens.get(Tokens.saoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartNumber",
@@ -155,7 +161,13 @@ class AddressIndexRepository @Inject()(
         )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
     ).flatten
 
-    val paoQuery = Seq(
+    // this part of query should be blank unless there is an end number or end suffix
+    val paoEndNumber = tokens.getOrElse(Tokens.paoEndNumber, "")
+    val paoEndSuffix = tokens.getOrElse(Tokens.paoEndSuffix, "")
+    val skipPao = (paoEndNumber == "" && paoEndSuffix == "")
+
+    val paoQuery = if (skipPao) Seq() else
+    Seq(
       tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
@@ -177,7 +189,6 @@ class AddressIndexRepository @Inject()(
           value = token
         )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
     ).flatten
-
 
     val paoBuildingNameMust = for {
       paoStartNumber <- tokens.get(Tokens.paoStartNumber)
