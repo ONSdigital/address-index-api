@@ -222,12 +222,12 @@ class AddressIndexRepository @Inject()(
 
 
     val buildingNumberQuery = Seq(
-      tokens.get(Tokens.buildingNumber).map(token =>
+      tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
-      tokens.get(Tokens.buildingNumber).map(token =>
+      tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
