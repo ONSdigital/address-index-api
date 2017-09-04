@@ -472,9 +472,9 @@ class AddressIndexRepository @Inject()(
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
       else dismax.query(
-        Seq(should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+        Seq(should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery))
         .tieBreaker(1.0)
-      )
+      
 
     search.in(hybridIndex).query(query)
       .sort(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
