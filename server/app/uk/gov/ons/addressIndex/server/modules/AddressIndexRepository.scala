@@ -471,8 +471,9 @@ class AddressIndexRepository @Inject()(
 
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
-      else should(
+      else dismax.query(
         Seq(should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+        .tieBreaker(1.0)
       )
 
     search.in(hybridIndex).query(query)
