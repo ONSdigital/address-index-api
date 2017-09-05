@@ -114,7 +114,13 @@ class AddressIndexRepository @Inject()(
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
 
-    val saoQuery = Seq(
+    // this part of query should be blank unless there is an end number or end suffix
+    val saoEndNumber = tokens.getOrElse(Tokens.saoEndNumber, "")
+    val saoEndSuffix = tokens.getOrElse(Tokens.saoEndSuffix, "")
+    val skipSao = (saoEndNumber == "" && saoEndSuffix == "")
+
+    val saoQuery = if (skipSao) Seq() else
+    Seq(
       tokens.get(Tokens.saoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartNumber",
@@ -134,7 +140,12 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoEndSuffix",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost))
+        )).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost)),
+      tokens.get(Tokens.saoEndNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.saoStartNumber",
+          value = token
+        )))
     ).flatten
 
     val subBuildingNameQuery = Seq(
@@ -155,7 +166,13 @@ class AddressIndexRepository @Inject()(
         )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
     ).flatten
 
-    val paoQuery = Seq(
+    // this part of query should be blank unless there is an end number or end suffix
+    val paoEndNumber = tokens.getOrElse(Tokens.paoEndNumber, "")
+    val paoEndSuffix = tokens.getOrElse(Tokens.paoEndSuffix, "")
+    val skipPao = (paoEndNumber == "" && paoEndSuffix == "")
+
+    val paoQuery = if (skipPao) Seq() else
+    Seq(
       tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
@@ -175,9 +192,23 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoEndSuffix",
           value = token
-        )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
+        )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost)),
+      tokens.get(Tokens.paoEndNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.paoStartNumber",
+          value = token
+        ))), //.boost(queryParams.buildingName.lpiPaoStartEndBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+      constantScoreQuery(matchQuery(
+        field = "paf.buildingNumber",
+        value = token
+      ))), //.boost(queryParams.buildingName.lpiPaoStartEndBoost)),
+    tokens.get(Tokens.paoStartNumber).map(token =>
+      constantScoreQuery(matchQuery(
+        field = "paf.buildingNumber",
+        value = token
+      ))) //.boost(queryParams.buildingName.lpiPaoStartEndBoost))
     ).flatten
-
 
     val paoBuildingNameMust = for {
       paoStartNumber <- tokens.get(Tokens.paoStartNumber)
@@ -210,18 +241,24 @@ class AddressIndexRepository @Inject()(
     ).flatten
 
 
-    val buildingNumberQuery = Seq(
-      tokens.get(Tokens.buildingNumber).map(token =>
+    val buildingNumberQuery =  if (skipPao) Seq(
+      tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
-      tokens.get(Tokens.buildingNumber).map(token =>
+      tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
-        )).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost))
-    ).flatten
+        )).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost)),
+      tokens.get(Tokens.paoStartNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.paoEndNumber",
+          value = token
+        )))
+    ).flatten else Seq()
+
 
     val streetNameQuery = Seq(
       tokens.get(Tokens.streetName).map(token =>
@@ -460,9 +497,10 @@ class AddressIndexRepository @Inject()(
 
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
-      else should(
-        Seq(should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
-      )
+      else dismax.query(
+        should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+        .tieBreaker(1.0)
+      
 
     search.in(hybridIndex).query(query)
       .sort(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
