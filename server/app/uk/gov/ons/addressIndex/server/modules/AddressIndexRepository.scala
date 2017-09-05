@@ -140,7 +140,12 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoEndSuffix",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost))
+        )).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost)),
+      tokens.get(Tokens.saoEndNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.saoStartNumber",
+          value = token
+        )))
     ).flatten
 
     val subBuildingNameQuery = Seq(
@@ -187,7 +192,22 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoEndSuffix",
           value = token
-        )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost))
+        )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost)),
+      tokens.get(Tokens.paoEndNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.paoStartNumber",
+          value = token
+        ))), //.boost(queryParams.buildingName.lpiPaoStartEndBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+      constantScoreQuery(matchQuery(
+        field = "paf.buildingNumber",
+        value = token
+      ))), //.boost(queryParams.buildingName.lpiPaoStartEndBoost)),
+    tokens.get(Tokens.paoStartNumber).map(token =>
+      constantScoreQuery(matchQuery(
+        field = "paf.buildingNumber",
+        value = token
+      ))) //.boost(queryParams.buildingName.lpiPaoStartEndBoost))
     ).flatten
 
     val paoBuildingNameMust = for {
@@ -221,7 +241,7 @@ class AddressIndexRepository @Inject()(
     ).flatten
 
 
-    val buildingNumberQuery = Seq(
+    val buildingNumberQuery =  if (skipPao) Seq(
       tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
@@ -231,8 +251,14 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
-        )).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost))
-    ).flatten
+        )).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost)),
+      tokens.get(Tokens.paoStartNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.paoEndNumber",
+          value = token
+        )))
+    ).flatten else Seq()
+
 
     val streetNameQuery = Seq(
       tokens.get(Tokens.streetName).map(token =>
