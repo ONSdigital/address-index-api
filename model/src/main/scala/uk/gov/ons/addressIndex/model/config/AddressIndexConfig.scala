@@ -108,7 +108,9 @@ object BuildingRangeConfig {
 
 case class BuildingNumberConfig(
   pafBuildingNumberBoost: Float,
-  lpiPaoStartNumberBoost: Float
+  lpiPaoStartNumberBoost: Float,
+  lpiPaoEndNumberBoost: Float,
+  lpiSaoStartNumberBoost: Float
 )
 
 object BuildingNumberConfig {

@@ -256,7 +256,12 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoEndNumber",
           value = token
-        )))
+        )).boost(queryParams.buildingNumber.lpiPaoEndNumberBoost)),
+      tokens.get(Tokens.paoStartNumber).map(token =>
+      constantScoreQuery(matchQuery(
+        field = "lpi.saoStartNumber",
+        value = token
+      )).boost(queryParams.buildingNumber.lpiSaoStartNumberBoost))
     ).flatten else Seq()
 
 
@@ -361,6 +366,11 @@ class AddressIndexRepository @Inject()(
           field = "postcodeIn",
           value = token
         )).boost(queryParams.postcode.postcodeInBoost)),
+      tokens.get(Tokens.postcodeOut).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "postcodeOut",
+          value = token
+        )).boost(queryParams.postcode.postcodeOutBoost)),
 
       postcodeInOutMust
 
