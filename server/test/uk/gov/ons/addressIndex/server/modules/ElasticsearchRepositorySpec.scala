@@ -1011,7 +1011,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                          }
                                                       }
                                                    },
-                                                            "boost":${queryParams.buildingName.lpiPaoStartNumberBoost}
+                                                            "boost":${queryParams.buildingRange.lpiPaoStartNumberBoost}
                                                    }},
                                                    {
                                                      "constant_score" : {
@@ -1023,7 +1023,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                          }
                                                       }
                                                    },
-                                                            "boost":${queryParams.buildingName.lpiPaoStartSuffixBoost}
+                                                            "boost":${queryParams.buildingRange.lpiPaoStartSuffixBoost}
                                                    }},
                                                    {
                                                      "constant_score" : {
@@ -1035,7 +1035,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                          }
                                                       }
                                                    },
-                                                            "boost":${queryParams.buildingName.lpiPaoEndNumberBoost}
+                                                            "boost":${queryParams.buildingRange.lpiPaoEndNumberBoost}
                                                    }},
                                                    {
                                                      "constant_score" : {
@@ -1047,7 +1047,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                          }
                                                       }
                                                    },
-                                                            "boost":${queryParams.buildingName.lpiPaoEndSuffixBoost}
+                                                            "boost":${queryParams.buildingRange.lpiPaoEndSuffixBoost}
                                                    }}
                                                 ]
                                              }
@@ -1066,7 +1066,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        }
                                                     }
                                                  },
-                                                          "boost":${queryParams.subBuildingName.lpiSaoStartNumberBoost}
+                                                          "boost":${queryParams.subBuildingRange.lpiSaoStartNumberBoost}
                                                  }},
                                                  {
                                                    "constant_score" : {
@@ -1078,7 +1078,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        }
                                                     }
                                                  },
-                                                          "boost":${queryParams.subBuildingName.lpiSaoStartSuffixBoost}
+                                                          "boost":${queryParams.subBuildingRange.lpiSaoStartSuffixBoost}
                                                  }},
                                                  {
                                                    "constant_score" : {
@@ -1090,7 +1090,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        }
                                                     }
                                                  },
-                                                          "boost":${queryParams.subBuildingName.lpiSaoEndNumberBoost}
+                                                          "boost":${queryParams.subBuildingRange.lpiSaoEndNumberBoost}
                                                  }},
                                                  {
                                                    "constant_score" : {
@@ -1102,7 +1102,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        }
                                                     }
                                                  },
-                                                          "boost":${queryParams.subBuildingName.lpiSaoEndSuffixBoost}
+                                                          "boost":${queryParams.subBuildingRange.lpiSaoEndSuffixBoost}
                                                  }}
                                               ]
                                            }

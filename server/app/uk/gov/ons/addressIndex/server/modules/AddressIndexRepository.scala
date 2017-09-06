@@ -125,22 +125,22 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartNumber",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
+        )).boost(queryParams.subBuildingRange.lpiSaoStartNumberBoost)),
       tokens.get(Tokens.saoStartSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartSuffix",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)),
+        )).boost(queryParams.subBuildingRange.lpiSaoStartSuffixBoost)),
       tokens.get(Tokens.saoEndNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoEndNumber",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoEndNumberBoost)),
+        )).boost(queryParams.subBuildingRange.lpiSaoEndNumberBoost)),
       tokens.get(Tokens.saoEndSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoEndSuffix",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoEndSuffixBoost)),
+        )).boost(queryParams.subBuildingRange.lpiSaoEndSuffixBoost)),
       tokens.get(Tokens.saoEndNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartNumber",
@@ -177,37 +177,37 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
-        )).boost(queryParams.buildingName.lpiPaoStartNumberBoost)),
+        )).boost(queryParams.buildingRange.lpiPaoStartNumberBoost)),
       tokens.get(Tokens.paoStartSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartSuffix",
           value = token
-        )).boost(queryParams.buildingName.lpiPaoStartSuffixBoost)),
+        )).boost(queryParams.buildingRange.lpiPaoStartSuffixBoost)),
       tokens.get(Tokens.paoEndNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoEndNumber",
           value = token
-        )).boost(queryParams.buildingName.lpiPaoEndNumberBoost)),
+        )).boost(queryParams.buildingRange.lpiPaoEndNumberBoost)),
       tokens.get(Tokens.paoEndSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoEndSuffix",
           value = token
-        )).boost(queryParams.buildingName.lpiPaoEndSuffixBoost)),
+        )).boost(queryParams.buildingRange.lpiPaoEndSuffixBoost)),
       tokens.get(Tokens.paoEndNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.paoStartNumber",
           value = token
-        ))), //.boost(queryParams.buildingName.lpiPaoStartEndBoost)),
+        )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
         tokens.get(Tokens.paoEndNumber).map(token =>
       constantScoreQuery(matchQuery(
         field = "paf.buildingNumber",
         value = token
-      ))), //.boost(queryParams.buildingName.lpiPaoStartEndBoost)),
+      )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
     tokens.get(Tokens.paoStartNumber).map(token =>
       constantScoreQuery(matchQuery(
         field = "paf.buildingNumber",
         value = token
-      ))) //.boost(queryParams.buildingName.lpiPaoStartEndBoost))
+      )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
     ).flatten
 
     val paoBuildingNameMust = for {
@@ -499,7 +499,7 @@ class AddressIndexRepository @Inject()(
       if (shouldQuery.isEmpty) fallbackQuery
       else dismax.query(
         should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
-        .tieBreaker(1.0)
+        .tieBreaker(queryParams.topDisMaxTieBreaker)
       
 
     search.in(hybridIndex).query(query)

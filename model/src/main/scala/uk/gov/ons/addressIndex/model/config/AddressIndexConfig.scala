@@ -26,8 +26,10 @@ case class ElasticSearchConfig(
 
 case class QueryParamsConfig(
   subBuildingName: SubBuildingNameConfig,
+  subBuildingRange: SubBuildingRangeConfig,
   buildingName: BuildingNameConfig,
   buildingNumber: BuildingNumberConfig,
+  buildingRange: BuildingRangeConfig,
   streetName: StreetNameConfig,
   townName: TownNameConfig,
   postcode: PostcodeConfig,
@@ -36,6 +38,7 @@ case class QueryParamsConfig(
   locality: LocalityConfig,
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
+  topDisMaxTieBreaker: Double,
   fallbackQueryBoost: Float,
   defaultBoost: Float,
   paoSaoMinimumShouldMatch: String,
@@ -66,29 +69,47 @@ case class IndexesConfig(
 )
 
 case class SubBuildingNameConfig(
-  lpiSaoStartNumberBoost: Float,
   lpiSaoStartSuffixBoost: Float,
-  lpiSaoEndNumberBoost: Float,
-  lpiSaoEndSuffixBoost: Float,
   pafSubBuildingNameBoost: Float,
   lpiSaoTextBoost: Float
- )
+)
 
 object SubBuildingNameConfig {
   implicit val subBuildingNameConfigFormat: Format[SubBuildingNameConfig] = Json.format[SubBuildingNameConfig]
 }
 
+case class SubBuildingRangeConfig(
+  lpiSaoStartNumberBoost: Float,
+  lpiSaoStartSuffixBoost: Float,
+  lpiSaoEndNumberBoost: Float,
+  lpiSaoEndSuffixBoost: Float
+)
+
+object SubBuildingRangeConfig {
+  implicit val subBuildingRangeConfigFormat: Format[SubBuildingRangeConfig] = Json.format[SubBuildingRangeConfig]
+}
+
 case class BuildingNameConfig(
-  lpiPaoStartNumberBoost: Float,
   lpiPaoStartSuffixBoost: Float,
-  lpiPaoEndNumberBoost: Float,
-  lpiPaoEndSuffixBoost: Float,
   pafBuildingNameBoost: Float,
   lpiPaoTextBoost: Float
 )
 
 object BuildingNameConfig {
   implicit val buildingNameConfigFormat: Format[BuildingNameConfig] = Json.format[BuildingNameConfig]
+}
+
+case class BuildingRangeConfig(
+  lpiPaoStartNumberBoost: Float,
+  lpiPaoStartSuffixBoost: Float,
+  lpiPaoEndNumberBoost: Float,
+  lpiPaoEndSuffixBoost: Float,
+  pafBuildingNumberBoost: Float,
+  lpiPaoStartEndBoost: Float
+)
+
+object BuildingRangeConfig {
+  implicit val buildingRangeConfigFormat: Format[BuildingRangeConfig] = Json.format[BuildingRangeConfig]
 }
 
 case class BuildingNumberConfig(
