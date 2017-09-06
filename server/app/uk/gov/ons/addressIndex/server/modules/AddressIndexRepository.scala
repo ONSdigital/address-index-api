@@ -256,12 +256,12 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.paoEndNumber",
           value = token
-        )).boost(queryParams.buildingNumber.lpiPaoEndNumberBoost)),
-      tokens.get(Tokens.paoStartNumber).map(token =>
-      constantScoreQuery(matchQuery(
-        field = "lpi.saoStartNumber",
-        value = token
-      )).boost(queryParams.buildingNumber.lpiSaoStartNumberBoost))
+        )).boost(queryParams.buildingNumber.lpiPaoEndNumberBoost))
+      //,tokens.get(Tokens.paoStartNumber).map(token =>
+      //constantScoreQuery(matchQuery(
+      //  field = "lpi.saoStartNumber",
+      //  value = token
+      //)).boost(queryParams.buildingNumber.lpiSaoStartNumberBoost))
     ).flatten else Seq()
 
 

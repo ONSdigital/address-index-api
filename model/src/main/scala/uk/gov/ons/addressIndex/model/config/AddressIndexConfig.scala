@@ -40,7 +40,7 @@ case class QueryParamsConfig(
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
   topDisMaxTieBreaker: Double,
-  defaultBoost: Float,
+//  defaultBoost: Float,
   paoSaoMinimumShouldMatch: String,
   organisationDepartmentMinimumShouldMatch: String,
   mainMinimumShouldMatch: String
@@ -110,8 +110,8 @@ object BuildingRangeConfig {
 case class BuildingNumberConfig(
   pafBuildingNumberBoost: Float,
   lpiPaoStartNumberBoost: Float,
-  lpiPaoEndNumberBoost: Float,
-  lpiSaoStartNumberBoost: Float
+  lpiPaoEndNumberBoost: Float
+  //lpiSaoStartNumberBoost: Float
 )
 
 object BuildingNumberConfig {
