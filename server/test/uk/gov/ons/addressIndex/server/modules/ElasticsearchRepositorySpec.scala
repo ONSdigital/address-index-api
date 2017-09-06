@@ -529,8 +529,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            								"query": "",
            								"type": "boolean",
            								"analyzer": "welsh_split_synonyms_analyzer",
-           								"boost": ${queryParams.fallbackLpiBoost},
-           								"minimum_should_match": "${queryParams.fallbackMinimumShouldMatch}"
+           								"boost": ${queryParams.fallback.fallbackLpiBoost},
+           								"minimum_should_match": "${queryParams.fallback.fallbackMinimumShouldMatch}"
            							}
            						}
            					}, {
@@ -539,8 +539,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            								"query": "",
            								"type": "boolean",
            								"analyzer": "welsh_split_synonyms_analyzer",
-           								"boost": ${queryParams.fallbackPafBoost},
-           								"minimum_should_match": "${queryParams.fallbackMinimumShouldMatch}"
+           								"boost": ${queryParams.fallback.fallbackPafBoost},
+           								"minimum_should_match": "${queryParams.fallback.fallbackMinimumShouldMatch}"
            							}
            						}
            					}]
@@ -554,8 +554,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            							"lpi.nagAll.bigram": {
            								"query": "",
            								"type": "boolean",
-           								"boost": ${queryParams.fallbackLpiBigramBoost},
-           								"fuzziness": "${queryParams.bigramFuzziness}"
+           								"boost": ${queryParams.fallback.fallbackLpiBigramBoost},
+           								"fuzziness": "${queryParams.fallback.bigramFuzziness}"
            							}
            						}
            					}, {
@@ -563,8 +563,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            							"paf.pafAll.bigram": {
            								"query": "",
            								"type": "boolean",
-           								"boost": ${queryParams.fallbackPafBigramBoost},
-           								"fuzziness": "${queryParams.bigramFuzziness}"
+           								"boost": ${queryParams.fallback.fallbackPafBigramBoost},
+           								"fuzziness": "${queryParams.fallback.bigramFuzziness}"
            							}
            						}
            					}]
@@ -1301,7 +1301,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                             "min_term_freq":1,
                             "analyzer":"welsh_split_analyzer",
                             "minimum_should_match":"-1",
-                            "boost":${queryParams.fallbackQueryBoost}
+                            "boost":${queryParams.fallback.fallbackQueryBoost}
                          }
                       }
                    ]

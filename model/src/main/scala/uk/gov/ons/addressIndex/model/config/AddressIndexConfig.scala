@@ -36,20 +36,14 @@ case class QueryParamsConfig(
   organisationName: OrganisationNameConfig,
   departmentName: DepartmentNameConfig,
   locality: LocalityConfig,
+  fallback: FallbackConfig,
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
   topDisMaxTieBreaker: Double,
-  fallbackQueryBoost: Float,
   defaultBoost: Float,
   paoSaoMinimumShouldMatch: String,
   organisationDepartmentMinimumShouldMatch: String,
-  mainMinimumShouldMatch: String,
-  fallbackMinimumShouldMatch: String,
-  fallbackPafBoost: Float,
-  fallbackLpiBoost: Float,
-  fallbackPafBigramBoost: Float,
-  fallbackLpiBigramBoost: Float,
-  bigramFuzziness: String
+  mainMinimumShouldMatch: String
 )
 
 // This is required for the bulk request as Data Scientists want to provide query params dynamically
@@ -194,6 +188,20 @@ case class LocalityConfig(
 
 object LocalityConfig {
   implicit val localityConfigFormat: Format[LocalityConfig] = Json.format[LocalityConfig]
+}
+
+case class FallbackConfig(
+  fallbackQueryBoost: Float,
+  fallbackMinimumShouldMatch: String,
+  fallbackPafBoost: Float,
+  fallbackLpiBoost: Float,
+  fallbackPafBigramBoost: Float,
+  fallbackLpiBigramBoost: Float,
+  bigramFuzziness: String
+)
+
+object FallbackConfig {
+  implicit val fallbackConfigFormat: Format[FallbackConfig] = Json.format[FallbackConfig]
 }
 
 case class BulkConfig(
