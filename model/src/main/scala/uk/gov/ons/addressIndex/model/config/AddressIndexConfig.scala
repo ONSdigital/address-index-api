@@ -148,9 +148,9 @@ object TownNameConfig {
 case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
-  postcodeInOutBoost: Float,
-  postcodeOutBoost: Float,
-  postcodeInBoost: Float
+  postcodeInOutBoost: Float
+  //postcodeOutBoost: Float,
+  //postcodeInBoost: Float
 )
 
 object PostcodeConfig {

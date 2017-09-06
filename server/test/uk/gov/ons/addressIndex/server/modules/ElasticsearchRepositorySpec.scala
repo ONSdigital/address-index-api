@@ -978,8 +978,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "fuzziness":"1"
                                                        }
                                                     }
-                                                 },
-                                                          "boost":${queryParams.postcode.postcodeOutBoost}
+                                                 }//,
+                                                          "boost":${queryParams.postcode.postcodeInOutBoost}
                                                  }},
                                                  {
                                                    "constant_score" : {
@@ -992,7 +992,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                        }
                                                     }
                                                  },
-                                                          "boost":${queryParams.postcode.postcodeInBoost}
+                                                          "boost":${queryParams.postcode.postcodeInOutBoost}
                                                  }}
                                               ]
                                            }

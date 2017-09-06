@@ -361,16 +361,16 @@ class AddressIndexRepository @Inject()(
           field = "lpi.postcodeLocator",
           value = token
         )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
-      tokens.get(Tokens.postcodeIn).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "postcodeIn",
-          value = token
-        )).boost(queryParams.postcode.postcodeInBoost)),
-      tokens.get(Tokens.postcodeOut).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "postcodeOut",
-          value = token
-        )).boost(queryParams.postcode.postcodeOutBoost)),
+      //tokens.get(Tokens.postcodeIn).map(token =>
+      //  constantScoreQuery(matchQuery(
+      //    field = "postcodeIn",
+      //    value = token
+      //  )).boost(queryParams.postcode.postcodeInBoost)),
+      //tokens.get(Tokens.postcodeOut).map(token =>
+      //  constantScoreQuery(matchQuery(
+      //    field = "postcodeOut",
+      //    value = token
+      //  )).boost(queryParams.postcode.postcodeOutBoost)),
 
       postcodeInOutMust
 
