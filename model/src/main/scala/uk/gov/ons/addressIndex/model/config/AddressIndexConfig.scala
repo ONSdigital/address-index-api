@@ -76,7 +76,8 @@ case class SubBuildingRangeConfig(
   lpiSaoStartNumberBoost: Float,
   lpiSaoStartSuffixBoost: Float,
   lpiSaoEndNumberBoost: Float,
-  lpiSaoEndSuffixBoost: Float
+  lpiSaoEndSuffixBoost: Float,
+  lpiSaoStartEndBoost: Float
 )
 
 object SubBuildingRangeConfig {

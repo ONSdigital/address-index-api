@@ -145,7 +145,7 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartNumber",
           value = token
-        )))
+        )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
     ).flatten
 
     val subBuildingNameQuery = Seq(
@@ -198,12 +198,12 @@ class AddressIndexRepository @Inject()(
           field = "lpi.paoStartNumber",
           value = token
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
-        tokens.get(Tokens.paoEndNumber).map(token =>
+      tokens.get(Tokens.paoEndNumber).map(token =>
       constantScoreQuery(matchQuery(
         field = "paf.buildingNumber",
         value = token
       )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
-    tokens.get(Tokens.paoStartNumber).map(token =>
+      tokens.get(Tokens.paoStartNumber).map(token =>
       constantScoreQuery(matchQuery(
         field = "paf.buildingNumber",
         value = token
