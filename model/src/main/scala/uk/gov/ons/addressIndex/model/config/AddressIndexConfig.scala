@@ -36,7 +36,6 @@ case class QueryParamsConfig(
   organisationName: OrganisationNameConfig,
   departmentName: DepartmentNameConfig,
   locality: LocalityConfig,
-  fallback: FallbackConfig,
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
   topDisMaxTieBreaker: Double,
