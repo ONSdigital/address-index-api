@@ -148,7 +148,7 @@ class AddressIndexRepository @Inject()(
         )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
     ).flatten
 
-    val subBuildingNameQuery = Seq(
+    val subBuildingNameQuery = Seq(Seq(
       tokens.get(Tokens.subBuildingName).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.subBuildingName",
@@ -158,12 +158,20 @@ class AddressIndexRepository @Inject()(
         constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
-        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.subBuildingName.lpiSaoTextBoost)),
-      tokens.get(Tokens.saoStartSuffix).map(token =>
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.subBuildingName.lpiSaoTextBoost))).flatten,
+      Seq(Seq(
+        tokens.get(Tokens.saoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
+        tokens.get(Tokens.saoStartSuffix).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.saoStartSuffix",
           value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
+        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))).flatten
+      ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*)
+        .tieBreaker(queryParams.includingDisMaxTieBreaker))
     ).flatten
 
     // this part of query should be blank unless there is an end number or end suffix

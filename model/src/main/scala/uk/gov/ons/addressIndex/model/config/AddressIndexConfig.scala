@@ -63,9 +63,10 @@ case class IndexesConfig(
 )
 
 case class SubBuildingNameConfig(
-  lpiSaoStartSuffixBoost: Float,
   pafSubBuildingNameBoost: Float,
-  lpiSaoTextBoost: Float
+  lpiSaoTextBoost: Float,
+  lpiSaoStartNumberBoost: Float,
+  lpiSaoStartSuffixBoost: Float
 )
 
 object SubBuildingNameConfig {
