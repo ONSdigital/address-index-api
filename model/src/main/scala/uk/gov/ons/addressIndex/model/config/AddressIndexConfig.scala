@@ -25,6 +25,7 @@ case class ElasticSearchConfig(
 )
 
 case class QueryParamsConfig(
+// the number of cases has to be at most 22
   subBuildingName: SubBuildingNameConfig,
   subBuildingRange: SubBuildingRangeConfig,
   buildingName: BuildingNameConfig,

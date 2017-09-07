@@ -497,15 +497,20 @@ class AddressIndexRepository @Inject()(
       buildingNameQuery,
       subBuildingNameQuery,
       streetNameQuery,
-      townNameQuery,
       postcodeQuery,
       organisationNameQuery,
-      departmentNameQuery,
+      departmentNameQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+
+    val townLocalityQueries = Seq(
+      townNameQuery,
       localityQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
     val everythingMattersQueries = Seq(
+      townLocalityQueries,
       paoQuery,
       saoQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
