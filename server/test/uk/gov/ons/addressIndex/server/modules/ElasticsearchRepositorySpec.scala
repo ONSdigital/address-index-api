@@ -978,7 +978,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                                           "fuzziness":"1"
                                                        }
                                                     }
-                                                 }//,
+                                                 }
                                                           "boost":${queryParams.postcode.postcodeInOutBoost}
                                                  }},
                                                  {
