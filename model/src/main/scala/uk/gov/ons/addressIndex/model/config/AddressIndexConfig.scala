@@ -25,28 +25,25 @@ case class ElasticSearchConfig(
 )
 
 case class QueryParamsConfig(
+// the number of cases has to be at most 22
   subBuildingName: SubBuildingNameConfig,
+  subBuildingRange: SubBuildingRangeConfig,
   buildingName: BuildingNameConfig,
   buildingNumber: BuildingNumberConfig,
+  buildingRange: BuildingRangeConfig,
   streetName: StreetNameConfig,
   townName: TownNameConfig,
   postcode: PostcodeConfig,
   organisationName: OrganisationNameConfig,
   departmentName: DepartmentNameConfig,
   locality: LocalityConfig,
+  fallback: FallbackConfig,
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
-  fallbackQueryBoost: Float,
-  defaultBoost: Float,
+  topDisMaxTieBreaker: Double,
   paoSaoMinimumShouldMatch: String,
   organisationDepartmentMinimumShouldMatch: String,
-  mainMinimumShouldMatch: String,
-  fallbackMinimumShouldMatch: String,
-  fallbackPafBoost: Float,
-  fallbackLpiBoost: Float,
-  fallbackPafBigramBoost: Float,
-  fallbackLpiBigramBoost: Float,
-  bigramFuzziness: String
+  mainMinimumShouldMatch: String
 )
 
 // This is required for the bulk request as Data Scientists want to provide query params dynamically
@@ -66,23 +63,30 @@ case class IndexesConfig(
 )
 
 case class SubBuildingNameConfig(
-  lpiSaoStartNumberBoost: Float,
-  lpiSaoStartSuffixBoost: Float,
-  lpiSaoEndNumberBoost: Float,
-  lpiSaoEndSuffixBoost: Float,
   pafSubBuildingNameBoost: Float,
-  lpiSaoTextBoost: Float
- )
+  lpiSaoTextBoost: Float,
+  lpiSaoStartNumberBoost: Float,
+  lpiSaoStartSuffixBoost: Float
+)
 
 object SubBuildingNameConfig {
   implicit val subBuildingNameConfigFormat: Format[SubBuildingNameConfig] = Json.format[SubBuildingNameConfig]
 }
 
+case class SubBuildingRangeConfig(
+  lpiSaoStartNumberBoost: Float,
+  lpiSaoStartSuffixBoost: Float,
+  lpiSaoEndNumberBoost: Float,
+  lpiSaoEndSuffixBoost: Float,
+  lpiSaoStartEndBoost: Float
+)
+
+object SubBuildingRangeConfig {
+  implicit val subBuildingRangeConfigFormat: Format[SubBuildingRangeConfig] = Json.format[SubBuildingRangeConfig]
+}
+
 case class BuildingNameConfig(
-  lpiPaoStartNumberBoost: Float,
   lpiPaoStartSuffixBoost: Float,
-  lpiPaoEndNumberBoost: Float,
-  lpiPaoEndSuffixBoost: Float,
   pafBuildingNameBoost: Float,
   lpiPaoTextBoost: Float
 )
@@ -91,9 +95,23 @@ object BuildingNameConfig {
   implicit val buildingNameConfigFormat: Format[BuildingNameConfig] = Json.format[BuildingNameConfig]
 }
 
+case class BuildingRangeConfig(
+  lpiPaoStartNumberBoost: Float,
+  lpiPaoStartSuffixBoost: Float,
+  lpiPaoEndNumberBoost: Float,
+  lpiPaoEndSuffixBoost: Float,
+  pafBuildingNumberBoost: Float,
+  lpiPaoStartEndBoost: Float
+)
+
+object BuildingRangeConfig {
+  implicit val buildingRangeConfigFormat: Format[BuildingRangeConfig] = Json.format[BuildingRangeConfig]
+}
+
 case class BuildingNumberConfig(
   pafBuildingNumberBoost: Float,
-  lpiPaoStartNumberBoost: Float
+  lpiPaoStartNumberBoost: Float,
+  lpiPaoEndNumberBoost: Float
 )
 
 object BuildingNumberConfig {
@@ -130,9 +148,7 @@ object TownNameConfig {
 case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
-  postcodeInOutBoost: Float,
-  postcodeOutBoost: Float,
-  postcodeInBoost: Float
+  postcodeInOutBoost: Float
 )
 
 object PostcodeConfig {
@@ -173,6 +189,20 @@ case class LocalityConfig(
 
 object LocalityConfig {
   implicit val localityConfigFormat: Format[LocalityConfig] = Json.format[LocalityConfig]
+}
+
+case class FallbackConfig(
+  fallbackQueryBoost: Float,
+  fallbackMinimumShouldMatch: String,
+  fallbackPafBoost: Float,
+  fallbackLpiBoost: Float,
+  fallbackPafBigramBoost: Float,
+  fallbackLpiBigramBoost: Float,
+  bigramFuzziness: String
+)
+
+object FallbackConfig {
+  implicit val fallbackConfigFormat: Format[FallbackConfig] = Json.format[FallbackConfig]
 }
 
 case class BulkConfig(
