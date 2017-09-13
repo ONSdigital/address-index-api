@@ -41,7 +41,6 @@ case class QueryParamsConfig(
   excludingDisMaxTieBreaker: Double,
   includingDisMaxTieBreaker: Double,
   topDisMaxTieBreaker: Double,
-//  defaultBoost: Float,
   paoSaoMinimumShouldMatch: String,
   organisationDepartmentMinimumShouldMatch: String,
   mainMinimumShouldMatch: String
@@ -113,7 +112,6 @@ case class BuildingNumberConfig(
   pafBuildingNumberBoost: Float,
   lpiPaoStartNumberBoost: Float,
   lpiPaoEndNumberBoost: Float
-  //lpiSaoStartNumberBoost: Float
 )
 
 object BuildingNumberConfig {
@@ -151,8 +149,6 @@ case class PostcodeConfig(
   pafPostcodeBoost: Float,
   lpiPostcodeLocatorBoost: Float,
   postcodeInOutBoost: Float
-  //postcodeOutBoost: Float,
-  //postcodeInBoost: Float
 )
 
 object PostcodeConfig {
