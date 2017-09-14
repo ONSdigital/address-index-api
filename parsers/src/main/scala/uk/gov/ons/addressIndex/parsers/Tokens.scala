@@ -53,9 +53,7 @@ object Tokens {
 
     val inputWithoutAccents = StringUtils.stripAccents(upperInput)
 
-    val inputWithoutCounties = removeCounties(inputWithoutAccents)
-
-    val tokens = inputWithoutCounties
+    val tokens = inputWithoutAccents
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
