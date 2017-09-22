@@ -470,7 +470,7 @@ object HopperScoreHelper  {
     // create test fields for postcode match
     val postcodeWithInvertedIncode = if (postcodeIn.length < 3) empty else swap(postcodeIn,1,2)
     val postcodeSector = if (postcodeIn.length < 3) empty else postcodeOut + " " + postcodeIn.substring(0,1)
-    val postcodeArea = if (postcodeOut.length == 1) empty else
+    val postcodeArea = if (postcodeOut.length <= 1) empty else
       if (postcodeOut.length == 2) postcodeOut.substring(0,1) else postcodeOut.substring(0,2)
 
     // each element score is the better match of paf and nag
@@ -1223,7 +1223,6 @@ object HopperScoreHelper  {
     * Example: three results have locality score string of 9614. If they all have the same postcode sector
     * the pentaly is 1 (so no reduction). If they are all different the penalty is 3.
     * @param localityScoreDebug
-    * @param address
     * @param localityParams
     * @return
     */
