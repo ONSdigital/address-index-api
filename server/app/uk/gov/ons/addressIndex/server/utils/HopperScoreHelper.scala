@@ -373,7 +373,7 @@ object HopperScoreHelper  {
     if (buildingNumber == pafBuildingNumber || (buildingNumber == empty && buildingName == pafBuildingName)) 1
     else if (pafSuffixInRange && (pafBuildingNumber == paoStartNumber ||
       pafBuildingLowNum.toString() == paoStartNumber || pafBuildingHighNum.toString() == paoEndNumber)) 2
-    else if (pafInRange) 3
+    else if (pafInRange && pafSuffixInRange) 3
     else if (pafBuildingNumber == paoStartNumber ||
       pafBuildingLowNum.toString() == paoStartNumber || pafBuildingHighNum.toString() == paoEndNumber) 4
     else if ((tokenBuildingLowNum != -1 || buildingNumber != empty ) &&
@@ -415,7 +415,7 @@ object HopperScoreHelper  {
         && (atSignForEmpty(nagPaoStartSuffix) == paoStartSuffix) && (atSignForEmpty(nagPaoEndSuffix) == paoEndSuffix)) 1
       else if (nagSuffixInRange &&
         (paoStartNumber == nagPaoStartNumber || paoEndNumber == nagPaoEndNumber )) 2
-      else if (nagInRange) 3
+      else if (nagInRange && nagSuffixInRange) 3
       else if (nagPaoStartNumber == paoStartNumber || paoEndNumber == nagPaoEndNumber) 4
       else if (!((tokenBuildingLowNum == -1 && buildingNumber == empty ) || (nagBuildingLowNum == -1))) 6
       else 9
