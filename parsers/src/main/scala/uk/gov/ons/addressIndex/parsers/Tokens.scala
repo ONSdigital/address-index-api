@@ -93,7 +93,6 @@ object Tokens {
     * @return Map with label -> concatenated tokens ready to be sent to the ES
     */
   def postTokenize(tokens: Map[String, String]): Map[String, String] = {
-    println(tokens)
     val postcodeTreatedTokens = postTokenizeTreatmentPostCode(tokens)
     val boroughTreatedTokens = postTokenizeTreatmentBorough(postcodeTreatedTokens)
     val buildingNumberTreatedTokens = postTokenizeTreatmentBuildingNumber(boroughTreatedTokens)
