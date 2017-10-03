@@ -71,11 +71,10 @@ object HybridAddress {
         hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
-
       HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = rels.map(Relative.fromEsMap),
+        relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
