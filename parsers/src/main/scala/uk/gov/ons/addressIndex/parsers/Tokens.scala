@@ -69,15 +69,24 @@ object Tokens {
 
   private def removeCounties(input: String): String = {
     val separatedCounties = county.mkString("|")
-    val countiesRegex = s"(?:\\b|\\s)($separatedCounties)(?:\\s|\\Z)"
 
-    val separatedSuffixes = nonCountyIdentification.mkString("|")
-    val suffixesRegex = s"(?!$separatedSuffixes&)"
+    val countiesRegex = s"\\b($separatedCounties)\\b"
 
-    // The regexp is asking to take counties that don't have suffixes after them
-    val regexp = s"$countiesRegex$suffixesRegex"
+    // ONSAI-531
+    val exceptRegex = s"(?<!\\bON\\s)(?<!\\bDINAS\\s)(?<!\\bUPON\\s)(?<!\\b[0-9]\\s)"
 
-    input.replaceAll(regexp, " ")
+    val lookBehindRegex = s"$exceptRegex$countiesRegex"
+
+    /**
+      * A county is a county if it is not followed by following suffixes
+      */
+    val separatedSuffixes = List(business, company, flat, residential, road).flatten.mkString("|")
+
+    val lookAheadRegex = s"(?!\\s($separatedSuffixes)\\b)"
+
+    val regexp = s"$lookBehindRegex$lookAheadRegex".r
+
+    regexp.replaceAllIn(input, " ").replaceAll("\\s+", " ").trim
   }
 
   private def replaceSynonyms(tokens: Array[String]): Array[String] =
@@ -357,11 +366,6 @@ object Tokens {
     * List of counties to be removed from the input
     */
   lazy val county: Seq[String] = fileToList(s"county")
-
-  /**
-    * A county is a county if it is not followed by following suffixes
-    */
-  lazy val nonCountyIdentification: Seq[String] = fileToList(s"non_county_identification")
 
   /**
     * Convert external file into list
