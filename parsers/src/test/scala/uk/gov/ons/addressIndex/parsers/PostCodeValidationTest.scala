@@ -188,4 +188,23 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
+  it should "TS8TS8 -> TS8 TS8" in {
+    // Given
+    val input = Map(
+      Tokens.postcode -> "TS8TS8"
+    )
+
+    val expected = Map(
+      Tokens.postcode -> "TS8 TS8",
+      Tokens.postcodeIn -> "TS8",
+      Tokens.postcodeOut -> "TS8"
+    )
+
+    // When
+    val actual = Tokens. postTokenizeTreatmentPostCode(input)
+
+    // Then
+    actual shouldBe expected
+  }
 }

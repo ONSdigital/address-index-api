@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.lang3.StringUtils
+
 import scala.io.{BufferedSource, Source}
 import scala.util.Try
 
@@ -120,7 +121,8 @@ object Tokens {
     postcodeToken match {
       case Some(concatenatedPostcode) if concatenatedPostcode.length >= 5 =>
         val postcodeInToken = concatenatedPostcode.substring(concatenatedPostcode.length - 3, concatenatedPostcode.length)
-        val postcodeOutToken = concatenatedPostcode.substring(0, concatenatedPostcode.indexOf(postcodeInToken))
+      // use lastindexOf instead of indexOf to cater for duplicate postcode parts
+        val postcodeOutToken = concatenatedPostcode.substring(0, concatenatedPostcode.lastIndexOf(postcodeInToken))
 
         val tokensWithPostcodeUpdated = tokens.updated(postcode, s"$postcodeOutToken $postcodeInToken")
 
