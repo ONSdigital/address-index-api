@@ -2,7 +2,9 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import java.util
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit, RichSearchResponse}
+import com.sksamuel.elastic4s.{Hit, HitReader}
+import com.sksamuel.elastic4s.searches.{RichSearchHit, RichSearchResponse}
+
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -43,7 +45,7 @@ object HybridAddress {
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitAs extends HitAs[HybridAddress] {
+  implicit object HybridAddressHitAs extends HitReader[HybridAddress] {
 
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
@@ -51,7 +53,7 @@ object HybridAddress {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def as(hit: RichSearchHit): HybridAddress = {
+    override def read(hit: Hit): Either[Throwable, HybridAddress] = {
 
       val lpis: Seq[Map[String, AnyRef]] = Try {
         // Complex logic to cast field that contains a list of NAGs into a Scala's Map[String, AnyRef] so that we could
@@ -71,7 +73,7 @@ object HybridAddress {
         hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
-      HybridAddress(
+      Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
@@ -80,7 +82,7 @@ object HybridAddress {
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         score = hit.score
-      )
+      ))
     }
   }
 
@@ -120,7 +122,8 @@ object HybridAddresses {
     val maxScore = if (total == 0) 0 else response.maxScore
 
     HybridAddresses(
-      addresses = response.as[HybridAddress],
+      addresses = response.to[HybridAddress],
+   //   addresses = response.as[HybridAddress],
       maxScore = maxScore,
       total = total
     )

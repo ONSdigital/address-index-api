@@ -9,7 +9,8 @@ import NativePackagerHelper._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 lazy val Versions = new {
-  val elastic4s = "2.4.0"
+//  val elastic4s = "5.5.4"
+  val elastic4s = "6.0.0-rc1"
   val scala = "2.11.8"
 }
 
@@ -65,8 +66,19 @@ val commonDeps = Seq(
   "com.typesafe"           %  "config"            % "1.3.0",
   "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
   "com.lihaoyi"            %% "pprint"            % "0.4.3",
-  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
-  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
+  "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s,
+  // for the tcp client
+  "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s,
+  // for the http client
+  "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s,
+  // if you want to use reactive streams
+ // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
+  // testing
+  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
+  "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
+// old
+ // "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
+ // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
   "org.apache.commons"     %  "commons-lang3"     % "3.3.2"
 )
 
@@ -79,7 +91,7 @@ val parsersDeps = commonDeps
 val serverDeps = Seq(
   filters,
   specs2 % Test,
-  "org.elasticsearch.plugin" % "shield"              % Versions.elastic4s,
+  "org.elasticsearch.plugin" % "shield"              % "2.4.0",
   "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test
 )++ commonDeps
 
