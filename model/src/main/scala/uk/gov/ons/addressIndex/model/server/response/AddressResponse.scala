@@ -80,7 +80,7 @@ case class AddressBySearchResponse(
   limit: Int,
   offset: Int,
   total: Long,
-  maxScore: Float
+  maxScore: Double
 )
 
 object AddressBySearchResponse {

@@ -2,6 +2,8 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import java.util
 
+import com.sksamuel.elastic4s.http.search.SearchResponse
+import com.sksamuel.elastic4s.http.update.RequestFailure
 import com.sksamuel.elastic4s.{Hit, HitReader}
 import com.sksamuel.elastic4s.searches.{RichSearchHit, RichSearchResponse}
 
@@ -97,11 +99,19 @@ object HybridAddress {
   */
 case class HybridAddresses(
   addresses: Seq[HybridAddress],
-  maxScore: Float,
+  maxScore: Double,
   total: Long
 )
 
 object HybridAddresses {
+
+  def fromEither(resp: Either[RequestFailure, SearchResponse]): HybridAddresses = {
+    resp match {
+      case Left(l) => throw new Exception("search failed" + l.error.reason)
+      case Right(r) => fromSearchResponse(r)
+    }
+
+  }
 
   /**
     * Transforms `RichSearchResponse` into a hybrid address
@@ -112,10 +122,12 @@ object HybridAddresses {
     * @param response
     * @return
     */
-  def fromRichSearchResponse(response: RichSearchResponse): HybridAddresses = {
+  def fromSearchResponse(response: SearchResponse): HybridAddresses = {
 
-    if (response.shardFailures.nonEmpty)
-      throw new Exception(s"${response.shardFailures.length} failed shards out of ${response.totalShards}, the returned result would be partial and not reliable")
+  response.shards.failed > 0
+    response.shards.total
+     if (response.shards.failed > 0)
+      throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
@@ -123,7 +135,6 @@ object HybridAddresses {
 
     HybridAddresses(
       addresses = response.to[HybridAddress],
-   //   addresses = response.as[HybridAddress],
       maxScore = maxScore,
       total = total
     )

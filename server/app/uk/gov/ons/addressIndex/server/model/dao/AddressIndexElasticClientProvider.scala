@@ -5,6 +5,8 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.http.HttpRequestClient
+import com.sksamuel.elastic4s.http.HttpExecutable
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.RestClientBuilder._
 import org.apache.http.impl.nio.client._
@@ -66,6 +68,8 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
       httpClientBuilder.setDefaultCredentialsProvider(provider)
     }
   })
+
+  //val exec = new HttpExecutable()
 
 
  // val client: HttpClient = {

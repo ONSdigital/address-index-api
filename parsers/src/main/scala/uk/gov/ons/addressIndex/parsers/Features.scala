@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.parsers
 
-import com.google.common.base.CharMatcher
+//import com.google.common.base.CharMatcher
 
 /**
   * A list of feature that token may take.
@@ -10,8 +10,8 @@ import com.google.common.base.CharMatcher
   */
 object Features {
   private val vowels = Seq('A', 'E', 'I', 'O', 'U')
-  
-  private def isAllDigits(token: String): Boolean = CharMatcher.DIGIT.countIn(token) == token.length
+
+  private def isAllDigits(token: String): Boolean = token.replaceAll("\\D", "").length() == token.length
 
   /**
     * Features whether or not the feature is present in the "business" list
@@ -88,7 +88,7 @@ object Features {
     * @param token token to be analysed
     * @return different digits features depending on whether the token is a digit, contains a digit or has no digits in it
     */
-  private[parsers] def digitsFeature(token: String): String = CharMatcher.DIGIT.countIn(token) match {
+  private[parsers] def digitsFeature(token: String): String = token.replaceAll("\\D", "").length() match {
     case digits if digits == token.length => "digits\\:all_digits:1.0"
     case 0 => "digits\\:no_digits:1.0"
     case _ => "digits\\:some_digits:1.0"
