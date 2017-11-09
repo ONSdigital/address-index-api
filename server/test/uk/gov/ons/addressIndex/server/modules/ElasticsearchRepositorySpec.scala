@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
@@ -20,7 +20,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   // injections
   val elasticClientProvider = new ElasticClientProvider {
-    override def client: ElasticClient = testClient
+    override def client: HttpClient = testClient
   }
   val config = new AddressIndexConfigModule
   val queryParams = config.config.elasticSearch.queryParams

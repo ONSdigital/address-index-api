@@ -64,6 +64,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 val commonDeps = Seq(
   "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
   "com.typesafe"           %  "config"            % "1.3.0",
+  "com.typesafe"           %% "jse"               % "1.2.0" exclude("org.slf4j", "slf4j-simple"),
   "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
   "com.lihaoyi"            %% "pprint"            % "0.4.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s,
@@ -100,7 +101,7 @@ val uiDeps = Seq(
   cache,
   ws,
   specs2 % Test,
-  "com.typesafe.play"      %% "play-test"          % "2.5.9" % Test,
+  "com.typesafe.play"      %% "play-test"          % "2.5.14" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test,
   "com.github.tototoshi"   %% "scala-csv"          % "1.3.4"
 ) ++ commonDeps
