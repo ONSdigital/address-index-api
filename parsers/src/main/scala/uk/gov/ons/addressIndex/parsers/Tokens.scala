@@ -80,7 +80,7 @@ object Tokens {
     /**
       * A county is a county if it is not followed by following suffixes
       */
-    val separatedSuffixes = List(business, company, flat, residential, road).flatten.mkString("|")
+    val separatedSuffixes = List(nonCounty, company, flat, residential, road).flatten.mkString("|")
 
     val lookAheadRegex = s"(?!\\s($separatedSuffixes)\\b)"
 
@@ -348,6 +348,8 @@ object Tokens {
   lazy val postTown: Seq[String] = fileToList(s"posttown")
 
   lazy val borough: Seq[String] = fileToList(s"borough")
+
+  lazy val nonCounty: Seq[String] = fileToList(s"nonCounty")
 
   // score matrix is used by server but held in parsers for convenience
   lazy val scoreMatrix: Map[String,String] = fileToMap(s"scorematrix.txt")
