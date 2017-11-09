@@ -64,7 +64,6 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 val commonDeps = Seq(
   "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
   "com.typesafe"           %  "config"            % "1.3.0",
-  "com.typesafe"           %% "jse"               % "1.2.0" exclude("org.slf4j", "slf4j-simple"),
   "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
   "com.lihaoyi"            %% "pprint"            % "0.4.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s,
@@ -75,13 +74,17 @@ val commonDeps = Seq(
   // if you want to use reactive streams
  // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
   // testing
-  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
+  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s  % "test",
   "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
 // old
  // "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
  // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
   "org.apache.commons"     %  "commons-lang3"     % "3.3.2"
 )
+
+val excludeDeps = Seq(
+  SbtExclusionRule("org.slf4j", "slf4j-log4j12")
+  )
 
 val modelDeps = Seq(ws) ++ commonDeps
 
@@ -141,6 +144,7 @@ lazy val `address-index-server` = project.in(file("server"))
   .settings(localCommonSettings: _*)
   .settings(
     libraryDependencies ++= serverDeps,
+    excludeDependencies ++= excludeDeps,
     routesGenerator := InjectedRoutesGenerator,
     Revolver.settings ++ Seq(
       mainClass in reStart := Some("play.core.server.ProdServerStart")
