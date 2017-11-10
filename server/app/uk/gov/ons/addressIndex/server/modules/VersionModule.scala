@@ -2,14 +2,14 @@ package uk.gov.ons.addressIndex.server.modules
 
 import java.util
 
-import com.carrotsearch.hppc.cursors.{ObjectCursor, ObjectObjectCursor}
+//import com.carrotsearch.hppc.cursors.{ObjectCursor, ObjectObjectCursor}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import com.sksamuel.elastic4s.http.index.alias.IndexAliases
 import com.sksamuel.elastic4s.http.update.RequestFailure
 //import com.sksamuel.elastic4s.ElasticDsl._
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse
-import org.elasticsearch.cluster.metadata.AliasMetaData
-import org.elasticsearch.common.collect.ImmutableOpenMap
+//import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse
+//import org.elasticsearch.cluster.metadata.AliasMetaData
+//import org.elasticsearch.common.collect.ImmutableOpenMap
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 

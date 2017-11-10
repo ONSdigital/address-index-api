@@ -7,14 +7,14 @@ import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.http.HttpRequestClient
 import com.sksamuel.elastic4s.http.HttpExecutable
 import com.sksamuel.elastic4s.http.ElasticDsl._
-import org.elasticsearch.common.settings.Settings
+//import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.RestClientBuilder._
 import org.apache.http.impl.nio.client._
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.auth.AuthScope
 import org.apache.http.client.config.RequestConfig.Builder
-import org.elasticsearch.shield.ShieldPlugin
+//import org.elasticsearch.shield.ShieldPlugin
 import play.api.Logger
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 
@@ -44,16 +44,17 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
   private val shieldConf = esConf.shield
   private val logger = Logger("address-index:ElasticsearchRepositoryModule")
 
-  private val esClientSettings = {
-    Settings.builder()
-      .put("cluster.name", esConf.cluster)
-      .put("shield.transport.ssl", shieldConf.ssl)
-      .put("request.headers.X-Found-Cluster", esConf.cluster)
-      .put("shield.user", s"${shieldConf.user}:${shieldConf.password}")
-      .build
-  }
+ // private val esClientSettings = {
+ //   Settings.builder()
+ //     .put("cluster.name", esConf.cluster)
+ //     .put("shield.transport.ssl", shieldConf.ssl)
+ //     .put("request.headers.X-Found-Cluster", esConf.cluster)
+ //     .put("shield.user", s"${shieldConf.user}:${shieldConf.password}")
+ //     .build
+//  }
 
   lazy val provider = {
+    logger info "Connecting to local ES"
     val provider = new BasicCredentialsProvider
     val credentials = new UsernamePasswordCredentials("elastic", "changeme")
     provider.setCredentials(AuthScope.ANY, credentials)

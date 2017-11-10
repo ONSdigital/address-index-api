@@ -5,7 +5,7 @@ import java.util
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.http.update.RequestFailure
 import com.sksamuel.elastic4s.{Hit, HitReader}
-import com.sksamuel.elastic4s.searches.{RichSearchHit, RichSearchResponse}
+//import com.sksamuel.elastic4s.searches.{RichSearchHit, RichSearchResponse}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
