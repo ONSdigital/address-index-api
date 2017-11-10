@@ -50,9 +50,10 @@ class AddressIndexVersionModule @Inject()(
 
   lazy val dataVersion: String = {
 
-    val alias = configProvider.config.elasticSearch.indexes.hybridIndex
+    val alias: String = configProvider.config.elasticSearch.indexes.hybridIndex
+    val aliaseq: Seq[String] = Seq{alias}
     val requestForIdexes = elasticClientProvider.client.execute {
-      getAlias(alias)
+      getAliases(Nil,aliaseq)
     }
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
