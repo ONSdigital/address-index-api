@@ -60,7 +60,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
   }
-  val client = HttpClient(ElasticsearchClientUri(esConf.uri, 8443), new RequestConfigCallback  {
+  val client = HttpClient(ElasticsearchClientUri(esConf.uri, 9200), new RequestConfigCallback  {
     override def customizeRequestConfig(requestConfigBuilder: Builder) = {
       requestConfigBuilder
     }
