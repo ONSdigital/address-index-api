@@ -2,7 +2,8 @@ package uk.gov.ons.addressIndex.server.modules
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.http.ElasticDsl
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
@@ -13,11 +14,10 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticSugar {
+class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with HttpElasticSugar {
 
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val testClient = client
-
   // injections
   val elasticClientProvider = new ElasticClientProvider {
     override def client: HttpClient = testClient

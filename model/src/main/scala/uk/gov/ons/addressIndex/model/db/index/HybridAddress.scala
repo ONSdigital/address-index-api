@@ -8,6 +8,9 @@ import com.sksamuel.elastic4s.{Hit, HitReader}
 //import com.sksamuel.elastic4s.searches.{RichSearchHit, RichSearchResponse}
 
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
+import scala.collection.{mutable,immutable,breakOut}
+
 import scala.util.Try
 
 /**
@@ -47,7 +50,7 @@ object HybridAddress {
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitAs extends HitReader[HybridAddress] {
+  implicit object HybridAddressHitReader extends HitReader[HybridAddress] {
 
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
@@ -57,22 +60,55 @@ object HybridAddress {
       */
     override def read(hit: Hit): Either[Throwable, HybridAddress] = {
 
+
+      val testlpi: AnyRef  = hit.sourceAsMutableMap("lpi")
+
+        //.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
+
+      val test1 : mutable.Map[String, AnyRef] = hit.sourceAsMutableMap
+
+    //  val test1b = test1.get("lpi").toList.asJava.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
+
+     //   .iterator.next()
+
+     //   val test1a =  test1.get("lpi").toList.asJava
+
+ //     val test2 = test1.get("lpi").toList.iterator
+
+ //     while (test2.hasNext){
+ //       val test3 = List(test2.next()).iterator
+ //       while (test3.hasNext) {
+ //         val test4 = test3.next()
+ //       }
+ //     }
+   //   test1.get("lpi").map{ x =>
+
+
+  //    }
+
+  //   val testList: List[AnyRef] = hit.sourceAsMap.toMap.get("lpi").map(x => x: AnyRef).toList
+
+  //    testList.foreach {
+  //      x => x.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
+   //   }
+//    val testlpi  = hit.sourceAsMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
+
       val lpis: Seq[Map[String, AnyRef]] = Try {
         // Complex logic to cast field that contains a list of NAGs into a Scala's Map[String, AnyRef] so that we could
         // extract the information into a NAG DTO
-        hit.sourceAsMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+        hit.sourceAsMutableMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
       val pafs: Seq[Map[String, AnyRef]] = Try {
         // Complex logic to cast field that contains a list of PAFs into a Scala's Map[String, AnyRef] so that we could
         // extract the information into a PAF DTO
-        hit.sourceAsMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+        hit.sourceAsMutableMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
       val rels: Seq[Map[String, AnyRef]] = Try {
         // Complex logic to cast field that contains a list of Relatives into a Scala's Map[String, AnyRef] so that we could
         // extract the information into a Relatives DTO
-        hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+        hit.sourceAsMutableMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
       }.getOrElse(Seq.empty)
 
       Right(HybridAddress(
@@ -128,6 +164,8 @@ object HybridAddresses {
     response.shards.total
      if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
+
+//    System.out.println("response = " + response)
 
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
