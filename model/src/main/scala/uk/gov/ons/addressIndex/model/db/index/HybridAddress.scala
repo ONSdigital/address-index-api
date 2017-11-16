@@ -60,76 +60,14 @@ object HybridAddress {
       */
     override def read(hit: Hit): Either[Throwable, HybridAddress] = {
 
-     // val doobie = hit.sourceField("lpi")
-
-    //  val thingy: Map[String, AnyRef] = List(hit.sourceField("lpi")).asJava.toMap[String, AnyRef]
-
-
-   //   val thingy: Map[Any, Any] = List(hit.sourceField("lpi")).collect { case t@(_: String, _: AnyRef) => t }.toMap[Any, Any]
-
-    //  val javaList = hit.sourceField("lpi").asInstanceOf[List[AnyRef]].asJava.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
-
-    //  val firsHit = hit.sourceField("lpi").asInstanceOf[List[AnyRef]].asJava.get(0)
-//
-  //    val testlpi: AnyRef  = hit.sourceAsMutableMap("lpi")
-
-        //.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
-
-  //    val test1 : mutable.Map[String, AnyRef] = hit.sourceAsMutableMap
-
-    //  val test1b = test1.get("lpi").toList.asJava.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
-
-     //   .iterator.next()
-
-     //   val test1a =  test1.get("lpi").toList.asJava
-
- //     val test2 = test1.get("lpi").toList.iterator
-
- //     while (test2.hasNext){
- //       val test3 = List(test2.next()).iterator
- //       while (test3.hasNext) {
- //         val test4 = test3.next()
- //       }
- //     }
-   //   test1.get("lpi").map{ x =>
-
-
-  //    }
-
-  //   val testList: List[AnyRef] = hit.sourceAsMap.toMap.get("lpi").map(x => x: AnyRef).toList
-
-  //    testList.foreach {
-  //      x => x.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
-   //   }
-//    val testlpi  = hit.sourceAsMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
-
-      val lpis: AnyRef = Try {
-        // Complex logic to cast field that contains a list of NAGs into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a NAG DTO
-  //      hit.sourceAsMutableMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
-        hit.sourceAsMutableMap("lpi")
-      }.getOrElse(Seq.empty)
-
-      val pafs: Seq[Map[String, AnyRef]] = Try {
-        // Complex logic to cast field that contains a list of PAFs into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a PAF DTO
-        hit.sourceAsMutableMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
-      }.getOrElse(Seq.empty)
-
-      val rels: Seq[Map[String, AnyRef]] = Try {
-        // Complex logic to cast field that contains a list of Relatives into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a Relatives DTO
-        hit.sourceAsMutableMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
-      }.getOrElse(Seq.empty)
-
       Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
+        relatives = Relative.fromEsMap(hit.sourceAsMap("relatives")).sortBy(_.level),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
-        lpi = NationalAddressGazetteerAddress.fromEsMap(lpis),
-        paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
+        lpi = NationalAddressGazetteerAddress.fromEsMap(hit.sourceAsMap("lpi")),
+        paf = PostcodeAddressFileAddress.fromEsMap(hit.sourceAsMap("paf")),
         score = hit.score
       ))
     }

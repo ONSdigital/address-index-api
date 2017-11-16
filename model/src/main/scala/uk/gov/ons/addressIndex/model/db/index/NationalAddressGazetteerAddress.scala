@@ -115,7 +115,7 @@ object NationalAddressGazetteerAddress {
   //def fromEsMap (nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
    // val filteredNag = nag.filter{ case (_, value) => value != null }
    def fromEsMap (nag: AnyRef): Seq[NationalAddressGazetteerAddress] = {
-     val nags: Seq[NationalAddressGazetteerAddress] = Seq.empty
+     var nags = Seq[NationalAddressGazetteerAddress]()
      val nagIter = nag.asInstanceOf[List[AnyRef]].iterator
      while (nagIter.hasNext)  {
        val filteredNag = nagIter.next().asInstanceOf[HashMap[String,AnyRef]].filter{ case (_, value) => value != null }
@@ -124,7 +124,7 @@ object NationalAddressGazetteerAddress {
 
        val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
 
-       nags :+ NationalAddressGazetteerAddress (
+       nags = nags :+ NationalAddressGazetteerAddress (
          uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
          postcodeLocator = filteredNag.getOrElse(Fields.postcodeLocator, "").toString,
          addressBasePostal = filteredNag.getOrElse(Fields.addressBasePostal, "").toString,
@@ -170,7 +170,7 @@ object NationalAddressGazetteerAddress {
          lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString
        )
      }
-     nags
+     collection.immutable.Seq(nags: _*)
    }
 
 }
