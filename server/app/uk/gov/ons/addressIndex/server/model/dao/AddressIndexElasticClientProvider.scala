@@ -57,8 +57,8 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
  // ElasticsearchClientUri(s"elasticsearch://$host:$port?cluster.name=$clusterName")
 
   val host = esConf.uri
-  val port = "8443"
-  val ssl  = "true"
+  val port = esConf.port
+  val ssl  = esConf.ssl
 
   lazy val provider = {
     logger info "Connecting to local ES"

@@ -15,6 +15,8 @@ case class ElasticSearchConfig(
   local: Boolean,
   cluster: String,
   uri: String,
+  port: String,
+  ssl: String,
   indexes: IndexesConfig,
   shield: ShieldConfig,
   queryParams: QueryParamsConfig,
