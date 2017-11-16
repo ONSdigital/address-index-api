@@ -12,7 +12,7 @@ import com.sksamuel.elastic4s.http.update.RequestFailure
 //import org.elasticsearch.common.collect.ImmutableOpenMap
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-
+import scala.language.postfixOps
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.io.Source
@@ -58,7 +58,7 @@ class AddressIndexVersionModule @Inject()(
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
     val indexes: Either[RequestFailure, IndexAliases] = Await.result(requestForIdexes, 10 seconds)
-    val indexOpt: Option[IndexAliases] = indexes.right.toOption
+  //  val indexOpt: Option[IndexAliases] = indexes.right.toOption
   //  val index: String = indexOpt.getOrElse("").toString()
 
     val index: Option[String] = Option(indexes.right.get.mappings.toMap.keys.toString())

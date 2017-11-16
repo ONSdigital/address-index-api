@@ -89,7 +89,6 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         case Mode.Prod => conf.config.realGatewayProd
       }
 
-      val fullURL = conf.config.gatewayURL+"/ai/login"
       if (realGateway) {
         val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
         logger.info("attempting to login via gateway")

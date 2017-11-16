@@ -5,7 +5,7 @@ import play.api.libs.ws.{WSClient, WSRequest}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
-
+import scala.language.implicitConversions
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 

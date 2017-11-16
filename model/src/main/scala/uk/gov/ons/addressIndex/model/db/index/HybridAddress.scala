@@ -60,12 +60,22 @@ object HybridAddress {
       */
     override def read(hit: Hit): Either[Throwable, HybridAddress] = {
 
+     // val doobie = hit.sourceField("lpi")
 
-      val testlpi: AnyRef  = hit.sourceAsMutableMap("lpi")
+    //  val thingy: Map[String, AnyRef] = List(hit.sourceField("lpi")).asJava.toMap[String, AnyRef]
+
+
+   //   val thingy: Map[Any, Any] = List(hit.sourceField("lpi")).collect { case t@(_: String, _: AnyRef) => t }.toMap[Any, Any]
+
+    //  val javaList = hit.sourceField("lpi").asInstanceOf[List[AnyRef]].asJava.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
+
+    //  val firsHit = hit.sourceField("lpi").asInstanceOf[List[AnyRef]].asJava.get(0)
+//
+  //    val testlpi: AnyRef  = hit.sourceAsMutableMap("lpi")
 
         //.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
 
-      val test1 : mutable.Map[String, AnyRef] = hit.sourceAsMutableMap
+  //    val test1 : mutable.Map[String, AnyRef] = hit.sourceAsMutableMap
 
     //  val test1b = test1.get("lpi").toList.asJava.asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
 
@@ -93,10 +103,11 @@ object HybridAddress {
    //   }
 //    val testlpi  = hit.sourceAsMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]]
 
-      val lpis: Seq[Map[String, AnyRef]] = Try {
+      val lpis: AnyRef = Try {
         // Complex logic to cast field that contains a list of NAGs into a Scala's Map[String, AnyRef] so that we could
         // extract the information into a NAG DTO
-        hit.sourceAsMutableMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+  //      hit.sourceAsMutableMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+        hit.sourceAsMutableMap("lpi")
       }.getOrElse(Seq.empty)
 
       val pafs: Seq[Map[String, AnyRef]] = Try {
@@ -117,7 +128,7 @@ object HybridAddress {
         relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
-        lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
+        lpi = NationalAddressGazetteerAddress.fromEsMap(lpis),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         score = hit.score
       ))
@@ -160,8 +171,8 @@ object HybridAddresses {
     */
   def fromSearchResponse(response: SearchResponse): HybridAddresses = {
 
-  response.shards.failed > 0
-    response.shards.total
+//  response.shards.failed > 0
+//    response.shards.total
      if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 

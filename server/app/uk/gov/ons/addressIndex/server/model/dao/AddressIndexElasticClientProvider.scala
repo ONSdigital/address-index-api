@@ -41,7 +41,7 @@ trait ElasticClientProvider {
 class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule) extends ElasticClientProvider {
 
   private val esConf = conf.config.elasticSearch
-  private val shieldConf = esConf.shield
+//  private val shieldConf = esConf.shield
   private val logger = Logger("address-index:ElasticsearchRepositoryModule")
 
  // private val esClientSettings = {
@@ -53,6 +53,13 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
  //     .build
 //  }
 
+  val ESoptions: Map[String,String] = Map("ssl" -> "true")
+ // ElasticsearchClientUri(s"elasticsearch://$host:$port?cluster.name=$clusterName")
+
+  val host = esConf.uri
+  val port = "8443"
+  val ssl  = "true"
+
   lazy val provider = {
     logger info "Connecting to local ES"
     val provider = new BasicCredentialsProvider
@@ -60,7 +67,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
   }
-  val client = HttpClient(ElasticsearchClientUri(esConf.uri, 9200), new RequestConfigCallback  {
+  val client = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback  {
     override def customizeRequestConfig(requestConfigBuilder: Builder) = {
       requestConfigBuilder
     }
