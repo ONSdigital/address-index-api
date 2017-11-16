@@ -112,9 +112,7 @@ object NationalAddressGazetteerAddress {
     val welsh: String = "CYM"
   }
 
-  //def fromEsMap (nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
-   // val filteredNag = nag.filter{ case (_, value) => value != null }
-   def fromEsMap (nag: AnyRef): Seq[NationalAddressGazetteerAddress] = {
+  def fromEsMap (nag: AnyRef): Seq[NationalAddressGazetteerAddress] = {
      var nags = Seq[NationalAddressGazetteerAddress]()
      val nagIter = nag.asInstanceOf[List[AnyRef]].iterator
      while (nagIter.hasNext)  {

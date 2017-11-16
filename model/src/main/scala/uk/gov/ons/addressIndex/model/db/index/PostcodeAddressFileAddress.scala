@@ -80,9 +80,6 @@ object PostcodeAddressFileAddress {
     val pafAll: String = "pafAll"
   }
 
-  // def fromEsMap(paf: Map[String, AnyRef]): PostcodeAddressFileAddress = {
-   // val filteredPaf = paf.filter { case (_, value) => value != null }
-
   def fromEsMap (nag: AnyRef): Seq[PostcodeAddressFileAddress] = {
     var pafs = Seq[PostcodeAddressFileAddress]()
     val pafIter = nag.asInstanceOf[List[AnyRef]].iterator

@@ -4,8 +4,6 @@ import javax.inject.{Inject, Singleton}
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.http.search.SearchResponse
-//import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.HttpClient
@@ -13,9 +11,6 @@ import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.FieldSortDefinition
 import com.sksamuel.elastic4s.searches.sort.SortOrder
-import com.sksamuel.elastic4s.http.HttpRequestClient
-import com.sksamuel.elastic4s.http.HttpExecutable
-//import org.elasticsearch.search.sort.SortOrder
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -81,8 +76,6 @@ class AddressIndexRepository @Inject()(
 
   val client: HttpClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
-
- // val httpEx =
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
@@ -524,7 +517,6 @@ class AddressIndexRepository @Inject()(
       
 
     search(hybridIndex).query(query)
-    //  .sort(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       .trackScores(true)
       .searchType(SearchType.DfsQueryThenFetch)

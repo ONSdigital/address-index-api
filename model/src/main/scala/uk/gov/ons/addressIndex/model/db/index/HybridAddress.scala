@@ -1,17 +1,8 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import java.util
-
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.http.update.RequestFailure
 import com.sksamuel.elastic4s.{Hit, HitReader}
-//import com.sksamuel.elastic4s.searches.{RichSearchHit, RichSearchResponse}
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-import scala.collection.{mutable,immutable,breakOut}
-
-import scala.util.Try
 
 /**
   * DTO object containing hybrid address returned from ES
@@ -95,11 +86,10 @@ object HybridAddresses {
       case Left(l) => throw new Exception("search failed" + l.error.reason)
       case Right(r) => fromSearchResponse(r)
     }
-
   }
 
   /**
-    * Transforms `RichSearchResponse` into a hybrid address
+    * Transforms `SearchResponse` into a hybrid address
     * It needs implicit `HitAs[HybridAddress]` that's why the definition should be after
     * the compamion object of `HybridAddress`
     *
@@ -109,12 +99,8 @@ object HybridAddresses {
     */
   def fromSearchResponse(response: SearchResponse): HybridAddresses = {
 
-//  response.shards.failed > 0
-//    response.shards.total
      if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
-
-//    System.out.println("response = " + response)
 
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
