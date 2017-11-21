@@ -1,14 +1,14 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.embedded.LocalNode
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.mappings.MappingDefinition
-//import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.http.ElasticDsl
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
 import com.sksamuel.elastic4s.testkit._
-import org.scalatest.WordSpec
+import org.scalatest.{Suite, WordSpec}
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
@@ -16,18 +16,14 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with LocalNodeProvider with HttpElasticSugar {
+class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
 
-  override def getNode: LocalNode = {
-    LocalNode("test6", "C:\\elasticsearch-5.6.3")
-  }
-
-  // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
-  val testClient = http
+ val testClient = http
   // injections
   val elasticClientProvider = new ElasticClientProvider {
     override def client: HttpClient = testClient
   }
+
   val config = new AddressIndexConfigModule
   val queryParams = config.config.elasticSearch.queryParams
 
@@ -453,7 +449,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Loca
       )
 
       // When
-      val result = Json.parse(repository.generateQueryUprnRequest(hybridFirstUprn.toString).toString)
+      val result = Json.parse(repository.generateQueryUprnRequest(hybridFirstUprn.toString).query.toString)
 
       // Then
       result shouldBe expected

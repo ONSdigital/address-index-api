@@ -67,15 +67,18 @@ val commonDeps = Seq(
   "com.github.melrief"     %% "pureconfig"        % "0.3.1.1" ,
   "com.lihaoyi"            %% "pprint"            % "0.4.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
-  // for the tcp client
- // "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s,
-  // for the http client
+   // for the http client
   "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
+  // for the tcp client
+//  "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
+
   // if you want to use reactive streams
  // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
   // testing
-  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s  % "test",
+  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
   "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
+  "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
+  "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
 // old
 //  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
  // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
@@ -144,7 +147,6 @@ lazy val `address-index-server` = project.in(file("server"))
   .settings(localCommonSettings: _*)
   .settings(
     libraryDependencies ++= serverDeps,
- //   excludeDependencies ++= excludeDeps,
     routesGenerator := InjectedRoutesGenerator,
     Revolver.settings ++ Seq(
       mainClass in reStart := Some("play.core.server.ProdServerStart")

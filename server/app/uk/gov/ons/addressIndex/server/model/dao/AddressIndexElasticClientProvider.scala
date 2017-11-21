@@ -4,17 +4,13 @@ import javax.inject.{Inject, Singleton}
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.HttpRequestClient
-import com.sksamuel.elastic4s.http.HttpExecutable
 import com.sksamuel.elastic4s.http.ElasticDsl._
-//import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.RestClientBuilder._
 import org.apache.http.impl.nio.client._
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.auth.AuthScope
 import org.apache.http.client.config.RequestConfig.Builder
-//import org.elasticsearch.shield.ShieldPlugin
 import play.api.Logger
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
 
