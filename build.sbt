@@ -70,7 +70,7 @@ val commonDeps = Seq(
    // for the http client
   "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // for the tcp client
-//  "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
+  "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
 
   // if you want to use reactive streams
  // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
@@ -82,7 +82,8 @@ val commonDeps = Seq(
 // old
 //  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
  // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
-  "org.apache.commons"     %  "commons-lang3"     % "3.3.2"
+  "org.apache.commons"     %  "commons-lang3"     % "3.3.2",
+  guice
 )
 
 //val excludeDeps = Seq(
@@ -107,7 +108,7 @@ val uiDeps = Seq(
   cache,
   ws,
   specs2 % Test,
-  "com.typesafe.play"      %% "play-test"          % "2.5.14" % Test ,
+  "com.typesafe.play"      %% "play-test"          % "2.6.6" % Test ,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test ,
   "com.github.tototoshi"   %% "scala-csv"          % "1.3.4"
 ) ++ commonDeps

@@ -25,7 +25,7 @@ class ApplicationHomeTest extends PlaySpec with Results with GuiceOneAppPerTest 
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
-      val expectedString = "<a href=\"http:///addresses\">Find an address</a>"
+      val expectedString = "Find an address</a>"
       val environment = app.injector.instanceOf[Environment]
       // When
       val response = new ApplicationHomeController(configuration, version, messagesApi, environment, WsTestClient.withClient[WSClient](identity)(new Port(9000))).home().apply(FakeRequest().withSession("api-key" -> ""))

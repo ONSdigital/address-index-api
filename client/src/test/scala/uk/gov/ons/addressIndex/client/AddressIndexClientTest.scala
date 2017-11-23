@@ -10,7 +10,7 @@ import uk.gov.ons.addressIndex.client.Resources._
 import uk.gov.ons.addressIndex.model._
 
 object Resources {
-  val apiHost = "host"
+  val apiHost = "http://localhost"
   val apiClient = new AddressIndexClient {
 
     /**

@@ -7,6 +7,7 @@ import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.http.ElasticDsl
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.{Suite, WordSpec}
 import play.api.libs.json.Json
@@ -439,6 +440,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
+          "version":true,
           "query" : {
             "term" : {
             "uprn" : "1"
@@ -449,7 +451,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(repository.generateQueryUprnRequest(hybridFirstUprn.toString).query.toString)
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryUprnRequest(hybridFirstUprn.toString)).string())
 
       // Then
       result shouldBe expected
