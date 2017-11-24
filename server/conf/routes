@@ -1,25 +1,114 @@
-#Highest Priority First
-
-#EG     /
+### NoDocs ###
 GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index
 
-#EG     /addresses?input=myInputString&offset=myOffsetNumber&limit=myOffsetLimit
+###
+#  summary: Search for an address.
+#  description: Returns a ranked list of addresses matching the search query in the specified format.
+#  parameters:
+#    - name: input
+#      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#    - name: limit
+#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
+###
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String])
 
-#EG     /addresses/myUprn
+###
+#  summary: Gets an address by UPRN.
+#  description: Returns a single address, identified by its UPRN.
+#  parameters:
+#    - name: uprn
+#      description: Specifies the address UPRN.
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
+###
 GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn)
 
-#EG     /es
+###
+#  summary: Test elastic is connected.
+#  responses:
+#    200:
+#      description: success
+###
 GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest
 
-#EG     /query-debug?input=address-input-here
+###
+#  summary: Gets the query that should be generated for a particular input.
+#  description: Returns query that is sent to Elastic (for debug purposes).
+#  parameters:
+#    - name: input
+#      description: Specifies the input for which the query should be generated.
+#  responses:
+#    200:
+#      description: success
+###
 GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input)
 
-#EG     /version
+###
+#  summary: Get version information.
+#  description: Returns version information for the api and the data (AddressBase).
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion"
+###
 GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery
 
+###
+#  summary: Post bulk addresses.
+#  description: Will process all `BulkQuery` items in the `BulkBody` returns reduced information on found addresses (uprn, formatted address).
+#  parameters:
+#    - name: limitPerAddress
+#      description: Specifies the maximum number of matches to return per address (default 5).
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/AddressBulkResponse"
+###
 POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitPerAddress: Option[Int])
 
+###
+#  summary: Post bulk addresses for a full address output.
+#  description: Will process all `BulkQuery` items in the `BulkBody` this version is slower and more memory-consuming
+#               since all the information on found addresses is returned.
+#  parameters:
+#    - name: limitPerAddress
+#      description: Specifies the maximum number of matches to return per address (default 5).
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
+###
 POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitPerAddress: Option[Int])
 
+###
+#  summary: Post bulk addresses as tokens.
+#  description: Bulk endpoint that accepts tokens instead of input texts for each address.
+#  parameters:
+#    - name: limitPerAddress
+#      description: Specifies the maximum number of matches to return per address (default 5).
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/AddressBulkResponse"
+###
 POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitPerAddress: Option[Int])
+
+### NoDocs ###
+GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
+
+### NoDocs ###
+GET   /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)

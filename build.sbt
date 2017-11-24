@@ -6,6 +6,7 @@ import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import NativePackagerHelper._
+import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 lazy val Versions = new {
@@ -62,9 +63,9 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 val commonDeps = Seq(
-  "org.scalatest"          %% "scalatest"         % "3.0.0" % Test ,
-  "com.typesafe"           %  "config"            % "1.3.0" ,
-  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1" ,
+  "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
+  "com.typesafe"           %  "config"            % "1.3.0",
+  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
   "com.lihaoyi"            %% "pprint"            % "0.4.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
    // for the http client
@@ -86,10 +87,6 @@ val commonDeps = Seq(
   guice
 )
 
-//val excludeDeps = Seq(
- //SbtExclusionRule("org.slf4j", "slf4j-simple")
-//)
-
 val modelDeps = Seq(ws) ++ commonDeps
 
 val clientDeps = Seq(ws) ++ commonDeps
@@ -99,9 +96,10 @@ val parsersDeps = commonDeps
 val serverDeps = Seq(
   filters,
   specs2 % Test,
- // "org.elasticsearch.plugin" % "shield"              % "2.4.0",
-  "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test
-)++ commonDeps
+ // "org.elasticsearch.plugin" % "shield"              % Versions.elastic4s,
+  "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test,
+  "org.webjars" % "swagger-ui" % "3.4.4"
+ )++ commonDeps
 
 val uiDeps = Seq(
   jdbc,
@@ -149,6 +147,7 @@ lazy val `address-index-server` = project.in(file("server"))
   .settings(
     libraryDependencies ++= serverDeps,
     routesGenerator := InjectedRoutesGenerator,
+    swaggerDomainNameSpaces := Seq("uk.gov.ons.addressIndex.model.server.response"),
     Revolver.settings ++ Seq(
       mainClass in reStart := Some("play.core.server.ProdServerStart")
     ),
@@ -166,7 +165,8 @@ lazy val `address-index-server` = project.in(file("server"))
     PlayScala,
     SbtWeb,
     JavaAppPackaging,
-    GitVersioning
+    GitVersioning,
+    SwaggerPlugin
   )
 
 lazy val `address-index-parsers` = project.in(file("parsers"))
