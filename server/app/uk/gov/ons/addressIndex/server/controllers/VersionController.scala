@@ -18,7 +18,8 @@ import scala.concurrent.ExecutionContext
   */
 @Singleton
 class VersionController @Inject()(
-  conf: ConfigModule,
+ // conf: ConfigModule,
+  conf: AddressIndexConfigModule,
   versionProvider: VersionModule
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 

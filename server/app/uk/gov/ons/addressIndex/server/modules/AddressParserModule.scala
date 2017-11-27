@@ -19,8 +19,8 @@ trait ParserModule {
 }
 
 @Singleton
-class AddressParserModule @Inject()(conf: ConfigModule) extends ParserModule {
-
+//class AddressParserModule @Inject()(conf: ConfigModule) extends ParserModule {
+  class AddressParserModule @Inject()(conf: AddressIndexConfigModule) extends ParserModule {
   lazy private val native = new CrfScalaJniImpl
 
   lazy private val parser = loadParser()

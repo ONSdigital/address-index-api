@@ -27,7 +27,8 @@ trait VersionModule {
 
 @Singleton
 class AddressIndexVersionModule @Inject()(
-  configProvider: ConfigModule,
+  // configProvider: ConfigModule,
+  configProvider: AddressIndexConfigModule,
   elasticClientProvider: ElasticClientProvider
 ) extends VersionModule{
 

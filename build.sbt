@@ -12,7 +12,7 @@ import spray.revolver.RevolverPlugin.autoImport.Revolver
 lazy val Versions = new {
 //  val elastic4s = "5.5.4"
   val elastic4s = "6.0.0-rc1"
-  val scala = "2.11.8"
+  val scala = "2.12.4"
 }
 
 name := "address-index"
@@ -65,8 +65,8 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 val commonDeps = Seq(
   "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
   "com.typesafe"           %  "config"            % "1.3.0",
-  "com.github.melrief"     %% "pureconfig"        % "0.3.1.1",
-  "com.lihaoyi"            %% "pprint"            % "0.4.3",
+  "com.github.melrief"     %% "pureconfig"        % "0.3.3",
+  "com.lihaoyi"            %% "pprint"            % "0.5.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
    // for the http client
   "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
@@ -96,8 +96,7 @@ val parsersDeps = commonDeps
 val serverDeps = Seq(
   filters,
   specs2 % Test,
- // "org.elasticsearch.plugin" % "shield"              % Versions.elastic4s,
-  "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test,
+  "org.scalatestplus.play"   %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4"
  )++ commonDeps
 
@@ -107,7 +106,7 @@ val uiDeps = Seq(
   ws,
   specs2 % Test,
   "com.typesafe.play"      %% "play-test"          % "2.6.6" % Test ,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test ,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test ,
   "com.github.tototoshi"   %% "scala-csv"          % "1.3.4"
 ) ++ commonDeps
 
