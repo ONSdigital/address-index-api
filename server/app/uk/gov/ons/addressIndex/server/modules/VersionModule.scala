@@ -1,22 +1,14 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import java.util
-
-//import com.carrotsearch.hppc.cursors.{ObjectCursor, ObjectObjectCursor}
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import com.sksamuel.elastic4s.http.index.alias.IndexAliases
 import com.sksamuel.elastic4s.http.update.RequestFailure
-//import com.sksamuel.elastic4s.ElasticDsl._
-//import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse
-//import org.elasticsearch.cluster.metadata.AliasMetaData
-//import org.elasticsearch.common.collect.ImmutableOpenMap
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import scala.language.postfixOps
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.io.Source
-import collection.JavaConverters._
 import play.api.Logger
 
 @ImplementedBy(classOf[AddressIndexVersionModule])
@@ -27,8 +19,7 @@ trait VersionModule {
 
 @Singleton
 class AddressIndexVersionModule @Inject()(
-  // configProvider: ConfigModule,
-  configProvider: AddressIndexConfigModule,
+  configProvider: ConfigModule,
   elasticClientProvider: ElasticClientProvider
 ) extends VersionModule{
 
@@ -59,8 +50,6 @@ class AddressIndexVersionModule @Inject()(
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
     val indexes: Either[RequestFailure, IndexAliases] = Await.result(requestForIdexes, 10 seconds)
-  //  val indexOpt: Option[IndexAliases] = indexes.right.toOption
-  //  val index: String = indexOpt.getOrElse("").toString()
 
     val index: Option[String] = Option(indexes.right.get.mappings.toMap.keys.toString())
 

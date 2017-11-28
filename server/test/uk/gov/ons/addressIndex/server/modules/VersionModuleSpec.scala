@@ -1,8 +1,5 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.ElasticsearchClientUri
-import com.sksamuel.elastic4s.embedded.LocalNode
-import org.elasticsearch.client.RestClientBuilder._
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.testkit._
 import com.sksamuel.elastic4s.http.ElasticDsl._
@@ -23,9 +20,8 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNode
 
   val testConfig = new AddressIndexConfigModule
 
-//  val invalidConfig = new ConfigModule {
-    val invalidConfig = new AddressIndexConfigModule {
-    override val config: AddressIndexConfig = testConfig.config.copy(
+  val invalidConfig = new ConfigModule {
+    override def config: AddressIndexConfig = testConfig.config.copy(
       elasticSearch = testConfig.config.elasticSearch.copy(
         indexes = testConfig.config.elasticSearch.indexes.copy(hybridIndex = "invalid")
       )

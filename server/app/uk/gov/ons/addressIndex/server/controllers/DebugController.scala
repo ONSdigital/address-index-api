@@ -6,12 +6,9 @@ import cats.Show
 import com.sksamuel.elastic4s.searches.SearchDefinition
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller}
-import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules.{AddressIndexRepository, ElasticsearchRepository, ParserModule}
 import com.sksamuel.elastic4s.http.search.{SearchBodyBuilderFn, SearchImplicits}
-import com.sksamuel.elastic4s.http.search.queries.QueryBuilderFn
-import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, QueryDefinition}
-import com.sksamuel.exts.OptionImplicits._
+
 
 import scala.concurrent.ExecutionContext
 

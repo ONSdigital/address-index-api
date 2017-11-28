@@ -10,7 +10,6 @@ import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpace
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 lazy val Versions = new {
-//  val elastic4s = "5.5.4"
   val elastic4s = "6.0.0-rc1"
   val scala = "2.12.4"
 }

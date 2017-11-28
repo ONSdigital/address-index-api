@@ -1,15 +1,13 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.ElasticsearchClientUri
-import com.sksamuel.elastic4s.embedded.LocalNode
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.http.ElasticDsl
-import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, LengthTokenFilter, StandardTokenizer, UniqueTokenFilter}
+import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
-import org.scalatest.{Suite, WordSpec}
+import org.scalatest.WordSpec
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
@@ -32,8 +30,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridMappings = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
-  val hybridRelSibArray = Array(6L,7L)
-  val hybridRelParArray = Array(8L,9L)
+  val hybridRelSibArray = List(6L,7L)
+  val hybridRelParArray = List(8L,9L)
 
   val firstHybridRelEs = Map(
     "level" -> hybridRelLevel,
@@ -238,7 +236,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "blpuLogicalStatus" -> hybridNotUsedNull,
     "lpiLogicalStatus" -> hybridNotUsedNull,
     "multiOccCount" -> hybridNotUsedNull,
-    "location" -> Array(hybridNagLongitude, hybridNagLatitude),
+    "location" -> List(hybridNagLongitude, hybridNagLatitude),
     "language" -> hybridNotUsed,
     "classScheme" -> hybridNotUsed,
     "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
@@ -282,7 +280,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "blpuLogicalStatus" -> hybridNotUsedNull,
     "lpiLogicalStatus" -> hybridNotUsedNull,
     "multiOccCount" -> hybridNotUsedNull,
-    "location" -> Array(secondaryHybridNagLongitude, secondaryHybridNagLatitude),
+    "location" -> List(secondaryHybridNagLongitude, secondaryHybridNagLatitude),
     "nagAll" -> hybridNotUsed,
     "language" -> hybridNotUsed,
     "classScheme" -> hybridNotUsed,
@@ -314,18 +312,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(secondHybridNagEs)
   )
 
-  testClient.execute{
+ testClient.execute{
     createIndex(hybridIndexName)
       .mappings(MappingDefinition.apply(hybridMappings))
-      .analysis(CustomAnalyzerDefinition(
-        "welsh_split_synonyms_analyzer",
-        // Pay attention that those other parameters pay no role in the test, they are just here because they are
-        // required, the only important thing is that the analyzer exists
-        StandardTokenizer("myTokenizer1"),
-        LengthTokenFilter("myTokenFilter2"),
-        UniqueTokenFilter("myTokenFilter3")
+        .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+          StandardTokenizer("myTokenizer1"))
       ))
-  }
+  }.await
 
   testClient.execute {
     bulk(
@@ -443,8 +436,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
           "version":true,
           "query" : {
             "term" : {
-            "uprn" : "1"
-          }
+            "uprn" : {"value":"1"}
+            }
           }
         }
         """
@@ -520,6 +513,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val tokens: Map[String, String] = Map.empty
 
+      val expected = Json.parse(s"""{"version":true,"query":{"bool":{"must":[{"dis_max":{"tie_breaker":0,"queries":[{"match":{"lpi.nagAll":{"query":"","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}},{"match":{"paf.pafAll":{"query":"","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}}]}}],"should":[{"dis_max":{"tie_breaker":0,"queries":[{"match":{"lpi.nagAll.bigram":{"query":"","boost":0.20000000298023224,"fuzziness":"0"}}},{"match":{"paf.pafAll.bigram":{"query":"","boost":0.20000000298023224,"fuzziness":"0"}}}]}}],"boost":0.07500000298023224}},"sort":[{"_score":{"order":"desc"}},{"uprn":{"order":"asc"}}],"track_scores":true}""")
+
+/**
       val expected = Json.parse(
         s"""
           {
@@ -595,8 +591,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """
       )
 
+      **/
       // When
-      val result = Json.parse(repository.generateQueryAddressRequest(tokens).toString)
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens)).string())
 
       // Then
       result shouldBe expected
