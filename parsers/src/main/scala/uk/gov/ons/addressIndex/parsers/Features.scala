@@ -1,7 +1,5 @@
 package uk.gov.ons.addressIndex.parsers
 
-//import com.google.common.base.CharMatcher
-
 /**
   * A list of feature that token may take.
   * Those feature are needed to classify the token using machine learning algorithm (Conditional Random Fields or CRF)

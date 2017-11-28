@@ -489,7 +489,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // Score is random, but should always be positive
       resultHybrid.score should be > 0f
-     // maxScore should be > 0f
+      maxScore should be > 0d
     }
     "have score of `0` if no addresses found" in {
       // Given

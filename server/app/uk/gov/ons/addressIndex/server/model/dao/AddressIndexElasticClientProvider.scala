@@ -1,6 +1,9 @@
 package uk.gov.ons.addressIndex.server.model.dao
 
 import javax.inject.{Inject, Singleton}
+import java.security.cert.X509Certificate
+import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
+
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
@@ -50,6 +53,16 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
   }
+
+  private val context = SSLContext.getInstance("SSL")
+  context.init(null, Array(
+    new X509TrustManager {
+      def checkClientTrusted(x509Certificates: Array[X509Certificate], s: String): Unit = {}
+      def checkServerTrusted(x509Certificates: Array[X509Certificate], s: String): Unit = {}
+      def getAcceptedIssuers: Array[X509Certificate] = Array()
+    }
+  ), null);
+
   val client = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback  {
     override def customizeRequestConfig(requestConfigBuilder: Builder) = {
       requestConfigBuilder
@@ -57,6 +70,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
   }, new HttpClientConfigCallback {
     override def customizeHttpClient(httpClientBuilder: HttpAsyncClientBuilder) = {
       httpClientBuilder.setDefaultCredentialsProvider(provider)
+      httpClientBuilder.setSSLContext(context)
     }
   })
 

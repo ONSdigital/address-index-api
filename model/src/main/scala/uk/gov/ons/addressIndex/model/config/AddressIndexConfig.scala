@@ -18,7 +18,6 @@ case class ElasticSearchConfig(
   port: String,
   ssl: String,
   indexes: IndexesConfig,
-  shield: ShieldConfig,
   queryParams: QueryParamsConfig,
   defaultLimit: Int,
   defaultOffset: Int,
@@ -52,12 +51,6 @@ case class QueryParamsConfig(
 object QueryParamsConfig {
   implicit val queryParamsConfigFormat: Format[QueryParamsConfig] = Json.format[QueryParamsConfig]
 }
-
-case class ShieldConfig(
-  ssl: Boolean,
-  user: String,
-  password: String
-)
 
 case class IndexesConfig(
   hybridIndex: String,
