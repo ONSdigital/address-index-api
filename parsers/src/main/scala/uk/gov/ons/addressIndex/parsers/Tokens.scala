@@ -59,7 +59,6 @@ object Tokens {
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replace(" IN ", " ")
-      .replace(" CO ", " ")
       .replace(" - ", " ")
       .replace(",", " ")
       .replace("\\", " ")

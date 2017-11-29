@@ -53,8 +53,8 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "produce tokens without 'CO' and 'IN' tokens" in {
-    val input = "1 CO 2 3 IN 4 CO IN 5"
+  it should "produce tokens without 'IN' tokens" in {
+    val input = "1 IN 2 3 IN 4 IN 5"
     val expected = Seq("1", "2", "3", "4", "5")
     val actual = Tokens.preTokenize(input)
     actual shouldBe expected
@@ -190,6 +190,13 @@ class TokensTest extends FlatSpec with Matchers {
     val input = "21 SHETLAND PLACE WESTON ON AVON SUTHERLAND UNITED KINGDOM UK"
     val expected = Seq("21", "SHETLAND", "PLACE", "WESTON", "ON", "AVON")
     val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert 'CALLERTON HOUSE CALLERTON PLACE STANLEY CO DURHAM DH9' into 'CALLERTON HOUSE CALLERTON PLACE STANLEY DH9'" in {
+    val input = "CALLERTON HOUSE CALLERTON PLACE STANLEY CO DURHAM DH9"
+    val expected = "CALLERTON HOUSE CALLERTON PLACE STANLEY DH9"
+    val actual = Tokens.preTokenize(input).mkString(" ")
     actual shouldBe expected
   }
 }
