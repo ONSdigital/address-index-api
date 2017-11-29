@@ -6,6 +6,7 @@ import sbt.Resolver.{file => _, url => _, _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import NativePackagerHelper._
+import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 lazy val Versions = new {
@@ -80,7 +81,8 @@ val serverDeps = Seq(
   filters,
   specs2 % Test,
   "org.elasticsearch.plugin" % "shield"              % Versions.elastic4s,
-  "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test
+  "org.scalatestplus.play"   %% "scalatestplus-play" % "2.0.0-M1" % Test,
+  "org.webjars" % "swagger-ui" % "3.4.4"
 )++ commonDeps
 
 val uiDeps = Seq(
@@ -129,6 +131,7 @@ lazy val `address-index-server` = project.in(file("server"))
   .settings(
     libraryDependencies ++= serverDeps,
     routesGenerator := InjectedRoutesGenerator,
+    swaggerDomainNameSpaces := Seq("uk.gov.ons.addressIndex.model.server.response"),
     Revolver.settings ++ Seq(
       mainClass in reStart := Some("play.core.server.ProdServerStart")
     ),
@@ -146,7 +149,8 @@ lazy val `address-index-server` = project.in(file("server"))
     PlayScala,
     SbtWeb,
     JavaAppPackaging,
-    GitVersioning
+    GitVersioning,
+    SwaggerPlugin
   )
 
 lazy val `address-index-parsers` = project.in(file("parsers"))

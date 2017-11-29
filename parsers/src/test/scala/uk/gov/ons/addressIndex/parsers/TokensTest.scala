@@ -53,8 +53,8 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "produce tokens without 'CO' and 'IN' tokens" in {
-    val input = "1 CO 2 3 IN 4 CO IN 5"
+  it should "produce tokens without 'IN' tokens" in {
+    val input = "1 IN 2 3 IN 4 IN 5"
     val expected = Seq("1", "2", "3", "4", "5")
     val actual = Tokens.preTokenize(input)
     actual shouldBe expected
@@ -151,4 +151,52 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "convert '5 HAMPSHIRE ROAD BRADFORD ON AVON AVON NORTH SOMERSET' into '5 HAMPSHIRE ROAD BRADFORD ON AVON'" in {
+    val input = "5 HAMPSHIRE ROAD BRADFORD ON AVON AVON NORTH SOMERSET"
+    val expected = Seq("5", "HAMPSHIRE", "ROAD", "BRADFORD", "ON", "AVON")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert '15 EAST SUSSEX STREET STRATFORD UPON AVON AVON WEST DUNBARTONSHIRE' into '15 EAST SUSSEX STREET STRATFORD UPON AVON'" in {
+    val input = "15 EAST SUSSEX STREET STRATFORD UPON AVON AVON WEST DUNBARTONSHIRE"
+    val expected = Seq("15", "EAST", "SUSSEX", "STREET", "STRATFORD", "UPON", "AVON")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert '12 WORCESTERSHIRE HOUSE DINAS POWYS POWYS' into '12 WORCESTERSHIRE HOUSE DINAS POWYS'" in {
+    val input = "12 WORCESTERSHIRE HOUSE DINAS POWYS POWYS"
+    val expected = Seq("12", "WORCESTERSHIRE", "HOUSE", "DINAS", "POWYS")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert '99 ABERDEENSHIRE GARDENS BIDFORD ON AVON AVON PEMBROKESHIRE' into '99 ABERDEENSHIRE GARDENS BIDFORD ON AVON'" in {
+    val input = "99 ABERDEENSHIRE GARDENS BIDFORD ON AVON AVON PEMBROKESHIRE"
+    val expected = Seq("99", "ABERDEENSHIRE", "GARDENS", "BIDFORD", "ON", "AVON")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert '19 AVON COTTAGES WELFORD ON AVON GREATER LONDON UK ENGLAND' into '19 AVON COTTAGES WELFORD ON AVON'" in {
+    val input = "19 AVON COTTAGES WELFORD ON AVON GREATER LONDON UK ENGLAND"
+    val expected = Seq("19", "AVON", "COTTAGES", "WELFORD", "ON", "AVON")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert '21 SHETLAND PLACE WESTON ON AVON SUTHERLAND UNITED KINGDOM UK' into '21 SHETLAND PLACE WESTON ON AVON'" in {
+    val input = "21 SHETLAND PLACE WESTON ON AVON SUTHERLAND UNITED KINGDOM UK"
+    val expected = Seq("21", "SHETLAND", "PLACE", "WESTON", "ON", "AVON")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "convert 'CALLERTON HOUSE CALLERTON PLACE STANLEY CO DURHAM DH9' into 'CALLERTON HOUSE CALLERTON PLACE STANLEY DH9'" in {
+    val input = "CALLERTON HOUSE CALLERTON PLACE STANLEY CO DURHAM DH9"
+    val expected = "CALLERTON HOUSE CALLERTON PLACE STANLEY DH9"
+    val actual = Tokens.preTokenize(input).mkString(" ")
+    actual shouldBe expected
+  }
 }

@@ -1,0 +1,77 @@
+---
+swagger: "2.0"
+info:
+  title: ONS Address Index API
+  description: ONS Address Index API.
+  version: see /version below
+consumes:
+- application/json
+produces:
+- application/json
+definitions:
+  uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse:
+    properties:
+      tokens:
+        type: array
+        items:
+          $ref: '#/definitions/Token'
+  uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseAddress:
+    properties:
+      tokens:
+        type: array
+        items:
+          $ref: '#/definitions/Token'
+  Token:
+    type: object
+    properties:
+      value:
+        type: string
+      label:
+        type: string
+        enum: ['OrganisationName','DepartmentName','SubBuildingName','BuildingName','BuildingNumber','StreetName','Locality','TownName','Postcode']
+  AddressBulkResponse:
+    properties:
+      apiVersion:
+        type: string
+      dataVersion:
+        type: string
+      bulkAddresses:
+        type: array
+        items:
+          properties:
+            id:
+              type: string
+            inputAddress:
+              type: string
+            uprn:
+              type: string
+            matchedFormattedAddress:
+              type: string
+            tokens:
+              type: array
+              items:
+                $ref: '#/definitions/Token'
+            score:
+              type: number
+              format: float
+            bespokeScore:
+              "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseScore"
+          required:
+          - id
+          - inputAddress
+          - uprn
+          - matchedFormattedAddress
+          - tokens
+          - score
+      status:
+        "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseStatus"
+      errors:
+        type: array
+        items:
+          "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseError"
+    required:
+    - apiVersion
+    - dataVersion
+    - bulkAddresses
+    - status
+    - errors
