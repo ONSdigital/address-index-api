@@ -58,10 +58,10 @@ case class IndexesConfig(
 )
 
 case class SubBuildingNameConfig(
-  pafSubBuildingNameBoost: Float,
-  lpiSaoTextBoost: Float,
-  lpiSaoStartNumberBoost: Float,
-  lpiSaoStartSuffixBoost: Float
+  pafSubBuildingNameBoost: Double,
+  lpiSaoTextBoost: Double,
+  lpiSaoStartNumberBoost: Double,
+  lpiSaoStartSuffixBoost: Double
 )
 
 object SubBuildingNameConfig {
@@ -69,11 +69,11 @@ object SubBuildingNameConfig {
 }
 
 case class SubBuildingRangeConfig(
-  lpiSaoStartNumberBoost: Float,
-  lpiSaoStartSuffixBoost: Float,
-  lpiSaoEndNumberBoost: Float,
-  lpiSaoEndSuffixBoost: Float,
-  lpiSaoStartEndBoost: Float
+  lpiSaoStartNumberBoost: Double,
+  lpiSaoStartSuffixBoost: Double,
+  lpiSaoEndNumberBoost: Double,
+  lpiSaoEndSuffixBoost: Double,
+  lpiSaoStartEndBoost: Double
 )
 
 object SubBuildingRangeConfig {
@@ -81,9 +81,9 @@ object SubBuildingRangeConfig {
 }
 
 case class BuildingNameConfig(
-  lpiPaoStartSuffixBoost: Float,
-  pafBuildingNameBoost: Float,
-  lpiPaoTextBoost: Float
+  lpiPaoStartSuffixBoost: Double,
+  pafBuildingNameBoost: Double,
+  lpiPaoTextBoost: Double
 )
 
 object BuildingNameConfig {
@@ -91,12 +91,12 @@ object BuildingNameConfig {
 }
 
 case class BuildingRangeConfig(
-  lpiPaoStartNumberBoost: Float,
-  lpiPaoStartSuffixBoost: Float,
-  lpiPaoEndNumberBoost: Float,
-  lpiPaoEndSuffixBoost: Float,
-  pafBuildingNumberBoost: Float,
-  lpiPaoStartEndBoost: Float
+  lpiPaoStartNumberBoost: Double,
+  lpiPaoStartSuffixBoost: Double,
+  lpiPaoEndNumberBoost: Double,
+  lpiPaoEndSuffixBoost: Double,
+  pafBuildingNumberBoost: Double,
+  lpiPaoStartEndBoost: Double
 )
 
 object BuildingRangeConfig {
@@ -104,9 +104,9 @@ object BuildingRangeConfig {
 }
 
 case class BuildingNumberConfig(
-  pafBuildingNumberBoost: Float,
-  lpiPaoStartNumberBoost: Float,
-  lpiPaoEndNumberBoost: Float
+  pafBuildingNumberBoost: Double,
+  lpiPaoStartNumberBoost: Double,
+  lpiPaoEndNumberBoost: Double
 )
 
 object BuildingNumberConfig {
@@ -114,11 +114,11 @@ object BuildingNumberConfig {
 }
 
 case class StreetNameConfig(
-  pafThoroughfareBoost: Float,
-  pafWelshThoroughfareBoost: Float,
-  pafDependentThoroughfareBoost: Float,
-  pafWelshDependentThoroughfareBoost: Float,
-  lpiStreetDescriptorBoost: Float
+  pafThoroughfareBoost: Double,
+  pafWelshThoroughfareBoost: Double,
+  pafDependentThoroughfareBoost: Double,
+  pafWelshDependentThoroughfareBoost: Double,
+  lpiStreetDescriptorBoost: Double
 )
 
 object StreetNameConfig {
@@ -126,14 +126,14 @@ object StreetNameConfig {
 }
 
 case class TownNameConfig(
-  pafPostTownBoost: Float,
-  pafWelshPostTownBoost: Float,
-  lpiTownNameBoost: Float,
-  pafDependentLocalityBoost: Float,
-  pafWelshDependentLocalityBoost: Float,
-  lpiLocalityBoost: Float,
-  pafDoubleDependentLocalityBoost: Float,
-  pafWelshDoubleDependentLocalityBoost: Float
+  pafPostTownBoost: Double,
+  pafWelshPostTownBoost: Double,
+  lpiTownNameBoost: Double,
+  pafDependentLocalityBoost: Double,
+  pafWelshDependentLocalityBoost: Double,
+  lpiLocalityBoost: Double,
+  pafDoubleDependentLocalityBoost: Double,
+  pafWelshDoubleDependentLocalityBoost: Double
 )
 
 object TownNameConfig {
@@ -141,9 +141,9 @@ object TownNameConfig {
 }
 
 case class PostcodeConfig(
-  pafPostcodeBoost: Float,
-  lpiPostcodeLocatorBoost: Float,
-  postcodeInOutBoost: Float
+  pafPostcodeBoost: Double,
+  lpiPostcodeLocatorBoost: Double,
+  postcodeInOutBoost: Double
 )
 
 object PostcodeConfig {
@@ -151,11 +151,11 @@ object PostcodeConfig {
 }
 
 case class OrganisationNameConfig(
-  pafOrganisationNameBoost: Float,
-  lpiOrganisationBoost: Float,
-  lpiPaoTextBoost: Float,
-  lpiLegalNameBoost: Float,
-  lpiSaoTextBoost: Float
+  pafOrganisationNameBoost: Double,
+  lpiOrganisationBoost: Double,
+  lpiPaoTextBoost: Double,
+  lpiLegalNameBoost: Double,
+  lpiSaoTextBoost: Double
 )
 
 object OrganisationNameConfig {
@@ -163,8 +163,8 @@ object OrganisationNameConfig {
 }
 
 case class DepartmentNameConfig(
-  pafDepartmentNameBoost: Float,
-  lpiLegalNameBoost: Float
+  pafDepartmentNameBoost: Double,
+  lpiLegalNameBoost: Double
 )
 
 object DepartmentNameConfig {
@@ -172,14 +172,14 @@ object DepartmentNameConfig {
 }
 
 case class LocalityConfig(
-  pafPostTownBoost: Float,
-  pafWelshPostTownBoost: Float,
-  lpiTownNameBoost: Float,
-  pafDependentLocalityBoost: Float,
-  pafWelshDependentLocalityBoost: Float,
-  lpiLocalityBoost: Float,
-  pafDoubleDependentLocalityBoost: Float,
-  pafWelshDoubleDependentLocalityBoost: Float
+  pafPostTownBoost: Double,
+  pafWelshPostTownBoost: Double,
+  lpiTownNameBoost: Double,
+  pafDependentLocalityBoost: Double,
+  pafWelshDependentLocalityBoost: Double,
+  lpiLocalityBoost: Double,
+  pafDoubleDependentLocalityBoost: Double,
+  pafWelshDoubleDependentLocalityBoost: Double
 )
 
 object LocalityConfig {
@@ -187,12 +187,12 @@ object LocalityConfig {
 }
 
 case class FallbackConfig(
-  fallbackQueryBoost: Float,
+  fallbackQueryBoost: Double,
   fallbackMinimumShouldMatch: String,
-  fallbackPafBoost: Float,
-  fallbackLpiBoost: Float,
-  fallbackPafBigramBoost: Float,
-  fallbackLpiBigramBoost: Float,
+  fallbackPafBoost: Double,
+  fallbackLpiBoost: Double,
+  fallbackPafBigramBoost: Double,
+  fallbackLpiBigramBoost: Double,
   bigramFuzziness: String
 )
 
