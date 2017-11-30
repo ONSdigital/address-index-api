@@ -8,7 +8,8 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   "ClassHierarchy" should
     "return the original code and the single classification" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
-    val classHierarchy = new ClassHierarchy(messagesApi)
+    val langs = app.injector.instanceOf[Langs]
+    val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ C ] [ Commercial ]"
@@ -22,7 +23,8 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   "ClassHierarchy" should
     "return the original code and the two classifications in the hierarchy" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
-    val classHierarchy = new ClassHierarchy(messagesApi)
+    val langs = app.injector.instanceOf[Langs]
+    val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ CL ] [ Commercial ] [ Leisure - Applicable to recreational sites and enterprises ]"
@@ -36,7 +38,8 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   "ClassHierarchy" should
     "return the original code and the three classifications in the hierarchy" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
-    val classHierarchy = new ClassHierarchy(messagesApi)
+    val langs = app.injector.instanceOf[Langs]
+    val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ CL06 ] [ Commercial ] [ Leisure - Applicable to recreational sites and enterprises ] [ Indoor / Outdoor Leisure / Sporting Activity / Centre ]"
@@ -50,7 +53,8 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   "ClassHierarchy" should
   "return the original code and the four classifications in the hierarchy" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
-    val classHierarchy = new ClassHierarchy(messagesApi)
+    val langs = app.injector.instanceOf[Langs]
+    val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ CL06RG ] [ Commercial ] [ Leisure - Applicable to recreational sites and enterprises ] [ Indoor / Outdoor Leisure / Sporting Activity / Centre ] [ Recreation Ground ]"
@@ -64,7 +68,8 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   "ClassHierarchy" should
     "return the original unknown code" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
-    val classHierarchy = new ClassHierarchy(messagesApi)
+    val langs = app.injector.instanceOf[Langs]
+    val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ AB12AB ]"
@@ -78,7 +83,8 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   "ClassHierarchy" should
     "return the original code and the three classifications in the (partial) hierarchy" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
-    val classHierarchy = new ClassHierarchy(messagesApi)
+    val langs = app.injector.instanceOf[Langs]
+    val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ MF99UG ] [ Military ] [ Air Force ] [ Air Force Military Storage ]"

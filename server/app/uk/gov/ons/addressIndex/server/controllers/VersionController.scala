@@ -5,7 +5,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
 import scala.concurrent.ExecutionContext

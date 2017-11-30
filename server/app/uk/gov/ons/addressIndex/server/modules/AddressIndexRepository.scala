@@ -4,10 +4,13 @@ import javax.inject.{Inject, Singleton}
 
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.ElasticDsl.{must, should, _}
-import com.sksamuel.elastic4s._
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
-import org.elasticsearch.search.sort.SortOrder
+import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
+import com.sksamuel.elastic4s.searches.queries.QueryDefinition
+import com.sksamuel.elastic4s.searches.sort.FieldSortDefinition
+import com.sksamuel.elastic4s.searches.sort.SortOrder
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -71,12 +74,10 @@ class AddressIndexRepository @Inject()(
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
 
-  val client: ElasticClient = elasticClientProvider.client
+  val client: HttpClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
 
-  def queryHealth(): Future[String] = client.execute {
-    get.cluster(health)
-  }.map(_.toString)
+  def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   def queryUprn(uprn: String): Future[Option[HybridAddress]] = {
 
@@ -85,7 +86,7 @@ class AddressIndexRepository @Inject()(
     logger.trace(request.toString)
 
     client.execute(request)
-      .map(HybridAddresses.fromRichSearchResponse)
+      .map(HybridAddresses.fromEither)
       .map(_.addresses.headOption)
   }
 
@@ -96,7 +97,7 @@ class AddressIndexRepository @Inject()(
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String): SearchDefinition = search.in(hybridIndex).query {
+  def generateQueryUprnRequest(uprn: String): SearchDefinition = search(hybridIndex).query {
     termQuery("uprn", uprn)
   }
 
@@ -106,7 +107,7 @@ class AddressIndexRepository @Inject()(
 
     logger.trace(request.toString)
 
-    client.execute(request).map(HybridAddresses.fromRichSearchResponse)
+    client.execute(request).map(HybridAddresses.fromEither)
   }
 
   def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
@@ -173,7 +174,7 @@ class AddressIndexRepository @Inject()(
           value = token
         )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
       ).flatten
-      ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*)
+      ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition])
        .tieBreaker(queryParams.includingDisMaxTieBreaker))
     ).flatten
 
@@ -460,7 +461,7 @@ class AddressIndexRepository @Inject()(
 
     val fallbackQuery =
       bool(
-        Seq(dismax.query(
+        Seq(dismax(
           matchQuery("lpi.nagAll", normalizedInput)
             .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
             .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -470,7 +471,7 @@ class AddressIndexRepository @Inject()(
             .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
             .boost(queryParams.fallback.fallbackPafBoost))
           .tieBreaker(0.0)),
-        Seq(dismax.query(
+        Seq(dismax(
           matchQuery("lpi.nagAll.bigram", normalizedInput)
             .fuzziness(queryParams.fallback.bigramFuzziness)
             .boost(queryParams.fallback.fallbackLpiBigramBoost),
@@ -489,32 +490,34 @@ class AddressIndexRepository @Inject()(
       organisationNameQuery,
       departmentNameQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+    ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
     val townLocalityQueries = Seq(
       townNameQuery,
       localityQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+    ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
     val everythingMattersQueries = Seq(
       townLocalityQueries,
       paoQuery,
       saoQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
-    ).filter(_.nonEmpty).map(queries => dismax.query(queries: _*).tieBreaker(queryParams.includingDisMaxTieBreaker))
+    ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
+    val shouldQueryItr = shouldQuery.asInstanceOf[Iterable[QueryDefinition]]
+
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
-      else dismax.query(
-        should(shouldQuery).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+      else dismax(
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
       
 
-    search.in(hybridIndex).query(query)
-      .sort(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+    search(hybridIndex).query(query)
+      .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       .trackScores(true)
       .searchType(SearchType.DfsQueryThenFetch)
 
@@ -538,7 +541,7 @@ class AddressIndexRepository @Inject()(
       // Failed requests will be stored in the `Left`
       bulkAddressRequest.map(Right(_)).recover {
         case exception: Exception =>
-          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $id: ${exception.getMessage}")
+          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $Left(id): ${exception.getMessage}")
           Left(requestData.copy(lastFailExceptionMessage = exception.getMessage))
       }
     }

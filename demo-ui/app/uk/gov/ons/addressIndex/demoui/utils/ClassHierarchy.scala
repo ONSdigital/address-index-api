@@ -5,7 +5,9 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n._
 
 @Singleton
-class ClassHierarchy @Inject()(val messagesApi: MessagesApi)  {
+class ClassHierarchy @Inject()(val messagesApi: MessagesApi, langs: Langs)  {
+
+  implicit val lang: Lang = langs.availables.head
 
   def analyseClassCode(code: String): String = {
 
