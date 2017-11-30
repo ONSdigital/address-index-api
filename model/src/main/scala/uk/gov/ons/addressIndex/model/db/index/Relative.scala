@@ -37,7 +37,7 @@ object Relative {
 
       // uprns sometimes come back as Integers instead of Longs from ES so need to deal with this
       val relSiblings = filteredRel.getOrElse(Fields.siblings, Seq.empty[Long]).asInstanceOf[List[Any]]
-      val relParents = filteredRel.getOrElse(Fields.siblings, Seq.empty[Long]).asInstanceOf[List[Any]]
+      val relParents = filteredRel.getOrElse(Fields.parents, Seq.empty[Long]).asInstanceOf[List[Any]]
 
       var sibs = Seq.empty[Long]
 
