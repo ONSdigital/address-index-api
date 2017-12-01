@@ -34,10 +34,15 @@ object Relative {
     val relIter = rel.asInstanceOf[List[AnyRef]].iterator
     while (relIter.hasNext) {
       val filteredRel = relIter.next().asInstanceOf[Map3[String, AnyRef]].filter { case (_, value) => value != null }
+
+      // uprns sometimes come back as Integers instead of Longs from ES so need to deal with this
+      val relSiblings = filteredRel.getOrElse(Fields.siblings, Seq.empty[Long]).asInstanceOf[List[Any]]
+      val relParents = filteredRel.getOrElse(Fields.parents, Seq.empty[Long]).asInstanceOf[List[Any]]
+
       rels = rels :+ Relative(
         level = filteredRel.getOrElse(Fields.level, 0).asInstanceOf[Int],
-        siblings = filteredRel.getOrElse(Fields.siblings, "[]").asInstanceOf[Seq[Long]],
-        parents =  filteredRel.getOrElse(Fields.parents, "[]").asInstanceOf[Seq[Long]]
+        siblings = relSiblings.map(_.toString.toLong),
+        parents = relParents.map(_.toString.toLong)
       )
     }
     collection.immutable.Seq(rels: _*)
