@@ -39,26 +39,10 @@ object Relative {
       val relSiblings = filteredRel.getOrElse(Fields.siblings, Seq.empty[Long]).asInstanceOf[List[Any]]
       val relParents = filteredRel.getOrElse(Fields.parents, Seq.empty[Long]).asInstanceOf[List[Any]]
 
-      var sibs = Seq.empty[Long]
-
-      for (sib <- relSiblings) {
-        val ssib: String = sib.toString()
-        val lsib: Long = ssib.toLong
-        sibs = sibs :+ lsib
-      }
-
-      var pars = Seq.empty[Long]
-
-      for (par <- relParents) {
-        val spar: String = par.toString()
-        val lpar: Long = spar.toLong
-        pars = pars :+ lpar
-      }
-
       rels = rels :+ Relative(
         level = filteredRel.getOrElse(Fields.level, 0).asInstanceOf[Int],
-        siblings = sibs,
-        parents = pars
+        siblings = relSiblings.map(_.toString.toLong),
+        parents = relParents.map(_.toString.toLong)
       )
     }
     collection.immutable.Seq(rels: _*)
