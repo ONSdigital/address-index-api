@@ -204,7 +204,9 @@ class AddressControllerSpec extends PlaySpec with Results{
     val dataVersion = dataVersionExpected
   }
 
-  val queryController = new AddressController(elasticRepositoryMock, parser, config, versions)
+  val components = stubControllerComponents()
+
+  val queryController = new AddressController(components, elasticRepositoryMock, parser, config, versions)
 
   "Address controller" should {
 
@@ -455,7 +457,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "reply on a 500 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
-      val controller = new AddressController(failingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
@@ -483,7 +485,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "reply on a 500 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
-      val controller = new AddressController(failingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
@@ -511,7 +513,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
-      val controller = new AddressController(emptyElasticRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, emptyElasticRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,
@@ -534,7 +536,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),
@@ -552,7 +554,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "have process bulk addresses using back-pressure" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),
@@ -575,7 +577,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "have back-pressure that should throw an exception if there is an always failing request" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),

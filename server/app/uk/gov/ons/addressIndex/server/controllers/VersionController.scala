@@ -4,9 +4,10 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.Logger
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
+
 import scala.concurrent.ExecutionContext
 
 /**
@@ -17,6 +18,7 @@ import scala.concurrent.ExecutionContext
   */
 @Singleton
 class VersionController @Inject()(
+  val controllerComponents: ControllerComponents,
   conf: ConfigModule,
   versionProvider: VersionModule
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {

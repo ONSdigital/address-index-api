@@ -3,7 +3,6 @@ package uk.gov.ons.addressIndex.server.modules
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.mappings.MappingDefinition
-import com.sksamuel.elastic4s.http.ElasticDsl
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._

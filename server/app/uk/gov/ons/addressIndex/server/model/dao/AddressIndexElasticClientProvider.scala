@@ -2,12 +2,11 @@ package uk.gov.ons.addressIndex.server.model.dao
 
 import javax.inject.{Inject, Singleton}
 import java.security.cert.X509Certificate
-import javax.net.ssl.{SSLContext, TrustManager, X509TrustManager}
+import javax.net.ssl.{SSLContext, X509TrustManager}
 
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.ElasticDsl._
 import org.elasticsearch.client.RestClientBuilder._
 import org.apache.http.impl.nio.client._
 import org.apache.http.impl.client.BasicCredentialsProvider
@@ -47,7 +46,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
   val ssl  = esConf.ssl
 
   lazy val provider = {
-    logger info "Connecting to local ES"
+    logger info "Connecting to Elasticsearch"
     val provider = new BasicCredentialsProvider
     val credentials = new UsernamePasswordCredentials("elastic", "changeme")
     provider.setCredentials(AuthScope.ANY, credentials)

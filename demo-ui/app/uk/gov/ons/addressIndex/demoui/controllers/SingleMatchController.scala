@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
 import play.api.data._
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.i18n.{I18nSupport, Lang, Langs, MessagesApi}
+import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
@@ -29,12 +29,16 @@ import scala.util.Try
   */
 @Singleton
 class SingleMatchController @Inject()(
+  val controllerComponents: ControllerComponents,
    conf : DemouiConfigModule,
-   val messagesApi: MessagesApi,
+   override val messagesApi: MessagesApi,
+   langs: Langs,
    apiClient: AddressIndexClientInstance,
    classHierarchy: ClassHierarchy,
    version: DemoUIAddressIndexVersionModule
-)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
+)(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
+
+  implicit val lang: Lang = langs.availables.head
 
   val logger = Logger("SingleMatchController")
   val pageSize = conf.config.limit

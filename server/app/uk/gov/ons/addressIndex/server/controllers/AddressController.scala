@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.duration._
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc._
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
@@ -22,6 +22,7 @@ import scala.util.control.NonFatal
 
 @Singleton
 class AddressController @Inject()(
+  val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: ConfigModule,

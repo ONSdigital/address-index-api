@@ -5,7 +5,6 @@ import javax.inject.{Inject, Singleton}
 import akka.stream.scaladsl.Source
 import com.github.tototoshi.csv._
 import play.api.Logger
-import play.api.http.HttpEntity
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc._
@@ -18,7 +17,6 @@ import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-import scala.util.Try
 
 /**
   * Controller class for a multiple addresses to be matched
@@ -29,14 +27,15 @@ import scala.util.Try
   */
 @Singleton
 class BulkMatchController @Inject()(
-  val messagesApi: MessagesApi,
+  val controllerComponents: ControllerComponents,
+  override val messagesApi: MessagesApi,
   apiClient: AddressIndexClientInstance,
   version: DemoUIAddressIndexVersionModule
  )(
   implicit
   ec: ExecutionContext,
   mat: akka.stream.Materializer
-) extends Controller with I18nSupport {
+) extends BaseController with I18nSupport {
 
   private val multiMatchFormName = "file"
   private val logger = Logger("BulkMatchController")
@@ -140,7 +139,7 @@ class BulkMatchController @Inject()(
 
             file.file(multiMatchFormName).map { file =>
 
-              val addresses = CSVReader.open(file.ref.file).all().tail.collect { case List(id, address) if address.nonEmpty =>
+              val addresses = CSVReader.open(file.ref.path.toFile).all().tail.collect { case List(id, address) if address.nonEmpty =>
                 BulkQuery(id, address)
               }
 
