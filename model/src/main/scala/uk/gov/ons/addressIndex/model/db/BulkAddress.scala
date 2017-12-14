@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db
 
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 
 /**
   * DTO to hold the information about found address while doing bulk requests

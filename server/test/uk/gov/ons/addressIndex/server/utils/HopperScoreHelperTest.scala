@@ -1,6 +1,4 @@
 package uk.gov.ons.addressIndex.server.utils
-import javax.inject.Inject
-import play.api.i18n.MessagesApi
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.Relative
@@ -399,7 +397,6 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val actual = HopperScoreHelper.calculateUnitScore(
       mockAddressResponseAddress,
       "UNIT 7",
-      "@",
       "@",
       "@",
       "@",

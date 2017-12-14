@@ -1,10 +1,11 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import play.api.libs.json.{Json, Writes}
-import play.api.mvc.{Controller, Result}
+import play.api.mvc.{BaseController, Result}
+
 import scala.concurrent.Future
 
-trait PlayHelperController extends Controller {
+trait PlayHelperController extends BaseController {
 
   /**
     * Use this instead of Future.successful(BadRequest(Json.toJson(toJsonable)))

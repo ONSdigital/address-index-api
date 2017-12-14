@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.data.Forms._
 import play.api.data._
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Langs, MessagesApi}
 import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
@@ -29,12 +29,16 @@ import scala.util.Try
   */
 @Singleton
 class ClericalToolController @Inject()(
-                                       conf : DemouiConfigModule,
-                                       val messagesApi: MessagesApi,
-                                       apiClient: AddressIndexClientInstance,
-                                       classHierarchy: ClassHierarchy,
-                                       version: DemoUIAddressIndexVersionModule
-                                     )(implicit ec: ExecutionContext) extends Controller with I18nSupport {
+  val controllerComponents: ControllerComponents,
+  conf : DemouiConfigModule,
+  override val messagesApi: MessagesApi,
+  langs: Langs,
+  apiClient: AddressIndexClientInstance,
+  classHierarchy: ClassHierarchy,
+  version: DemoUIAddressIndexVersionModule
+  )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
+
+  implicit val lang: Lang = langs.availables.head
 
   val logger = Logger("ClericalToolController")
   val pageSize = conf.config.limit

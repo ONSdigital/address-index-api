@@ -53,7 +53,7 @@ class AddressIndexVersionModule @Inject()(
 
     val index: Option[String] = Option(indexes.right.get.mappings.toMap.keys.toString())
 
-    logger.info("index name = " + index.getOrElse(""))
+    logger.info("index name(s) = " + index.getOrElse(""))
 
 
     index.map(removeBaseIndexName)

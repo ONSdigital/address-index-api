@@ -46,8 +46,8 @@ trait AddressIndexClient {
   def addressQueryWSRequest(request: AddressIndexSearchRequest): WSRequest = {
     AddressQuery
       .toReq
-      .withHeaders("authorization" -> request.apiKey)
-      .withQueryString(
+      .withHttpHeaders("authorization" -> request.apiKey)
+      .withQueryStringParameters(
         "input" -> request.input,
         "limit" -> request.limit,
         "offset" -> request.offset
@@ -58,7 +58,7 @@ trait AddressIndexClient {
     Bulk
       .toReq
       .withRequestTimeout(Duration.Inf)
-      .withHeaders(
+      .withHttpHeaders(
         "Content-Type" -> "application/json",
         "authorization" -> apiKey
       )
@@ -78,7 +78,7 @@ trait AddressIndexClient {
     */
   def uprnQuery(request: AddressIndexUPRNRequest)
                   (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
-    uprnQueryWSRequest(request).withHeaders("authorization" -> request.apiKey).get.map(_.json.as[AddressByUprnResponseContainer])
+    uprnQueryWSRequest(request).withHttpHeaders("authorization" -> request.apiKey).get.map(_.json.as[AddressByUprnResponseContainer])
   }
 
   /**
@@ -95,8 +95,8 @@ trait AddressIndexClient {
   def showQuery(input: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
     ShowQuery
       .toReq
-      .withHeaders("authorization" -> apiKey)
-      .withQueryString(
+      .withHttpHeaders("authorization" -> apiKey)
+      .withQueryStringParameters(
         "input" -> input
       ).get.map(response => Json.prettyPrint(response.json))
   }

@@ -2,8 +2,7 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.testkit._
-import com.sksamuel.elastic4s.http.ElasticDsl._
-import org.scalatest.{Suite, WordSpec}
+import org.scalatest.WordSpec
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 

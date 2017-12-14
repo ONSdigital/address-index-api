@@ -84,9 +84,9 @@ p.toptext {
     margin-right: 15px;
     min-width: 310px;
     max-width: 936px;
-    border:1px solid #ddd;
+    border: 1px solid #ddd;
     padding: 10px;
-    overflow:auto;
+    overflow: hidden;
 }
 
 .panel-match {
@@ -713,7 +713,7 @@ div.taColumn1bottom{
 
 
 div.taColumn2{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border: 1px solid black;
@@ -721,7 +721,7 @@ div.taColumn2{
 }
 
 div.taColumn3{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border: 1px solid black;
@@ -729,7 +729,7 @@ div.taColumn3{
 }
 
 div.taColumn4{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border: 1px solid black;
@@ -737,7 +737,7 @@ div.taColumn4{
 }
 
 div.taColumn4top{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border-style: solid;
@@ -747,7 +747,7 @@ div.taColumn4top{
 }
 
 div.taColumn4inner{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     color: white;
@@ -758,7 +758,7 @@ div.taColumn4inner{
 }
 
 div.taColumn4bottom{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     color: white;
@@ -780,7 +780,7 @@ div.taColumn1H{
 }
 
 div.taColumn2H{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border: 1px solid black;
@@ -791,7 +791,7 @@ div.taColumn2H{
 }
 
 div.taColumn3H{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border: 1px solid black;
@@ -802,7 +802,7 @@ div.taColumn3H{
 }
 
 div.taColumn4H{
-    display: table-cell; height:100%; min-width: 40%;
+    display: table-cell; height:100%; min-width: 20%;
     vertical-align:top;
     padding: 1px;
     border: 1px solid black;
@@ -832,7 +832,7 @@ select {
     font-size: 1.1em
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 790px) {
     td {
         font-size: 0.6em;
         padding: 1px;

@@ -5,17 +5,17 @@ import javax.inject.Inject
 import cats.Show
 import com.sksamuel.elastic4s.searches.SearchDefinition
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Controller}
-import uk.gov.ons.addressIndex.server.modules.{AddressIndexRepository, ElasticsearchRepository, ParserModule}
-import com.sksamuel.elastic4s.http.search.{SearchBodyBuilderFn, SearchImplicits}
-
+import play.api.mvc._
+import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserModule}
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 
 import scala.concurrent.ExecutionContext
 
 class DebugController@Inject()(
+  val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule
-)(implicit ec: ExecutionContext) extends Controller {
+)(implicit ec: ExecutionContext) extends BaseController {
 
   implicit object DebugShow extends Show[SearchDefinition]{
     override def show(req: SearchDefinition): String = SearchBodyBuilderFn(req).string()
