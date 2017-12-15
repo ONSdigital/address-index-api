@@ -34,9 +34,9 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNode
 
   testClient.execute(
     bulk(
-      indexInto(s"$hybridIndex1/address") id 11 fields ("name" -> "test1"),
-      indexInto(s"$hybridIndex2/address") id 12 fields ("name" -> "test2"),
-      indexInto(s"$hybridIndex3/address") id 13 fields ("name" -> "test3")
+      indexInto(s"$hybridIndex1/address") id "11" fields ("name" -> "test1"),
+      indexInto(s"$hybridIndex2/address") id "12" fields ("name" -> "test2"),
+      indexInto(s"$hybridIndex3/address") id "13" fields ("name" -> "test3")
     )
   ).await
 
