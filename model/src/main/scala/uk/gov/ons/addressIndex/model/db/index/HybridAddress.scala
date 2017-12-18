@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.http.search.SearchResponse
-import com.sksamuel.elastic4s.http.update.RequestFailure
+import com.sksamuel.elastic4s.http.{RequestFailure,RequestSuccess}
 import com.sksamuel.elastic4s.{Hit, HitReader}
 
 /**
@@ -81,10 +81,10 @@ case class HybridAddresses(
 
 object HybridAddresses {
 
-  def fromEither(resp: Either[RequestFailure, SearchResponse]): HybridAddresses = {
+  def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddresses = {
     resp match {
       case Left(l) => throw new Exception("search failed" + l.error.reason)
-      case Right(r) => fromSearchResponse(r)
+      case Right(r) => fromSearchResponse(r.result)
     }
   }
 
