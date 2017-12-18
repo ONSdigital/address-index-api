@@ -2,8 +2,7 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import com.sksamuel.elastic4s.http.index.alias.IndexAliases
-import com.sksamuel.elastic4s.http.RequestFailure
-import com.sksamuel.elastic4s.http.RequestSuccess
+import com.sksamuel.elastic4s.http.{RequestFailure,RequestSuccess}
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import scala.language.postfixOps
@@ -52,16 +51,18 @@ class AddressIndexVersionModule @Inject()(
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
     val indexes: Either[RequestFailure, RequestSuccess[IndexAliases]] = Await.result(requestForIdexes, 10 seconds)
 
-    val index: Option[String] = Option(indexes.right.get.result.mappings.toMap.keys.toString())
+    val index: String = indexes match {
+       case Left(l) => l.error.reason
+       case Right(r) => r.result.mappings.toMap.keys.toString()
+    }
 
-    logger.info("index name(s) = " + index.getOrElse(""))
+    logger.info("index name(s) = " + index)
 
-
-    index.map(removeBaseIndexName)
+    Option(index).map(removeBaseIndexName)
       .map(removeLetters)
       .filter(_.length >= 2) // epoch number should contain at least 2 numbers
       .map(_.substring(0, 2))
-      .getOrElse("develop")
+      .getOrElse("NA")
 
   }
 

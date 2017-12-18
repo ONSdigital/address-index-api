@@ -65,7 +65,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNode
     "not extract epoch version from an incorrect alias" in {
       // Given
       val versionModule = new AddressIndexVersionModule(invalidConfig, elasticClientProvider)
-      val expected = "develop"
+      val expected = "NA"
 
       // When
       val result = versionModule.dataVersion
