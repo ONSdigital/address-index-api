@@ -44,6 +44,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "parents" -> hybridRelParArray
   )
 
+  val hybridCrossRefReference = "osgb1000000347959147"
+  val hybridCrossRefSource = "7666MT"
+  val hybridCrossRefReference2 = "acrossref"
+  val hybridCrossRefSource2 = "7663TU"
+
+  val firstHybridCrossRefEs = Map(
+    "crossReference" -> hybridCrossRefReference,
+    "source" -> hybridCrossRefSource
+  )
+
+  val secondHybridCrossRefEs = Map(
+    "crossReference" -> hybridCrossRefReference2,
+    "source" -> hybridCrossRefSource2
+  )
+
   val hybridFirstUprn = 1L
   val hybridFirstParentUprn = 3L
   val hybridFirstRelative = firstHybridRelEs
@@ -95,6 +110,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridSecondaryUprn = 2L
   val hybridSecondaryParentUprn = 4L
   val hybridSecondaryRelative = secondHybridRelEs
+  val hybridSecondaryCrossref = secondHybridCrossRefEs
   val hybridSecondaryPostcodeIn = "s01p"
   val hybridSecondaryPostcodeOut = "s02p"
 
@@ -227,10 +243,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "northing" -> hybridNagNorthing,
     "easting" -> hybridNagEasting,
     "classificationCode" -> hybridNotUsed,
-    "source" -> hybridNotUsed,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
-    "crossReference" -> hybridNotUsed,
     "streetClassification" -> hybridNotUsedNull,
     "blpuLogicalStatus" -> hybridNotUsedNull,
     "lpiLogicalStatus" -> hybridNotUsedNull,
@@ -271,10 +285,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "northing" -> secondaryHybridNagNorthing,
     "easting" -> secondaryHybridNagEasting,
     "classificationCode" -> hybridNotUsed,
-    "source" -> hybridNotUsed,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
-    "crossReference" -> hybridNotUsed,
     "streetClassification" -> hybridNotUsedNull,
     "blpuLogicalStatus" -> hybridNotUsedNull,
     "lpiLogicalStatus" -> hybridNotUsedNull,
@@ -294,6 +306,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "uprn" -> hybridFirstUprn,
     "parentUprn" -> hybridFirstParentUprn,
     "relatives" -> Seq(hybridFirstRelative),
+    "crossRefs" -> Seq(firstHybridCrossRefEs, secondHybridCrossRefEs),
     "postcodeIn" -> hybridFirstPostcodeIn,
     "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
@@ -305,6 +318,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "uprn" -> hybridSecondaryUprn,
     "parentUprn" -> hybridSecondaryParentUprn,
     "relatives" -> Seq(hybridSecondaryRelative),
+    "crossRefs" -> Seq(hybridSecondaryCrossref),
     "postcodeIn" -> hybridSecondaryPostcodeIn,
     "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
@@ -397,8 +411,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed,
-    hybridNotUsed,
     hybridNagCustCode,
     hybridNagCustName,
     hybridNagCustGeogCode,
@@ -413,10 +425,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     parents = hybridRelParArray
   )
 
+  val expectedCrossRef = CrossRef (
+    crossReference = hybridCrossRefReference,
+    source = hybridCrossRefSource
+  )
+
+  val expectedCrossRef2 = CrossRef (
+    crossReference = hybridCrossRefReference2,
+    source = hybridCrossRefSource2
+  )
+
   val expectedHybrid = HybridAddress(
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Seq(expectedRelative),
+    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
     postcodeIn = hybridFirstPostcodeIn,
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedNag),

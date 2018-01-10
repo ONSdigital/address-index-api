@@ -83,10 +83,8 @@ class AddressControllerSpec extends PlaySpec with Results{
     locality = "21",
     lpiLogicalStatus = "lpiLogicalStatus",
     blpuLogicalStatus = "blpuLogicalStatus",
-    source = "source",
     usrnMatchIndicator = "usrnMatchIndicator",
     parentUprn = "parentUprn",
-    crossReference = "crossReference",
     streetClassification = "streetClassification",
     multiOccCount = "multiOccCount",
     language = "language",
@@ -105,10 +103,16 @@ class AddressControllerSpec extends PlaySpec with Results{
     parents = Array(8L,9L)
   )
 
+  val validCrossRef = CrossRef (
+    crossReference = "E05011011",
+    source = "7666OW"
+  )
+
   val validHybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = Seq(validRelative),
+    crossRefs = Seq(validCrossRef),
     postcodeIn = "2",
     postcodeOut = "3",
     paf = Seq(validPafAddress),

@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.db.index.Relative
+import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -148,7 +148,14 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     parents = Array(8L, 9L)
   )
 
+  val mockCrossRef = CrossRef(
+    crossReference = "osgb1000000347959147",
+    source = "7666MT"
+  )
+
   val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
+
+  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
   val mockBespokeScoreEmpty = AddressResponseScore(
     objectScore = 0d,
@@ -174,6 +181,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     uprn = "",
     parentUprn = "",
     relatives = Seq(mockRelativeResponse),
+    crossRefs = Seq(mockCrossRefResponse),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
@@ -191,6 +199,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     uprn = "",
     parentUprn = "",
     relatives = Seq(mockRelativeResponse),
+    crossRefs = Seq(mockCrossRefResponse),
     formattedAddress = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressNag = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressPaf = "7, GATE REACH, EXETER, PO7 PO7",
@@ -208,6 +217,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     uprn = "",
     parentUprn = "",
     relatives = Seq(mockRelativeResponse),
+    crossRefs = Seq(mockCrossRefResponse),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",

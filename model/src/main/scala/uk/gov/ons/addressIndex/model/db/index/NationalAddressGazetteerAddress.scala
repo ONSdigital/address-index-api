@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-
 import scala.collection.immutable.HashMap
 import scala.util.Try
 
@@ -37,10 +36,8 @@ case class NationalAddressGazetteerAddress (
   locality: String,
   lpiLogicalStatus: String,
   blpuLogicalStatus: String,
-  source: String,
   usrnMatchIndicator: String,
   parentUprn: String,
-  crossReference: String,
   streetClassification: String,
   multiOccCount: String,
   language: String,
@@ -90,10 +87,8 @@ object NationalAddressGazetteerAddress {
     val locality: String = "locality"
     val lpiLogicalStatus: String = "lpiLogicalStatus"
     val blpuLogicalStatus: String = "blpuLogicalStatus"
-    val source: String = "source"
     val usrnMatchIndicator: String = "usrnMatchIndicator"
     val parentUprn: String = "parentUprn"
-    val crossReference: String = "crossReference"
     val streetClassification: String = "streetClassification"
     val multiOccCount: String = "multiOccCount"
     val location: String = "location"
@@ -112,65 +107,57 @@ object NationalAddressGazetteerAddress {
     val welsh: String = "CYM"
   }
 
-  def fromEsMap (nag: AnyRef): Seq[NationalAddressGazetteerAddress] = {
-     var nags = Seq[NationalAddressGazetteerAddress]()
-     val nagIter = nag.asInstanceOf[List[AnyRef]].iterator
-     while (nagIter.hasNext)  {
-       val filteredNag = nagIter.next().asInstanceOf[HashMap[String,AnyRef]].filter{ case (_, value) => value != null }
-       val matchLocationRegex = """-?\d+\.\d+""".r
-       val location = filteredNag.getOrElse(Fields.location, "").toString
+  def fromEsMap (nag: Map[String, Any]): NationalAddressGazetteerAddress = {
 
-       val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
+    val filteredNag = nag.filter{ case (_, value) => value != null }
+    val matchLocationRegex = """-?\d+\.\d+""".r
+    val location = filteredNag.getOrElse(Fields.location, "").toString
+    val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
 
-       nags = nags :+ NationalAddressGazetteerAddress (
-         uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
-         postcodeLocator = filteredNag.getOrElse(Fields.postcodeLocator, "").toString,
-         addressBasePostal = filteredNag.getOrElse(Fields.addressBasePostal, "").toString,
-         latitude = latitude,
-         longitude = longitude,
-         easting = filteredNag.getOrElse(Fields.easting, "").toString,
-         northing = filteredNag.getOrElse(Fields.northing, "").toString,
-         organisation = filteredNag.getOrElse(Fields.organisation, "").toString,
-         legalName = filteredNag.getOrElse(Fields.legalName, "").toString,
-         classificationCode = filteredNag.getOrElse(Fields.classificationCode, "").toString,
-         usrn = filteredNag.getOrElse(Fields.usrn, "").toString,
-         lpiKey = filteredNag.getOrElse(Fields.lpiKey, "").toString,
-         paoText = filteredNag.getOrElse(Fields.paoText, "").toString,
-         paoStartNumber = filteredNag.getOrElse(Fields.paoStartNumber, "").toString,
-         paoStartSuffix = filteredNag.getOrElse(Fields.paoStartSuffix, "").toString,
-         paoEndNumber = filteredNag.getOrElse(Fields.paoEndNumber, "").toString,
-         paoEndSuffix = filteredNag.getOrElse(Fields.paoEndSuffix, "").toString,
-         saoText = filteredNag.getOrElse(Fields.saoText, "").toString,
-         saoStartNumber = filteredNag.getOrElse(Fields.saoStartNumber, "").toString,
-         saoStartSuffix = filteredNag.getOrElse(Fields.saoStartSuffix, "").toString,
-         saoEndNumber = filteredNag.getOrElse(Fields.saoEndNumber, "").toString,
-         saoEndSuffix = filteredNag.getOrElse(Fields.saoEndSuffix, "").toString,
-         level = filteredNag.getOrElse(Fields.level, "").toString,
-         officialFlag = filteredNag.getOrElse(Fields.officialFlag, "").toString,
-         streetDescriptor = filteredNag.getOrElse(Fields.streetDescriptor, "").toString,
-         townName = filteredNag.getOrElse(Fields.townName, "").toString,
-         locality = filteredNag.getOrElse(Fields.locality, "").toString,
-         lpiLogicalStatus = filteredNag.getOrElse(Fields.lpiLogicalStatus, "").toString,
-         blpuLogicalStatus = filteredNag.getOrElse(Fields.blpuLogicalStatus, "").toString,
-         source = filteredNag.getOrElse(Fields.source, "").toString,
-         usrnMatchIndicator = filteredNag.getOrElse(Fields.usrnMatchIndicator, "").toString,
-         parentUprn = filteredNag.getOrElse(Fields.parentUprn, "").toString,
-         crossReference = filteredNag.getOrElse(Fields.crossReference, "").toString,
-         streetClassification = filteredNag.getOrElse(Fields.streetClassification, "").toString,
-         multiOccCount = filteredNag.getOrElse(Fields.multiOccCount, "").toString,
-         language = filteredNag.getOrElse(Fields.language, "").toString,
-         classScheme = filteredNag.getOrElse(Fields.classScheme, "").toString,
-         localCustodianCode = filteredNag.getOrElse(Fields.localCustodianCode, "").toString,
-         localCustodianName = LocalCustodian.getLAName(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
-         localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
-         rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
-         nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
-         lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString
-       )
-     }
-     collection.immutable.Seq(nags: _*)
-   }
-
+    NationalAddressGazetteerAddress (
+      uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
+      postcodeLocator = filteredNag.getOrElse(Fields.postcodeLocator, "").toString,
+      addressBasePostal = filteredNag.getOrElse(Fields.addressBasePostal, "").toString,
+      latitude = latitude,
+      longitude = longitude,
+      easting = filteredNag.getOrElse(Fields.easting, "").toString,
+      northing = filteredNag.getOrElse(Fields.northing, "").toString,
+      organisation = filteredNag.getOrElse(Fields.organisation, "").toString,
+      legalName = filteredNag.getOrElse(Fields.legalName, "").toString,
+      classificationCode = filteredNag.getOrElse(Fields.classificationCode, "").toString,
+      usrn = filteredNag.getOrElse(Fields.usrn, "").toString,
+      lpiKey = filteredNag.getOrElse(Fields.lpiKey, "").toString,
+      paoText = filteredNag.getOrElse(Fields.paoText, "").toString,
+      paoStartNumber = filteredNag.getOrElse(Fields.paoStartNumber, "").toString,
+      paoStartSuffix = filteredNag.getOrElse(Fields.paoStartSuffix, "").toString,
+      paoEndNumber = filteredNag.getOrElse(Fields.paoEndNumber, "").toString,
+      paoEndSuffix = filteredNag.getOrElse(Fields.paoEndSuffix, "").toString,
+      saoText = filteredNag.getOrElse(Fields.saoText, "").toString,
+      saoStartNumber = filteredNag.getOrElse(Fields.saoStartNumber, "").toString,
+      saoStartSuffix = filteredNag.getOrElse(Fields.saoStartSuffix, "").toString,
+      saoEndNumber = filteredNag.getOrElse(Fields.saoEndNumber, "").toString,
+      saoEndSuffix = filteredNag.getOrElse(Fields.saoEndSuffix, "").toString,
+      level = filteredNag.getOrElse(Fields.level, "").toString,
+      officialFlag = filteredNag.getOrElse(Fields.officialFlag, "").toString,
+      streetDescriptor = filteredNag.getOrElse(Fields.streetDescriptor, "").toString,
+      townName = filteredNag.getOrElse(Fields.townName, "").toString,
+      locality = filteredNag.getOrElse(Fields.locality, "").toString,
+      lpiLogicalStatus = filteredNag.getOrElse(Fields.lpiLogicalStatus, "").toString,
+      blpuLogicalStatus = filteredNag.getOrElse(Fields.blpuLogicalStatus, "").toString,
+      usrnMatchIndicator = filteredNag.getOrElse(Fields.usrnMatchIndicator, "").toString,
+      parentUprn = filteredNag.getOrElse(Fields.parentUprn, "").toString,
+      streetClassification = filteredNag.getOrElse(Fields.streetClassification, "").toString,
+      multiOccCount = filteredNag.getOrElse(Fields.multiOccCount, "").toString,
+      language = filteredNag.getOrElse(Fields.language, "").toString,
+      classScheme = filteredNag.getOrElse(Fields.classScheme, "").toString,
+      localCustodianCode = filteredNag.getOrElse(Fields.localCustodianCode, "").toString,
+      localCustodianName = LocalCustodian.getLAName(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
+      localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
+      rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
+      nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
+      lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString
+    )
+  }
 }
 
 case class LocalCustodian (custodians: Map[String,String])

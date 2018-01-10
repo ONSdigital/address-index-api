@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.WSClient
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
-import uk.gov.ons.addressIndex.model.db.index.Relative
+import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -95,7 +95,13 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     parents = Array(8L,9L)
   )
 
+  val mockCrossRef = CrossRef(
+    crossReference = "osgb1000000347959147",
+    source = "7666MT"
+  )
+
   val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
+  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
   val mockBespokeScore = AddressResponseScore(
     objectScore = 0d,
@@ -111,6 +117,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     uprn = "",
     parentUprn = "",
     relatives = Seq(mockRelativeResponse),
+    crossRefs = Seq(mockCrossRefResponse),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
