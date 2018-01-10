@@ -30,8 +30,9 @@ object Relative {
   def fromEsMap (rels: Map[String, Any]): Relative = {
     Relative (
       rels.getOrElse(Fields.level, 0).asInstanceOf[Int],
-      rels.getOrElse(Fields.siblings, Seq.empty).asInstanceOf[Seq[Long]],
-      rels.getOrElse(Fields.parents, Seq.empty).asInstanceOf[Seq[Long]]
+      // uprns sometimes come back as Integers instead of Longs from ES so need to deal with this
+      rels.getOrElse(Fields.siblings, Seq.empty).asInstanceOf[Seq[Any]].map(_.toString.toLong),
+      rels.getOrElse(Fields.parents, Seq.empty).asInstanceOf[Seq[Any]].map(_.toString.toLong)
     )
   }
 }
