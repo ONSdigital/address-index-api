@@ -45,7 +45,7 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, retry: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -145,7 +145,14 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEs))
+         // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
+          val isRetry = retry.getOrElse("false")
+          if (isRetry.equals("false") && exception.getMessage().equals("Connection reset by peer")) {
+            logger.warn("retry")
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some("true")))
+          } else {
+            InternalServerError(Json.toJson(FailedRequestToEs))
+          }
       }
 
     }
@@ -157,7 +164,7 @@ class AddressController @Inject()(
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, retry: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
@@ -209,7 +216,14 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEs))
+          // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
+          val isRetry = retry.getOrElse("false")
+          if (isRetry.equals("false") && exception.getMessage().equals("Connection reset by peer")) {
+            logger.warn("retry")
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some("true")))
+          } else {
+            InternalServerError(Json.toJson(FailedRequestToEs))
+          }
       }
     }
   }
