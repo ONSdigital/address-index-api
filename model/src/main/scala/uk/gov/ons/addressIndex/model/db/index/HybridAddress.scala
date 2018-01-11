@@ -1,8 +1,10 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.http.search.SearchResponse
-import com.sksamuel.elastic4s.http.{RequestFailure,RequestSuccess}
+import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
 import com.sksamuel.elastic4s.{Hit, HitReader}
+
+import scala.util.Try
 
 /**
   * DTO object containing hybrid address returned from ES
@@ -15,6 +17,7 @@ case class HybridAddress(
   uprn: String,
   parentUprn: String,
   relatives: Seq[Relative],
+  crossRefs: Seq[CrossRef],
   postcodeIn: String,
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
@@ -33,6 +36,7 @@ object HybridAddress {
     uprn = "",
     parentUprn = "",
     relatives = Seq.empty,
+    crossRefs = Seq.empty,
     postcodeIn = "",
     postcodeOut = "",
     lpi = Seq.empty,
@@ -43,6 +47,7 @@ object HybridAddress {
   // this `implicit` is needed for the library (elastic4s) to work
   implicit object HybridAddressHitReader extends HitReader[HybridAddress] {
 
+
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
       * Used for the elastic4s library
@@ -51,14 +56,31 @@ object HybridAddress {
       */
     override def read(hit: Hit): Either[Throwable, HybridAddress] = {
 
+      val cRefs: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
+      val rels: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("relatives").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
+      val lpis: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("lpi").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
+      val pafs: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
       Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = Relative.fromEsMap(hit.sourceAsMap("relatives")).sortBy(_.level),
+        relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
+        crossRefs = cRefs.map(CrossRef.fromEsMap),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
-        lpi = NationalAddressGazetteerAddress.fromEsMap(hit.sourceAsMap("lpi")),
-        paf = PostcodeAddressFileAddress.fromEsMap(hit.sourceAsMap("paf")),
+        lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
+        paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         score = hit.score
       ))
     }

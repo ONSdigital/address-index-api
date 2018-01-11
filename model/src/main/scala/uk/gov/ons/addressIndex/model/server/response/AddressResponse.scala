@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
+import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 
 import scala.util.Try
@@ -190,6 +190,7 @@ case class AddressResponseAddress(
   uprn: String,
   parentUprn: String,
   relatives: Seq[AddressResponseRelative],
+  crossRefs: Seq[AddressResponseCrossRef],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -226,6 +227,7 @@ object AddressResponseAddress {
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = other.relatives.map(AddressResponseRelative.fromRelative),
+      crossRefs = other.crossRefs.map(AddressResponseCrossRef.fromCrossRef),
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
@@ -279,6 +281,24 @@ object AddressResponseRelative {
   def fromRelative(relative: Relative): AddressResponseRelative =
     AddressResponseRelative(relative.level, relative.siblings, relative.parents)
 }
+
+
+
+case class AddressResponseCrossRef(crossReference: String, source: String)
+
+/**
+  * Companion object providing Lazy Json formatting
+  */
+object AddressResponseCrossRef {
+  implicit lazy val crossRefFormat: Format[AddressResponseCrossRef] = Json.format[AddressResponseCrossRef]
+
+  def fromCrossRef(crossRef: CrossRef): AddressResponseCrossRef =
+    AddressResponseCrossRef(crossRef.crossReference, crossRef.source)
+}
+
+
+
+
 
 /**
   * Paf data on the address
