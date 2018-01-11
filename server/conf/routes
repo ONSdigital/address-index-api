@@ -11,13 +11,15 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
 #    - name: limit
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
+#    - name: retry
+#      description: Flag to indicate this request is a retry (default false).
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], retry: Option[String])
 
 ###
 #  summary: Gets an address by UPRN.
@@ -31,7 +33,7 @@ GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
 ###
-GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn)
+GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, retry: Option[String])
 
 ###
 #  summary: Test elastic is connected.
