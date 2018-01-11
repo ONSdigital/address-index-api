@@ -146,8 +146,8 @@ class AddressController @Inject()(
 
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
          // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
-          val retry_required = retry.getOrElse("false")
-          if (retry_required.equals("true") && exception.getMessage().equals("Connection reset by peer")) {
+          val isRetry = retry.getOrElse("false")
+          if (isRetry.equals("false") && exception.getMessage().equals("Connection reset by peer")) {
             logger.warn("retry")
             Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some("true")))
           } else {
@@ -217,8 +217,8 @@ class AddressController @Inject()(
 
           logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
           // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
-          val retry_required = retry.getOrElse("false")
-          if (retry_required.equals("true") && exception.getMessage().equals("Connection reset by peer")) {
+          val isRetry = retry.getOrElse("false")
+          if (isRetry.equals("false") && exception.getMessage().equals("Connection reset by peer")) {
             logger.warn("retry")
             Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some("true")))
           } else {
