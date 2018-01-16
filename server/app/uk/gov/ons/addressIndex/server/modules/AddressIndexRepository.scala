@@ -541,7 +541,8 @@ class AddressIndexRepository @Inject()(
       // Failed requests will be stored in the `Left`
       bulkAddressRequest.map(Right(_)).recover {
         case exception: Exception =>
-          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) for id $Left(id): ${exception.getMessage}")
+          exception.printStackTrace()
+          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) : ${exception.getMessage}")
           Left(requestData.copy(lastFailExceptionMessage = exception.getMessage))
       }
     }
