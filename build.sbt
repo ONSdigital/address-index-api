@@ -9,6 +9,10 @@ import NativePackagerHelper._
 import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
+//lazy val root = (project in file("."))
+//  .enablePlugins(PlayScala, PlayNettyServer)
+//  .disablePlugins(PlayAkkaHttpServer)
+
 lazy val Versions = new {
   val elastic4s = "6.1.2"
   val scala = "2.12.4"
@@ -161,6 +165,7 @@ lazy val `address-index-server` = project.in(file("server"))
   )
   .enablePlugins(
     PlayScala,
+    PlayNettyServer,
     SbtWeb,
     JavaAppPackaging,
     GitVersioning,
@@ -181,5 +186,6 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
     `address-index-client`
   )
   .enablePlugins(
-    PlayScala
+    PlayScala,
+    PlayNettyServer
   )
