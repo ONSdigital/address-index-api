@@ -161,7 +161,8 @@ lazy val `address-index-server` = project.in(file("server"))
   )
   .enablePlugins(
     PlayScala,
-    PlayNettyServer,
+  //  PlayNettyServer,
+  //  PlayAkkaHttpServer,
     SbtWeb,
     JavaAppPackaging,
     GitVersioning,
@@ -182,6 +183,8 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
     `address-index-client`
   )
   .enablePlugins(
-    PlayScala,
-    PlayNettyServer
+    PlayScala
+  //  ,
+  //  PlayNettyServer,
+  //  PlayAkkaHttpServer
   )
