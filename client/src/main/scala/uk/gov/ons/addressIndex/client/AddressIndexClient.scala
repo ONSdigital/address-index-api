@@ -58,6 +58,7 @@ trait AddressIndexClient {
     Bulk
       .toReq
       .withRequestTimeout(Duration.Inf)
+    //  .withReadTimeout(Duration.Inf)
       .withHttpHeaders(
         "Content-Type" -> "application/json",
         "authorization" -> apiKey

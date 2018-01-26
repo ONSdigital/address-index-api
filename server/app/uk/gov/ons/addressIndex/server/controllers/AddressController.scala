@@ -9,6 +9,7 @@ import play.api.mvc._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import play.api.libs.json.Json
+import play.api.mvc.request.RequestAttrKey
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
@@ -48,6 +49,9 @@ class AddressController @Inject()(
   def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, retry: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
+
+    val NettyorAkka = req.attrs.get(RequestAttrKey.Server)
+    logger.info("server = " + NettyorAkka)
 
     // check API key
     val apiKey = req.headers.get("authorization").getOrElse(missing)

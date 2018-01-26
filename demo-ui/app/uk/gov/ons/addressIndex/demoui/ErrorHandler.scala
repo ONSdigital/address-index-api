@@ -89,6 +89,7 @@ class ErrorHandler @Inject() (
     */
   def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
     if (processError) {
+      exception.printStackTrace()
       logger error s"server error: 500 ${exception.getMessage}"
       Future.successful(
         InternalServerError(uk.gov.ons.addressIndex.demoui.views.html.error(500, exception.getMessage, version))
