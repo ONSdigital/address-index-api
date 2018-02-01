@@ -639,7 +639,8 @@ case class AddressResponseScore (
   unitScore: Double,
   buildingScoreDebug: String,
   localityScoreDebug: String,
-  unitScoreDebug: String
+  unitScoreDebug: String,
+  ambiguityPenalty: Double
 )
 
 object AddressResponseScore {
