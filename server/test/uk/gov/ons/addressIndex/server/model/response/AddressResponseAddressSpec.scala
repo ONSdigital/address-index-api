@@ -133,7 +133,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     unitScore = 0,
     buildingScoreDebug = "0",
     localityScoreDebug = "0",
-    unitScoreDebug = "0")
+    unitScoreDebug = "0",
+    ambiguityPenalty = 1d)
 
   val givenRelativeResponse = AddressResponseRelative.fromRelative(givenRelative)
 
