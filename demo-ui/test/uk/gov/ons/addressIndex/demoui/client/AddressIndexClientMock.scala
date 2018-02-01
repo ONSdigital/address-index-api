@@ -111,7 +111,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     unitScore = 0d,
     buildingScoreDebug = "0",
     localityScoreDebug = "0",
-    unitScoreDebug = "0")
+    unitScoreDebug = "0",
+    ambiguityPenalty = 1d)
 
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
