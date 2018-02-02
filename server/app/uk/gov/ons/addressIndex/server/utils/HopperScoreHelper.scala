@@ -145,7 +145,8 @@ object HopperScoreHelper  {
       unitScore,
       respBuildingScoreDebug,
       respLocalityScoreDebug,
-      respUnitScoreDebug)
+      respUnitScoreDebug,
+      ambiguityPenalty)
 
     address.copy(bespokeScore = Some(bespokeScore))
   }

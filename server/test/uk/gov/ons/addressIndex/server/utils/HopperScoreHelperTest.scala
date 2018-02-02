@@ -165,7 +165,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     unitScore = 0d,
     buildingScoreDebug = "0",
     localityScoreDebug = "0",
-    unitScoreDebug = "0")
+    unitScoreDebug = "0",
+    ambiguityPenalty = 1d)
 
   val mockBespokeScore = AddressResponseScore(
     objectScore = -1.0d,
@@ -175,7 +176,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     unitScore = -1.0d,
     buildingScoreDebug = "91",
     localityScoreDebug = "9111",
-    unitScoreDebug = "0999")
+    unitScoreDebug = "0999",
+    ambiguityPenalty = 1d)
 
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
