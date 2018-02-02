@@ -214,7 +214,8 @@ case class BatchConfig(
 
 case class ApiConfig(
   host: String,
-  port: Int
+  port: Int,
+  gatewayPath: String
 )
 
 case class DemouiConfig (
