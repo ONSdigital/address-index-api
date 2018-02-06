@@ -145,10 +145,11 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-         // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
+         // if there is a connection reset by peer or similar error due to inactivity
+         // we want to retry once to wake up the index connection
           val isRetry = retry.getOrElse("false")
-          if (isRetry.equals("false") && exception.getMessage().equals("Connection reset by peer")) {
-            logger.warn("retry")
+          if (isRetry.equals("false")) {
+            logger.warn("retrying single match request")
             Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some("true")))
           } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
