@@ -776,6 +776,16 @@ object ApiKeyInvalidError extends AddressResponseError(
   message = "Invalid Api key supplied"
 )
 
+object SourceMissingError extends AddressResponseError(
+  code = 13,
+  message = "Source key not supplied (check that using Gateway)"
+)
+
+object SourceInvalidError extends AddressResponseError(
+  code = 14,
+  message = "Invalid source key supplied (check that using Gateway)"
+)
+
 
 
 

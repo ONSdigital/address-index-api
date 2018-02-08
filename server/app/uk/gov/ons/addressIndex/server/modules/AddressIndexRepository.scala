@@ -514,7 +514,6 @@ class AddressIndexRepository @Inject()(
       else dismax(
         should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
-      
 
     search(hybridIndex).query(query)
       .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))

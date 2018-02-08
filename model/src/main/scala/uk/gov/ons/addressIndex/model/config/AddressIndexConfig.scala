@@ -5,6 +5,8 @@ import play.api.libs.json.{Format, Json}
 case class AddressIndexConfig(
   apiKeyRequired: Boolean,
   masterKey: String,
+  sourceRequired: Boolean,
+  sourceKey: String,
   parserLibPath: String,
   pathToResources: String,
   elasticSearch: ElasticSearchConfig,

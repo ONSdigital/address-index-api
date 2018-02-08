@@ -53,6 +53,10 @@ class AddressController @Inject()(
     val apiKey = req.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
 
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
     val defOffset = conf.config.elasticSearch.defaultOffset
@@ -77,7 +81,13 @@ class AddressController @Inject()(
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     // Check the api key, offset and limit parameters before proceeding with the request
-    if (keyStatus == missing) {
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
       futureJsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -172,6 +182,10 @@ class AddressController @Inject()(
     val apiKey = req.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
 
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
@@ -181,7 +195,13 @@ class AddressController @Inject()(
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
-    if (keyStatus == missing) {
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
       futureJsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -240,7 +260,18 @@ class AddressController @Inject()(
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
-    if (keyStatus == missing) {
+
+    // check source
+    val source = request.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    if (sourceStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
+      jsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceInvalidError.message)
+      jsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
       jsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -269,7 +300,18 @@ class AddressController @Inject()(
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
-    if (keyStatus == missing) {
+
+    // check source
+    val source = request.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    if (sourceStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
+      jsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceInvalidError.message)
+      jsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
       jsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -293,7 +335,18 @@ class AddressController @Inject()(
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
-    if (keyStatus == missing) {
+
+    // check source
+    val source = request.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    if (sourceStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
+      jsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceInvalidError.message)
+      jsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
       jsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -476,6 +529,25 @@ class AddressController @Inject()(
       apiKeyTest match {
         case key if key == missing => missing
         case key if key == masterKey => valid
+        case _ => invalid
+      }
+    } else {
+      notRequired
+    }
+  }
+
+  /**
+    * Method to check source of query
+    * @param apiKey
+    * @return not required, valid, invalid or missing
+    */
+  def checkSource(source: String): String = {
+    val sourceRequired = conf.config.sourceRequired
+    if (sourceRequired) {
+      val sourceName = conf.config.sourceKey
+      source match {
+        case key if key == missing => missing
+        case key if key == sourceName => valid
         case _ => invalid
       }
     } else {
