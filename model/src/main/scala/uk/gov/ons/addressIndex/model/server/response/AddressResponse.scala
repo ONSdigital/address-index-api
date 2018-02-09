@@ -639,7 +639,8 @@ case class AddressResponseScore (
   unitScore: Double,
   buildingScoreDebug: String,
   localityScoreDebug: String,
-  unitScoreDebug: String
+  unitScoreDebug: String,
+  ambiguityPenalty: Double
 )
 
 object AddressResponseScore {
@@ -773,6 +774,16 @@ object ApiKeyMissingError extends AddressResponseError(
 object ApiKeyInvalidError extends AddressResponseError(
   code = 12,
   message = "Invalid Api key supplied"
+)
+
+object SourceMissingError extends AddressResponseError(
+  code = 13,
+  message = "Source key not supplied (check that using Gateway)"
+)
+
+object SourceInvalidError extends AddressResponseError(
+  code = 14,
+  message = "Invalid source key supplied (check that using Gateway)"
 )
 
 

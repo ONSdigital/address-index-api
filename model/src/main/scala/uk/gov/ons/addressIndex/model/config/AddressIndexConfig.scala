@@ -5,6 +5,8 @@ import play.api.libs.json.{Format, Json}
 case class AddressIndexConfig(
   apiKeyRequired: Boolean,
   masterKey: String,
+  sourceRequired: Boolean,
+  sourceKey: String,
   parserLibPath: String,
   pathToResources: String,
   elasticSearch: ElasticSearchConfig,
@@ -214,7 +216,8 @@ case class BatchConfig(
 
 case class ApiConfig(
   host: String,
-  port: Int
+  port: Int,
+  gatewayPath: String
 )
 
 case class DemouiConfig (
