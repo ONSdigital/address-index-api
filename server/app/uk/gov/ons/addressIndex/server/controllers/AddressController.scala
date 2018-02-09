@@ -45,7 +45,7 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, retry: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, retry: Option[String] = None, filter: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -61,6 +61,8 @@ class AddressController @Inject()(
 
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
+
+    val filterString = filter.getOrElse("")
 
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -109,7 +111,7 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -149,7 +151,7 @@ class AddressController @Inject()(
           val isRetry = retry.getOrElse("false")
           if (isRetry.equals("false") && exception.getMessage().equals("Connection reset by peer")) {
             logger.warn("retry")
-            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some("true")))
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,filter,Some("true")))
           } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
           }
