@@ -500,7 +500,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"").await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -521,7 +521,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10).await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"").await
 
       // Then
       results.length shouldBe 0
@@ -602,7 +602,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"")).string())
 
       // Then
       result shouldBe expected
@@ -1377,7 +1377,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"")).string())
 
       // Then
       result shouldBe expected
@@ -1450,6 +1450,1072 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       addresses(0).hybridAddress.uprn shouldBe HybridAddress.empty.uprn
       addresses(1).hybridAddress.uprn shouldBe HybridAddress.empty.uprn
     }
+
+    "return prefix filter for 'R' when passed filter 'residential' " in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val tokens: Map[String, String] = Map.empty
+
+      val filters: String = "residential"
+
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool":{
+                "must":[{
+                  "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
+                      "paf.pafAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  }]
+                }
+              }],
+              "should":[{
+                "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackLpiBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      }]
+                    }
+                  }],
+                  "filter": [
+                    {
+                      "prefix": {
+                        "lpi.classificationCode": {
+                          "value": "R"
+                        }
+                      }
+                    }
+                  ],
+                  "boost":0.075
+                }
+              },
+              "sort":[{
+                "_score":{
+                  "order":"desc"
+                }
+              },{
+                "uprn":{"order":"asc"}
+            }],
+            "track_scores":true
+          }
+        """.stripMargin)
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "return prefix filter for 'C' when passed filter 'commercial' " in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val tokens: Map[String, String] = Map.empty
+
+      val filters: String = "commercial"
+
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool":{
+                "must":[{
+                  "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
+                      "paf.pafAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  }]
+                }
+              }],
+              "should":[{
+                "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackLpiBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      }]
+                    }
+                  }],
+                  "filter": [
+                    {
+                      "prefix": {
+                        "lpi.classificationCode": {
+                          "value": "C"
+                        }
+                      }
+                    }
+                  ],
+                  "boost":0.075
+                }
+              },
+              "sort":[{
+                "_score":{
+                  "order":"desc"
+                }
+              },{
+                "uprn":{"order":"asc"}
+            }],
+            "track_scores":true
+          }
+        """.stripMargin)
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "return term filter for 'RD06' when passed filter 'RD06' " in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val tokens: Map[String, String] = Map.empty
+
+      val filters: String = "RD06"
+
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool":{
+                "must":[{
+                  "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
+                      "paf.pafAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  }]
+                }
+              }],
+              "should":[{
+                "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackLpiBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      }]
+                    }
+                  }],
+                  "filter": [
+                    {
+                      "term": {
+                        "lpi.classificationCode": {
+                          "value": "RD06"
+                        }
+                      }
+                    }
+                  ],
+                  "boost":0.075
+                }
+              },
+              "sort":[{
+                "_score":{
+                  "order":"desc"
+                }
+              },{
+                "uprn":{"order":"asc"}
+            }],
+            "track_scores":true
+          }
+        """.stripMargin)
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "generate valid query for search by tokens, with a term filter" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val tokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> hybridPafBuildingNumber.toString,
+        Tokens.paoStartNumber -> hybridNagPaoStartNumber.toString,
+        Tokens.paoStartSuffix -> hybridNagPaoStartSuffix,
+        Tokens.paoEndNumber -> hybridNagPaoEndNumber.toString,
+        Tokens.paoEndSuffix -> hybridNagPaoEndSuffix,
+        Tokens.saoStartNumber -> hybridNagSaoStartNumber.toString,
+        Tokens.saoStartSuffix -> hybridNagSaoStartSuffix,
+        Tokens.saoEndNumber -> hybridNagSaoEndNumber.toString,
+        Tokens.saoEndSuffix -> hybridNagSaoEndSuffix,
+        Tokens.locality -> hybridNagLocality,
+        Tokens.organisationName -> hybridNagOrganisation,
+        Tokens.postcode -> hybridNagPostcodeLocator,
+        Tokens.postcodeIn -> hybridFirstPostcodeIn,
+        Tokens.postcodeOut -> hybridFirstPostcodeOut,
+        Tokens.departmentName -> hybridPafDepartmentName,
+        Tokens.subBuildingName -> hybridPafSubBuildingName,
+        Tokens.buildingName -> hybridPafBuildingName,
+        Tokens.streetName -> hybridNagStreetDescriptor,
+        Tokens.townName -> hybridNagTownName
+      )
+
+      val filters: String = "RD06"
+
+
+      val expected = Json.parse(
+        s"""
+      {
+           	"version": true,
+           	"query": {
+           		"dis_max": {
+           			"tie_breaker": 1,
+           			"queries": [{
+           				"bool": {
+           					"should": [{
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.buildingName": {
+           												"query": "h5",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingName.pafBuildingNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoText": {
+           												"query": "h5",
+           												"fuzziness": "1",
+           												"minimum_should_match": "-45%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingName.lpiPaoTextBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"bool": {
+           											"must": [{
+           												"match": {
+           													"lpi.paoStartNumber": {
+           														"query": "13"
+           													}
+           												}
+           											}, {
+           												"match": {
+           													"lpi.paoStartSuffix": {
+           														"query": "h11"
+           													}
+           												}
+           											}]
+           										}
+           									},
+           									"boost": ${queryParams.buildingName.lpiPaoStartSuffixBoost}
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.subBuildingName": {
+           												"query": "h4"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingName.pafSubBuildingNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoText": {
+           												"query": "h4",
+           												"minimum_should_match": "-45%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingName.lpiSaoTextBoost}
+           								}
+           							}, {
+           								"dis_max": {
+           									"tie_breaker": 0.5,
+           									"queries": [{
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"lpi.saoStartNumber": {
+           														"query": "15"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.subBuildingRange.lpiSaoStartNumberBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"lpi.saoStartSuffix": {
+           														"query": "h16"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.subBuildingRange.lpiSaoStartSuffixBoost}
+           										}
+           									}]
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.thoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.welshThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafWelshThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.dependentThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafDependentThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.welshDependentThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafWelshDependentThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.streetDescriptor": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.lpiStreetDescriptorBoost}
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.postcode": {
+           												"query": "h10"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.postcode.pafPostcodeBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.postcodeLocator": {
+           												"query": "h10"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.postcode.lpiPostcodeLocatorBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"bool": {
+           											"must": [{
+           												"match": {
+           													"postcodeOut": {
+           														"query": "h02p",
+           														"fuzziness": "1"
+           													}
+           												}
+           											}, {
+           												"match": {
+           													"postcodeIn": {
+           														"query": "h01p",
+           														"fuzziness": "2"
+           													}
+           												}
+           											}]
+           										}
+           									},
+           									"boost": ${queryParams.postcode.postcodeInOutBoost}
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.organisationName": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.pafOrganisationNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.organisation": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.lpiOrganisationBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoText": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.lpiPaoTextBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.legalName": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.lpiLegalNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoText": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.lpiSaoTextBoost}
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.departmentName": {
+           												"query": "h3",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.departmentName.pafDepartmentNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.legalName": {
+           												"query": "h3",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.departmentName.lpiLegalNameBoost}
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0.5,
+           							"queries": [{
+           								"dis_max": {
+           									"tie_breaker": 0,
+           									"queries": [{
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.postTown": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.welshPostTown": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafWelshPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"lpi.townName": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.lpiTownNameBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.dependentLocality": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.welshDependentLocality": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafWelshDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"lpi.locality": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": 0.5
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.doubleDependentLocality": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafDoubleDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.welshDoubleDependentLocality": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafWelshDoubleDependentLocalityBoost}
+           										}
+           									}]
+           								}
+           							}, {
+           								"dis_max": {
+           									"tie_breaker": 0,
+           									"queries": [{
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.postTown": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.welshPostTown": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafWelshPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"lpi.townName": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.lpiTownNameBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.dependentLocality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.welshDependentLocality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafWelshDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"lpi.locality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.lpiLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.doubleDependentLocality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafDoubleDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"paf.welshDoubleDependentLocality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafWelshDoubleDependentLocalityBoost}
+           										}
+           									}]
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0.5,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoStartNumber": {
+           												"query": "13"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.lpiPaoStartNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoStartSuffix": {
+           												"query": "h11"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.lpiPaoStartSuffixBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoEndNumber": {
+           												"query": "12"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.lpiPaoEndNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoEndSuffix": {
+           												"query": "h14"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.lpiPaoEndSuffixBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.paoStartNumber": {
+           												"query": "12"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.lpiPaoStartEndBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.buildingNumber": {
+           												"query": "12"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.buildingNumber": {
+           												"query": "13"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
+           								}
+           							}]
+           						}
+           					}, {
+           						"dis_max": {
+           							"tie_breaker": 0.5,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoStartNumber": {
+           												"query": "15"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingRange.lpiSaoStartNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoStartSuffix": {
+           												"query": "h16"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingRange.lpiSaoStartSuffixBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoEndNumber": {
+           												"query": "17"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingRange.lpiSaoEndNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoEndSuffix": {
+           												"query": "h18"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingRange.lpiSaoEndSuffixBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.saoStartNumber": {
+           												"query": "17"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingRange.lpiSaoStartEndBoost}
+           								}
+           							}]
+           						}
+           					}],
+                    "filter": [
+                      {
+                        "term": {
+                          "lpi.classificationCode": {
+                            "value": "RD06"
+                          }
+                        }
+                      }
+                    ],
+           					"minimum_should_match": "-40%"
+           				}
+           			}, {
+           				"bool": {
+           					"must": [{
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"match": {
+           									"lpi.nagAll": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+           										"boost": ${queryParams.fallback.fallbackLpiBoost},
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							}, {
+           								"match": {
+           									"paf.pafAll": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+           										"boost": ${queryParams.fallback.fallbackPafBoost},
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							}]
+           						}
+           					}],
+           					"should": [{
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"match": {
+           									"lpi.nagAll.bigram": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"boost": ${queryParams.fallback.fallbackLpiBigramBoost},
+           										"fuzziness": "0"
+           									}
+           								}
+           							}, {
+           								"match": {
+           									"paf.pafAll.bigram": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"boost": ${queryParams.fallback.fallbackPafBigramBoost},
+           										"fuzziness": "0"
+           									}
+           								}
+           							}]
+           						}
+           					}],
+                    "filter": [
+                      {
+                        "term": {
+                          "lpi.classificationCode": {
+                            "value": "RD06"
+                          }
+                        }
+                      }
+                    ],
+           					"boost": ${queryParams.fallback.fallbackQueryBoost}
+           				}
+           			}]
+           		}
+           	},
+           	"sort": [{
+           		"_score": {
+           			"order": "desc"
+           		}
+           	}, {
+           		"uprn": {
+           			"order": "asc"
+           		}
+           	}],
+           	"track_scores": true
+           }
+      """.stripMargin)
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
 
   }
 

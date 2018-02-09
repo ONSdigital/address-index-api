@@ -43,7 +43,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -52,7 +52,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -101,16 +101,16 @@ class AddressIndexRepository @Inject()(
     termQuery("uprn", uprn)
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, queryParamsConfig).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, queryParamsConfig).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -459,27 +459,92 @@ class AddressIndexRepository @Inject()(
 
     val normalizedInput = Tokens.concatenate(tokens)
 
+    val filterType: String = {
+      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
+      else "term"
+    }
+
+    val filterValue: String = {
+      if (filters == "residential") "R"
+      else if (filters == "commercial") "C"
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1)
+      else filters
+    }
+
     val fallbackQuery =
-      bool(
-        Seq(dismax(
-          matchQuery("lpi.nagAll", normalizedInput)
-            .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-            .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-            .boost(queryParams.fallback.fallbackLpiBoost),
-          matchQuery("paf.pafAll", normalizedInput)
-            .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-            .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-            .boost(queryParams.fallback.fallbackPafBoost))
-          .tieBreaker(0.0)),
-        Seq(dismax(
-          matchQuery("lpi.nagAll.bigram", normalizedInput)
-            .fuzziness(queryParams.fallback.bigramFuzziness)
-            .boost(queryParams.fallback.fallbackLpiBigramBoost),
-          matchQuery("paf.pafAll.bigram", normalizedInput)
-            .fuzziness(queryParams.fallback.bigramFuzziness)
-            .boost(queryParams.fallback.fallbackPafBigramBoost))
-          .tieBreaker(0.0)),
-        Seq()).boost(queryParams.fallback.fallbackQueryBoost)
+      if (filters.isEmpty) {
+        bool(
+          Seq(dismax(
+            matchQuery("lpi.nagAll", normalizedInput)
+              .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+              .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+              .boost(queryParams.fallback.fallbackLpiBoost),
+            matchQuery("paf.pafAll", normalizedInput)
+              .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+              .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+              .boost(queryParams.fallback.fallbackPafBoost))
+            .tieBreaker(0.0)),
+          Seq(dismax(
+            matchQuery("lpi.nagAll.bigram", normalizedInput)
+              .fuzziness(queryParams.fallback.bigramFuzziness)
+              .boost(queryParams.fallback.fallbackLpiBigramBoost),
+            matchQuery("paf.pafAll.bigram", normalizedInput)
+              .fuzziness(queryParams.fallback.bigramFuzziness)
+              .boost(queryParams.fallback.fallbackPafBigramBoost))
+            .tieBreaker(0.0)),
+          Seq()).boost(queryParams.fallback.fallbackQueryBoost)
+      }
+      else {
+        if (filterType == "prefix") {
+          bool(
+            Seq(dismax(
+              matchQuery("lpi.nagAll", normalizedInput)
+                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+                .boost(queryParams.fallback.fallbackLpiBoost),
+              matchQuery("paf.pafAll", normalizedInput)
+                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+                .boost(queryParams.fallback.fallbackPafBoost))
+              .tieBreaker(0.0)),
+            Seq(dismax(
+              matchQuery("lpi.nagAll.bigram", normalizedInput)
+                .fuzziness(queryParams.fallback.bigramFuzziness)
+                .boost(queryParams.fallback.fallbackLpiBigramBoost),
+              matchQuery("paf.pafAll.bigram", normalizedInput)
+                .fuzziness(queryParams.fallback.bigramFuzziness)
+                .boost(queryParams.fallback.fallbackPafBigramBoost))
+              .tieBreaker(0.0)),
+            Seq()).boost(queryParams.fallback.fallbackQueryBoost)
+            .filter(prefixQuery("lpi.classificationCode", filterValue))
+        }
+        else {
+          bool(
+            Seq(dismax(
+              matchQuery("lpi.nagAll", normalizedInput)
+                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+                .boost(queryParams.fallback.fallbackLpiBoost),
+              matchQuery("paf.pafAll", normalizedInput)
+                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+                .boost(queryParams.fallback.fallbackPafBoost))
+              .tieBreaker(0.0)),
+            Seq(dismax(
+              matchQuery("lpi.nagAll.bigram", normalizedInput)
+                .fuzziness(queryParams.fallback.bigramFuzziness)
+                .boost(queryParams.fallback.fallbackLpiBigramBoost),
+              matchQuery("paf.pafAll.bigram", normalizedInput)
+                .fuzziness(queryParams.fallback.bigramFuzziness)
+                .boost(queryParams.fallback.fallbackPafBigramBoost))
+              .tieBreaker(0.0)),
+            Seq()).boost(queryParams.fallback.fallbackQueryBoost)
+            .filter(termQuery("lpi.classificationCode", filterValue))
+        }
+      }
+
+
+
 
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
@@ -505,14 +570,22 @@ class AddressIndexRepository @Inject()(
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
+
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
     val shouldQueryItr = shouldQuery.asInstanceOf[Iterable[QueryDefinition]]
 
     val query =
       if (shouldQuery.isEmpty) fallbackQuery
+      else if (filters.isEmpty)
+        dismax(
+          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+          .tieBreaker(queryParams.topDisMaxTieBreaker)
+      else if (filterType == "prefix") dismax(
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixQuery("lpi.classificationCode", filterValue)), fallbackQuery)
+        .tieBreaker(queryParams.topDisMaxTieBreaker)
       else dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termQuery("lpi.classificationCode", filterValue)), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
     search(hybridIndex).query(query)
@@ -526,7 +599,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(requestData.tokens, 0, limit, queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, limit, "", queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

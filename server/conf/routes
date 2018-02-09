@@ -19,7 +19,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], retry: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], retry: Option[String], filter: Option[String])
 
 ###
 #  summary: Gets an address by UPRN.
@@ -53,7 +53,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    200:
 #      description: success
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input)
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, filter: Option[String])
 
 ###
 #  summary: Get version information.
