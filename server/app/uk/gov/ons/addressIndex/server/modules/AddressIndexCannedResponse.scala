@@ -62,6 +62,14 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def SourceMissing: AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(SourceMissingError)
+  }
+
+  def SourceInvalid: AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(SourceInvalidError)
+  }
+
   def KeyMissing: AddressBySearchResponseContainer = {
     UnauthorizedRequestTemplate(ApiKeyMissingError)
   }
@@ -69,6 +77,7 @@ trait AddressIndexCannedResponse {
   def KeyInvalid: AddressBySearchResponseContainer = {
     UnauthorizedRequestTemplate(ApiKeyInvalidError)
   }
+
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
   }
