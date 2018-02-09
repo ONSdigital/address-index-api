@@ -459,30 +459,17 @@ class AddressIndexRepository @Inject()(
 
     val normalizedInput = Tokens.concatenate(tokens)
 
-    //val filterQuery = Seq(filters("lpi.classificationCode", filters))
-    //val filterQuery = boolQuery().filter(termQuery("lpi.classificationCode", filters))
-    //val filterQuery = boolQuery().filter(prefixQuery("lpi.classificationCode", filters))
-
-    var filterType: String = ""
-    var filterValue: String = ""
-
-    if (filters == "residential") {
-      filterType = "prefix"
-      filterValue = "R"
-    }
-    else if (filters == "commercial") {
-      filterType = "prefix"
-      filterValue = "C"
-    }
-    else if (filters.endsWith("*")) {
-      filterType = "prefix"
-      filterValue =  filters.substring(0, filters.length - 1)
-    }
-    else {
-      filterType = "term"
-      filterValue = filters
+    val filterType: String = {
+      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
+      else "term"
     }
 
+    val filterValue: String = {
+      if (filters == "residential") "R"
+      else if (filters == "commercial") "C"
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1)
+      else filters
+    }
 
     val fallbackQuery =
       if (filters.isEmpty) {
