@@ -158,11 +158,13 @@ class AddressController @Inject()(
 
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
          // if there is a connection reset by peer or similar error due to inactivity
-         // we want to retry once to wake up the index connection
-          val isRetry = retry.getOrElse("false")
-          if (isRetry.equals("false")) {
-            logger.warn("retrying single match request")
-            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,filter,Some("true")))
+         // we want to retry a few times to wake up the index connection
+         val retries = retry.getOrElse("5")
+          val numRetries = Try(retries.toInt).toOption.getOrElse(5)
+          val newRetries = numRetries - 1
+          if (newRetries > 0) {
+            logger.warn("retrying uprn request retries remaining = " + newRetries)
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some(newRetries.toString),filter))
           } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
           }
@@ -240,10 +242,12 @@ class AddressController @Inject()(
 
           logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
           // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
-          val isRetry = retry.getOrElse("false")
-          if (isRetry.equals("false")) {
-            logger.warn("retrying uprn request")
-            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some("true")))
+          val retries = retry.getOrElse("5")
+          val numRetries = Try(retries.toInt).toOption.getOrElse(5)
+          val newRetries = numRetries - 1
+          if (newRetries > 0) {
+            logger.warn("retrying uprn request retries remaining = " + newRetries)
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some(newRetries.toString)))
           } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
           }
