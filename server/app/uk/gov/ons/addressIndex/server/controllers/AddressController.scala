@@ -159,11 +159,13 @@ class AddressController @Inject()(
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
          // if there is a connection reset by peer or similar error due to inactivity
          // we want to retry a few times to wake up the index connection
-         val retries = retry.getOrElse("5")
+          val retries = retry.getOrElse("5")
           val numRetries = Try(retries.toInt).toOption.getOrElse(5)
-          val newRetries = numRetries - 1
+          val newRetries = {
+            if (numRetries > 5) 5 else numRetries - 1
+          }
           if (newRetries > 0) {
-            logger.warn("retrying uprn request retries remaining = " + newRetries)
+            logger.warn("retrying single address request retries remaining = " + newRetries)
             Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some(newRetries.toString),filter))
           } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
@@ -241,10 +243,13 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-          // if there is a connection reset by peer error due to inactivity we want to retry once to wake up the index connection
+          // if there is a connection reset by peer error (or similar) due to inactivity we want to retry
+          // up to 5 times to wake up the index connection
           val retries = retry.getOrElse("5")
           val numRetries = Try(retries.toInt).toOption.getOrElse(5)
-          val newRetries = numRetries - 1
+          val newRetries = {
+            if (numRetries > 5) 5 else numRetries - 1
+          }
           if (newRetries > 0) {
             logger.warn("retrying uprn request retries remaining = " + newRetries)
             Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some(newRetries.toString)))
