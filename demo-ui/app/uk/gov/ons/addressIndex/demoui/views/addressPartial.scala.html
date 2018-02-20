@@ -4,6 +4,7 @@
 
 @(
     address: AddressResponseAddress,
+    filter: String,
     maxScore: Double,
     classification: Option[Map[String, String]],
     tokens: Map[String, String] = Map.empty[String, String],
@@ -96,7 +97,7 @@
                 <div class="resultRow">
                     @if(index != expandRow) {
                         <div class="clericalInfo">
-                            <a href="?page=@{
+                            <a href="?filter=@filter&page=@{
                                 pageNum
                             }&expand=@index#@index">@messages("clerical.addinfo")</a>
                         </div>
@@ -106,7 +107,7 @@
                     <div class='@{ if(index == expandRow) "showrow"  else  "hiderow"  }'>
                         @if(index >= 0) {
                         <div class="clericalInfo">
-                            <a href="?page=@{
+                            <a href="?filter=@{filter}&page=@{
                                 pageNum
                             }&expand=-1#@index">Hide</a>
                         </div>
@@ -927,7 +928,7 @@
                                 </div>
                             </div>
                             <div class="taRow">
-                                <div class="taColumn1bottom">
+                                <div class="taColumn1inner">
                                 @messages("clerical.locality")
                                 </div>
                                 <div class="taColumn2">
@@ -936,8 +937,22 @@
                                 <div class="taColumn3">
                                 @address.bespokeScore.map { score => @score.localityScoreDebug.drop(3).take(1) }
                                 </div>
-                                <div class="taColumn4bottom">
+                                <div class="taColumn4inner">
                                 @address.bespokeScore.map { score => @score.localityScore }
+                                </div>
+                            </div>
+                            <div class="taRow">
+                                <div class="taColumn1bottom">
+                                    @messages("clerical.locality")
+                                </div>
+                                <div class="taColumn2">
+                                    @messages("clerical.ambiguity_penalty")
+                                </div>
+                                <div class="taColumn3">
+                                    @address.bespokeScore.map { score => @score.ambiguityPenalty }
+                                </div>
+                                <div class="taColumn4bottom">
+                                    @address.bespokeScore.map { score => @score.localityScore }
                                 </div>
                             </div>
 
@@ -1043,7 +1058,7 @@
                         </div>
                         @if(index >= 0) {
                             <div class="clericalInfo">
-                                <a href="?page=@{
+                                <a href="?filter=@{filter}&page=@{
                                     pageNum
                                 }&expand=-1#@index">Hide</a>
                             </div>

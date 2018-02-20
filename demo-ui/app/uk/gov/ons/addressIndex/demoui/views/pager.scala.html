@@ -1,18 +1,18 @@
-@(pageNum: Int, pageSize: Int, pageMax: Int, address: String, numResults: Long, action: String)(implicit messages: Messages)
+@(pageNum: Int, pageSize: Int, pageMax: Int, address: String, filter: String, numResults: Long, action: String)(implicit messages: Messages)
 <div id="pager" class="panel panel-match address-panel">
     <div class="pagecontainer">
         <div class="pageleft pl@{pageNum}">
-            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, Some(pageNum-1), Some(-1))}
-            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, Some(pageNum-1), Some(-1))
-            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(pageNum-1))}}'>
+            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(pageNum-1), Some(-1))}
+            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(pageNum-1), Some(-1))
+            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, filter, Some(pageNum-1))}}'>
                 &lt; Previous page<br>
             @{Some(pageNum-1)} of @{Math.min(pageMax, (numResults + pageSize - 1) / pageSize)}</a>
         </div>
         <div class="pagecentre"> <br>Page @{pageNum}</div>
         <div class="pageright pr@{ (pageNum == ((numResults + pageSize - 1) / pageSize)) || pageNum == pageMax || numResults == 0 }">
-            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, Some(pageNum+1), Some(-1))}
-            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, Some(pageNum+1), Some(-1))
-            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(pageNum+1))}}'>
+            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(pageNum+1), Some(-1))}
+            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(pageNum+1), Some(-1))
+            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, filter, Some(pageNum+1))}}'>
             Next page &gt;<br>
             @{Some(pageNum+1)} of @{Math.min(pageMax, (numResults + pageSize - 1) / pageSize)}</a>
         </div>

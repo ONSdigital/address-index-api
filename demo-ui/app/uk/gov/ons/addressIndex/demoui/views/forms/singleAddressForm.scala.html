@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], placeholder: String)(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], placeholder: String, placeholderfilter: String)(implicit messages: Messages)
 @import helper._
 
 <fieldset class="searchfield">
@@ -8,6 +8,15 @@
     'class -> "form-control",
     '_label -> "",
     'placeholder -> placeholder
+    )
+
+
+    @inputText(
+    singleSearchForm("filter"),
+    args = '_id -> "presetOrCode",
+    'class -> "form-control",
+    '_label -> "Filter (optional): ",
+    'placeholder -> placeholderfilter
     )
 </fieldset>
 
