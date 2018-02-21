@@ -26,10 +26,10 @@ POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.c
 GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, page: Option[Int])
+GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: String, page: Option[Int])
 
 # ONS-Address Index Single Search Request
-GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String)
+GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: String)
 
 # ONS-Address Index Single Search Request
 POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
@@ -38,16 +38,16 @@ POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.c
 GET         /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, page: Option[Int], expand: Option[Int])
+GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int])
 
 # ONS-Address Index Single Search Request
-GET         /clerical/uprn/:input               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long)
+GET         /clerical/uprn/:input               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long, filter: String)
 
 # ONS-Address Index Single Search Request
 GET         /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
 
 # ONS-Address Index Single Search Request
-GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, page: Option[Int], expand: Option[Int])
+GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int])
 
 # ONS-Address Index Single Search Request
 POST        /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery

@@ -49,6 +49,7 @@ trait AddressIndexClient {
       .withHttpHeaders("authorization" -> request.apiKey)
       .withQueryStringParameters(
         "input" -> request.input,
+        "filter" -> request.filter,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
@@ -92,12 +93,13 @@ trait AddressIndexClient {
       .toReq
   }
 
-  def showQuery(input: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
+  def showQuery(input: String, filter: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
     ShowQuery
       .toReq
       .withHttpHeaders("authorization" -> apiKey)
       .withQueryStringParameters(
-        "input" -> input
+        "input" -> input,
+        "filter" -> filter
       ).get.map(response => Json.prettyPrint(response.json))
   }
 

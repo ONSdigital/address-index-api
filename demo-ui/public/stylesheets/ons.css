@@ -228,6 +228,12 @@ input#address.form-control {
     font-size: 1.1em;
 }
 
+input#filter.form-control {
+    width: 300px;
+    height: 40px;
+    font-size: 1.1em;
+}
+
 input#name.form-control {
     width: 240px;
     height: 40px;
@@ -377,7 +383,7 @@ nav ul li a:hover {
     text-decoration: none;
 }
 
-dd {
+dd, dt {
     margin-left: 10px;
 }
 

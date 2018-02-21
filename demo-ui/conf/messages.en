@@ -65,6 +65,7 @@ clerical.town_name=Town Name
 clerical.postcode_locator=Postcode Locator
 clerical.postcode_in=Postcode In
 clerical.postcode_out=Postcode Out
+clerical.ambiguity_penalty=Ambiguity Penalty
 
 clerical.subbuildingname=Sub Building Name
 clerical.buildingname=Building Name
@@ -156,6 +157,9 @@ single.enddate=Historical End Date
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR
 debugsearchform.placeholder=E.g. Ground Floor Flat, 45 Jones Avenue Swansea SA4 3DF
+singlesearchform.placeholderfilter=E.g. residential, commerical, RD06
+clericalsearchform.placeholderfilter=E.g. residential, commerical, RD06
+debugsearchform.placeholderfilter=E.g. residential, commerical, RD06
 uprn.notfound=UPRN Not Found
 uprn.found=UPRN Found
 error.error=Error

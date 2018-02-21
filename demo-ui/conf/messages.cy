@@ -64,6 +64,7 @@ clerical.town_name = Enw y Dref
 clerical.postcode_locator = Cod post Locator
 clerical.postcode_in = Cod post Mewn
 clerical.postcode_out = Cod post Out
+clerical.ambiguity_penalty=Ambiguity Penalty
 
 clerical.subbuildingname=Sub Building Name
 clerical.buildingname=Building Name
@@ -157,6 +158,9 @@ single.classification=Dosbarthiad
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR
 debugsearchform.placeholder=E.g. Ground Floor Flat, 45 Jones Avenue Swansea SA4 3DF
+singlesearchform.placeholderfilter=E.g. 16 James Street Swindon SN1 3HE
+clericalsearchform.placeholderfilter=E.g. 23 Hopper Street Portsmouth PO4 8AR
+debugsearchform.placeholderfilter=E.g. residential, commerical, RD06
 error.error=gwall
 error.detail=Manylion neges
 uprn.notfound=UPRN Heb Ganfod
