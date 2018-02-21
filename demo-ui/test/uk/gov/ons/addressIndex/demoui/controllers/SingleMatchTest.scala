@@ -111,6 +111,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<h3 class=\"green\">1 addresses found</h3>"
       val inputAddress = "7 EX2 6GA"
+      val filter = ""
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
@@ -122,12 +123,43 @@ class SingleMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-      .doMatchWithInput(inputAddress, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      .doMatchWithInput(inputAddress, filter, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
       status(response) mustBe OK
       content must include(expectedString)
     }
+
+    "return a page including some search results with a filter" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val expectedString = "[ R ] [ Residential ]"
+      val inputAddress = "7 EX2 6GA"
+      val filter = "RD"
+      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+
+      // When
+      val response = new SingleMatchController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient.asInstanceOf[AddressIndexClientInstance],
+        classHierarchy,
+        version)
+        .doMatchWithInput(inputAddress, filter, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+
   }
 }

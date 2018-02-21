@@ -31,6 +31,7 @@ class ClientToolTest extends PlaySpec with Results {
 
       // When
       val inputAddress = "7 GATE REACH EXETER EX2 6GA"
+      val filter = ""
       val response = new ClericalToolController(
         controllerComponents,
         configuration,
@@ -39,7 +40,37 @@ class ClientToolTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, filter, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+
+    "return a page containing additional information with a filter" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val expectedString = "Residential"
+      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+
+      // When
+      val inputAddress = "7 GATE REACH EXETER EX2 6GA"
+      val filter = "residential"
+      val response = new ClericalToolController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient.asInstanceOf[AddressIndexClientInstance],
+        classHierarchy,
+        version)
+        .doMatchWithInput(inputAddress, filter, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
