@@ -12,7 +12,9 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: limit
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: retry
-#      description: Flag to indicate this request is a retry (default false).
+#      description: Number of retries to attempt. System default if omitted or above allowed maximum.
+#    - name: filter
+#      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #  responses:
 #    200:
 #      description: success
