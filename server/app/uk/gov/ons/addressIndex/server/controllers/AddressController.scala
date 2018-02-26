@@ -116,6 +116,9 @@ class AddressController @Inject()(
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
+    } else if (filter.nonEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
+      writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
+      futureJsonBadRequest(FilterInvalid)
     } else {
       val tokens = parser.parse(input)
 

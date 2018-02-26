@@ -196,6 +196,14 @@ div#banner h1 {
 	vertical-align: top;
 }
 
+.tab-content input#address, .tab-content input#address-debug {
+	width: 400px;
+}
+
+.tab-content input#filter, .tab-content input#filter-debug {
+	width: 150px;
+}
+
 .tab-content textarea {
     font-family: "Open Sans",Helvetica,Arial,sans-serif;
     font-weight: 400;
@@ -274,24 +282,24 @@ div#banner h1 {
 				<p>Returns the swagger definition.</p>
 				<div class="fields"><button class="tablinks" onclick="getSwagger()">Get Swagger</button></div>
 			</div>
-			
-			<div id="single-match-tab" class="tab-content">
-				<h2>Single Match:</h2>
-				<p>Returns a ranked list of addresses matching the search query in the specified format.</p>
-				<div class="fields"><label for="address">Address: </label><input type="text" name="address" id="address" value="7 GATE REACH EXETER EX2 6GA" /><button onclick="getSingle()">Get Response</button></div>
-			</div>
+
+            <div id="single-match-tab" class="tab-content">
+                <h2>Single Match:</h2>
+                <p>Returns a ranked list of addresses matching the search query in the specified format.</p>
+                <div class="fields"><label for="address">Address: </label><input type="text" name="address" id="address" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter">Filter: </label><input type="text" name="filter" id="filter" value="" placeholder="Optional" /><button onclick="getSingle()">Get Response</button></div>
+            </div>
 			
 			<div id="uprn-tab" class="tab-content">
 				<h2>UPRN:</h2>
 				<p>Returns a single address, identified by its UPRN.</p>
 				<div class="fields"><label for="uprn">UPRN: </label><input type="text" name="uprn" id="uprn" value="10023122457" /><button onclick="getUPRN()">Get Response</button></div>
 			</div>
-			
-			<div id="debug-tab" class="tab-content">
-				<h2>Debug:</h2>
-				<p>Returns query that is sent to Elastic (for debug purposes).</p>
-				<div class="fields"><label for="address-debug">Debug: </label><input type="text" name="address-debug" id="address-debug" size="95" value="7 GATE REACH EXETER EX2 6GA" /><button onclick="getDebug()">Get Response</button></div>
-			</div>
+
+            <div id="debug-tab" class="tab-content">
+                <h2>Debug:</h2>
+                <p>Returns query that is sent to Elastic (for debug purposes).</p>
+                <div class="fields"><label for="address-debug">Debug: </label><input type="text" name="address-debug" id="address-debug" size="95" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter-debug">Filter: </label><input type="text" name="filter-debug" id="filter-debug" value="" placeholder="Optional" /><button onclick="getDebug()">Get Response</button></div>
+            </div>
 
 			<div id="bulk-tab" class="tab-content">
 				<h2>Bulk:</h2>
@@ -484,11 +492,21 @@ div#banner h1 {
         }
 
         function getSingle() {
-            getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/addresses?input=" + document.getElementById("address").value)
+        	if (document.getElementById("filter").value != "") {
+        		getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/addresses?input=" + document.getElementById("address").value + "&filter=" + document.getElementById("filter").value)
+        		}
+        	else {
+            	getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/addresses?input=" + document.getElementById("address").value)
+        	}
         }
 
         function getDebug() {
-            getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/query-debug?input=" + document.getElementById("address-debug").value)
+        	if (document.getElementById("filter-debug").value != "") {
+        		getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/query-debug?input=" + document.getElementById("address-debug").value + "&filter=" + document.getElementById("filter-debug").value)
+        		}
+        	else {
+            	getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/query-debug?input=" + document.getElementById("address-debug").value)
+        	}
         }
 
         function getBulk() {

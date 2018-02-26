@@ -78,6 +78,10 @@ trait AddressIndexCannedResponse {
     UnauthorizedRequestTemplate(ApiKeyInvalidError)
   }
 
+  def FilterInvalid: AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(FilterInvalidError)
+  }
+
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
   }

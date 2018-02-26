@@ -18,7 +18,8 @@ classification: Option[Map[String,String]],
 apiUrl: String,
 version: DemoUIAddressIndexVersionModule,
 placeholder: String,
-placeholderfilter: String
+labelFilter: String,
+placeholderFilter: String
 )(implicit messages: Messages)
 
 @*
@@ -48,7 +49,7 @@ placeholderfilter: String
             <div class="panel-body">
                 @helper.form(action = action) {
                 <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm, placeholder, placeholderfilter)
+                    @forms.singleAddressForm(singleSearchForm, placeholder, labelFilter, placeholderFilter)
                 </div>
                 }
             </div>

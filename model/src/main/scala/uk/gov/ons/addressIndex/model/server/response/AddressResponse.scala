@@ -786,6 +786,11 @@ object SourceInvalidError extends AddressResponseError(
   message = "Invalid source key supplied (check that using Gateway)"
 )
 
+object FilterInvalidError extends AddressResponseError(
+  code = 15,
+  message = "Invalid filter value supplied"
+)
+
 
 
 
