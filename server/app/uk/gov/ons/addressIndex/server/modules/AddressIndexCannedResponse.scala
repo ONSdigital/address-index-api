@@ -79,7 +79,7 @@ trait AddressIndexCannedResponse {
   }
 
   def FilterInvalid: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(FilterInvalidError)
+    BadRequestTemplate(FilterInvalidError)
   }
 
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
@@ -128,6 +128,7 @@ trait AddressIndexCannedResponse {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
+      filter= "",
       limit = 10,
       offset = 0,
       total = 0,

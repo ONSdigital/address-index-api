@@ -77,6 +77,7 @@ object AddressBySearchResponseContainer {
 case class AddressBySearchResponse(
   tokens: Map[String, String],
   addresses: Seq[AddressResponseAddress],
+  filter: String,
   limit: Int,
   offset: Int,
   total: Long,

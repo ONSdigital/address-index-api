@@ -246,6 +246,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
+          filter = "",
           limit = 10,
           offset = 0,
           total = 1,
@@ -263,6 +264,37 @@ class AddressControllerSpec extends PlaySpec with Results{
       actual mustBe expected
     }
 
+
+    "reply on a 400 error if an invalid filter value is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(FilterInvalidError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some(""), Some("BR12")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+
     "reply on a 400 error if a non-numeric offset parameter is supplied" in {
       // Given
       val controller = queryController
@@ -273,6 +305,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -301,6 +334,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -329,6 +363,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -357,6 +392,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -385,6 +421,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -413,6 +450,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -441,6 +479,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -469,6 +508,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -497,6 +537,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,

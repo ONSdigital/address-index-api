@@ -73,7 +73,7 @@ class AddressController @Inject()(
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isInput = true, input = input, offset = offval,
-        limit = limval, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
@@ -146,6 +146,7 @@ class AddressController @Inject()(
             response = AddressBySearchResponse(
               tokens = tokens,
               addresses = scoredAdresses,
+              filter = filterString,
               limit = limitInt,
               offset = offsetInt,
               total = total,
