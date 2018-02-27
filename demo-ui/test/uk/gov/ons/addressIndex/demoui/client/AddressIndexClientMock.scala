@@ -136,6 +136,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,
     offset = 1,
+    filter = "",
     total = 1,
     maxScore = 1f
   )

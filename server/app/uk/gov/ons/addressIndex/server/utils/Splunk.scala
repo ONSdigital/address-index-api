@@ -17,6 +17,7 @@ object Splunk {
     input: String = "",
     offset: String = "",
     limit: String = "",
+    filter: String = "",
     bulkSize: String = "",
     batchSize: String = "", // bulk is splitted into smaller batches
     badRequestMessage: String = "",
@@ -29,7 +30,7 @@ object Splunk {
   ): Unit = {
     logger.info(
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn input=$input offset=$offset limit=$limit bulk_size=$bulkSize batch_size=$batchSize " +
+        s"uprn=$uprn input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
     )
@@ -47,6 +48,7 @@ object Splunk {
     input: String = "",
     offset: String = "",
     limit: String = "",
+    filter: String = "",
     bulkSize: String = "",
     batchSize: String = "", // bulk is splitted into smaller batches
     badRequestMessage: String = "",
@@ -59,7 +61,7 @@ object Splunk {
   ): Unit = {
     logger.trace(
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn input=$input offset=$offset limit=$limit bulk_size=$bulkSize batch_size=$batchSize " +
+        s"uprn=$uprn input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
     )

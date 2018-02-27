@@ -77,6 +77,7 @@ object AddressBySearchResponseContainer {
 case class AddressBySearchResponse(
   tokens: Map[String, String],
   addresses: Seq[AddressResponseAddress],
+  filter: String,
   limit: Int,
   offset: Int,
   total: Long,
@@ -784,6 +785,11 @@ object SourceMissingError extends AddressResponseError(
 object SourceInvalidError extends AddressResponseError(
   code = 14,
   message = "Invalid source key supplied (check that using Gateway)"
+)
+
+object FilterInvalidError extends AddressResponseError(
+  code = 15,
+  message = "Invalid filter value supplied"
 )
 
 

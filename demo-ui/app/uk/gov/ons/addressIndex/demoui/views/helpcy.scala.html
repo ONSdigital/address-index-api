@@ -57,7 +57,7 @@ version: DemoUIAddressIndexVersionModule
                     <li>Os oes angen mewngofnodi, rhowch eich enw defnyddiwr rhwydwaith ons a chyfrinair, a chliciwch "Mewngofnodi" botwm</li>
                 </ol>
 
-                <img src="@routes.Assets.versioned("/images/help/login_1_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/login_1_cy.jpg").toString'>
             </div>
 
             <div>
@@ -65,16 +65,17 @@ version: DemoUIAddressIndexVersionModule
                 <h1>Chwilio am Cyfeiriad Sengl</h1>
 
                 <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Dod o hyd i gyfeiriad</div>
-                <img src="@routes.Assets.versioned("/images/help/single_1_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/single_1_cy.jpg").toString'>
 
-                <div>2. Rhowch gyfeiriad a chliciwch ar y botwm Chwilio
-                    Rhowch gymaint o'r cyfeiriad ag y bo modd ar gyfer canlyniadau gorau.
-                    Mae'r chwiliad ei optimeiddio ar gyfer paru cyfeiriadau mewn data gweinyddol, nid, er enghraifft arddangos yr holl gyfeiriadau yn y cod post a roddwyd.
+                <div>2. Rhowch gyfeiriad, gallwch ddewis ymuno hidlydd, a cliciwch y botwm chwilio.<br>
+                    Rhowch gymaint o'r cyfeiriad ag y bo modd ar gyfer canlyniadau gorau.<br>
+                    Mae'r chwiliad ei optimeiddio ar gyfer paru cyfeiriadau mewn data gweinyddol, nid, er enghraifft arddangos yr holl gyfeiriadau yn y cod post a roddwyd.<br>
+                    Bydd yr hidlydd yn gweithio gyda gwerthoedd rhagosod 'commercial' neu 'residential'. Yn ogystal, gallwch ddefnyddio'r gwerth penodol, e.e. RD06, neu ddilyn gwerth rhannol gan * 'yn cychwyn gyda' cyfatebol, e.e. RD0 *.
                 </div>
-                <img src="@routes.Assets.versioned("/images/help/single_2_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/single_2_cy.jpg").toString'>
 
                 <div>3. Unwaith y bydd y botwm chwilio ei glicio, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
-                <img src="@routes.Assets.versioned("/images/help/single_3_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/single_3_cy.jpg").toString'>
 
 
                 <ol>
@@ -98,11 +99,11 @@ version: DemoUIAddressIndexVersionModule
                 <h1>Chwilio am Cyfeiriadau Lluosog</h1>
 
                 <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Match cyfeiriadau lluosog</div>
-                <img src="@routes.Assets.versioned("/images/help/multiple_1_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/multiple_1_cy.jpg").toString'>
 
                 <div>2. Cliciwch Dewiswch Ffeil i ddewis ffeil o'ch cyfrifiadur. </div>
-                <div><i>Sylwer: Rhaid i'r ffeil a ddewisir fod yn CSV (Comma delimited) fformat, llai na 10MB o ran maint ac mae'n rhaid bod dim ond dwy golofn gyda penawdau: ID a chyfeiriad. Gweld <a href="@routes.Assets.versioned("/images/help/exsample.csv").toString">ffeil enghreifftiol</a></i></div>
-                <img src="@routes.Assets.versioned("/images/help/multiple_2_cy.jpg").toString">
+                <div><i>Sylwer: Rhaid i'r ffeil a ddewisir fod yn CSV (Comma delimited) fformat, llai na 10MB o ran maint ac mae'n rhaid bod dim ond dwy golofn gyda penawdau: ID a chyfeiriad. Gweld <a href='@routes.Assets.versioned("images/help/exsample.csv").toString'>ffeil enghreifftiol</a></i></div>
+                <img src='@routes.Assets.versioned("images/help/multiple_2_cy.jpg").toString'>
                  
                 <div>3. Ar ôl dewis y ffeil y dymunwch i gyd-fynd, yna mae'n rhaid i chi 2 ddewis:
                     <ol>
@@ -110,11 +111,11 @@ version: DemoUIAddressIndexVersionModule
                         <li>Dangoswch y canlyniadau yn y UI ddefnyddio'r botwm Dangos Canlyniadau - bydd hyn yn opsiynau arddangos y canlyniadau yn eich porwr ac yn caniatáu defnyddwyr i ddewis y canlyniadau gêm y maent yn dymuno i'w llwytho i lawr.</li>
                     </ol>
                 </div>
-                <img src="@routes.Assets.versioned("/images/help/multiple_3_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/multiple_3_cy.jpg").toString'>
 
                 <div>Unwaith y bydd y ffeil yn cael ei llwytho i fyny yn llwyddiannus, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
 
-                <img src="@routes.Assets.versioned("/images/help/multiple_4_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/multiple_4_cy.jpg").toString'>
 
                 <ul>
                     <li><strong>ID</strong>
@@ -141,14 +142,11 @@ version: DemoUIAddressIndexVersionModule
                 <h1>Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</h1>
 
                 <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch offeryn Clerigol</div>
-                <img src="@routes.Assets.versioned("/images/help/clerical_1_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/clerical_1_cy.jpg").toString'>
 
                 <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union yr un i chwilio sengl, gall y defnyddiwr cliciwch ar "Gwybodaeth Clerigol Ychwanegol" i weld mwy o wybodaeth am docynnau a hierarchaeth</div>
 
-                <img src="@routes.Assets.versioned("/images/help/clerical_2_cy.jpg").toString">
-                <img src="@routes.Assets.versioned("/images/help/clerical_3_cy.jpg").toString">
-                <img src="@routes.Assets.versioned("/images/help/clerical_4_cy.jpg").toString">
-                <img src="@routes.Assets.versioned("/images/help/clerical_5_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/clerical_2_cy.jpg").toString'>
 
                 <div>3. Cliciwch ar "Cuddio" i guddio y wybodaeth ychwanegol</div>
             </div>
@@ -160,11 +158,11 @@ version: DemoUIAddressIndexVersionModule
                 <div>Mae'r offeryn hwn yn caniatáu i wyddonwyr data i weld yr ymholiad chwilio elastig sylfaenol</div>
                 <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Arddangos ES Ymholiad</div>
 
-                <img src="@routes.Assets.versioned("/images/help/debug_1_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/debug_1_cy.jpg").toString'>
 
                 <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union offeryn Clerigol, ac eithrio mae blwch testun mawr uwchben y canlyniadau sy'n cynnwys yr ymholiad chwilio elastig y mae'r API wedi creu a defnyddio. Gall yr ymholiad hwn yn cael ei gopïo i mewn i offeryn megis Kopf neu Postman ar gyfer profi.</div>
 
-                <img src="@routes.Assets.versioned("/images/help/debug_3_cy.jpg").toString">
+                <img src='@routes.Assets.versioned("images/help/debug_3_cy.jpg").toString'>
             </div>
 
             <div>

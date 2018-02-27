@@ -51,6 +51,8 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #  parameters:
 #    - name: input
 #      description: Specifies the input for which the query should be generated.
+#    - name: filter
+#      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #  responses:
 #    200:
 #      description: success
