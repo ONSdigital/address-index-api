@@ -1,9 +1,9 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import java.util
+import com.sksamuel.elastic4s.http.search.SearchResponse
+import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
+import com.sksamuel.elastic4s.{Hit, HitReader}
 
-import com.sksamuel.elastic4s.{HitAs, RichSearchHit, RichSearchResponse}
-import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
@@ -17,6 +17,7 @@ case class HybridAddress(
   uprn: String,
   parentUprn: String,
   relatives: Seq[Relative],
+  crossRefs: Seq[CrossRef],
   postcodeIn: String,
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
@@ -35,6 +36,7 @@ object HybridAddress {
     uprn = "",
     parentUprn = "",
     relatives = Seq.empty,
+    crossRefs = Seq.empty,
     postcodeIn = "",
     postcodeOut = "",
     lpi = Seq.empty,
@@ -43,7 +45,8 @@ object HybridAddress {
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitAs extends HitAs[HybridAddress] {
+  implicit object HybridAddressHitReader extends HitReader[HybridAddress] {
+
 
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
@@ -51,36 +54,35 @@ object HybridAddress {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def as(hit: RichSearchHit): HybridAddress = {
+    override def read(hit: Hit): Either[Throwable, HybridAddress] = {
 
-      val lpis: Seq[Map[String, AnyRef]] = Try {
-        // Complex logic to cast field that contains a list of NAGs into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a NAG DTO
-        hit.sourceAsMap("lpi").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
-      }.getOrElse(Seq.empty)
-
-      val pafs: Seq[Map[String, AnyRef]] = Try {
-        // Complex logic to cast field that contains a list of PAFs into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a PAF DTO
-        hit.sourceAsMap("paf").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+      val cRefs: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
       val rels: Seq[Map[String, AnyRef]] = Try {
-        // Complex logic to cast field that contains a list of Relatives into a Scala's Map[String, AnyRef] so that we could
-        // extract the information into a Relatives DTO
-        hit.sourceAsMap("relatives").asInstanceOf[util.ArrayList[java.util.HashMap[String, AnyRef]]].asScala.toList.map(_.asScala.toMap)
+        hit.sourceAsMap("relatives").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-      HybridAddress(
+      val lpis: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("lpi").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
+      val pafs: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
+      Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
+        crossRefs = cRefs.map(CrossRef.fromEsMap),
         postcodeIn = hit.sourceAsMap("postcodeIn").toString,
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         score = hit.score
-      )
+      ))
     }
   }
 
@@ -95,14 +97,21 @@ object HybridAddress {
   */
 case class HybridAddresses(
   addresses: Seq[HybridAddress],
-  maxScore: Float,
+  maxScore: Double,
   total: Long
 )
 
 object HybridAddresses {
 
+  def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddresses = {
+    resp match {
+      case Left(l) => throw new Exception("search failed" + l.error.reason)
+      case Right(r) => fromSearchResponse(r.result)
+    }
+  }
+
   /**
-    * Transforms `RichSearchResponse` into a hybrid address
+    * Transforms `SearchResponse` into a hybrid address
     * It needs implicit `HitAs[HybridAddress]` that's why the definition should be after
     * the compamion object of `HybridAddress`
     *
@@ -110,17 +119,17 @@ object HybridAddresses {
     * @param response
     * @return
     */
-  def fromRichSearchResponse(response: RichSearchResponse): HybridAddresses = {
+  def fromSearchResponse(response: SearchResponse): HybridAddresses = {
 
-    if (response.shardFailures.nonEmpty)
-      throw new Exception(s"${response.shardFailures.length} failed shards out of ${response.totalShards}, the returned result would be partial and not reliable")
+     if (response.shards.failed > 0)
+      throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
     val maxScore = if (total == 0) 0 else response.maxScore
 
     HybridAddresses(
-      addresses = response.as[HybridAddress],
+      addresses = response.to[HybridAddress],
       maxScore = maxScore,
       total = total
     )

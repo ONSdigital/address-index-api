@@ -2,17 +2,24 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.Inject
 
+import cats.Show
+import com.sksamuel.elastic4s.searches.SearchDefinition
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Controller}
-import uk.gov.ons.addressIndex.parsers.Tokens
+import play.api.mvc._
 import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserModule}
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 
 import scala.concurrent.ExecutionContext
 
 class DebugController@Inject()(
+  val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule
-)(implicit ec: ExecutionContext) extends Controller {
+)(implicit ec: ExecutionContext) extends BaseController {
+
+  implicit object DebugShow extends Show[SearchDefinition]{
+    override def show(req: SearchDefinition): String = SearchBodyBuilderFn(req).string()
+  }
 
 
   /**
@@ -31,10 +38,14 @@ class DebugController@Inject()(
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
-  def queryDebug(input: String): Action[AnyContent] = Action { implicit req =>
+  def queryDebug(input: String, filter: Option[String] = None): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
-    val query = esRepo.generateQueryAddressRequest(tokens).toString()
-    Ok(Json.parse(query))
+
+    val filterString = filter.getOrElse("")
+
+    val query = esRepo.generateQueryAddressRequest(tokens,filterString)
+    val showQuery = DebugShow.show(query)
+    Ok(Json.parse(showQuery))
   }
 
 }

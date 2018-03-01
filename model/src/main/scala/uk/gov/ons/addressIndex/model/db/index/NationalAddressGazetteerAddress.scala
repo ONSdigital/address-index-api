@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-
+import scala.collection.immutable.HashMap
 import scala.util.Try
 
 /**
@@ -36,10 +36,8 @@ case class NationalAddressGazetteerAddress (
   locality: String,
   lpiLogicalStatus: String,
   blpuLogicalStatus: String,
-  source: String,
   usrnMatchIndicator: String,
   parentUprn: String,
-  crossReference: String,
   streetClassification: String,
   multiOccCount: String,
   language: String,
@@ -89,10 +87,8 @@ object NationalAddressGazetteerAddress {
     val locality: String = "locality"
     val lpiLogicalStatus: String = "lpiLogicalStatus"
     val blpuLogicalStatus: String = "blpuLogicalStatus"
-    val source: String = "source"
     val usrnMatchIndicator: String = "usrnMatchIndicator"
     val parentUprn: String = "parentUprn"
-    val crossReference: String = "crossReference"
     val streetClassification: String = "streetClassification"
     val multiOccCount: String = "multiOccCount"
     val location: String = "location"
@@ -111,12 +107,11 @@ object NationalAddressGazetteerAddress {
     val welsh: String = "CYM"
   }
 
-  def fromEsMap (nag: Map[String, AnyRef]): NationalAddressGazetteerAddress = {
-    val filteredNag = nag.filter{ case (_, value) => value != null }
+  def fromEsMap (nag: Map[String, Any]): NationalAddressGazetteerAddress = {
 
+    val filteredNag = nag.filter{ case (_, value) => value != null }
     val matchLocationRegex = """-?\d+\.\d+""".r
     val location = filteredNag.getOrElse(Fields.location, "").toString
-
     val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
 
     NationalAddressGazetteerAddress (
@@ -149,10 +144,8 @@ object NationalAddressGazetteerAddress {
       locality = filteredNag.getOrElse(Fields.locality, "").toString,
       lpiLogicalStatus = filteredNag.getOrElse(Fields.lpiLogicalStatus, "").toString,
       blpuLogicalStatus = filteredNag.getOrElse(Fields.blpuLogicalStatus, "").toString,
-      source = filteredNag.getOrElse(Fields.source, "").toString,
       usrnMatchIndicator = filteredNag.getOrElse(Fields.usrnMatchIndicator, "").toString,
       parentUprn = filteredNag.getOrElse(Fields.parentUprn, "").toString,
-      crossReference = filteredNag.getOrElse(Fields.crossReference, "").toString,
       streetClassification = filteredNag.getOrElse(Fields.streetClassification, "").toString,
       multiOccCount = filteredNag.getOrElse(Fields.multiOccCount, "").toString,
       language = filteredNag.getOrElse(Fields.language, "").toString,

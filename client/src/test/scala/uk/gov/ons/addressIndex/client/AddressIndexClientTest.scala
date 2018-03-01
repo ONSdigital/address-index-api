@@ -10,7 +10,7 @@ import uk.gov.ons.addressIndex.client.Resources._
 import uk.gov.ons.addressIndex.model._
 
 object Resources {
-  val apiHost = "host"
+  val apiHost = "http://localhost"
   val apiClient = new AddressIndexClient {
 
     /**
@@ -41,9 +41,11 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
 
   it should "construct a correct address query WSRequest" in {
     val input = "input"
+    val filter = "filter"
     val actual = apiClient.addressQueryWSRequest(
       request = AddressIndexSearchRequest(
         input = input,
+        filter = filter,
         id = UUID.randomUUID,
         limit = "10",
         offset = "0",
@@ -52,6 +54,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     ).queryString
     val expected = Map(
       "input" -> Seq("input"),
+      "filter" -> Seq("filter"),
       "limit" -> Seq("10"),
       "offset" -> Seq("0")
     )

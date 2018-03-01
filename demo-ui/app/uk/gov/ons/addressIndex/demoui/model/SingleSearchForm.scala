@@ -7,7 +7,8 @@ import play.api.libs.json._
   */
 
 case class SingleSearchForm(
- address: String
+ address: String,
+                           filter: String
 )
 
 object SingleSearchForm {

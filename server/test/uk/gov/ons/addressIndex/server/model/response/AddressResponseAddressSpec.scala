@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
+import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response._
 
 /**
@@ -39,10 +39,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     locality = "n21",
     lpiLogicalStatus = "lpiLogicalStatus",
     blpuLogicalStatus = "blpuLogicalStatus",
-    source = "source",
     usrnMatchIndicator = "usrnMatchIndicator",
     parentUprn = "parentUprn",
-    crossReference = "crossReference",
     streetClassification = "streetClassification",
     multiOccCount = "multiOccCount",
     language = NationalAddressGazetteerAddress.Languages.english,
@@ -122,6 +120,11 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     parents = Array(8L,9L)
   )
 
+  val givenCrossRef = CrossRef (
+    crossReference = "E05011011",
+    source = "7666OW"
+  )
+
   val givenBespokeScore = AddressResponseScore (
     objectScore = 0,
     structuralScore = 0,
@@ -130,9 +133,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     unitScore = 0,
     buildingScoreDebug = "0",
     localityScoreDebug = "0",
-    unitScoreDebug = "0")
+    unitScoreDebug = "0",
+    ambiguityPenalty = 1d)
 
   val givenRelativeResponse = AddressResponseRelative.fromRelative(givenRelative)
+
+  val givenCrossRefResponse = AddressResponseCrossRef.fromCrossRef(givenCrossRef)
 
   "Address response Address model" should {
 
@@ -276,7 +282,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), Seq(givenCrossRef), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expectedBespokeScore = None
@@ -284,6 +290,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
         relatives = Seq(givenRelativeResponse),
+        crossRefs = Seq(givenCrossRefResponse),
         formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
         formattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",

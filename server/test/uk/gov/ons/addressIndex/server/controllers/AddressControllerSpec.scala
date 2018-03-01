@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import com.sksamuel.elastic4s.{IndexesAndTypes, SearchDefinition}
+import com.sksamuel.elastic4s.IndexesAndTypes
+import com.sksamuel.elastic4s.searches.SearchDefinition
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Result, Results}
@@ -82,10 +83,8 @@ class AddressControllerSpec extends PlaySpec with Results{
     locality = "21",
     lpiLogicalStatus = "lpiLogicalStatus",
     blpuLogicalStatus = "blpuLogicalStatus",
-    source = "source",
     usrnMatchIndicator = "usrnMatchIndicator",
     parentUprn = "parentUprn",
-    crossReference = "crossReference",
     streetClassification = "streetClassification",
     multiOccCount = "multiOccCount",
     language = "language",
@@ -104,10 +103,16 @@ class AddressControllerSpec extends PlaySpec with Results{
     parents = Array(8L,9L)
   )
 
+  val validCrossRef = CrossRef (
+    crossReference = "E05011011",
+    source = "7666OW"
+  )
+
   val validHybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = Seq(validRelative),
+    crossRefs = Seq(validCrossRef),
     postcodeIn = "2",
     postcodeOut = "3",
     paf = Seq(validPafAddress),
@@ -122,7 +127,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
@@ -132,7 +137,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   // mock that won't return any addresses
@@ -140,7 +145,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
@@ -150,14 +155,14 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val sometimesFailingRepositoryMock = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
@@ -171,7 +176,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val failingRepositoryMock = new ElasticsearchRepository {
@@ -179,7 +184,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
       Future.failed(new Exception("test failure"))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
@@ -187,7 +192,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val parser = new ParserModule {
@@ -203,7 +208,9 @@ class AddressControllerSpec extends PlaySpec with Results{
     val dataVersion = dataVersionExpected
   }
 
-  val queryController = new AddressController(elasticRepositoryMock, parser, config, versions)
+  val components = stubControllerComponents()
+
+  val queryController = new AddressController(components, elasticRepositoryMock, parser, config, versions)
 
   "Address controller" should {
 
@@ -239,6 +246,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
+          filter = "",
           limit = 10,
           offset = 0,
           total = 1,
@@ -256,6 +264,37 @@ class AddressControllerSpec extends PlaySpec with Results{
       actual mustBe expected
     }
 
+
+    "reply on a 400 error if an invalid filter value is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(FilterInvalidError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some(""), Some("BR12")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+
     "reply on a 400 error if a non-numeric offset parameter is supplied" in {
       // Given
       val controller = queryController
@@ -266,6 +305,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -294,6 +334,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -322,6 +363,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -350,6 +392,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -378,6 +421,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -406,6 +450,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -434,6 +479,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -454,7 +500,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "reply on a 500 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
-      val controller = new AddressController(failingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
@@ -462,6 +508,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -471,8 +518,8 @@ class AddressControllerSpec extends PlaySpec with Results{
         errors = Seq(FailedRequestToEsError)
       ))
 
-      // When
-      val result = controller.addressQuery("some query").apply(FakeRequest())
+      // When - retry param must be true
+      val result = controller.addressQuery("some query", Some("0"), Some("10"), Some("0")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -482,7 +529,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "reply on a 500 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
-      val controller = new AddressController(failingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
@@ -490,6 +537,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
+          filter = "",
           limit = 10,
           offset = 0,
           total = 0,
@@ -499,8 +547,8 @@ class AddressControllerSpec extends PlaySpec with Results{
         errors = Seq(FailedRequestToEsError)
       ))
 
-      // When
-      val result = controller.uprnQuery("12345").apply(FakeRequest())
+      // When - retry parameter must be true
+      val result = controller.uprnQuery("12345",Some("0")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -510,7 +558,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
-      val controller = new AddressController(emptyElasticRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, emptyElasticRepositoryMock, parser, config, versions)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,
@@ -533,7 +581,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),
@@ -551,7 +599,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "have process bulk addresses using back-pressure" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),
@@ -574,7 +622,7 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     "have back-pressure that should throw an exception if there is an always failing request" in {
       // Given
-      val controller = new AddressController(sometimesFailingRepositoryMock, parser, config, versions)
+      val controller = new AddressController(components, sometimesFailingRepositoryMock, parser, config, versions)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("","1", Map("first" -> "success")),

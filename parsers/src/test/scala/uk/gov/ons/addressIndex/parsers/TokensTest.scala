@@ -188,6 +188,7 @@ class TokensTest extends FlatSpec with Matchers {
 
   it should "convert '21 SHETLAND PLACE WESTON ON AVON SUTHERLAND UNITED KINGDOM UK' into '21 SHETLAND PLACE WESTON ON AVON'" in {
     val input = "21 SHETLAND PLACE WESTON ON AVON SUTHERLAND UNITED KINGDOM UK"
+
     val expected = Seq("21", "SHETLAND", "PLACE", "WESTON", "ON", "AVON")
     val actual = Tokens.preTokenize(input)
     actual shouldBe expected

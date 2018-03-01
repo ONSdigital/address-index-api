@@ -1,7 +1,5 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import play.api.libs.json.{Format, Json}
-
 /**
   * Relative DTO
   * Relatives response contains a sequence of Relative objects, one per level
@@ -30,11 +28,11 @@ object Relative {
   }
 
   def fromEsMap (rels: Map[String, Any]): Relative = {
-
     Relative (
-        level = rels.getOrElse(Fields.level, 0).asInstanceOf[Int],
-        siblings = Json.parse(rels.getOrElse(Fields.siblings, "[]").toString).as[Seq[Long]],
-        parents =  Json.parse(rels.getOrElse(Fields.parents, "[]").toString).as[Seq[Long]]
+      rels.getOrElse(Fields.level, 0).asInstanceOf[Int],
+      // uprns sometimes come back as Integers instead of Longs from ES so need to deal with this
+      rels.getOrElse(Fields.siblings, Seq.empty).asInstanceOf[Seq[Any]].map(_.toString.toLong),
+      rels.getOrElse(Fields.parents, Seq.empty).asInstanceOf[Seq[Any]].map(_.toString.toLong)
     )
   }
 }

@@ -13,6 +13,7 @@ case class AddressIndexUPRNRequest(
 
 case class AddressIndexSearchRequest(
   input: String,
+  filter: String,
   limit: String,
   offset: String,
   id: UUID,

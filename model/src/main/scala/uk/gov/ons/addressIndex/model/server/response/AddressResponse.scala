@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response
 
 import play.api.http.Status
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, Relative}
+import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 
 import scala.util.Try
@@ -77,10 +77,11 @@ object AddressBySearchResponseContainer {
 case class AddressBySearchResponse(
   tokens: Map[String, String],
   addresses: Seq[AddressResponseAddress],
+  filter: String,
   limit: Int,
   offset: Int,
   total: Long,
-  maxScore: Float
+  maxScore: Double
 )
 
 object AddressBySearchResponse {
@@ -190,6 +191,7 @@ case class AddressResponseAddress(
   uprn: String,
   parentUprn: String,
   relatives: Seq[AddressResponseRelative],
+  crossRefs: Seq[AddressResponseCrossRef],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -226,6 +228,7 @@ object AddressResponseAddress {
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = other.relatives.map(AddressResponseRelative.fromRelative),
+      crossRefs = other.crossRefs.map(AddressResponseCrossRef.fromCrossRef),
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
@@ -279,6 +282,24 @@ object AddressResponseRelative {
   def fromRelative(relative: Relative): AddressResponseRelative =
     AddressResponseRelative(relative.level, relative.siblings, relative.parents)
 }
+
+
+
+case class AddressResponseCrossRef(crossReference: String, source: String)
+
+/**
+  * Companion object providing Lazy Json formatting
+  */
+object AddressResponseCrossRef {
+  implicit lazy val crossRefFormat: Format[AddressResponseCrossRef] = Json.format[AddressResponseCrossRef]
+
+  def fromCrossRef(crossRef: CrossRef): AddressResponseCrossRef =
+    AddressResponseCrossRef(crossRef.crossReference, crossRef.source)
+}
+
+
+
+
 
 /**
   * Paf data on the address
@@ -619,7 +640,8 @@ case class AddressResponseScore (
   unitScore: Double,
   buildingScoreDebug: String,
   localityScoreDebug: String,
-  unitScoreDebug: String
+  unitScoreDebug: String,
+  ambiguityPenalty: Double
 )
 
 object AddressResponseScore {
@@ -753,6 +775,21 @@ object ApiKeyMissingError extends AddressResponseError(
 object ApiKeyInvalidError extends AddressResponseError(
   code = 12,
   message = "Invalid Api key supplied"
+)
+
+object SourceMissingError extends AddressResponseError(
+  code = 13,
+  message = "Source key not supplied (check that using Gateway)"
+)
+
+object SourceInvalidError extends AddressResponseError(
+  code = 14,
+  message = "Invalid source key supplied (check that using Gateway)"
+)
+
+object FilterInvalidError extends AddressResponseError(
+  code = 15,
+  message = "Invalid filter value supplied"
 )
 
 

@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.duration._
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc._
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
@@ -22,6 +22,7 @@ import scala.util.control.NonFatal
 
 @Singleton
 class AddressController @Inject()(
+  val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: ConfigModule,
@@ -44,13 +45,17 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, retry: Option[String] = None, filter: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
     // check API key
     val apiKey = req.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
+
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
@@ -61,12 +66,14 @@ class AddressController @Inject()(
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
+    val filterString = filter.getOrElse("")
+
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isInput = true, input = input, offset = offval,
-        limit = limval, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
@@ -76,7 +83,13 @@ class AddressController @Inject()(
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     // Check the api key, offset and limit parameters before proceeding with the request
-    if (keyStatus == missing) {
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
       futureJsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -103,12 +116,15 @@ class AddressController @Inject()(
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
+      writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
+      futureJsonBadRequest(FilterInvalid)
     } else {
       val tokens = parser.parse(input)
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -130,6 +146,7 @@ class AddressController @Inject()(
             response = AddressBySearchResponse(
               tokens = tokens,
               addresses = scoredAdresses,
+              filter = filterString,
               limit = limitInt,
               offset = offsetInt,
               total = total,
@@ -144,7 +161,19 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEs))
+         // if there is a connection reset by peer or similar error due to inactivity
+         // we want to retry a few times to wake up the index connection
+          val retries = retry.getOrElse("5")
+          val numRetries = Try(retries.toInt).toOption.getOrElse(5)
+          val newRetries = {
+            if (numRetries > 5) 5 else numRetries - 1
+          }
+          if (newRetries > 0) {
+            logger.warn("retrying single address request retries remaining = " + newRetries)
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some(newRetries.toString),filter))
+          } else {
+            InternalServerError(Json.toJson(FailedRequestToEs))
+          }
       }
 
     }
@@ -156,12 +185,16 @@ class AddressController @Inject()(
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, retry: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
     val apiKey = req.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
+
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
 
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
@@ -172,7 +205,13 @@ class AddressController @Inject()(
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
-    if (keyStatus == missing) {
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
       futureJsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -208,7 +247,19 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEs))
+          // if there is a connection reset by peer error (or similar) due to inactivity we want to retry
+          // up to 5 times to wake up the index connection
+          val retries = retry.getOrElse("5")
+          val numRetries = Try(retries.toInt).toOption.getOrElse(5)
+          val newRetries = {
+            if (numRetries > 5) 5 else numRetries - 1
+          }
+          if (newRetries > 0) {
+            logger.warn("retrying uprn request retries remaining = " + newRetries)
+            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some(newRetries.toString)))
+          } else {
+            InternalServerError(Json.toJson(FailedRequestToEs))
+          }
       }
     }
   }
@@ -224,7 +275,18 @@ class AddressController @Inject()(
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
-    if (keyStatus == missing) {
+
+    // check source
+    val source = request.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    if (sourceStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
+      jsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceInvalidError.message)
+      jsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
       jsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -253,7 +315,18 @@ class AddressController @Inject()(
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
-    if (keyStatus == missing) {
+
+    // check source
+    val source = request.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    if (sourceStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
+      jsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceInvalidError.message)
+      jsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
       jsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -277,7 +350,18 @@ class AddressController @Inject()(
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
     val keyStatus = checkAPIkey(apiKey)
-    if (keyStatus == missing) {
+
+    // check source
+    val source = request.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    if (sourceStatus == missing) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
+      jsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceInvalidError.message)
+      jsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyMissingError.message)
       jsonUnauthorized(KeyMissing)
     } else if (keyStatus == invalid) {
@@ -460,6 +544,25 @@ class AddressController @Inject()(
       apiKeyTest match {
         case key if key == missing => missing
         case key if key == masterKey => valid
+        case _ => invalid
+      }
+    } else {
+      notRequired
+    }
+  }
+
+  /**
+    * Method to check source of query
+    * @param apiKey
+    * @return not required, valid, invalid or missing
+    */
+  def checkSource(source: String): String = {
+    val sourceRequired = conf.config.sourceRequired
+    if (sourceRequired) {
+      val sourceName = conf.config.sourceKey
+      source match {
+        case key if key == missing => missing
+        case key if key == sourceName => valid
         case _ => invalid
       }
     } else {

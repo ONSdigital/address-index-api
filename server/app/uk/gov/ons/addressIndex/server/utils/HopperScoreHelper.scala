@@ -77,7 +77,6 @@ object HopperScoreHelper  {
     localityParams: Seq[(String,String)]): AddressResponseAddress = {
 
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
-    val departmentName = tokens.getOrElse(Tokens.departmentName, empty)
     val subBuildingName = tokens.getOrElse(Tokens.subBuildingName, empty)
     val buildingName = tokens.getOrElse(Tokens.buildingName, empty)
     val buildingNumber = tokens.getOrElse(Tokens.buildingNumber, empty)
@@ -125,7 +124,6 @@ object HopperScoreHelper  {
     val unitScoreDebug = calculateUnitScore(
       address,
       subBuildingName,
-      departmentName,
       saoStartNumber,
       saoEndNumber,
       saoStartSuffix,
@@ -147,7 +145,8 @@ object HopperScoreHelper  {
       unitScore,
       respBuildingScoreDebug,
       respLocalityScoreDebug,
-      respUnitScoreDebug)
+      respUnitScoreDebug,
+      ambiguityPenalty)
 
     address.copy(bespokeScore = Some(bespokeScore))
   }
@@ -831,7 +830,6 @@ object HopperScoreHelper  {
     * or source origanisation name is unmatched
     * @param address
     * @param subBuildingName
-    * @param departmentName
     * @param saoStartNumber
     * @param saoEndNumber
     * @param saoStartSuffix
@@ -842,7 +840,6 @@ object HopperScoreHelper  {
   def calculateUnitScore(
     address: AddressResponseAddress,
     subBuildingName: String,
-    departmentName: String,
     saoStartNumber: String,
     saoEndNumber: String,
     saoStartSuffix: String,

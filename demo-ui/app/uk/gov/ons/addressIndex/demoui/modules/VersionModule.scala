@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.demoui.modules
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
-
+import scala.language.postfixOps
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 import scala.language.implicitConversions

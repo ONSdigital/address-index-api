@@ -3,13 +3,12 @@ package uk.gov.ons.addressIndex.demoui.controllers
 import javax.inject.{Inject, Singleton}
 
 import play.api.{Environment, Logger, Mode}
-import play.api.Mode.Mode
+import play.api.Mode
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.{Format, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest, WSResponse}
-import play.api.mvc.{Action, AnyContent, Call, Controller}
+import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.model.formdata.LoginCredentials
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.GatewaySimulator
@@ -26,7 +25,15 @@ import scala.language.implicitConversions
   * @param ec
   */
 @Singleton
-class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: DemoUIAddressIndexVersionModule, val messagesApi: MessagesApi, environment: Environment, ws: WSClient)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
+class ApplicationHomeController @Inject()
+( val controllerComponents: ControllerComponents,
+  conf: DemouiConfigModule,
+  version: DemoUIAddressIndexVersionModule,
+  override val messagesApi: MessagesApi,
+  environment: Environment,
+  ws: WSClient
+)
+  (implicit ec: ExecutionContext) extends BaseController with I18nSupport {
 
   val logger = Logger("ApplicationHomeController")
 
@@ -89,12 +96,11 @@ class ApplicationHomeController @Inject()(conf: DemouiConfigModule, version: Dem
         case Mode.Prod => conf.config.realGatewayProd
       }
 
-      val fullURL = conf.config.gatewayURL+"/ai/login"
       if (realGateway) {
         val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
         logger.info("attempting to login via gateway")
         val complexRequest: WSRequest =
-          request.withHeaders("Accept" -> "application/json")
+          request.withHttpHeaders("Accept" -> "application/json")
             .withAuth(userName, password, WSAuthScheme.BASIC)
             .withRequestTimeout(10000.millis)
 

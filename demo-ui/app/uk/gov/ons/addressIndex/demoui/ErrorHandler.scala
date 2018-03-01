@@ -4,13 +4,13 @@ import play.api.http.HttpErrorHandler
 import play.api.http.DefaultHttpErrorHandler
 import play.api.mvc._
 import play.api._
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi, Lang, Langs, MessagesImpl}
 import scala.language.implicitConversions
 import scala.concurrent._
 import javax.inject.{Inject, Singleton}
 
 import play.api.mvc.Results._
-import play.api.Mode.Mode
+import play.api.Mode
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
@@ -24,6 +24,7 @@ import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
   */
 @Singleton
 class ErrorHandler @Inject() (
+  langs: Langs,
   val messagesApi: MessagesApi,
   environment: Environment,
   conf : DemouiConfigModule,
@@ -32,6 +33,9 @@ class ErrorHandler @Inject() (
 ) extends HttpErrorHandler with I18nSupport {
 
   val logger = Logger("ErrorHandler")
+
+  implicit val lang: Lang = langs.availables.head
+  implicit val messages = new MessagesImpl(lang,messagesApi)
 
   val mode: Mode = environment.mode
 

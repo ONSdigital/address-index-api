@@ -1,16 +1,13 @@
-@import helper._
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
-@import uk.gov.ons.addressIndex.demoui.model.ui.Links
-@import uk.gov.ons.addressIndex.demoui.views.ScoreHelper
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
-@import uk.gov.ons.addressIndex.parsers.Tokens
 @(
 title: String,
 action: Call,
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 warningMessage : Option[String],
 query: String,
+filter: String,
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
@@ -20,7 +17,9 @@ addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.Ad
 classification: Option[Map[String,String]],
 apiUrl: String,
 version: DemoUIAddressIndexVersionModule,
-placeholder: String
+placeholder: String,
+labelFilter: String,
+placeholderFilter: String
 )(implicit messages: Messages)
 
 @*
@@ -50,7 +49,7 @@ placeholder: String
             <div class="panel-body">
                 @helper.form(action = action) {
                 <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm, placeholder)
+                    @forms.singleAddressForm(singleSearchForm, placeholder, labelFilter, placeholderFilter)
                 </div>
                 }
             </div>
@@ -62,7 +61,7 @@ placeholder: String
             }
 
 
-            @clericalToolAddresses(singleSearchForm, pageNum, pageSize, pageMax, expandRow, pagerAction, addressBySearchResponse, classification, apiUrl)
+            @clericalToolAddresses(singleSearchForm, singleSearchForm("filter").value.getOrElse(""), pageNum, pageSize, pageMax, expandRow, pagerAction, addressBySearchResponse, classification, apiUrl)
 
 
         </div>

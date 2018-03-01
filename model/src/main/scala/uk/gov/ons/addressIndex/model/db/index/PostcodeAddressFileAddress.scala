@@ -78,10 +78,10 @@ object PostcodeAddressFileAddress {
     val pafAll: String = "pafAll"
   }
 
-  def fromEsMap(paf: Map[String, AnyRef]): PostcodeAddressFileAddress = {
+  def fromEsMap (paf: Map[String, Any]): PostcodeAddressFileAddress = {
     val filteredPaf = paf.filter { case (_, value) => value != null }
 
-    PostcodeAddressFileAddress(
+    PostcodeAddressFileAddress (
       recordIdentifier = filteredPaf.getOrElse(Fields.recordIdentifier, "").toString,
       changeType = filteredPaf.getOrElse(Fields.changeType, "").toString,
       proOrder = filteredPaf.getOrElse(Fields.proOrder, "").toString,

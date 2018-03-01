@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import org.scalatestplus.play.PlaySpec
-import play.api.i18n.MessagesApi
-import play.api.mvc.Results
+import play.api.i18n.{Langs, MessagesApi}
+import play.api.mvc.{ControllerComponents, Results}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
@@ -20,14 +20,23 @@ class SingleMatchTest extends PlaySpec with Results {
     "return a page containing a heading" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Search for an address"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
+      val response = new SingleMatchController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient,
+        classHierarchy,
+        version)
         .showSingleMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
@@ -39,14 +48,23 @@ class SingleMatchTest extends PlaySpec with Results {
     "return a page including a single match form" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
+      val response = new SingleMatchController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient,
+        classHierarchy,
+        version)
         .showSingleMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
@@ -58,14 +76,23 @@ class SingleMatchTest extends PlaySpec with Results {
     "return a page including an appropriate error message when empty address posted" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<span class=\"error\" onclick=\"setFocus('address');\">Please enter an address</span>"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new SingleMatchController(configuration, messagesApi, apiClient, classHierarchy, version)
+      val response = new SingleMatchController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient,
+        classHierarchy,
+        version)
         .doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
       val content = contentAsString(response)
 
@@ -77,26 +104,62 @@ class SingleMatchTest extends PlaySpec with Results {
     "return a page including some search results" in new WithApplication {
       // Given
       val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
       val configuration = app.injector.instanceOf[DemouiConfigModule]
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<h3 class=\"green\">1 addresses found</h3>"
       val inputAddress = "7 EX2 6GA"
+      val filter = ""
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new SingleMatchController(
+        controllerComponents,
         configuration,
         messagesApi,
+        langs,
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-      .doMatchWithInput(inputAddress, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      .doMatchWithInput(inputAddress, filter, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
       status(response) mustBe OK
       content must include(expectedString)
     }
+
+    "return a page including some search results with a filter" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val expectedString = "[ R ] [ Residential ]"
+      val inputAddress = "7 EX2 6GA"
+      val filter = "RD"
+      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+
+      // When
+      val response = new SingleMatchController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient.asInstanceOf[AddressIndexClientInstance],
+        classHierarchy,
+        version)
+        .doMatchWithInput(inputAddress, filter, Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+
   }
 }
