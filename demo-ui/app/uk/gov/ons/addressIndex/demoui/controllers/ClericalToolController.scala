@@ -44,7 +44,7 @@ class ClericalToolController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
-  val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port
+  val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
 
   /**
     * Present empty form for user to input address
@@ -73,7 +73,8 @@ class ClericalToolController @Inject()(
       version = version,
       placeholder = messagesApi("clericalsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
-      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+      apiKey = apiKey
     )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
@@ -109,7 +110,8 @@ class ClericalToolController @Inject()(
         version = version,
         placeholder = messagesApi("clericalsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
-        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+        apiKey = ""
       )
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
@@ -156,7 +158,8 @@ class ClericalToolController @Inject()(
           version = version,
           placeholder = messagesApi("clericalsearchform.placeholder"),
           labelFilter = messagesApi("clericalsearchform.labelfilter"),
-          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+          apiKey = apiKey
         )
 
         Future.successful(
@@ -203,7 +206,8 @@ class ClericalToolController @Inject()(
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+            apiKey = ""
           ))
         }
       }
@@ -352,7 +356,8 @@ class ClericalToolController @Inject()(
       version = version,
       placeholder = messagesApi("debugsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
-      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+      apiKey = apiKey
     )
       Future.successful(
         Ok(viewToRender)
@@ -402,7 +407,8 @@ class ClericalToolController @Inject()(
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+            apiKey = ""
           )
 
           Future.successful(
@@ -449,7 +455,8 @@ class ClericalToolController @Inject()(
               version = version,
               placeholder = messagesApi("debugsearchform.placeholder"),
               labelFilter = messagesApi("clericalsearchform.labelfilter"),
-              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+              apiKey = ""
             ))
           }
         }
