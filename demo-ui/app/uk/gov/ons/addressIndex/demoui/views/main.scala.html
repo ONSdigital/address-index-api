@@ -124,19 +124,26 @@
     });
 
 
-
-
-    function formattedAddress(uprn, position, apiUrl) {
+    function formattedAddress(uprn, position, apiUrl, apiKey) {
         var url = apiUrl.concat("/addresses/").concat(uprn);
-
-        $.getJSON(url).done(function( data ) {
+        $.support.cors = true; // this is required for IE8
+        $.ajax({
+          type: 'GET',
+          url: url,
+          dataType: 'json',
+          headers: {
+           "Authorization": apiKey
+          }
+        })
+         .done(function(data) {
             var resUprn = data.response.address.uprn;
             var formattedAddress = data.response.address.formattedAddress;
 
             if (typeof formattedAddress !== 'undefined') {
                 $("#" + position).append("<div id='" + resUprn + "'>" + formattedAddress + " (" + resUprn + ")" + "</div>");
-            }
-        });
+          }
+         });
+
     }
 
     </script>

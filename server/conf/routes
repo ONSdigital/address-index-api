@@ -24,6 +24,46 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], retry: Option[String], filter: Option[String])
 
 ###
+#  summary: Return a list of available codelist lookups.
+#  responses:
+#    200:
+#      description: list of lookups e.g. classification, custodian
+###
+GET     /codelists          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+
+###
+#  summary: Return a list of available external source codes
+#  responses:
+#    200:
+#      description: list of valid source codes and names (e.g. council tax)
+###
+GET     /source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+
+###
+#  summary: Return a list of available classification codes
+#  responses:
+#    200:
+#      description: list of classifications e.g. RD01=Detached House
+###
+GET     /classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+
+###
+#  summary: Return a list of available local custodian codes
+#  responses:
+#    200:
+#      description: list of addressbase custodian codes to LA matches
+###
+GET     /custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+
+###
+#  summary: Return a list of available logical status values
+#  responses:
+#    200:
+#      description: list of valid statuses e.g. 8=historical
+###
+GET     /logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+
+###
 #  summary: Gets an address by UPRN.
 #  description: Returns a single address, identified by its UPRN.
 #  parameters:
