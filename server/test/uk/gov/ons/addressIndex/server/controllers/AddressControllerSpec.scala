@@ -286,7 +286,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some(""), Some("BR12")).apply(FakeRequest())
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("BR12")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -518,8 +518,8 @@ class AddressControllerSpec extends PlaySpec with Results{
         errors = Seq(FailedRequestToEsError)
       ))
 
-      // When - retry param must be true
-      val result = controller.addressQuery("some query", Some("0"), Some("10"), Some("0")).apply(FakeRequest())
+      // When
+      val result = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -547,8 +547,8 @@ class AddressControllerSpec extends PlaySpec with Results{
         errors = Seq(FailedRequestToEsError)
       ))
 
-      // When - retry parameter must be true
-      val result = controller.uprnQuery("12345",Some("0")).apply(FakeRequest())
+      // When
+      val result = controller.uprnQuery("12345").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
