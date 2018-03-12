@@ -104,7 +104,7 @@ val uiDeps = Seq(
   cache,
   ws,
   specs2 % Test,
-  "com.typesafe.play"      %% "play-test"          % "2.6.6" % Test ,
+  "com.typesafe.play"      %% "play-test"          % "2.6.10" % Test ,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test ,
   "com.github.tototoshi"   %% "scala-csv"          % "1.3.4"
 ) ++ commonDeps

@@ -70,6 +70,18 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def BadRequestNonNumericUprn: AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByUprnResponse(
+        address = None
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(UprnNotNumericAddressResponseError)
+    )
+  }
+
   private def BadRequestPostcodeTemplate(errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
@@ -156,6 +168,10 @@ trait AddressIndexCannedResponse {
 
   def OffsetTooLargePostcode: AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(OffsetTooLargePostcodeAddressResponseError)
+  }
+
+  def UprnNotNumeric: AddressByUprnResponseContainer = {
+    BadRequestNonNumericUprn
   }
 
   def UnsupportedFormat: AddressBySearchResponseContainer = {
