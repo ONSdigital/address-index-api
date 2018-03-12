@@ -920,6 +920,8 @@ object LocalCustodian {
     "N9072" -> "NORTH AYRSHIRE",
     "C9072" -> "S12000021",
     "N9073" -> "NORTH LANARKSHIRE",
+    "C9073" -> "S12000044",
+    "N9074" -> "PERTH AND KINROSS",
     "C9074" -> "S12000024",
     "N9075" -> "RENFREWSHIRE",
     "C9075" -> "S12000038",

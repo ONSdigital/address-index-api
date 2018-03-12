@@ -39,6 +39,12 @@ class AddressController @Inject()(
   val valid: String = "valid"
   val notRequired: String = "not required"
 
+
+  def codelists(): Action[AnyContent] = Action async { implicit req =>
+      val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+      Future(Ok(message))
+  }
+
   /**
     * Address query API
     *
