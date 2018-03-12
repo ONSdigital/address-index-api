@@ -265,6 +265,138 @@ class AddressController @Inject()(
   }
 
 
+  /**
+    * POSTCODE query API
+    *
+    * @param postcode postcode of the address to be fetched
+    * @return Json response with addresses information
+    */
+  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
+    val startingTime = System.currentTimeMillis()
+
+    // check API key
+    val apiKey = req.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    // get the defaults and maxima for the paging parameters from the config
+    val defLimit = conf.config.elasticSearch.defaultLimitPostcode
+    val defOffset = conf.config.elasticSearch.defaultOffset
+    val maxLimit = conf.config.elasticSearch.maximumLimit
+    val maxOffset = conf.config.elasticSearch.maximumOffset
+
+    val limval = limit.getOrElse(defLimit.toString)
+    //val limval = "100"
+    val offval = offset.getOrElse(defOffset.toString)
+
+    val filterString = filter.getOrElse("")
+
+    def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+      val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
+      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
+        isPostcode = true, postcode = postcode, isNotFound = notFound, offset = offval,
+        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        numOfResults = numOfResults, score = score, networkid = networkid)
+    }
+
+    val limitInvalid = Try(limval.toInt).isFailure
+    val offsetInvalid = Try(offval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+
+    // Check the api key, offset and limit parameters before proceeding with the request
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
+      futureJsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
+      futureJsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LimitNotNumericPostcodeAddressResponseError.message)
+      futureJsonBadRequest(LimitNotNumericPostcode)
+    } else if (limitInt < 1) {
+      writeSplunkLogs(badRequestErrorMessage = LimitTooSmallPostcodeAddressResponseError.message)
+      futureJsonBadRequest(LimitTooSmallPostcode)
+    } else if (limitInt > maxLimit) {
+      writeSplunkLogs(badRequestErrorMessage = LimitTooLargePostcodeAddressResponseError.message)
+      futureJsonBadRequest(LimitTooLargePostcode)
+    } else if (offsetInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetNotNumericPostcodeAddressResponseError.message)
+      futureJsonBadRequest(OffsetNotNumericPostcode)
+    } else if (offsetInt < 0) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetTooSmallPostcodeAddressResponseError.message)
+      futureJsonBadRequest(OffsetTooSmallPostcode)
+    } else if (offsetInt > maxOffset) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetTooLargePostcodeAddressResponseError.message)
+      futureJsonBadRequest(OffsetTooLargePostcode)
+    } else if (postcode.isEmpty) {
+      writeSplunkLogs(badRequestErrorMessage = EmptyQueryPostcodeAddressResponseError.message)
+      futureJsonBadRequest(EmptySearchPostcode)
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
+      writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
+      futureJsonBadRequest(FilterInvalid)
+    } else {
+      val tokens = parser.parse(postcode)
+
+      //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
+
+      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString)
+
+      request.map {
+        case HybridAddresses(hybridAddresses, maxScore, total) =>
+
+        val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
+
+        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+
+        addresses.foreach{ address =>
+          writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
+        }
+
+        writeSplunkLogs()
+
+        jsonOk(
+          AddressByPostcodeResponseContainer(
+            apiVersion = apiVersion,
+            dataVersion = dataVersion,
+            response = AddressByPostcodeResponse(
+              postcode = postcode,
+              addresses = scoredAdresses,
+              filter = filterString,
+              limit = limitInt,
+              offset = offsetInt,
+              total = total,
+              maxScore = maxScore
+            ),
+            status = OkAddressResponseStatus
+          )
+        )
+
+      }.recover{
+        case NonFatal(exception) =>
+
+          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+
+          logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
+          InternalServerError(Json.toJson(FailedRequestToEsPostcode))
+      }
+
+    }
+  }
+
+
+
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`

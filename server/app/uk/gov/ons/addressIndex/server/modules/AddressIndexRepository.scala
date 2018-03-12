@@ -36,6 +36,14 @@ trait ElasticsearchRepository {
   def queryUprn(uprn: String): Future[Option[HybridAddress]]
 
   /**
+    * Query the address index by postcode.
+    *
+    * @param postcode the identificator of the address
+    * @return Future containing a address or `None` if not in the index
+    */
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
+
+  /**
     * Query the address index for addresses.
     *
     * @param start  the offset for the query
@@ -99,6 +107,53 @@ class AddressIndexRepository @Inject()(
     */
   def generateQueryUprnRequest(uprn: String): SearchDefinition = search(hybridIndex).query {
     termQuery("uprn", uprn)
+  }
+
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
+
+    val request = generateQueryPostcodeRequest(postcode, filters, queryParamsConfig).start(start).limit(limit)
+
+    logger.trace(request.toString)
+
+    client.execute(request).map(HybridAddresses.fromEither)
+  }
+
+  /**
+    * Generates request to get address from ES by Postcode
+    * Public for tests
+    *
+    * @param postcode the postcode of the fetched address
+    * @return Search definition containing query to the ES
+    */
+  def generateQueryPostcodeRequest(postcode: String, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
+
+    val filterType: String = {
+      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
+      else "term"
+    }
+
+    val filterValue: String = {
+      if (filters == "residential") "R"
+      else if (filters == "commercial") "C"
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1)
+      else filters
+    }
+
+    val query =
+    if (filters.isEmpty) {
+      must(termQuery("lpi.postcodeLocator", postcode.toUpperCase)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+    }else {
+      if (filterType == "prefix") {
+        must(termQuery("lpi.postcodeLocator", postcode.toUpperCase)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else {
+        must(termQuery("lpi.postcodeLocator", postcode.toUpperCase)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+      }
+    }
+
+    search(hybridIndex).query(query)
+      .sortBy(FieldSortDefinition("lpi.streetDescriptor").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+
   }
 
   def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
