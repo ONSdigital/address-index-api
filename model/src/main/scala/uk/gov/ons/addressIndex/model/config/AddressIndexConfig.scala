@@ -22,6 +22,7 @@ case class ElasticSearchConfig(
   indexes: IndexesConfig,
   queryParams: QueryParamsConfig,
   defaultLimit: Int,
+  defaultLimitPostcode: Int,
   defaultOffset: Int,
   maximumLimit: Int,
   maximumOffset: Int

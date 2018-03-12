@@ -11,9 +11,11 @@ object Splunk {
     url: String = "",
     responseTimeMillis: String = "",
     isUprn: Boolean = false,
+    isPostcode: Boolean = false,
     isInput: Boolean = false,
     isBulk: Boolean = false,
     uprn: String = "",
+    postcode: String = "",
     input: String = "",
     offset: String = "",
     limit: String = "",
@@ -29,8 +31,8 @@ object Splunk {
     networkid: String = ""
   ): Unit = {
     logger.info(
-      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
+      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
+        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
     )
@@ -42,9 +44,11 @@ object Splunk {
     url: String = "",
     responseTimeMillis: String = "",
     isUprn: Boolean = false,
+    isPostcode: Boolean = false,
     isInput: Boolean = false,
     isBulk: Boolean = false,
     uprn: String = "",
+    postcode: String = "",
     input: String = "",
     offset: String = "",
     limit: String = "",
@@ -60,8 +64,8 @@ object Splunk {
     networkid: String = ""
   ): Unit = {
     logger.trace(
-      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
+      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
+        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
     )

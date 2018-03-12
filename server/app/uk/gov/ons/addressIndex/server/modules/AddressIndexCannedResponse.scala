@@ -42,6 +42,24 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def NoAddressFoundPostcode: AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByPostcodeResponse(
+        postcode = "",
+        addresses = Seq.empty,
+        filter= "",
+        limit = 10,
+        offset = 0,
+        total = 0,
+        maxScore = 0f
+      ),
+      status = NotFoundAddressResponseStatus,
+      errors = Seq(NotFoundAddressResponseError)
+    )
+  }
+
   private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -61,6 +79,16 @@ trait AddressIndexCannedResponse {
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
+    )
+  }
+
+  private def BadRequestPostcodeTemplate(errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPostcode,
+      status = BadRequestAddressResponseStatus,
+      errors = errors
     )
   }
 
@@ -98,24 +126,48 @@ trait AddressIndexCannedResponse {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
   }
 
+  def OffsetNotNumericPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetNotNumericPostcodeAddressResponseError)
+  }
+
   def LimitNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(LimitNotNumericAddressResponseError)
+  }
+
+  def LimitNotNumericPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitNotNumericPostcodeAddressResponseError)
   }
 
   def LimitTooSmall: AddressBySearchResponseContainer = {
       BadRequestTemplate(LimitTooSmallAddressResponseError)
   }
 
+  def LimitTooSmallPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitTooSmallPostcodeAddressResponseError)
+  }
+
   def OffsetTooSmall: AddressBySearchResponseContainer = {
-      BadRequestTemplate(OffsetTooSmallAddressResponseError)
+    BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  }
+
+  def OffsetTooSmallPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetTooSmallPostcodeAddressResponseError)
   }
 
   def LimitTooLarge: AddressBySearchResponseContainer = {
-      BadRequestTemplate(LimitTooLargeAddressResponseError)
+    BadRequestTemplate(LimitTooLargeAddressResponseError)
+  }
+
+  def LimitTooLargePostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitTooLargePostcodeAddressResponseError)
   }
 
   def OffsetTooLarge: AddressBySearchResponseContainer = {
       BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  }
+
+  def OffsetTooLargePostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetTooLargePostcodeAddressResponseError)
   }
 
   def UprnNotNumeric: AddressByUprnResponseContainer = {
@@ -128,6 +180,10 @@ trait AddressIndexCannedResponse {
 
   def EmptySearch: AddressBySearchResponseContainer = {
       BadRequestTemplate(EmptyQueryAddressResponseError)
+  }
+
+  def EmptySearchPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(EmptyQueryPostcodeAddressResponseError)
   }
 
   def FailedRequestToEs: AddressBySearchResponseContainer = {
@@ -152,4 +208,25 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def FailedRequestToEsPostcode: AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPostcode,
+      status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(FailedRequestToEsPostcodeError)
+    )
+  }
+
+  def ErrorPostcode: AddressByPostcodeResponse = {
+    AddressByPostcodeResponse(
+      postcode = "",
+      addresses = Seq.empty,
+      filter= "",
+      limit = 10,
+      offset = 0,
+      total = 0,
+      maxScore = 0f
+    )
+  }
 }
