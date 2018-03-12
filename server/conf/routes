@@ -78,6 +78,20 @@ GET     /logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressCo
 GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, retry: Option[String])
 
 ###
+#  summary: Search for an address by postcode.
+#  description: Returns a alpha-numeric ordered list of addresses matching the postcode query.
+#  parameters:
+#    - name: postcode
+#      description: Specifies the postcode search string (e.g. 'HA4 8RG').
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponseContainer"
+###
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.AddressController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], filter: Option[String])
+
+###
 #  summary: Test elastic is connected.
 #  responses:
 #    200:
