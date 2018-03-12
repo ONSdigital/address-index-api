@@ -556,6 +556,29 @@ class AddressControllerSpec extends PlaySpec with Results{
       actual mustBe expected
     }
 
+    "reply a 400 error if address was not numeric (by uprn)" in {
+      // Given
+      val controller = new AddressController(components, emptyElasticRepositoryMock, parser, config, versions)
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByUprnResponse(
+          address = None
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(UprnNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.uprnQuery("221B").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
       val controller = new AddressController(components, emptyElasticRepositoryMock, parser, config, versions)
@@ -571,7 +594,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.uprnQuery("doesn't exist").apply(FakeRequest())
+      val result = controller.uprnQuery("123456789").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

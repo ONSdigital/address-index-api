@@ -190,6 +190,8 @@ class AddressController @Inject()(
     val source = req.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
 
+    val uprnInvalid = Try(uprn.toLong).isFailure
+
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
@@ -211,6 +213,9 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
       futureJsonUnauthorized(KeyInvalid)
+    } else if (uprnInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = UprnNotNumericAddressResponseError.message)
+      futureJsonBadRequest(UprnNotNumeric)
     } else {
       val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
       request.map {

@@ -792,6 +792,11 @@ object FilterInvalidError extends AddressResponseError(
   message = "Invalid filter value supplied"
 )
 
+object UprnNotNumericAddressResponseError extends AddressResponseError(
+  code = 16,
+  message = "UPRNs nust be numeric"
+)
+
 
 
 

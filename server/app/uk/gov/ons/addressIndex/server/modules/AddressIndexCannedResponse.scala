@@ -52,6 +52,18 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def BadRequestNonNumericUprn: AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByUprnResponse(
+        address = None
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(UprnNotNumericAddressResponseError)
+    )
+  }
+
   private def UnauthorizedRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -106,6 +118,10 @@ trait AddressIndexCannedResponse {
       BadRequestTemplate(OffsetTooLargeAddressResponseError)
   }
 
+  def UprnNotNumeric: AddressByUprnResponseContainer = {
+    BadRequestNonNumericUprn
+  }
+
   def UnsupportedFormat: AddressBySearchResponseContainer = {
       BadRequestTemplate(FormatNotSupportedAddressResponseError)
   }
@@ -135,4 +151,5 @@ trait AddressIndexCannedResponse {
       maxScore = 0f
     )
   }
+
 }
