@@ -10,7 +10,8 @@
     pagerAction: String,
     addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
     classification: Option[Map[String, String]],
-    apiUrl: String
+    apiUrl: String,
+    apiKey: String
 )(implicit messages: Messages)
 
 
@@ -31,7 +32,8 @@
                     index,
                     true,
                     expandRow,
-                    apiUrl
+                    apiUrl,
+                    apiKey
                 )
 
             }

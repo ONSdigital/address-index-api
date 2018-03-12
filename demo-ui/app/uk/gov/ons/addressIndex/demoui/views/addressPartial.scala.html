@@ -12,7 +12,8 @@
     index: Int = 0,
     isClerical: Boolean = false,
     expandRow: Int = 0,
-    apiUrl: String = ""
+    apiUrl: String = "",
+    apiKey: String = ""
 )(implicit messages: Messages)
 @if(isClerical) {
 <a name="@index"></a>
@@ -1053,7 +1054,7 @@
                                 <details id="@position@address.uprn">
                                     <summary><strong>@position</strong></summary>
                                     @relative.siblings.sorted.map { uprn =>
-                                        <script>formattedAddress("@uprn", "@position@address.uprn", '@apiUrl')</script>
+                                        <script>formattedAddress("@uprn", "@position@address.uprn", '@apiUrl', '@apiKey')</script>
                                     }
                                 </details>
                                 }
