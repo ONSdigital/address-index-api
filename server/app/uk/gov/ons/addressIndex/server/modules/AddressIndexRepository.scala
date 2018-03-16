@@ -152,7 +152,7 @@ class AddressIndexRepository @Inject()(
     }
 
     search(hybridIndex).query(query)
-      .sortBy(FieldSortDefinition("lpi.streetDescriptor").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
 
   }
 
