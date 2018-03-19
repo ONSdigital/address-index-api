@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.http.ElasticDsl._
@@ -18,6 +17,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -51,7 +51,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -60,7 +60,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -156,16 +156,16 @@ class AddressIndexRepository @Inject()(
 
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, queryParamsConfig).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, queryParamsConfig).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -526,6 +526,15 @@ class AddressIndexRepository @Inject()(
       else filters
     }
 
+    val radiusQuery = {
+      if (range.equals(""))
+        Seq()
+      else
+        Seq(
+          geoDistanceQuery("lpi.location",lat.toDouble, lon.toDouble).distance(range + "km")
+        )
+    }
+
     val fallbackQuery =
       if (filters.isEmpty) {
         bool(
@@ -634,7 +643,7 @@ class AddressIndexRepository @Inject()(
       if (shouldQuery.isEmpty) fallbackQuery
       else if (filters.isEmpty)
         dismax(
-          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery), fallbackQuery)
           .tieBreaker(queryParams.topDisMaxTieBreaker)
       else if (filterType == "prefix") dismax(
         should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixQuery("lpi.classificationCode", filterValue)), fallbackQuery)
@@ -654,7 +663,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(requestData.tokens, 0, limit, "", queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, limit, "","","","", queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

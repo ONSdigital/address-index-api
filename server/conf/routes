@@ -19,7 +19,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], filter: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String])
 
 ###
 #  summary: Return a list of available codelist lookups.
@@ -109,7 +109,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    200:
 #      description: success
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, filter: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String])
 
 ###
 #  summary: Get version information.

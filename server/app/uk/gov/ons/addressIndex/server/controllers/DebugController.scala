@@ -38,12 +38,15 @@ class DebugController@Inject()(
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
-  def queryDebug(input: String, filter: Option[String] = None): Action[AnyContent] = Action { implicit req =>
+  def queryDebug(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val filterString = filter.getOrElse("")
+    val rangeString = rangekm.getOrElse("")
+    val latString = lat.getOrElse("50.862617")
+    val lonString = lon.getOrElse("-1.2470902")
 
-    val query = esRepo.generateQueryAddressRequest(tokens,filterString)
+    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString)
     val showQuery = DebugShow.show(query)
     Ok(Json.parse(showQuery))
   }
