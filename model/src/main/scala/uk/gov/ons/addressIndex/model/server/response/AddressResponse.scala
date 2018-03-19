@@ -592,7 +592,7 @@ object AddressResponseNag {
       else s"$sao $pao $trimmedStreetDescriptor"
 
     Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
+    nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
 
 }
