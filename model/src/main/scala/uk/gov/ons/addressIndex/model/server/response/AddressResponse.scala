@@ -449,7 +449,6 @@ object AddressResponsePaf {
     Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
       poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
       paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  //    paf.postTown).map(_.trim).filter(_.nonEmpty).mkString(", ").toLowerCase.split(" ").map(_.capitalize).mkString(" ") + ", " + paf.postcode
   }
 
   /**
@@ -470,8 +469,7 @@ object AddressResponsePaf {
 
     Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
       poBoxNumber, buildingNumberWithStreetName, paf.welshDoubleDependentLocality, paf.welshDependentLocality,
-   //   paf.welshPostTown).map(_.trim).filter(_.nonEmpty).mkString(", ").toLowerCase.split(" ").map(_.capitalize).mkString(" ") + ", " + paf.postcode
-    paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
+      paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
 
 }
@@ -594,7 +592,6 @@ object AddressResponseNag {
       else s"$sao $pao $trimmedStreetDescriptor"
 
     Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-   //   nag.townName).map(_.trim).filter(_.nonEmpty).mkString(", ").toLowerCase.split(" ").map(_.capitalize).mkString(" ") + ", " + nag.postcodeLocator
     nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
 
