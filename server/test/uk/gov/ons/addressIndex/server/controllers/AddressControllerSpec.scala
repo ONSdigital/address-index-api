@@ -326,7 +326,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some(""), Some("BR12")).apply(FakeRequest())
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("BR12")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -761,8 +761,8 @@ class AddressControllerSpec extends PlaySpec with Results{
         errors = Seq(FailedRequestToEsError)
       ))
 
-      // When - retry param must be true
-      val result = controller.addressQuery("some query", Some("0"), Some("10"), Some("0")).apply(FakeRequest())
+      // When
+      val result = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -819,12 +819,35 @@ class AddressControllerSpec extends PlaySpec with Results{
         errors = Seq(FailedRequestToEsError)
       ))
 
-      // When - retry parameter must be true
-      val result = controller.uprnQuery("12345",Some("0")).apply(FakeRequest())
+      // When
+      val result = controller.uprnQuery("12345").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
       status(result) mustBe INTERNAL_SERVER_ERROR
+      actual mustBe expected
+    }
+
+    "reply a 400 error if address was not numeric (by uprn)" in {
+      // Given
+      val controller = new AddressController(components, emptyElasticRepositoryMock, parser, config, versions)
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByUprnResponse(
+          address = None
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(UprnNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.uprnQuery("221B").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
 
@@ -843,7 +866,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.uprnQuery("doesn't exist").apply(FakeRequest())
+      val result = controller.uprnQuery("123456789").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

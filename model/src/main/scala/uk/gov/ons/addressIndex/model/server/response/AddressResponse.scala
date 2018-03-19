@@ -592,7 +592,7 @@ object AddressResponseNag {
       else s"$sao $pao $trimmedStreetDescriptor"
 
     Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
+    nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
 
 }
@@ -884,4 +884,9 @@ object FailedRequestToEsPostcodeError extends AddressResponseError(
 object NotFoundPostcodeResponseError extends AddressResponseError(
   code = 24,
   message = "Postcode request didn't yield a result"
+)
+
+object UprnNotNumericAddressResponseError extends AddressResponseError(
+  code = 25,
+  message = "UPRNs nust be numeric"
 )
