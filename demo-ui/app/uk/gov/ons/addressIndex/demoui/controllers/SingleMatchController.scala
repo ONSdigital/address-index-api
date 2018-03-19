@@ -44,6 +44,7 @@ class SingleMatchController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
+  val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
 
   /**
     * Present empty form for user to input address
@@ -242,6 +243,71 @@ class SingleMatchController @Inject()(
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
+
+  /**
+    * Perform match by calling API with address string. Can be called directly via get or redirect from form
+    *
+    * @param input
+    * @return result to view
+    */
+  def doGetResult(input : String) : Action[AnyContent] = Action.async { implicit request =>
+    val refererUrl = request.uri
+    request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
+      val filterText = ""
+      if (addressText.trim.isEmpty) {
+        logger info("Result with expected input address missing")
+        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+          singleSearchForm = SingleMatchController.form,
+          filter = None,
+          warningMessage = Some(messagesApi("single.pleasesupply")),
+          pageNum = 1,
+          pageSize = pageSize,
+          pageMax = maxPages,
+          addressBySearchResponse = None,
+          classification = None,
+          version = version)
+        Future.successful(
+          Ok(viewToRender)
+        )
+      } else {
+        //   logger info("UPRN with supplied input address " + addressText)
+        val numericUPRN = BigInt(addressText)
+        apiClient.uprnQuery(
+          AddressIndexUPRNRequest(
+            uprn = numericUPRN,
+            id = UUID.randomUUID,
+            apiKey = apiKey
+          )
+        ) map { resp: AddressByUprnResponseContainer =>
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText))
+
+          val nags = resp.response.address.flatMap(_.nag)
+          val classCodes: Map[String, String] = nags.map(nag =>
+            (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+
+          val warningMessage =
+            if (resp.status.code == 200) None
+            else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
+
+
+          val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
+            singleSearchForm = filledForm,
+            filter = None,
+            warningMessage = warningMessage,
+            addressByUprnResponse = Some(resp.response),
+            classification = Some(classCodes),
+            version = version,
+            isClerical = false,
+            apiUrl = apiUrl
+          )
+          Ok(viewToRender)}
+      }
+    }.getOrElse {
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+    }
+  }
+
+
 }
 
 

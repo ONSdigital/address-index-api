@@ -18,6 +18,12 @@ object Links {
       label = messages("navbar.singlematch")
     )
   }
+  def postcode(implicit messages: Messages) = {
+    Link(
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.showPostcodeMatchPage.toString,
+      label = messages("navbar.postcode")
+    )
+  }
   def multi(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.bulkMatchPage.toString,
@@ -51,6 +57,7 @@ object Navigation {
       links = Seq(
         Links.home,
         Links.single,
+        Links.postcode,
         Links.multi,
         Links.clerical,
         Links.query,

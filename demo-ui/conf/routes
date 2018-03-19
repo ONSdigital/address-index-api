@@ -59,3 +59,19 @@ POST        /bulkUploadDownloadCsv              uk.gov.ons.addressIndex.demoui.c
 
 # ONS-Address Index Single Search View
 GET         /bulkAddresses                      uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage
+
+# ONS-Address Index Single Search View
+GET         /postcode                          uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage
+
+# ONS-Address Index Single Search Request
+POST        /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatch
+
+# ONS-Address Index Single Search Request
+GET         /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage
+
+# ONS-Address Index Single Search Request
+GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatchWithInput(postcode: String, filter: String, page: Option[Int])
+
+# ONS-Address Index Single Search Request
+GET         /addresses/result/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetResult(input: String)
+

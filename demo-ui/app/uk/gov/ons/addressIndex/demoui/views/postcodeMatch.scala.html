@@ -1,0 +1,79 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import play.twirl.api.HtmlFormat
+
+@(
+    postcodeSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm],
+    filter: Option[String],
+    warningMessage : Option[String],
+    pageNum: Int,
+    pageSize: Int,
+    pageMax: Int,
+    addressByPostcodeResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponse],
+    classification: Option[Map[String,String]],
+version: DemoUIAddressIndexVersionModule
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("postcode.title"), version = version)  {
+
+    <div class="container">
+        <div class="panel panel-single">
+            <div class="panel-heading sub-nav-heading">
+            @navigation(Navigation.default)
+            </div>
+
+            <section class="postcode-match-form-container">
+                <div class="postcode-match-form">
+                    <h1 class="search-page-title">@messages("postcode.sfatext")</h1>
+
+                    <section class="searchbox-results">
+                        @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {
+                        <div id="search-form" class="search-bar-active">
+                            @forms.postcodeForm(postcodeSearchForm, true, "", messages("postcodesearchform.placeholder"), messages("postcodesearchform.labelfilter"), messages("postcodesearchform.placeholderfilter"))
+                        </div>
+                        }
+                    </section>
+
+                </div>
+            </section>
+
+            <div class="content-container">
+                @warningMessage.map { message =>
+                    <div id="warning-message">
+                        <div class="result-content">
+                            <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+                        </div>
+                    </div>
+                }
+
+                <section class="postcode-match-results-container">
+                    <div class="postcode-match-results-count">
+                        @addressByPostcodeResponse.map { aresponse =>
+                        <div class="standout"> @messages("postcode.foundpre") @aresponse.total @messages("postcode.foundpost")</div>
+                    </div>
+                    <div class="postcode-match-results">
+
+                        @aresponse.addresses.map{ address =>
+
+                            @addressShortForm(
+                                address,
+                                postcodeSearchForm("filter").value.getOrElse(""),
+                                aresponse.maxScore,
+                                classification
+                            )
+                        }
+                        @pager(pageNum,pageSize,pageMax,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode")
+                        }
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+}

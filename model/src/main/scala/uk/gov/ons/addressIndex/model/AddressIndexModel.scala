@@ -20,6 +20,15 @@ case class AddressIndexSearchRequest(
   apiKey: String
 )
 
+case class AddressIndexPostcodeRequest(
+  postcode: String,
+  filter: String,
+  limit: String,
+  offset: String,
+  id: UUID,
+  apiKey: String
+)
+
 
 /**
   * The body of the request that is sent to the bulk api endpoint
