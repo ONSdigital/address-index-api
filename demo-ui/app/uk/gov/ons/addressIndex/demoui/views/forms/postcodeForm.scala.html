@@ -1,0 +1,34 @@
+@(postcodeForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm], showfilter: Boolean, labelsearch: String, placeholder: String, labelfilter: String, placeholderfilter: String)(implicit messages: Messages)
+@import helper._
+
+<fieldset class="searchfield">
+    <div class="searchfield-searchinput">
+        @inputText(
+        postcodeForm("address"),
+        args = '_id -> "numberOrName",
+        'class -> "form-control",
+        '_label -> labelsearch,
+        'placeholder -> placeholder
+        )
+    </div>
+
+    <button class="btn btn-success btn-search" type="submit" id="submit">
+        <i class="fa fa-search"></i> @messages("single.searchbut")
+    </button>
+
+
+
+    <div class="searchfield-searchfilter">
+        @{if (showfilter == true) {
+
+        inputText(
+        postcodeForm("filter"),
+        args = '_id -> "presetOrCode",
+        'class -> "form-control",
+        '_label -> labelfilter,
+        'placeholder -> placeholderfilter
+        )
+        }}
+    </div>
+
+</fieldset>
