@@ -42,7 +42,7 @@ class DebugController@Inject()(
     val tokens = parser.parse(input)
 
     val filterString = filter.getOrElse("")
-    val rangeString = rangekm.getOrElse("1000")
+    val rangeString = rangekm.getOrElse("")
     val latString = lat.getOrElse("50.705948")
     val lonString = lon.getOrElse("-3.5091076")
 

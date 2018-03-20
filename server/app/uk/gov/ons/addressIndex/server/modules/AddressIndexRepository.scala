@@ -537,6 +537,17 @@ class AddressIndexRepository @Inject()(
 
     val geoDefn =  geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
 
+    val prefixWithGeo = if (range.equals(""))
+      Seq(prefixQuery("lpi.classificationCode", filterValue))
+    else
+      Seq(prefixQuery("lpi.classificationCode", filterValue),geoDefn)
+
+    val termWithGeo = if (range.equals(""))
+      Seq(termQuery("lpi.classificationCode", filterValue))
+    else
+      Seq(termQuery("lpi.classificationCode", filterValue),geoDefn)
+
+
     val fallbackQuery =
       if (filters.isEmpty) {
         bool(
@@ -582,7 +593,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(prefixQuery("lpi.classificationCode", filterValue),geoDefn)
+            .filter(prefixWithGeo)
         }
         else {
           bool(
@@ -605,7 +616,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(termQuery("lpi.classificationCode", filterValue),geoDefn)
+            .filter(termWithGeo)
         }
       }
 
@@ -648,10 +659,10 @@ class AddressIndexRepository @Inject()(
           should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery), fallbackQuery)
           .tieBreaker(queryParams.topDisMaxTieBreaker)
       else if (filterType == "prefix") dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixQuery("lpi.classificationCode", filterValue),geoDefn), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixWithGeo), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
       else dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termQuery("lpi.classificationCode", filterValue),geoDefn), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
     search(hybridIndex).query(query)

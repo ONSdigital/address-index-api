@@ -75,7 +75,7 @@ class AddressController @Inject()(
     val filterString = filter.getOrElse("")
 
     // validate radius paramas
-    val rangeVal = rangekm.getOrElse("1000")
+    val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("50.705948")
     val lonVal = lon.getOrElse("-3.5091076")
     val rangeInvalid = if (rangeVal.equals("")) false else Try(rangeVal.toInt).isFailure
