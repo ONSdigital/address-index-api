@@ -88,7 +88,7 @@ class AddressController @Inject()(
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isInput = true, input = input, offset = offval, limit = limval, filter = filterString,
-     //   range = rangeval, lat = latval, lon = lonval,
+        rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
@@ -135,6 +135,15 @@ class AddressController @Inject()(
     } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
       futureJsonBadRequest(FilterInvalid)
+    } else if (rangeInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = RangeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(RangeNotNumeric)
+    } else if (latInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LatitiudeNotNumeric)
+    } else if (lonInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LongitudeNotNumeric)
     } else {
       val tokens = parser.parse(input)
 
@@ -163,6 +172,9 @@ class AddressController @Inject()(
               tokens = tokens,
               addresses = scoredAdresses,
               filter = filterString,
+              rangekm = rangeVal,
+              latitude = latVal,
+              longitude = lonVal,
               limit = limitInt,
               offset = offsetInt,
               total = total,
