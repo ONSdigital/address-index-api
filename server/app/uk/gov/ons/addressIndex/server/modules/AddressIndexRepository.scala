@@ -139,15 +139,24 @@ class AddressIndexRepository @Inject()(
       else filters
     }
 
+    val postcodeFormatted: String = {
+      if (!postcode.contains(" ")) {
+        val postcodeLength = postcode.length()
+        val (postcodeStart, postcodeEnd) = postcode.splitAt(postcodeLength-3)
+        (postcodeStart + " " + postcodeEnd).toUpperCase
+      }
+      else postcode.toUpperCase
+    }
+
     val query =
     if (filters.isEmpty) {
-      must(termQuery("lpi.postcodeLocator", postcode.toUpperCase)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+      must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(not(termQuery("lpi.addressBasePostal", "N")))
     }else {
       if (filterType == "prefix") {
-        must(termQuery("lpi.postcodeLocator", postcode.toUpperCase)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
       }
       else {
-        must(termQuery("lpi.postcodeLocator", postcode.toUpperCase)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
       }
     }
 

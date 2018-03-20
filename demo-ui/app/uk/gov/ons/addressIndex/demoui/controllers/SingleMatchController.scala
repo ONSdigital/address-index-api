@@ -298,7 +298,8 @@ class SingleMatchController @Inject()(
             classification = Some(classCodes),
             version = version,
             isClerical = false,
-            apiUrl = apiUrl
+            apiUrl = apiUrl,
+            apiKey = apiKey
           )
           Ok(viewToRender)}
       }
