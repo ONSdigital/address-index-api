@@ -161,8 +161,13 @@
             var resUprn = data.response.address.uprn;
             var formattedAddress = data.response.address.formattedAddress;
 
+            var formattedAddressRest = formattedAddress.substring(0, formattedAddress.lastIndexOf(",") + 1);
+            var formattedAddressPostcode = formattedAddress.substring(formattedAddress.lastIndexOf(",") + 1, formattedAddress.length);
+
+            var formattedAddressTitleCase = formattedAddressRest.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) + formattedAddressPostcode;
+
             if (typeof formattedAddress !== 'undefined') {
-                $("#" + position).append("<tr id='" + resUprn + "'><td>" + resUprn + "</td><td>" + formattedAddress + "</td></tr>");
+                $("#" + position).append("<tr id='" + resUprn + "'><td>" + resUprn + "</td><td><a href='" + resUprn + "'>" + formattedAddressTitleCase + "</a></td></tr>");
           }
          });
 
