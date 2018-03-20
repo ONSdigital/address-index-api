@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.libs.ws.WSClient
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexPostcodeRequest}
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response._
 
@@ -28,6 +28,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
   )
 
   val mockAddressTokens = Map.empty[String, String]
+
+  val mockPostcode = ""
 
   val mockPafAddress1 = AddressResponsePaf(
     udprn = "",
@@ -141,6 +143,16 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     maxScore = 1f
   )
 
+  val mockAddressByPostcodeResponse = AddressByPostcodeResponse (
+    postcode = mockPostcode,
+    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    limit = 1,
+    offset = 1,
+    filter = "",
+    total = 1,
+    maxScore = 1f
+  )
+
   val mockSearchResponseContainer = AddressBySearchResponseContainer (
     apiVersion = "mockApi",
     dataVersion = "mockData",
@@ -149,7 +161,18 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     errors = Seq.empty[AddressResponseError]
   )
 
+  val mockPostcodeResponseContainer = AddressByPostcodeResponseContainer (
+    apiVersion = "mockApi",
+    dataVersion = "mockData",
+    response = mockAddressByPostcodeResponse,
+    status = mockAddressResponseStatus,
+    errors = Seq.empty[AddressResponseError]
+  )
+
 
   override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
     Future.successful(mockSearchResponseContainer)
+
+  override def postcodeQuery(request: AddressIndexPostcodeRequest)(implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] =
+    Future.successful(mockPostcodeResponseContainer)
 }

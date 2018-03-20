@@ -109,7 +109,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "<div class=\"standout\">We have matched 26 addresses</div>"
+      val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
       val inputAddress = "EX2 6GA"
       val filter = ""
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
@@ -139,9 +139,9 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "Detached"
+      val expectedString = "[ R ] [ Residential ]"
       val inputAddress = "EX2 6GA"
-      val filter = "RD02"
+      val filter = "RD"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
