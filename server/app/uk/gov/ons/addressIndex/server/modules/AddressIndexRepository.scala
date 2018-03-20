@@ -1,10 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
@@ -18,6 +17,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -51,7 +51,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -60,7 +60,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -165,16 +165,16 @@ class AddressIndexRepository @Inject()(
 
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, queryParamsConfig).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, queryParamsConfig).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -535,6 +535,28 @@ class AddressIndexRepository @Inject()(
       else filters
     }
 
+    val radiusQuery = {
+      if (range.equals(""))
+        Seq()
+      else
+        Seq(
+          geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
+        )
+    }
+
+    val geoDefn =  geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
+
+    val prefixWithGeo = if (range.equals(""))
+      Seq(prefixQuery("lpi.classificationCode", filterValue))
+    else
+      Seq(prefixQuery("lpi.classificationCode", filterValue),geoDefn)
+
+    val termWithGeo = if (range.equals(""))
+      Seq(termQuery("lpi.classificationCode", filterValue))
+    else
+      Seq(termQuery("lpi.classificationCode", filterValue),geoDefn)
+
+
     val fallbackQuery =
       if (filters.isEmpty) {
         bool(
@@ -556,7 +578,7 @@ class AddressIndexRepository @Inject()(
               .fuzziness(queryParams.fallback.bigramFuzziness)
               .boost(queryParams.fallback.fallbackPafBigramBoost))
             .tieBreaker(0.0)),
-          Seq()).boost(queryParams.fallback.fallbackQueryBoost)
+          Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(radiusQuery)
       }
       else {
         if (filterType == "prefix") {
@@ -580,7 +602,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(prefixQuery("lpi.classificationCode", filterValue))
+            .filter(prefixWithGeo)
         }
         else {
           bool(
@@ -603,7 +625,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(termQuery("lpi.classificationCode", filterValue))
+            .filter(termWithGeo)
         }
       }
 
@@ -643,13 +665,13 @@ class AddressIndexRepository @Inject()(
       if (shouldQuery.isEmpty) fallbackQuery
       else if (filters.isEmpty)
         dismax(
-          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch), fallbackQuery)
+          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery), fallbackQuery)
           .tieBreaker(queryParams.topDisMaxTieBreaker)
       else if (filterType == "prefix") dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixQuery("lpi.classificationCode", filterValue)), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixWithGeo), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
       else dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termQuery("lpi.classificationCode", filterValue)), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
     search(hybridIndex).query(query)
@@ -663,7 +685,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(requestData.tokens, 0, limit, "", queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, limit, "","","50.71","-3.51", queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

@@ -127,6 +127,9 @@ case class AddressBySearchResponse(
   tokens: Map[String, String],
   addresses: Seq[AddressResponseAddress],
   filter: String,
+  rangekm: String,
+  latitude: String,
+  longitude: String,
   limit: Int,
   offset: Int,
   total: Long,
@@ -889,4 +892,19 @@ object NotFoundPostcodeResponseError extends AddressResponseError(
 object UprnNotNumericAddressResponseError extends AddressResponseError(
   code = 25,
   message = "UPRNs nust be numeric"
+)
+
+object RangeNotNumericAddressResponseError extends AddressResponseError(
+  code = 26,
+  message = "Range km parameter not numeric"
+)
+
+object LatitudeNotNumericAddressResponseError extends AddressResponseError(
+  code = 27,
+  message = "Latitiude parameter not numeric"
+)
+
+object LongitudeNotNumericAddressResponseError extends AddressResponseError(
+  code = 28,
+  message = "Longitude parameter not numeric"
 )

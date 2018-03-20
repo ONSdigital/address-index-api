@@ -149,6 +149,9 @@ class SingleMatchController @Inject()(
             limit = limit,
             offset = offset,
             filter = filterText,
+            rangekm = "",
+            lat = "50.705948",
+            lon = "-3.5091076",
             id = UUID.randomUUID,
             apiKey = apiKey
           )

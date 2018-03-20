@@ -22,6 +22,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     override def client: HttpClient = testClient
   }
 
+  val defaultLat = "50.705948"
+  val defaultLon = "-3.5091076"
+
   val config = new AddressIndexConfigModule
   val queryParams = config.config.elasticSearch.queryParams
 
@@ -500,7 +503,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"").await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"","",defaultLat,defaultLon).await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -521,7 +524,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"").await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"","",defaultLat,defaultLon).await
 
       // Then
       results.length shouldBe 0
@@ -602,7 +605,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon)).string())
 
       // Then
       result shouldBe expected
@@ -1377,7 +1380,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon)).string())
 
       // Then
       result shouldBe expected
@@ -1535,7 +1538,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
 
       // Then
       result shouldBe expected
@@ -1625,7 +1628,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
 
       // Then
       result shouldBe expected
@@ -1715,7 +1718,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
 
       // Then
       result shouldBe expected
@@ -2510,7 +2513,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
 
       // Then
       result shouldBe expected

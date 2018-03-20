@@ -172,6 +172,9 @@ class ClericalToolController @Inject()(
             input = addressText,
             filter = filterText,
             limit = limit,
+            rangekm = "",
+            lat = "50.705948",
+            lon = "-3.5091076",
             offset = offset,
             id = UUID.randomUUID,
             apiKey = apiKey
@@ -421,6 +424,9 @@ class ClericalToolController @Inject()(
               input = addressText,
               filter = filterText,
               limit = limit,
+              rangekm = "",
+              lat = "50.705948",
+              lon = "-3.5091076",
               offset = offset,
               id = UUID.randomUUID,
               apiKey = apiKey

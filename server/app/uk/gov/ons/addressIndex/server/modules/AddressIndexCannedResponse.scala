@@ -126,6 +126,18 @@ trait AddressIndexCannedResponse {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
   }
 
+  def RangeNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(RangeNotNumericAddressResponseError)
+  }
+
+  def LatitiudeNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LatitudeNotNumericAddressResponseError)
+  }
+
+  def LongitudeNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LongitudeNotNumericAddressResponseError)
+  }
+
   def OffsetNotNumericPostcode: AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(OffsetNotNumericPostcodeAddressResponseError)
   }
@@ -200,7 +212,10 @@ trait AddressIndexCannedResponse {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
-      filter= "",
+      filter = "",
+      rangekm = "",
+      latitude = "",
+      longitude = "",
       limit = 10,
       offset = 0,
       total = 0,
