@@ -8,7 +8,8 @@ addressByUprnResponse: Option[uk.gov.ons.addressIndex.model.server.response.Addr
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule,
 isClerical: Boolean,
-apiUrl: String = ""
+apiUrl: String = "",
+apiKey: String
 )(implicit messages: Messages)
 
 @*
@@ -46,7 +47,8 @@ apiUrl: String = ""
                 isClerical = isClerical,
                 index = -1,
                 expandRow = -1,
-                apiUrl = apiUrl
+                apiUrl = apiUrl,
+                apiKey = apiKey
                 )
 
                 }
