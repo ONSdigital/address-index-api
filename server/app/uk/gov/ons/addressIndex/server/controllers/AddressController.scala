@@ -78,7 +78,7 @@ class AddressController @Inject()(
     val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("50.705948")
     val lonVal = lon.getOrElse("-3.5091076")
-    val rangeInvalid = if (rangeVal.equals("")) false else Try(rangeVal.toInt).isFailure
+    val rangeInvalid = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
     val latInvalid = Try(latVal.toDouble).isFailure
     val lonInvalid = Try(lonVal.toDouble).isFailure
 
