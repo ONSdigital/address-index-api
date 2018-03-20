@@ -42,9 +42,9 @@ class DebugController@Inject()(
     val tokens = parser.parse(input)
 
     val filterString = filter.getOrElse("")
-    val rangeString = rangekm.getOrElse("")
-    val latString = lat.getOrElse("50.862617")
-    val lonString = lon.getOrElse("-1.2470902")
+    val rangeString = rangekm.getOrElse("1000")
+    val latString = lat.getOrElse("50.705948")
+    val lonString = lon.getOrElse("-3.5091076")
 
     val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString)
     val showQuery = DebugShow.show(query)

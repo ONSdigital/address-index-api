@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.http.ElasticDsl._
+import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
@@ -531,9 +531,11 @@ class AddressIndexRepository @Inject()(
         Seq()
       else
         Seq(
-          geoDistanceQuery("lpi.location",lat.toDouble, lon.toDouble).distance(range + "km")
+          geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
         )
     }
+
+    val geoDefn =  geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
 
     val fallbackQuery =
       if (filters.isEmpty) {
@@ -556,7 +558,7 @@ class AddressIndexRepository @Inject()(
               .fuzziness(queryParams.fallback.bigramFuzziness)
               .boost(queryParams.fallback.fallbackPafBigramBoost))
             .tieBreaker(0.0)),
-          Seq()).boost(queryParams.fallback.fallbackQueryBoost)
+          Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(radiusQuery)
       }
       else {
         if (filterType == "prefix") {
@@ -580,7 +582,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(prefixQuery("lpi.classificationCode", filterValue))
+            .filter(prefixQuery("lpi.classificationCode", filterValue),geoDefn)
         }
         else {
           bool(
@@ -603,7 +605,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(termQuery("lpi.classificationCode", filterValue))
+            .filter(termQuery("lpi.classificationCode", filterValue),geoDefn)
         }
       }
 
@@ -646,10 +648,10 @@ class AddressIndexRepository @Inject()(
           should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery), fallbackQuery)
           .tieBreaker(queryParams.topDisMaxTieBreaker)
       else if (filterType == "prefix") dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixQuery("lpi.classificationCode", filterValue)), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixQuery("lpi.classificationCode", filterValue),geoDefn), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
       else dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termQuery("lpi.classificationCode", filterValue)), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termQuery("lpi.classificationCode", filterValue),geoDefn), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
     search(hybridIndex).query(query)
