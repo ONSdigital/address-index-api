@@ -1121,14 +1121,19 @@ article.result-short-form table tr td {
     padding: 0 40px 0 0;
 }
 
-article.result-short-form a.result-short-form-link:link, article.result-short-form a.result-short-form-link:visited {
+article.result-short-form a.result-short-form-link:link, .address-result-hierarchy-set a:link {
     color: #489DC4;
     text-decoration: none;
 }
 
-article.result-short-form a.result-short-form-link:hover {
+article.result-short-form a.result-short-form-link:hover, .address-result-hierarchy-set a:hover {
     color: #4c2c92 ;
     text-decoration: underline;
+}
+
+article.result-short-form a.result-short-form-link:visited, .address-result-hierarchy-set a:visited {
+    color: #489DC4;
+    text-decoration: none;
 }
 
 .standout {
@@ -1173,6 +1178,11 @@ table.address-result-hierarchy-set thead {
     border-top: 1px solid #000000;
     border-bottom: 1px solid #000000;
     text-align: left;
+    padding: 3px 0;
+}
+
+table.address-result-hierarchy-set th, table.address-result-hierarchy-set td {
+    padding: 5px 0;
 }
 
 table.address-result-hierarchy-set tbody tr {
