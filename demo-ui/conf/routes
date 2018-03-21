@@ -26,10 +26,10 @@ POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.c
 GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: String, page: Option[Int])
+GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String])
 
 # ONS-Address Index Single Search Request
-GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: String)
+GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: Option[String])
 
 # ONS-Address Index Single Search Request
 POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch

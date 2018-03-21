@@ -5,6 +5,9 @@
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
     filter: Option[String],
+    rangekm: Option[String],
+    lat: Option[String],
+    lon: Option[String],
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
@@ -57,7 +60,7 @@ version: DemoUIAddressIndexVersionModule
                     classification
                 )
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, "single")
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, "single", rangekm, lat, lon)
             }
         </div>
         <div class="panel panel-single address-panel">
