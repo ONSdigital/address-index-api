@@ -13,6 +13,12 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: filter
 #      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: rangekm
+#      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
+#    - name: lat
+#      description: Latitude of point in decimal format (e.g. 50.705948).
+#    - name: lon
+#      description: Longitude of point in decimal format (e.g. -3.5091076).
 #  responses:
 #    200:
 #      description: success
