@@ -235,7 +235,9 @@ class SingleMatchController @Inject()(
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
           version = version,
-          isClerical = false
+          isClerical = false,
+          apiUrl = apiUrl,
+          apiKey = apiKey
         )
         Ok(viewToRender)}
       }
