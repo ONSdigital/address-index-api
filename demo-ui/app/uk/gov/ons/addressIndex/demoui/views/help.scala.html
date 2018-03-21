@@ -25,6 +25,9 @@
                             <a href="#search_single">Search for a Single Address</a>
                         </li>
                         <li>
+                            <a href="#search_postcode">Search for an address by postcode</a>
+                        </li>
+                        <li>
                             <a href="#search_multiple">Search for Multiple Addresses</a>
                         </li>
                         <li>
@@ -91,6 +94,34 @@
                         <li><strong>Local Authority</strong> – The LA that the matched address is currently assigned to.</li>
                         <li><strong>Open Map</strong> – Display the matched address on a map using AddressBase’s coordinates.</li>
                     </ol>
+
+                </div>
+
+                <div>
+                    <a name="search_postcode"></a>
+                    <h1>Search for an address by postcode</h1>
+
+                    <div>1. From the Address Index home page, click Find an address by postcode.</div>
+                    <img src='@routes.Assets.versioned("images/help/postcode-home.jpg").toString'>
+
+                    <div>2. Enter a full postcode and click the Search button.<br>
+                        This is an <strong>exact search</strong>, so will only return results with a full, valid postcode.
+                    </div>
+
+                    <img src='@routes.Assets.versioned("images/help/postcode-form.jpg").toString'>
+
+                    <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.<br>
+                        The results are ordered by street, house number, number suffix and uprn, so for most postcodes will return the properties in order.<br>
+                        A classification filter can be applied at this point if desired. The filter will work with the preset values of 'commercial' or 'residential'. Additionally you can use a specific value, eg RD06, or a partial value followed by a * for a 'starts with' match, eg RD0*.<br>
+                        Click the desired result's address to view fuller details of the address result.
+                    </div>
+
+                    <img src='@routes.Assets.versioned("images/help/postcode-results.jpg").toString'>
+
+                    <div>4. The selected result is displayed as a single page, with extended details, and a hierarchy list.<br>
+                    Clicking on a hierarchy address link will load a result page for that specific uprn.</div>
+
+                    <img src='@routes.Assets.versioned("images/help/postcode-single-result.jpg").toString'>
 
                 </div>
 
