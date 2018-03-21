@@ -20,6 +20,9 @@ object Splunk {
     offset: String = "",
     limit: String = "",
     filter: String = "",
+    rangekm: String = "",
+    lat: String = "",
+    lon: String = "",
     bulkSize: String = "",
     batchSize: String = "", // bulk is splitted into smaller batches
     badRequestMessage: String = "",
@@ -31,8 +34,11 @@ object Splunk {
     networkid: String = ""
   ): Unit = {
     logger.info(
-      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
+      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn " +
+        s"is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
+        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter " +
+        s"rangekm=$rangekm lat=$lat lon=$lon " +
+        s"bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
     )
@@ -53,6 +59,9 @@ object Splunk {
     offset: String = "",
     limit: String = "",
     filter: String = "",
+    rangekm: String = "",
+    lat: String = "",
+    lon: String = "",
     bulkSize: String = "",
     batchSize: String = "", // bulk is splitted into smaller batches
     badRequestMessage: String = "",
@@ -64,8 +73,11 @@ object Splunk {
     networkid: String = ""
   ): Unit = {
     logger.trace(
-      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter bulk_size=$bulkSize batch_size=$batchSize " +
+      s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis " +
+        s"is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
+        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter " +
+        s"rangekm=$rangekm lat=$lat lon=$lon " +
+        s"bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
     )

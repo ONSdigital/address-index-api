@@ -51,7 +51,7 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -74,12 +74,22 @@ class AddressController @Inject()(
 
     val filterString = filter.getOrElse("")
 
+    // validate radius paramas
+    val rangeVal = rangekm.getOrElse("")
+    val latVal = lat.getOrElse("50.705948")
+    val lonVal = lon.getOrElse("-3.5091076")
+    val rangeInvalid = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
+    val latInvalid = Try(latVal.toDouble).isFailure
+    val lonInvalid = Try(lonVal.toDouble).isFailure
+
+
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
-        isInput = true, input = input, offset = offval,
-        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        isInput = true, input = input, offset = offval, limit = limval, filter = filterString,
+        rangekm = rangeVal, lat = latVal, lon = lonVal,
+        badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
@@ -125,12 +135,21 @@ class AddressController @Inject()(
     } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
       futureJsonBadRequest(FilterInvalid)
+    } else if (rangeInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = RangeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(RangeNotNumeric)
+    } else if (latInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LatitiudeNotNumeric)
+    } else if (lonInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LongitudeNotNumeric)
     } else {
       val tokens = parser.parse(input)
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString, rangeVal, latVal, lonVal)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -153,6 +172,9 @@ class AddressController @Inject()(
               tokens = tokens,
               addresses = scoredAdresses,
               filter = filterString,
+              rangekm = rangeVal,
+              latitude = latVal,
+              longitude = lonVal,
               limit = limitInt,
               offset = offsetInt,
               total = total,
@@ -172,6 +194,7 @@ class AddressController @Inject()(
 
     }
   }
+
 
   /**
     * UPRN query API

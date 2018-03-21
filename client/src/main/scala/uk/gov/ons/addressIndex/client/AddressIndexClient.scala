@@ -50,6 +50,9 @@ trait AddressIndexClient {
       .withQueryStringParameters(
         "input" -> request.input,
         "filter" -> request.filter,
+        "rangekm" -> request.rangekm,
+        "lat" -> request.lat,
+        "lon" -> request.lon,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
