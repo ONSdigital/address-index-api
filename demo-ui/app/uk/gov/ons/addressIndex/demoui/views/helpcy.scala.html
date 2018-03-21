@@ -25,6 +25,9 @@ version: DemoUIAddressIndexVersionModule
                         <a href="#search_single">Chwilio am Cyfeiriad Sengl</a>
                     </li>
                     <li>
+                        <a href="#search_postcode">Chwilio am gyfeiriad yn ôl cod post</a>
+                    </li>
+                    <li>
                         <a href="#search_multiple">Chwilio am gyfeiriadau lluosog</a>
                     </li>
                     <li>
@@ -91,6 +94,34 @@ version: DemoUIAddressIndexVersionModule
                     <li><strong>Awdurdod lleol</strong> – Mae hyn yn yr awdurdod lleol bod y cyfeiriad yn cyfateb ar hyn o bryd neilltuo i.</li>
                     <li><strong>Map agored</strong> – Dangoswch y cyfeiriad cyfatebol ar fap gan ddefnyddio cyfesurynnau AddressBase yn.</li>
                 </ol>
+
+            </div>
+
+            <div>
+                <a name="search_postcode"></a>
+                <h1>Chwilio am gyfeiriad yn ôl cod post</h1>
+
+                <div>1. O'r dudalen hafan Mynegai cyfeiriad, cliciwch canfod cyfeiriad gan cod post.</div>
+                <img src='@routes.Assets.versioned("images/help/postcode-home-cy.jpg").toString'>
+
+                <div>2. Rhowch god post llawn a cliciwch y botwm chwilio.<br>
+                    Dyma'r <strong>union chwilio</strong>, felly dim ond bydd yn dychwelyd canlyniadau gyda'r cod post yn llawn ac yn ddilys.
+                </div>
+
+                <img src='@routes.Assets.versioned("images/help/postcode-form-cy.jpg").toString'>
+
+                <div>3. Unwaith mae clicio botwm chwilio, bydd yr injan paru broses ymholiad chwilio a dychwelyd y canlyniadau.<br>
+                    Yn archebu canlyniadau stryd, Rhif Tŷ, Rhif ôl-ddodiad a CEU, felly ar gyfer bydd rhan fwyaf o godau post yn dychwelyd yr eiddo yn y Gorchymyn.<br>
+                    Gellir defnyddio hidlydd dosbarthiad ar y pwynt hwn os dymunir. Bydd yr hidlydd yn gweithio gyda gwerthoedd rhagosod 'commercial' neu 'residential'. Yn ogystal, gallwch ddefnyddio'r gwerth penodol, e.e. RD06, neu ddilyn gwerth rhannol gan * 'yn cychwyn gyda' cyfatebol, e.e. RD0 *.<br>
+                    Cliciwch y canlyniad a ddymunir cyfeiriad i weld manylion llawnach o ganlyniad i fynd i'r afael â.
+                </div>
+
+                <img src='@routes.Assets.versioned("images/help/postcode-results-cy.jpg").toString'>
+
+                <div>4. Mae y canlyniad dan sylw yn cael ei arddangos fel un dudalen, gyda manylion estynedig, a rhestr hierarchaeth.<br>
+                    Bydd clicio ar ddolen cyfeiriad hierarchaeth llwytho tudalen canlyniad ar gyfer UPRN penodol hwnnw.</div>
+
+                <img src='@routes.Assets.versioned("images/help/postcode-single-result-cy.jpg").toString'>
 
             </div>
 

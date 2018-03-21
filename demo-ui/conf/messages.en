@@ -157,6 +157,21 @@ single.found=addresses found
 single.openmap=Open Map
 single.classification=Classification
 single.enddate=Historical End Date
+
+addressresult.la_address=Local Authority address
+addressresult.postal_address_file=Postal Address File
+addressresult.welsh_language_nag=Welsh Language (NAG)
+addressresult.welsh_language_paf=Welsh Language (PAF)
+addressresult.classification=Classification
+addressresult.la=Local Authority
+addressresult.la_code=Local Authority code
+addressresult.address_hierarchy=Address hierarchy
+addressresult.position_primary=Primary property
+addressresult.position_secondary=Secondary properties
+addressresult.position_tertiary=Tertiary properties
+addressresult.position_quaternary=Quaternary properties
+addressresult.address=Address
+
 postcode.title=Postcode demo - find an address by postcode
 postcode.sfatext=Search for an address by postcode
 postcode.found=addresses found
@@ -164,7 +179,10 @@ postcode.foundpre=We have matched
 postcode.foundpost=addresses
 postcode.pleasesupply=Please enter a postcode
 postcode.openmap=Location map
+postcode.intro=To get started, enter an exact postcode.
+
 postcodesearchform.labelsearch=Enter address
+
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
 postcodesearchform.placeholder=For example, EX2 6GA
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR

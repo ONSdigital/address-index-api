@@ -329,7 +329,8 @@ class ClericalToolController @Inject()(
           classification = Some(classCodes),
           version = version,
           isClerical = true,
-          apiUrl = apiUrl
+          apiUrl = apiUrl,
+          apiKey = apiKey
         )
         Ok(viewToRender)
       }

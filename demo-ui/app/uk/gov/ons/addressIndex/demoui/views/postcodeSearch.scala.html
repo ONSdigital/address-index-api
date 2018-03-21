@@ -31,7 +31,7 @@ version: DemoUIAddressIndexVersionModule
         <div class="content-container">
             <h1 class="search-page-title">@messages("postcode.sfatext")</h1>
             <section class="infobox-standard">
-                <p>To get started, enter an exact postcode.</p>
+                <p>@messages("postcode.intro")</p>
             </section>
             <section class="searchbox-initial">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {

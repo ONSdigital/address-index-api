@@ -87,6 +87,12 @@ GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  parameters:
 #    - name: postcode
 #      description: Specifies the postcode search string (e.g. 'HA4 8RG').
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#    - name: limit
+#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#    - name: filter
+#      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #  responses:
 #    200:
 #      description: success

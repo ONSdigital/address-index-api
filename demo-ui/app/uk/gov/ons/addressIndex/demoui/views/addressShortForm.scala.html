@@ -24,7 +24,7 @@ apiKey: String = ""
             <td>@address.uprn</td>
         </tr>
         <tr>
-            <td>Classification</td>
+            <td>@messages("addressresult.classification")</td>
             <td>@if(address.nag.isEmpty) {
                 @messages("category.notfound")
                 } else {
@@ -35,7 +35,7 @@ apiKey: String = ""
             </td>
         </tr>
         <tr>
-            <td>Local Authority</td>
+            <td>@messages("addressresult.la")</td>
             <td>@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
         </tr>
         <tr>
