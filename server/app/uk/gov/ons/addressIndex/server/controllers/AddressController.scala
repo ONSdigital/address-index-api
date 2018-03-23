@@ -76,12 +76,24 @@ class AddressController @Inject()(
 
     // validate radius paramas
     val rangeVal = rangekm.getOrElse("")
-    val latVal = lat.getOrElse("50.705948")
-    val lonVal = lon.getOrElse("-3.5091076")
+    val latVal = lat.getOrElse("")
+    val lonVal = lon.getOrElse("")
     val rangeInvalid = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
-    val latInvalid = Try(latVal.toDouble).isFailure
-    val lonInvalid = Try(lonVal.toDouble).isFailure
+    val latInvalid = if (rangeVal.equals("")) false else Try(latVal.toDouble).isFailure
+    val lonInvalid = if (rangeVal.equals("")) false else Try(lonVal.toDouble).isFailure
 
+    val latTooFarNorth = if (rangeVal.equals("")) false else {
+      (Try(latVal.toDouble).getOrElse(50D) > 60.9)
+    }
+    val latTooFarSouth = if (rangeVal.equals("")) false else {
+      (Try(latVal.toDouble).getOrElse(50D) < 49.8)
+    }
+    val lonTooFarEast = if (rangeVal.equals("")) false else {
+      (Try(lonVal.toDouble).getOrElse(0D) > 1.8)
+    }
+    val lonTooFarWest = if (rangeVal.equals("")) false else {
+      (Try(lonVal.toDouble).getOrElse(0D) < -8.6)
+    }
 
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -144,6 +156,18 @@ class AddressController @Inject()(
     } else if (lonInvalid) {
       writeSplunkLogs(badRequestErrorMessage = LongitudeNotNumericAddressResponseError.message)
       futureJsonBadRequest(LongitudeNotNumeric)
+    } else if (latTooFarNorth) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeTooFarNorthAddressResponseError.message)
+      futureJsonBadRequest(LatitudeTooFarNorth)
+    } else if (latTooFarSouth) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeTooFarSouthAddressResponseError.message)
+      futureJsonBadRequest(LatitudeTooFarSouth)
+    } else if (lonTooFarEast) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeTooFarEastAddressResponseError.message)
+      futureJsonBadRequest(LongitudeTooFarEast)
+    } else if (lonTooFarWest) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeTooFarWestAddressResponseError.message)
+      futureJsonBadRequest(LongitudeTooFarWest)
     } else {
       val tokens = parser.parse(input)
 
