@@ -288,6 +288,38 @@ class AddressControllerSpec extends PlaySpec with Results{
           addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
           filter = "",
           rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.addressQuery("some query").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+
+    "reply with a found address (by address query with radius)" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
+          filter = "",
+          rangekm = "1",
           latitude = "50.705948",
           longitude = "-3.5091076",
           limit = 10,
@@ -299,7 +331,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.addressQuery("some query").apply(FakeRequest())
+      val result = controller.addressQuery("some query", None, None, None, Some("1"),  Some("50.705948"), Some("-3.5091076")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -706,6 +738,232 @@ class AddressControllerSpec extends PlaySpec with Results{
       status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
+
+    "reply on a 400 error if a non-numeric rangekm parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(RangeNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("alongway"),None,None).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a non-numeric latitude parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LatitudeNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("1"),Some("oopnorth"),Some("0")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a non-numeric longitude parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LongitudeNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("1"),Some("50"),Some("eastofthechipshop")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a too far north latitude parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LatitudeTooFarNorthAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("1"),Some("66.6"),Some("0")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a too far east longitude parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LongitudeTooFarEastAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("1"),Some("50"),Some("2.8")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a too far south latitude parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LatitudeTooFarSouthAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("1"),Some("44.4"),Some("0")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if a too far west longitude parameter is supplied" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LongitudeTooFarWestAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("1"),Some("50"),Some("-8.8")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+
 
     "reply on a 400 error if query is empty (by address query)" in {
       // Given

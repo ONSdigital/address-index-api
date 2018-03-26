@@ -908,3 +908,23 @@ object LongitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 28,
   message = "Longitude parameter not numeric"
 )
+
+object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
+  code = 29,
+  message = "Latitiude parameter must be less than 60.9"
+)
+
+object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
+  code = 30,
+  message = "Latitude parameter must be greater than 49.8"
+)
+
+object LongitudeTooFarEastAddressResponseError extends AddressResponseError(
+  code = 31,
+  message = "Latitiude parameter must be less than 1.8"
+)
+
+object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
+  code = 32,
+  message = "Longitude parameter must be greater than -8.6"
+)
