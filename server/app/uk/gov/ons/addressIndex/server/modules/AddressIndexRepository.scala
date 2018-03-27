@@ -544,17 +544,15 @@ class AddressIndexRepository @Inject()(
         )
     }
 
-    val geoDefn =  geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
-
     val prefixWithGeo = if (range.equals(""))
       Seq(prefixQuery("lpi.classificationCode", filterValue))
     else
-      Seq(prefixQuery("lpi.classificationCode", filterValue),geoDefn)
+      Seq(prefixQuery("lpi.classificationCode", filterValue),geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km"))
 
     val termWithGeo = if (range.equals(""))
       Seq(termQuery("lpi.classificationCode", filterValue))
     else
-      Seq(termQuery("lpi.classificationCode", filterValue),geoDefn)
+      Seq(termQuery("lpi.classificationCode", filterValue),geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km"))
 
 
     val fallbackQuery =

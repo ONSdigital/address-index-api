@@ -138,6 +138,22 @@ trait AddressIndexCannedResponse {
     BadRequestTemplate(LongitudeNotNumericAddressResponseError)
   }
 
+  def LatitudeTooFarNorth: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LatitudeTooFarNorthAddressResponseError)
+  }
+
+  def LongitudeTooFarEast: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LongitudeTooFarEastAddressResponseError)
+  }
+
+  def LatitudeTooFarSouth: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LatitudeTooFarSouthAddressResponseError)
+  }
+
+  def LongitudeTooFarWest: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LongitudeTooFarWestAddressResponseError)
+  }
+
   def OffsetNotNumericPostcode: AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(OffsetNotNumericPostcodeAddressResponseError)
   }
