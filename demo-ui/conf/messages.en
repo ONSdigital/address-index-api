@@ -183,6 +183,25 @@ postcode.intro=To get started, enter an exact postcode.
 
 postcodesearchform.labelsearch=Enter address
 
+radius.title=Radius demo - find an address within a radius
+radius.sfatext=Search for an address within a radius
+radius.foundpre=We have matched
+radius.foundpost=addresses
+radius.pleasesupply=Please enter a radius and search term
+radius.openmap=Location map
+radius.intro=To get started, complete the form with a range, latitude, longitude and search term.
+
+radiussearchform.labelsearch=Enter search term
+radiussearchform.labelrange=Range(km)
+radiussearchform.labellat=Latitude
+radiussearchform.labellon=Longitude
+radiussearchform.labelfilter=Filter (optional)
+radiussearchform.placeholdersearch=For example, recycling
+radiussearchform.placeholderfilter=For example, residential, commercial, RD06
+radiussearchform.placeholderrange=For example, 5
+radiussearchform.placeholderlat=For example, 50.722563
+radiussearchform.placeholderlon=For example, -3.530171
+
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
 postcodesearchform.placeholder=For example, EX2 6GA
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR
