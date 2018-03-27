@@ -184,6 +184,25 @@ postcode.intro=I ddechrau, rhowch cod post union.
 
 postcodesearchform.labelsearch=Rhowch gyfeiriad
 
+radius.title=Radiws demo-dod o hyd i gyfeiriad o fewn radiws o
+radius.sfatext=Chwilio am gyfeiriad o fewn radiws o
+radius.foundpre=Rydym wedi darparu arian cyfatebol
+radius.foundpost=cyfeiriadau
+radius.pleasesupply=Rhowch tymor radiws a chwilio
+radius.openmap=Map o'r lleoliad
+radius.intro=I gychwyn arni, llenwch y ffurflen gyda tymor ystod, lledred, hydred a chwilio.
+
+radiussearchform.labelsearch=Rhowch term chwilio
+radiussearchform.labelrange=Ystod(km)
+radiussearchform.labellat=Lledred
+radiussearchform.labellon=Hydred
+radiussearchform.labelfilter=Filter (dewisol)
+radiussearchform.placeholdersearch=Er enghraifft, recycling
+radiussearchform.placeholderfilter=Er enghraifft, residential, commercial, RD06
+radiussearchform.placeholderrange=Er enghraifft, 5
+radiussearchform.placeholderlat=Er enghraifft, 50.722563
+radiussearchform.placeholderlon=Er enghraifft, -3.530171
+
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
 postcodesearchform.placeholder=Er enghraifft, EX2 6GA
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR

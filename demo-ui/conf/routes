@@ -75,3 +75,12 @@ GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui
 # ONS-Address Index Single Search Request
 GET         /addresses/result/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetResult(input: String)
 
+# ONS-Address Index Single Search Request
+POST        /radius/search                     uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatch
+
+# ONS-Address Index Single Search Request
+GET         /radius/search                   uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage
+
+# ONS-Address Index Single Search Request
+GET         /radius/search/:input            uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatchWithInput(input: String, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], page: Option[Int])
+

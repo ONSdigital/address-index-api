@@ -1,0 +1,72 @@
+@(radiusForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm])(implicit messages: Messages)
+@import helper._
+
+<fieldset class="searchfield">
+
+    <div class="searchfields-group">
+
+        <div class="searchfield-radius">
+            @inputText(
+            radiusForm("rangekm"),
+            args = '_id -> "rangeNumber",
+            'class -> "form-control",
+            '_label -> messages("radiussearchform.labelrange"),
+            'placeholder -> messages("radiussearchform.placeholderrange")
+            )
+        </div>
+
+        <div class="searchfield-radius">
+            @inputText(
+            radiusForm("lat"),
+            args = '_id -> "latNumber",
+            'class -> "form-control",
+            '_label -> messages("radiussearchform.labellat"),
+            'placeholder -> messages("radiussearchform.placeholderlat")
+            )
+        </div>
+
+        <div class="searchfield-radius">
+            @inputText(
+            radiusForm("lon"),
+            args = '_id -> "lonNumber",
+            'class -> "form-control",
+            '_label -> messages("radiussearchform.labellon"),
+            'placeholder -> messages("radiussearchform.placeholderlon")
+            )
+        </div>
+
+    </div>
+
+    <div class="searchfields-group">
+
+        <div class="searchfield-searchinput">
+            @inputText(
+            radiusForm("address"),
+            args = '_id -> "numberOrName",
+            'class -> "form-control",
+            '_label -> messages("radiussearchform.labelsearch"),
+            'placeholder -> messages("radiussearchform.placeholdersearch")
+            )
+        </div>
+
+        <div class="searchfield-searchfilter">
+            @inputText(
+            radiusForm("filter"),
+            args = '_id -> "presetOrCode",
+            'class -> "form-control",
+            '_label -> messages("radiussearchform.labelfilter"),
+            'placeholder -> messages("radiussearchform.placeholderfilter")
+            )
+        </div>
+
+    </div>
+
+    <div class="searchfields-group">
+
+        <button class="btn btn-success btn-search" type="submit" id="submit">
+            <i class="fa fa-search"></i> @messages("single.searchbut")
+        </button>
+
+    </div>
+
+</fieldset>
