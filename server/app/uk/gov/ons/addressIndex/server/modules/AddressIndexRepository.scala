@@ -33,7 +33,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Fucture containing a address or `None` if not in the index
     */
-  def queryUprn(uprn: String): Future[Option[HybridAddress]]
+  def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]]
 
   /**
     * Query the address index for addresses.
@@ -43,7 +43,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -52,7 +52,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -62,7 +62,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
 }
 
 @Singleton
@@ -73,15 +73,16 @@ class AddressIndexRepository @Inject()(
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
 
   val client: HttpClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  def queryUprn(uprn: String): Future[Option[HybridAddress]] = {
+  def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] = {
 
-    val request = generateQueryUprnRequest(uprn)
+    val request = generateQueryUprnRequest(uprn, historical)
 
     logger.trace(request.toString)
 
@@ -97,20 +98,23 @@ class AddressIndexRepository @Inject()(
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String): SearchDefinition = search(hybridIndex).query {
-    termQuery("uprn", uprn)
-  }
+  def generateQueryUprnRequest(uprn: String, historical: Boolean = true): SearchDefinition =
+    if (historical) {
+      search(hybridIndexHistorical).query(termQuery("uprn", uprn))
+    } else {
+      search(hybridIndex).query(termQuery("uprn", uprn))
+    }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, queryParamsConfig).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, queryParamsConfig, historical).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -588,18 +592,25 @@ class AddressIndexRepository @Inject()(
         should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termQuery("lpi.classificationCode", filterValue)), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
-    search(hybridIndex).query(query)
-      .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-      .trackScores(true)
-      .searchType(SearchType.DfsQueryThenFetch)
 
+    if (historical) {
+      search(hybridIndexHistorical).query(query)
+        .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+        .trackScores(true)
+        .searchType(SearchType.DfsQueryThenFetch)
+    } else {
+      search(hybridIndex).query(query)
+        .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+        .trackScores(true)
+        .searchType(SearchType.DfsQueryThenFetch)
+    }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[BulkAddress]] =
-        queryAddresses(requestData.tokens, 0, limit, "", queryParamsConfig).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, limit, "", queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

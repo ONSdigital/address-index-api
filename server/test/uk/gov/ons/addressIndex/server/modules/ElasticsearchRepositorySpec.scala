@@ -16,7 +16,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
 
- val testClient = http
+  val testClient = http
+
   // injections
   val elasticClientProvider = new ElasticClientProvider {
     override def client: HttpClient = testClient
@@ -26,6 +27,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val queryParams = config.config.elasticSearch.queryParams
 
   val hybridIndexName = config.config.elasticSearch.indexes.hybridIndex
+  val hybridIndexHistoricalName = config.config.elasticSearch.indexes.hybridIndexHistorical
   val hybridMappings = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
@@ -60,6 +62,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   )
 
   val hybridFirstUprn = 1L
+  val hybridFirstUprnHist = 2L
   val hybridFirstParentUprn = 3L
   val hybridFirstRelative = firstHybridRelEs
   val hybridFirstPostcodeIn = "h01p"
@@ -313,6 +316,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(firstHybridNagEs)
   )
 
+  val firstHybridHistEs = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
+
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridSecondaryUprn,
@@ -333,14 +338,30 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       ))
   }.await
 
+  testClient.execute{
+    createIndex(hybridIndexHistoricalName)
+      .mappings(MappingDefinition.apply(hybridMappings))
+      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+        StandardTokenizer("myTokenizer1"))
+      ))
+  }.await
+
   testClient.execute {
     bulk(
-      indexInto(hybridIndexName / hybridMappings).fields(firstHybridEs),
-      indexInto(hybridIndexName / hybridMappings).fields(secondHybridEs)
+      indexInto(hybridIndexName / hybridMappings).fields(firstHybridHistEs)
     )
   }.await
 
-  blockUntilCount(2, hybridIndexName)
+  blockUntilCount(1, hybridIndexName)
+
+  testClient.execute {
+    bulk(
+      indexInto(hybridIndexHistoricalName / hybridMappings).fields(firstHybridEs),
+      indexInto(hybridIndexHistoricalName / hybridMappings).fields(secondHybridEs)
+    )
+  }.await
+
+  blockUntilCount(2, hybridIndexHistoricalName)
 
   val expectedPaf = PostcodeAddressFileAddress(
     hybridNotUsed,
@@ -447,6 +468,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     score = 1.0f
   )
 
+  val expectedHybridHist = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
+
   "Elastic repository" should {
 
     "generate valid query for search by UPRN" in {
@@ -480,6 +503,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val result = repository.queryUprn(hybridFirstUprn.toString).await
+
+      // Then
+      result.get.lpi.head shouldBe expectedNag
+      result.get.paf.head shouldBe expectedPaf
+      result shouldBe expected
+    }
+
+    "find HYBRID address by UPRN in non-historical index" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Some(expectedHybridHist)
+
+      // When
+      val result = repository.queryUprn(hybridFirstUprnHist.toString, false).await
 
       // Then
       result.get.lpi.head shouldBe expectedNag
