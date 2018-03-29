@@ -56,6 +56,7 @@ object QueryParamsConfig {
 }
 
 case class IndexesConfig(
+  hybridIndexHistorical: String,
   hybridIndex: String,
   hybridMapping: String
 )
