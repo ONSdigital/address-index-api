@@ -1,0 +1,124 @@
+@import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+@import uk.gov.ons.addressIndex.parsers.Tokens
+@import java.text.SimpleDateFormat
+
+@(
+address: AddressResponseAddress,
+filter: String,
+maxScore: Double,
+classification: Option[Map[String, String]],
+tokens: Map[String, String] = Map.empty[String, String],
+pageNum: Int = 0,
+index: Int = 0,
+isClerical: Boolean = false,
+expandRow: Int = 0,
+apiUrl: String = "",
+apiKey: String = ""
+)(implicit messages: Messages)
+
+
+<div class="panel address-panel">
+    <div class="result-content">
+        <div class="alert alert-success">
+            <h1>@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</h1>
+            <section class="address-result-header">
+                <span class="address-result-header-type">
+                    <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
+                      title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
+                                &nbsp;@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }&nbsp;
+                    </span>
+                </span>
+                <span class="address-result-header-uprn uprn-txt">@messages("single.uprn") &nbsp;<strong>@address.uprn</strong></span>
+                @if(address.geo.isEmpty) {
+                @if(address.nag.isEmpty) {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=@address.paf.map { paf =>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h }" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                } else {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                }
+                } else {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=@address.geo.map { geo => @geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h }" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                }
+
+            </section>
+            <section class="infobox-standard">
+                <table class="address-result-table">
+                    <tr>
+                        <td>@messages("addressresult.la_address")</td>
+                        <td>@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.postal_address_file")</td>
+                        <td>@address.formattedAddressPaf.substring(0, address.formattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.welsh_language_nag")</td>
+                        <td>@address.welshFormattedAddressNag.substring(0, address.welshFormattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.welsh_language_paf")</td>
+                        <td>@address.welshFormattedAddressPaf.substring(0, address.welshFormattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.classification")</td>
+                        <td>@if(address.nag.isEmpty) {
+                            @messages("category.notfound")
+                            } else {
+                            @address.nag.map { nag =>
+                            @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                            }
+                            }</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.la")</td>
+                        <td>@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.la_code")</td>
+                        <td>@address.nag.map{ nag => @nag.localCustodianGeogCode}</td>
+                    </tr>
+                </table>
+            </section>
+
+            @if(address.nag.map(_.logicalStatus).contains("8")) {
+            <div class="resultRow">
+                <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }
+            </div>
+            }
+
+            <section class="address-result-hierarchy">
+                <h2>@messages("addressresult.address_hierarchy")</h2>
+                @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
+                <article class="address-result-hierarchy-single">
+                    @if(position == "Primary") {<h3><strong>@messages("addressresult.position_primary")</strong></h3>}
+                    @if(position == "Secondary") {<h3><strong>@messages("addressresult.position_secondary")</strong></h3>}
+                    @if(position == "Tertiary") {<h3><strong>@messages("addressresult.position_tertiary")</strong></h3>}
+                    @if(position == "Quaternary") {<h3><strong>@messages("addressresult.position_quaternary")</strong></h3>}
+                    <table class="address-result-hierarchy-set">
+                        <thead>
+                        <tr>
+                            <th>UPRN</th>
+                            <th>@messages("addressresult.address")</th>
+                        </tr>
+                        </thead>
+                        <tbody id="@position@address.uprn">
+                        @relative.siblings.sorted.map { uprn =>
+                        <script>hierarchyResult("@uprn", "@position@address.uprn", '@apiUrl', '@apiKey')</script>
+                        }
+                        </tbody>
+                    </table>
+                </article>
+                }
+
+            </section>
+
+        </div>
+    </div>
+</div>
+
+

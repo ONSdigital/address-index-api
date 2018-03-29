@@ -43,6 +43,55 @@ object AddressByUprnResponse {
   implicit lazy val addressByUprnResponseFormat: Format[AddressByUprnResponse] = Json.format[AddressByUprnResponse]
 }
 
+
+
+/**
+  * Contains the reply for the address search request
+  *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
+  * @param response relevant data
+  * @param status   status code / message
+  * @param errors   encountred errors (or an empty list if there is no errors)
+  */
+case class AddressByPostcodeResponseContainer(
+                                             apiVersion: String,
+                                             dataVersion: String,
+                                             response: AddressByPostcodeResponse,
+                                             status: AddressResponseStatus,
+                                             errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
+                                           )
+
+object AddressByPostcodeResponseContainer {
+  implicit lazy val addressByPostcodeResponseContainerFormat: Format[AddressByPostcodeResponseContainer] =
+    Json.format[AddressByPostcodeResponseContainer]
+}
+
+/**
+  * Contains relevant, to the address request, data
+  *
+  * @param postcode    postcode from query
+  * @param addresses found addresses
+  * @param limit     max number of found addresses
+  * @param offset    offset of found addresses (for pagination)
+  * @param total     total number of found addresses
+  */
+case class AddressByPostcodeResponse(
+                                    postcode: String,
+                                    addresses: Seq[AddressResponseAddress],
+                                    filter: String,
+                                    limit: Int,
+                                    offset: Int,
+                                    total: Long,
+                                    maxScore: Double
+                                  )
+
+object AddressByPostcodeResponse {
+  implicit lazy val addressByPostcodeResponseFormat: Format[AddressByPostcodeResponse] = Json.format[AddressByPostcodeResponse]
+}
+
+
+
 /**
   * Contains the reply for the address search request
   *
@@ -78,6 +127,9 @@ case class AddressBySearchResponse(
   tokens: Map[String, String],
   addresses: Seq[AddressResponseAddress],
   filter: String,
+  rangekm: String,
+  latitude: String,
+  longitude: String,
   limit: Int,
   offset: Int,
   total: Long,
@@ -543,7 +595,7 @@ object AddressResponseNag {
       else s"$sao $pao $trimmedStreetDescriptor"
 
     Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-      nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
+    nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
   }
 
 }
@@ -792,6 +844,87 @@ object FilterInvalidError extends AddressResponseError(
   message = "Invalid filter value supplied"
 )
 
+object OffsetNotNumericPostcodeAddressResponseError extends AddressResponseError(
+  code = 16,
+  message = "Offset parameter not numeric (postcode)"
+)
 
+object LimitNotNumericPostcodeAddressResponseError extends AddressResponseError(
+  code = 17,
+  message = "Limit parameter not numeric (postcode)"
+)
 
+object OffsetTooSmallPostcodeAddressResponseError extends AddressResponseError(
+  code = 18,
+  message = "Offset parameter too small, minimum = 0 (postcode)"
+)
 
+object LimitTooSmallPostcodeAddressResponseError extends AddressResponseError(
+  code = 19,
+  message = "Limit parameter too small, minimum = 1 (postcode)"
+)
+
+object LimitTooLargePostcodeAddressResponseError extends AddressResponseError(
+  code = 20,
+  message = "Limit parameter too large (maximum configurable) (postcode)"
+)
+
+object OffsetTooLargePostcodeAddressResponseError extends AddressResponseError(
+  code = 21,
+  message = "Offset parameter too large (maximum configurable) (postcode)"
+)
+
+object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
+  code = 22,
+  message = "Empty query (postcode)"
+)
+
+object FailedRequestToEsPostcodeError extends AddressResponseError(
+  code = 23,
+  message = "Failed request to the Elastic Search (postcode)(check api logs)"
+)
+
+object NotFoundPostcodeResponseError extends AddressResponseError(
+  code = 24,
+  message = "Postcode request didn't yield a result"
+)
+
+object UprnNotNumericAddressResponseError extends AddressResponseError(
+  code = 25,
+  message = "UPRNs nust be numeric"
+)
+
+object RangeNotNumericAddressResponseError extends AddressResponseError(
+  code = 26,
+  message = "Range km parameter not numeric"
+)
+
+object LatitudeNotNumericAddressResponseError extends AddressResponseError(
+  code = 27,
+  message = "Latitiude parameter not numeric"
+)
+
+object LongitudeNotNumericAddressResponseError extends AddressResponseError(
+  code = 28,
+  message = "Longitude parameter not numeric"
+)
+
+object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
+  code = 29,
+  message = "Latitiude parameter must be less than 60.9"
+)
+
+object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
+  code = 30,
+  message = "Latitude parameter must be greater than 49.8"
+)
+
+object LongitudeTooFarEastAddressResponseError extends AddressResponseError(
+  code = 31,
+  message = "Latitiude parameter must be less than 1.8"
+)
+
+object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
+  code = 32,
+  message = "Longitude parameter must be greater than -8.6"
+)

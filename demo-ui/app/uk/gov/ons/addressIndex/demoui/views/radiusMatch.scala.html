@@ -1,0 +1,82 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import play.twirl.api.HtmlFormat
+
+@(
+radiusSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm],
+filter: Option[String],
+rangekm: Option[String],
+lat: Option[String],
+lon: Option[String],
+warningMessage : Option[String],
+pageNum: Int,
+pageSize: Int,
+pageMax: Int,
+addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+classification: Option[Map[String,String]],
+version: DemoUIAddressIndexVersionModule
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("radius.title"), version = version)  {
+
+<div class="container">
+    <div class="panel panel-single">
+        <div class="panel-heading sub-nav-heading">
+            @navigation(Navigation.default)
+        </div>
+
+        <section class="radius-match-form-container">
+            <div class="radius-match-form">
+                <h1 class="search-page-title">@messages("radius.sfatext")</h1>
+
+                <section class="searchbox-results">
+                    @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatch) {
+                    <div id="search-form" class="search-bar-active">
+                        @forms.radiusForm(radiusSearchForm)
+                    </div>
+                    }
+                </section>
+
+            </div>
+        </section>
+
+        <div class="content-container">
+            @warningMessage.map { message =>
+            <div id="warning-message">
+                <div class="result-content">
+                    <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+                </div>
+            </div>
+            }
+
+            <section class="postcode-match-results-container">
+                <div class="postcode-match-results-count">
+                    @addressBySearchResponse.map { aresponse =>
+                    <div class="standout">@messages("radius.foundpre") @aresponse.total @messages("radius.foundpost")</div>
+                </div>
+                <div class="postcode-match-results">
+
+                    @aresponse.addresses.map{ address =>
+
+                    @addressShortForm(
+                    address,
+                    radiusSearchForm("filter").value.getOrElse(""),
+                    aresponse.maxScore,
+                    classification
+                    )
+                    }
+                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius")
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+}

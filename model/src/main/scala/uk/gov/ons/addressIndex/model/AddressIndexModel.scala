@@ -14,6 +14,18 @@ case class AddressIndexUPRNRequest(
 case class AddressIndexSearchRequest(
   input: String,
   filter: String,
+  rangekm: String,
+  lat: String,
+  lon: String,
+  limit: String,
+  offset: String,
+  id: UUID,
+  apiKey: String
+)
+
+case class AddressIndexPostcodeRequest(
+  postcode: String,
+  filter: String,
   limit: String,
   offset: String,
   id: UUID,

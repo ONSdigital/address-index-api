@@ -124,19 +124,53 @@
     });
 
 
-
-
-    function formattedAddress(uprn, position, apiUrl) {
+    function formattedAddress(uprn, position, apiUrl, apiKey) {
         var url = apiUrl.concat("/addresses/").concat(uprn);
-
-        $.getJSON(url).done(function( data ) {
+        $.support.cors = true; // this is required for IE8
+        $.ajax({
+          type: 'GET',
+          url: url,
+          dataType: 'json',
+          headers: {
+           "Authorization": apiKey
+          }
+        })
+         .done(function(data) {
             var resUprn = data.response.address.uprn;
             var formattedAddress = data.response.address.formattedAddress;
 
             if (typeof formattedAddress !== 'undefined') {
                 $("#" + position).append("<div id='" + resUprn + "'>" + formattedAddress + " (" + resUprn + ")" + "</div>");
-            }
-        });
+          }
+         });
+
+    }
+
+    function hierarchyResult(uprn, position, apiUrl, apiKey) {
+        var url = apiUrl.concat("/addresses/").concat(uprn);
+        $.support.cors = true; // this is required for IE8
+        $.ajax({
+          type: 'GET',
+          url: url,
+          dataType: 'json',
+          headers: {
+           "Authorization": apiKey
+          }
+        })
+         .done(function(data) {
+            var resUprn = data.response.address.uprn;
+            var formattedAddress = data.response.address.formattedAddress;
+
+            var formattedAddressRest = formattedAddress.substring(0, formattedAddress.lastIndexOf(",") + 1);
+            var formattedAddressPostcode = formattedAddress.substring(formattedAddress.lastIndexOf(",") + 1, formattedAddress.length);
+
+            var formattedAddressTitleCase = formattedAddressRest.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) + formattedAddressPostcode;
+
+            if (typeof formattedAddress !== 'undefined') {
+                $("#" + position).append("<tr id='" + resUprn + "'><td>" + resUprn + "</td><td><a href='" + resUprn + "'>" + formattedAddressTitleCase + "</a></td></tr>");
+          }
+         });
+
     }
 
     </script>

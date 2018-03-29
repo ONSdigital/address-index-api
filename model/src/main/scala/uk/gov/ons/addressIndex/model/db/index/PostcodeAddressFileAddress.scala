@@ -79,7 +79,7 @@ object PostcodeAddressFileAddress {
   }
 
   def fromEsMap (paf: Map[String, Any]): PostcodeAddressFileAddress = {
-    val filteredPaf = paf.filter { case (_, value) => value != null }
+    val filteredPaf = paf.filter { case (_, value) => value != null && value !="" }
 
     PostcodeAddressFileAddress (
       recordIdentifier = filteredPaf.getOrElse(Fields.recordIdentifier, "").toString,
@@ -100,11 +100,11 @@ object PostcodeAddressFileAddress {
       postcode = filteredPaf.getOrElse(Fields.postcode, "").toString,
       postcodeType = filteredPaf.getOrElse(Fields.postcodeType, "").toString,
       deliveryPointSuffix = filteredPaf.getOrElse(Fields.deliveryPointSuffix, "").toString,
-      welshDependentThoroughfare = filteredPaf.getOrElse(Fields.welshDependentThoroughfare, "").toString,
-      welshThoroughfare = filteredPaf.getOrElse(Fields.welshThoroughfare, "").toString,
-      welshDoubleDependentLocality = filteredPaf.getOrElse(Fields.welshDoubleDependentLocality, "").toString,
-      welshDependentLocality = filteredPaf.getOrElse(Fields.welshDependentLocality, "").toString,
-      welshPostTown = filteredPaf.getOrElse(Fields.welshPostTown, "").toString,
+      welshDependentThoroughfare = filteredPaf.getOrElse(Fields.welshDependentThoroughfare, filteredPaf.getOrElse(Fields.dependentThoroughfare, "").toString).toString,
+      welshThoroughfare = filteredPaf.getOrElse(Fields.welshThoroughfare,filteredPaf.getOrElse(Fields.thoroughfare, "").toString ).toString,
+      welshDoubleDependentLocality = filteredPaf.getOrElse(Fields.welshDoubleDependentLocality, filteredPaf.getOrElse(Fields.doubleDependentLocality, "").toString).toString,
+      welshDependentLocality = filteredPaf.getOrElse(Fields.welshDependentLocality, filteredPaf.getOrElse(Fields.dependentLocality, "").toString).toString,
+      welshPostTown = filteredPaf.getOrElse(Fields.welshPostTown, filteredPaf.getOrElse(Fields.postTown, "").toString).toString,
       poBoxNumber = filteredPaf.getOrElse(Fields.poBoxNumber, "").toString,
       processDate = filteredPaf.getOrElse(Fields.processDate, "").toString,
       startDate = filteredPaf.getOrElse(Fields.startDate, "").toString,

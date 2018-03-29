@@ -1,0 +1,47 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import play.twirl.api.HtmlFormat
+
+@(
+postcodeSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm],
+filter: Option[String],
+warningMessage : Option[String],
+pageNum: Int,
+pageSize: Int,
+pageMax: Int,
+addressByPostcodeResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponse],
+classification: Option[Map[String,String]],
+version: DemoUIAddressIndexVersionModule
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("postcode.title"), version = version)  {
+
+<div class="container">
+    <div class="panel panel-single">
+        <div class="panel-heading sub-nav-heading">
+            @navigation(Navigation.default)
+        </div>
+
+        <div class="content-container">
+            <h1 class="search-page-title">@messages("postcode.sfatext")</h1>
+            <section class="infobox-standard">
+                <p>@messages("postcode.intro")</p>
+            </section>
+            <section class="searchbox-initial">
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {
+                <div id="search-form" class="search-bar-active">
+                    @forms.postcodeForm(postcodeSearchForm, false, messages("postcodesearchform.labelsearch"), messages("postcodesearchform.placeholder"), messages("postcodesearchform.labelfilter"), messages("postcodesearchform.placeholderfilter"))
+                </div>
+                }
+            </section>
+        </div>
+
+    </div>
+</div>
+}

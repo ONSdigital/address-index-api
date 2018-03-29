@@ -44,7 +44,7 @@ class ClericalToolController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
-  val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port
+  val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
 
   /**
     * Present empty form for user to input address
@@ -73,7 +73,8 @@ class ClericalToolController @Inject()(
       version = version,
       placeholder = messagesApi("clericalsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
-      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+      apiKey = apiKey
     )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
@@ -109,7 +110,8 @@ class ClericalToolController @Inject()(
         version = version,
         placeholder = messagesApi("clericalsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
-        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+        apiKey = ""
       )
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
@@ -156,7 +158,8 @@ class ClericalToolController @Inject()(
           version = version,
           placeholder = messagesApi("clericalsearchform.placeholder"),
           labelFilter = messagesApi("clericalsearchform.labelfilter"),
-          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+          apiKey = apiKey
         )
 
         Future.successful(
@@ -169,6 +172,9 @@ class ClericalToolController @Inject()(
             input = addressText,
             filter = filterText,
             limit = limit,
+            rangekm = "",
+            lat = "50.705948",
+            lon = "-3.5091076",
             offset = offset,
             id = UUID.randomUUID,
             apiKey = apiKey
@@ -203,7 +209,8 @@ class ClericalToolController @Inject()(
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+            apiKey = apiKey
           ))
         }
       }
@@ -322,7 +329,8 @@ class ClericalToolController @Inject()(
           classification = Some(classCodes),
           version = version,
           isClerical = true,
-          apiUrl = apiUrl
+          apiUrl = apiUrl,
+          apiKey = apiKey
         )
         Ok(viewToRender)
       }
@@ -352,7 +360,8 @@ class ClericalToolController @Inject()(
       version = version,
       placeholder = messagesApi("debugsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
-      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+      apiKey = apiKey
     )
       Future.successful(
         Ok(viewToRender)
@@ -402,7 +411,8 @@ class ClericalToolController @Inject()(
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+            apiKey = apiKey
           )
 
           Future.successful(
@@ -415,6 +425,9 @@ class ClericalToolController @Inject()(
               input = addressText,
               filter = filterText,
               limit = limit,
+              rangekm = "",
+              lat = "50.705948",
+              lon = "-3.5091076",
               offset = offset,
               id = UUID.randomUUID,
               apiKey = apiKey
@@ -449,7 +462,8 @@ class ClericalToolController @Inject()(
               version = version,
               placeholder = messagesApi("debugsearchform.placeholder"),
               labelFilter = messagesApi("clericalsearchform.labelfilter"),
-              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+              apiKey = apiKey
             ))
           }
         }

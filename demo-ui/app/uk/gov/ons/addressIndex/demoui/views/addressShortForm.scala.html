@@ -1,0 +1,64 @@
+@import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+@import uk.gov.ons.addressIndex.parsers.Tokens
+@import java.text.SimpleDateFormat
+
+@(
+address: AddressResponseAddress,
+filter: String,
+maxScore: Double,
+classification: Option[Map[String, String]],
+tokens: Map[String, String] = Map.empty[String, String],
+pageNum: Int = 0,
+index: Int = 0,
+isClerical: Boolean = false,
+expandRow: Int = 0,
+apiUrl: String = "",
+apiKey: String = ""
+)(implicit messages: Messages)
+
+<article class="result-short-form">
+    <h2><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn)}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
+    <table>
+        <tr>
+            <td>UPRN</td>
+            <td>@address.uprn</td>
+        </tr>
+        <tr>
+            <td>@messages("addressresult.classification")</td>
+            <td>@if(address.nag.isEmpty) {
+                @messages("category.notfound")
+                } else {
+                @address.nag.map { nag =>
+                @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>@messages("addressresult.la")</td>
+            <td>@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @if(address.geo.isEmpty) {
+                @if(address.nag.isEmpty) {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=@address.paf.map { paf =>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h }" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                } else {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                }
+                } else {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=@address.geo.map { geo => @geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h }" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                }
+            </td>
+        </tr>
+    </table>
+</article>
+
+
+
