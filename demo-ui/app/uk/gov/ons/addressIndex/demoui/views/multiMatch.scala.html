@@ -18,10 +18,10 @@
 )
 
 @tableHeaderHelper(text: String) = {
-    <th align="center"><b>@text</b></th>
+    <th>@text</th>
 }
 
-@main(title = messages("single.title"), version = version) {
+@main(title = messages("single.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("multi")) {
     <script>
             $(document).ready(function () {
                 function exportTableToCSV($table, filename) {
@@ -167,53 +167,66 @@
             });
     </script>
     <div class="container">
-        <div class="panel panel-single">
-            <div class="panel-heading sub-nav-heading">
-                @navigation(nav)
-            </div>
-            <div class="panel panel-single address-panel">
-                <h3 class="panel-title">@messages("multi.sfatext")</h3>
-                <div class="panel-body">
-                    <div id="search-form" class="search-bar-active">
-                        @form(
-                            action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFileVisualise,
-                            'enctype -> "multipart/form-data"
-                        ) {
-                            <p class="inputfile-box">
-                                <input type="file" id="multi-match" class="inputfile" accept=".csv" name="@fileFormName" />
-                                <label for="multi-match">
-                                    <span id="file-name" class="file-box">&nbsp;</span>
-                                    <span class="upload-btn"> <i class="fa fa-upload" aria-hidden="true"></i> @messages("select_file")</span>
-                                </label>
-                                @*this token is needed so that in case of a download, we'd know when the download has started*@
-                                <input id="search-token" type="hidden" name="token" value="some default" />
-
-                                <button id="search-button" class="btn btn-success search-button btn-search no-margin disabled" type="submit" disabled="disabled">@messages("upload")</button>
-                                <button id="search-button-download" class="btn btn-success search-button btn-search no-margin disabled" disabled="disabled">@messages("upload-download")</button>
-                            </p>
-                        }
-                    </div>
+        <div class="wrapper">
+            <div class="group">
+                <div class="col-12">
+                    <h1 class="search-page-title">@messages("multi.sfatext")</h1>
+                    <section class="infobox-standard">
+                        <p>To get started, upload a CSV ﬁle of addresses to be matched.</p>
+                        <p>The selected ﬁle must be 10MB or less with only two columns with headers; ID and address. Download a sample ﬁle.</p>
+                        <p>You can download your results as a CSV ﬁle or preview them in your browser. Your results will include a match accuracy score.</p>
+                    </section>
                 </div>
             </div>
-            <div id="search-loading"></div>
-            <div id="multi-match-results">
-                @results.map { bulkResp =>
+            <div class="group">
+                <div class="col-6">
+                    <section class="searchbox-initial">
+                        <div class="multi-match-form">
+                            <div id="search-form" class="search-bar-active">
+                                <h2>Upload a CSV file</h2>
+                                @form(
+                                action = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.uploadFileVisualise,
+                                'enctype -> "multipart/form-data"
+                                ) {
+                                <p class="inputfile-box">
+                                    <input type="file" id="multi-match" class="inputfile" accept=".csv" name="@fileFormName" />
+                                    <label for="multi-match">
+                                        <span id="file-name" class="file-box">&nbsp;</span>
+                                        <span class="upload-btn"> <i class="fa fa-upload" aria-hidden="true"></i> @messages("select_file")</span>
+                                    </label>
+                                    @*this token is needed so that in case of a download, we'd know when the download has started*@
+                                    <input id="search-token" type="hidden" name="token" value="some default" />
+
+                                    <button id="search-button" class="btn btn-success search-button btn-search no-margin disabled" type="submit" disabled="disabled">@messages("upload")</button>
+                                    <button id="search-button-download" class="btn btn-success search-button btn-search no-margin disabled" disabled="disabled">@messages("upload-download")</button>
+                                </p>
+                                }
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div class="group">
+                <div class="col-12">
+                    <div id="search-loading"></div>
+                    <section id="multi-match-results">
+                        @results.map { bulkResp =>
                         <div>
                             <strong>@messages("multi.counter.total"):</strong> @{MatchTypeHelper.countSearched(bulkResp.bulkAddresses)} <br>
                             <strong>@messages("multi.counter.single"):</strong> @{MatchTypeHelper.countSingles(bulkResp.bulkAddresses)}<br>
                             <strong>@messages("multi.counter.multiple"):</strong> @{MatchTypeHelper.countMultiples(bulkResp.bulkAddresses)}<br>
                             <strong>@messages("multi.counter.empty"):</strong> @{MatchTypeHelper.countEmpty(bulkResp.bulkAddresses)}
                         </div>
-                    <div class="panel panel-single address-panel">
-                        <div class="panel-body">
-                            <div class='container'>
-                                <div id="dvData">
-                                    <div class="matched-all-container">
-                                        <div id="matched-all-yes" class="matched-all">@messages("multi.table.all.yes")</div>
-                                        <div id="matched-all-no" class="matched-all">@messages("multi.table.all.no")</div>
-                                    </div>
-                                    <table border="1px;black;black;" cellpadding="5px" cellspacing="0px">
-                                        <thead style="background-color: #DFE0E2;">
+                        <div class="panel panel-single address-panel">
+                            <div class="panel-body">
+                                <div class='container'>
+                                    <div id="dvData">
+                                        <div class="matched-all-container">
+                                            <div id="matched-all-yes" class="matched-all">@messages("multi.table.all.yes")</div>
+                                            <div id="matched-all-no" class="matched-all">@messages("multi.table.all.no")</div>
+                                        </div>
+                                        <table>
+                                            <thead>
                                             @tableHeaderHelper(messages("multi.table.id"))
                                             @tableHeaderHelper(messages("multi.table.input.address"))
                                             @tableHeaderHelper(messages("multi.table.matched.address"))
@@ -224,39 +237,42 @@
                                             @tableHeaderHelper(messages("multi.table.unit.score"))
                                             @tableHeaderHelper(messages("multi.table.rank"))
                                             @tableHeaderHelper(messages("multi.table.matched"))
-                                        </thead>
-                                        <tbody>
+                                            </thead>
+                                            <tbody>
                                             @for((result, i) <- bulkResp.bulkAddresses.zipWithIndex) {
-                                                @defining(MatchTypeHelper.matchType(result.id, bulkResp.bulkAddresses.map(_.id), result.matchedFormattedAddress)) { matchType =>
-                                                    <tr>
-                                                        <td align="center">@{result.id}</td>
-                                                        <td>@{result.inputAddress}</td>
-                                                        <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
-                                                        <td align="center">@{result.uprn}</td>
-                                                        <td align="center" class="match-type-@matchType">@matchType</td>
-                                                        <td align="center">@{"%.2f".format(result.score)}</td>
-                                                        <td align="center">@{ "%.2f".format(result.bespokeScore.map(score => score.structuralScore).getOrElse(0)) }</td>
-                                                        <td align="center">@{ result.bespokeScore.map(score => "%.2f".format(score.objectScore)).getOrElse("-1.0") }</td>
-                                                        <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
-                                                        <td align="center">
-                                                            <input type="radio" id="matched-@i-yes" class="matched-yes" name="matched-@i" checked="checked"/> <label for="matched-@i-yes">@messages("multi.table.yes")</label>
-                                                            <input type="radio" id="matched-@i-no" class="matched-no" name="matched-@i" /> <label for="matched-@i-no">@messages("multi.table.no")</label>
-                                                        </td>
-                                                    </tr>
-                                                }
+                                            @defining(MatchTypeHelper.matchType(result.id, bulkResp.bulkAddresses.map(_.id), result.matchedFormattedAddress)) { matchType =>
+                                            <tr>
+                                                <td>@{result.id}</td>
+                                                <td>@{result.inputAddress}</td>
+                                                <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
+                                                <td>@{result.uprn}</td>
+                                                <td align="center" class="match-type-@matchType">@matchType</td>
+                                                <td align="center">@{"%.2f".format(result.score)}</td>
+                                                <td align="center">@{ "%.2f".format(result.bespokeScore.map(score => score.structuralScore).getOrElse(0)) }</td>
+                                                <td align="center">@{ result.bespokeScore.map(score => "%.2f".format(score.objectScore)).getOrElse("-1.0") }</td>
+                                                <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
+                                                <td>
+                                                    <input type="radio" id="matched-@i-yes" class="matched-yes" name="matched-@i" checked="checked"/> <label for="matched-@i-yes">@messages("multi.table.yes")</label><br>
+                                                    <input type="radio" id="matched-@i-no" class="matched-no" name="matched-@i" /> <label for="matched-@i-no">@messages("multi.table.no")</label>
+                                                </td>
+                                            </tr>
                                             }
-                                        </tbody>
-                                    </table>
+                                            }
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <a href="#" id ="export" role="button">Download</a>
-                }
+                        <a href="#" id ="export" role="button">Download</a>
+                        }
+                    </section>
+
+                </div>
             </div>
+
+
         </div>
     </div>
-    <div class="panel panel-single address-panel">
-        <p class="pad">&nbsp;</p>
-    </div>
+
 }

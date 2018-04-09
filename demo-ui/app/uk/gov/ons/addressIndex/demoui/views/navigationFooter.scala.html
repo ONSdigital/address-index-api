@@ -1,0 +1,15 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+
+@(nav: Navigation, linkClass: Option[String])(implicit messages: Messages)
+
+<div id="footer-navigation" class="no-print">
+    <nav class="nav-container no-print">
+        <ul>
+            @for(link <- nav.links) {
+                <li @if(linkClass.getOrElse() == link.section){class="active"}><a href="@{link.href}">@{link.label}</a></li>
+            }
+        </ul>
+    </nav>
+</div>
+
+

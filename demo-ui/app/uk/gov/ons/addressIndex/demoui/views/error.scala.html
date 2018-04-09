@@ -7,10 +7,10 @@
 * argument is an `Html` object containing the body of the page.
 *@
 
-@main(title = messages("home.title"), version = version) {
+@main(title = messages("home.title"), version = version, showBannerNavigation = true, showBannerTagline = false, siteSection = Some("")) {
 <div class="container">
     <div class="panel-heading sub-nav-heading">
-        @navigation(Navigation.default)
+        @navigation(Navigation.default, Some(""))
     </div>
     <div class="row">
         <div><h2 class="panel-title">@messages("home.servicetext") <span class="beta">Beta</span></h2></div>

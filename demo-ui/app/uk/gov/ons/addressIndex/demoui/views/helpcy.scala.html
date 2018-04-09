@@ -5,211 +5,212 @@
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
 
-@main(title = messages("help.title"), version = version) {
+@main(title = messages("help.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("help")) {
 
 <div class="container">
-    <div class="panel panel-single">
-        <div class="panel-heading sub-nav-heading no-print">
-            @navigation(Navigation.default)
-        </div>
-        <div class="help-container" id="help-container">
-            <div class="no-print">
-                <ul>
-                    <li>
-                        <a href="#introduction">Cyflwyniad</a>
-                    </li>
-                    <li>
-                        <a href="#login">Mewngofnodi</a>
-                    </li>
-                    <li>
-                        <a href="#search_single">Chwilio am Cyfeiriad Sengl</a>
-                    </li>
-                    <li>
-                        <a href="#search_postcode">Chwilio am gyfeiriad yn ôl cod post</a>
-                    </li>
-                    <li>
-                        <a href="#search_multiple">Chwilio am gyfeiriadau lluosog</a>
-                    </li>
-                    <li>
-                        <a href="#clerical">Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</a>
-                    </li>
-                    <li>
-                        <a href="#debug">Debug y ElasticSearch Ymholiad</a>
-                    </li>
-                    <li>
-                        <a href="#notes">Nodiadau Technegoll</a>
-                    </li>
-                </ul>
-            </div>
+    <div class="wrapper">
 
-            <div>
-                <a name="introduction"></a>
-                <h1>Cyflwyniad</h1>
-                <p>Mae'r Rhyngwyneb Defnyddiwr Mynegai Cyfeiriad (UI) yn cynnig chwilio gyfeiriad a gwasanaeth paru ar gyfer defnyddwyr ar y rhwydwaith y Swyddfa Ystadegau Gwladol. I logio i mewn i'r gwasanaeth, rhowch yr un enw defnyddiwr a'r cyfrinair a ddefnyddiwyd i fewngofnodi i mewn i'ch cyfrifiadur / Laptop.</p>
-                <p>Os ydych chi ar y rhwydwaith SYG ac yn gallu cael mynediad i'r gwasanaeth, anfonwch e-bost <a href="mailto:ai.users@@ons.gov.uk">Mynegai Cyfeiriad</a></p>
-                <p>Darparu mynediad i ddefnyddwyr y tu allan i'r rhwydwaith ONS, OGDs bennaf, bydd y gwasanaeth Mynegai Cyfeiriad fod yn hygyrch drwy ddefnyddio Rhaglen Rhyngwyneb Cais (API)</p>
-                <p>Yn ystod y Beta Preifat defnyddwyr allanol yn cyflenwi ffeiliau swmp mewnbwn drwy MoveIt</p>
-            </div>
-
-            <div>
-                <a name="login"></a>
-                <h1>Mewngofnodi</h1>
-                <ol>
-                    <li>Agor porwr gwe ac yn mynd i <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
-
-                    <li>Os oes angen mewngofnodi, rhowch eich enw defnyddiwr rhwydwaith ons a chyfrinair, a chliciwch "Mewngofnodi" botwm</li>
-                </ol>
-
-                <img src='@routes.Assets.versioned("images/help/login_1_cy.jpg").toString'>
-            </div>
-
-            <div>
-                <a name="search_single"></a>
-                <h1>Chwilio am Cyfeiriad Sengl</h1>
-
-                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Dod o hyd i gyfeiriad</div>
-                <img src='@routes.Assets.versioned("images/help/single_1_cy.jpg").toString'>
-
-                <div>2. Rhowch gyfeiriad, gallwch ddewis ymuno hidlydd, a cliciwch y botwm chwilio.<br>
-                    Rhowch gymaint o'r cyfeiriad ag y bo modd ar gyfer canlyniadau gorau.<br>
-                    Mae'r chwiliad ei optimeiddio ar gyfer paru cyfeiriadau mewn data gweinyddol, nid, er enghraifft arddangos yr holl gyfeiriadau yn y cod post a roddwyd.<br>
-                    Bydd yr hidlydd yn gweithio gyda gwerthoedd rhagosod 'commercial' neu 'residential'. Yn ogystal, gallwch ddefnyddio'r gwerth penodol, e.e. RD06, neu ddilyn gwerth rhannol gan * 'yn cychwyn gyda' cyfatebol, e.e. RD0 *.
-                </div>
-                <img src='@routes.Assets.versioned("images/help/single_2_cy.jpg").toString'>
-
-                <div>3. Unwaith y bydd y botwm chwilio ei glicio, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
-                <img src='@routes.Assets.versioned("images/help/single_3_cy.jpg").toString'>
-
-
-                <ol>
-                    <li><strong>Nifer y cyfeiriadau a geir</strong> - Cyfanswm y nifer o gyfeiriadau a geir yn y chwiliad.</li>
-                    <li><strong>Adborth</strong> - Gwasgwch i gyflwyno adborth am yr gyfeiriad penodol.</li>
-                    <li><strong>LA | PAF</strong> - Toggle i weld naill ai fersiwn ALl (Awdurdod Lleol) neu PAF (Cyfeiriad Post Ffeil) fformatio y cyfeiriad.</li>
-                    <li><strong>Iaith</strong> - Togl rhwng fersiwn Saesneg a Chymraeg y cyfeiriad (lle maent yn bodoli)</li>
-                    <li><strong>paru Sgôr</strong> – Mae'r sgôr yn rhoi arwydd o ansawdd y gêm a bydd o ddiddordeb mwyaf i ddefnyddwyr arbenigol. sgôr y ddogfen yn cael ei ddychwelyd o elastig Search, Adeilad sgôr tebygolrwydd gyfrifo bod yr adeilad yn gywir, a'r sgôr uned hon ar gyfer yr is-adeilad os yn briodol. </li>
-                    <li><strong>Cyfeiriad</strong> – Mae cyfeiriad cyfateb fformatio. Fel ball, y fersiwn ALl fformatio o'r cyfeiriad cyfatebol yn cael ei arddangos.</li>
-                    <li><strong>Statws Icon Rhesymegol</strong> – Mae statws rhesymegol cyfeiriad cyfateb fewn <a href="https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/addressbase-premium.html">AddressBase</a>. A ei gymeradwyo, P yn un dros dro ac H yn Hanesyddol. Gweler dogfennaeth AddressBase am fanylion dosbarthiad hwn.</li>
-                    <li><strong>UPRN</strong> – Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
-                    <li><strong>Dosbarthiad</strong> - Mae dosbarthiad y cyfeiriad cyfateb e.e. Preswyl, Masnachol, Hunangynhwysol Fflat, Siop ac ati)</li>
-                    <li><strong>Awdurdod lleol</strong> – Mae hyn yn yr awdurdod lleol bod y cyfeiriad yn cyfateb ar hyn o bryd neilltuo i.</li>
-                    <li><strong>Map agored</strong> – Dangoswch y cyfeiriad cyfatebol ar fap gan ddefnyddio cyfesurynnau AddressBase yn.</li>
-                </ol>
-
-            </div>
-
-            <div>
-                <a name="search_postcode"></a>
-                <h1>Chwilio am gyfeiriad yn ôl cod post</h1>
-
-                <div>1. O'r dudalen hafan Mynegai cyfeiriad, cliciwch canfod cyfeiriad gan cod post.</div>
-                <img src='@routes.Assets.versioned("images/help/postcode-home-cy.jpg").toString'>
-
-                <div>2. Rhowch god post llawn a cliciwch y botwm chwilio.<br>
-                    Dyma'r <strong>union chwilio</strong>, felly dim ond bydd yn dychwelyd canlyniadau gyda'r cod post yn llawn ac yn ddilys.
+        <div class="group" id="help-container">
+            <div class="col-12">
+                <h1>@messages("help.title")</h1>
+                <div class="no-print">
+                    <ul>
+                        <li>
+                            <a href="#introduction">Cyflwyniad</a>
+                        </li>
+                        <li>
+                            <a href="#login">Mewngofnodi</a>
+                        </li>
+                        <li>
+                            <a href="#search_single">Chwilio am Cyfeiriad Sengl</a>
+                        </li>
+                        <li>
+                            <a href="#search_postcode">Chwilio am gyfeiriad yn ôl cod post</a>
+                        </li>
+                        <li>
+                            <a href="#search_multiple">Chwilio am gyfeiriadau lluosog</a>
+                        </li>
+                        <li>
+                            <a href="#clerical">Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</a>
+                        </li>
+                        <li>
+                            <a href="#debug">Debug y ElasticSearch Ymholiad</a>
+                        </li>
+                        <li>
+                            <a href="#notes">Nodiadau Technegoll</a>
+                        </li>
+                    </ul>
                 </div>
 
-                <img src='@routes.Assets.versioned("images/help/postcode-form-cy.jpg").toString'>
-
-                <div>3. Unwaith mae clicio botwm chwilio, bydd yr injan paru broses ymholiad chwilio a dychwelyd y canlyniadau.<br>
-                    Yn archebu canlyniadau stryd, Rhif Tŷ, Rhif ôl-ddodiad a CEU, felly ar gyfer bydd rhan fwyaf o godau post yn dychwelyd yr eiddo yn y Gorchymyn.<br>
-                    Gellir defnyddio hidlydd dosbarthiad ar y pwynt hwn os dymunir. Bydd yr hidlydd yn gweithio gyda gwerthoedd rhagosod 'commercial' neu 'residential'. Yn ogystal, gallwch ddefnyddio'r gwerth penodol, e.e. RD06, neu ddilyn gwerth rhannol gan * 'yn cychwyn gyda' cyfatebol, e.e. RD0 *.<br>
-                    Cliciwch y canlyniad a ddymunir cyfeiriad i weld manylion llawnach o ganlyniad i fynd i'r afael â.
+                <div>
+                    <a name="introduction"></a>
+                    <h1>Cyflwyniad</h1>
+                    <p>Mae'r Rhyngwyneb Defnyddiwr Mynegai Cyfeiriad (UI) yn cynnig chwilio gyfeiriad a gwasanaeth paru ar gyfer defnyddwyr ar y rhwydwaith y Swyddfa Ystadegau Gwladol. I logio i mewn i'r gwasanaeth, rhowch yr un enw defnyddiwr a'r cyfrinair a ddefnyddiwyd i fewngofnodi i mewn i'ch cyfrifiadur / Laptop.</p>
+                    <p>Os ydych chi ar y rhwydwaith SYG ac yn gallu cael mynediad i'r gwasanaeth, anfonwch e-bost <a href="mailto:ai.users@@ons.gov.uk">Mynegai Cyfeiriad</a></p>
+                    <p>Darparu mynediad i ddefnyddwyr y tu allan i'r rhwydwaith ONS, OGDs bennaf, bydd y gwasanaeth Mynegai Cyfeiriad fod yn hygyrch drwy ddefnyddio Rhaglen Rhyngwyneb Cais (API)</p>
+                    <p>Yn ystod y Beta Preifat defnyddwyr allanol yn cyflenwi ffeiliau swmp mewnbwn drwy MoveIt</p>
                 </div>
 
-                <img src='@routes.Assets.versioned("images/help/postcode-results-cy.jpg").toString'>
-
-                <div>4. Mae y canlyniad dan sylw yn cael ei arddangos fel un dudalen, gyda manylion estynedig, a rhestr hierarchaeth.<br>
-                    Bydd clicio ar ddolen cyfeiriad hierarchaeth llwytho tudalen canlyniad ar gyfer UPRN penodol hwnnw.</div>
-
-                <img src='@routes.Assets.versioned("images/help/postcode-single-result-cy.jpg").toString'>
-
-            </div>
-
-            <div>
-                <a name="search_multiple"></a>
-                <h1>Chwilio am Cyfeiriadau Lluosog</h1>
-
-                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Match cyfeiriadau lluosog</div>
-                <img src='@routes.Assets.versioned("images/help/multiple_1_cy.jpg").toString'>
-
-                <div>2. Cliciwch Dewiswch Ffeil i ddewis ffeil o'ch cyfrifiadur. </div>
-                <div><i>Sylwer: Rhaid i'r ffeil a ddewisir fod yn CSV (Comma delimited) fformat, llai na 10MB o ran maint ac mae'n rhaid bod dim ond dwy golofn gyda penawdau: ID a chyfeiriad. Gweld <a href='@routes.Assets.versioned("images/help/exsample.csv").toString'>ffeil enghreifftiol</a></i></div>
-                <img src='@routes.Assets.versioned("images/help/multiple_2_cy.jpg").toString'>
-                 
-                <div>3. Ar ôl dewis y ffeil y dymunwch i gyd-fynd, yna mae'n rhaid i chi 2 ddewis:
+                <div>
+                    <a name="login"></a>
+                    <h1>Mewngofnodi</h1>
                     <ol>
-                        <li>Lawrlwythwch y canlyniadau gan ddefnyddio'r botwm Canlyniadau Download - yr opsiwn hwn, bydd lawrlwytho'r holl ganlyniadau cyd-fynd i ffeil CSV (argymhellir ar gyfer sypiau mawr).</li>
-                        <li>Dangoswch y canlyniadau yn y UI ddefnyddio'r botwm Dangos Canlyniadau - bydd hyn yn opsiynau arddangos y canlyniadau yn eich porwr ac yn caniatáu defnyddwyr i ddewis y canlyniadau gêm y maent yn dymuno i'w llwytho i lawr.</li>
+                        <li>Agor porwr gwe ac yn mynd i <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
+
+                        <li>Os oes angen mewngofnodi, rhowch eich enw defnyddiwr rhwydwaith ons a chyfrinair, a chliciwch "Mewngofnodi" botwm</li>
+                    </ol>
+
+                    <img src='@routes.Assets.versioned("images/help/login_1_cy.jpg").toString'>
+                </div>
+
+                <div>
+                    <a name="search_single"></a>
+                    <h1>Chwilio am Cyfeiriad Sengl</h1>
+
+                    <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Dod o hyd i gyfeiriad</div>
+                    <img src='@routes.Assets.versioned("images/help/single_1_cy.jpg").toString'>
+
+                    <div>2. Rhowch gyfeiriad, gallwch ddewis ymuno hidlydd, a cliciwch y botwm chwilio.<br>
+                        Rhowch gymaint o'r cyfeiriad ag y bo modd ar gyfer canlyniadau gorau.<br>
+                        Mae'r chwiliad ei optimeiddio ar gyfer paru cyfeiriadau mewn data gweinyddol, nid, er enghraifft arddangos yr holl gyfeiriadau yn y cod post a roddwyd.<br>
+                        Bydd yr hidlydd yn gweithio gyda gwerthoedd rhagosod 'commercial' neu 'residential'. Yn ogystal, gallwch ddefnyddio'r gwerth penodol, e.e. RD06, neu ddilyn gwerth rhannol gan * 'yn cychwyn gyda' cyfatebol, e.e. RD0 *.
+                    </div>
+                    <img src='@routes.Assets.versioned("images/help/single_2_cy.jpg").toString'>
+
+                    <div>3. Unwaith y bydd y botwm chwilio ei glicio, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
+                    <img src='@routes.Assets.versioned("images/help/single_3_cy.jpg").toString'>
+
+
+                    <ol>
+                        <li><strong>Nifer y cyfeiriadau a geir</strong> - Cyfanswm y nifer o gyfeiriadau a geir yn y chwiliad.</li>
+                        <li><strong>Adborth</strong> - Gwasgwch i gyflwyno adborth am yr gyfeiriad penodol.</li>
+                        <li><strong>LA | PAF</strong> - Toggle i weld naill ai fersiwn ALl (Awdurdod Lleol) neu PAF (Cyfeiriad Post Ffeil) fformatio y cyfeiriad.</li>
+                        <li><strong>Iaith</strong> - Togl rhwng fersiwn Saesneg a Chymraeg y cyfeiriad (lle maent yn bodoli)</li>
+                        <li><strong>paru Sgôr</strong> – Mae'r sgôr yn rhoi arwydd o ansawdd y gêm a bydd o ddiddordeb mwyaf i ddefnyddwyr arbenigol. sgôr y ddogfen yn cael ei ddychwelyd o elastig Search, Adeilad sgôr tebygolrwydd gyfrifo bod yr adeilad yn gywir, a'r sgôr uned hon ar gyfer yr is-adeilad os yn briodol. </li>
+                        <li><strong>Cyfeiriad</strong> – Mae cyfeiriad cyfateb fformatio. Fel ball, y fersiwn ALl fformatio o'r cyfeiriad cyfatebol yn cael ei arddangos.</li>
+                        <li><strong>Statws Icon Rhesymegol</strong> – Mae statws rhesymegol cyfeiriad cyfateb fewn <a href="https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/addressbase-premium.html">AddressBase</a>. A ei gymeradwyo, P yn un dros dro ac H yn Hanesyddol. Gweler dogfennaeth AddressBase am fanylion dosbarthiad hwn.</li>
+                        <li><strong>UPRN</strong> – Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
+                        <li><strong>Dosbarthiad</strong> - Mae dosbarthiad y cyfeiriad cyfateb e.e. Preswyl, Masnachol, Hunangynhwysol Fflat, Siop ac ati)</li>
+                        <li><strong>Awdurdod lleol</strong> – Mae hyn yn yr awdurdod lleol bod y cyfeiriad yn cyfateb ar hyn o bryd neilltuo i.</li>
+                        <li><strong>Map agored</strong> – Dangoswch y cyfeiriad cyfatebol ar fap gan ddefnyddio cyfesurynnau AddressBase yn.</li>
+                    </ol>
+
+                </div>
+
+                <div>
+                    <a name="search_postcode"></a>
+                    <h1>Chwilio am gyfeiriad yn ôl cod post</h1>
+
+                    <div>1. O'r dudalen hafan Mynegai cyfeiriad, cliciwch canfod cyfeiriad gan cod post.</div>
+                    <img src='@routes.Assets.versioned("images/help/postcode-home-cy.jpg").toString'>
+
+                    <div>2. Rhowch god post llawn a cliciwch y botwm chwilio.<br>
+                        Dyma'r <strong>union chwilio</strong>, felly dim ond bydd yn dychwelyd canlyniadau gyda'r cod post yn llawn ac yn ddilys.
+                    </div>
+
+                    <img src='@routes.Assets.versioned("images/help/postcode-form-cy.jpg").toString'>
+
+                    <div>3. Unwaith mae clicio botwm chwilio, bydd yr injan paru broses ymholiad chwilio a dychwelyd y canlyniadau.<br>
+                        Yn archebu canlyniadau stryd, Rhif Tŷ, Rhif ôl-ddodiad a CEU, felly ar gyfer bydd rhan fwyaf o godau post yn dychwelyd yr eiddo yn y Gorchymyn.<br>
+                        Gellir defnyddio hidlydd dosbarthiad ar y pwynt hwn os dymunir. Bydd yr hidlydd yn gweithio gyda gwerthoedd rhagosod 'commercial' neu 'residential'. Yn ogystal, gallwch ddefnyddio'r gwerth penodol, e.e. RD06, neu ddilyn gwerth rhannol gan * 'yn cychwyn gyda' cyfatebol, e.e. RD0 *.<br>
+                        Cliciwch y canlyniad a ddymunir cyfeiriad i weld manylion llawnach o ganlyniad i fynd i'r afael â.
+                    </div>
+
+                    <img src='@routes.Assets.versioned("images/help/postcode-results-cy.jpg").toString'>
+
+                    <div>4. Mae y canlyniad dan sylw yn cael ei arddangos fel un dudalen, gyda manylion estynedig, a rhestr hierarchaeth.<br>
+                        Bydd clicio ar ddolen cyfeiriad hierarchaeth llwytho tudalen canlyniad ar gyfer UPRN penodol hwnnw.</div>
+
+                    <img src='@routes.Assets.versioned("images/help/postcode-single-result-cy.jpg").toString'>
+
+                </div>
+
+                <div>
+                    <a name="search_multiple"></a>
+                    <h1>Chwilio am Cyfeiriadau Lluosog</h1>
+
+                    <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Match cyfeiriadau lluosog</div>
+                    <img src='@routes.Assets.versioned("images/help/multiple_1_cy.jpg").toString'>
+
+                    <div>2. Cliciwch Dewiswch Ffeil i ddewis ffeil o'ch cyfrifiadur. </div>
+                    <div><i>Sylwer: Rhaid i'r ffeil a ddewisir fod yn CSV (Comma delimited) fformat, llai na 10MB o ran maint ac mae'n rhaid bod dim ond dwy golofn gyda penawdau: ID a chyfeiriad. Gweld <a href='@routes.Assets.versioned("images/help/exsample.csv").toString'>ffeil enghreifftiol</a></i></div>
+                    <img src='@routes.Assets.versioned("images/help/multiple_2_cy.jpg").toString'>
+                     
+                    <div>3. Ar ôl dewis y ffeil y dymunwch i gyd-fynd, yna mae'n rhaid i chi 2 ddewis:
+                        <ol>
+                            <li>Lawrlwythwch y canlyniadau gan ddefnyddio'r botwm Canlyniadau Download - yr opsiwn hwn, bydd lawrlwytho'r holl ganlyniadau cyd-fynd i ffeil CSV (argymhellir ar gyfer sypiau mawr).</li>
+                            <li>Dangoswch y canlyniadau yn y UI ddefnyddio'r botwm Dangos Canlyniadau - bydd hyn yn opsiynau arddangos y canlyniadau yn eich porwr ac yn caniatáu defnyddwyr i ddewis y canlyniadau gêm y maent yn dymuno i'w llwytho i lawr.</li>
+                        </ol>
+                    </div>
+                    <img src='@routes.Assets.versioned("images/help/multiple_3_cy.jpg").toString'>
+
+                    <div>Unwaith y bydd y ffeil yn cael ei llwytho i fyny yn llwyddiannus, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
+
+                    <img src='@routes.Assets.versioned("images/help/multiple_4_cy.jpg").toString'>
+
+                    <ul>
+                        <li><strong>ID</strong>
+                            – Mae hyn yn y ID a ddarparwyd gan y defnyddiwr yn y ffeil mewnbwn.</li>
+                        <li><strong>Cyfeiriad mewnbwn</strong>
+                            – Gall y cyfeiriad mewnbwn yn y cyfeiriad a llwytho gan y defnyddiwr</li>
+                        <li><strong>Cyfeiriad Cyfatebol</strong> – dod o hyd i gyfeiriad yn ystod cyfateb.</li>
+                        <li><strong>UPRN</strong>
+                            – Rhif Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
+                        <li><strong>Sgôr Document</strong> - sgôr Match dychwelyd o Chwilio elastig</li>
+                        <li><strong>Sgôr adeiladu</strong> - sgôr Custom sy'n tebygolrwydd gyfrifo bod yr adeilad yn gywir</li>
+                        <li><strong>Sgôr Uned</strong> - sgôr Custom ar gyfer yr is-adeilad os yw'n briodol.</li>
+                        <li><strong>Rheng</strong> - Rank y cyfeiriad mewn rhestr o gyfeiriadau cyfatebol ar gyfer yr un mewnbwn</li>
+                        <li><strong>Cyfatebol?</strong> - Yn eich galluogi i eithrio rhai o'r canlyniadau o'r cynnyrch a grëwyd gan y download ddolen isod.</li>
+                    </ul>
+
+                    <div>4. Ar ôl dewis y canlyniadau cyfatebol llwytho i lawr, i fynd ymlaen cliciwch ar y ddolen download ar waelod y tabl..</div>
+
+
+                </div>
+
+                <div>
+                    <a name="clerical"></a>
+                    <h1>Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</h1>
+
+                    <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch offeryn Clerigol</div>
+                    <img src='@routes.Assets.versioned("images/help/clerical_1_cy.jpg").toString'>
+
+                    <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union yr un i chwilio sengl, gall y defnyddiwr cliciwch ar "Gwybodaeth Clerigol Ychwanegol" i weld mwy o wybodaeth am docynnau a hierarchaeth</div>
+
+                    <img src='@routes.Assets.versioned("images/help/clerical_2_cy.jpg").toString'>
+
+                    <div>3. Cliciwch ar "Cuddio" i guddio y wybodaeth ychwanegol</div>
+                </div>
+
+                <div>
+                    <a name="debug"></a>
+                    <h1>Debug y Elastig Ymholiad Chwilio</h1>
+
+                    <div>Mae'r offeryn hwn yn caniatáu i wyddonwyr data i weld yr ymholiad chwilio elastig sylfaenol</div>
+                    <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Arddangos ES Ymholiad</div>
+
+                    <img src='@routes.Assets.versioned("images/help/debug_1_cy.jpg").toString'>
+
+                    <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union offeryn Clerigol, ac eithrio mae blwch testun mawr uwchben y canlyniadau sy'n cynnwys yr ymholiad chwilio elastig y mae'r API wedi creu a defnyddio. Gall yr ymholiad hwn yn cael ei gopïo i mewn i offeryn megis Kopf neu Postman ar gyfer profi.</div>
+
+                    <img src='@routes.Assets.versioned("images/help/debug_3_cy.jpg").toString'>
+                </div>
+
+                <div>
+                    <a name="notes"></a>
+                    <h1>Nodiadau ychwanegol</h1>
+                    <ol>
+                        <li><strong>Edrych ar y Safle Yn Gymraeg</strong> - Yn Chrome ewch i Settings, lleoliadau Uwch, Ieithoedd, os nad y Gymraeg ar y rhestr, ychwanegu 'i ag y botwm Ychwanegu. Llusgwch Gymraeg i'r top a chliciwch Gorffen. Mae'r UI yn awr yn y modd y Gymraeg. Llusgwch y Gymraeg yn is na Saesneg i toggle yn ôl.</li>
+                        <li><strong>Dilysu a Chyfeiriad Fformat</strong> - Yr unig dilysu wneud yw i wirio bod llinyn cyfeiriad yn cael ei gyflenwi (os nad yn cael neges gwall cliciadwy). Dim gwiriadau yn cael eu gwneud o ran pa gyfeiriad rannau yn cael eu cynnwys. Beth bynnag yn cael ei gyflenwi yn cael ei brosesu gan y API ac os nad oes unrhyw gemau nad oes unrhyw gemau. Yr eithriad i hyn yw os yw'r mewnbwn yn dim ond nifer, tybir i fod yn UPRN ac yn cyfateb yn unol â hynny.</li>
+                        <li><strong>Llyfrnodi</strong> - Mae'r llinyn cyfeiriad (URL hamgodio) a pharamedrau eraill yn cael eu hadleisio i'r bar URL er mwyn i chi nod tudalen chwiliad sengl neu canlyniad offeryn clerigol a'i hanfon at rywun arall. Bydd yn ail-greu dudalen fel arbed megis ehangu y cyfeiriad a ddewiswyd yn yr offeryn clerigol. Noder bod y togl PAF / ALl yn cael ei wneud ar y cleient, felly nid yw ei farcio â dalennod.</li>
+                        <li><strong>Paging</strong> - Y nifer uchaf o dudalennau yn 100 neu nifer y canlyniadau / nifer y canlyniadau ar bob tudalen. Yn y UI nifer y canlyniadau ar bob tudalen wedi ei osod i 10 ac ni ellir eu diystyru yn yr URL. Nodwch fod yn ogystal â botymau nesaf / blaenorol gallwch neidio i nifer dudalen gan ddefnyddio'r paramedr llinyn dudalen = ymholiad yn yr URL.</li>
+                        <li><strong>Mapiau Gwgl</strong> - Noder bod hyn yn mynd â chi i'r union Lat / Lon rhag Cyfeiriad Bar yn hytrach na lle y Google yn credu y dylai'r marciwr fynd.</li>
+                        <li><strong>Epochs</strong> - Mae fersiwn newydd o bwys o Addressbase ei gyflenwi bob 6 wythnos. Gelwir y rhain yn cael eu fersiynau gyfnodau. Y rhif Epoch cyfredol yn cael ei ddangos y dde uchaf y sgrin, ynghyd â rhif fersiwn o'r cod sydd hefyd yn ddolen i GitHub. </li>
+                        <li><strong>Rhyngrwyd archwiliwr</strong> - Mae'r safle hwn yn gweithio ar bob porwyr modern. Fodd bynnag, dylai Internet Explorer gael Chydweddoldeb View off (dde chlecia eicon cog uchaf ar y dde i ddangos y ddewislen bar, Tools, Chydweddoldeb View Settings, yn sicrhau Safleoedd Mewnrwyd Arddangos Yn Chytunedd Ddelw yn unticked).</li>
                     </ol>
                 </div>
-                <img src='@routes.Assets.versioned("images/help/multiple_3_cy.jpg").toString'>
-
-                <div>Unwaith y bydd y ffeil yn cael ei llwytho i fyny yn llwyddiannus, bydd y peiriant cyfateb brosesu'r ymholiad chwilio a dychwelyd y canlyniadau.</div>
-
-                <img src='@routes.Assets.versioned("images/help/multiple_4_cy.jpg").toString'>
-
-                <ul>
-                    <li><strong>ID</strong>
-                        – Mae hyn yn y ID a ddarparwyd gan y defnyddiwr yn y ffeil mewnbwn.</li>
-                    <li><strong>Cyfeiriad mewnbwn</strong>
-                        – Gall y cyfeiriad mewnbwn yn y cyfeiriad a llwytho gan y defnyddiwr</li>
-                    <li><strong>Cyfeiriad Cyfatebol</strong> – dod o hyd i gyfeiriad yn ystod cyfateb.</li>
-                    <li><strong>UPRN</strong>
-                        – Rhif Cyfeirnod Unigryw Eiddo yn rhif deuddeg-digid unigryw neilltuo i bob uned o dir ac eiddo a gofnodwyd gan y llywodraeth leol.</li>
-                    <li><strong>Sgôr Document</strong> - sgôr Match dychwelyd o Chwilio elastig</li>
-                    <li><strong>Sgôr adeiladu</strong> - sgôr Custom sy'n tebygolrwydd gyfrifo bod yr adeilad yn gywir</li>
-                    <li><strong>Sgôr Uned</strong> - sgôr Custom ar gyfer yr is-adeilad os yw'n briodol.</li>
-                    <li><strong>Rheng</strong> - Rank y cyfeiriad mewn rhestr o gyfeiriadau cyfatebol ar gyfer yr un mewnbwn</li>
-                    <li><strong>Cyfatebol?</strong> - Yn eich galluogi i eithrio rhai o'r canlyniadau o'r cynnyrch a grëwyd gan y download ddolen isod.</li>
-                </ul>
-
-                <div>4. Ar ôl dewis y canlyniadau cyfatebol llwytho i lawr, i fynd ymlaen cliciwch ar y ddolen download ar waelod y tabl..</div>
-
 
             </div>
-
-            <div>
-                <a name="clerical"></a>
-                <h1>Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</h1>
-
-                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch offeryn Clerigol</div>
-                <img src='@routes.Assets.versioned("images/help/clerical_1_cy.jpg").toString'>
-
-                <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union yr un i chwilio sengl, gall y defnyddiwr cliciwch ar "Gwybodaeth Clerigol Ychwanegol" i weld mwy o wybodaeth am docynnau a hierarchaeth</div>
-
-                <img src='@routes.Assets.versioned("images/help/clerical_2_cy.jpg").toString'>
-
-                <div>3. Cliciwch ar "Cuddio" i guddio y wybodaeth ychwanegol</div>
-            </div>
-
-            <div>
-                <a name="debug"></a>
-                <h1>Debug y Elastig Ymholiad Chwilio</h1>
-
-                <div>Mae'r offeryn hwn yn caniatáu i wyddonwyr data i weld yr ymholiad chwilio elastig sylfaenol</div>
-                <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Arddangos ES Ymholiad</div>
-
-                <img src='@routes.Assets.versioned("images/help/debug_1_cy.jpg").toString'>
-
-                <div>2. Chwilio gyfeiriad fel y byddech yn <a href="#search_single">Chwilio sengl</a>. Y canlyniad yw union offeryn Clerigol, ac eithrio mae blwch testun mawr uwchben y canlyniadau sy'n cynnwys yr ymholiad chwilio elastig y mae'r API wedi creu a defnyddio. Gall yr ymholiad hwn yn cael ei gopïo i mewn i offeryn megis Kopf neu Postman ar gyfer profi.</div>
-
-                <img src='@routes.Assets.versioned("images/help/debug_3_cy.jpg").toString'>
-            </div>
-
-            <div>
-                <a name="notes"></a>
-                <h1>Nodiadau ychwanegol</h1>
-                <ol>
-                    <li><strong>Edrych ar y Safle Yn Gymraeg</strong> - Yn Chrome ewch i Settings, lleoliadau Uwch, Ieithoedd, os nad y Gymraeg ar y rhestr, ychwanegu 'i ag y botwm Ychwanegu. Llusgwch Gymraeg i'r top a chliciwch Gorffen. Mae'r UI yn awr yn y modd y Gymraeg. Llusgwch y Gymraeg yn is na Saesneg i toggle yn ôl.</li>
-                    <li><strong>Dilysu a Chyfeiriad Fformat</strong> - Yr unig dilysu wneud yw i wirio bod llinyn cyfeiriad yn cael ei gyflenwi (os nad yn cael neges gwall cliciadwy). Dim gwiriadau yn cael eu gwneud o ran pa gyfeiriad rannau yn cael eu cynnwys. Beth bynnag yn cael ei gyflenwi yn cael ei brosesu gan y API ac os nad oes unrhyw gemau nad oes unrhyw gemau. Yr eithriad i hyn yw os yw'r mewnbwn yn dim ond nifer, tybir i fod yn UPRN ac yn cyfateb yn unol â hynny.</li>
-                    <li><strong>Llyfrnodi</strong> - Mae'r llinyn cyfeiriad (URL hamgodio) a pharamedrau eraill yn cael eu hadleisio i'r bar URL er mwyn i chi nod tudalen chwiliad sengl neu canlyniad offeryn clerigol a'i hanfon at rywun arall. Bydd yn ail-greu dudalen fel arbed megis ehangu y cyfeiriad a ddewiswyd yn yr offeryn clerigol. Noder bod y togl PAF / ALl yn cael ei wneud ar y cleient, felly nid yw ei farcio â dalennod.</li>
-                    <li><strong>Paging</strong> - Y nifer uchaf o dudalennau yn 100 neu nifer y canlyniadau / nifer y canlyniadau ar bob tudalen. Yn y UI nifer y canlyniadau ar bob tudalen wedi ei osod i 10 ac ni ellir eu diystyru yn yr URL. Nodwch fod yn ogystal â botymau nesaf / blaenorol gallwch neidio i nifer dudalen gan ddefnyddio'r paramedr llinyn dudalen = ymholiad yn yr URL.</li>
-                    <li><strong>Mapiau Gwgl</strong> - Noder bod hyn yn mynd â chi i'r union Lat / Lon rhag Cyfeiriad Bar yn hytrach na lle y Google yn credu y dylai'r marciwr fynd.</li>
-                    <li><strong>Epochs</strong> - Mae fersiwn newydd o bwys o Addressbase ei gyflenwi bob 6 wythnos. Gelwir y rhain yn cael eu fersiynau gyfnodau. Y rhif Epoch cyfredol yn cael ei ddangos y dde uchaf y sgrin, ynghyd â rhif fersiwn o'r cod sydd hefyd yn ddolen i GitHub. </li>
-                    <li><strong>Rhyngrwyd archwiliwr</strong> - Mae'r safle hwn yn gweithio ar bob porwyr modern. Fodd bynnag, dylai Internet Explorer gael Chydweddoldeb View off (dde chlecia eicon cog uchaf ar y dde i ddangos y ddewislen bar, Tools, Chydweddoldeb View Settings, yn sicrhau Safleoedd Mewnrwyd Arddangos Yn Chytunedd Ddelw yn unticked).</li>
-                </ol>
-            </div>
-
 
         </div>
     </div>

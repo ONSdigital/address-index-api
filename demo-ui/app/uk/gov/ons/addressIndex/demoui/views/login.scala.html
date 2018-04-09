@@ -6,45 +6,46 @@
 @(errorMessage: String = "", version: DemoUIAddressIndexVersionModule)(implicit messages: Messages)
 
 @helper.form(routes.ApplicationHomeController.login) {
-@main(title = messages("login.title"), version = version) {
+@main(title = messages("login.title"), version = version, showBannerNavigation = false, showBannerTagline = true, siteSection = Some("")) {
 
 <div class="container">
-    <div class="panel panel-single">
-        @{if (errorMessage != ""){
-        <div id="warning-message" class="panel panel-warning address-panel">
-            <div class="result-content">
-                <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('name');">{errorMessage}</span></div>
-            </div>
-        </div>
-        }}
-        <div class="panel panel-single address-panel">
-            <h3 class="panel-title">@messages("login.heading")
-                <span class="beta">Beta</span>
-            </h3>
-            <div class="panel-body-login">
-                <form action="@{routes.ApplicationHomeController.doLogin()}" method="post"></form>
-                <form action="@{routes.ApplicationHomeController.doLogin()}" method="post">
-                <div id="search-form" class="search-bar-active">
-                    <fieldset class="searchfield">
-                        <dl class=" " id="loginbox">
-                            <dt><label for="name">@messages("login.username")</label></dt>
-                            <dd>
-                                <input id="name" name="userName" placeholder='@messages("login.usernameph")' class="form-control">
-                            </dd>
-                            <dt><label for="pass">@messages("login.password")</label></dt>
-                            <dd>
-                                <input id="pass" name="password" type="password" placeholder='@messages("login.passwordph")' class="form-control">
-                            </dd>
-                        </dl>
-                    </fieldset>
-                    <fieldset class="form-group text-right">
-                    <input id="loginbtn" class="btn-search" type="submit" value='@messages("login.login")'>
-                    <input id="loginbtn" class="btn-clear" type="reset" value='@messages("login.clear")'>
-                    </fieldset>
+    <div class="wrapper">
+        <div class="group">
+            <div class="col-12">
+                @{if (errorMessage != ""){
+                <div id="warning-message" class="panel panel-warning address-panel">
+                    <div class="result-content">
+                        <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('name');">{errorMessage}</span></div>
+                    </div>
                 </div>
-                </form>
+                }}
+                <h1 class="match-title">@messages("login.heading")</h1>
+
+                <section class="searchbox-initial">
+                    <form action="@{routes.ApplicationHomeController.doLogin()}" method="post"></form>
+                    <form action="@{routes.ApplicationHomeController.doLogin()}" method="post">
+                        <div id="search-form" class="search-bar-active">
+                            <fieldset class="searchfield">
+                                <dl id="loginbox">
+                                    <dt><label for="name">@messages("login.username")</label></dt>
+                                    <dd>
+                                        <input id="name" name="userName" placeholder='@messages("login.usernameph")' class="form-control" type="text">
+                                    </dd>
+                                    <dt><label for="pass">@messages("login.password")</label></dt>
+                                    <dd>
+                                        <input id="pass" name="password" type="password" placeholder='@messages("login.passwordph")' class="form-control">
+                                    </dd>
+                                </dl>
+
+                                <input id="loginbtn" type="submit" value='@messages("login.login")'>
+                            </fieldset>
+                        </div>
+                    </form>
+                </section>
             </div>
         </div>
+
+
      </div>
 </div>
 }

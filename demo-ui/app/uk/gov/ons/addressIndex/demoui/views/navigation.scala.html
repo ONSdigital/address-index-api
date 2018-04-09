@@ -1,29 +1,30 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 
-@(nav: Navigation)(implicit messages: Messages)
-<div class="no-print">
-    <nav class="nav-container no-print">
-        <ul>
-            @for(link <- nav.links) {
-                <li><a href="@{link.href}">@{link.label}</a></li>
-            }
-        </ul>
-    </nav>
-    <nav class="nav-container-mobile no-print">
-        <select>
-            <option value="#">@messages("main.goto")</option>
-            @for(link <- nav.links) {
-            <option value="@{link.href}">@{link.label}</option>
-            }
-        </select>
-    </nav>
-    <script>
-        $("nav select").change(function() {
-  window.location = $(this).find("option:selected").val();
-});
-    </script>
+@(nav: Navigation, linkClass: Option[String])(implicit messages: Messages)
+
+<div class="no-print wrapper">
+    <div class="group">
+        <div class="col-12">
+            <div id="header-navigation">
+                <nav class="nav-container no-print">
+                    <ul>
+                        @for(link <- nav.links) {
+                        <li @if(linkClass.getOrElse() == link.section){class="active"}><a href="@{link.href}">@{link.label}</a></li>
+                        }
+                    </ul>
+                </nav>
+                <nav class="nav-container-mobile no-print">
+                    <select>
+                        <option value="#">@messages("main.goto")</option>
+                        @for(link <- nav.links) {
+                        <option value="@{link.href}">@{link.label}</option>
+                        }
+                    </select>
+                </nav>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<div id="feedback" class="no-print">
-    <a class="mailto" href="mailto:ai.users@@ons.gov.uk?subject=Feedback%20on%20Address%20Index">@messages("feedback.link")</a>
-</div>
+

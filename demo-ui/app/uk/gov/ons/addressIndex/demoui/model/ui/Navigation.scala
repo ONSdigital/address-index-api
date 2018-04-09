@@ -3,50 +3,58 @@ package uk.gov.ons.addressIndex.demoui.model.ui
 import play.api.i18n.Messages
 
 case class Navigation(links: Seq[Link])
-case class Link(href: String, label: String)
+case class Link(href: String, label: String, section: String)
 
 object Links {
-  def home(implicit messages: Messages) = {
-    Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home.toString,
-      label = messages("navbar.home")
-    )
-  }
   def single(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage.toString,
-      label = messages("navbar.singlematch")
+      label = messages("navbar.singlematch"),
+      section = "single"
     )
   }
   def postcode(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.showPostcodeMatchPage.toString,
-      label = messages("navbar.postcode")
+      label = messages("navbar.postcode"),
+      section = "postcode"
     )
   }
   def multi(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.bulkMatchPage.toString,
-      label = messages("navbar.multimatch")
+      label = messages("navbar.multimatch"),
+      section = "multi"
     )
   }
   def clerical(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showSingleMatchPage.toString,
-      label = messages("navbar.clerical")
+      label = messages("navbar.clerical"),
+      section = "clerical"
     )
   }
   def query(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.toString,
-      label = messages("navbar.query")
+      label = messages("navbar.query"),
+      section = "debug"
     )
   }
 
   def help(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.StaticController.help.toString,
-      label = messages("navbar.help")
+      label = messages("navbar.help"),
+      section = "help"
+    )
+  }
+
+  def radius(implicit messages: Messages) = {
+    Link(
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.showRadiusMatchPage.toString,
+      label = messages("navbar.radius"),
+      section = "radius"
     )
   }
 }
@@ -55,10 +63,16 @@ object Navigation {
   def default(implicit messages: Messages) = {
     Navigation(
       links = Seq(
-        Links.home,
         Links.single,
         Links.postcode,
         Links.multi,
+      )
+    )
+  }
+  def footer(implicit messages: Messages) = {
+    Navigation(
+      links = Seq(
+        Links.radius,
         Links.clerical,
         Links.query,
         Links.help

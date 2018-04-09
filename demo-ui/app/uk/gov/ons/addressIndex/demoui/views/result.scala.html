@@ -18,43 +18,43 @@ apiKey: String
 * argument is an `Html` object containing the body of the page.
 *@
 
-@main(title = messages("single.title"), version = version) {
+@main(title = messages("single.title"), version = version, showBannerNavigation = true, showBannerTagline = false, siteSection = Some("")) {
 
 <div class="container">
-    <div class="panel panel-single">
-        <div class="panel-heading sub-nav-heading">
-            @navigation(Navigation.default)
-        </div>
-        <div class="content-container">
-            @warningMessage.map { message =>
-            <div id="warning-message" class="panel panel-warning address-panel">
-                <div class="result-content">
-                    <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+    <div class="wrapper">
+        <div class="group">
+            <div class="col-12">
+                @warningMessage.map { message =>
+                <div id="warning-message" class="panel panel-warning address-panel">
+                    <div class="result-content">
+                        <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+                    </div>
                 </div>
-            </div>
-            }
-            <div class="panel panel-single address-panel">
-
-                @addressByUprnResponse.map { aresponse =>
-
-                @aresponse.address.map{ address =>
-
-                @addressResult(
-                address,
-                singleSearchForm("filter").value.getOrElse(""),
-                address.underlyingScore,
-                classification,
-                isClerical = isClerical,
-                index = -1,
-                expandRow = -1,
-                apiUrl = apiUrl,
-                apiKey = apiKey
-                )
-
                 }
+
+
+                    @addressByUprnResponse.map { aresponse =>
+
+                    @aresponse.address.map{ address =>
+
+                    @addressResult(
+                    address,
+                    singleSearchForm("filter").value.getOrElse(""),
+                    address.underlyingScore,
+                    classification,
+                    isClerical = isClerical,
+                    index = -1,
+                    expandRow = -1,
+                    apiUrl = apiUrl,
+                    apiKey = apiKey
+                    )
+
+                    }
                 }
             </div>
         </div>
     </div>
 </div>
+
+
 }

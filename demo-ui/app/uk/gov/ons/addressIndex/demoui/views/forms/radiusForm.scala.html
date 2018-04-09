@@ -3,9 +3,9 @@
 
 <fieldset class="searchfield">
 
-    <div class="searchfields-group">
+    <div class="group">
 
-        <div class="searchfield-radius">
+        <div class="col-4">
             @inputText(
             radiusForm("rangekm"),
             args = '_id -> "rangeNumber",
@@ -15,7 +15,7 @@
             )
         </div>
 
-        <div class="searchfield-radius">
+        <div class="col-4">
             @inputText(
             radiusForm("lat"),
             args = '_id -> "latNumber",
@@ -25,7 +25,7 @@
             )
         </div>
 
-        <div class="searchfield-radius">
+        <div class="col-4">
             @inputText(
             radiusForm("lon"),
             args = '_id -> "lonNumber",
@@ -37,9 +37,9 @@
 
     </div>
 
-    <div class="searchfields-group">
+    <div class="group">
 
-        <div class="searchfield-searchinput">
+        <div class="col-4">
             @inputText(
             radiusForm("address"),
             args = '_id -> "numberOrName",
@@ -49,7 +49,7 @@
             )
         </div>
 
-        <div class="searchfield-searchfilter">
+        <div class="col-4">
             @inputText(
             radiusForm("filter"),
             args = '_id -> "presetOrCode",
@@ -61,12 +61,10 @@
 
     </div>
 
-    <div class="searchfields-group">
-
-        <button class="btn btn-success btn-search" type="submit" id="submit">
-            <i class="fa fa-search"></i> @messages("single.searchbut")
-        </button>
-
+    <div class="group">
+        <div class="col-12">
+            <input type="submit" id="submit" value='@messages("single.searchbut")' />
+        </div>
     </div>
 
 </fieldset>

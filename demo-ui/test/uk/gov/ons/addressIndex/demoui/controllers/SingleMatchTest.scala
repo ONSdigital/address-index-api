@@ -109,7 +109,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "<h3 class=\"green\">1 addresses found</h3>"
+      val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
       val inputAddress = "7 EX2 6GA"
       val filter = ""
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
