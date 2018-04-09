@@ -124,57 +124,57 @@ class AddressControllerSpec extends PlaySpec with Results{
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
+    override def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map(requestData => Right(Seq(BulkAddress.fromHybridAddress(validHybridAddress, requestData))))
       }
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   // mock that won't return any addresses
   val emptyElasticRepositoryMock = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
+    override def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map(requestData => Right(Seq(BulkAddress.empty(requestData))))
       }
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val sometimesFailingRepositoryMock = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String): Future[Option[HybridAddress]] = Future.successful(None)
+    override def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.successful{
         requestsData.map{
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
@@ -184,26 +184,26 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val failingRepositoryMock = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String): Future[Option[HybridAddress]] =
+    override def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String,  queryParamsConfig: Option[QueryParamsConfig]): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String,  queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig]): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] =
       Future.failed(new Exception("Test exception"))
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig]): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val parser = new ParserModule {
