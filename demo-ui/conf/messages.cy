@@ -1,5 +1,8 @@
 debug.sfatext=Arddangos ElasticSearch Ymholiad
 
+banner.sitetitle=Mynegai cyfeiriad
+banner.sitetagline=Set ddata daearyddol mwyaf cywir o gyfeiriadau ac eiddo yn y DU
+
 clerical.sfatext=Offeryn clerigol
 clerical.addinfo=Gwybodaeth Clerigol Ychwanegol
 clerical.logicalstatus=Statws rhesymegol
@@ -88,7 +91,7 @@ clerical.organisation_building_name=Enw'r Adeilad Sefydliad
 clerical.detailed_organisation_building_name=Manwl Enw'r Adeilad Sefydliad
 clerical.ref_hierarchy=Cyf Hierarchaeth
 
-help.title="Mynd i'r afael Mynegai UI Tudalen Gymorth"
+help.title=Helpu
 
 home.servicetext=Gwasanaeth Paru Cyfeiriad
 home.headertext=Mae''r gwasanaeth hwn yn eich galluogi i chwilio am gyfeiriad unigol, neu yn cyd-fynd swp o gyfeiriadau o ffeil mewnbwn.
@@ -119,12 +122,12 @@ logical.class6=ls-provisional
 logical.class8=ls-historical
 
 login.title=Os gwelwch yn dda Mewngofnodi
-login.heading=Gwasanaeth Paru Cyfeiriad
+login.heading=Arwyddo
 login.username=enw defnyddiwr
 login.password=cyfrinair
 login.usernameph=Rhif adnabod y Rhwydwaith ONS
 login.passwordph=cyfrinair rhwydwaith
-login.login=Mewngofnodi
+login.login=Arwyddo
 login.clear=Glir
 
 main.beta=BETA
@@ -142,6 +145,8 @@ navbar.multimatch=Match lluosog
 navbar.clerical=Offeryn clerigol
 navbar.query=Ymholiad arddangos
 navbar.help=Helpu
+navbar.radius=Chwilio radiws
+
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad
 single.searchbut=Chwilio
@@ -158,6 +163,7 @@ single.confidence=hyder
 single.found=dod o hyd i gyfeiriadau
 single.openmap=Map agored
 single.classification=Dosbarthiad
+single.intro=I ddechrau, rhowch y cyfeiriad neu god post. Darparu cymaint o'r cyfeiriad ag y bo modd i gael y canlyniadau gorau.
 
 addressresult.la_address=Cyfeiriad yr awdurdod lleol
 addressresult.postal_address_file=Ffeil cyfeiriadau post

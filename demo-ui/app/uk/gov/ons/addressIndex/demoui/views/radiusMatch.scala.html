@@ -23,17 +23,14 @@ version: DemoUIAddressIndexVersionModule
 * argument is an `Html` object containing the body of the page.
 *@
 
-@main(title = messages("radius.title"), version = version)  {
+@main(title = messages("radius.title"), version = version, showBannerNavigation = true, showBannerTagline = false, siteSection = Some("radius"))  {
 
 <div class="container">
-    <div class="panel panel-single">
-        <div class="panel-heading sub-nav-heading">
-            @navigation(Navigation.default)
-        </div>
 
-        <section class="radius-match-form-container">
-            <div class="radius-match-form">
-                <h1 class="search-page-title">@messages("radius.sfatext")</h1>
+    <section class="match-form-container">
+        <div class="wrapper">
+            <div class="group">
+                <h1 class="search-page-title col-12">@messages("radius.sfatext")</h1>
 
                 <section class="searchbox-results">
                     @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatch) {
@@ -42,20 +39,21 @@ version: DemoUIAddressIndexVersionModule
                     </div>
                     }
                 </section>
-
             </div>
-        </section>
+        </div>
+    </section>
 
-        <div class="content-container">
+    <div class="wrapper">
+        <div class="group">
             @warningMessage.map { message =>
-            <div id="warning-message">
+            <div id="warning-message col-12">
                 <div class="result-content">
                     <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
                 </div>
             </div>
             }
 
-            <section class="postcode-match-results-container">
+            <section class="postcode-match-results-container col-12">
                 <div class="postcode-match-results-count">
                     @addressBySearchResponse.map { aresponse =>
                     <div class="standout">@messages("radius.foundpre") @aresponse.total @messages("radius.foundpost")</div>
@@ -77,6 +75,16 @@ version: DemoUIAddressIndexVersionModule
             </section>
         </div>
     </div>
+    <div class="feedback-link-container">
+        <div class="wrapper">
+            <div class="group">
+                <div class="col-12">
+                    <a class="mailto" onclick="javascript:window.location='mailto:ai.users@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(radius%20search)&body=Input: %22@{HtmlFormat.escape(radiusSearchForm.value.map(_.address.replaceAll("'", "%27").replaceAll("&", "%26")).getOrElse(""))}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 }

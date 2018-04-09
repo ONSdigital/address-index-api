@@ -18,57 +18,64 @@ apiKey: String = ""
 * argument is an `Html` object containing the body of the page.
 *@
 
-@main(title = messages("single.title"), version = version) {
+@main(title = messages("single.title"), version = version, showBannerNavigation = true, showBannerTagline = false, siteSection = Some("single")) {
 
 <div class="container">
-    <div class="panel panel-single">
-        <div class="panel-heading sub-nav-heading">
-            @navigation(Navigation.default)
+
+    <section class="match-form-container">
+        <div class="match-form">
+            <h1 class="match-title">@messages("single.sfatext")</h1>
+
+            <section class="searchbox-results">
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
+                <div id="search-form" class="search-bar-active">
+                    @forms.singleAddressForm(singleSearchForm, display = "inline", false, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"))
+                </div>
+                }
+            </section>
+
         </div>
+    </section>
+
+    <div class="content-container">
+
         @warningMessage.map { message =>
-        <div id="warning-message" class="panel panel-warning address-panel">
+        <div id="warning-message">
             <div class="result-content">
                 <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
             </div>
         </div>
         }
-        <div class="panel panel-single address-panel">
-            <h3 class="panel-title">@messages("single.sfatext")</h3>
-            <div class="panel-body">
-                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
-                <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"))
-                </div>
-                }
-            </div>
-            @addressByUprnResponse.map { aresponse =>
-            <div id="match-count" class="panel panel-single address-panel">
+
+        <section class="match-results-container">
+            <div class="match-results-count">
+                @addressByUprnResponse.map { aresponse =>
                 @if(aresponse.address.isEmpty){
-                    <h3 class="green">@messages("uprn.notfound")</h3>
+                <div class="standout">@messages("uprn.notfound")</div>
                 } else {
-                    <h3 class="green">@messages("uprn.found")</h3>
+                <div class="standout">@messages("uprn.found")</div>
                 }
             </div>
-            @aresponse.address.map{ address =>
+            <div class="match-results">
 
-                @addressPartial(
-                    address,
-                    singleSearchForm("filter").value.getOrElse(""),
-                    address.underlyingScore,
-                    classification,
-                    isClerical = isClerical,
-                    index = -1,
-                    expandRow = -1,
-                    apiUrl = apiUrl,
-                    apiKey = apiKey
+                @aresponse.address.map{ address =>
+
+                @addressShortForm(
+                address,
+                singleSearchForm("filter").value.getOrElse(""),
+                address.underlyingScore,
+                classification,
+                isClerical = isClerical,
+                index = -1,
+                expandRow = -1,
+                apiUrl = apiUrl,
+                apiKey = apiKey
                 )
+                }
+                }
+            </div>
+        </section>
 
-            }
-          }
-        </div>
-        <div class="panel panel-single address-panel">
-            <p class="pad">&nbsp;</p>
-        </div>
     </div>
 </div>
 }

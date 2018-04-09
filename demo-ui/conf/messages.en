@@ -1,5 +1,8 @@
 debug.sfatext=Display ElasticSearch Query
 
+banner.sitetitle=Address Index
+banner.sitetagline=The most accurate geographic dataset of addresses and properties in the UK
+
 clerical.sfatext=Clerical Tool
 clerical.addinfo=Additional Clerical Information
 clerical.logicalstatus=Logical Status
@@ -87,7 +90,7 @@ clerical.organisation_building_name=Organisation Building Name
 clerical.detailed_organisation_building_name=Detailed Organisation Building Name
 clerical.ref_hierarchy=Ref Hierarchy
 
-help.title="Address Index UI Help Page"
+help.title=Help
 
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
@@ -118,12 +121,12 @@ logical.class6=ls-provisional
 logical.class8=ls-historical
 
 login.title=Please Login
-login.heading=Address Matching Service
+login.heading=Sign in
 login.username=Username
 login.password=Password
 login.usernameph=ONS Network id
 login.passwordph=Network password
-login.login=Login
+login.login=Sign in
 login.clear=Clear
 
 main.beta=BETA
@@ -141,6 +144,8 @@ navbar.multimatch=Multiple Match
 navbar.clerical=Clerical Tool
 navbar.query=Display Query
 navbar.help=Help
+navbar.radius=Radius Search
+
 single.pleasesupply=Please enter an address
 single.sfatext=Search for an address
 single.searchbut=Search
@@ -157,6 +162,7 @@ single.found=addresses found
 single.openmap=Open Map
 single.classification=Classification
 single.enddate=Historical End Date
+single.intro=To get started, enter an address or postcode. Provide as much of the address as possible for best results.
 
 addressresult.la_address=Local Authority address
 addressresult.postal_address_file=Postal Address File

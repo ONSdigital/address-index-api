@@ -1,6 +1,11 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 
-@(title: String, version: DemoUIAddressIndexVersionModule)(content: Html)(implicit messages: Messages)
+@(title: String,
+version: DemoUIAddressIndexVersionModule,
+showBannerNavigation: Boolean,
+showBannerTagline: Boolean,
+siteSection: Option[String]
+)(content: Html)(implicit messages: Messages)
 @*
  * This template is called from the `index` template. This template
  * handles the rendering of the page header and body tags. It takes
@@ -16,12 +21,12 @@
             <!--meta name="viewport" content="width=device-width, initial-scale=1.0"-->
 
             <!--[if gt IE 8]><!-->
-        <link href='@routes.Assets.versioned("stylesheets/govuk-template.css")' media="screen" rel="stylesheet" />
+        <!--link href='@routes.Assets.versioned("stylesheets/govuk-template.css")' media="screen" rel="stylesheet" /-->
             <!--<![endif]-->
             <!--[if IE 6]><link href=' @routes.Assets.versioned("stylesheets/govuk-template-ie6.css")' media="screen" rel="stylesheet" /><![endif]-->
             <!--[if IE 7]><link href=' @routes.Assets.versioned("stylesheets/govuk-template-ie7.css")' media="screen" rel="stylesheet" /><![endif]-->
             <!--[if IE 8]><link href=' @routes.Assets.versioned("stylesheets/govuk-template-ie8.css")' media="screen" rel="stylesheet" /><![endif]-->
-        <link href='@routes.Assets.versioned("stylesheets/govuk-template-print.css")' media="print" rel="stylesheet" />
+        <!--link href='@routes.Assets.versioned("stylesheets/govuk-template-print.css")' media="print" rel="stylesheet" /-->
 
             <!--[if IE 8]><link href=' @routes.Assets.versioned("stylesheets/fonts-ie8.css")' media="all" rel="stylesheet" /><![endif]-->
             <!--[if gte IE 9]><!-->
@@ -44,7 +49,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta property="og:image" content='@routes.Assets.versioned("images/opengraph-image.png")'>
 
-        <link rel="stylesheet" media="screen, print" href='@routes.Assets.versioned("stylesheets/ons.css")'>
+        <link rel="stylesheet" media="screen, print" href='@routes.Assets.versioned("stylesheets/styles.css")'>
         <link rel="shortcut icon" type="image/png" href='@routes.Assets.versioned("images/favicon.ico")'>
     </head>
     <body>
@@ -174,39 +179,17 @@
     }
 
     </script>
-    <nav class="navbar navbar-default">
-        @banner(version)
-    </nav>
-    <section class="content">@content</section>
-    <footer class="group js-footer" id="footer" role="contentinfo">
 
-            <div class="footer-wrapper">
+        @banner(version, showBannerNavigation, showBannerTagline, siteSection)
 
-                <div class="footer-meta">
-                    <div class="footer-meta-inner">
+        @content
 
-                        <div class="open-government-licence">
-                            <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">
-                                Open Government Licence</a></p>
-
-                            <p>@messages("main.licence1") <a href='@messages("main.licenceurl")' rel="license">@messages("main.licence2")
-                                v3.0</a>, @messages("main.licence3")</p>
-
-                        </div>
-                    </div>
-
-                    <div class="copyright">
-                        <a href="http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/">&copy;
-                            @messages("main.copyright")</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        @footer(version)
 
         <div id="global-app-error" class="app-error hidden"></div>
 
         <script src='@routes.Assets.versioned("/javascripts/govuk-template.js")'></script>
 
         <script>if (typeof window.GOVUK === 'undefined') document.body.className = document.body.className.replace('js-enabled', '');</script>
-        </body>
+    </body>
 </html>

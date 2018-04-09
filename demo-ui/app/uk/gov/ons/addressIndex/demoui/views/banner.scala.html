@@ -1,25 +1,45 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 
 @(
-version: DemoUIAddressIndexVersionModule
+version: DemoUIAddressIndexVersionModule,
+showNavigation: Boolean,
+showTagline: Boolean,
+currentSection: Option[String]
 )(
 implicit
 messages: Messages
 )
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="logo">
-                <img alt="ONS" src="/assets/images/ons-logo.png" width="204" height="40">
-            </div>
-            <div class="beta-header no-print">
-                <p class="beta-para"><strong class="beta-banner">@messages("main.beta")</strong></p>
-                <p class="beta-para"><strong class="beta-banner-version">Version:
-                    <a class="beta-git" href="https://github.com/ONSdigital/address-index-api/commit/@version.apiVersion.drop(2).take(6)">@version.apiVersion.drop(2).take(6)</a>
-                    | Epoch:
-                    @version.dataVersion.take(2)
-                </strong></p>
+
+<header>
+    <div id="header-site-brand-container">
+        <div class="wrapper">
+            <div class="group">
+                <div class="col-7">
+                    <div id="header-site-brand" class="col-7"><img alt="ONS" src="/assets/images/logo.cdb66d8b.svg" width="auto" height="24"></div>
+                </div>
+                <div id="header-site-brand-versioning-container" class="col-5">
+                    <div>
+                        <span id="header-site-brand-versioning-version-info">
+                        Version:
+                        <a class="beta-git" href="https://github.com/ONSdigital/address-index-api/commit/@version.apiVersion.drop(2).take(6)">@version.apiVersion.drop(2).take(6)</a>
+                        | Epoch:
+                        @version.dataVersion.take(2)</span><span id="header-site-brand-versioning-beta-mark">@messages("main.beta")</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</nav>
+    <div id="header-name-tagline-container">
+        <div class="wrapper">
+            <div class="group">
+                <div class="col-12">
+                    <div id="header-name">@messages("banner.sitetitle")</div>
+                    @if(showTagline == true){<div id="header-tagline">@messages("banner.sitetagline")</div>}
+                </div>
+            </div>
+        </div>
+    </div>
+    @if(showNavigation == true){@navigation(Navigation.default, currentSection)}
+</header>
+

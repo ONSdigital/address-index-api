@@ -44,6 +44,9 @@ GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.c
 GET         /clerical/uprn/:input               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long, filter: String)
 
 # ONS-Address Index Single Search Request
+GET         /clerical/result/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doGetResultClerical(input: String)
+
+# ONS-Address Index Single Search Request
 GET         /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
 
 # ONS-Address Index Single Search Request
@@ -74,6 +77,9 @@ GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui
 
 # ONS-Address Index Single Search Request
 GET         /addresses/result/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetResult(input: String)
+
+# ONS-Address Index Single Search View
+GET         /radius                             uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage
 
 # ONS-Address Index Single Search Request
 POST        /radius/search                     uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatch

@@ -5,213 +5,213 @@
     version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
 
-@main(title = messages("help.title"), version = version) {
+@main(title = messages("help.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("help")) {
 
     <div class="container">
-        <div class="panel panel-single">
-            <div class="panel-heading sub-nav-heading no-print">
-            @navigation(Navigation.default)
-            </div>
-            <div class="help-container" id="help-container">
-                <div class="no-print">
-                    <ul>
-                        <li>
-                            <a href="#introduction">Introduction</a>
-                        </li>
-                        <li>
-                            <a href="#login">Login</a>
-                        </li>
-                        <li>
-                            <a href="#search_single">Search for a Single Address</a>
-                        </li>
-                        <li>
-                            <a href="#search_postcode">Search for an address by postcode</a>
-                        </li>
-                        <li>
-                            <a href="#search_multiple">Search for Multiple Addresses</a>
-                        </li>
-                        <li>
-                            <a href="#clerical">Perform an advanced search using the Clerical Tool</a>
-                        </li>
-                        <li>
-                            <a href="#debug">Debug the ElasticSearch Query</a>
-                        </li>
-                        <li>
-                            <a href="#notes">Technical Notes</a>
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                    <a name="introduction"></a>
-                    <h1>Introduction</h1>
-                    <p>The Address Index User Interface (UI) provides an address searching and matching service to users on the ONS network. To log in to the service, enter the same username and password used to log into your PC/Laptop.</p>
-                    <p>If you are on the ONS network and are unable to access the service, please email <a href="mailto:ai.users@@ons.gov.uk">Address Index</a></p>
-                    <p>To provide access to users outside the ONS network, mainly Other Government Departments, the Address Index service will be accessible through the use of an Application Program Interface (API).</p>
-                    <p>During the Private Beta external users are supplying bulk input files via MoveIt.</p>
-                </div>
+        <div class="wrapper">
 
-                <div>
-                    <a name="login"></a>
-                    <h1>Login</h1>
-                    <ol>
-                        <li>Open a web browser and go to <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
-
-                        <li>If login is required, enter your ons network username and password, and click “Login” button</li>
-                    </ol>
-
-                    <img src='@routes.Assets.versioned("images/help/login_1.jpg").toString'>
-                </div>
-
-                <div>
-                    <a name="search_single"></a>
-                    <h1>Search for a Single Address</h1>
-
-                    <div>1. From the Address Index home page, click Find an address.</div>
-                    <img src='@routes.Assets.versioned("images/help/single_1.jpg").toString'>
-
-                    <div>2. Enter an address, optionally enter a filter, and click the Search button.<br>
-                        Provide as much of the address as possible for best results.<br>
-                        The search is optimised for matching addresses in administrative data, not, for example displaying all the addresses in a given postcode.<br>
-                        The filter will work with the preset values of 'commercial' or 'residential'. Additionally you can use a specific value, eg RD06, or a partial value followed by a * for a 'starts with' match, eg RD0*.
+            <div class="group" id="help-container">
+                <div class="col-12">
+                    <h1>@messages("help.title")</h1>
+                    <div class="no-print">
+                        <ul>
+                            <li>
+                                <a href="#introduction">Introduction</a>
+                            </li>
+                            <li>
+                                <a href="#login">Login</a>
+                            </li>
+                            <li>
+                                <a href="#search_single">Search for a Single Address</a>
+                            </li>
+                            <li>
+                                <a href="#search_postcode">Search for an address by postcode</a>
+                            </li>
+                            <li>
+                                <a href="#search_multiple">Search for Multiple Addresses</a>
+                            </li>
+                            <li>
+                                <a href="#clerical">Perform an advanced search using the Clerical Tool</a>
+                            </li>
+                            <li>
+                                <a href="#debug">Debug the ElasticSearch Query</a>
+                            </li>
+                            <li>
+                                <a href="#notes">Technical Notes</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <a name="introduction"></a>
+                        <h2>Introduction</h2>
+                        <p>The Address Index User Interface (UI) provides an address searching and matching service to users on the ONS network. To log in to the service, enter the same username and password used to log into your PC/Laptop.</p>
+                        <p>If you are on the ONS network and are unable to access the service, please email <a href="mailto:ai.users@@ons.gov.uk">Address Index</a></p>
+                        <p>To provide access to users outside the ONS network, mainly Other Government Departments, the Address Index service will be accessible through the use of an Application Program Interface (API).</p>
+                        <p>During the Private Beta external users are supplying bulk input files via MoveIt.</p>
                     </div>
 
-                    <img src='@routes.Assets.versioned("images/help/single_2.jpg").toString'>
-
-                    <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.</div>
-
-                    <img src='@routes.Assets.versioned("images/help/single_3.jpg").toString'>
-
-                    <ol>
-                        <li><strong>Number of addresses found</strong> - The total number of addresses found in the search.</li>
-                        <li><strong>Feedback</strong> - Press to submit feedback about this particular address.</li>
-                        <li><strong>LA | PAF</strong> - Toggle to view either a formatted LA (Local Authority) or PAF (Postal Address File) version of the address.</li>
-                        <li><strong>Language</strong> - Toggle between English and Welsh language version of the address (where these exist).</li>
-                        <li><strong>Matching Score</strong> – This score provides an indication of the quality of the match and will be of most interest to expert users. Document score is returned from Elastic Search, Building score is a calculated probability that the building is correct, and the unit score is for the sub-building if appropriate.</li>
-                        <li><strong>Address</strong> – The formatted matched address. By default, the formatted LA version of the matched address is displayed.</li>
-                        <li><strong>Logical Status Icon</strong> – The logical status of a matched address within <a href="https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/addressbase-premium.html">AddressBase</a>. A is approved, P is provisional and H is Historical. See AddressBase documentation for details of this classification.</li>
-                        <li><strong>UPRN</strong> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by local government.</li>
-                        <li><strong>Classification</strong> - The classification of the matched address e.g. Residential, Commercial, Self-Contained Flat, Shop etc.)</li>
-                        <li><strong>Local Authority</strong> – The LA that the matched address is currently assigned to.</li>
-                        <li><strong>Open Map</strong> – Display the matched address on a map using AddressBase’s coordinates.</li>
-                    </ol>
-
-                </div>
-
-                <div>
-                    <a name="search_postcode"></a>
-                    <h1>Search for an address by postcode</h1>
-
-                    <div>1. From the Address Index home page, click Find an address by postcode.</div>
-                    <img src='@routes.Assets.versioned("images/help/postcode-home.jpg").toString'>
-
-                    <div>2. Enter a full postcode and click the Search button.<br>
-                        This is an <strong>exact search</strong>, so will only return results with a full, valid postcode.
-                    </div>
-
-                    <img src='@routes.Assets.versioned("images/help/postcode-form.jpg").toString'>
-
-                    <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.<br>
-                        The results are ordered by street, house number, number suffix and UPRN, so for most postcodes will return the properties in order.<br>
-                        A classification filter can be applied at this point if desired. The filter will work with the preset values of 'commercial' or 'residential'. Additionally you can use a specific value, eg RD06, or a partial value followed by a * for a 'starts with' match, eg RD0*.<br>
-                        Click the desired result's address to view fuller details of the address result.
-                    </div>
-
-                    <img src='@routes.Assets.versioned("images/help/postcode-results.jpg").toString'>
-
-                    <div>4. The selected result is displayed as a single page, with extended details, and a hierarchy list.<br>
-                    Clicking on a hierarchy address link will load a result page for that specific UPRN.</div>
-
-                    <img src='@routes.Assets.versioned("images/help/postcode-single-result.jpg").toString'>
-
-                </div>
-
-                <div>
-                    <a name="search_multiple"></a>
-                    <h1>Search for  Multiple Addresses</h1>
-
-                    <div>1. From the Address Index home page, click Match multiple addresses</div>
-                    <img src='@routes.Assets.versioned("images/help/multiple_1.jpg").toString'>
-
-                    <div> 2. Click Choose File to select a file from your computer. </div>
-                    <div><i>Note: The selected file must be a CSV (Comma Delimited) format, less than 10MB in size and must have only two columns with headers:  ID and Address. See <a href='@routes.Assets.versioned("images/help/exsample.csv").toString'>Sample file</a></i></div>
-                    <img src='@routes.Assets.versioned("images/help/multiple_2.jpg").toString'>
-                     
-                    <div>3.
-                        Having selected the file you wish to match, you then have 2 options:
+                    <div>
+                        <a name="login"></a>
+                        <h2>Login</h2>
                         <ol>
-                            <li>Download the results using the Download Results button - this option will download all the match results to a CSV file (recommended for large batches).</li>
-                            <li>Show the results in the UI using the Show Results button - this options will display the results in your browser and allows users to select the match results they wish to download.</li>
+                            <li>Open a web browser and go to <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
+
+                            <li>If login is required, enter your ons network username and password, and click “Login” button</li>
+                        </ol>
+
+                        <img src='@routes.Assets.versioned("images/help/login_1.jpg").toString'>
+                    </div>
+
+                    <div>
+                        <a name="search_single"></a>
+                        <h2>Search for a Single Address</h2>
+
+                        <div>1. From the Address Index home page, click Find an address.</div>
+                        <img src='@routes.Assets.versioned("images/help/single_1.jpg").toString'>
+
+                        <div>2. Enter an address, optionally enter a filter, and click the Search button.<br>
+                            Provide as much of the address as possible for best results.<br>
+                            The search is optimised for matching addresses in administrative data, not, for example displaying all the addresses in a given postcode.<br>
+                            The filter will work with the preset values of 'commercial' or 'residential'. Additionally you can use a specific value, eg RD06, or a partial value followed by a * for a 'starts with' match, eg RD0*.
+                        </div>
+
+                        <img src='@routes.Assets.versioned("images/help/single_2.jpg").toString'>
+
+                        <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.</div>
+
+                        <img src='@routes.Assets.versioned("images/help/single_3.jpg").toString'>
+
+                        <ol>
+                            <li><strong>Number of addresses found</strong> - The total number of addresses found in the search.</li>
+                            <li><strong>Feedback</strong> - Press to submit feedback about this particular address.</li>
+                            <li><strong>LA | PAF</strong> - Toggle to view either a formatted LA (Local Authority) or PAF (Postal Address File) version of the address.</li>
+                            <li><strong>Language</strong> - Toggle between English and Welsh language version of the address (where these exist).</li>
+                            <li><strong>Matching Score</strong> – This score provides an indication of the quality of the match and will be of most interest to expert users. Document score is returned from Elastic Search, Building score is a calculated probability that the building is correct, and the unit score is for the sub-building if appropriate.</li>
+                            <li><strong>Address</strong> – The formatted matched address. By default, the formatted LA version of the matched address is displayed.</li>
+                            <li><strong>Logical Status Icon</strong> – The logical status of a matched address within <a href="https://www.ordnancesurvey.co.uk/business-and-government/help-and-support/products/addressbase-premium.html">AddressBase</a>. A is approved, P is provisional and H is Historical. See AddressBase documentation for details of this classification.</li>
+                            <li><strong>UPRN</strong> – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by local government.</li>
+                            <li><strong>Classification</strong> - The classification of the matched address e.g. Residential, Commercial, Self-Contained Flat, Shop etc.)</li>
+                            <li><strong>Local Authority</strong> – The LA that the matched address is currently assigned to.</li>
+                            <li><strong>Open Map</strong> – Display the matched address on a map using AddressBase’s coordinates.</li>
+                        </ol>
+
+                    </div>
+
+                    <div>
+                        <a name="search_postcode"></a>
+                        <h2>Search for an address by postcode</h2>
+
+                        <div>1. From the Address Index home page, click Find an address by postcode.</div>
+                        <img src='@routes.Assets.versioned("images/help/postcode-home.jpg").toString'>
+
+                        <div>2. Enter a full postcode and click the Search button.<br>
+                            This is an <strong>exact search</strong>, so will only return results with a full, valid postcode.
+                        </div>
+
+                        <img src='@routes.Assets.versioned("images/help/postcode-form.jpg").toString'>
+
+                        <div>3. Once the search button is clicked, the matching engine will process the search query and return the results.<br>
+                            The results are ordered by street, house number, number suffix and UPRN, so for most postcodes will return the properties in order.<br>
+                            A classification filter can be applied at this point if desired. The filter will work with the preset values of 'commercial' or 'residential'. Additionally you can use a specific value, eg RD06, or a partial value followed by a * for a 'starts with' match, eg RD0*.<br>
+                            Click the desired result's address to view fuller details of the address result.
+                        </div>
+
+                        <img src='@routes.Assets.versioned("images/help/postcode-results.jpg").toString'>
+
+                        <div>4. The selected result is displayed as a single page, with extended details, and a hierarchy list.<br>
+                            Clicking on a hierarchy address link will load a result page for that specific UPRN.</div>
+
+                        <img src='@routes.Assets.versioned("images/help/postcode-single-result.jpg").toString'>
+
+                    </div>
+
+                    <div>
+                        <a name="search_multiple"></a>
+                        <h2>Search for  Multiple Addresses</h2>
+
+                        <div>1. From the Address Index home page, click Match multiple addresses</div>
+                        <img src='@routes.Assets.versioned("images/help/multiple_1.jpg").toString'>
+
+                        <div> 2. Click Choose File to select a file from your computer. </div>
+                        <div><i>Note: The selected file must be a CSV (Comma Delimited) format, less than 10MB in size and must have only two columns with headers:  ID and Address. See <a href='@routes.Assets.versioned("images/help/exsample.csv").toString'>Sample file</a></i></div>
+                        <img src='@routes.Assets.versioned("images/help/multiple_2.jpg").toString'>
+                         
+                        <div>3.
+                            Having selected the file you wish to match, you then have 2 options:
+                            <ol>
+                                <li>Download the results using the Download Results button - this option will download all the match results to a CSV file (recommended for large batches).</li>
+                                <li>Show the results in the UI using the Show Results button - this options will display the results in your browser and allows users to select the match results they wish to download.</li>
+                            </ol>
+                        </div>
+                        <img src='@routes.Assets.versioned("images/help/multiple_3.jpg").toString'>
+
+                        <div>Once the file is uploaded successfully, the matching engine will process the search query and return the results.</div>
+
+                        <img src='@routes.Assets.versioned("images/help/multiple_4.jpg").toString'>
+
+                        <ul>
+                            <li><strong>ID</strong>
+                                – This is the ID that was provided by the user in the input file.</li>
+                            <li><strong>Input Address</strong>
+                                – The input address is the address that was provided by the user</li>
+                            <li><strong>Matched Address</strong> – Address found during matching.</li>
+                            <li><strong>UPRN</strong>
+                                – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by local government.</li>
+                            <li><strong>Document Score</strong> - Match score returned from Elastic Search</li>
+                            <li><strong>Building Score</strong> - Custom score which is is a calculated probability that the building is correct.</li>
+                            <li><strong>Unit Score</strong> - Custom score for the sub-building if appropriate.</li>
+                            <li><strong>Rank</strong> - Rank of the address in a list of matched addresses for the same input</li>
+                            <li><strong>Matched?</strong> - Allows you to exclude some of the results from the output created by the download link described below.</li>
+                        </ul>
+
+                        <div>4. Having selected the match results to download, to proceed click the download link at the bottom of the table. </div>
+
+
+                    </div>
+
+                    <div>
+                        <a name="clerical"></a>
+                        <h2>Perform an advanced search using the Clerical Tool</h2>
+
+                        <div>1. From the Address Index home page, click Clerical tool. This function is intended for expert users and provides the ability to query details of specific fields included in AddressBase.</div>
+                        <img src='@routes.Assets.versioned("images/help/clerical_1.jpg").toString'>
+
+                        <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the one in Single search, the user may click on "Additional Clerical Information" to see more information about individual fields and hierarchies.</div>
+
+                        <img src='@routes.Assets.versioned("images/help/clerical_2.jpg").toString'>
+
+                        <div>3. Click on "Hide" to hide the additional information</div>
+                    </div>
+
+                    <div>
+                        <a name="debug"></a>
+                        <h2>Debug the Elastic Search Query</h2>
+
+                        <div>This tool is for expert users and reports the underlying elastic search query</div>
+                        <div>1. From the Address Index home page, click Display ES Query</div>
+
+                        <img src='@routes.Assets.versioned("images/help/debug_1.jpg").toString'>
+
+                        <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the Clerical tool, except there is a large text box above the results containing the elastic search query that the API has generated and used. This query can be copied into a tool such as Kopf or Postman for testing.</div>
+
+                        <img src='@routes.Assets.versioned("images/help/debug_3.jpg").toString'>
+                    </div>
+
+                    <div>
+                        <a name="notes"></a>
+                        <h2>Technical Notes</h2>
+                        <ol>
+                            <li><strong>Viewing Site In Welsh</strong> - In Chrome go to Settings, Advanced settings, Languages, if Welsh is not on the list, add it with the Add button. Drag Welsh to the top and click Finish. The UI is now in Welsh mode. Drag Welsh below English to toggle back.</li>
+                            <li><strong>Validation and Address Format</strong> - The only validation done on the input string is to check that a non-empty string is supplied. No checks are made as to what address parts are included. Whatever is supplied is processed by the API.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
+                            <li><strong>Bookmarking</strong> - The address string (URL encoded) and other parameters are echoed to the URL bar so you can bookmark a single search or clerical tool result and send it to someone else. It will recreate the page as saved such as expanding the chosen address in the clerical tool. Note that the PAF / LA toggle is done on the client so is not bookmarkable.</li>
+                            <li><strong>Paging</strong> - The maximum number of pages is 100 or the number of results / number of results per page. In the UI the number of results per page is set to 10 and cannot be overridden in the URL. Note that as well as next / previous buttons you can jump to a page number using the page= query string parameter in the URL.</li>
+                            <li><strong>Google Maps</strong> - Note that this takes you to the exact latitude / longitude from AddressBase rather than where Google thinks the marker should go.</li>
+                            <li><strong>Epochs</strong> - A major new version of Addressbase is supplied every 6 weeks. These versions are called Epochs. The current Epoch number is shown the top right of the screen, along with the version number of the code which is also a link to GitHub. </li>
+                            <li><strong>Internet Explorer</strong> - This site works on all modern browsers. However, Internet Explorer should have Compatability View off (right click cog icon top right to show the menu bar: Tools > Compatability View Settings > ensure Display Intranet Sites In Compatibility Mode is unticked). </li>
                         </ol>
                     </div>
-                    <img src='@routes.Assets.versioned("images/help/multiple_3.jpg").toString'>
-
-                    <div>Once the file is uploaded successfully, the matching engine will process the search query and return the results.</div>
-
-                    <img src='@routes.Assets.versioned("images/help/multiple_4.jpg").toString'>
-
-                    <ul>
-                        <li><strong>ID</strong>
-                            – This is the ID that was provided by the user in the input file.</li>
-                        <li><strong>Input Address</strong>
-                            – The input address is the address that was provided by the user</li>
-                        <li><strong>Matched Address</strong> – Address found during matching.</li>
-                        <li><strong>UPRN</strong>
-                            – Unique Property Reference Number is a unique twelve-digit number assigned to every unit of land and property recorded by local government.</li>
-                        <li><strong>Document Score</strong> - Match score returned from Elastic Search</li>
-                        <li><strong>Building Score</strong> - Custom score which is is a calculated probability that the building is correct.</li>
-                        <li><strong>Unit Score</strong> - Custom score for the sub-building if appropriate.</li>
-                        <li><strong>Rank</strong> - Rank of the address in a list of matched addresses for the same input</li>
-                        <li><strong>Matched?</strong> - Allows you to exclude some of the results from the output created by the download link described below.</li>
-                    </ul>
-
-                    <div>4. Having selected the match results to download, to proceed click the download link at the bottom of the table. </div>
-
 
                 </div>
-
-                <div>
-                    <a name="clerical"></a>
-                    <h1>Perform an advanced search using the Clerical Tool</h1>
-
-                    <div>1. From the Address Index home page, click Clerical tool. This function is intended for expert users and provides the ability to query details of specific fields included in AddressBase.</div>
-                    <img src='@routes.Assets.versioned("images/help/clerical_1.jpg").toString'>
-
-                    <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the one in Single search, the user may click on "Additional Clerical Information" to see more information about individual fields and hierarchies.</div>
-
-                    <img src='@routes.Assets.versioned("images/help/clerical_2.jpg").toString'>
-
-                    <div>3. Click on "Hide" to hide the additional information</div>
-                </div>
-
-                <div>
-                    <a name="debug"></a>
-                    <h1>Debug the Elastic Search Query</h1>
-
-                    <div>This tool is for expert users and reports the underlying elastic search query</div>
-                    <div>1. From the Address Index home page, click Display ES Query</div>
-
-                    <img src='@routes.Assets.versioned("images/help/debug_1.jpg").toString'>
-
-                    <div>2. Search an address as you would in <a href="#search_single">Single Search</a>. The result is identical to the Clerical tool, except there is a large text box above the results containing the elastic search query that the API has generated and used. This query can be copied into a tool such as Kopf or Postman for testing.</div>
-
-                    <img src='@routes.Assets.versioned("images/help/debug_3.jpg").toString'>
-                </div>
-
-                <div>
-                    <a name="notes"></a>
-                    <h1>Technical Notes</h1>
-                <ol>
-                    <li><strong>Viewing Site In Welsh</strong> - In Chrome go to Settings, Advanced settings, Languages, if Welsh is not on the list, add it with the Add button. Drag Welsh to the top and click Finish. The UI is now in Welsh mode. Drag Welsh below English to toggle back.</li>
-                    <li><strong>Validation and Address Format</strong> - The only validation done on the input string is to check that a non-empty string is supplied. No checks are made as to what address parts are included. Whatever is supplied is processed by the API.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
-                    <li><strong>Bookmarking</strong> - The address string (URL encoded) and other parameters are echoed to the URL bar so you can bookmark a single search or clerical tool result and send it to someone else. It will recreate the page as saved such as expanding the chosen address in the clerical tool. Note that the PAF / LA toggle is done on the client so is not bookmarkable.</li>
-                    <li><strong>Paging</strong> - The maximum number of pages is 100 or the number of results / number of results per page. In the UI the number of results per page is set to 10 and cannot be overridden in the URL. Note that as well as next / previous buttons you can jump to a page number using the page= query string parameter in the URL.</li>
-                    <li><strong>Google Maps</strong> - Note that this takes you to the exact latitude / longitude from AddressBase rather than where Google thinks the marker should go.</li>
-                    <li><strong>Epochs</strong> - A major new version of Addressbase is supplied every 6 weeks. These versions are called Epochs. The current Epoch number is shown the top right of the screen, along with the version number of the code which is also a link to GitHub. </li>
-                    <li><strong>Internet Explorer</strong> - This site works on all modern browsers. However, Internet Explorer should have Compatability View off (right click cog icon top right to show the menu bar: Tools > Compatability View Settings > ensure Display Intranet Sites In Compatibility Mode is unticked). </li>
-                </ol>
-                </div>
-
-
             </div>
         </div>
     </div>
