@@ -233,7 +233,7 @@ class AddressController @Inject()(
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String, historical: Option[String]): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
@@ -317,7 +317,7 @@ class AddressController @Inject()(
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, historical: Option[String]): Action[AnyContent] = Action async { implicit req =>
+  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -453,7 +453,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitPerAddress: Option[Int], historical: Option[String]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -498,7 +498,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitPerAddress: Option[Int], historical: Option[String]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -538,7 +538,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitPerAddress: Option[Int], historical: Option[String]): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
