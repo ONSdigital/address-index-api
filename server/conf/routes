@@ -19,13 +19,15 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Latitude of point in decimal format (e.g. 50.705948).
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String])
 
 ###
 #  summary: Return a list of available codelist lookups.
@@ -73,13 +75,15 @@ GET     /logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  parameters:
 #    - name: uprn
 #      description: Specifies the address UPRN.
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
 ###
-GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn)
+GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -93,13 +97,15 @@ GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: filter
 #      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponseContainer"
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.AddressController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], filter: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.AddressController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], filter: Option[String], historical: Option[String])
 
 ###
 #  summary: Test elastic is connected.
@@ -117,11 +123,19 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      description: Specifies the input for which the query should be generated.
 #    - name: filter
 #      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: rangekm
+#      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
+#    - name: lat
+#      description: Latitude of point in decimal format (e.g. 50.705948).
+#    - name: lon
+#      description: Longitude of point in decimal format (e.g. -3.5091076).
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String])
 
 ###
 #  summary: Get version information.
@@ -140,13 +154,15 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #  parameters:
 #    - name: limitPerAddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitPerAddress: Option[Int])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitPerAddress: Option[Int], historical: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -155,13 +171,15 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  parameters:
 #    - name: limitPerAddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitPerAddress: Option[Int])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitPerAddress: Option[Int], historical: Option[String])
 
 ###
 #  summary: Post bulk addresses as tokens.
@@ -169,13 +187,15 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  parameters:
 #    - name: limitPerAddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
+#    - name: historical
+#      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitPerAddress: Option[Int])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitPerAddress: Option[Int], historical: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

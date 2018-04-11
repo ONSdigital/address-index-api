@@ -763,7 +763,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("alongway"),None,None).apply(FakeRequest())
+      val result = controller.addressQuery("some query", Some("1"), Some("1"),None,Some("alongway")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1176,7 +1176,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )
 
       // When
-      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3), Duration.Inf )
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, true), Duration.Inf )
 
       // Then
       result.successfulBulkAddresses.size mustBe 2
@@ -1200,7 +1200,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )
 
       // When
-      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3)
+      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, None, None, true)
 
       // Then
       result.size mustBe requestsData.size
@@ -1217,7 +1217,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )
 
       // When Then
-      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10)
+      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, true)
     }
 
   }
