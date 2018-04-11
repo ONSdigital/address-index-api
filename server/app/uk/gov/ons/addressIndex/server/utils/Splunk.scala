@@ -20,6 +20,7 @@ object Splunk {
     offset: String = "",
     limit: String = "",
     filter: String = "",
+    historical: Boolean = true,
     rangekm: String = "",
     lat: String = "",
     lon: String = "",
@@ -37,6 +38,7 @@ object Splunk {
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn " +
         s"is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
         s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter " +
+        s"historical=$historical" +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
         s"bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
@@ -59,6 +61,7 @@ object Splunk {
     offset: String = "",
     limit: String = "",
     filter: String = "",
+    historical: Boolean = true,
     rangekm: String = "",
     lat: String = "",
     lon: String = "",
@@ -76,6 +79,7 @@ object Splunk {
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis " +
         s"is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
         s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter " +
+        s"historical=$historical" +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
         s"bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +

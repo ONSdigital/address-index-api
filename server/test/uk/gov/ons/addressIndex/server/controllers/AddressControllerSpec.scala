@@ -239,7 +239,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -267,7 +267,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result: Future[Result] = controller.postcodeQuery("some query").apply(FakeRequest())
+      val result: Future[Result] = controller.postcodeQuery("some query", None, None, None, None).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -426,7 +426,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("thing"), Some("1")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("thing"), Some("1"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -487,7 +487,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("1"), Some("thing")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("1"), Some("thing"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -548,7 +548,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("-1"), Some("1")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("-1"), Some("1"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -609,7 +609,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("0"), Some("0")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("0"), Some("0"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -670,7 +670,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("9999999"), Some("1")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("9999999"), Some("1"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -731,7 +731,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("0"), Some("999999")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("0"), Some("999999"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1018,7 +1018,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.postcodeQuery("").apply(FakeRequest())
+      val result = controller.postcodeQuery("", None, None, None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1079,7 +1079,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When - retry param must be true
-      val result = controller.postcodeQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val result = controller.postcodeQuery("some query", Some("0"), Some("10"), None, None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1111,7 +1111,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.uprnQuery("12345").apply(FakeRequest())
+      val result = controller.uprnQuery("12345", None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1134,7 +1134,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.uprnQuery("221B").apply(FakeRequest())
+      val result = controller.uprnQuery("221B", None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1157,7 +1157,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       ))
 
       // When
-      val result = controller.uprnQuery("123456789").apply(FakeRequest())
+      val result = controller.uprnQuery("123456789", None).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1176,7 +1176,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )
 
       // When
-      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3), Duration.Inf )
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, true), Duration.Inf )
 
       // Then
       result.successfulBulkAddresses.size mustBe 2
@@ -1200,7 +1200,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )
 
       // When
-      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3)
+      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, None, None, true)
 
       // Then
       result.size mustBe requestsData.size
@@ -1217,7 +1217,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       )
 
       // When Then
-      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10)
+      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, true)
     }
 
   }
