@@ -31,7 +31,7 @@ class RelativesExpander @Inject ()(
 
   def getExpandedSiblings(apiKey: String, uprns: Seq[Long]): Seq[ExpandedSibling] = {
     uprns.map(uprn => {
-      new ExpandedSibling(uprn,Await.result(getAddressFromUprn(apiKey,uprn), 1 seconds))
+     ExpandedSibling(uprn,Await.result(getAddressFromUprn(apiKey,uprn), 1 seconds))
     })
   }
 
@@ -45,9 +45,14 @@ class RelativesExpander @Inject ()(
       )
     ).map { resp: AddressByUprnResponseContainer =>
       resp.response.address.map ({ add =>
-        add.formattedAddress
+        addressToMixedCase(add.formattedAddress)
       }).getOrElse(uprn + "not found")
     }
+  }
+
+  def addressToMixedCase(ucAddress: String): String =  {
+   ucAddress.substring(0, ucAddress.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") +
+     ucAddress.substring(ucAddress.lastIndexOf(",") + 1, ucAddress.length)
   }
 }
 

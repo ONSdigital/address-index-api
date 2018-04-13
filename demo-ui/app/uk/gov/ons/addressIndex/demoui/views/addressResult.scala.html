@@ -512,7 +512,7 @@ apiKey: String = ""
                         @expandedRelative.siblings.map { expandedSibling =>
                         <tr><td><a href="@expandedSibling.uprn">@expandedSibling.uprn</a></td>
                             <td>
-                                @{expandedSibling.formattedAddress.substring(0, expandedSibling.formattedAddress.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") + " " + expandedSibling.formattedAddress.substring(expandedSibling.formattedAddress.lastIndexOf(",") + 1, expandedSibling.formattedAddress.length)}
+                                @expandedSibling.formattedAddress
                             </td>
                         </tr>
                         }

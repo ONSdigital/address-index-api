@@ -367,9 +367,8 @@ class ClericalToolController @Inject()(
         val classCodes: Map[String, String] = nags.map(nag =>
           (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
-        val rels = resp.response.address.map {add =>
-          add.relatives
-        }
+        val rels = resp.response.address.map(_.relatives)
+
         val expandedRels = Try(relativesExpander.expandRelatives(apiKey, rels.getOrElse(Seq()))).getOrElse(Seq())
        // logger info("expanded rels = " + expandedRels.toString())
 
