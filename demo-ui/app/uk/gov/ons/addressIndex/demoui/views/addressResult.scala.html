@@ -495,12 +495,13 @@ apiKey: String = ""
 
             <section class="address-result-hierarchy">
                 <h2 class="saturn">@messages("addressresult.address_hierarchy")</h2>
-                @expandedRels.getOrElse(Seq()).zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary", "Quinternary"), "", "").filter(element => element._1 != "").map { case (expandedRelative: uk.gov.ons.addressIndex.model.db.index.ExpandedRelative, position: String) =>
+                @expandedRels.getOrElse(Seq()).zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary", "Quinary"), "", "").filter(element => element._1 != "").map { case (expandedRelative: uk.gov.ons.addressIndex.model.db.index.ExpandedRelative, position: String) =>
                 <article class="address-result-hierarchy-single">
-                    @if(position == "Primary") {<h3 class="neptune"><strong>@messages("addressresult.position_primary")</strong></h3>}
-                    @if(position == "Secondary") {<h3 class="neptune"><strong>@messages("addressresult.position_secondary")</strong></h3>}
-                    @if(position == "Tertiary") {<h3 class="neptune"><strong>@messages("addressresult.position_tertiary")</strong></h3>}
-                    @if(position == "Quaternary") {<h3 class="neptune"><strong>@messages("addressresult.position_quaternary")</strong></h3>}
+                    @if(position == "Primary") {<h3 class="neptune">@messages("addressresult.position_primary")</h3>}
+                    @if(position == "Secondary") {<h3 class="neptune">@messages("addressresult.position_secondary")</h3>}
+                    @if(position == "Tertiary") {<h3 class="neptune">@messages("addressresult.position_tertiary")</h3>}
+                    @if(position == "Quaternary") {<h3 class="neptune">@messages("addressresult.position_quaternary")</h3>}
+                    @if(position == "Quinary") {<h3 class="neptune">@messages("addressresult.position_quinary")</h3>}
                     <table class="address-result-hierarchy-set mars">
                         <thead>
                             <tr class="venus">

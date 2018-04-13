@@ -178,6 +178,7 @@ addressresult.position_primary=Eiddo sylfaenol
 addressresult.position_secondary=Priodweddau eilaidd
 addressresult.position_tertiary=Eiddo trydyddol
 addressresult.position_quaternary=Eiddo quaternary
+addressresult.position_quinary=Eiddo pumol
 addressresult.address=Cyfeiriad
 
 postcode.title=Cod post demo-dod o hyd i gyfeiriad gan cod post

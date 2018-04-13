@@ -177,6 +177,7 @@ addressresult.position_primary=Primary property
 addressresult.position_secondary=Secondary properties
 addressresult.position_tertiary=Tertiary properties
 addressresult.position_quaternary=Quaternary properties
+addressresult.position_quinary=Quinary properties
 addressresult.address=Address
 
 postcode.title=Postcode demo - find an address by postcode
