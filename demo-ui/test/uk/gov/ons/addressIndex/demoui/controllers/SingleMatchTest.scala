@@ -81,7 +81,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "<span class=\"error\" onclick=\"setFocus('address');\">Please enter an address</span>"
+      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter an address</span></div>"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When

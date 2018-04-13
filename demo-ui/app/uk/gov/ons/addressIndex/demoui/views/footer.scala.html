@@ -9,13 +9,18 @@ messages: Messages
 )
 
 <footer id="footer">
-    <div class="wrapper">
+    <div id="footer-content" class="wrapper pluto">
+        <div class="group">
+            <div class="col-8 no-print">
+                This release is still in development. Your <a class="mailto" href="mailto:ai.users@@ons.gov.uk?subject=Feedback%20on%20Address%20Index">@messages("feedback.link")</a> will help us improve it.
+            </div>
+            <div class="col-4">
+                Version: <a class="beta-git" href="https://github.com/ONSdigital/address-index-api/commit/@version.apiVersion.drop(2).take(6)">@version.apiVersion.drop(2).take(6)</a>
+                    | Epoch: @version.dataVersion.take(2)
+            </div>
+        </div>
         <div class="group">
             <div class="col-12">
-                <div id="footer-content">
-                    <div class="no-print">
-                        This release is still in development. Your <a class="mailto" href="mailto:ai.users@@ons.gov.uk?subject=Feedback%20on%20Address%20Index">@messages("feedback.link")</a> will help us improve it.
-                    </div>
 
                     @navigationFooter(Navigation.footer, Some(""))
 
@@ -32,9 +37,9 @@ messages: Messages
 
                     </div>
 
-                </div>
             </div>
         </div>
+
     </div>
 
 

@@ -16,6 +16,9 @@ GET         /home                               uk.gov.ons.addressIndex.demoui.c
 # ONS-Address Index home page
 GET         /help                               uk.gov.ons.addressIndex.demoui.controllers.StaticController.help
 
+# ONS-Address Index home page
+GET         /help/forgot-password               uk.gov.ons.addressIndex.demoui.controllers.StaticController.helpForgotPassword
+
 # ONS-Address Index Single Search View
 GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 

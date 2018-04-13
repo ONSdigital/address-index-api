@@ -69,7 +69,7 @@ class ApplicationHomeController @Inject()
     //logger.info("Login Required =  " + conf.config.loginRequired )
     if (conf.config.loginRequired)
     {
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", version))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("","", version))
     }
     else {
       Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
@@ -111,7 +111,7 @@ class ApplicationHomeController @Inject()
         if (result.status == OK) {
           val key = userName + "_" + (result.json \ "key").as[String]
           Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
-        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
+        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Invalid username or password","Please try again",version))
 
       } else
         {
@@ -119,11 +119,11 @@ class ApplicationHomeController @Inject()
           if (fakeResponse.errorCode == "") {
             val key = userName + "_" + fakeResponse.key
             Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
-          } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
+          } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Invalid username or password", "Please try again",version))
         }
     }).getOrElse {
       // bad, data is not filled or not exist
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Empty Username or Password",version))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Empty username or password", "Please try again",version))
     }
   }
 

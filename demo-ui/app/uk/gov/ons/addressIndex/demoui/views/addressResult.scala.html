@@ -18,15 +18,15 @@ apiKey: String = ""
 
     <div class="result-content">
         <div class="alert alert-success">
-            <h1>@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</h1>
-            <section class="address-result-header">
+            <h1 class="jupiter">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</h1>
+            <section class="address-result-header mars">
                 <span class="address-result-header-type">
                     <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
                       title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
                                 &nbsp;@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }&nbsp;
                     </span>
                 </span>
-                <span class="address-result-header-uprn uprn-txt">@messages("single.uprn") &nbsp;<strong>@address.uprn</strong></span>
+                <span class="address-result-header-uprn uprn-txt">@messages("single.uprn") &nbsp;<span class="venus">@address.uprn</span></span>
                 @if(address.geo.isEmpty) {
                 @if(address.nag.isEmpty) {
                 <span class="map-link-txt">
@@ -45,26 +45,26 @@ apiKey: String = ""
 
             </section>
             <section class="infobox-standard">
-                <table class="address-result-table">
+                <table class="address-result-table mars">
                     <tr>
                         <td>@messages("addressresult.la_address")</td>
-                        <td>@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</td>
+                        <td class="venus">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.postal_address_file")</td>
-                        <td>@address.formattedAddressPaf.substring(0, address.formattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</td>
+                        <td class="venus">@address.formattedAddressPaf.substring(0, address.formattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.welsh_language_nag")</td>
-                        <td>@address.welshFormattedAddressNag.substring(0, address.welshFormattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</td>
+                        <td class="venus">@address.welshFormattedAddressNag.substring(0, address.welshFormattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.welsh_language_paf")</td>
-                        <td>@address.welshFormattedAddressPaf.substring(0, address.welshFormattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</td>
+                        <td class="venus">@address.welshFormattedAddressPaf.substring(0, address.welshFormattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.classification")</td>
-                        <td>@if(address.nag.isEmpty) {
+                        <td class="venus">@if(address.nag.isEmpty) {
                             @messages("category.notfound")
                             } else {
                             @address.nag.map { nag =>
@@ -74,11 +74,11 @@ apiKey: String = ""
                     </tr>
                     <tr>
                         <td>@messages("addressresult.la")</td>
-                        <td>@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
+                        <td class="venus">@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.la_code")</td>
-                        <td>@address.nag.map{ nag => @nag.localCustodianGeogCode}</td>
+                        <td class="venus">@address.nag.map{ nag => @nag.localCustodianGeogCode}</td>
                     </tr>
                 </table>
             </section>
@@ -91,42 +91,42 @@ apiKey: String = ""
 
             @if(isClerical == true){
                 <section class="address-result-clerical">
-                    <h2>@messages("clerical.addinfo")</h2>
+                    <h2 class="saturn">@messages("clerical.addinfo")</h2>
 
-                    <table class="address-result-table">
+                    <table class="address-result-table mars">
                         <tr>
                             <td>@messages("clerical.logicalstatus")</td>
-                            <td>@address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</td>
+                            <td class="venus">@address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</td>
                         </tr>
 
                         @if(address.nag.map { nag => nag.logicalStatus }.contains("8")) {
                             <tr>
                                 <td>@messages("single.enddate"): </td>
-                                <td>@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }</td>
+                                <td class="venus">@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }</td>
                             </tr>
                         }
                         <tr>
                             <td>@messages("clerical.elasticscore")</td>
-                            <td>@address.underlyingScore</td>
+                            <td class="venus">@address.underlyingScore</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.parentuprn")</td>
-                            <td>
+                            <td class="venus">
                                 @if(address.parentUprn == "0") {N/A} else {@address.parentUprn}
                             </td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.la")</td>
-                            <td>@address.nag.map { nag => @nag.localCustodianName } | @address.nag.map { nag => @nag.localCustodianGeogCode }</td>
+                            <td class="venus">@address.nag.map { nag => @nag.localCustodianName } | @address.nag.map { nag => @nag.localCustodianGeogCode }</td>
                         </tr>
 
                     </table>
 
-                    <h3>@messages("clerical.ta"):</h3>
+                    <h3 class="neptune">@messages("clerical.ta"):</h3>
 
-                    <table class="address-result-table-clerical">
+                    <table class="address-result-table-clerical mars">
                         @*PAF TABLE*@
-                        <tr>
+                        <tr class="venus">
                             <th>@messages("clerical.token_description")</th>
                             <th>@messages("clerical.fieldnamePAF")</th>
                             <th>@messages("clerical.inputdata")</th>
@@ -255,7 +255,7 @@ apiKey: String = ""
                         </tr>
 
                         @*NAG TABLE*@
-                        <tr>
+                        <tr class="venus">
                             <th>@messages("clerical.token_description")</th>
                             <th>@messages("clerical.fieldnameNAG")</th>
                             <th>@messages("clerical.inputdata")</th>
@@ -385,7 +385,7 @@ apiKey: String = ""
                             <td>@address.nag.map { nag => @nag.postcodeLocator }</td>
                         </tr>
                         @*NAG TABLE*@
-                        <tr>
+                        <tr class="venus">
                             <th>@messages("clerical.token_description")</th>
                             <th>@messages("clerical.fieldname_derived")</th>
                             <th>@messages("clerical.inputdata")</th>
@@ -427,7 +427,7 @@ apiKey: String = ""
                         </tr>
 
                         @* hopper score *@
-                        <tr>
+                        <tr class="venus">
                             <th>@messages("clerical.score")</th>
                             <th>@messages("clerical.param")</th>
                             <th>@messages("clerical.paramvalue")</th>
@@ -492,24 +492,24 @@ apiKey: String = ""
             }
 
             <section class="address-result-hierarchy">
-                <h2>@messages("addressresult.address_hierarchy")</h2>
+                <h2 class="saturn">@messages("addressresult.address_hierarchy")</h2>
                 @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
                 <article class="address-result-hierarchy-single">
-                    @if(position == "Primary") {<h3><strong>@messages("addressresult.position_primary")</strong></h3>}
-                    @if(position == "Secondary") {<h3><strong>@messages("addressresult.position_secondary")</strong></h3>}
-                    @if(position == "Tertiary") {<h3><strong>@messages("addressresult.position_tertiary")</strong></h3>}
-                    @if(position == "Quaternary") {<h3><strong>@messages("addressresult.position_quaternary")</strong></h3>}
-                    <table class="address-result-hierarchy-set">
+                    @if(position == "Primary") {<h3 class="neptune"><strong>@messages("addressresult.position_primary")</strong></h3>}
+                    @if(position == "Secondary") {<h3 class="neptune"><strong>@messages("addressresult.position_secondary")</strong></h3>}
+                    @if(position == "Tertiary") {<h3 class="neptune"><strong>@messages("addressresult.position_tertiary")</strong></h3>}
+                    @if(position == "Quaternary") {<h3 class="neptune"><strong>@messages("addressresult.position_quaternary")</strong></h3>}
+                    <table class="address-result-hierarchy-set mars">
                         <thead>
-                        <tr>
-                            <th>UPRN</th>
-                            <th>@messages("addressresult.address")</th>
-                        </tr>
+                            <tr class="venus">
+                                <th>UPRN</th>
+                                <th>@messages("addressresult.address")</th>
+                            </tr>
                         </thead>
                         <tbody id="@position@address.uprn">
-                        @relative.siblings.sorted.map { uprn =>
-                        <script>hierarchyResult("@uprn", "@position@address.uprn", '@apiUrl', '@apiKey')</script>
-                        }
+                            @relative.siblings.sorted.map { uprn =>
+                            <script>hierarchyResult("@uprn", "@position@address.uprn", '@apiUrl', '@apiKey')</script>
+                            }
                         </tbody>
                     </table>
                 </article>

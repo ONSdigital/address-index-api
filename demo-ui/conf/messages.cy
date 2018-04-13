@@ -129,6 +129,7 @@ login.usernameph=Rhif adnabod y Rhwydwaith ONS
 login.passwordph=cyfrinair rhwydwaith
 login.login=Arwyddo
 login.clear=Glir
+login.forgotpassword=Anghofio cyfrinair
 
 main.beta=BETA
 main.licence1=Mae''r holl gynnwys ar gael o dan y

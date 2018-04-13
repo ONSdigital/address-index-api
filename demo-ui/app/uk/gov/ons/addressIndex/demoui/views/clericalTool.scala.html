@@ -39,7 +39,7 @@ apiKey: String
     <section class="match-form-container">
         <div class="wrapper">
             <div class="group">
-                <h1 class="search-page-title col-12">@title @messages("single.sfatext")</h1>
+                <h1 class="jupiter col-12">@title @messages("single.sfatext")</h1>
 
                 <section class="searchbox-results">
                     @helper.form(action = action) {
@@ -64,7 +64,7 @@ apiKey: String
             }
 
             @if(query.nonEmpty) {
-                <div class="col-12 debug-query-output">
+                <div class="col-12 debug-query-output mars">
                     <pre class="prettyprint ">@query</pre>
                 </div>
             }
@@ -73,7 +73,7 @@ apiKey: String
             @addressBySearchResponse.map { aresponse =>
                 <section class="match-results-container col-12">
 
-                    <div class="match-results-count">
+                    <div class="match-results-count saturn">
                         <div class="standout">@messages("postcode.foundpre") @aresponse.total @messages("postcode.foundpost")</div>
                     </div>
                     <div class="match-results">
@@ -106,7 +106,7 @@ apiKey: String
     <div class="feedback-link-container">
         <div class="wrapper">
             <div class="group">
-                <div class="col-12">
+                <div class="col-12 mars">
                     <a class="mailto" onclick="javascript:window.location='mailto:ai.users@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(clerical%20tool)&body=Input: %22@{HtmlFormat.escape(singleSearchForm.value.map(_.address.replaceAll("'", "%27").replaceAll("&", "%26")).getOrElse(""))}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
                 </div>
             </div>

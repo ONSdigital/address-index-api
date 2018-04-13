@@ -3,41 +3,47 @@
 @import uk.gov.ons.addressIndex.demoui.controllers.routes
 
 
-@(errorMessage: String = "", version: DemoUIAddressIndexVersionModule)(implicit messages: Messages)
+@(errorMessage: String = "", errorSuggestion: String = "", version: DemoUIAddressIndexVersionModule)(implicit messages: Messages)
 
 @helper.form(routes.ApplicationHomeController.login) {
 @main(title = messages("login.title"), version = version, showBannerNavigation = false, showBannerTagline = true, siteSection = Some("")) {
 
 <div class="container">
     <div class="wrapper">
-        <div class="group">
-            <div class="col-12">
-                @{if (errorMessage != ""){
-                <div id="warning-message" class="panel panel-warning address-panel">
-                    <div class="result-content">
-                        <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('name');">{errorMessage}</span></div>
-                    </div>
-                </div>
-                }}
-                <h1 class="match-title">@messages("login.heading")</h1>
 
-                <section class="searchbox-initial">
+        @{if (errorMessage != ""){
+        <div class="group">
+            <div id="warning-message" class="col-6">
+                <div class="warning-error-message venus">{errorMessage}</div>
+                <div class="warning-error-suggestion mars" role="alert">{errorSuggestion}</div>
+            </div>
+        </div>
+        }}
+
+        <div class="group">
+            <div class="col-6">
+
+                <h1 class="jupiter">@messages("login.heading")</h1>
+
+                <section class='@if(errorMessage != ""){login-error}else{searchbox-initial}'>
                     <form action="@{routes.ApplicationHomeController.doLogin()}" method="post"></form>
                     <form action="@{routes.ApplicationHomeController.doLogin()}" method="post">
                         <div id="search-form" class="search-bar-active">
                             <fieldset class="searchfield">
                                 <dl id="loginbox">
-                                    <dt><label for="name">@messages("login.username")</label></dt>
+                                    <dt><label for="name" class="neptune">@messages("login.username")</label></dt>
                                     <dd>
-                                        <input id="name" name="userName" placeholder='@messages("login.usernameph")' class="form-control" type="text">
+                                        <input id="name" name="userName" placeholder='@messages("login.usernameph")' class="form-control mars" type="text">
                                     </dd>
-                                    <dt><label for="pass">@messages("login.password")</label></dt>
+                                    <dt><label for="pass" class="neptune">@messages("login.password")</label></dt>
                                     <dd>
-                                        <input id="pass" name="password" type="password" placeholder='@messages("login.passwordph")' class="form-control">
+                                        <input id="pass" name="password" type="password" placeholder='@messages("login.passwordph")' class="form-control mars">
                                     </dd>
                                 </dl>
 
-                                <input id="loginbtn" type="submit" value='@messages("login.login")'>
+                                <p class="mars"><a href="@{routes.StaticController.helpForgotPassword}">@messages("login.forgotpassword")</a></p>
+
+                                <input id="loginbtn" type="submit" class="neptune" value='@messages("login.login")'>
                             </fieldset>
                         </div>
                     </form>

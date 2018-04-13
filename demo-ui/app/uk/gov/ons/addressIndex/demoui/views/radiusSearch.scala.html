@@ -31,11 +31,17 @@ version: DemoUIAddressIndexVersionModule
     <div class="wrapper">
         <div class="group">
             <div class="col-12">
-                <h1 class="search-page-title">@messages("radius.sfatext")</h1>
-                <section class="infobox-standard">
+                <h1 class="jupiter">@messages("radius.sfatext")</h1>
+            </div>
+        </div>
+        <div class="group">
+            <div class="col-6">
+                <section class="infobox-standard mars">
                     <p>@messages("radius.intro")</p>
                 </section>
             </div>
+        </div>
+        <div class="group">
             <section class="searchbox-initial">
                 <div class="radius-match-form">
                     @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatch) {

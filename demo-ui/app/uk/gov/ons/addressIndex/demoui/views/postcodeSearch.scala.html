@@ -26,11 +26,17 @@ version: DemoUIAddressIndexVersionModule
     <div class="content-container wrapper">
         <div class="group">
             <div class="col-12">
-                <h1 class="search-page-title">@messages("postcode.sfatext")</h1>
-                <section class="infobox-standard">
+                <h1 class="jupiter">@messages("postcode.sfatext")</h1>
+            </div>
+        </div>
+        <div class="group">
+            <div class="col-6">
+                <section class="infobox-standard mars">
                     <p>@messages("postcode.intro")</p>
                 </section>
             </div>
+        </div>
+        <div class="group">
             <section class="searchbox-initial">
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {
                 <div id="search-form" class="search-bar-active">
