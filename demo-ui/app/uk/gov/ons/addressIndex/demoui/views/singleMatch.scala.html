@@ -27,33 +27,37 @@ version: DemoUIAddressIndexVersionModule
 
     <div class="container">
 
+        @warningMessage.map { message =>
+        <div class="wrapper">
+            <div class="group">
+                <div id="warning-message" class="col-6">
+                    <div class="warning-error-message venus">A Problem Has Occured</div>
+                    <div class="warning-error-suggestion mars" role="alert"><span onclick="setFocus('address');">@message</span></div>
+                </div>
+            </div>
+        </div>
+        }
+
         <section class="match-form-container">
             <div class="wrapper">
                 <div class="group">
-                    <h1 class="search-page-title col-12">@messages("single.sfatext")</h1>
-                    <section class="searchbox-results">
-                        @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
-                        <div id="search-form" class="search-bar-active">
-                            @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"))
-                        </div>
-                        }
-                    </section>
+                    <h1 class="jupiter col-12">@messages("single.sfatext")</h1>
                 </div>
+                <section class='@if(warningMessage){search-error}else{searchbox-results}'>
+                    @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
+                    <div id="search-form" class="search-bar-active">
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"))
+                    </div>
+                    }
+                </section>
             </div>
         </section>
 
         <div class="wrapper">
-            <div class="group">
-                @warningMessage.map { message =>
-                    <div id="warning-message" class="col-12">
-                        <div class="result-content">
-                            <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
-                        </div>
-                    </div>
-                }
 
+            <div class="group">
                 <section class="match-results-container col-12">
-                    <div class="match-results-count">
+                    <div class="match-results-count saturn">
                         @addressBySearchResponse.map { aresponse =>
                         <div class="standout">@messages("postcode.foundpre") @aresponse.total @messages("postcode.foundpost")</div>
                     </div>
@@ -77,7 +81,7 @@ version: DemoUIAddressIndexVersionModule
         <div class="feedback-link-container">
             <div class="wrapper">
                 <div class="group">
-                    <div class="col-12">
+                    <div class="col-12 mars">
                         <a class="mailto" onclick="javascript:window.location='mailto:ai.users@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(single%20search)&body=Input: %22@{HtmlFormat.escape(singleSearchForm.value.map(_.address.replaceAll("'", "%27").replaceAll("&", "%26")).getOrElse(""))}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
                     </div>
                 </div>

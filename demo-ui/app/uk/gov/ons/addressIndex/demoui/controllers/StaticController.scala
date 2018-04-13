@@ -27,4 +27,13 @@ class StaticController @Inject()(
     }
   }
 
+  def helpForgotPassword: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.helpContainer(content = "forgotPassword", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.helpContainer(content = "forgotPassword", version = version, userLang = "en"))
+    }
+  }
+
 }

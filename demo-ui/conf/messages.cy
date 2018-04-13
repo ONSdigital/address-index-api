@@ -129,6 +129,7 @@ login.usernameph=Rhif adnabod y Rhwydwaith ONS
 login.passwordph=cyfrinair rhwydwaith
 login.login=Arwyddo
 login.clear=Glir
+login.forgotpassword=Anghofio cyfrinair
 
 main.beta=BETA
 main.licence1=Mae''r holl gynnwys ar gael o dan y
@@ -177,6 +178,7 @@ addressresult.position_primary=Eiddo sylfaenol
 addressresult.position_secondary=Priodweddau eilaidd
 addressresult.position_tertiary=Eiddo trydyddol
 addressresult.position_quaternary=Eiddo quaternary
+addressresult.position_quinary=Eiddo pumol
 addressresult.address=Cyfeiriad
 
 postcode.title=Cod post demo-dod o hyd i gyfeiriad gan cod post

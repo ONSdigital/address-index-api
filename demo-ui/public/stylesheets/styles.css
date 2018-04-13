@@ -2,13 +2,11 @@
 
 @import "components/header.css";
 @import "components/grid.css";
+@import "components/typography.css";
 
-/** * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/) * http://cssreset.com */html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td,article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,time, mark, audio, video {	margin: 0;	padding: 0;	border: 0;	font-size: 100%;	font: inherit;	vertical-align: baseline;}/* HTML5 display-role reset for older browsers */article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {	display: block;}body {	line-height: 1;}ol, ul {	list-style: none;}blockquote, q {	quotes: none;}blockquote:before, blockquote:after,q:before, q:after {	content: '';	content: none;}table {	border-collapse: collapse;	border-spacing: 0;}
+/** * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/) * http://cssreset.com */html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, acronym, address, big, cite, code,del, dfn, em, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var,b, u, i, center,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td,article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,time, mark, audio, video {	margin: 0;	padding: 0;	border: 0;	font: inherit;	vertical-align: baseline;}/* HTML5 display-role reset for older browsers */article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {	display: block;}body {	line-height: 1;}ol, ul {	list-style: none;}blockquote, q {	quotes: none;}blockquote:before, blockquote:after,q:before, q:after {	content: '';	content: none;}table {	border-collapse: collapse;	border-spacing: 0;}
 
 /* General styles */
-
-html, body, button, input, table, td, th {
-  font-family: Lato,Helvetica Neue,Arial, sans-serif; }
 
 body {
     line-height: 1.5;
@@ -27,24 +25,22 @@ a:hover {
 }
 
 h1 {
-    font-size: 2em;
     margin: 0.83em 0;
-    font-weight: bold;
 }
 
 h2 {
-    font-size: 1.5em;
     margin: 0.83em 0;
-    font-weight: bold;
 }
 
 h3 {
-    font-size: 1.17em;
-    font-weight: bold;
     margin: 0.83em 0;
 }
 
-strong, b, th {
+p {
+    margin: 0.83em 0;
+}
+
+strong, b {
     font-weight: bold;
 }
 
@@ -68,7 +64,7 @@ input[type=text], input[type=password] {
     padding: 0.6rem;
     display: block;
     color: inherit;
-    font-size: 1.1rem;
+    /*font-size: 1.1rem;*/
     border: 1px solid #999;
     border-radius: 3px;
     transition: border-color .2s ease-in initial;
@@ -80,12 +76,12 @@ input[type=submit], button {
     position: relative;
     z-index: 2;
     color: #ffffff;
-    font-size: 1.1rem;
+
     border: 1px solid #999;
     border-radius: 3px;
     transition: background-color .2s ease-in;
     line-height: 1.4rem;
-    font-weight: 700;
+
     padding: 0.75rem 2.5rem;
     background-color: #0f8243;
     }
@@ -118,7 +114,6 @@ footer #footer-navigation {
 
 footer #footer-navigation nav ul li {
     float: left;
-    font-size: 1.1em;
     padding: 0 30px 0 0;
     list-style-type: none;
     line-height: 30px;
@@ -158,16 +153,14 @@ footer #footer-content .footer-copyright {
                 background-image: url(/assets/images/open-government-licence_2x.png);
                 background-size: 41px 17px; } }
         #footer .open-government-licence p {
-          font-family: "nta", Arial, sans-serif;
-          font-weight: 400;
           text-transform: none;
-          font-size: 14px;
+
           line-height: 1.14286;
           margin: 0;
           padding-top: 0.1em; }
           @media (min-width: 641px) {
             #footer .open-government-licence p {
-              font-size: 16px;
+
               line-height: 1.25; } }
 
 
@@ -178,15 +171,11 @@ footer #footer-content .footer-copyright {
 
 .infobox-standard {
     background-color: #eff0f9;
-    padding: 1.5rem;
-    border-left: 8px solid #033e58;
-    max-width: 75%;
+    padding: 1rem;
+    border-left: 9px solid #033e58;
+    margin: 0 0 30px -9px;
 }
 
-.infobox-standard p {
-    font-size: 1rem;
-    line-height: 1.4rem
-}
 
 /* End of InfoBox styles */
 
@@ -198,14 +187,12 @@ section.match-form-container {
     padding: 0 0 20px 0;
 }
 
-
-
 section.match-form-container section.searchbox-results button {
     margin: 14px 0 0 0;
 }
 
 section.match-form-container h1.match-title {
-    font-size: 20px;
+
     margin: 0;
 }
 
@@ -236,24 +223,6 @@ table.address-result-table-clerical tr th {
 }
 
 /* End address results styles */
-
-/* Multi Match styles */
-
-section#multi-match-results table {
-    border: 1px solid #000000;
-    width: 100%;
-}
-section#multi-match-results table tbody tr td {
-    border: 1px solid #000000;
-    padding: 3px;
-}
-section#multi-match-results table thead tr th {
-    border: 1px solid #000000;
-    padding: 3px;
-    background-color: #dfe0e2;
-}
-
-/* End Multi Match styles */
 
 /* Feedback link styles */
 
@@ -290,8 +259,41 @@ section#multi-match-results table thead tr th {
 
 /* End of Pager styles */
 
+/* Warning Message styles */
+
+#warning-message {
+    margin: 30px 0;
+}
+
+#warning-message .warning-error-message {
+    background-color: #d0011b;
+    color: #fff;
+    padding: 20px;
+}
+
+#warning-message .warning-error-suggestion {
+    background-color: #faecec;
+    padding: 20px;
+}
+
+section.login-error {
+    background-color: #faecec;
+    padding: 20px;
+    border-left: 9px solid #d0011b;
+    margin: 20px 0 20px -9px;
+}
+
+section.search-error {
+    background-color: #faecec;
+    padding: 20px 0 0 0;
+    border-left: 9px solid #d0011b;
+    margin: 0 0 20px 0;
+}
+
+/* End Warning Message styles */
+
 p.toptext {
-  font-size: 0.8em;
+
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -322,7 +324,7 @@ p.toptext {
     text-align: right;
     margin-top: 2px;
     margin-right: 4px;
-    font-size: 16px;
+
     padding-top: 8px;
 }
 
@@ -338,14 +340,14 @@ p.toptext {
 }
 
 .panel-title {
-    font-size: 22px ;
+
     margin-bottom: 0px ;
     margin-left: 10px;
     text-align: left;
 }
 
 .panel-title-error {
-    font-size: 20px;
+
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
@@ -405,36 +407,6 @@ p.toptext {
     padding: 2px;
 }
 
-.beta-banner {
-    background-color: #FF9900;
-    color: #fff;
-    padding-top: 10px;
-    padding-left: 10px;
-    padding-right: 6px;
-    padding-bottom: 6px;
-    font-weight: bold;
-    font-size: 16px;
-    letter-spacing: 4px;
-}
-
-.beta-banner-version {
-    background-color: #fff;
-    color: #FF9900;
-    border: 1px solid #FF9900;
-    padding-top: 2px;
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-bottom: 1px;
-    margin-top: 2px;
-    font-weight: bold;
-    font-size: 10px;
-}
-
-.beta-para {
-    padding: 1px;
-    margin: 1px;
-    background-color: #fff;
-}
 
 .logo {
     margin-top: 6px;
@@ -448,7 +420,7 @@ p.toptext {
     background-color: #606060;
     border-color: #606060;
     color: #FFFFFF;
-    font-size: 1.2em;
+
     margin-left: 10px;
     padding-left: 12px;
     padding-right: 14px;
@@ -480,14 +452,14 @@ p.toptext {
 input#name.form-control {
     width: 240px;
     height: 40px;
-    font-size: 1.1em;
+
     margin-bottom: 12px;
 }
 
 input#pass.form-control {
     width: 240px;
     height: 40px;
-    font-size: 1.1em;
+
     margin-bottom: 4px;
 }
 
@@ -504,7 +476,7 @@ fieldset.radio {
 input[type="radio"].form-control + label {
     width: 100px;
     height: 40px;
-    font-size: 1.2em;
+
     margin-right: 10px;
     border: 0px;
     padding: 10px 24px 10px 24px;
@@ -514,19 +486,19 @@ input[type="radio"].form-control + label {
 input[type="radio"]#format-paf.form-control {
     width: 100px;
     height: 40px;
-    font-size: 2em;
+
     background-color:gray;
 }
 
 input[type="radio"]#format.form-control {
     width: 100px;
     height: 40px;
-    font-size: 2em;
+
     background-color:gray;
 }
 
 .btn-group.open .dropdown-toggle {
-    font-size: 20px ;
+
 }
 
 .beta {
@@ -584,13 +556,12 @@ input::-webkit-input-placeholder {
     margin-top: 10px;
 }
 
-dd, dt {
+/*dd, dt {
     margin-left: 10px;
-}
+}*/
 
 dl {
-    display: block;
-    margin: 10px 0px 20px 0px;
+    margin: 0 0 20px 0;
 }
 
 .alert-danger {
@@ -631,16 +602,11 @@ h3.panel-title {
     display:inline;
 }
 
-h4.panel-subtitle {
-    display:inline;
-    font-weight: 400;
-    font-size: 22px;
-}
 
 h3.green {
     margin-top:20px;
     color: #00914E;
-    font-size:1.2em;
+
     padding-top:4px;
     padding-left:7px;
 }
@@ -694,10 +660,6 @@ div.resultRow.formatted-address{
 
 .clericalInfo a:link {
      color: #489DC4;
-}
-
-.clericalInfo a:visited {
-    font-weight: 700;
 }
 
 .clericalInfo a:hover {
@@ -772,42 +734,6 @@ div.address-switch-buttons span:hover{
     cursor:pointer;
 }
 
-.pagecontainer {
-    max-width:100%;
-    text-align:center;
-}
-
-.pageleft {
-    float:left;
-    width:110px;
-}
-
-.pageleft a {
-    color: #377894;
-    text-decoration: none;
-    font-size:0.9em;
-    font-weight:700;
-}
-
-.pagecentre {
-    display: inline-block;
-    vertical-align: middle;
-    margin:0 auto;
-    width:90px;
-    color:gray;
-}
-
-.pageright {
-    float:right;
-    width:100px;
-}
-
-.pageright a {
-    color: #377894;
-    text-decoration: none;
-    font-size:0.9em;
-    font-weight:700;
-}
 
 .pl1 {
     pointer-events: none;
@@ -848,167 +774,6 @@ div.address-switch-buttons span:hover{
     color: #606060;
 }
 
-div.taTable{
-    width: 100%; display: table; table-layout: auto;
-    padding:0;
-    margin:0 0 6px 0;
-    border: 1px solid black;
-}
-
-div.taRow{
-    display: table-row; width: 100%;
-    vertical-align:top;
-    padding:0;
-    margin:0;
-}
-div.taRowH{
-    display: table-row; width: 100%;
-    vertical-align:top;
-    padding:0;
-    margin:0;
-    background-color: #CCD9FF;
-}
-
-div.taColumn1{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-}
-
-div.taColumn1inner{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    color: white;
-    border-style: solid;
-    border-width: 0px 1px 0px 1px;
-    border-color: black;
-    margin:0;
-}
-
-div.taColumn1top{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border-style: solid;
-    border-width: 1px 1px 0px 1px;
-    border-color: black;
-    margin:0;
-}
-
-div.taColumn1bottom{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    color: white;
-    border-style: solid;
-    border-width: 0px 1px 1px 1px;
-    border-color: black;
-    margin:0;
-}
-
-
-div.taColumn2{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-}
-
-div.taColumn3{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-}
-
-div.taColumn4{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-}
-
-div.taColumn4top{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border-style: solid;
-    border-width: 1px 1px 0px 1px;
-    border-color: black;
-    margin:0;
-}
-
-div.taColumn4inner{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    color: white;
-    border-style: solid;
-    border-width: 0px 1px 0px 1px;
-    border-color: black;
-    margin:0;
-}
-
-div.taColumn4bottom{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    color: white;
-    border-style: solid;
-    border-width: 0px 1px 1px 1px;
-    border-color: black;
-    margin:0;
-}
-
-div.taColumn1H{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 100%;
-}
-
-div.taColumn2H{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 100%;
-}
-
-div.taColumn3H{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 100%;
-}
-
-div.taColumn4H{
-    display: table-cell; height:100%; min-width: 20%;
-    vertical-align:top;
-    padding: 1px;
-    border: 1px solid black;
-    margin:0;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 100%;
-}
 
 .match-type-M {
     background: #FFCC00;
@@ -1026,37 +791,9 @@ nav select {
 }
 
 select {
-    font-family: "nta", Arial, sans-serif;
-    font-size: 1.1em
+
 }
 
-@media only screen and (max-width: 790px) {
-    td {
-        font-size: 0.6em;
-        padding: 1px;
-    }
-
-    nav ul     {
-        display: none;
-    }
-
-    nav select {
-        display: inline-block;
-        padding-bottom:2px;
-        padding-top:2px;
-        margin-bottom:4px;
-        margin-top:4px;
-        margin-left:4px;
-    }
-
-    .beta-banner-version {
-        font-size: 8px;
-    }
-
-    .showrow {
-        font-size: 0.8em;
-    }
-}
 
 @media print {
 .no-print, .no-print *
@@ -1068,19 +805,19 @@ select {
 .ls-approved{
     color:white;
     background-color:#00CC00;
-    font-size:0.9em;
+
     white-space: nowrap;
 }
 .ls-provisional{
     color:white;
     background-color:#FFCC00;
-    font-size:0.9em;
+
     white-space: nowrap;
 }
 .ls-historical{
     color:white;
     background-color:#FF0000;
-    font-size:0.9em;
+
     white-space: nowrap;
 }
 
@@ -1101,12 +838,11 @@ details.details_shim_open {display: block;}
 details.details_shim_closed > * {display: none;}
 details.details_shim_closed > summary,
 details.details_shim_open   > summary {display: block;}
-details.details_shim_closed > summary:before {display: inline-block; content: "\25ba"; padding: 0 0.1em; margin-right: 0.4em; font-size: 0.9em;}
+details.details_shim_closed > summary:before {display: inline-block; content: "\25ba"; padding: 0 0.1em; margin-right: 0.4em;}
 details.details_shim_open   > summary:before {display: inline-block; content: "\25bc"; padding: 0; margin-right: 0.35em;}
 
 
-#multi-match-results{
-}
+
 
 .inputfile-box {
     position: relative;
@@ -1140,7 +876,7 @@ details.details_shim_open   > summary:before {display: inline-block; content: "\
     border-radius: 0 6px 6px 0;
     font-family: Arial;
     color: #474547;
-    font-size: 13px;
+
     background: #f5f5f5;
     padding: 1px 30px 1px 30px;
     border: solid #b5acb5 1px;
@@ -1222,14 +958,6 @@ a.address-toggle-welsh:hover {
 
 /* Start Postcode Styles */
 
-div.content-container {
-    margin: 20px auto;
-}
-
-h1.search-page-title {
-    font-size: 2rem;
-}
-
 section.searchbox-initial {
     margin: 20px 0;
 }
@@ -1245,8 +973,7 @@ section.searchbox-initial dd, section.searchbox-initial dt, section.searchbox-re
 
 
 section.searchbox-initial label {
-    font-weight: bold;
-    font-size: 18px;
+
     line-height: 40px;
 }
 
@@ -1282,22 +1009,11 @@ article.result-short-form a.result-short-form-link:visited, .address-result-hier
 
 .standout {
     color: #00914e;
-    font-weight: bold;
-    font-size: 22px;
 }
 
-
-
-.content-container .panel-match {
-    max-width: 960px;
-}
 
 table.address-result-table tr td:first-child {
     padding: 0 50px 0 0;
-}
-
-table.address-result-table tr td:last-child {
-    font-weight: bold;
 }
 
 section.address-result-hierarchy {
@@ -1353,27 +1069,5 @@ table.address-result-hierarchy-set tbody tr td:first-child {
     margin: 20px 0px 30px 0px;
 }
 
-
-
-@media (max-width: 1020px) {
-
-    div.content-container, section.match-form-container .match-form, .match-results, .content-container .panel-match {
-        max-width: 960px;
-    }
-
-}
-
-@media (max-width: 641px) {
-
-    div.content-container, section.match-form-container .match-form, .match-results, .content-container .panel-match {
-        max-width: 500px;
-    }
-
-    section.searchbox-results .searchfield-searchinput {
-        float: left;
-        min-width: 300px;
-    }
-
-}
 
 /* End Postcode Styles */

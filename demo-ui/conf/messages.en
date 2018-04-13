@@ -128,6 +128,7 @@ login.usernameph=ONS Network id
 login.passwordph=Network password
 login.login=Sign in
 login.clear=Clear
+login.forgotpassword=Forgot password
 
 main.beta=BETA
 main.licence1=All content is available under the
@@ -176,6 +177,7 @@ addressresult.position_primary=Primary property
 addressresult.position_secondary=Secondary properties
 addressresult.position_tertiary=Tertiary properties
 addressresult.position_quaternary=Quaternary properties
+addressresult.position_quinary=Quinary properties
 addressresult.address=Address
 
 postcode.title=Postcode demo - find an address by postcode

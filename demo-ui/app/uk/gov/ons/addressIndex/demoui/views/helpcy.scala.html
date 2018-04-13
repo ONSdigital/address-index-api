@@ -7,12 +7,12 @@ version: DemoUIAddressIndexVersionModule
 
 @main(title = messages("help.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("help")) {
 
-<div class="container">
+<div class="container mars">
     <div class="wrapper">
 
         <div class="group" id="help-container">
             <div class="col-12">
-                <h1>@messages("help.title")</h1>
+                <h1 class="jupiter">@messages("help.title")</h1>
                 <div class="no-print">
                     <ul>
                         <li>
@@ -44,7 +44,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="introduction"></a>
-                    <h1>Cyflwyniad</h1>
+                    <h2 class="saturn">Cyflwyniad</h2>
                     <p>Mae'r Rhyngwyneb Defnyddiwr Mynegai Cyfeiriad (UI) yn cynnig chwilio gyfeiriad a gwasanaeth paru ar gyfer defnyddwyr ar y rhwydwaith y Swyddfa Ystadegau Gwladol. I logio i mewn i'r gwasanaeth, rhowch yr un enw defnyddiwr a'r cyfrinair a ddefnyddiwyd i fewngofnodi i mewn i'ch cyfrifiadur / Laptop.</p>
                     <p>Os ydych chi ar y rhwydwaith SYG ac yn gallu cael mynediad i'r gwasanaeth, anfonwch e-bost <a href="mailto:ai.users@@ons.gov.uk">Mynegai Cyfeiriad</a></p>
                     <p>Darparu mynediad i ddefnyddwyr y tu allan i'r rhwydwaith ONS, OGDs bennaf, bydd y gwasanaeth Mynegai Cyfeiriad fod yn hygyrch drwy ddefnyddio Rhaglen Rhyngwyneb Cais (API)</p>
@@ -53,7 +53,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="login"></a>
-                    <h1>Mewngofnodi</h1>
+                    <h2 class="saturn">Mewngofnodi</h2>
                     <ol>
                         <li>Agor porwr gwe ac yn mynd i <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
 
@@ -65,7 +65,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="search_single"></a>
-                    <h1>Chwilio am Cyfeiriad Sengl</h1>
+                    <h2 class="saturn">Chwilio am Cyfeiriad Sengl</h2>
 
                     <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Dod o hyd i gyfeiriad</div>
                     <img src='@routes.Assets.versioned("images/help/single_1_cy.jpg").toString'>
@@ -99,7 +99,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="search_postcode"></a>
-                    <h1>Chwilio am gyfeiriad yn ôl cod post</h1>
+                    <h2 class="saturn">Chwilio am gyfeiriad yn ôl cod post</h2>
 
                     <div>1. O'r dudalen hafan Mynegai cyfeiriad, cliciwch canfod cyfeiriad gan cod post.</div>
                     <img src='@routes.Assets.versioned("images/help/postcode-home-cy.jpg").toString'>
@@ -127,7 +127,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="search_multiple"></a>
-                    <h1>Chwilio am Cyfeiriadau Lluosog</h1>
+                    <h2 class="saturn">Chwilio am Cyfeiriadau Lluosog</h2>
 
                     <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Match cyfeiriadau lluosog</div>
                     <img src='@routes.Assets.versioned("images/help/multiple_1_cy.jpg").toString'>
@@ -170,7 +170,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="clerical"></a>
-                    <h1>Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</h1>
+                    <h2 class="saturn">Perfformio chwiliad uwch drwy ddefnyddio'r Offeryn Clerigol</h2>
 
                     <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch offeryn Clerigol</div>
                     <img src='@routes.Assets.versioned("images/help/clerical_1_cy.jpg").toString'>
@@ -184,7 +184,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="debug"></a>
-                    <h1>Debug y Elastig Ymholiad Chwilio</h1>
+                    <h2 class="saturn">Debug y Elastig Ymholiad Chwilio</h2>
 
                     <div>Mae'r offeryn hwn yn caniatáu i wyddonwyr data i weld yr ymholiad chwilio elastig sylfaenol</div>
                     <div>1. O'r Cyfeiriad dudalen gartref Mynegai, cliciwch Arddangos ES Ymholiad</div>
@@ -198,7 +198,7 @@ version: DemoUIAddressIndexVersionModule
 
                 <div>
                     <a name="notes"></a>
-                    <h1>Nodiadau ychwanegol</h1>
+                    <h2 class="saturn">Nodiadau ychwanegol</h2>
                     <ol>
                         <li><strong>Edrych ar y Safle Yn Gymraeg</strong> - Yn Chrome ewch i Settings, lleoliadau Uwch, Ieithoedd, os nad y Gymraeg ar y rhestr, ychwanegu 'i ag y botwm Ychwanegu. Llusgwch Gymraeg i'r top a chliciwch Gorffen. Mae'r UI yn awr yn y modd y Gymraeg. Llusgwch y Gymraeg yn is na Saesneg i toggle yn ôl.</li>
                         <li><strong>Dilysu a Chyfeiriad Fformat</strong> - Yr unig dilysu wneud yw i wirio bod llinyn cyfeiriad yn cael ei gyflenwi (os nad yn cael neges gwall cliciadwy). Dim gwiriadau yn cael eu gwneud o ran pa gyfeiriad rannau yn cael eu cynnwys. Beth bynnag yn cael ei gyflenwi yn cael ei brosesu gan y API ac os nad oes unrhyw gemau nad oes unrhyw gemau. Yr eithriad i hyn yw os yw'r mewnbwn yn dim ond nifer, tybir i fod yn UPRN ac yn cyfateb yn unol â hynny.</li>

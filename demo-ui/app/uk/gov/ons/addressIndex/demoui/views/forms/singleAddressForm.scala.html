@@ -1,7 +1,7 @@
 @(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String)(implicit messages: Messages)
 @import helper._
 
-<fieldset class="searchfield">
+<fieldset class="searchfield venus">
     <div class="group">
         @if(display == "inline") {
         <div class="col-6">
@@ -9,7 +9,7 @@
                 @inputText(
                 singleSearchForm("address"),
                 args = '_id -> "numberOrName",
-                'class -> "form-control",
+                'class -> "form-control mars",
                 '_label -> "",
                 'placeholder -> placeholder
                 )
@@ -17,7 +17,7 @@
         </div>
         <div class="col-2">
             <dl style="padding: 0.4rem 0;">
-                <input type="submit" id="submit" value='@messages("single.searchbut")' />
+                <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
             </dl>
         </div>
         } else {
@@ -26,13 +26,13 @@
                 @inputText(
                 singleSearchForm("address"),
                 args = '_id -> "numberOrName",
-                'class -> "form-control",
+                'class -> "form-control mars",
                 '_label -> "",
                 'placeholder -> placeholder
                 )
             </div>
 
-            <input type="submit" id="submit" value='@messages("single.searchbut")' />
+            <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
 
         </div>
 
@@ -46,7 +46,7 @@
             inputText(
             singleSearchForm("filter"),
             args = '_id -> "presetOrCode",
-            'class -> "form-control",
+            'class -> "form-control mars",
             '_label -> labelfilter,
             'placeholder -> placeholderfilter
             )

@@ -1,7 +1,7 @@
 @(postcodeForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm], display: String, showfilter: Boolean, labelsearch: String, placeholder: String, labelfilter: String, placeholderfilter: String)(implicit messages: Messages)
 @import helper._
 
-<fieldset class="searchfield">
+<fieldset class="searchfield venus">
     <div class="group">
         @if(display == "inline") {
             <div class="col-6">
@@ -9,7 +9,7 @@
                     @inputText(
                     postcodeForm("address"),
                     args = '_id -> "numberOrName",
-                    'class -> "form-control",
+                    'class -> "form-control mars",
                     '_label -> labelsearch,
                     'placeholder -> placeholder
                     )
@@ -17,7 +17,7 @@
             </div>
             <div class="col-2">
                 <dl style="padding: 0.4rem 0;">
-                    <input type="submit" id="submit" value='@messages("single.searchbut")' />
+                    <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
                 </dl>
             </div>
         } else {
@@ -26,13 +26,13 @@
                     @inputText(
                     postcodeForm("address"),
                     args = '_id -> "numberOrName",
-                    'class -> "form-control",
+                    'class -> "form-control mars",
                     '_label -> labelsearch,
                     'placeholder -> placeholder
                     )
                 </div>
 
-                <input type="submit" id="submit" value='@messages("single.searchbut")' />
+                <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
 
             </div>
 
@@ -47,7 +47,7 @@
             inputText(
             postcodeForm("filter"),
             args = '_id -> "presetOrCode",
-            'class -> "form-control",
+            'class -> "form-control mars",
             '_label -> labelfilter,
             'placeholder -> placeholderfilter
             )

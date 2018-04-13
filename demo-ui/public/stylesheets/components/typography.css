@@ -1,0 +1,75 @@
+@charset "UTF-8";
+
+.jupiter {
+    font-family: 'Lato Bold', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.saturn {
+    font-family: 'Lato Bold', sans-serif;
+    font-size: 1.556rem;
+    font-weight: 700;
+}
+
+.neptune {
+    font-family: 'Lato Bold', sans-serif;
+    font-size: 1.222rem;
+    font-weight: 700;
+}
+
+.venus {
+    font-family: 'Lato Bold', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.mars {
+    font-family: 'Lato Regular', sans-serif;
+    font-size: 1rem;
+}
+
+.mercury {
+    font-family: 'Lato Bold', sans-serif;
+    font-size: 0.8889rem;
+    font-weight: 700;
+}
+
+.pluto {
+    font-family: 'Lato Regular', sans-serif;
+    font-size: 0.8889rem;
+}
+
+
+
+@media only screen and (max-width: 1007px) {
+
+.jupiter {
+    font-size: 1.5556rem;
+}
+
+.saturn {
+    font-size: 1.333rem;
+}
+
+.neptune {
+    font-size: 1.111rem;
+}
+
+.venus {
+    font-size: 0.8889rem;
+}
+
+.mars {
+    font-size: 0.8889rem;
+}
+
+.mercury {
+    font-size: 0.7778rem;
+}
+
+.pluto {
+    font-size: 0.7778rem;
+}
+
+}

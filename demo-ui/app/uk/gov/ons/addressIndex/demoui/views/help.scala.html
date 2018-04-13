@@ -7,12 +7,12 @@
 
 @main(title = messages("help.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("help")) {
 
-    <div class="container">
+    <div class="container mars">
         <div class="wrapper">
 
             <div class="group" id="help-container">
                 <div class="col-12">
-                    <h1>@messages("help.title")</h1>
+                    <h1 class="jupiter">@messages("help.title")</h1>
                     <div class="no-print">
                         <ul>
                             <li>
@@ -43,7 +43,7 @@
                     </div>
                     <div>
                         <a name="introduction"></a>
-                        <h2>Introduction</h2>
+                        <h2 class="saturn">Introduction</h2>
                         <p>The Address Index User Interface (UI) provides an address searching and matching service to users on the ONS network. To log in to the service, enter the same username and password used to log into your PC/Laptop.</p>
                         <p>If you are on the ONS network and are unable to access the service, please email <a href="mailto:ai.users@@ons.gov.uk">Address Index</a></p>
                         <p>To provide access to users outside the ONS network, mainly Other Government Departments, the Address Index service will be accessible through the use of an Application Program Interface (API).</p>
@@ -52,7 +52,7 @@
 
                     <div>
                         <a name="login"></a>
-                        <h2>Login</h2>
+                        <h2 class="saturn">Login</h2>
                         <ol>
                             <li>Open a web browser and go to <a href="http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/">http://addressindex-ui.apps.cfnpt.ons.statistics.gov.uk/</a></li>
 
@@ -64,7 +64,7 @@
 
                     <div>
                         <a name="search_single"></a>
-                        <h2>Search for a Single Address</h2>
+                        <h2 class="saturn">Search for a Single Address</h2>
 
                         <div>1. From the Address Index home page, click Find an address.</div>
                         <img src='@routes.Assets.versioned("images/help/single_1.jpg").toString'>
@@ -99,7 +99,7 @@
 
                     <div>
                         <a name="search_postcode"></a>
-                        <h2>Search for an address by postcode</h2>
+                        <h2 class="saturn">Search for an address by postcode</h2>
 
                         <div>1. From the Address Index home page, click Find an address by postcode.</div>
                         <img src='@routes.Assets.versioned("images/help/postcode-home.jpg").toString'>
@@ -127,7 +127,7 @@
 
                     <div>
                         <a name="search_multiple"></a>
-                        <h2>Search for  Multiple Addresses</h2>
+                        <h2 class="saturn">Search for  Multiple Addresses</h2>
 
                         <div>1. From the Address Index home page, click Match multiple addresses</div>
                         <img src='@routes.Assets.versioned("images/help/multiple_1.jpg").toString'>
@@ -171,7 +171,7 @@
 
                     <div>
                         <a name="clerical"></a>
-                        <h2>Perform an advanced search using the Clerical Tool</h2>
+                        <h2 class="saturn">Perform an advanced search using the Clerical Tool</h2>
 
                         <div>1. From the Address Index home page, click Clerical tool. This function is intended for expert users and provides the ability to query details of specific fields included in AddressBase.</div>
                         <img src='@routes.Assets.versioned("images/help/clerical_1.jpg").toString'>
@@ -185,7 +185,7 @@
 
                     <div>
                         <a name="debug"></a>
-                        <h2>Debug the Elastic Search Query</h2>
+                        <h2 class="saturn">Debug the Elastic Search Query</h2>
 
                         <div>This tool is for expert users and reports the underlying elastic search query</div>
                         <div>1. From the Address Index home page, click Display ES Query</div>
@@ -199,7 +199,7 @@
 
                     <div>
                         <a name="notes"></a>
-                        <h2>Technical Notes</h2>
+                        <h2 class="saturn">Technical Notes</h2>
                         <ol>
                             <li><strong>Viewing Site In Welsh</strong> - In Chrome go to Settings, Advanced settings, Languages, if Welsh is not on the list, add it with the Add button. Drag Welsh to the top and click Finish. The UI is now in Welsh mode. Drag Welsh below English to toggle back.</li>
                             <li><strong>Validation and Address Format</strong> - The only validation done on the input string is to check that a non-empty string is supplied. No checks are made as to what address parts are included. Whatever is supplied is processed by the API.  The exception to this is if the input is only a number, it is assumed to be a UPRN and matched accordingly.</li>
