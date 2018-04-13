@@ -51,7 +51,7 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -73,6 +73,13 @@ class AddressController @Inject()(
     val offval = offset.getOrElse(defOffset.toString)
 
     val filterString = filter.getOrElse("")
+
+//    val hist = Try(historical.toBoolean).getOrElse(true)
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
 
     // validate radius paramas
     val rangeVal = rangekm.getOrElse("")
@@ -99,7 +106,7 @@ class AddressController @Inject()(
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
-        isInput = true, input = input, offset = offval, limit = limval, filter = filterString,
+        isInput = true, input = input, offset = offval, limit = limval, filter = filterString, historical = hist,
         rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
@@ -173,7 +180,7 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString, rangeVal, latVal, lonVal)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -226,7 +233,7 @@ class AddressController @Inject()(
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
@@ -239,13 +246,18 @@ class AddressController @Inject()(
 
     val uprnInvalid = Try(uprn.toLong).isFailure
 
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         isUprn = true, uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid)
+        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
     }
 
     if (sourceStatus == missing) {
@@ -264,7 +276,7 @@ class AddressController @Inject()(
       writeSplunkLogs(badRequestErrorMessage = UprnNotNumericAddressResponseError.message)
       futureJsonBadRequest(UprnNotNumeric)
     } else {
-      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
+      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn, hist)
       request.map {
         case Some(hybridAddress) =>
 
@@ -305,7 +317,7 @@ class AddressController @Inject()(
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -329,13 +341,18 @@ class AddressController @Inject()(
 
     val filterString = filter.getOrElse("")
 
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isPostcode = true, postcode = postcode, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid)
+        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
     }
 
     val limitInvalid = Try(limval.toInt).isFailure
@@ -385,7 +402,7 @@ class AddressController @Inject()(
 
       //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString)
+      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, None, hist)
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -436,7 +453,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -445,6 +462,11 @@ class AddressController @Inject()(
     // check source
     val source = request.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
 
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
@@ -463,7 +485,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress)
+      bulkQuery(requestsData, configOverwrite, limitPerAddress, false, hist)
     }
   }
 
@@ -476,7 +498,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -485,6 +507,11 @@ class AddressController @Inject()(
     // check source
     val source = request.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
 
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
@@ -503,7 +530,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress, includeFullAddress = true)
+      bulkQuery(requestsData, configOverwrite, limitPerAddress, includeFullAddress = true, hist)
     }
   }
 
@@ -511,7 +538,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitPerAddress: Option[Int]): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -520,6 +547,11 @@ class AddressController @Inject()(
     // check source
     val source = request.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
 
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
@@ -539,7 +571,7 @@ class AddressController @Inject()(
       }
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress)
+      bulkQuery(requestsData, configOverwrite, limitPerAddress, false, hist)
     }
   }
 
@@ -548,7 +580,8 @@ class AddressController @Inject()(
     requestData: Stream[BulkAddressRequestData],
     configOverwrite: Option[QueryParamsConfig],
     limitPerAddress: Option[Int],
-    includeFullAddress: Boolean = false
+    includeFullAddress: Boolean = false,
+    historical: Boolean
   )(implicit request: Request[_]): Result = {
 
     val networkid = request.headers.get("authorization").getOrElse("Anon").split("_").headOption.getOrElse("")
@@ -557,7 +590,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite)
+    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite, historical)
 
     logger.info(s"#bulkQuery processed")
 
@@ -577,7 +610,7 @@ class AddressController @Inject()(
         // this is to verbose to log by default
         Splunk.trace(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
           formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
-          score = addressBulkResponseAddress.score.toString, uuid = uuid, networkid = networkid)
+          score = addressBulkResponseAddress.score.toString, uuid = uuid, networkid = networkid, historical = historical)
 
         addressBulkResponseAddress
       }
@@ -619,6 +652,7 @@ class AddressController @Inject()(
     miniBatchSize: Int,
     limitPerAddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
+    historical: Boolean,
     canUpScale: Boolean = true,
     successfulResults: Stream[Seq[BulkAddress]] = Stream.empty
   ): Stream[Seq[BulkAddress]] = {
@@ -635,7 +669,7 @@ class AddressController @Inject()(
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
     val addressesPerAddress = limitPerAddress.getOrElse(conf.config.bulk.limitPerAddress)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite), Duration.Inf)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, historical), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -655,7 +689,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, historical, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -670,10 +704,11 @@ class AddressController @Inject()(
   def queryBulkAddresses(
     inputs: Stream[BulkAddressRequestData],
     limitPerAddress: Int,
-    configOverwrite: Option[QueryParamsConfig] = None
+    configOverwrite: Option[QueryParamsConfig] = None,
+    historical: Boolean
   ): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress, configOverwrite)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress, configOverwrite, historical)
 
     val successfulAddresses: Future[Stream[Seq[BulkAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
 
@@ -719,7 +754,7 @@ class AddressController @Inject()(
 
   /**
     * Method to check source of query
-    * @param apiKey
+    * @param source
     * @return not required, valid, invalid or missing
     */
   def checkSource(source: String): String = {

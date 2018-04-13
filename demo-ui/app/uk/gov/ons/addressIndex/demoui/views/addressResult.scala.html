@@ -1,4 +1,5 @@
 @import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+@import uk.gov.ons.addressIndex.model.db.index.ExpandedRelative
 @import uk.gov.ons.addressIndex.parsers.Tokens
 @import java.text.SimpleDateFormat
 
@@ -7,6 +8,7 @@ address: AddressResponseAddress,
 filter: String,
 maxScore: Double,
 classification: Option[Map[String, String]],
+expandedRels: Option[Seq[ExpandedRelative]],
 tokens: Map[String, String] = Map.empty[String, String],
 pageNum: Int = 0,
 index: Int = 0,
@@ -493,7 +495,7 @@ apiKey: String = ""
 
             <section class="address-result-hierarchy">
                 <h2 class="saturn">@messages("addressresult.address_hierarchy")</h2>
-                @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
+                @expandedRels.getOrElse(Seq()).zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary", "Quinternary"), "", "").filter(element => element._1 != "").map { case (expandedRelative: uk.gov.ons.addressIndex.model.db.index.ExpandedRelative, position: String) =>
                 <article class="address-result-hierarchy-single">
                     @if(position == "Primary") {<h3 class="neptune"><strong>@messages("addressresult.position_primary")</strong></h3>}
                     @if(position == "Secondary") {<h3 class="neptune"><strong>@messages("addressresult.position_secondary")</strong></h3>}
@@ -507,9 +509,13 @@ apiKey: String = ""
                             </tr>
                         </thead>
                         <tbody id="@position@address.uprn">
-                            @relative.siblings.sorted.map { uprn =>
-                            <script>hierarchyResult("@uprn", "@position@address.uprn", '@apiUrl', '@apiKey')</script>
-                            }
+                        @expandedRelative.siblings.map { expandedSibling =>
+                        <tr><td><a href="@expandedSibling.uprn">@expandedSibling.uprn</a></td>
+                            <td>
+                                @expandedSibling.formattedAddress
+                            </td>
+                        </tr>
+                        }
                         </tbody>
                     </table>
                 </article>

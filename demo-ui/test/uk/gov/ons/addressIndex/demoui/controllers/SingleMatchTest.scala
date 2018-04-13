@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
-import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -27,6 +27,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Search for an address"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
       val response = new SingleMatchController(
@@ -36,6 +37,7 @@ class SingleMatchTest extends PlaySpec with Results {
         langs,
         apiClient,
         classHierarchy,
+        expandedRels,
         version)
         .showSingleMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
@@ -55,6 +57,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
       val response = new SingleMatchController(
@@ -64,6 +67,7 @@ class SingleMatchTest extends PlaySpec with Results {
         langs,
         apiClient,
         classHierarchy,
+        expandedRels,
         version)
         .showSingleMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
@@ -83,7 +87,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter an address</span></div>"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
-
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
       // When
       val response = new SingleMatchController(
         controllerComponents,
@@ -92,6 +96,7 @@ class SingleMatchTest extends PlaySpec with Results {
         langs,
         apiClient,
         classHierarchy,
+        expandedRels,
         version)
         .doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
       val content = contentAsString(response)
@@ -113,6 +118,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val inputAddress = "7 EX2 6GA"
       val filter = ""
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
       val response = new SingleMatchController(
@@ -122,6 +128,7 @@ class SingleMatchTest extends PlaySpec with Results {
         langs,
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
+        expandedRels,
         version)
       .doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
@@ -143,6 +150,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val inputAddress = "7 EX2 6GA"
       val filter = "RD"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
       val response = new SingleMatchController(
@@ -152,6 +160,7 @@ class SingleMatchTest extends PlaySpec with Results {
         langs,
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
+        expandedRels,
         version)
         .doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)

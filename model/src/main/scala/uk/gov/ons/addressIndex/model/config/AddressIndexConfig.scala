@@ -219,6 +219,8 @@ case class BatchConfig(
 case class ApiConfig(
   host: String,
   port: Int,
+  ajaxHost: String,
+  ajaxPort: String,
   gatewayPath: String
 )
 

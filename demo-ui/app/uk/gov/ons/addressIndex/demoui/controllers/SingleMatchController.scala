@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
@@ -12,7 +12,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
-import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander}
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
 
@@ -35,6 +35,7 @@ class SingleMatchController @Inject()(
    langs: Langs,
    apiClient: AddressIndexClientInstance,
    classHierarchy: ClassHierarchy,
+   relativesExpander: RelativesExpander,
    version: DemoUIAddressIndexVersionModule
 )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
 
@@ -44,8 +45,8 @@ class SingleMatchController @Inject()(
   val pageSize = conf.config.limit
   val maxOff = conf.config.maxOffset
   val maxPages = (maxOff + pageSize - 1) / pageSize
-  val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
-
+  // val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
+  val apiUrl = conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath
   /**
     * Present empty form for user to input address
     *
@@ -314,6 +315,11 @@ class SingleMatchController @Inject()(
           val classCodes: Map[String, String] = nags.map(nag =>
             (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
+          val rels = resp.response.address.map(_.relatives)
+
+          val expandedRels = Try(relativesExpander.expandRelatives(apiKey, rels.getOrElse(Seq()))).getOrElse(Seq())
+     //     logger info("expanded rels = " + expandedRels.toString())
+
           val warningMessage =
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
@@ -325,6 +331,7 @@ class SingleMatchController @Inject()(
             warningMessage = warningMessage,
             addressByUprnResponse = Some(resp.response),
             classification = Some(classCodes),
+            expandedRels = Some(expandedRels),
             version = version,
             isClerical = false,
             apiUrl = apiUrl,
@@ -382,6 +389,11 @@ class SingleMatchController @Inject()(
           val classCodes: Map[String, String] = nags.map(nag =>
             (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
+          val rels = resp.response.address.map(_.relatives)
+
+          val expandedRels = Try(relativesExpander.expandRelatives(apiKey, rels.getOrElse(Seq()))).getOrElse(Seq())
+          //logger info("expanded rels = " + expandedRels.toString())
+
           val warningMessage =
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
@@ -393,6 +405,7 @@ class SingleMatchController @Inject()(
             warningMessage = warningMessage,
             addressByUprnResponse = Some(resp.response),
             classification = Some(classCodes),
+            expandedRels = Some(expandedRels),
             version = version,
             isClerical = true,
             apiUrl = apiUrl,
