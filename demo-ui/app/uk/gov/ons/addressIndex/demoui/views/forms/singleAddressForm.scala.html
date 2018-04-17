@@ -59,7 +59,7 @@
                 <div>
 
                     Historical value = @singleSearchForm("historical").value
-                    @if(singleSearchForm("historical") == true){
+                    @if(singleSearchForm("historical").value.getOrElse(true) == true){
 
                     <input type="radio" name="historical" value='true' class="form-control mars" checked><label for="true">Yes</label>
                     <input type="radio" name="historical" value='false' class="form-control mars"><label for="false">No</label>
