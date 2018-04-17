@@ -304,6 +304,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           easting = 291398,
           northing = 93861
         )),
+        confidenceScore = 1,
         underlyingScore = 1,
         bespokeScore = expectedBespokeScore
       )

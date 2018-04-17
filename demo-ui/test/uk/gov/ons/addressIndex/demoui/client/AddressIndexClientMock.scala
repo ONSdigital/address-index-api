@@ -128,6 +128,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
+    confidenceScore = 1.0f,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScore)
   )

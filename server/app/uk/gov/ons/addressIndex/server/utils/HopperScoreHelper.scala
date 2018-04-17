@@ -148,7 +148,7 @@ object HopperScoreHelper  {
       respUnitScoreDebug,
       ambiguityPenalty)
 
-    address.copy(bespokeScore = Some(bespokeScore))
+    address.copy(bespokeScore = Some(bespokeScore),confidenceScore=1F)
   }
 
   /**

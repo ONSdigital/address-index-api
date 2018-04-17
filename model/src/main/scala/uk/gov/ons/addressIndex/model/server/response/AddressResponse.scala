@@ -252,6 +252,7 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
+  confidenceScore: Float,
   underlyingScore: Float,
   bespokeScore: Option[AddressResponseScore]
 )
@@ -289,6 +290,7 @@ object AddressResponseAddress {
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      confidenceScore = other.score,
       underlyingScore = other.score,
       bespokeScore = None
     )

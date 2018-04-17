@@ -180,14 +180,20 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString, rangeVal, latVal, lonVal, None, hist)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt+1, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
 
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+        val elasticDenominator = Try(addresses(0).underlyingScore).getOrElse(1F) - Try(addresses(1).underlyingScore).getOrElse(0F)
+
+
+        val scoredAdresses = {
+          if (addresses.length > 1) HopperScoreHelper.getScoresForAddresses(addresses.dropRight(1), tokens)
+          else HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+        }
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
