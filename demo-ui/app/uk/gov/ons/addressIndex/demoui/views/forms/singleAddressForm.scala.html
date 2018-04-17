@@ -57,10 +57,12 @@
             <div class="col-4">
                 <div>Include historical data?</div>
                 <div>
-                    @if(singleSearchForm("historical").value == "true"){
+                    @if(singleSearchForm("historical").value == true){
 
                     <input type="radio" name="historical" value='true' class="form-control mars" checked><label for="true">Yes</label>
-                    }else
+                    <input type="radio" name="historical" value='false' class="form-control mars"><label for="false">No</label>
+                    }else{
+                    <input type="radio" name="historical" value='true' class="form-control mars"><label for="true">Yes</label>
                     <input type="radio" name="historical" value='false' class="form-control mars" checked><label for="false">No</label>
                     }
                 </div>
