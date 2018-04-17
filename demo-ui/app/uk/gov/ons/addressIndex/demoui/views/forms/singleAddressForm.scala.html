@@ -55,18 +55,13 @@
 
         @if(showfilter == true) {
             <div class="col-4">
-                <div>Include historical data?</div>
                 <div>
 
-                    Historical value = @singleSearchForm("historical").value
-                    @if(singleSearchForm("historical").value.getOrElse(true) == true){
+                    @inputRadioGroup(
+                    singleSearchForm("historical"),
+                    options = Seq("true"->"Yes","false"->"No"),
+                    '_label -> "Include historical data?")
 
-                    <input type="radio" name="historical" value='true' class="form-control mars" checked><label for="true">Yes</label>
-                    <input type="radio" name="historical" value='false' class="form-control mars"><label for="false">No</label>
-                    }else{
-                    <input type="radio" name="historical" value='true' class="form-control mars"><label for="true">Yes</label>
-                    <input type="radio" name="historical" value='false' class="form-control mars" checked><label for="false">No</label>
-                    }
                 </div>
             </div>
         }
