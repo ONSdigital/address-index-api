@@ -52,18 +52,17 @@
             )
             }}
         </div>
-        <div class="col-4">
-            @if(showfilter == true) {
-                <dl>
-                    <dt>
-                        <label for="historical">Include historical data?</label>
-                    </dt>
-                    <dd>
-                        <input type="checkbox" name="historical" id="historical" value='@{singleSearchForm("historical").value}' class="form-control mars" @if(singleSearchForm("historical").value == true){checked}>
-                    </dd>
-                </dl>
-            }
-        </div>
+
+        @if(showfilter == true) {
+            <div class="col-4">
+                <div>Include historical data?</div>
+                <div>
+                    <input type="radio" name="historical" value='true' class="form-control mars"><label for="true">Yes</label>
+                    <input type="radio" name="historical" value='false' class="form-control mars"><label for="false">No</label>
+                </div>
+            </div>
+        }
+
     </div>
 
 </fieldset>

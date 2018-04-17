@@ -478,22 +478,13 @@ input#pass.form-control {
 
 input[type="radio"].form-control {
      border: 0px;
-     width: 1.8em;
-     height: 1.8em;
-}
-
-fieldset.radio {
-    margin-bottom: 10px;
+     width: 1em;
+     height: 1em;
 }
 
 input[type="radio"].form-control + label {
-    width: 100px;
-    height: 40px;
+    margin: 0 20px 0 8px;
 
-    margin-right: 10px;
-    border: 0px;
-    padding: 10px 24px 10px 24px;
-    background-color:#DFE0E2;
 }
 
 input[type="radio"]#format-paf.form-control {
