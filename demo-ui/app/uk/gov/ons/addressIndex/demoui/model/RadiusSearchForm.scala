@@ -11,7 +11,8 @@ case class RadiusSearchForm(
                              filter: String,
                              lat: String,
                              lon: String,
-                             rangekm: String
+                             rangekm: String,
+                             historical: Boolean
                            )
 
 object RadiusSearchForm {

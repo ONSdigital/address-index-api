@@ -8,6 +8,7 @@ filter: Option[String],
 rangekm: Option[String],
 lat: Option[String],
 lon: Option[String],
+historical: Boolean,
 warningMessage : Option[String],
 pageNum: Int,
 pageSize: Int,
@@ -27,31 +28,35 @@ version: DemoUIAddressIndexVersionModule
 
 <div class="container">
 
+    @warningMessage.map { message =>
+    <div class="wrapper">
+        <div class="group">
+            <div id="warning-message" class="col-6">
+                <div class="warning-error-message venus">A Problem Has Occured</div>
+                <div class="warning-error-suggestion mars" role="alert"><span onclick="setFocus('address');">@message</span></div>
+            </div>
+        </div>
+    </div>
+    }
+
     <section class="match-form-container">
         <div class="wrapper">
             <div class="group">
                 <h1 class="jupiter col-12">@messages("radius.sfatext")</h1>
-
-                <section class="searchbox-results">
-                    @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatch) {
-                    <div id="search-form" class="search-bar-active">
-                        @forms.radiusForm(radiusSearchForm)
-                    </div>
-                    }
-                </section>
             </div>
+
+            <section class="@if(warningMessage){search-error}else{searchbox-results}">
+                @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatch) {
+                <div id="search-form" class="search-bar-active">
+                    @forms.radiusForm(radiusSearchForm)
+                </div>
+                }
+            </section>
         </div>
     </section>
 
     <div class="wrapper">
         <div class="group">
-            @warningMessage.map { message =>
-            <div id="warning-message col-12">
-                <div class="result-content">
-                    <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
-                </div>
-            </div>
-            }
 
             <section class="postcode-match-results-container col-12">
                 <div class="postcode-match-results-count saturn">
@@ -65,11 +70,12 @@ version: DemoUIAddressIndexVersionModule
                     @addressShortForm(
                     address,
                     radiusSearchForm("filter").value.getOrElse(""),
+                    radiusSearchForm("historical").value,
                     aresponse.maxScore,
                     classification
                     )
                     }
-                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius")
+                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value)
                     }
                 </div>
             </section>

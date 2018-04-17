@@ -8,7 +8,8 @@ import play.api.libs.json._
 
 case class PostcodeSearchForm(
  address: String,
- filter: String
+ filter: String,
+ historical: Boolean
 )
 
 object PostcodeSearchForm {
