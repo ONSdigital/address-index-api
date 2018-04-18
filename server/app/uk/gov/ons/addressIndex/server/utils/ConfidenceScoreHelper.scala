@@ -1,8 +1,6 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
-import uk.gov.ons.addressIndex.parsers.Tokens
 import scala.math._
 import scala.util.Try
 
@@ -36,8 +34,7 @@ object ConfidenceScoreHelper {
     def scores2 = scores.filter(_ < maxScore)
     def maxScore2 = Try(scores2.max).getOrElse(maxScore)
     logger.info("maxScore2="+maxScore2)
-    def testMean = Try(((maxScore +  maxScore2) / 2 ).toDouble).getOrElse(0D)
-    if (testMean == 0) Try((scores.max).toDouble).getOrElse(1D) else testMean
+    Try(((maxScore +  maxScore2) / 2 ).toDouble).getOrElse(1D)
   }
 
 }

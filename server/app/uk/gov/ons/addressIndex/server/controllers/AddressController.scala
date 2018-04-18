@@ -19,6 +19,7 @@ import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreH
 import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.control.NonFatal
+import scala.math._
 
 @Singleton
 class AddressController @Inject()(
@@ -178,7 +179,8 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt+1, filterString, rangeVal, latVal, lonVal, None, hist)
+      val limitExpanded = max(limitInt * 2,20)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -188,7 +190,9 @@ class AddressController @Inject()(
 
         logger.info("elasticDenominator=" + elasticDenominator)
 
-        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
+        val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
+
+        val sortedAddresses = scoredAddresses.sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limitInt)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
@@ -202,7 +206,7 @@ class AddressController @Inject()(
             dataVersion = dataVersion,
             response = AddressBySearchResponse(
               tokens = tokens,
-              addresses = scoredAdresses,
+              addresses = sortedAddresses,
               filter = filterString,
               rangekm = rangeVal,
               latitude = latVal,
