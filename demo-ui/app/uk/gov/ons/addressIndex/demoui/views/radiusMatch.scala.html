@@ -70,12 +70,12 @@ version: DemoUIAddressIndexVersionModule
                     @addressShortForm(
                     address,
                     radiusSearchForm("filter").value.getOrElse(""),
-                    radiusSearchForm("historical").value,
+                    radiusSearchForm("historical").value.getOrElse("true").toBoolean,
                     aresponse.maxScore,
                     classification
                     )
                     }
-                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value)
+                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean)
                     }
                 </div>
             </section>

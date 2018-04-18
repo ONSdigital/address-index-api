@@ -64,7 +64,7 @@ apiKey: String = ""
                 @addressShortForm(
                 address,
                 singleSearchForm("filter").value.getOrElse(""),
-                singleSearchForm("historical").value,
+                singleSearchForm("historical").value.getOrElse("true").toBoolean,
                 address.underlyingScore,
                 classification,
                 isClerical = isClerical,

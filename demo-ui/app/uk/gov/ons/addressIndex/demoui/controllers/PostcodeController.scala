@@ -57,7 +57,7 @@ class PostcodeController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeSearch(
         postcodeSearchForm = PostcodeController.form,
         filter = None,
-        historical = false,
+        historical = true,
         warningMessage = None,
         pageNum = 1,
         pageSize = pageSize,
