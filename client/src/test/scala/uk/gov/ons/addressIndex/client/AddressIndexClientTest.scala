@@ -31,6 +31,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     val actual = apiClient.uprnQueryWSRequest(
       request = AddressIndexUPRNRequest(
         uprn = 101010,
+        historical = true,
         id = UUID.randomUUID,
         apiKey = ""
       )
@@ -45,10 +46,12 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     val rangekm = "rangekm"
     val lat = "lat"
     val lon = "lon"
+    val historical = true
     val actual = apiClient.addressQueryWSRequest(
       request = AddressIndexSearchRequest(
         input = input,
         filter = filter,
+        historical = historical,
         rangekm = rangekm,
         lat = lat,
         lon = lon,
@@ -61,6 +64,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     val expected = Map(
       "input" -> Seq("input"),
       "filter" -> Seq("filter"),
+      "historical" -> Seq("true"),
       "rangekm" -> Seq("rangekm"),
       "lat" -> Seq("lat"),
       "lon" -> Seq("lon"),

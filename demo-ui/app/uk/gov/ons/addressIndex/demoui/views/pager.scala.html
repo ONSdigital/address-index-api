@@ -1,4 +1,4 @@
-@(pageNum: Int, pageSize: Int, pageMax: Int, address: String, filter: String, numResults: Long, action: String,  rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, bound:Int = 5)(implicit messages: Messages)
+@(pageNum: Int, pageSize: Int, pageMax: Int, address: String, filter: String, numResults: Long, action: String, historical: Boolean,  rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, bound:Int = 5)(implicit messages: Messages)
 
 @lowbound() = @{((pageNum.toDouble / bound).floor * bound) toInt}
 @highbound() = @{(
@@ -11,17 +11,17 @@
 <div id="pager">
     <div class="pager-container mars">
         @if(pageNum > 1){
-        <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(pageNum-1), Some(-1))}
-            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(pageNum-1), Some(-1))
-            else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(pageNum-1))
-            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(pageNum-1), rangekm, lat, lon)}}'><span class="pager-option">Previous</span></a>
+        <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(pageNum-1), Some(-1), Some(historical))}
+            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(pageNum-1), Some(-1), Some(historical))
+            else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(pageNum-1), Some(historical))
+            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(pageNum-1), rangekm, lat, lon, Some(historical))}}'><span class="pager-option">Previous</span></a>
         }
 
         @for(i <- lowbound().max(1) until pageNum) {
-            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(i), Some(-1))}
-                    else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(i), Some(-1))
-                    else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(i))
-                    else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(i), rangekm, lat, lon)}}'><span class="pager-option">@i</span></a>
+            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(i), Some(-1), Some(historical))}
+                    else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(i), Some(-1), Some(historical))
+                    else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(i), Some(historical))
+                    else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(i), rangekm, lat, lon, Some(historical))}}'><span class="pager-option">@i</span></a>
         }
 
         @if(numResults !=0){
@@ -29,17 +29,17 @@
         }
 
         @for(i <- pageNum+1 to highbound()) {
-            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(i), Some(-1))}
-                else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(i), Some(-1))
-                else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(i))
-                else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(i), rangekm, lat, lon)}}'><span class="pager-option">@i</span></a>
+            <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(i), Some(-1), Some(historical))}
+                else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(i), Some(-1), Some(historical))
+                else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(i), Some(historical))
+                else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(i), rangekm, lat, lon, Some(historical))}}'><span class="pager-option">@i</span></a>
         }
 
         @if(pageNum < ((numResults + pageSize - 1) / pageSize)){
-        <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(pageNum+1), Some(-1))}
-            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(pageNum+1), Some(-1))
-            else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(pageNum+1))
-            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(pageNum+1), rangekm, lat, lon)}}'><span class="pager-option">Next</span></a>
+        <a href='@{if (action == "clerical"){uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(address, filter, Some(pageNum+1), Some(-1), Some(historical))}
+            else if (action == "debug") uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(address, filter, Some(pageNum+1), Some(-1), Some(historical))
+            else if (action == "postcode") uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(address, filter, Some(pageNum+1), Some(historical))
+            else {uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(address, Some(filter), Some(pageNum+1), rangekm, lat, lon, Some(historical))}}'><span class="pager-option">Next</span></a>
         }
 
     </div>

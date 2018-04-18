@@ -50,6 +50,7 @@ trait AddressIndexClient {
       .withQueryStringParameters(
         "input" -> request.input,
         "filter" -> request.filter,
+        "historical" -> request.historical.toString,
         "rangekm" -> request.rangekm,
         "lat" -> request.lat,
         "lon" -> request.lon,
@@ -82,6 +83,7 @@ trait AddressIndexClient {
       .withQueryStringParameters(
         //"postcode" -> request.postcode,
         "filter" -> request.filter,
+        "historical" -> request.historical.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )

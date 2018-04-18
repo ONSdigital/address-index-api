@@ -3,6 +3,7 @@
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
     filter: String,
+    historical: Boolean,
     pageNum: Int,
     pageSize: Int,
     pageMax: Int,
@@ -25,6 +26,7 @@
                 @addressPartial(
                     address,
                     singleSearchForm("filter").value.getOrElse(""),
+                    singleSearchForm("historical").value,
                     aresponse.maxScore,
                     classification,
                     aresponse.tokens,
@@ -37,5 +39,5 @@
                 )
 
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction)
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value)
             }

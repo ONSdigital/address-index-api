@@ -57,6 +57,7 @@ class RadiusController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusSearch(
         radiusSearchForm = RadiusController.form,
         filter = None,
+        historical = false,
         rangekm = None,
         lat = None,
         lon = None,
@@ -91,6 +92,7 @@ class RadiusController @Inject()(
     val latText = optLat.getOrElse("")
     val optLon: Option[String] = Try(request.body.asFormUrlEncoded.get("lon").mkString).toOption
     val lonText = optLon.getOrElse("")
+    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     if (addressText.trim.isEmpty) {
       logger info "Radius Match with Empty search term"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
@@ -99,6 +101,7 @@ class RadiusController @Inject()(
         rangekm = None,
         lat = None,
         lon = None,
+        historical = historical,
         warningMessage = Some(messagesApi("radius.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -111,7 +114,7 @@ class RadiusController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical)))
       )
     }
   }
@@ -122,9 +125,9 @@ class RadiusController @Inject()(
     * @param input the term
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
 
-    val refererUrl = request.uri
+  val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
@@ -135,11 +138,13 @@ class RadiusController @Inject()(
       val rangeString = rangekm.getOrElse("")
       val latString = lat.getOrElse("")
       val lonString = lon.getOrElse("")
+      val historicalValue = historical.getOrElse(true)
       if (addressText.trim.isEmpty) {
         logger info ("Radius Match with expected search term missing")
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
           radiusSearchForm = RadiusController.form,
           filter = None,
+          historical = historicalValue,
           rangekm = None,
           lat = None,
           lon = None,
@@ -162,6 +167,7 @@ class RadiusController @Inject()(
             limit = limit,
             offset = offset,
             filter = filterText,
+            historical = historicalValue,
             rangekm = rangeString,
             lat = latString,
             lon = lonString,
@@ -169,7 +175,7 @@ class RadiusController @Inject()(
             apiKey = apiKey
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString))
+          val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue))
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -186,6 +192,7 @@ class RadiusController @Inject()(
             rangekm = rangekm,
             lat = lat,
             lon = lon,
+            historical = historicalValue,
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
@@ -211,7 +218,8 @@ object RadiusController {
       "filter" -> text,
       "rangekm" -> text,
       "lat" -> text,
-      "lon" -> text
+      "lon" -> text,
+      "historical" -> boolean
     )(RadiusSearchForm.apply)(RadiusSearchForm.unapply)
   )
 }

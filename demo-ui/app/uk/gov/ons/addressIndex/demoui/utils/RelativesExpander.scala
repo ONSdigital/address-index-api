@@ -41,6 +41,7 @@ class RelativesExpander @Inject ()(
       AddressIndexUPRNRequest(
         uprn = numericUPRN,
         id = UUID.randomUUID,
+        historical = true,
         apiKey = apiKey
       )
     ).map { resp: AddressByUprnResponseContainer =>

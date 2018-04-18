@@ -57,6 +57,7 @@ class PostcodeController @Inject()(
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeSearch(
         postcodeSearchForm = PostcodeController.form,
         filter = None,
+        historical = true,
         warningMessage = None,
         pageNum = 1,
         pageSize = pageSize,
@@ -82,11 +83,13 @@ class PostcodeController @Inject()(
     val addressText = optAddress.getOrElse("")
     val optFilter: Option[String] = Try(request.body.asFormUrlEncoded.get("filter").mkString).toOption
     val filterText = optFilter.getOrElse("")
+    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     if (addressText.trim.isEmpty) {
       logger info "Postcode Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
         postcodeSearchForm = PostcodeController.form,
         filter = None,
+        historical = historical,
         warningMessage = Some(messagesApi("postcode.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -99,7 +102,7 @@ class PostcodeController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, filterText, Some(1)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, filterText, Some(1), Some(historical)))
       )
     }
   }
@@ -110,7 +113,7 @@ class PostcodeController @Inject()(
     * @param postcode the postcode
     * @return result to view
     */
-  def doMatchWithInput(postcode: String, filter: String, page: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(postcode: String, filter: String, page: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
 
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
@@ -120,11 +123,13 @@ class PostcodeController @Inject()(
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
       val offset = offNum.toString
+      val historicalValue = historical.getOrElse(true)
       if (addressText.trim.isEmpty) {
         logger info "Postcode Match with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
           postcodeSearchForm = PostcodeController.form,
           filter = None,
+          historical = historicalValue,
           warningMessage = Some(messagesApi("postcode.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
@@ -142,13 +147,14 @@ class PostcodeController @Inject()(
           AddressIndexPostcodeRequest(
             postcode = addressText,
             filter = filterText,
+            historical = historicalValue,
             limit = limit,
             offset = offset,
             id = UUID.randomUUID,
             apiKey = apiKey
           )
         } map { resp: AddressByPostcodeResponseContainer =>
-          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText))
+          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText, historicalValue))
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -162,6 +168,7 @@ class PostcodeController @Inject()(
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
             postcodeSearchForm = filledForm,
             filter = None,
+            historical = historicalValue,
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
@@ -184,7 +191,8 @@ object PostcodeController {
   val form = Form(
     mapping(
       "address" -> text,
-      "filter" -> text
+      "filter" -> text,
+      "historical" -> boolean
     )(PostcodeSearchForm.apply)(PostcodeSearchForm.unapply)
   )
 }
