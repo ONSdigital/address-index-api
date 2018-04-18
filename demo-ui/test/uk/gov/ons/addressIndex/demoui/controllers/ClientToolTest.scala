@@ -33,6 +33,7 @@ class ClientToolTest extends PlaySpec with Results {
       // When
       val inputAddress = "7 GATE REACH EXETER EX2 6GA"
       val filter = ""
+      val historical = true
       val response = new ClericalToolController(
         controllerComponents,
         configuration,
@@ -42,7 +43,7 @@ class ClientToolTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatchWithInput(inputAddress, filter, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, filter, Some(1), Some(1), Some(historical)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -65,6 +66,7 @@ class ClientToolTest extends PlaySpec with Results {
       // When
       val inputAddress = "7 GATE REACH EXETER EX2 6GA"
       val filter = "residential"
+      val historical = true
       val response = new ClericalToolController(
         controllerComponents,
         configuration,
@@ -74,7 +76,7 @@ class ClientToolTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatchWithInput(inputAddress, filter, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, filter, Some(1), Some(1), Some(historical)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
