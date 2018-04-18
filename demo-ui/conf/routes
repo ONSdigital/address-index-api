@@ -29,10 +29,10 @@ POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.c
 GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String])
+GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
-GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: Option[String])
+GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: Option[String], historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
 POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
@@ -41,19 +41,19 @@ POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.c
 GET         /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int])
+GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int], historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
-GET         /clerical/uprn/:input               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long, filter: String)
+GET         /clerical/uprn/:input               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doUprnWithInput(input: Long, filter: String, historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
-GET         /clerical/result/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doGetResultClerical(input: String)
+GET         /clerical/result/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doGetResultClerical(input: String, historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
 GET         /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQuery()
 
 # ONS-Address Index Single Search Request
-GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int])
+GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int], historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
 POST        /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery
@@ -76,10 +76,10 @@ POST        /postcode/search                   uk.gov.ons.addressIndex.demoui.co
 GET         /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatchWithInput(postcode: String, filter: String, page: Option[Int])
+GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatchWithInput(postcode: String, filter: String, page: Option[Int], historical: Option[Boolean])
 
 # ONS-Address Index Single Search Request
-GET         /addresses/result/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetResult(input: String)
+GET         /addresses/result/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetResult(input: String, historical: Option[Boolean])
 
 # ONS-Address Index Single Search View
 GET         /radius                             uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage
@@ -91,5 +91,5 @@ POST        /radius/search                     uk.gov.ons.addressIndex.demoui.co
 GET         /radius/search                   uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /radius/search/:input            uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatchWithInput(input: String, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], page: Option[Int])
+GET         /radius/search/:input            uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatchWithInput(input: String, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], page: Option[Int], historical: Option[Boolean])
 

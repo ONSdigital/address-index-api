@@ -5,6 +5,7 @@
 @(
 address: AddressResponseAddress,
 filter: String,
+historical: Boolean,
 maxScore: Double,
 classification: Option[Map[String, String]],
 tokens: Map[String, String] = Map.empty[String, String],
@@ -24,9 +25,9 @@ apiKey: String = ""
 <article class="result-short-form">
 
     @if(isClerical == true){
-    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn)}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn, Some(historical))}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
     }else{
-    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn)}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn, Some(historical))}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
     }
 
     <table>
@@ -74,7 +75,7 @@ apiKey: String = ""
 
         @if(index != expandRow) {
             <div class="clericalInfo mars">
-                <a href="?filter=@filter&page=@{pageNum}&expand=@index#@index">@messages("clerical.addinfo")</a>
+                <a href="?filter=@filter&page=@{pageNum}&historical=@historical&expand=@index#@index">@messages("clerical.addinfo")</a>
             </div>
         }
 
@@ -83,7 +84,7 @@ apiKey: String = ""
 
             @if(index >= 0) {
                 <div class="clericalInfo mars">
-                    <a href="?filter=@{filter}&page=@{pageNum}&expand=-1#@index">Hide</a>
+                    <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&expand=-1#@index">Hide</a>
                 </div>
             }
 
@@ -484,7 +485,7 @@ apiKey: String = ""
 
             @if(index >= 0) {
             <div class="clericalInfo mars">
-                <a href="?filter=@{filter}&page=@{pageNum}&expand=-1#@index">Hide</a>
+                <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&expand=-1#@index&historical=@{historical}">Hide</a>
             </div>
             }
 

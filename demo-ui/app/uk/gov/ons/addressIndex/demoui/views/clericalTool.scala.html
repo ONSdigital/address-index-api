@@ -9,6 +9,7 @@ singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 warningMessage : Option[String],
 query: String,
 filter: String,
+historical: Boolean,
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
@@ -83,6 +84,7 @@ apiKey: String
                         @addressShortForm(
                         address,
                         singleSearchForm("filter").value.getOrElse(""),
+                        singleSearchForm("historical").value.getOrElse("true").toBoolean,
                         aresponse.maxScore,
                         classification,
                         aresponse.tokens,
@@ -95,7 +97,7 @@ apiKey: String
                         )
 
                         }
-                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction)
+                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean)
 
                     </div>
                 </section>

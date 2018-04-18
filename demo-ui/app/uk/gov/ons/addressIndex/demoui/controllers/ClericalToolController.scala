@@ -65,6 +65,7 @@ class ClericalToolController @Inject()(
       warningMessage = None,
       query = "",
       filter = "",
+      historical = false,
       pageNum = 1,
       pageSize = pageSize,
       pageMax = maxPages,
@@ -93,6 +94,7 @@ class ClericalToolController @Inject()(
   def doMatch(): Action[AnyContent] = Action { implicit request =>
     val addressText = Try(request.body.asFormUrlEncoded.get("address").mkString).getOrElse("")
     val filterText = Try(request.body.asFormUrlEncoded.get("filter").mkString).getOrElse("")
+    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     if (addressText.trim.isEmpty) {
       logger.info("Clerical Tool with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
@@ -102,6 +104,7 @@ class ClericalToolController @Inject()(
         warningMessage = Some(messagesApi("single.pleasesupply")),
         query = "",
         filter = "",
+        historical = historical,
         pageNum = 1,
         pageSize = pageSize,
         pageMax = maxPages,
@@ -118,9 +121,9 @@ class ClericalToolController @Inject()(
       )
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doUprnWithInput(addressText.toLong, filterText))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doUprnWithInput(addressText.toLong, filterText, Some(historical)))
     } else {
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(addressText, filterText, Some(1), Some(-1)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(addressText, filterText, Some(1), Some(-1), Some(historical)))
     }
   }
 
@@ -130,12 +133,13 @@ class ClericalToolController @Inject()(
     * @param input
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
  //     generateClericalView(input, page, expand, messagesApi("clerical.sfatext"), uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch, "clerical", messagesApi("clericalsearchform.placeholder"), apiKey)
       val addressText = input
       val filterText = filter
+      val historicalValue = historical.getOrElse(true)
       val expandr = expand.getOrElse(-1)
       val limit = pageSize.toString()
       val pageNum = page.getOrElse(1)
@@ -150,6 +154,7 @@ class ClericalToolController @Inject()(
           warningMessage = Some(messagesApi("single.pleasesupply")),
           query = "",
           filter = "",
+          historical = historicalValue,
           pageNum = 1,
           pageSize = pageSize,
           pageMax = maxPages,
@@ -174,6 +179,7 @@ class ClericalToolController @Inject()(
           AddressIndexSearchRequest(
             input = addressText,
             filter = filterText,
+            historical = historicalValue,
             limit = limit,
             rangekm = "",
             lat = "50.705948",
@@ -183,7 +189,7 @@ class ClericalToolController @Inject()(
             apiKey = apiKey
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue))
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -201,6 +207,7 @@ class ClericalToolController @Inject()(
             warningMessage = warningMessage,
             query = "",
             filter = "",
+            historical = historicalValue,
             pageNum = pageNum,
             pageSize = pageSize,
             pageMax = maxPages,
@@ -302,18 +309,20 @@ class ClericalToolController @Inject()(
     * @param input
     * @return result to view
     */
-  def doUprnWithInput(input : Long, filter: String) : Action[AnyContent] = Action.async { implicit request =>
+  def doUprnWithInput(input : Long, filter: String, historical: Option[Boolean]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
+    val historicalValue = historical.getOrElse(true)
     request.session.get("api-key").map { apiKey =>
    //   logger info("UPRN with supplied input address " + input)
       apiClient.uprnQuery(
         AddressIndexUPRNRequest(
           uprn = input,
           id = UUID.randomUUID,
-          apiKey = apiKey
+          apiKey = apiKey,
+          historical = historicalValue
         )
       ) map { resp: AddressByUprnResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.toString))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.toString, historicalValue))
 
         val nags = resp.response.address.flatMap(_.nag)
         val classCodes: Map[String, String] = nags.map(nag =>
@@ -327,6 +336,7 @@ class ClericalToolController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
           singleSearchForm = filledForm,
           filter = None,
+          historical = historicalValue,
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
@@ -348,20 +358,22 @@ class ClericalToolController @Inject()(
     * @param input
     * @return result to view
     */
-  def doGetResultClerical(input : String) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetResultClerical(input : String, historical: Option[Boolean]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       //   logger info("UPRN with supplied input address " + input)
       val addressText = StringUtils.stripAccents(input)
       val numericUPRN = BigInt(addressText)
+      val historicalValue = historical.getOrElse(true)
       apiClient.uprnQuery(
         AddressIndexUPRNRequest(
           uprn = numericUPRN,
           id = UUID.randomUUID,
-          apiKey = apiKey
+          apiKey = apiKey,
+          historical = historicalValue
         )
       ) map { resp: AddressByUprnResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString,""))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString,"", historicalValue))
 
         val nags = resp.response.address.flatMap(_.nag)
         val classCodes: Map[String, String] = nags.map(nag =>
@@ -380,6 +392,7 @@ class ClericalToolController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
           singleSearchForm = filledForm,
           filter = None,
+          historical = false,
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
@@ -408,6 +421,7 @@ class ClericalToolController @Inject()(
       warningMessage = None,
       query = "",
       filter = "",
+      historical = false,
       pageNum = 1,
       pageSize = pageSize,
       pageMax = maxPages,
@@ -434,11 +448,12 @@ class ClericalToolController @Inject()(
 
     val input: String = Try(request.body.asFormUrlEncoded.get("address").mkString).getOrElse("")
     val filter: String = Try(request.body.asFormUrlEncoded.get("filter").mkString).getOrElse("")
-    Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(input, filter, Some(1), Some(-1)))
+    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(false)
+    Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(input, filter, Some(1), Some(-1), Some(historical)))
 
   }
 
-  def showQueryWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
+  def showQueryWithInput(input: String, filter: String, page: Option[Int], expand: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       apiClient.showQuery(input, filter, apiKey).flatMap{ query =>
@@ -450,6 +465,7 @@ class ClericalToolController @Inject()(
         val pageNum = page.getOrElse(1)
         val offNum = (pageNum - 1) * pageSize
         val offset = offNum.toString
+        val historicalValue = historical.getOrElse(true)
         if (addressText.trim.isEmpty) {
           logger info ("Clerical Tool with expected input address missing")
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
@@ -459,6 +475,7 @@ class ClericalToolController @Inject()(
             warningMessage = Some(messagesApi("single.pleasesupply")),
             query = "",
             filter = filterText,
+            historical = historicalValue,
             pageNum = 1,
             pageSize = pageSize,
             pageMax = maxPages,
@@ -483,6 +500,7 @@ class ClericalToolController @Inject()(
             AddressIndexSearchRequest(
               input = addressText,
               filter = filterText,
+              historical = historicalValue,
               limit = limit,
               rangekm = "",
               lat = "50.705948",
@@ -492,7 +510,7 @@ class ClericalToolController @Inject()(
               apiKey = apiKey
             )
           ) map { resp: AddressBySearchResponseContainer =>
-            val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText))
+            val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue))
 
             val nags = resp.response.addresses.flatMap(_.nag)
             val classCodes: Map[String, String] = nags.map(nag =>
@@ -510,6 +528,7 @@ class ClericalToolController @Inject()(
               warningMessage = warningMessage,
               query = query,
               filter = filterText,
+              historical = historicalValue,
               pageNum = pageNum,
               pageSize = pageSize,
               pageMax = maxPages,
@@ -537,7 +556,8 @@ object ClericalToolController {
   val form = Form(
     mapping(
       "address" -> text,
-      "filter" -> text
+      "filter" -> text,
+      "historical" -> boolean
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }

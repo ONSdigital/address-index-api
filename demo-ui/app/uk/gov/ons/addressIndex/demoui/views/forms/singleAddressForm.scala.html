@@ -39,20 +39,29 @@
         }
     </div>
 
-    <div class="searchfield-searchfilter group">
-        <div class="col-4">
-            @{if (showfilter == true) {
+    @if(showfilter == true) {
+        <div class="searchfield-searchfilter group">
 
-            inputText(
-            singleSearchForm("filter"),
-            args = '_id -> "presetOrCode",
-            'class -> "form-control mars",
-            '_label -> labelfilter,
-            'placeholder -> placeholderfilter
-            )
-            }}
+            <div class="col-4">
+                @inputText(
+                singleSearchForm("filter"),
+                args = '_id -> "presetOrCode",
+                'class -> "form-control mars",
+                '_label -> labelfilter,
+                'placeholder -> placeholderfilter
+                )
+            </div>
+
+            <div class="col-4">
+                @inputRadioGroup(
+                singleSearchForm("historical"),
+                options = Seq("true"->"Yes","false"->"No"),
+                'class -> "form-control mars",
+                '_label -> "Include historical data?",
+                '_help -> "Historical data is included by default")
+            </div>
+
         </div>
-    </div>
-
+    }
 </fieldset>
 

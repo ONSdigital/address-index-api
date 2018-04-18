@@ -59,6 +59,7 @@ class SingleMatchController @Inject()(
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleSearch(
       singleSearchForm = SingleMatchController.form,
       filter = None,
+      historical = false,
       rangekm = None,
       lat = None,
       lon = None,
@@ -90,6 +91,7 @@ class SingleMatchController @Inject()(
     val rangeOpt = request.getQueryString("rangekm")
     val latOpt = request.getQueryString("lat")
     val lonOpt = request.getQueryString("lon")
+    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     if (addressText.trim.isEmpty) {
       logger info ("Single Match with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -98,6 +100,7 @@ class SingleMatchController @Inject()(
         rangekm = None,
         lat = None,
         lon = None,
+        historical = historical,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -110,11 +113,11 @@ class SingleMatchController @Inject()(
       )
     } else if (Try(addressText.toLong).isSuccess) {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(filterText)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(filterText), Some(historical)))
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical)))
       )
     }
   }
@@ -125,12 +128,13 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None): Action[AnyContent] = Action.async { implicit request =>
 
-    val refererUrl = request.uri
+  val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
+      val historicalValue = historical.getOrElse(true)
       val limit = pageSize.toString()
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
@@ -146,6 +150,7 @@ class SingleMatchController @Inject()(
           rangekm = None,
           lat = None,
           lon = None,
+          historical = historicalValue,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
@@ -165,6 +170,7 @@ class SingleMatchController @Inject()(
             limit = limit,
             offset = offset,
             filter = filterText,
+            historical = historicalValue,
             rangekm = rangeString,
             lat = latString,
             lon = lonString,
@@ -172,7 +178,7 @@ class SingleMatchController @Inject()(
             apiKey = apiKey
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue))
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -189,6 +195,7 @@ class SingleMatchController @Inject()(
           rangekm = rangekm,
           lat = lat,
           lon = lon,
+          historical = historicalValue,
           warningMessage = warningMessage,
           pageNum = pageNum,
           pageSize = pageSize,
@@ -210,10 +217,11 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doGetUprn(input : String, filter: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetUprn(input : String, filter: Option[String], historical: Option[Boolean]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
+      val historicalValue = historical.getOrElse(true)
     if (addressText.trim.isEmpty) {
       logger info("UPRN with expected input address missing")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -222,6 +230,7 @@ class SingleMatchController @Inject()(
         rangekm = None,
         lat = None,
         lon = None,
+        historical = historicalValue,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -239,10 +248,11 @@ class SingleMatchController @Inject()(
         AddressIndexUPRNRequest(
           uprn = numericUPRN,
           id = UUID.randomUUID,
+          historical = historicalValue,
             apiKey = apiKey
         )
       ) map { resp: AddressByUprnResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue))
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -256,6 +266,7 @@ class SingleMatchController @Inject()(
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
           singleSearchForm = filledForm,
           filter = None,
+          historical = historicalValue,
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
@@ -277,10 +288,11 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doGetResult(input : String) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetResult(input : String, historical: Option[Boolean]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
       val filterText = ""
+      val historicalValue = historical.getOrElse(true)
       if (addressText.trim.isEmpty) {
         logger info("Result with expected input address missing")
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
@@ -291,6 +303,7 @@ class SingleMatchController @Inject()(
           rangekm = None,
           lat = None,
           lon = None,
+          historical = historicalValue,
           pageSize = pageSize,
           pageMax = maxPages,
           addressBySearchResponse = None,
@@ -306,10 +319,11 @@ class SingleMatchController @Inject()(
           AddressIndexUPRNRequest(
             uprn = numericUPRN,
             id = UUID.randomUUID,
+            historical = historicalValue,
             apiKey = apiKey
           )
         ) map { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue))
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -328,6 +342,7 @@ class SingleMatchController @Inject()(
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
             singleSearchForm = filledForm,
             filter = None,
+            historical = historicalValue,
             warningMessage = warningMessage,
             addressByUprnResponse = Some(resp.response),
             classification = Some(classCodes),
@@ -351,7 +366,7 @@ class SingleMatchController @Inject()(
     * @param input
     * @return result to view
     */
-  def doGetResultClerical(input : String) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetResultClerical(input : String, historical: Boolean) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
       val filterText = ""
@@ -365,6 +380,7 @@ class SingleMatchController @Inject()(
           rangekm = None,
           lat = None,
           lon = None,
+          historical = historical,
           pageSize = pageSize,
           pageMax = maxPages,
           addressBySearchResponse = None,
@@ -380,10 +396,11 @@ class SingleMatchController @Inject()(
           AddressIndexUPRNRequest(
             uprn = numericUPRN,
             id = UUID.randomUUID,
+            historical = historical,
             apiKey = apiKey
           )
         ) map { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historical))
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -402,6 +419,7 @@ class SingleMatchController @Inject()(
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
             singleSearchForm = filledForm,
             filter = None,
+            historical = historical,
             warningMessage = warningMessage,
             addressByUprnResponse = Some(resp.response),
             classification = Some(classCodes),
@@ -426,7 +444,8 @@ object SingleMatchController {
   val form = Form(
     mapping(
       "address" -> text,
-      "filter" -> text
+      "filter" -> text,
+      "historical" -> boolean
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)
   )
 }
