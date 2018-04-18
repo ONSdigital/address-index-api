@@ -252,7 +252,7 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
-  confidenceScore: Float,
+  confidenceScore: Double,
   underlyingScore: Float,
   bespokeScore: Option[AddressResponseScore]
 )

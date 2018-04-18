@@ -256,7 +256,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "some query",
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
           filter = "",
           limit = 100,
           offset = 0,
@@ -285,7 +285,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
           filter = "",
           rangekm = "",
           latitude = "",
@@ -317,7 +317,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
           filter = "",
           rangekm = "1",
           latitude = "50.705948",

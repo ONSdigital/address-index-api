@@ -192,7 +192,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
-    confidenceScore = 1.0f,
+    confidenceScore = 0.6345683465196684D,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScoreEmpty)
   )
@@ -211,7 +211,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     paf = Some(mockPafAddress2),
     nag = Some(mockNagAddress2),
     geo = None,
-    confidenceScore = 1.0f,
+    confidenceScore = 0.6345683465196684D,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScoreEmpty)
   )
@@ -230,7 +230,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
-    confidenceScore = 1.0f,
+    confidenceScore = 0.6345683465196684D,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScore)
   )
@@ -525,7 +525,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = Seq(mockAddressResponseAddressWithScores)
 
     // When
-    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress),mockAddressTokens)
+    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress),mockAddressTokens,1D)
 
     // Then
     actual shouldBe expected
@@ -536,7 +536,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = mockAddressResponseAddressWithScores
 
     // When
-    val actual = HopperScoreHelper.addScoresToAddress(mockAddressResponseAddress,mockAddressTokens,mockLocalityParams)
+    val actual = HopperScoreHelper.addScoresToAddress(mockAddressResponseAddress,mockAddressTokens,mockLocalityParams,1D)
 
     // Then
     actual shouldBe expected

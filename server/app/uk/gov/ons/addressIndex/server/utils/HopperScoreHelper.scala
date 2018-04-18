@@ -29,10 +29,10 @@ object HopperScoreHelper  {
     * @param tokens matching input tokens created by parser
     * @return scored addresses
     */
-  def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String]): Seq[AddressResponseAddress] = {
+  def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
     val localityParams = addresses.map(address => getLocalityParams(address,tokens))
-    val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams))
+    val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams, elasticDenominator))
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses
@@ -74,7 +74,7 @@ object HopperScoreHelper  {
     */
   def addScoresToAddress(address: AddressResponseAddress,
     tokens: Map[String, String],
-    localityParams: Seq[(String,String)]): AddressResponseAddress = {
+    localityParams: Seq[(String,String)],elasticDenominator: Double): AddressResponseAddress = {
 
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
     val subBuildingName = tokens.getOrElse(Tokens.subBuildingName, empty)
@@ -148,7 +148,11 @@ object HopperScoreHelper  {
       respUnitScoreDebug,
       ambiguityPenalty)
 
-    address.copy(bespokeScore = Some(bespokeScore),confidenceScore=1F)
+    val elasticRatio = Try(address.underlyingScore).getOrElse(1F) / elasticDenominator
+
+    val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
+
+    address.copy(bespokeScore = Some(bespokeScore),confidenceScore=confidenceScore)
   }
 
   /**

@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.utils.{HopperScoreHelper, Splunk}
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -73,8 +73,6 @@ class AddressController @Inject()(
     val offval = offset.getOrElse(defOffset.toString)
 
     val filterString = filter.getOrElse("")
-
-//    val hist = Try(historical.toBoolean).getOrElse(true)
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -184,16 +182,13 @@ class AddressController @Inject()(
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
-
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-        val elasticDenominator = Try(addresses(0).underlyingScore).getOrElse(1F) - Try(addresses(1).underlyingScore).getOrElse(0F)
+        val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))
 
+        logger.info("elasticDenominator=" + elasticDenominator)
 
-        val scoredAdresses = {
-          if (addresses.length > 1) HopperScoreHelper.getScoresForAddresses(addresses.dropRight(1), tokens)
-          else HopperScoreHelper.getScoresForAddresses(addresses, tokens)
-        }
+        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
@@ -415,7 +410,7 @@ class AddressController @Inject()(
 
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens,1D)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
@@ -606,7 +601,7 @@ class AddressController @Inject()(
     val scoredResults = results.flatMap { addresses =>
       val addressResponseAddresses = addresses.map(_.hybridAddress).map(AddressResponseAddress.fromHybridAddress)
       val tokens = addresses.headOption.map(_.tokens).getOrElse(Map.empty)
-      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens)
+      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens,1D)
     }
 
     val bulkItems = results.flatten.zip(scoredResults).map { case(bulkAddress, scoredAddressResponseAddress) =>
