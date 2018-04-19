@@ -192,7 +192,10 @@ class AddressController @Inject()(
 
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
-        val sortedAddresses = scoredAddresses.sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limitInt)
+        val threshold = Try(scoredAddresses.map(_.confidenceScore).max * 0.05).getOrElse(0D)
+
+        // filter out scores below threshold, sort the resultant collection, and take the top results according to the limit param
+        val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limitInt)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
