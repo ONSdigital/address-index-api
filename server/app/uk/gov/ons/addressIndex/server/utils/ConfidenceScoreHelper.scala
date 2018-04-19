@@ -31,7 +31,8 @@ object ConfidenceScoreHelper {
   def calculateElasticDenominator(scores: Seq[Float]): Double = {
     def maxScore = Try(scores.max).getOrElse(1F)
     logger.info("maxScore="+maxScore)
-    def scores2 = scores.filter(_ < maxScore)
+   // def scores2 = scores.filter(_ < maxScore)
+    def scores2 = scores.sorted(Ordering[Float].reverse).drop(1)
     def maxScore2 = Try(scores2.max).getOrElse(maxScore)
     logger.info("maxScore2="+maxScore2)
     Try(((maxScore +  maxScore2) / 2 ).toDouble).getOrElse(1D)
