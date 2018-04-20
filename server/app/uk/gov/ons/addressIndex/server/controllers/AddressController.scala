@@ -52,7 +52,7 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -69,11 +69,13 @@ class AddressController @Inject()(
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
+    val defThreshold = conf.config.elasticSearch.matchThreshold
 
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
 
-    val filterString = filter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("")
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -113,8 +115,11 @@ class AddressController @Inject()(
 
     val limitInvalid = Try(limval.toInt).isFailure
     val offsetInvalid = Try(offval.toInt).isFailure
+    val thresholdInvalid = Try(threshval.toFloat).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    val thresholdNotInRange = !(thresholdFloat > 0 && thresholdFloat <= 100)
 
     // Check the api key, offset and limit parameters before proceeding with the request
     if (sourceStatus == missing) {
@@ -147,6 +152,12 @@ class AddressController @Inject()(
     } else if (offsetInt > maxOffset) {
       writeSplunkLogs(badRequestErrorMessage = OffsetTooLargeAddressResponseError.message)
       futureJsonBadRequest(OffsetTooLarge)
+    } else if (thresholdInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = ThresholdNotNumericAddressResponseError.message)
+      futureJsonBadRequest(ThresholdNotNumeric)
+    } else if (thresholdNotInRange) {
+      writeSplunkLogs(badRequestErrorMessage = ThresholdNotInRangeAddressResponseError.message)
+      futureJsonBadRequest(ThresholdNotInRange)
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
@@ -192,7 +203,7 @@ class AddressController @Inject()(
 
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
-        val threshold = Try(scoredAddresses.map(_.confidenceScore).max * 0.05).getOrElse(0D)
+        val threshold = Try(scoredAddresses.map(_.confidenceScore).max * thresholdFloat / 100).getOrElse(0D)
 
         // filter out scores below threshold, sort the resultant collection, and take the top results according to the limit param
         val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limitInt)
@@ -218,7 +229,8 @@ class AddressController @Inject()(
               limit = limitInt,
               offset = offsetInt,
               total = total,
-              maxScore = maxScore
+              maxScore = maxScore,
+              matchthreshold = thresholdFloat
             ),
             status = OkAddressResponseStatus
           )
@@ -326,7 +338,7 @@ class AddressController @Inject()(
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, filter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -348,7 +360,7 @@ class AddressController @Inject()(
     //val limval = "100"
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = filter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("")
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -463,7 +475,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -495,7 +507,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress, false, hist)
+      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist)
     }
   }
 
@@ -508,7 +520,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitperaddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -540,7 +552,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress, includeFullAddress = true, hist)
+      bulkQuery(requestsData, configOverwrite, limitperaddress, includeFullAddress = true, hist)
     }
   }
 
@@ -548,7 +560,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitPerAddress: Option[Int], historical: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitperaddress: Option[Int], historical: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -581,7 +593,7 @@ class AddressController @Inject()(
       }
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress, false, hist)
+      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist)
     }
   }
 
@@ -589,7 +601,7 @@ class AddressController @Inject()(
   private def bulkQuery(
     requestData: Stream[BulkAddressRequestData],
     configOverwrite: Option[QueryParamsConfig],
-    limitPerAddress: Option[Int],
+    limitperaddress: Option[Int],
     includeFullAddress: Boolean = false,
     historical: Boolean
   )(implicit request: Request[_]): Result = {
@@ -600,7 +612,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
 
-    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite, historical)
+    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitperaddress, configOverwrite, historical)
 
     logger.info(s"#bulkQuery processed")
 
@@ -660,7 +672,7 @@ class AddressController @Inject()(
   final def iterateOverRequestsWithBackPressure(
     requests: Stream[BulkAddressRequestData],
     miniBatchSize: Int,
-    limitPerAddress: Option[Int] = None,
+    limitperaddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
     historical: Boolean,
     canUpScale: Boolean = true,
@@ -678,7 +690,7 @@ class AddressController @Inject()(
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
-    val addressesPerAddress = limitPerAddress.getOrElse(conf.config.bulk.limitPerAddress)
+    val addressesPerAddress = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
     val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, historical), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
@@ -699,7 +711,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, historical, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitperaddress, configOverwrite, historical, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -713,12 +725,12 @@ class AddressController @Inject()(
     */
   def queryBulkAddresses(
     inputs: Stream[BulkAddressRequestData],
-    limitPerAddress: Int,
+    limitperaddress: Int,
     configOverwrite: Option[QueryParamsConfig] = None,
     historical: Boolean
   ): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress, configOverwrite, historical)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitperaddress, configOverwrite, historical)
 
     val successfulAddresses: Future[Stream[Seq[BulkAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
 

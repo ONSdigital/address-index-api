@@ -49,7 +49,7 @@ trait AddressIndexClient {
       .withHttpHeaders("authorization" -> request.apiKey)
       .withQueryStringParameters(
         "input" -> request.input,
-        "filter" -> request.filter,
+        "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
         "rangekm" -> request.rangekm,
         "lat" -> request.lat,
@@ -82,7 +82,7 @@ trait AddressIndexClient {
       .toReq
       .withQueryStringParameters(
         //"postcode" -> request.postcode,
-        "filter" -> request.filter,
+        "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
@@ -133,7 +133,7 @@ trait AddressIndexClient {
       .withHttpHeaders("authorization" -> apiKey)
       .withQueryStringParameters(
         "input" -> input,
-        "filter" -> filter
+        "classificationfilter" -> filter
       ).get.map(response => Json.prettyPrint(response.json))
   }
 

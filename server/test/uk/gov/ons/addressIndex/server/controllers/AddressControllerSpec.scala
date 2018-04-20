@@ -295,7 +295,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 1,
-          maxScore = 1.0f
+          maxScore = 1.0f,
+          matchthreshold = 5f
         ),
         OkAddressResponseStatus
       ))
@@ -328,7 +329,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 1,
-          maxScore = 1.0f
+          maxScore = 1.0f,
+          matchthreshold = 5f
         ),
         OkAddressResponseStatus
       ))
@@ -361,7 +363,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -395,7 +398,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -458,7 +462,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -521,7 +526,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -584,7 +590,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -647,7 +654,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooLargeAddressResponseError)
@@ -710,7 +718,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooLargeAddressResponseError)
@@ -773,7 +782,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -806,7 +816,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -839,7 +850,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -872,7 +884,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -905,7 +918,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -938,7 +952,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -971,7 +986,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -1006,7 +1022,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -1069,7 +1086,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         InternalServerErrorAddressResponseStatus,
         errors = Seq(FailedRequestToEsError)
@@ -1132,7 +1150,8 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
-          maxScore = 0.0f
+          maxScore = 0.0f,
+          matchthreshold = 5f
         ),
         InternalServerErrorAddressResponseStatus,
         errors = Seq(FailedRequestToEsError)
