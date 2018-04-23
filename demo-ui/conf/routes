@@ -19,6 +19,24 @@ GET         /help                               uk.gov.ons.addressIndex.demoui.c
 # ONS-Address Index home page
 GET         /help/forgot-password               uk.gov.ons.addressIndex.demoui.controllers.StaticController.helpForgotPassword
 
+# ONS-Address Index home page
+GET         /developers                         uk.gov.ons.addressIndex.demoui.controllers.StaticController.devLanding
+
+# ONS-Address Index home page
+GET         /developers/type-ahead              uk.gov.ons.addressIndex.demoui.controllers.StaticController.devTypeAhead
+
+# ONS-Address Index home page
+GET         /developers/version                 uk.gov.ons.addressIndex.demoui.controllers.StaticController.devVersion
+
+# ONS-Address Index home page
+GET         /developers/single-match            uk.gov.ons.addressIndex.demoui.controllers.StaticController.devSingleMatch
+
+# ONS-Address Index home page
+GET         /developers/uprn                    uk.gov.ons.addressIndex.demoui.controllers.StaticController.devUprn
+
+# ONS-Address Index home page
+GET         /developers/postcode                uk.gov.ons.addressIndex.demoui.controllers.StaticController.devPostcode
+
 # ONS-Address Index Single Search View
 GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 

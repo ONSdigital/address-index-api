@@ -57,6 +57,14 @@ object Links {
       section = "radius"
     )
   }
+
+  def developers(implicit messages: Messages) = {
+    Link(
+      href = uk.gov.ons.addressIndex.demoui.controllers.routes.StaticController.devLanding.toString,
+      label = messages("navbar.developers"),
+      section = "developers"
+    )
+  }
 }
 
 object Navigation {
@@ -65,7 +73,7 @@ object Navigation {
       links = Seq(
         Links.single,
         Links.postcode,
-        Links.multi,
+        Links.multi
       )
     )
   }
@@ -75,7 +83,8 @@ object Navigation {
         Links.radius,
         Links.clerical,
         Links.query,
-        Links.help
+        Links.help,
+        Links.developers
       )
     )
   }

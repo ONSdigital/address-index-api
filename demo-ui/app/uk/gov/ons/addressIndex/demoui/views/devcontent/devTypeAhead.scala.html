@@ -1,0 +1,100 @@
+@import uk.gov.ons.addressIndex.demoui.controllers.routes
+
+@(userLang: String)
+
+<script src="http://code.jquery.com/jquery-3.2.0.js"></script>
+
+@if(userLang == "cy") {
+    <article>
+        <h1 class="jupiter">Anghofio cyfrinair</h1>
+        <p>Os ydych chi'n ansicr ynghylch eich manylion mewngofnodi, bydd angen i chi ailosod eich cyfrinair.</p>
+        <p>Mae angen i gyflwyno ffoniwch ddesg gymorth i ailosod eich cyfrinair ddefnyddwyr Swyddfa Ystadegau Gwladol. Defnyddwyr allanol, cysylltwch â ni i gael mynediad at eich cyfrif.</p>
+        <p><a href="@{routes.ApplicationHomeController.login}">Ôl i lofnodi Tudalen</a></p>
+    </article>
+}else{
+
+
+    <div class="group">
+        <div class="col-12">
+            <h1 class="jupiter">Type Ahead demo</h1>
+            <p class="venus">Returns a ranked list of addresses matching the input text (minimum 5 characters).</p>
+        </div>
+    </div>
+    <div class="group">
+        <section id="request" class="col-6">
+            <div id="single-match-tab" class="tab-content">
+                <div class="fields">
+                    <dl>
+                        <dt><label for="address" class="venus">Address: </label></dt>
+                        <dd><input type="text" name="address" id="address" placeholder="Type here" value="" onkeyup="getSingle();" onchange="getSingle();" class="form-control mars" /></dd>
+                    </dl>
+                    <dl>
+                        <dt><label for="filter" class="venus">Filter: </label></dt>
+                        <dd><input type="text" name="filter" id="filter" placeholder="For example residential, commercial" value="" class="form-control mars" /></dd>
+                    </dl>
+                </div>
+            </div>
+        </section>
+        <section id="response" class="col-6">
+            <div class="content-container">
+                <div class="venus">Response:</div>
+                <div id="response-text">Response will appear here</div>
+            </div>
+        </section>
+    </div>
+
+}
+
+
+
+<script>
+
+        function getSingle() {
+         var addressPart = 	document.getElementById("address").value;
+		 var filterPart = 	document.getElementById("filter").value;
+		 var singleurl = "http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses?input=" + addressPart + "&filter=" + filterPart + "&limit=20";
+		 if (addressPart.length > 4){
+            getJSONResponseWithKey(singleurl)
+			}
+        }
+
+
+        function getJSONResponseWithKey(durl) {
+            $("body").css("cursor", "progress");
+            $.support.cors = true; // this is required for IE8
+            $.ajax({
+                    type: 'GET',
+                    url: durl,
+                    dataType: 'json',
+                    headers: {
+                        "Authorization": "typeahead_ea15dc73-1991-46db-8c02-e3c483bf9e3e"
+                    }
+
+                })
+
+                .done(function(response) {
+					var resultString = "";
+					document.getElementById("response-text").innerHTML = "No results from API"
+					try {
+						for (i = 0; i < response.response.addresses.length; i++) {
+							resultString =  resultString + response.response.addresses[i].formattedAddress + " (<a href='http://addressindex-ui-test.apps.cf1.ons.statistics.gov.uk/addresses/result/" + response.response.addresses[i].uprn + "' target='_blank'>" + response.response.addresses[i].uprn + "</a>)" + "<br>";
+						}
+					  document.getElementById("response-text").innerHTML = resultString;
+					  if (response.response.addresses.length == 0)
+					  {
+					     document.getElementById("response-text").innerHTML = "No results from API"
+					  }
+					}
+					catch (err){
+					  document.getElementById("response-text").innerHTML = "No results from API"
+					}
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert("API call failed:" + errorThrown);
+                })
+                .always(function() {
+                    $("body").css("cursor", "default");
+                });
+        }
+
+    </script>

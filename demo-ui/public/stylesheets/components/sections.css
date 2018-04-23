@@ -1,0 +1,17 @@
+@charset "UTF-8";
+
+.developers {
+    background-color: #ff9900;
+    color: #ffffff;
+    padding: 10px 0;
+}
+
+.developers a, .developers a:visited {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.developers a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}

@@ -139,6 +139,7 @@ main.licenceurl=https://www.nationalarchives.gov.uk/doc/open-government-licence-
 main.copyright=hawlfraint y Goron
 main.goto=Ewch i
 multi.sfatext=Cydweddu cyfeiriadau lluosog
+
 navbar.home=Cartref
 navbar.singlematch=Chwilio sengl
 navbar.postcode=Chwiliad cod post
@@ -147,6 +148,7 @@ navbar.clerical=Offeryn clerigol
 navbar.query=Ymholiad arddangos
 navbar.help=Helpu
 navbar.radius=Chwilio radiws
+navbar.developers=</datblygwyr>
 
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad

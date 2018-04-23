@@ -1,0 +1,85 @@
+@import uk.gov.ons.addressIndex.demoui.controllers.routes
+
+@(userLang: String)
+
+<script src="http://code.jquery.com/jquery-1.11.2.js"></script>
+
+@if(userLang == "cy") {
+    <article>
+        <h1 class="jupiter">Anghofio cyfrinair</h1>
+        <p>Os ydych chi'n ansicr ynghylch eich manylion mewngofnodi, bydd angen i chi ailosod eich cyfrinair.</p>
+        <p>Mae angen i gyflwyno ffoniwch ddesg gymorth i ailosod eich cyfrinair ddefnyddwyr Swyddfa Ystadegau Gwladol. Defnyddwyr allanol, cysylltwch â ni i gael mynediad at eich cyfrif.</p>
+        <p><a href="@{routes.ApplicationHomeController.login}">Ôl i lofnodi Tudalen</a></p>
+    </article>
+}else{
+
+
+    <div class="group">
+        <div class="col-12">
+            <h1 class="jupiter">UPRN Search</h1>
+            <p class="venus">Returns a single address, identified by its UPRN.</p>
+        </div>
+    </div>
+    <div class="group">
+        <section id="request" class="col-6">
+            <div id="single-match-tab" class="tab-content">
+
+                <div class="fields">
+                    <dl>
+                        <dt><label for="uprn" class="venus">UPRN: </label></dt>
+                        <dd><input type="text" name="uprn" id="uprn" value="" placeholder="10023122457" class="mars" /></dd>
+                    </dl>
+                    <dl>
+                        <button class="venus" onclick="getUPRN()">Get Response</button>
+                    </dl>
+                </div>
+
+            </div>
+        </section>
+        <section id="response" class="col-6">
+            <div class="content-container">
+                <div class="venus">Response:</div>
+                <div id="response-text" class="preformatted">Response will appear here</div>
+            </div>
+        </section>
+    </div>
+
+}
+
+
+
+    <script>
+
+        function getUPRN() {
+            getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses/" + document.getElementById("uprn").value)
+        }
+
+        function getJSONResponseWithKey(durl) {
+            $("body").css("cursor", "progress");
+            $.support.cors = true; // this is required for IE8
+            $.ajax({
+                    type: 'GET',
+                    url: durl,
+                    dataType: 'json',
+                    headers: {
+                        "Authorization": "typeahead_ea15dc73-1991-46db-8c02-e3c483bf9e3e"
+                    }
+
+                })
+
+                .done(function(response) {
+                    // convert to string and pretty print
+                    var jsonString = JSON.stringify(response, null, 2);
+                    document.getElementById("response-text").innerHTML = jsonString;
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert("failed");
+                })
+                .always(function() {
+                    $("body").css("cursor", "default");
+                });
+        }
+
+
+
+    </script>
