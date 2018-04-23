@@ -119,7 +119,7 @@ class AddressController @Inject()(
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
-    val thresholdNotInRange = !(thresholdFloat > 0 && thresholdFloat <= 100)
+    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
 
     // Check the api key, offset and limit parameters before proceeding with the request
     if (sourceStatus == missing) {
@@ -190,8 +190,8 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val limitExpanded = max(limitInt * 2,20)
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString, rangeVal, latVal, lonVal, None, hist)
+      val limitExpanded = max(limitInt * 2,50)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -199,14 +199,14 @@ class AddressController @Inject()(
 
         val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))
 
-        logger.info("elasticDenominator=" + elasticDenominator)
-
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
         val threshold = Try(scoredAddresses.map(_.confidenceScore).max * thresholdFloat / 100).getOrElse(0D)
 
         // filter out scores below threshold, sort the resultant collection, and take the top results according to the limit param
-        val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limitInt)
+        val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+        val newTotal = sortedAddresses.length
+        val limitedSortedAddresses = sortedAddresses.take(limitInt)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
@@ -220,7 +220,7 @@ class AddressController @Inject()(
             dataVersion = dataVersion,
             response = AddressBySearchResponse(
               tokens = tokens,
-              addresses = sortedAddresses,
+              addresses = limitedSortedAddresses,
               filter = filterString,
               historical = hist,
               rangekm = rangeVal,
@@ -228,7 +228,7 @@ class AddressController @Inject()(
               longitude = lonVal,
               limit = limitInt,
               offset = offsetInt,
-              total = total,
+              total = newTotal,
               maxScore = maxScore,
               matchthreshold = thresholdFloat
             ),
