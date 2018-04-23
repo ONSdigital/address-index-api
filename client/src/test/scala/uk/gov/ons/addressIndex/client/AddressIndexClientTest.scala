@@ -63,7 +63,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     ).queryString
     val expected = Map(
       "input" -> Seq("input"),
-      "filter" -> Seq("filter"),
+      "classificationfilter" -> Seq("filter"),
       "historical" -> Seq("true"),
       "rangekm" -> Seq("rangekm"),
       "lat" -> Seq("lat"),

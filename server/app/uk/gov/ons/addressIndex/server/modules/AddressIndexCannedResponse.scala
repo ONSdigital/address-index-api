@@ -215,6 +215,14 @@ trait AddressIndexCannedResponse {
     BadRequestPostcodeTemplate(EmptyQueryPostcodeAddressResponseError)
   }
 
+  def ThresholdNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(ThresholdNotNumericAddressResponseError)
+  }
+
+  def ThresholdNotInRange: AddressBySearchResponseContainer = {
+    BadRequestTemplate(ThresholdNotInRangeAddressResponseError)
+  }
+
   def FailedRequestToEs: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -237,7 +245,8 @@ trait AddressIndexCannedResponse {
       limit = 10,
       offset = 0,
       total = 0,
-      maxScore = 0f
+      maxScore = 0f,
+      matchthreshold = 5f
     )
   }
 

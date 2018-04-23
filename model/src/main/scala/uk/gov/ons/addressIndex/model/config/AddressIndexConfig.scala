@@ -25,7 +25,8 @@ case class ElasticSearchConfig(
   defaultLimitPostcode: Int,
   defaultOffset: Int,
   maximumLimit: Int,
-  maximumOffset: Int
+  maximumOffset: Int,
+  matchThreshold: Float
 )
 
 case class QueryParamsConfig(
@@ -206,7 +207,7 @@ object FallbackConfig {
 
 case class BulkConfig(
   batch: BatchConfig,
-  limitPerAddress: Int
+  limitperaddress: Int
 )
 
 case class BatchConfig(
