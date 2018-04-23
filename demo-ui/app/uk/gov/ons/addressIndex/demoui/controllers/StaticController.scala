@@ -36,4 +36,58 @@ class StaticController @Inject()(
     }
   }
 
+  def devLanding: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "landing", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "landing", version = version, userLang = "en"))
+    }
+  }
+
+  def devTypeAhead: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "typeAhead", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "typeAhead", version = version, userLang = "en"))
+    }
+  }
+
+  def devVersion: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "version", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "version", version = version, userLang = "en"))
+    }
+  }
+
+  def devSingleMatch: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "single", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "single", version = version, userLang = "en"))
+    }
+  }
+
+  def devUprn: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "uprn", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "uprn", version = version, userLang = "en"))
+    }
+  }
+
+  def devPostcode: Action[AnyContent] = Action { implicit request =>
+    val chosenLang = messagesApi.preferred(request).lang.code
+    if (chosenLang == "cy") {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "postcode", version = version, userLang = "cy"))
+    } else {
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.devContainer(content = "postcode", version = version, userLang = "en"))
+    }
+  }
+
 }
