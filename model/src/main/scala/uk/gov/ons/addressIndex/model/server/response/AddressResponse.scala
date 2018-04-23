@@ -135,7 +135,8 @@ case class AddressBySearchResponse(
   limit: Int,
   offset: Int,
   total: Long,
-  maxScore: Double
+  maxScore: Double,
+  matchthreshold: Float
 )
 
 object AddressBySearchResponse {
@@ -254,6 +255,7 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
+  confidenceScore: Double,
   underlyingScore: Float,
   bespokeScore: Option[AddressResponseScore]
 )
@@ -291,6 +293,7 @@ object AddressResponseAddress {
       paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      confidenceScore = other.score,
       underlyingScore = other.score,
       bespokeScore = None
     )
@@ -929,4 +932,14 @@ object LongitudeTooFarEastAddressResponseError extends AddressResponseError(
 object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
   code = 32,
   message = "Longitude parameter must be greater than -8.6"
+)
+
+object ThresholdNotNumericAddressResponseError extends AddressResponseError(
+  code = 33,
+  message = "Matchthreshold parameter not numeric"
+)
+
+object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
+  code = 34,
+  message = "Matchthreshold parameter must be greater than 0 and less than or equal to 100"
 )
