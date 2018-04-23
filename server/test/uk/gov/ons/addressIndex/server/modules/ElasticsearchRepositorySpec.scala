@@ -513,7 +513,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "find HYBRID address by UPRN in non-historical index" ignore {
+    "find HYBRID address by UPRN in non-historical index" in {
 
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
