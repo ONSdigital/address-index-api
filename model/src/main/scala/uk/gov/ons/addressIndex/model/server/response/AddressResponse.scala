@@ -182,6 +182,7 @@ case class AddressBulkResponseAddress(
   matchedFormattedAddress: String,
   matchedAddress: Option[AddressResponseAddress],
   tokens: Map[String, String],
+  confidenceScore: Double,
   score: Float,
   bespokeScore: Option[AddressResponseScore]
 )
@@ -200,6 +201,7 @@ object AddressBulkResponseAddress {
     matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
     matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
     tokens = bulkAddress.tokens,
+    confidenceScore = addressResponseAddress.confidenceScore,
     score = bulkAddress.hybridAddress.score,
     bespokeScore = addressResponseAddress.bespokeScore
   )

@@ -22,7 +22,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
-#      description: minimum percentage of best score for match to be included in results (default 5.0)
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
