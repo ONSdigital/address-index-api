@@ -190,8 +190,8 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val limitExpanded = max(limitInt * 2,50)
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
+      val limitExpanded = max(offsetInt + (limitInt * 2),50)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -201,12 +201,12 @@ class AddressController @Inject()(
 
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
-        val threshold = Try(scoredAddresses.map(_.confidenceScore).max * thresholdFloat / 100).getOrElse(0D)
+        val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
 
         // filter out scores below threshold, sort the resultant collection, and take the top results according to the limit param
         val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
         val newTotal = sortedAddresses.length
-        val limitedSortedAddresses = sortedAddresses.take(limitInt)
+        val limitedSortedAddresses = sortedAddresses.drop(offsetInt).take(limitInt)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
