@@ -372,37 +372,39 @@ class ClericalToolController @Inject()(
           apiKey = apiKey,
           historical = historicalValue
         )
-      ) map { resp: AddressByUprnResponseContainer =>
+      ) flatMap { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString,"", historicalValue))
 
         val nags = resp.response.address.flatMap(_.nag)
         val classCodes: Map[String, String] = nags.map(nag =>
           (nag.uprn , classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
-        val rels = resp.response.address.map(_.relatives)
-
-        val expandedRels = Try(relativesExpander.expandRelatives(apiKey, rels.getOrElse(Seq()))).getOrElse(Seq())
-       // logger info("expanded rels = " + expandedRels.toString())
-
         val warningMessage =
           if (resp.status.code == 200) None
           else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
+        val rels = resp.response.address.map(_.relatives)
+        val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
+          case _: Throwable => Seq()
+        }
 
-        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
-          singleSearchForm = filledForm,
-          filter = None,
-          historical = false,
-          warningMessage = warningMessage,
-          addressByUprnResponse = Some(resp.response),
-          classification = Some(classCodes),
-          expandedRels = Some(expandedRels),
-          version = version,
-          isClerical = true,
-          apiUrl = apiUrl,
-          apiKey = apiKey
-        )
-        Ok(viewToRender)
+        futExpandedRels.map { expandedRels =>
+          // logger info("expanded rels = " + expandedRels.toString())
+          val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
+            singleSearchForm = filledForm,
+            filter = None,
+            historical = false,
+            warningMessage = warningMessage,
+            addressByUprnResponse = Some(resp.response),
+            classification = Some(classCodes),
+            expandedRels = Some(expandedRels),
+            version = version,
+            isClerical = true,
+            apiUrl = apiUrl,
+            apiKey = apiKey
+          )
+          Ok(viewToRender)
+        }
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))

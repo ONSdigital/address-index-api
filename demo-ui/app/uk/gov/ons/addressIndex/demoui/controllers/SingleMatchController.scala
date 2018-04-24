@@ -13,8 +13,8 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -290,7 +290,8 @@ class SingleMatchController @Inject()(
     */
   def doGetResult(input : String, historical: Option[Boolean]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
-    request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
+    request.session.get("api-key").map { apiKey =>
+      val addressText = StringUtils.stripAccents(input)
       val filterText = ""
       val historicalValue = historical.getOrElse(true)
       if (addressText.trim.isEmpty) {
@@ -322,37 +323,40 @@ class SingleMatchController @Inject()(
             historical = historicalValue,
             apiKey = apiKey
           )
-        ) map { resp: AddressByUprnResponseContainer =>
+        ) flatMap { resp: AddressByUprnResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue))
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
             (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
-          val rels = resp.response.address.map(_.relatives)
-
-          val expandedRels = Try(relativesExpander.expandRelatives(apiKey, rels.getOrElse(Seq()))).getOrElse(Seq())
-     //     logger info("expanded rels = " + expandedRels.toString())
-
           val warningMessage =
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
+          val rels = resp.response.address.map(_.relatives)
+          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
+            case _: Throwable => Seq()
+          }
 
-          val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
-            singleSearchForm = filledForm,
-            filter = None,
-            historical = historicalValue,
-            warningMessage = warningMessage,
-            addressByUprnResponse = Some(resp.response),
-            classification = Some(classCodes),
-            expandedRels = Some(expandedRels),
-            version = version,
-            isClerical = false,
-            apiUrl = apiUrl,
-            apiKey = apiKey
-          )
-          Ok(viewToRender)}
+          futExpandedRels.map { expandedRels =>
+            //     logger info("expanded rels = " + expandedRels.toString())
+            val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
+              singleSearchForm = filledForm,
+              filter = None,
+              historical = historicalValue,
+              warningMessage = warningMessage,
+              addressByUprnResponse = Some(resp.response),
+              classification = Some(classCodes),
+              expandedRels = Some(expandedRels),
+              version = version,
+              isClerical = false,
+              apiUrl = apiUrl,
+              apiKey = apiKey
+            )
+            Ok(viewToRender)
+          }
+        }
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
@@ -368,7 +372,8 @@ class SingleMatchController @Inject()(
     */
   def doGetResultClerical(input : String, historical: Boolean) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
-    request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
+    request.session.get("api-key").map { apiKey =>
+      val addressText = StringUtils.stripAccents(input)
       val filterText = ""
       if (addressText.trim.isEmpty) {
         logger info("Result with expected input address missing")
@@ -399,44 +404,45 @@ class SingleMatchController @Inject()(
             historical = historical,
             apiKey = apiKey
           )
-        ) map { resp: AddressByUprnResponseContainer =>
+        ) flatMap { resp: AddressByUprnResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historical))
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
             (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
 
-          val rels = resp.response.address.map(_.relatives)
-
-          val expandedRels = Try(relativesExpander.expandRelatives(apiKey, rels.getOrElse(Seq()))).getOrElse(Seq())
-          //logger info("expanded rels = " + expandedRels.toString())
-
           val warningMessage =
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
+          val rels = resp.response.address.map(_.relatives)
+          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
+            case _: Throwable => Seq()
+          }
 
-          val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
-            singleSearchForm = filledForm,
-            filter = None,
-            historical = historical,
-            warningMessage = warningMessage,
-            addressByUprnResponse = Some(resp.response),
-            classification = Some(classCodes),
-            expandedRels = Some(expandedRels),
-            version = version,
-            isClerical = true,
-            apiUrl = apiUrl,
-            apiKey = apiKey
-          )
-          Ok(viewToRender)}
+          futExpandedRels.map { expandedRels =>
+            //logger info("expanded rels = " + expandedRels.toString())
+            val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
+              singleSearchForm = filledForm,
+              filter = None,
+              historical = historical,
+              warningMessage = warningMessage,
+              addressByUprnResponse = Some(resp.response),
+              classification = Some(classCodes),
+              expandedRels = Some(expandedRels),
+              version = version,
+              isClerical = true,
+              apiUrl = apiUrl,
+              apiKey = apiKey
+            )
+            Ok(viewToRender)
+          }
+        }
       }
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
-
-
 }
 
 
