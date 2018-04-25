@@ -190,22 +190,25 @@ class AddressController @Inject()(
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
+      // try to get enough results to accurately calcuate the hybrid score (may need to be more sophisticated)
       val limitExpanded = max(offsetInt + (limitInt * 2),50)
       val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
-
+        //  calculate the elastic denominator value which will be used when scoring each address
         val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))
-
+        // calculate the Hopper and hybrid scores for each  address
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
-
+        // work out the threshold for accepting matches (default 5% -> 0.05)
         val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
 
-        // filter out scores below threshold, sort the resultant collection, and take the top results according to the limit param
+        // filter out scores below threshold, sort the resultant collection, highest score first
         val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+        // capture the number of matches before applying offset and limit
         val newTotal = sortedAddresses.length
+        // trim the result list according to offset and limit paramters
         val limitedSortedAddresses = sortedAddresses.drop(offsetInt).take(limitInt)
 
         addresses.foreach{ address =>
@@ -611,8 +614,11 @@ class AddressController @Inject()(
     val startingTime = System.currentTimeMillis()
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
+   // get extra results for confidence score
+    val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
+    val expandedLimit = max(resultLimit * 2, 10)
 
-    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitperaddress, configOverwrite, historical)
+    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(expandedLimit), configOverwrite, historical)
 
     logger.info(s"#bulkQuery processed")
 
@@ -622,7 +628,10 @@ class AddressController @Inject()(
     val scoredResults = results.flatMap { addresses =>
       val addressResponseAddresses = addresses.map(_.hybridAddress).map(AddressResponseAddress.fromHybridAddress)
       val tokens = addresses.headOption.map(_.tokens).getOrElse(Map.empty)
-      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens,1D)
+      //  calculate the elastic denominator value which will be used when scoring each address
+      val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))
+      // add the Hopper and hybrid scores to the address
+      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator).take(resultLimit)
     }
 
     val bulkItems = results.flatten.zip(scoredResults).map { case(bulkAddress, scoredAddressResponseAddress) =>
