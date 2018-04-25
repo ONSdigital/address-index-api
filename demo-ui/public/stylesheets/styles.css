@@ -73,6 +73,19 @@ input[type=text], input[type=password] {
     width: 90%;
 }
 
+select {
+    position: relative;
+    z-index: 2;
+    padding: 0.6rem;
+    display: block;
+    color: inherit;
+    /*font-size: 1.1rem;*/
+    border: 1px solid #999;
+    border-radius: 3px;
+    transition: border-color .2s ease-in initial;
+    height: 40px;
+}
+
 input[type=checkbox] {
     position: relative;
     z-index: 2;

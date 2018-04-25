@@ -93,6 +93,8 @@ class RadiusController @Inject()(
     val optLon: Option[String] = Try(request.body.asFormUrlEncoded.get("lon").mkString).toOption
     val lonText = optLon.getOrElse("")
     val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
+    val optmatchthreshold: Option[Int] = Try(request.body.asFormUrlEncoded.get("matchthreshold").mkString.toInt).toOption
+    val matchthresholdValue = optmatchthreshold.getOrElse(5)
     if (addressText.trim.isEmpty) {
       logger info "Radius Match with Empty search term"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
@@ -114,7 +116,7 @@ class RadiusController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchthresholdValue)))
       )
     }
   }
@@ -125,7 +127,7 @@ class RadiusController @Inject()(
     * @param input the term
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
 
   val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
@@ -139,6 +141,7 @@ class RadiusController @Inject()(
       val latString = lat.getOrElse("")
       val lonString = lon.getOrElse("")
       val historicalValue = historical.getOrElse(true)
+      val matchthresholdValue = matchthreshold.getOrElse(5)
       if (addressText.trim.isEmpty) {
         logger info ("Radius Match with expected search term missing")
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
@@ -168,6 +171,7 @@ class RadiusController @Inject()(
             offset = offset,
             filter = filterText,
             historical = historicalValue,
+            matchthreshold = matchthresholdValue,
             rangekm = rangeString,
             lat = latString,
             lon = lonString,

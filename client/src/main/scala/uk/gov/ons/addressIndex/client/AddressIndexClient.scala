@@ -51,6 +51,7 @@ trait AddressIndexClient {
         "input" -> request.input,
         "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
+        "matchthreshold" -> request.matchthreshold.toString,
         "rangekm" -> request.rangekm,
         "lat" -> request.lat,
         "lon" -> request.lon,

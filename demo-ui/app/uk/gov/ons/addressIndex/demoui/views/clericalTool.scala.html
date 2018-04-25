@@ -85,6 +85,7 @@ apiKey: String
                         address,
                         singleSearchForm("filter").value.getOrElse(""),
                         singleSearchForm("historical").value.getOrElse("true").toBoolean,
+                        singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
                         aresponse.maxScore,
                         classification,
                         aresponse.tokens,
@@ -97,7 +98,7 @@ apiKey: String
                         )
 
                         }
-                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean)
+                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt)
 
                     </div>
                 </section>
