@@ -71,11 +71,12 @@ version: DemoUIAddressIndexVersionModule
                     address,
                     radiusSearchForm("filter").value.getOrElse(""),
                     radiusSearchForm("historical").value.getOrElse("true").toBoolean,
+                    5,
                     aresponse.maxScore,
                     classification
                     )
                     }
-                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean)
+                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5)
                     }
                 </div>
             </section>

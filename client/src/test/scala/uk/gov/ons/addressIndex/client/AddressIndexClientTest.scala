@@ -47,11 +47,13 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
     val lat = "lat"
     val lon = "lon"
     val historical = true
+    val matchthreshold = 5
     val actual = apiClient.addressQueryWSRequest(
       request = AddressIndexSearchRequest(
         input = input,
         filter = filter,
         historical = historical,
+        matchthreshold = matchthreshold,
         rangekm = rangekm,
         lat = lat,
         lon = lon,
@@ -65,6 +67,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
       "input" -> Seq("input"),
       "classificationfilter" -> Seq("filter"),
       "historical" -> Seq("true"),
+      "matchthreshold" -> Seq("5"),
       "rangekm" -> Seq("rangekm"),
       "lat" -> Seq("lat"),
       "lon" -> Seq("lon"),

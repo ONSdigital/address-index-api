@@ -4,7 +4,7 @@
 <fieldset class="searchfield venus">
     <div class="group">
         @if(display == "inline") {
-        <div class="col-6">
+        <div class="col-8">
             <div class="searchfield-searchinput">
                 @inputText(
                 singleSearchForm("address"),
@@ -59,6 +59,16 @@
                 'class -> "form-control mars",
                 '_label -> "Include historical data?",
                 '_help -> "Historical data is included by default")
+            </div>
+
+            <div class="col-4">
+                @select(
+                singleSearchForm("matchthreshold"),
+                options = Seq("1"->"1","2"->"2","3"->"3","5"->"5","10"->"10","25"->"25","50"->"50"),
+                'class -> "form-control mars",
+                '_label -> "Minimum match %",
+                '_default -> "Select",
+                '_help -> "Match score must be greater than this value")
             </div>
 
         </div>

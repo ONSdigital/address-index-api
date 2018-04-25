@@ -16,6 +16,7 @@ case class AddressIndexSearchRequest(
   input: String,
   filter: String,
   historical: Boolean,
+  matchthreshold: Int,
   rangekm: String,
   lat: String,
   lon: String,

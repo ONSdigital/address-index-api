@@ -68,11 +68,12 @@ version: DemoUIAddressIndexVersionModule
                                 address,
                                 postcodeSearchForm("filter").value.getOrElse(""),
                                 postcodeSearchForm("historical").value.getOrElse("true").toBoolean,
+                                5,
                                 aresponse.maxScore,
                                 classification
                             )
                         }
-                        @pager(pageNum,pageSize,pageMax,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean)
+                        @pager(pageNum,pageSize,pageMax,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5)
                         }
                     </div>
                 </section>
