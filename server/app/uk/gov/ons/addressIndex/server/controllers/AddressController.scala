@@ -198,7 +198,7 @@ class AddressController @Inject()(
 
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
         //  calculate the elastic denominator value which will be used when scoring each address
-        val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))
+        val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
         // calculate the Hopper and hybrid scores for each  address
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
         // work out the threshold for accepting matches (default 5% -> 0.05)
@@ -629,7 +629,7 @@ class AddressController @Inject()(
       val addressResponseAddresses = addresses.map(_.hybridAddress).map(AddressResponseAddress.fromHybridAddress)
       val tokens = addresses.headOption.map(_.tokens).getOrElse(Map.empty)
       //  calculate the elastic denominator value which will be used when scoring each address
-      val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))
+      val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
       // add the Hopper and hybrid scores to the address
       HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator).take(resultLimit)
     }
