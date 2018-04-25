@@ -116,6 +116,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val latitude = ""
       val longitude = ""
       val historical = true
+      val matchthreshold = 5
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
@@ -127,7 +128,7 @@ class RadiusMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -150,6 +151,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val latitude = ""
       val longitude = ""
       val historical = true
+      val matchthreshold = 5
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
@@ -161,7 +163,7 @@ class RadiusMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
