@@ -148,8 +148,8 @@ object HopperScoreHelper  {
       respUnitScoreDebug,
       ambiguityPenalty)
 
-    val elasticRatio = Try(address.underlyingScore).getOrElse(1F) / elasticDenominator
-
+    val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
+    val elasticRatio = Try(address.underlyingScore).getOrElse(1F) / safeDenominator
     val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
     address.copy(bespokeScore = Some(bespokeScore),confidenceScore=confidenceScore)

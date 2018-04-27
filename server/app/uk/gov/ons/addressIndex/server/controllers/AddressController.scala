@@ -616,8 +616,8 @@ class AddressController @Inject()(
     val defaultBatchSize = conf.config.bulk.batch.perBatch
    // get extra results for confidence score
     val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val expandedLimit = max(resultLimit * 2, 10)
-
+//    val expandedLimit = max(resultLimit * 2, 10)
+    val expandedLimit = 5
     val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(expandedLimit), configOverwrite, historical)
 
     logger.info(s"#bulkQuery processed")
@@ -631,7 +631,9 @@ class AddressController @Inject()(
       //  calculate the elastic denominator value which will be used when scoring each address
       val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
       // add the Hopper and hybrid scores to the address
-      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator).take(resultLimit)
+      val threshold = 0.05D
+      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
+    //  HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator).filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(resultLimit)
     }
 
     val bulkItems = results.flatten.zip(scoredResults).map { case(bulkAddress, scoredAddressResponseAddress) =>
