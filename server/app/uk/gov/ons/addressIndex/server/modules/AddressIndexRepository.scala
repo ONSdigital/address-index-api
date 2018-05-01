@@ -72,7 +72,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }
 
 @Singleton
