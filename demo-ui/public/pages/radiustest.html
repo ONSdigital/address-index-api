@@ -363,9 +363,9 @@
 				}
 				updateAll();
                 })
-                //.fail(function(jqXHR, textStatus, errorThrown) {
-                //    alert("failed");
-                //})
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert("failed");
+                })
                 .always(function() {
                     $("body").css("cursor", "default");
                 });
