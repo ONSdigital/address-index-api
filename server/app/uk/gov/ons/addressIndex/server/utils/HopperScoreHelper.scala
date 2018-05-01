@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
+import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -33,6 +34,17 @@ object HopperScoreHelper  {
     val startingTime = System.currentTimeMillis()
     val localityParams = addresses.map(address => getLocalityParams(address,tokens))
     val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams, elasticDenominator))
+    val endingTime = System.currentTimeMillis()
+    logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
+    scoredAddresses
+  }
+
+  def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
+    val startingTime = System.currentTimeMillis()
+    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress),tokens))
+    val scoredAddresses = addresses.map(address => addScoresToAddress(AddressResponseAddress.fromHybridAddress(address.hybridAddress), tokens, localityParams, elasticDenominator))
+    val scores = scoredAddresses.map(sAddress => sAddress.confidenceScore)
+
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses

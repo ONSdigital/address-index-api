@@ -478,7 +478,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitperaddress: Option[Int], historical: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[Int], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -493,6 +493,12 @@ class AddressController @Inject()(
       case None => true
     }
 
+    val defThreshold = conf.config.elasticSearch.matchThreshold
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
+    val thresholdInvalid = Try(threshval.toFloat).isFailure
+    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
+
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
       jsonUnauthorized(SourceMissing)
@@ -505,12 +511,18 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (thresholdInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+      jsonBadRequest(ThresholdNotNumeric)
+    } else if (thresholdNotInRange) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+      jsonBadRequest(ThresholdNotInRange)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist)
+      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist, thresholdFloat)
     }
   }
 
@@ -555,7 +567,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitperaddress, includeFullAddress = true, hist)
+      bulkQuery(requestsData, configOverwrite, limitperaddress, includeFullAddress = true, hist, 5F)
     }
   }
 
@@ -596,7 +608,7 @@ class AddressController @Inject()(
       }
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist)
+      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist,5F)
     }
   }
 
@@ -606,7 +618,8 @@ class AddressController @Inject()(
     configOverwrite: Option[QueryParamsConfig],
     limitperaddress: Option[Int],
     includeFullAddress: Boolean = false,
-    historical: Boolean
+    historical: Boolean,
+    matchThreshold: Float
   )(implicit request: Request[_]): Result = {
 
     val networkid = request.headers.get("authorization").getOrElse("Anon").split("_").headOption.getOrElse("")
@@ -631,7 +644,7 @@ class AddressController @Inject()(
       //  calculate the elastic denominator value which will be used when scoring each address
       val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
       // add the Hopper and hybrid scores to the address
-      val threshold = 0.05D
+      val threshold = Try((matchThreshold / 100).toDouble).getOrElse(0.05D)
       HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
     //  HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator).filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(resultLimit)
     }
