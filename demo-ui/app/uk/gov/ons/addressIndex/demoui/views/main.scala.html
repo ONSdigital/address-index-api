@@ -50,7 +50,7 @@ siteSection: Option[String]
         <meta property="og:image" content='@routes.Assets.versioned("images/opengraph-image.png")'>
 
         <link rel="stylesheet" media="screen, print" href='@routes.Assets.versioned("stylesheets/styles.css")'>
-        <link href='http://fonts.googleapis.com/css?family=Lato:regular,bold&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Lato:regular,bold&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
         <link rel="shortcut icon" type="image/png" href='@routes.Assets.versioned("images/favicon.ico")'>
     </head>
     <body>
@@ -61,56 +61,6 @@ siteSection: Option[String]
             }
 
     $(function () {
-
-        var englishAddressLanguageClass = ".address-english";
-        var welshAddressLanguageClass = ".address-welsh";
-
-        var nagFormattedAddressClass = ".formatted-nag";
-        var pafFormattedAddressClass = ".formatted-paf";
-
-        $(".matchResults")
-                .data("format", nagFormattedAddressClass)
-                .data("language", englishAddressLanguageClass);
-
-        $(".formatted-nag-button").click(function (e) {
-            $(this).addClass("active");
-            var parent = $(this).closest(".matchResults");
-            parent.find(".formatted-paf-button").removeClass("active");
-            parent.find(parent.data("language") + nagFormattedAddressClass).show();
-            parent.find(parent.data("language") + pafFormattedAddressClass).hide();
-            parent.data("format", nagFormattedAddressClass);
-            return false;
-        });
-
-        $(".formatted-paf-button").click(function (e) {
-            $(this).addClass("active");
-            var parent = $(this).closest(".matchResults");
-            parent.find(".formatted-nag-button").removeClass("active");
-            parent.find(parent.data("language") + pafFormattedAddressClass).show();
-            parent.find(parent.data("language") + nagFormattedAddressClass).hide();
-            parent.data("format", pafFormattedAddressClass);
-            return false;
-        });
-
-        $(".eng-wyc-switch-buttons:not(.disabled) .formatted-language-button-eng").click(function(e){
-            $(this).addClass("active");
-            var parent = $(this).closest(".matchResults");
-            parent.find(".formatted-language-button-cym").removeClass("active");
-            parent.find(parent.data("format") + englishAddressLanguageClass).show();
-            parent.find(parent.data("format") + welshAddressLanguageClass).hide();
-            parent.data("language", englishAddressLanguageClass);
-            return false;
-        });
-
-        $(".eng-wyc-switch-buttons:not(.disabled) .formatted-language-button-cym").click(function(e){
-            $(this).addClass("active");
-            var parent = $(this).closest(".matchResults");
-            parent.find(".formatted-language-button-eng").removeClass("active");
-            parent.find(parent.data("format") + welshAddressLanguageClass).show();
-            parent.find(parent.data("format") + englishAddressLanguageClass).hide();
-            parent.data("language", welshAddressLanguageClass);
-            return false;
-        });
 
         $('.mailto').click(function() {
             var timeout;
@@ -130,54 +80,7 @@ siteSection: Option[String]
     });
 
 
-    function formattedAddress(uprn, position, apiUrl, apiKey) {
-        var url = apiUrl.concat("/addresses/").concat(uprn);
-        $.support.cors = true; // this is required for IE8
-        $.ajax({
-          type: 'GET',
-          url: url,
-          dataType: 'json',
-          headers: {
-           "Authorization": apiKey
-          }
-        })
-         .done(function(data) {
-            var resUprn = data.response.address.uprn;
-            var formattedAddress = data.response.address.formattedAddress;
 
-            if (typeof formattedAddress !== 'undefined') {
-                $("#" + position).append("<div id='" + resUprn + "'>" + formattedAddress + " (" + resUprn + ")" + "</div>");
-          }
-         });
-
-    }
-
-    function hierarchyResult(uprn, position, apiUrl, apiKey) {
-        var url = apiUrl.concat("/addresses/").concat(uprn);
-        $.support.cors = true; // this is required for IE8
-        $.ajax({
-          type: 'GET',
-          url: url,
-          dataType: 'json',
-          headers: {
-           "Authorization": apiKey
-          }
-        })
-         .done(function(data) {
-            var resUprn = data.response.address.uprn;
-            var formattedAddress = data.response.address.formattedAddress;
-
-            var formattedAddressRest = formattedAddress.substring(0, formattedAddress.lastIndexOf(",") + 1);
-            var formattedAddressPostcode = formattedAddress.substring(formattedAddress.lastIndexOf(",") + 1, formattedAddress.length);
-
-            var formattedAddressTitleCase = formattedAddressRest.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) + formattedAddressPostcode;
-
-            if (typeof formattedAddress !== 'undefined') {
-                $("#" + position).append("<tr id='" + resUprn + "'><td>" + resUprn + "</td><td><a href='" + resUprn + "'>" + formattedAddressTitleCase + "</a></td></tr>");
-          }
-         });
-
-    }
 
     </script>
 
