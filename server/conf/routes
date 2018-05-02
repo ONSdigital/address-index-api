@@ -181,7 +181,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[Int], historical: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[Int], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -198,7 +198,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[Int], historical: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[Int], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses as tokens.
@@ -214,7 +214,7 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[Int], historical: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[Int], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
