@@ -72,7 +72,7 @@ class ApplicationHomeController @Inject()
       Ok(uk.gov.ons.addressIndex.demoui.views.html.login("","", version))
     }
     else {
-      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage())
         .withSession("api-key" -> "")
     }
   }

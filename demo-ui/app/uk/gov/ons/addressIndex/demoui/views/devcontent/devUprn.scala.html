@@ -5,12 +5,35 @@
 <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
 
 @if(userLang == "cy") {
-    <article>
-        <h1 class="jupiter">Anghofio cyfrinair</h1>
-        <p>Os ydych chi'n ansicr ynghylch eich manylion mewngofnodi, bydd angen i chi ailosod eich cyfrinair.</p>
-        <p>Mae angen i gyflwyno ffoniwch ddesg gymorth i ailosod eich cyfrinair ddefnyddwyr Swyddfa Ystadegau Gwladol. Defnyddwyr allanol, cysylltwch â ni i gael mynediad at eich cyfrif.</p>
-        <p><a href="@{routes.ApplicationHomeController.login}">Ôl i lofnodi Tudalen</a></p>
-    </article>
+    <div class="group">
+        <div class="col-12">
+            <h1 class="jupiter">Chwilio am UPRN</h1>
+            <p class="venus">Dychwelyd un cyfeiriad, wedi'i nodi gan ei UPRN.</p>
+        </div>
+    </div>
+    <div class="group">
+        <section id="request" class="col-6">
+            <div id="single-match-tab" class="tab-content">
+
+                <div class="fields">
+                    <dl>
+                        <dt><label for="uprn" class="venus">UPRN: </label></dt>
+                        <dd><input type="text" name="uprn" id="uprn" value="" placeholder="10023122457" class="mars" /></dd>
+                    </dl>
+                    <dl>
+                        <button class="venus" onclick="getUPRN()">Cael ymateb</button>
+                    </dl>
+                </div>
+
+            </div>
+        </section>
+        <section id="response" class="col-6">
+            <div class="content-container">
+                <div class="venus">Ymateb:</div>
+                <div id="response-text" class="preformatted">Bydd yr ymateb yn ymddangos yma</div>
+            </div>
+        </section>
+    </div>
 }else{
 
 
@@ -51,7 +74,7 @@
     <script>
 
         function getUPRN() {
-            getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses/" + document.getElementById("uprn").value)
+            getJSONResponseWithKey("https://addressindex-api-test.apps.cf1.ons.statistics.gov.uk/addresses/" + document.getElementById("uprn").value)
         }
 
         function getJSONResponseWithKey(durl) {

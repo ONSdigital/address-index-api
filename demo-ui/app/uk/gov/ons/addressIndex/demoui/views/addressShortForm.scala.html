@@ -80,7 +80,7 @@ apiKey: String = ""
 
         @if(index != expandRow) {
             <div class="clericalInfo mars">
-                <a href="?filter=@filter&page=@{pageNum}&historical=@historical&expand=@index#@index">@messages("clerical.addinfo")</a>
+                <a href="?filter=@filter&page=@{pageNum}&historical=@historical&matchthreshold=@matchthreshold&expand=@index#@index">@messages("clerical.addinfo")</a>
             </div>
         }
 
@@ -89,7 +89,7 @@ apiKey: String = ""
 
             @if(index >= 0) {
                 <div class="clericalInfo mars">
-                    <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&expand=-1#@index">Hide</a>
+                    <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&expand=-1#@index">Hide</a>
                 </div>
             }
 
@@ -490,7 +490,7 @@ apiKey: String = ""
 
             @if(index >= 0) {
             <div class="clericalInfo mars">
-                <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&expand=-1#@index&historical=@{historical}">Hide</a>
+                <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&expand=-1#@index">Hide</a>
             </div>
             }
 
