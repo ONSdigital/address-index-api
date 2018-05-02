@@ -207,7 +207,9 @@ object FallbackConfig {
 
 case class BulkConfig(
   batch: BatchConfig,
-  limitperaddress: Int
+  limitperaddress: Int,
+  maxLimitperaddress: Int,
+  matchThreshold: Float
 )
 
 case class BatchConfig(

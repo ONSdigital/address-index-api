@@ -478,7 +478,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitperaddress: Option[Int], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -493,11 +493,17 @@ class AddressController @Inject()(
       case None => true
     }
 
+    // get the defaults and maxima for the paging parameters from the config
+    val defLimit = conf.config.bulk.limitperaddress
+    val maxLimit = conf.config.bulk.maxLimitperaddress
+    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+
     val defThreshold = conf.config.elasticSearch.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdInvalid = Try(threshval.toFloat).isFailure
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
-    logger.info("threshold = " + thresholdFloat)
     val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
 
     if (sourceStatus == missing) {
@@ -512,6 +518,15 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitNotNumericAddressResponseError.message)
+      jsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooSmallAddressResponseError.message)
+      jsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooLargeAddressResponseError.message)
+      jsonBadRequest(LimitTooLarge)
     } else if (thresholdInvalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
       jsonBadRequest(ThresholdNotNumeric)
@@ -523,7 +538,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist, thresholdFloat)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, hist, thresholdFloat)
     }
   }
 
@@ -536,7 +551,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitperaddress: Option[Int], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -551,6 +566,12 @@ class AddressController @Inject()(
       case None => true
     }
 
+    val defLimit = conf.config.bulk.limitperaddress
+    val maxLimit = conf.config.bulk.maxLimitperaddress
+    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+
     val defThreshold = conf.config.elasticSearch.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdInvalid = Try(threshval.toFloat).isFailure
@@ -570,6 +591,15 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitNotNumericAddressResponseError.message)
+      jsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooSmallAddressResponseError.message)
+      jsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooLargeAddressResponseError.message)
+      jsonBadRequest(LimitTooLarge)
     } else if (thresholdInvalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
       jsonBadRequest(ThresholdNotNumeric)
@@ -581,7 +611,7 @@ class AddressController @Inject()(
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitperaddress, includeFullAddress = true, hist, thresholdFloat)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = true, hist, thresholdFloat)
     }
   }
 
@@ -589,7 +619,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitperaddress: Option[Int], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -603,6 +633,11 @@ class AddressController @Inject()(
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
     }
+    val defLimit = conf.config.bulk.limitperaddress
+    val maxLimit = conf.config.bulk.maxLimitperaddress
+    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
     val defThreshold = conf.config.elasticSearch.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
@@ -623,6 +658,15 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitNotNumericAddressResponseError.message)
+      jsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooSmallAddressResponseError.message)
+      jsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooLargeAddressResponseError.message)
+      jsonBadRequest(LimitTooLarge)
     } else if (thresholdInvalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
       jsonBadRequest(ThresholdNotNumeric)
@@ -635,7 +679,7 @@ class AddressController @Inject()(
       }
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitperaddress, false, hist, thresholdFloat)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, hist, thresholdFloat)
     }
   }
 

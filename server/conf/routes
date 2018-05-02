@@ -175,13 +175,15 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: matchthreshold
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[Int], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -192,13 +194,15 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: matchthreshold
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[Int], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses as tokens.
@@ -208,13 +212,15 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: matchthreshold
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[Int], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
