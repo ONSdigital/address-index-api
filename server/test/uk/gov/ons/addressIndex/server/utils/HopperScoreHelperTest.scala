@@ -192,7 +192,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
-    confidenceScore = 0.6345683465196684D,
+    confidenceScore = 0.6346D,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScoreEmpty)
   )
@@ -211,7 +211,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     paf = Some(mockPafAddress2),
     nag = Some(mockNagAddress2),
     geo = None,
-    confidenceScore = 0.6345683465196684D,
+    confidenceScore = 0.6346D,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScoreEmpty)
   )
@@ -230,7 +230,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
-    confidenceScore = 0.6345683465196684D,
+    confidenceScore = 0.6346D,
     underlyingScore = 1.0f,
     bespokeScore = Some(mockBespokeScore)
   )
