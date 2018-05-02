@@ -72,7 +72,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }
 
 @Singleton
@@ -697,7 +697,7 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
@@ -722,7 +722,7 @@ class AddressIndexRepository @Inject()(
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
             // add the Hopper and hybrid scores to the address
-            val matchThreshold = 5
+           // val matchThreshold = 5
             val threshold = Try((matchThreshold / 100).toDouble).getOrElse(0.05D)
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map{ case (b, s) =>
