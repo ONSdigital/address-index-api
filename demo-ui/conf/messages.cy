@@ -803,6 +803,7 @@ multi.table.match.type = Math Match
 multi.table.uprn = UPRN
 multi.table.score = Sgôr
 multi.table.comparable.score = Sgôr cymaradwy
+multi.table.confidence.score = Sgôr Hyder
 multi.table.actual.score = Gwirioneddol Score
 multi.table.building.score = Building Sgôr
 multi.table.unit.score = Sgôr Uned
