@@ -705,8 +705,10 @@ class AddressIndexRepository @Inject()(
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
+          val tokens = requestData.tokens
           val emptyBulk = BulkAddress.empty(requestData)
-          val emptyBulkAddress =  AddressBulkResponseAddress.fromBulkAddress(emptyBulk, AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress), false)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress)),tokens, 1D)
+          val emptyBulkAddress =  AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, false)
           if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
           else {
             val bulkAddresses = hybridAddresses.map { hybridAddress =>
@@ -717,14 +719,12 @@ class AddressIndexRepository @Inject()(
               AddressResponseAddress.fromHybridAddress(hybridAddress)
             }
 
-            val tokens = requestData.tokens
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
             // add the Hopper and hybrid scores to the address
             val matchThreshold = 5
             val threshold = Try((matchThreshold / 100).toDouble).getOrElse(0.05D)
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
-            //  HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator).filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(resultLimit)
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map{ case (b, s) =>
                 AddressBulkResponseAddress.fromBulkAddress(b, s, false)
             }
