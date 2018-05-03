@@ -45,7 +45,7 @@ GET     /codelists          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #    200:
 #      description: list of valid source codes and names (e.g. council tax)
 ###
-GET     /codelist/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Return a list of available classification codes
@@ -53,7 +53,7 @@ GET     /codelist/source             uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: list of classifications e.g. RD01=Detached House
 ###
-GET     /codelist/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Return a list of available local custodian codes
@@ -61,7 +61,7 @@ GET     /codelist/classification     uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: list of addressbase custodian codes to LA matches
 ###
-GET     /codelist/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Return a list of available logical status values
@@ -69,7 +69,7 @@ GET     /codelist/custodian          uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: list of valid statuses e.g. 8=historical
 ###
-GET     /codelist/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Gets an address by UPRN.
@@ -175,13 +175,15 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: matchthreshold
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[Int], historical: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -192,13 +194,15 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: matchthreshold
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[Int], historical: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses as tokens.
@@ -208,13 +212,15 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: matchthreshold
+#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[Int], historical: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

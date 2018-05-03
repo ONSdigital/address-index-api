@@ -14,7 +14,9 @@ import play.api.Logger
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
+import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseAddress, AddressResponseAddress}
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -70,7 +72,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }
 
 @Singleton
@@ -695,17 +697,40 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
 
     val addressRequests = requestsData.map { requestData =>
-      val bulkAddressRequest: Future[Seq[BulkAddress]] =
+      val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         queryAddresses(requestData.tokens, 0, limit, "","","50.71","-3.51", queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
-          if (hybridAddresses.isEmpty) Seq(BulkAddress.empty(requestData))
-          else hybridAddresses.map { hybridAddress =>
-            BulkAddress.fromHybridAddress(hybridAddress, requestData)
+          val tokens = requestData.tokens
+          val emptyBulk = BulkAddress.empty(requestData)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress)),tokens, 1D)
+          val emptyBulkAddress =  AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, false)
+          if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
+          else {
+            val bulkAddresses = hybridAddresses.map { hybridAddress =>
+              BulkAddress.fromHybridAddress(hybridAddress, requestData)
+            }
+
+            val addressResponseAddresses = hybridAddresses.map { hybridAddress =>
+              AddressResponseAddress.fromHybridAddress(hybridAddress)
+            }
+
+            //  calculate the elastic denominator value which will be used when scoring each address
+            val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
+            // add the Hopper and hybrid scores to the address
+           // val matchThreshold = 5
+            val threshold = Try((matchThreshold / 100).toDouble).getOrElse(0.05D)
+            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
+            val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map{ case (b, s) =>
+                AddressBulkResponseAddress.fromBulkAddress(b, s, false)
+            }
+            val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+
+            if (thresholdedAddresses.length == 0) Seq(emptyBulkAddress) else thresholdedAddresses
           }
         }
 
