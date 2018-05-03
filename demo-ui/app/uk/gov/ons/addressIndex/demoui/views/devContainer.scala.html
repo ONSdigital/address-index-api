@@ -1,11 +1,13 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @import uk.gov.ons.addressIndex.demoui.controllers.routes
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
 @(
     version: DemoUIAddressIndexVersionModule,
     content: String,
-    userLang: String
+    userLang: String,
+    conf : DemouiConfigModule
 )(implicit messages: Messages)
 
 @main(title = messages("navbar.developers"), version = version, showBannerNavigation = false, showBannerTagline = false, siteSection = Some("developers")) {
@@ -23,27 +25,27 @@
         <div class="wrapper">
 
             @if(content == "landing"){
-                @devcontent.devLanding(userLang)
+                @devcontent.devLanding(userLang, conf)
             }
 
             @if(content == "typeAhead"){
-                @devcontent.devTypeAhead(userLang)
+                @devcontent.devTypeAhead(userLang, conf)
             }
 
             @if(content == "version"){
-                @devcontent.devVersion(userLang)
+                @devcontent.devVersion(userLang, conf)
             }
 
             @if(content == "single"){
-                @devcontent.devSingleSearch(userLang)
+                @devcontent.devSingleSearch(userLang, conf)
             }
 
             @if(content == "uprn"){
-                @devcontent.devUprn(userLang)
+                @devcontent.devUprn(userLang, conf)
             }
 
             @if(content == "postcode"){
-                @devcontent.devPostcode(userLang)
+                @devcontent.devPostcode(userLang, conf)
             }
 
         </div>

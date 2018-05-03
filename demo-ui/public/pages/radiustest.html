@@ -109,7 +109,7 @@
             border-spacing: 0px;
         }
     </style>
-	<script src="http://code.jquery.com/jquery-1.11.2.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.2.js"></script>
     <script type="text/javascript">
         /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
         /* Latitude/longitude spherical geodesy tools                         (c) Chris Veness 2002-2016  */
@@ -330,7 +330,7 @@
 			}
 			else
 			{
-                getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/branch/addresses?input=" + document.getElementById("term").value +
+                getJSONResponseWithKey("https://apigw-in-d-01:9443/ai/develop/addresses?input=" + document.getElementById("term").value +
 				"&lat=" + document.getElementById("lat").value + "&lon=" + document.getElementById("lon").value + 
 			    "&rangekm=" + document.getElementById("range").value + "&filter=" + document.getElementById("filter").value +
 				"&limit=" + document.getElementById("max").value)
