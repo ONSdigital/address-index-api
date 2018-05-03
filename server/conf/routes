@@ -45,7 +45,7 @@ GET     /codelists          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #    200:
 #      description: list of valid source codes and names (e.g. council tax)
 ###
-GET     /codelist/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Return a list of available classification codes
@@ -53,7 +53,7 @@ GET     /codelist/source             uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: list of classifications e.g. RD01=Detached House
 ###
-GET     /codelist/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Return a list of available local custodian codes
@@ -61,7 +61,7 @@ GET     /codelist/classification     uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: list of addressbase custodian codes to LA matches
 ###
-GET     /codelist/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Return a list of available logical status values
@@ -69,7 +69,7 @@ GET     /codelist/custodian          uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: list of valid statuses e.g. 8=historical
 ###
-GET     /codelist/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
 
 ###
 #  summary: Gets an address by UPRN.

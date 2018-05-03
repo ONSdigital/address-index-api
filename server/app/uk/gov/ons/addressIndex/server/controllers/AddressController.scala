@@ -500,7 +500,7 @@ class AddressController @Inject()(
     val limitInvalid = Try(limval.toInt).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
-    val defThreshold = conf.config.elasticSearch.matchThreshold
+    val defThreshold = conf.config.bulk.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdInvalid = Try(threshval.toFloat).isFailure
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
@@ -572,7 +572,7 @@ class AddressController @Inject()(
     val limitInvalid = Try(limval.toInt).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
-    val defThreshold = conf.config.elasticSearch.matchThreshold
+    val defThreshold = conf.config.bulk.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdInvalid = Try(threshval.toFloat).isFailure
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
@@ -639,7 +639,7 @@ class AddressController @Inject()(
     val limitInvalid = Try(limval.toInt).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
-    val defThreshold = conf.config.elasticSearch.matchThreshold
+    val defThreshold = conf.config.bulk.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdInvalid = Try(threshval.toFloat).isFailure
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
