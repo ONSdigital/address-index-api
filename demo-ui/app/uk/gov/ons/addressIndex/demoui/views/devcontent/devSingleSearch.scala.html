@@ -1,6 +1,8 @@
 @import uk.gov.ons.addressIndex.demoui.controllers.routes
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
-@(userLang: String)
+@(userLang: String,
+conf : DemouiConfigModule)
 
 <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
 
@@ -56,10 +58,10 @@
 
         function getSingle() {
         	if (document.getElementById("filter").value != "") {
-        		getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses?input=" + document.getElementById("address").value + "&filter=" + document.getElementById("filter").value)
+        		getJSONResponseWithKey("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses?input=" + document.getElementById("address").value + "&classificationfilter=" + document.getElementById("filter").value)
         		}
         	else {
-            	getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses?input=" + document.getElementById("address").value)
+            	getJSONResponseWithKey("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses?input=" + document.getElementById("address").value)
         	}
         }
 

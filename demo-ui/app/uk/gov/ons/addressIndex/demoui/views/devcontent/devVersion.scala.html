@@ -1,6 +1,8 @@
 @import uk.gov.ons.addressIndex.demoui.controllers.routes
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
-@(userLang: String)
+@(userLang: String,
+conf : DemouiConfigModule)
 
 <script src="http://code.jquery.com/jquery-3.2.0.js"></script>
 
@@ -41,7 +43,7 @@
     <script>
 
 		function getVersion() {
-            getJSONResponse("http://addressindex-api-dev.apps.devtest.onsclofo.uk/version")
+            getJSONResponse("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/version")
         }
 
         function getJSONResponse(durl) {
