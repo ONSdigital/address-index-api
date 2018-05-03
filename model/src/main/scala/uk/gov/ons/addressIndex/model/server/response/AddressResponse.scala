@@ -206,12 +206,6 @@ object AddressBulkResponseAddress {
     bespokeScore = addressResponseAddress.bespokeScore
   )
 
- // def toBulkAddress(addressResponseAddress: AddressResponseAddress): BulkAddress = BulkAddress(
- //   id = AddressResponseAddress.id,
- //   inputAddress = AddressResponseAddress.inputAddress,
- //   tokens = AddressResponseAddress.tokens,
- //   hybridAddress = null
- // )
 }
 
 
