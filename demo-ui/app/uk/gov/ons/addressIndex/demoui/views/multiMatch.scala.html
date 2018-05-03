@@ -177,7 +177,7 @@
                 <div class="col-6">
                     <section class="infobox-standard mars">
                         <p>To get started, upload a CSV ﬁle of addresses to be matched.</p>
-                        <p>The selected ﬁle must be 10MB or less with only two columns with headers; ID and address. Download a sample ﬁle.</p>
+                        <p>The selected ﬁle must be 1MB or less with only two columns with headers; id and address. Download a <a href='@routes.Assets.versioned("images/help/exsample.csv").toString'>sample file</a>.</p>
                         <p>You can download your results as a CSV ﬁle or preview them in your browser. Your results will include a match accuracy score.</p>
                     </section>
                 </div>
@@ -246,6 +246,7 @@
                                     @tableHeaderHelper(messages("multi.table.matched.address"))
                                     @tableHeaderHelper(messages("multi.table.uprn"))
                                     @tableHeaderHelper(messages("multi.table.match.type"))
+                                    @tableHeaderHelper(messages("multi.table.confidence.score"))
                                     @tableHeaderHelper(messages("multi.table.actual.score"))
                                     @tableHeaderHelper(messages("multi.table.building.score"))
                                     @tableHeaderHelper(messages("multi.table.unit.score"))
@@ -261,6 +262,7 @@
                                         <td>@{if(result.matchedFormattedAddress.isEmpty) { messages("not.found")} else { result.matchedFormattedAddress } } </td>
                                         <td>@{result.uprn}</td>
                                         <td align="center" class="match-type-@matchType">@matchType</td>
+                                        <td align="center">@{"%.2f".format(result.confidenceScore)}</td>
                                         <td align="center">@{"%.2f".format(result.score)}</td>
                                         <td align="center">@{ "%.2f".format(result.bespokeScore.map(score => score.structuralScore).getOrElse(0)) }</td>
                                         <td align="center">@{ result.bespokeScore.map(score => "%.2f".format(score.objectScore)).getOrElse("-1.0") }</td>

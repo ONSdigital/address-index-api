@@ -102,6 +102,7 @@ class BulkMatchController @Inject()(
           "\"" + bulkAddress.matchedFormattedAddress + "\"",
           bulkAddress.uprn,
           MatchTypeHelper.matchType(bulkAddress.id, ids, bulkAddress.matchedFormattedAddress),
+          bulkAddress.confidenceScore,
           bulkAddress.score,
           bulkAddress.bespokeScore.map(_.structuralScore).getOrElse(0),
           bulkAddress.bespokeScore.map(_.objectScore).getOrElse(-1),

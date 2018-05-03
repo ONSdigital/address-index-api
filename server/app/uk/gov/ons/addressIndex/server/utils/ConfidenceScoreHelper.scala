@@ -27,7 +27,7 @@ object ConfidenceScoreHelper {
     val hScore = structuralScore * (alpha + (0.99-alpha) * unitScoreReplaced)
     val hScoreScaled = pow(hScore,6)
     val elasticRatioScaled = 1 / (1 + exp(15 * (0.99 - elasticRatio)))
-    max(hScoreScaled, elasticRatioScaled)
+    BigDecimal(max(hScoreScaled, elasticRatioScaled)).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
   /**

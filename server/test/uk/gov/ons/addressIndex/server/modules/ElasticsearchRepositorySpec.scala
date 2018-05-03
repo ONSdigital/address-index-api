@@ -1448,7 +1448,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val results = repository.queryBulk(inputs, 1).await
+      val results = repository.queryBulk(inputs, limit = 1, matchThreshold = 5F).await
       val addresses = results.collect{
         case Right(address) => address
       }.flatten
@@ -1457,8 +1457,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       results.length shouldBe 2
       addresses.length shouldBe 2
 
-      addresses(0).hybridAddress.uprn shouldBe hybridFirstUprn.toString
-      addresses(1).hybridAddress.uprn shouldBe hybridSecondaryUprn.toString
+      addresses(0).uprn shouldBe hybridFirstUprn.toString
+      addresses(1).uprn shouldBe hybridSecondaryUprn.toString
     }
 
     "return empty BulkAddress if there were no results for an address" in {
@@ -1479,7 +1479,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val results = repository.queryBulk(inputs, 1).await
+      val results = repository.queryBulk(inputs, limit=1, matchThreshold=5F).await
       val addresses = results.collect {
         case Right(address) => address
       }.flatten
@@ -1488,8 +1488,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       results.length shouldBe 2
       addresses.length shouldBe 2
 
-      addresses(0).hybridAddress.uprn shouldBe HybridAddress.empty.uprn
-      addresses(1).hybridAddress.uprn shouldBe HybridAddress.empty.uprn
+      addresses(0).uprn shouldBe HybridAddress.empty.uprn
+      addresses(1).uprn shouldBe HybridAddress.empty.uprn
     }
 
     "return prefix filter for 'R' when passed filter 'residential' " in {

@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.model.db
 
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
+import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseAddress
 
 /**
   * DTO to hold the information about found address while doing bulk requests
@@ -60,7 +61,7 @@ case class BulkAddressRequestData(
   * @param failedRequests stream containing the data used to create failed requests
   */
 case class BulkAddresses(
-  successfulBulkAddresses: Stream[Seq[BulkAddress]],
+  successfulBulkAddresses: Stream[Seq[AddressBulkResponseAddress]],
   failedRequests: Stream[BulkAddressRequestData]
 )
 
