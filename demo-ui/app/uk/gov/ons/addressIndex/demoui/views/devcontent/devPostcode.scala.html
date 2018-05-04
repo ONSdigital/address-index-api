@@ -1,6 +1,9 @@
 @import uk.gov.ons.addressIndex.demoui.controllers.routes
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
-@(userLang: String)
+@(userLang: String,
+conf : DemouiConfigModule
+)
 
 <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
 
@@ -56,10 +59,10 @@
 
         function getPostcode() {
         	if (document.getElementById("filter").value != "") {
-        		getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses/postcode/" + document.getElementById("postcode").value + "?filter=" + document.getElementById("filter").value)
+        		getJSONResponseWithKey("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/postcode/" + document.getElementById("postcode").value + "?classificationfilter=" + document.getElementById("filter").value)
         		}
         	else {
-            	getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses/postcode/" + document.getElementById("postcode").value)
+            	getJSONResponseWithKey("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/postcode/" + document.getElementById("postcode").value)
         	}
         }
 
