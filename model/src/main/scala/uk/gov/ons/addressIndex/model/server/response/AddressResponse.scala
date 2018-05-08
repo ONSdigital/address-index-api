@@ -946,3 +946,8 @@ object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
   code = 34,
   message = "Matchthreshold parameter must be greater than 0 and less than or equal to 100"
 )
+
+object FilterInvalidPostcodeError extends AddressResponseError(
+  code = 35,
+  message = "Invalid filter value supplied (postcode)"
+)

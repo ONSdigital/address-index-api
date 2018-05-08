@@ -141,8 +141,8 @@ class AddressIndexRepository @Inject()(
     val filterValue: String = {
       if (filters == "residential") "R"
       else if (filters == "commercial") "C"
-      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1)
-      else filters
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
+      else filters.toUpperCase
     }
 
     val postcodeFormatted: String = {
@@ -542,8 +542,8 @@ class AddressIndexRepository @Inject()(
     val filterValue: String = {
       if (filters == "residential") "R"
       else if (filters == "commercial") "C"
-      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1)
-      else filters
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
+      else filters.toUpperCase
     }
 
     val radiusQuery = {
