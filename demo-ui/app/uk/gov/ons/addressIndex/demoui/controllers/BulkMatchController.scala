@@ -92,7 +92,7 @@ class BulkMatchController @Inject()(
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
-      val header = "id,inputAddress,matchedAddress,uprn,matchType,documentScore,buildingScore,unitScore,rank\n"
+      val header = "id,inputAddress,matchedAddress,uprn,matchType,confidenceScore,documentScore,buildingScore,unitScore,rank\n"
 
       val ids = apiResponse.bulkAddresses.map(_.id)
       val data = apiResponse.bulkAddresses.zipWithIndex.map { case (bulkAddress, index) =>
