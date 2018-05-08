@@ -699,9 +699,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
     val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    // currently don't get extra addresses
-    val expandedLimit = resultLimit
-    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(expandedLimit), configOverwrite, historical, matchThreshold)
+    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(resultLimit), configOverwrite, historical, matchThreshold)
 
     logger.info(s"#bulkQuery processed")
 

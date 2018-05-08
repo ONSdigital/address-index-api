@@ -20,6 +20,7 @@ import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreH
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import scala.math._
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -701,7 +702,7 @@ class AddressIndexRepository @Inject()(
 
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, limit, "","","50.71","-3.51", queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, max(limit,5), "","","50.71","-3.51", queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
@@ -728,7 +729,7 @@ class AddressIndexRepository @Inject()(
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map{ case (b, s) =>
                 AddressBulkResponseAddress.fromBulkAddress(b, s, false)
             }
-            val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+            val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limit)
 
             if (thresholdedAddresses.length == 0) Seq(emptyBulkAddress) else thresholdedAddresses
           }
