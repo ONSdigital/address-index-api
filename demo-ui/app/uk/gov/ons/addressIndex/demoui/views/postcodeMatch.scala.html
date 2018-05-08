@@ -25,35 +25,34 @@ version: DemoUIAddressIndexVersionModule
 
     <div class="container">
 
+        @warningMessage.map { message =>
+        <div class="wrapper">
+            <div class="group">
+                <div id="warning-message" class="col-6">
+                    <div class="warning-error-message venus">A Problem Has Occured</div>
+                    <div class="warning-error-suggestion mars" role="alert"><span onclick="setFocus('address');">@message</span></div>
+                </div>
+            </div>
+        </div>
+        }
+
         <section class="match-form-container">
             <div class="wrapper">
                 <div class="group">
-
                     <h1 class="jupiter col-12">@messages("postcode.sfatext")</h1>
-
-                    <section class="searchbox-results">
-                        @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {
-                        <div id="search-form" class="search-bar-active">
-                            @forms.postcodeForm(postcodeSearchForm, display = "inline", true, "", messages("postcodesearchform.placeholder"), messages("postcodesearchform.labelfilter"), messages("postcodesearchform.placeholderfilter"))
-                        </div>
-                        }
-                    </section>
-
-
                 </div>
+                <section class='@if(warningMessage){search-error}else{searchbox-results}'>
+                    @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {
+                    <div id="search-form" class="search-bar-active">
+                        @forms.postcodeForm(postcodeSearchForm, display = "inline", true, "", messages("postcodesearchform.placeholder"), messages("postcodesearchform.labelfilter"), messages("postcodesearchform.placeholderfilter"))
+                    </div>
+                    }
+                </section>
             </div>
-
         </section>
 
         <div class="wrapper">
             <div class="group">
-                @warningMessage.map { message =>
-                    <div id="warning-message" class="col-12">
-                        <div class="result-content">
-                            <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
-                        </div>
-                    </div>
-                }
 
                 <section class="postcode-match-results-container col-12">
                     <div class="postcode-match-results-count saturn">

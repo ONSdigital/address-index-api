@@ -68,8 +68,10 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def postcodeQuery(request: AddressIndexPostcodeRequest)
-                  (implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] = {
-    postcodeQueryWSRequest(request).withHttpHeaders("authorization" -> request.apiKey).get.map(_.json.as[AddressByPostcodeResponseContainer])
+    (implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] = {
+      postcodeQueryWSRequest(request)
+        .get
+        .map(_.json.as[AddressByPostcodeResponseContainer])
   }
 
   /**
@@ -81,6 +83,7 @@ trait AddressIndexClient {
   def postcodeQueryWSRequest(request: AddressIndexPostcodeRequest): WSRequest = {
     PostcodeQuery(request.postcode.toString)
       .toReq
+      .withHttpHeaders("authorization" -> request.apiKey)
       .withQueryStringParameters(
         //"postcode" -> request.postcode,
         "classificationfilter" -> request.filter,

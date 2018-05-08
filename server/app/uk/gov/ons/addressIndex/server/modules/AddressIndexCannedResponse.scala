@@ -123,6 +123,10 @@ trait AddressIndexCannedResponse {
     BadRequestTemplate(FilterInvalidError)
   }
 
+  def FilterInvalidPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(FilterInvalidPostcodeError)
+  }
+
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
   }
