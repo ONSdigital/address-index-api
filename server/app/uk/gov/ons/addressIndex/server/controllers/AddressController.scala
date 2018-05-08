@@ -161,7 +161,7 @@ class AddressController @Inject()(
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
-    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
       futureJsonBadRequest(FilterInvalid)
     } else if (rangeInvalid) {
@@ -418,9 +418,9 @@ class AddressController @Inject()(
     } else if (postcode.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryPostcodeAddressResponseError.message)
       futureJsonBadRequest(EmptySearchPostcode)
-    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
-      writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
-      futureJsonBadRequest(FilterInvalid)
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
+      writeSplunkLogs(badRequestErrorMessage = FilterInvalidPostcodeError.message)
+      futureJsonBadRequest(FilterInvalidPostcode)
     } else {
       val tokens = parser.parse(postcode)
 
