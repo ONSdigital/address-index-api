@@ -135,6 +135,7 @@ case class AddressBySearchResponse(
   limit: Int,
   offset: Int,
   total: Long,
+  sampleSize: Long,
   maxScore: Double,
   matchthreshold: Float
 )

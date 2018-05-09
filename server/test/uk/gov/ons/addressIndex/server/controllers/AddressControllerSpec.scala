@@ -317,6 +317,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 1,
+          sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f
         ),
@@ -351,6 +352,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 1,
+          sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f
         ),
@@ -385,6 +387,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -420,6 +423,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -484,6 +488,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -548,6 +553,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -612,6 +618,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -676,6 +683,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -740,6 +748,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -804,6 +813,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -838,6 +848,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -872,6 +883,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -906,6 +918,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -940,6 +953,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -974,6 +988,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -1008,6 +1023,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -1044,6 +1060,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -1108,6 +1125,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
@@ -1172,6 +1190,7 @@ class AddressControllerSpec extends PlaySpec with Results{
           limit = 10,
           offset = 0,
           total = 0,
+          sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f
         ),
