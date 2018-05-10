@@ -191,7 +191,8 @@ class AddressController @Inject()(
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
       // try to get enough results to accurately calcuate the hybrid score (may need to be more sophisticated)
-      val limitExpanded = max(offsetInt + (limitInt * 2),20)
+      val minimumSample = conf.config.elasticSearch.minimumSample
+      val limitExpanded = max(offsetInt + (limitInt * 2),minimumSample)
       val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -233,6 +234,7 @@ class AddressController @Inject()(
               offset = offsetInt,
               total = newTotal,
               maxScore = maxScore,
+              sampleSize=limitExpanded,
               matchthreshold = thresholdFloat
             ),
             status = OkAddressResponseStatus

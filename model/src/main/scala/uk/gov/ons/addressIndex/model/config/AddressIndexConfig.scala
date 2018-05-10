@@ -26,7 +26,8 @@ case class ElasticSearchConfig(
   defaultOffset: Int,
   maximumLimit: Int,
   maximumOffset: Int,
-  matchThreshold: Float
+  matchThreshold: Float,
+  minimumSample: Int
 )
 
 case class QueryParamsConfig(
@@ -209,7 +210,8 @@ case class BulkConfig(
   batch: BatchConfig,
   limitperaddress: Int,
   maxLimitperaddress: Int,
-  matchThreshold: Float
+  matchThreshold: Float,
+  minimumSample: Int
 )
 
 case class BatchConfig(
