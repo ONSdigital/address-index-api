@@ -192,6 +192,10 @@ postcode.pleasesupply=Rhowch eich cod post
 postcode.openmap=Map o'r lleoliad
 postcode.intro=I ddechrau, rhowch cod post union.
 
+results.foundatleastpre=Rydym wedi paru o leiaf
+results.foundexactpre=Rydym wedi paru
+results.foundpost=cyfeiriadau
+
 postcodesearchform.labelsearch=Rhowch gyfeiriad
 
 radius.title=Radiws demo-dod o hyd i gyfeiriad o fewn radiws o

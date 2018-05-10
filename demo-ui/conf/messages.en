@@ -191,6 +191,10 @@ postcode.pleasesupply=Please enter a postcode
 postcode.openmap=Location map
 postcode.intro=To get started, enter an exact postcode.
 
+results.foundatleastpre=We have matched at least
+results.foundexactpre=We have matched
+results.foundpost=addresses
+
 postcodesearchform.labelsearch=Enter address
 
 radius.title=Radius demo - find an address within a radius

@@ -3,7 +3,7 @@
 @lowbound() = @{((pageNum.toDouble / bound).floor * bound) toInt}
 @highbound() = @{(
     if ((lowbound() + bound) * pageSize >= numResults)
-        numResults / pageSize + 1
+        (numResults + pageSize - 1) / pageSize
     else
         lowbound() + bound
 ) toInt}
