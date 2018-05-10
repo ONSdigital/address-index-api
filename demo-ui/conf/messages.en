@@ -1,5 +1,8 @@
 debug.sfatext=Display ElasticSearch Query
 
+banner.sitetitle=Address Index
+banner.sitetagline=The most accurate geographic dataset of addresses and properties in the UK
+
 clerical.sfatext=Clerical Tool
 clerical.addinfo=Additional Clerical Information
 clerical.logicalstatus=Logical Status
@@ -87,12 +90,14 @@ clerical.organisation_building_name=Organisation Building Name
 clerical.detailed_organisation_building_name=Detailed Organisation Building Name
 clerical.ref_hierarchy=Ref Hierarchy
 
-help.title="Address Index UI Help Page"
+help.title=Help
 
 home.servicetext=Address Matching Service
 home.headertext=This service allows you to search for an individual address, or match a batch of addresses from an input file.
 home.singlehead=Find an address
 home.singlebody=Search for a single address
+home.postcodehead=Find an address by postcode
+home.postcodebody=Search for a single address by postcode
 home.title=Address index demo - Home
 home.multihead=Match multiple addresses
 home.query_debug_head=Display ES query
@@ -116,13 +121,14 @@ logical.class6=ls-provisional
 logical.class8=ls-historical
 
 login.title=Please Login
-login.heading=Address Matching Service
+login.heading=Sign in
 login.username=Username
 login.password=Password
 login.usernameph=ONS Network id
 login.passwordph=Network password
-login.login=Login
+login.login=Sign in
 login.clear=Clear
+login.forgotpassword=Forgot password
 
 main.beta=BETA
 main.licence1=All content is available under the
@@ -132,12 +138,17 @@ main.licenceurl=https://www.nationalarchives.gov.uk/doc/open-government-licence/
 main.copyright=Crown copyright
 main.goto=Go to ...
 multi.sfatext=Match multiple addresses
+
 navbar.home=Home
 navbar.singlematch=Single Search
+navbar.postcode=Postcode Search
 navbar.multimatch=Multiple Match
 navbar.clerical=Clerical Tool
 navbar.query=Display Query
 navbar.help=Help
+navbar.radius=Radius Search
+navbar.developers=</developers>
+
 single.pleasesupply=Please enter an address
 single.sfatext=Search for an address
 single.searchbut=Search
@@ -154,13 +165,67 @@ single.found=addresses found
 single.openmap=Open Map
 single.classification=Classification
 single.enddate=Historical End Date
+single.intro=To get started, enter an address or postcode. Provide as much of the address as possible for best results.
+
+addressresult.la_address=Local Authority address
+addressresult.postal_address_file=Postal Address File
+addressresult.welsh_language_nag=Welsh Language (NAG)
+addressresult.welsh_language_paf=Welsh Language (PAF)
+addressresult.classification=Classification
+addressresult.la=Local Authority
+addressresult.la_code=Local Authority code
+addressresult.address_hierarchy=Address hierarchy
+addressresult.position_primary=Primary property
+addressresult.position_secondary=Secondary properties
+addressresult.position_tertiary=Tertiary properties
+addressresult.position_quaternary=Quaternary properties
+addressresult.position_quinary=Quinary properties
+addressresult.address=Address
+
+postcode.title=Postcode demo - find an address by postcode
+postcode.sfatext=Search for an address by postcode
+postcode.found=addresses found
+postcode.foundpre=We have matched
+postcode.foundpost=addresses
+postcode.pleasesupply=Please enter a postcode
+postcode.openmap=Location map
+postcode.intro=To get started, enter an exact postcode.
+
+results.foundatleastpre=We have matched at least
+results.foundexactpre=We have matched
+results.foundpost=addresses
+
+postcodesearchform.labelsearch=Enter address
+
+radius.title=Radius demo - find an address within a radius
+radius.sfatext=Search for an address within a radius
+radius.foundpre=We have matched
+radius.foundpost=addresses
+radius.pleasesupply=Please enter a radius and search term
+radius.openmap=Location map
+radius.intro=To get started, complete the form with a range, latitude, longitude and search term.
+
+radiussearchform.labelsearch=Enter search term
+radiussearchform.labelrange=Range(km)
+radiussearchform.labellat=Latitude
+radiussearchform.labellon=Longitude
+radiussearchform.labelfilter=Filter (optional)
+radiussearchform.placeholdersearch=For example, recycling
+radiussearchform.placeholderfilter=For example, residential, commercial, RD06
+radiussearchform.placeholderrange=For example, 5
+radiussearchform.placeholderlat=For example, 50.722563
+radiussearchform.placeholderlon=For example, -3.530171
+
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
+postcodesearchform.placeholder=For example, EX2 6GA
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR
 debugsearchform.placeholder=E.g. Ground Floor Flat, 45 Jones Avenue Swansea SA4 3DF
-singlesearchform.placeholderfilter=E.g. residential, commerical, RD06
-clericalsearchform.placeholderfilter=E.g. residential, commerical, RD06
-debugsearchform.placeholderfilter=E.g. residential, commerical, RD06
+singlesearchform.placeholderfilter=E.g. residential, commercial, RD06
+postcodesearchform.placeholderfilter=E.g. residential, commercial, RD06
+clericalsearchform.placeholderfilter=E.g. residential, commercial, RD06
+debugsearchform.placeholderfilter=E.g. residential, commercial, RD06
 singlesearchform.labelfilter=Filter (optional)
+postcodesearchform.labelfilter=Filter (optional)
 clericalsearchform.labelfilter=Filter (optional)
 debugsearchform.labelfilter=Filter (optional)
 uprn.notfound=UPRN Not Found
@@ -742,7 +807,8 @@ multi.table.match.type=Match Type
 multi.table.uprn=UPRN
 multi.table.score=Score
 multi.table.comparable.score=Comparable Score
-multi.table.actual.score=Actual Score
+multi.table.confidence.score=Confidence Score
+multi.table.actual.score=Elastic Score
 multi.table.building.score=Building Score
 multi.table.unit.score=Unit Score
 multi.table.rank=Rank

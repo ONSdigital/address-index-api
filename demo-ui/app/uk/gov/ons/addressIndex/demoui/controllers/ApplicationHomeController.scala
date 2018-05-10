@@ -69,10 +69,10 @@ class ApplicationHomeController @Inject()
     //logger.info("Login Required =  " + conf.config.loginRequired )
     if (conf.config.loginRequired)
     {
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", version))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("","", version))
     }
     else {
-      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.home())
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage())
         .withSession("api-key" -> "")
     }
   }
@@ -110,20 +110,20 @@ class ApplicationHomeController @Inject()
         // Any response other than a 200 is assumed to be an authentication failure (e.g. 401)
         if (result.status == OK) {
           val key = userName + "_" + (result.json \ "key").as[String]
-          Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
-        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
+          Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
+        } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Invalid username or password","Please try again",version))
 
       } else
         {
           val fakeResponse = GatewaySimulator.getApiKey(userName,password)
           if (fakeResponse.errorCode == "") {
             val key = userName + "_" + fakeResponse.key
-            Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/home"))).withSession("api-key" -> key)
-          } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Authentication failed",version))
+            Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
+          } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Invalid username or password", "Please try again",version))
         }
     }).getOrElse {
       // bad, data is not filled or not exist
-      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Empty Username or Password",version))
+      Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Empty username or password", "Please try again",version))
     }
   }
 

@@ -1,0 +1,39 @@
+@import uk.gov.ons.addressIndex.demoui.controllers.routes
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+
+@(userLang: String,
+conf : DemouiConfigModule)
+
+@if(userLang == "cy") {
+<div class="group">
+    <div class="col-12">
+        <h1 class="jupiter">&lt;/datblygwyr&gt;</h1>
+        <p>A series of pages showcasing potential API interactions</p>
+
+        <h2 class="saturn">Demonstrations</h2>
+
+        <ul>
+            <li><a href="@{routes.StaticController.devTypeAhead}">Type Ahead demo</a></li>
+        </ul>
+    </div>
+</div>
+}else{
+    <div class="group">
+        <div class="col-12">
+            <h1 class="jupiter">&lt;/developers&gt;</h1>
+            <p>A series of pages showcasing potential API interactions</p>
+
+            <h2 class="saturn">Demonstrations</h2>
+
+            <ul>
+                <li><a href="@{routes.StaticController.devVersion}">Get Version</a></li>
+                <li>Swagger Definition <a href='@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/api-docs'>JSON</a> <a href='@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/swaggerui?url=@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/api-docs'>UI</a></li>
+                <li><a href="@{routes.StaticController.devUprn}">UPRN Search</a></li>
+                <li><a href="@{routes.StaticController.devSingleMatch}">Single Search</a></li>
+                <li><a href="@{routes.StaticController.devPostcode}">Postcode Search</a></li>
+                <li><a href="@{routes.StaticController.devTypeAhead}">Type Ahead demo</a></li>
+                <li><a href="/assets/pages/radiustest.html">Radius with Maps demo</a></li>
+            </ul>
+        </div>
+    </div>
+}

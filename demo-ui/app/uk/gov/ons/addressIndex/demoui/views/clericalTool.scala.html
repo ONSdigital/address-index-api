@@ -1,5 +1,6 @@
 @import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import play.twirl.api.HtmlFormat
 
 @(
 title: String,
@@ -8,6 +9,7 @@ singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 warningMessage : Option[String],
 query: String,
 filter: String,
+historical: Boolean,
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
@@ -19,7 +21,8 @@ apiUrl: String,
 version: DemoUIAddressIndexVersionModule,
 placeholder: String,
 labelFilter: String,
-placeholderFilter: String
+placeholderFilter: String,
+apiKey: String
 )(implicit messages: Messages)
 
 @*
@@ -28,45 +31,88 @@ placeholderFilter: String
 * argument is an `Html` object containing the body of the page.
 *@
 
-@main(title = messages("single.title"), version = version) {
+@main(title = messages("single.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("clerical")) {
 
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
 <div class="container">
-    <div class="panel panel-single">
-        <div class="panel-heading sub-nav-heading">
-            @navigation(Navigation.default)
-        </div>
-        @warningMessage.map { message =>
-        <div id="warning-message" class="panel panel-warning address-panel">
-            <div class="result-content">
-                <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+
+    <section class="match-form-container">
+        <div class="wrapper">
+            <div class="group">
+                <h1 class="jupiter col-12">@title @messages("single.sfatext")</h1>
+
+                <section class="searchbox-results">
+                    @helper.form(action = action) {
+                    <div id="search-form" class="search-bar-active">
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter)
+                    </div>
+                    }
+                </section>
             </div>
         </div>
-        }
-        <div class="panel panel-single address-panel">
-            <h3 class="panel-title">@title</h3>&nbsp;&nbsp;<h4 class="panel-subtitle">@messages("single.sfatext")</h4>
-            <div class="panel-body">
-                @helper.form(action = action) {
-                <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm, placeholder, labelFilter, placeholderFilter)
+    </section>
+
+    <div class="wrapper">
+        <div class="group">
+
+            @warningMessage.map { message =>
+            <div id="warning-message" class="col-12">
+                <div class="result-content">
+                    <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
                 </div>
-                }
             </div>
+            }
 
             @if(query.nonEmpty) {
-                <div>
-                    <pre class="prettyprint debug-query-output">@query</pre>
+                <div class="col-12 debug-query-output mars">
+                    <pre class="prettyprint ">@query</pre>
                 </div>
             }
 
 
-            @clericalToolAddresses(singleSearchForm, singleSearchForm("filter").value.getOrElse(""), pageNum, pageSize, pageMax, expandRow, pagerAction, addressBySearchResponse, classification, apiUrl)
+            @addressBySearchResponse.map { aresponse =>
+                <section class="match-results-container col-12">
 
+                    <div class="match-results-count saturn">
+                        <div class="standout">@messages("postcode.foundpre") @aresponse.total @messages("postcode.foundpost")</div>
+                    </div>
+                    <div class="match-results">
 
+                        @aresponse.addresses.zipWithIndex.map{ case (address, index) =>
+
+                        @addressShortForm(
+                        address,
+                        singleSearchForm("filter").value.getOrElse(""),
+                        singleSearchForm("historical").value.getOrElse("true").toBoolean,
+                        singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
+                        aresponse.maxScore,
+                        classification,
+                        aresponse.tokens,
+                        pageNum,
+                        index,
+                        true,
+                        expandRow,
+                        apiUrl,
+                        apiKey
+                        )
+
+                        }
+                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt)
+
+                    </div>
+                </section>
+            }
         </div>
-        <div class="panel panel-single address-panel">
-            <p class="pad">&nbsp;</p>
+
+    </div>
+    <div class="feedback-link-container">
+        <div class="wrapper">
+            <div class="group">
+                <div class="col-12 mars">
+                    <a class="mailto" onclick="javascript:window.location='mailto:ai.users@@ons.gov.uk?subject=Individual%20feedback%20on%20Address%20Index%20(clerical%20tool)&body=Input: %22@{HtmlFormat.escape(singleSearchForm.value.map(_.address.replaceAll("'", "%27").replaceAll("&", "%26")).getOrElse(""))}%22%0D%0A%0D%0AUrl: ' + encodeURIComponent(window.location);" href="#">@messages("feedback.individual_link")</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -5,6 +5,8 @@
 @(
     address: AddressResponseAddress,
     filter: String,
+    historical: Boolean,
+    matchthreshold: String,
     maxScore: Double,
     classification: Option[Map[String, String]],
     tokens: Map[String, String] = Map.empty[String, String],
@@ -12,8 +14,12 @@
     index: Int = 0,
     isClerical: Boolean = false,
     expandRow: Int = 0,
-    apiUrl: String = ""
+    apiUrl: String = "",
+    apiKey: String = ""
 )(implicit messages: Messages)
+@if(isClerical) {
+<a name="@index"></a>
+}
 <div class="panel panel-match address-panel">
     <div class="result-content">
         <div class="alert alert-success">
@@ -44,10 +50,10 @@
                 <div class="resultRow formatted-address">
                     <div>
                         <strong>@messages("single.address"): </strong>
-                        <span class="address-english formatted-nag">@address.formattedAddressNag</span>
-                        <span style="display: none" class="address-english formatted-paf">@address.formattedAddressPaf</span>
-                        <span style="display: none" class="address-welsh formatted-nag">@address.welshFormattedAddressNag</span>
-                        <span style="display: none" class="address-welsh formatted-paf">@address.welshFormattedAddressPaf</span>
+                        <span class="address-english formatted-nag">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</span>
+                        <span style="display: none" class="address-english formatted-paf">@address.formattedAddressPaf.substring(0, address.formattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</span>
+                        <span style="display: none" class="address-welsh formatted-nag">@address.welshFormattedAddressNag.substring(0, address.welshFormattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</span>
+                        <span style="display: none" class="address-welsh formatted-paf">@address.welshFormattedAddressPaf.substring(0, address.welshFormattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</span>
                         <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
                         title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
                                 &nbsp;@address.nag.map{ nag => @messages("logical.letter"+nag.logicalStatus) }&nbsp;
@@ -84,7 +90,7 @@
                 </div>
                 <div class="resultRow">
                     <strong>@messages("clerical.la"):</strong>
-                    <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
+                    <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
                 </div>
 
                 @if(address.nag.map(_.logicalStatus).contains("8")) {
@@ -1050,7 +1056,7 @@
                                 <details id="@position@address.uprn">
                                     <summary><strong>@position</strong></summary>
                                     @relative.siblings.sorted.map { uprn =>
-                                        <script>formattedAddress("@uprn", "@position@address.uprn", '@apiUrl')</script>
+                                        <script>formattedAddress("@uprn", "@position@address.uprn", '@apiUrl', '@apiKey')</script>
                                     }
                                 </details>
                                 }

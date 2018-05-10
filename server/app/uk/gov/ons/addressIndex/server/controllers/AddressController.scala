@@ -14,11 +14,12 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.utils.{HopperScoreHelper, Splunk}
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.control.NonFatal
+import scala.math._
 
 @Singleton
 class AddressController @Inject()(
@@ -39,13 +40,19 @@ class AddressController @Inject()(
   val valid: String = "valid"
   val notRequired: String = "not required"
 
+
+  def codelists(): Action[AnyContent] = Action async { implicit req =>
+      val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+      Future(Ok(message))
+  }
+
   /**
     * Address query API
     *
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, retry: Option[String] = None, filter: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -62,25 +69,57 @@ class AddressController @Inject()(
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
+    val defThreshold = conf.config.elasticSearch.matchThreshold
 
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
 
-    val filterString = filter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("")
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
+    // validate radius paramas
+    val rangeVal = rangekm.getOrElse("")
+    val latVal = lat.getOrElse("")
+    val lonVal = lon.getOrElse("")
+    val rangeInvalid = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
+    val latInvalid = if (rangeVal.equals("")) false else Try(latVal.toDouble).isFailure
+    val lonInvalid = if (rangeVal.equals("")) false else Try(lonVal.toDouble).isFailure
+
+    val latTooFarNorth = if (rangeVal.equals("")) false else {
+      (Try(latVal.toDouble).getOrElse(50D) > 60.9)
+    }
+    val latTooFarSouth = if (rangeVal.equals("")) false else {
+      (Try(latVal.toDouble).getOrElse(50D) < 49.8)
+    }
+    val lonTooFarEast = if (rangeVal.equals("")) false else {
+      (Try(lonVal.toDouble).getOrElse(0D) > 1.8)
+    }
+    val lonTooFarWest = if (rangeVal.equals("")) false else {
+      (Try(lonVal.toDouble).getOrElse(0D) < -8.6)
+    }
 
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
-        isInput = true, input = input, offset = offval,
-        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        isInput = true, input = input, offset = offval, limit = limval, filter = filterString, historical = hist,
+        rangekm = rangeVal, lat = latVal, lon = lonVal,
+        badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
     val limitInvalid = Try(limval.toInt).isFailure
     val offsetInvalid = Try(offval.toInt).isFailure
+    val thresholdInvalid = Try(threshval.toFloat).isFailure
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
 
     // Check the api key, offset and limit parameters before proceeding with the request
     if (sourceStatus == missing) {
@@ -113,25 +152,65 @@ class AddressController @Inject()(
     } else if (offsetInt > maxOffset) {
       writeSplunkLogs(badRequestErrorMessage = OffsetTooLargeAddressResponseError.message)
       futureJsonBadRequest(OffsetTooLarge)
+    } else if (thresholdInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = ThresholdNotNumericAddressResponseError.message)
+      futureJsonBadRequest(ThresholdNotNumeric)
+    } else if (thresholdNotInRange) {
+      writeSplunkLogs(badRequestErrorMessage = ThresholdNotInRangeAddressResponseError.message)
+      futureJsonBadRequest(ThresholdNotInRange)
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
-    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|C\w+|L|L\w+|M|M\w+|O|O\w+|P|P\w+|R|R\w+|U|U\w+|X|X\w+|Z|Z\w+)\b.*""") ) {
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
       futureJsonBadRequest(FilterInvalid)
+    } else if (rangeInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = RangeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(RangeNotNumeric)
+    } else if (latInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LatitiudeNotNumeric)
+    } else if (lonInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LongitudeNotNumeric)
+    } else if (latTooFarNorth) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeTooFarNorthAddressResponseError.message)
+      futureJsonBadRequest(LatitudeTooFarNorth)
+    } else if (latTooFarSouth) {
+      writeSplunkLogs(badRequestErrorMessage = LatitudeTooFarSouthAddressResponseError.message)
+      futureJsonBadRequest(LatitudeTooFarSouth)
+    } else if (lonTooFarEast) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeTooFarEastAddressResponseError.message)
+      futureJsonBadRequest(LongitudeTooFarEast)
+    } else if (lonTooFarWest) {
+      writeSplunkLogs(badRequestErrorMessage = LongitudeTooFarWestAddressResponseError.message)
+      futureJsonBadRequest(LongitudeTooFarWest)
     } else {
       val tokens = parser.parse(input)
 
     //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, offsetInt, limitInt, filterString)
+      // try to get enough results to accurately calcuate the hybrid score (may need to be more sophisticated)
+      val minimumSample = conf.config.elasticSearch.minimumSample
+      val limitExpanded = max(offsetInt + (limitInt * 2),minimumSample)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
-
         val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
+        //  calculate the elastic denominator value which will be used when scoring each address
+        val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
+        // calculate the Hopper and hybrid scores for each  address
+        val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
+        // work out the threshold for accepting matches (default 5% -> 0.05)
+        val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
 
-        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens)
+        // filter out scores below threshold, sort the resultant collection, highest score first
+        val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+        // capture the number of matches before applying offset and limit
+        val newTotal = sortedAddresses.length
+        // trim the result list according to offset and limit paramters
+        val limitedSortedAddresses = sortedAddresses.drop(offsetInt).take(limitInt)
 
         addresses.foreach{ address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
@@ -145,12 +224,18 @@ class AddressController @Inject()(
             dataVersion = dataVersion,
             response = AddressBySearchResponse(
               tokens = tokens,
-              addresses = scoredAdresses,
+              addresses = limitedSortedAddresses,
               filter = filterString,
+              historical = hist,
+              rangekm = rangeVal,
+              latitude = latVal,
+              longitude = lonVal,
               limit = limitInt,
               offset = offsetInt,
-              total = total,
-              maxScore = maxScore
+              total = newTotal,
+              maxScore = maxScore,
+              sampleSize=limitExpanded,
+              matchthreshold = thresholdFloat
             ),
             status = OkAddressResponseStatus
           )
@@ -161,23 +246,12 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-         // if there is a connection reset by peer or similar error due to inactivity
-         // we want to retry a few times to wake up the index connection
-          val retries = retry.getOrElse("5")
-          val numRetries = Try(retries.toInt).toOption.getOrElse(5)
-          val newRetries = {
-            if (numRetries > 5) 5 else numRetries - 1
-          }
-          if (newRetries > 0) {
-            logger.warn("retrying single address request retries remaining = " + newRetries)
-            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.addressQuery(input,offset,limit,Some(newRetries.toString),filter))
-          } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
-          }
       }
 
     }
   }
+
 
   /**
     * UPRN query API
@@ -185,7 +259,7 @@ class AddressController @Inject()(
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String, retry: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
@@ -196,13 +270,20 @@ class AddressController @Inject()(
     val source = req.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
 
+    val uprnInvalid = Try(uprn.toLong).isFailure
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         isUprn = true, uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid)
+        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
     }
 
     if (sourceStatus == missing) {
@@ -217,8 +298,11 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
       futureJsonUnauthorized(KeyInvalid)
+    } else if (uprnInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = UprnNotNumericAddressResponseError.message)
+      futureJsonBadRequest(UprnNotNumeric)
     } else {
-      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn)
+      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn, hist)
       request.map {
         case Some(hybridAddress) =>
 
@@ -247,22 +331,148 @@ class AddressController @Inject()(
           writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
 
           logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-          // if there is a connection reset by peer error (or similar) due to inactivity we want to retry
-          // up to 5 times to wake up the index connection
-          val retries = retry.getOrElse("5")
-          val numRetries = Try(retries.toInt).toOption.getOrElse(5)
-          val newRetries = {
-            if (numRetries > 5) 5 else numRetries - 1
-          }
-          if (newRetries > 0) {
-            logger.warn("retrying uprn request retries remaining = " + newRetries)
-            Redirect(uk.gov.ons.addressIndex.server.controllers.routes.AddressController.uprnQuery(uprn,Some(newRetries.toString)))
-          } else {
             InternalServerError(Json.toJson(FailedRequestToEs))
-          }
       }
     }
   }
+
+
+  /**
+    * POSTCODE query API
+    *
+    * @param postcode postcode of the address to be fetched
+    * @return Json response with addresses information
+    */
+  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
+    val startingTime = System.currentTimeMillis()
+
+    // check API key
+    val apiKey = req.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    // get the defaults and maxima for the paging parameters from the config
+    val defLimit = conf.config.elasticSearch.defaultLimitPostcode
+    val defOffset = conf.config.elasticSearch.defaultOffset
+    val maxLimit = conf.config.elasticSearch.maximumLimit
+    val maxOffset = conf.config.elasticSearch.maximumOffset
+
+    val limval = limit.getOrElse(defLimit.toString)
+    //val limval = "100"
+    val offval = offset.getOrElse(defOffset.toString)
+
+    val filterString = classificationfilter.getOrElse("")
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
+    def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+      val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
+      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
+        isPostcode = true, postcode = postcode, isNotFound = notFound, offset = offval,
+        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
+        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
+    }
+
+    val limitInvalid = Try(limval.toInt).isFailure
+    val offsetInvalid = Try(offval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+
+    // Check the api key, offset and limit parameters before proceeding with the request
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
+      futureJsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
+      futureJsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LimitNotNumericPostcodeAddressResponseError.message)
+      futureJsonBadRequest(LimitNotNumericPostcode)
+    } else if (limitInt < 1) {
+      writeSplunkLogs(badRequestErrorMessage = LimitTooSmallPostcodeAddressResponseError.message)
+      futureJsonBadRequest(LimitTooSmallPostcode)
+    } else if (limitInt > maxLimit) {
+      writeSplunkLogs(badRequestErrorMessage = LimitTooLargePostcodeAddressResponseError.message)
+      futureJsonBadRequest(LimitTooLargePostcode)
+    } else if (offsetInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetNotNumericPostcodeAddressResponseError.message)
+      futureJsonBadRequest(OffsetNotNumericPostcode)
+    } else if (offsetInt < 0) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetTooSmallPostcodeAddressResponseError.message)
+      futureJsonBadRequest(OffsetTooSmallPostcode)
+    } else if (offsetInt > maxOffset) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetTooLargePostcodeAddressResponseError.message)
+      futureJsonBadRequest(OffsetTooLargePostcode)
+    } else if (postcode.isEmpty) {
+      writeSplunkLogs(badRequestErrorMessage = EmptyQueryPostcodeAddressResponseError.message)
+      futureJsonBadRequest(EmptySearchPostcode)
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
+      writeSplunkLogs(badRequestErrorMessage = FilterInvalidPostcodeError.message)
+      futureJsonBadRequest(FilterInvalidPostcode)
+    } else {
+      val tokens = parser.parse(postcode)
+
+      //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
+
+      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, None, hist)
+
+      request.map {
+        case HybridAddresses(hybridAddresses, maxScore, total) =>
+
+        val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
+
+        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens,1D)
+
+        addresses.foreach{ address =>
+          writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
+        }
+
+        writeSplunkLogs()
+
+        jsonOk(
+          AddressByPostcodeResponseContainer(
+            apiVersion = apiVersion,
+            dataVersion = dataVersion,
+            response = AddressByPostcodeResponse(
+              postcode = postcode,
+              addresses = scoredAdresses,
+              filter = filterString,
+              historical = hist,
+              limit = limitInt,
+              offset = offsetInt,
+              total = total,
+              maxScore = maxScore
+            ),
+            status = OkAddressResponseStatus
+          )
+        )
+
+      }.recover{
+        case NonFatal(exception) =>
+
+          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+
+          logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
+          InternalServerError(Json.toJson(FailedRequestToEsPostcode))
+      }
+
+    }
+  }
+
 
 
 
@@ -270,7 +480,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -279,6 +489,24 @@ class AddressController @Inject()(
     // check source
     val source = request.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
+    // get the defaults and maxima for the paging parameters from the config
+    val defLimit = conf.config.bulk.limitperaddress
+    val maxLimit = conf.config.bulk.maxLimitperaddress
+    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+
+    val defThreshold = conf.config.bulk.matchThreshold
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
+    val thresholdInvalid = Try(threshval.toFloat).isFailure
+    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
 
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
@@ -292,12 +520,27 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitNotNumericAddressResponseError.message)
+      jsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooSmallAddressResponseError.message)
+      jsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooLargeAddressResponseError.message)
+      jsonBadRequest(LimitTooLarge)
+    } else if (thresholdInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+      jsonBadRequest(ThresholdNotNumeric)
+    } else if (thresholdNotInRange) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+      jsonBadRequest(ThresholdNotInRange)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, hist, thresholdFloat)
     }
   }
 
@@ -310,7 +553,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitPerAddress: Option[Int]): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -320,6 +563,24 @@ class AddressController @Inject()(
     val source = request.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
 
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
+    val defLimit = conf.config.bulk.limitperaddress
+    val maxLimit = conf.config.bulk.maxLimitperaddress
+    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+
+    val defThreshold = conf.config.bulk.matchThreshold
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
+    val thresholdInvalid = Try(threshval.toFloat).isFailure
+    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    logger.info("threshold = " + thresholdFloat)
+    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
+
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
       jsonUnauthorized(SourceMissing)
@@ -332,12 +593,27 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitNotNumericAddressResponseError.message)
+      jsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooSmallAddressResponseError.message)
+      jsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooLargeAddressResponseError.message)
+      jsonBadRequest(LimitTooLarge)
+    } else if (thresholdInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+      jsonBadRequest(ThresholdNotNumeric)
+    } else if (thresholdNotInRange) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+      jsonBadRequest(ThresholdNotInRange)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress, includeFullAddress = true)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = true, hist, thresholdFloat)
     }
   }
 
@@ -345,7 +621,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitPerAddress: Option[Int]): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -355,6 +631,23 @@ class AddressController @Inject()(
     val source = request.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
 
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+    val defLimit = conf.config.bulk.limitperaddress
+    val maxLimit = conf.config.bulk.maxLimitperaddress
+    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+
+    val defThreshold = conf.config.bulk.matchThreshold
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
+    val thresholdInvalid = Try(threshval.toFloat).isFailure
+    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    logger.info("threshold = " + thresholdFloat)
+    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
+
     if (sourceStatus == missing) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = SourceMissingError.message)
       jsonUnauthorized(SourceMissing)
@@ -367,13 +660,28 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ApiKeyInvalidError.message)
       jsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitNotNumericAddressResponseError.message)
+      jsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooSmallAddressResponseError.message)
+      jsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = LimitTooLargeAddressResponseError.message)
+      jsonBadRequest(LimitTooLarge)
+    } else if (thresholdInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+      jsonBadRequest(ThresholdNotNumeric)
+    } else if (thresholdNotInRange) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+      jsonBadRequest(ThresholdNotInRange)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
         row => BulkAddressRequestData(row.id, row.tokens.values.mkString(" "), row.tokens)
       }
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, limitPerAddress)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, hist, thresholdFloat)
     }
   }
 
@@ -381,8 +689,10 @@ class AddressController @Inject()(
   private def bulkQuery(
     requestData: Stream[BulkAddressRequestData],
     configOverwrite: Option[QueryParamsConfig],
-    limitPerAddress: Option[Int],
-    includeFullAddress: Boolean = false
+    limitperaddress: Option[Int],
+    includeFullAddress: Boolean = false,
+    historical: Boolean,
+    matchThreshold: Float
   )(implicit request: Request[_]): Result = {
 
     val networkid = request.headers.get("authorization").getOrElse("Anon").split("_").headOption.getOrElse("")
@@ -390,31 +700,17 @@ class AddressController @Inject()(
     val startingTime = System.currentTimeMillis()
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
-
-    val results: Stream[Seq[BulkAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, limitPerAddress, configOverwrite)
+    val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
+    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(resultLimit), configOverwrite, historical, matchThreshold)
 
     logger.info(s"#bulkQuery processed")
 
     // Used to distinguish individual bulk logs
     val uuid = java.util.UUID.randomUUID.toString
 
-    val scoredResults = results.flatMap { addresses =>
-      val addressResponseAddresses = addresses.map(_.hybridAddress).map(AddressResponseAddress.fromHybridAddress)
-      val tokens = addresses.headOption.map(_.tokens).getOrElse(Map.empty)
-      HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens)
+    val bulkItems = results.flatMap{ addresses =>
+      addresses
     }
-
-    val bulkItems = results.flatten.zip(scoredResults).map { case(bulkAddress, scoredAddressResponseAddress) =>
-
-        val addressBulkResponseAddress = AddressBulkResponseAddress.fromBulkAddress(bulkAddress, scoredAddressResponseAddress, includeFullAddress)
-        // Side effects
-        // this is to verbose to log by default
-        Splunk.trace(IP = request.remoteAddress, url = request.uri, input = addressBulkResponseAddress.inputAddress, isBulk = true,
-          formattedOutput = addressBulkResponseAddress.matchedFormattedAddress,
-          score = addressBulkResponseAddress.score.toString, uuid = uuid, networkid = networkid)
-
-        addressBulkResponseAddress
-      }
 
     val response =
       jsonOk(
@@ -451,11 +747,13 @@ class AddressController @Inject()(
   final def iterateOverRequestsWithBackPressure(
     requests: Stream[BulkAddressRequestData],
     miniBatchSize: Int,
-    limitPerAddress: Option[Int] = None,
+    limitperaddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
+    historical: Boolean,
+    matchThreshold: Float,
     canUpScale: Boolean = true,
-    successfulResults: Stream[Seq[BulkAddress]] = Stream.empty
-  ): Stream[Seq[BulkAddress]] = {
+    successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty
+  ): Stream[Seq[AddressBulkResponseAddress]] = {
 
     Splunk.log(isBulk = true, batchSize = miniBatchSize.toString)
 
@@ -468,8 +766,8 @@ class AddressController @Inject()(
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
-    val addressesPerAddress = limitPerAddress.getOrElse(conf.config.bulk.limitPerAddress)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite), Duration.Inf)
+    val addressesPerAddress = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, historical, matchThreshold), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -489,7 +787,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitperaddress, configOverwrite, historical, matchThreshold, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -503,13 +801,15 @@ class AddressController @Inject()(
     */
   def queryBulkAddresses(
     inputs: Stream[BulkAddressRequestData],
-    limitPerAddress: Int,
-    configOverwrite: Option[QueryParamsConfig] = None
+    limitperaddress: Int,
+    configOverwrite: Option[QueryParamsConfig] = None,
+    historical: Boolean,
+    matchThreshold: Float
   ): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]] = esRepo.queryBulk(inputs, limitPerAddress, configOverwrite)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(inputs, limitperaddress, configOverwrite, historical, matchThreshold)
 
-    val successfulAddresses: Future[Stream[Seq[BulkAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
+    val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
 
     val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
 
@@ -521,12 +821,12 @@ class AddressController @Inject()(
   }
 
 
-  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[Seq[BulkAddress]] =
+  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]): Stream[Seq[AddressBulkResponseAddress]] =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
     }
 
-  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[BulkAddress]]]): Stream[BulkAddressRequestData] =
+  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]): Stream[BulkAddressRequestData] =
     addresses.collect {
       case Left(address) => address
     }
@@ -553,7 +853,7 @@ class AddressController @Inject()(
 
   /**
     * Method to check source of query
-    * @param apiKey
+    * @param source
     * @return not required, valid, invalid or missing
     */
   def checkSource(source: String): String = {

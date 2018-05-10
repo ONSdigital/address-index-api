@@ -42,11 +42,52 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def NoAddressFoundPostcode: AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByPostcodeResponse(
+        postcode = "",
+        addresses = Seq.empty,
+        filter= "",
+        historical=true,
+        limit = 10,
+        offset = 0,
+        total = 0,
+        maxScore = 0f
+      ),
+      status = NotFoundAddressResponseStatus,
+      errors = Seq(NotFoundAddressResponseError)
+    )
+  }
+
   private def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = Error,
+      status = BadRequestAddressResponseStatus,
+      errors = errors
+    )
+  }
+
+  def BadRequestNonNumericUprn: AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByUprnResponse(
+        address = None
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(UprnNotNumericAddressResponseError)
+    )
+  }
+
+  private def BadRequestPostcodeTemplate(errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPostcode,
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
@@ -82,28 +123,88 @@ trait AddressIndexCannedResponse {
     BadRequestTemplate(FilterInvalidError)
   }
 
+  def FilterInvalidPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(FilterInvalidPostcodeError)
+  }
+
   def OffsetNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  }
+
+  def RangeNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(RangeNotNumericAddressResponseError)
+  }
+
+  def LatitiudeNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LatitudeNotNumericAddressResponseError)
+  }
+
+  def LongitudeNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LongitudeNotNumericAddressResponseError)
+  }
+
+  def LatitudeTooFarNorth: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LatitudeTooFarNorthAddressResponseError)
+  }
+
+  def LongitudeTooFarEast: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LongitudeTooFarEastAddressResponseError)
+  }
+
+  def LatitudeTooFarSouth: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LatitudeTooFarSouthAddressResponseError)
+  }
+
+  def LongitudeTooFarWest: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LongitudeTooFarWestAddressResponseError)
+  }
+
+  def OffsetNotNumericPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetNotNumericPostcodeAddressResponseError)
   }
 
   def LimitNotNumeric: AddressBySearchResponseContainer = {
     BadRequestTemplate(LimitNotNumericAddressResponseError)
   }
 
+  def LimitNotNumericPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitNotNumericPostcodeAddressResponseError)
+  }
+
   def LimitTooSmall: AddressBySearchResponseContainer = {
       BadRequestTemplate(LimitTooSmallAddressResponseError)
   }
 
+  def LimitTooSmallPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitTooSmallPostcodeAddressResponseError)
+  }
+
   def OffsetTooSmall: AddressBySearchResponseContainer = {
-      BadRequestTemplate(OffsetTooSmallAddressResponseError)
+    BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  }
+
+  def OffsetTooSmallPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetTooSmallPostcodeAddressResponseError)
   }
 
   def LimitTooLarge: AddressBySearchResponseContainer = {
-      BadRequestTemplate(LimitTooLargeAddressResponseError)
+    BadRequestTemplate(LimitTooLargeAddressResponseError)
+  }
+
+  def LimitTooLargePostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitTooLargePostcodeAddressResponseError)
   }
 
   def OffsetTooLarge: AddressBySearchResponseContainer = {
       BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  }
+
+  def OffsetTooLargePostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetTooLargePostcodeAddressResponseError)
+  }
+
+  def UprnNotNumeric: AddressByUprnResponseContainer = {
+    BadRequestNonNumericUprn
   }
 
   def UnsupportedFormat: AddressBySearchResponseContainer = {
@@ -112,6 +213,18 @@ trait AddressIndexCannedResponse {
 
   def EmptySearch: AddressBySearchResponseContainer = {
       BadRequestTemplate(EmptyQueryAddressResponseError)
+  }
+
+  def EmptySearchPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(EmptyQueryPostcodeAddressResponseError)
+  }
+
+  def ThresholdNotNumeric: AddressBySearchResponseContainer = {
+    BadRequestTemplate(ThresholdNotNumericAddressResponseError)
+  }
+
+  def ThresholdNotInRange: AddressBySearchResponseContainer = {
+    BadRequestTemplate(ThresholdNotInRangeAddressResponseError)
   }
 
   def FailedRequestToEs: AddressBySearchResponseContainer = {
@@ -128,7 +241,36 @@ trait AddressIndexCannedResponse {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
+      filter = "",
+      historical = true,
+      rangekm = "",
+      latitude = "",
+      longitude = "",
+      limit = 10,
+      offset = 0,
+      total = 0,
+      sampleSize = 20,
+      maxScore = 0f,
+      matchthreshold = 5f
+    )
+  }
+
+  def FailedRequestToEsPostcode: AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPostcode,
+      status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(FailedRequestToEsPostcodeError)
+    )
+  }
+
+  def ErrorPostcode: AddressByPostcodeResponse = {
+    AddressByPostcodeResponse(
+      postcode = "",
+      addresses = Seq.empty,
       filter= "",
+      historical = true,
       limit = 10,
       offset = 0,
       total = 0,

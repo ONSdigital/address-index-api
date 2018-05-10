@@ -1,0 +1,46 @@
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+
+@(
+version: DemoUIAddressIndexVersionModule
+)(
+implicit
+messages: Messages
+)
+
+<footer id="footer">
+    <div id="footer-content" class="wrapper pluto">
+        <div class="group">
+            <div class="col-8 no-print">
+                This release is still in development. Your <a class="mailto" href="mailto:ai.users@@ons.gov.uk?subject=Feedback%20on%20Address%20Index">@messages("feedback.link")</a> will help us improve it.
+            </div>
+            <div class="col-4">
+                Version: <a class="beta-git" href="https://github.com/ONSdigital/address-index-api/commit/@version.apiVersion.drop(2).take(6)">@version.apiVersion.drop(2).take(6)</a>
+                    | Epoch: @version.dataVersion.take(2)
+            </div>
+        </div>
+        <div class="group">
+            <div class="col-12">
+
+                    @navigationFooter(Navigation.footer, Some(""))
+
+                    <div class="footer-copyright">
+
+                        <div class="open-government-licence">
+                            <p class="logo"><a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" rel="license">
+                                Open Government Licence</a></p>
+
+                            <p>@messages("main.licence1") <a href='@messages("main.licenceurl")' rel="license">@messages("main.licence2")
+                                v3.0</a>, @messages("main.licence3")</p>
+
+                        </div>
+
+                    </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+</footer>

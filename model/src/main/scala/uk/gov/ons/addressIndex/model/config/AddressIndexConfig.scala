@@ -22,9 +22,12 @@ case class ElasticSearchConfig(
   indexes: IndexesConfig,
   queryParams: QueryParamsConfig,
   defaultLimit: Int,
+  defaultLimitPostcode: Int,
   defaultOffset: Int,
   maximumLimit: Int,
-  maximumOffset: Int
+  maximumOffset: Int,
+  matchThreshold: Float,
+  minimumSample: Int
 )
 
 case class QueryParamsConfig(
@@ -55,6 +58,7 @@ object QueryParamsConfig {
 }
 
 case class IndexesConfig(
+  hybridIndexHistorical: String,
   hybridIndex: String,
   hybridMapping: String
 )
@@ -204,7 +208,10 @@ object FallbackConfig {
 
 case class BulkConfig(
   batch: BatchConfig,
-  limitPerAddress: Int
+  limitperaddress: Int,
+  maxLimitperaddress: Int,
+  matchThreshold: Float,
+  minimumSample: Int
 )
 
 case class BatchConfig(
@@ -217,6 +224,8 @@ case class BatchConfig(
 case class ApiConfig(
   host: String,
   port: Int,
+  ajaxHost: String,
+  ajaxPort: String,
   gatewayPath: String
 )
 

@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
+import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -29,10 +30,19 @@ object HopperScoreHelper  {
     * @param tokens matching input tokens created by parser
     * @return scored addresses
     */
-  def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String]): Seq[AddressResponseAddress] = {
+  def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
     val localityParams = addresses.map(address => getLocalityParams(address,tokens))
-    val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams))
+    val scoredAddresses = addresses.map(address => addScoresToAddress(address, tokens, localityParams, elasticDenominator))
+    val endingTime = System.currentTimeMillis()
+    logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
+    scoredAddresses
+  }
+
+  def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
+    val startingTime = System.currentTimeMillis()
+    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress),tokens))
+    val scoredAddresses = addresses.map(address => addScoresToAddress(AddressResponseAddress.fromHybridAddress(address.hybridAddress), tokens, localityParams, elasticDenominator))
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses
@@ -74,7 +84,7 @@ object HopperScoreHelper  {
     */
   def addScoresToAddress(address: AddressResponseAddress,
     tokens: Map[String, String],
-    localityParams: Seq[(String,String)]): AddressResponseAddress = {
+    localityParams: Seq[(String,String)],elasticDenominator: Double): AddressResponseAddress = {
 
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
     val subBuildingName = tokens.getOrElse(Tokens.subBuildingName, empty)
@@ -148,7 +158,11 @@ object HopperScoreHelper  {
       respUnitScoreDebug,
       ambiguityPenalty)
 
-    address.copy(bespokeScore = Some(bespokeScore))
+    val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
+    val elasticRatio = Try(address.underlyingScore).getOrElse(1F) / safeDenominator
+    val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
+
+    address.copy(bespokeScore = Some(bespokeScore),confidenceScore=confidenceScore)
   }
 
   /**

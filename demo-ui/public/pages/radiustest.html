@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Address Index Radius Demo</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: black;
+            background-color: #fff;
+        }
+
+        .wrapper {
+            width: 1280px;
+            margin: 0 auto;
+            padding: 10px 0px
+        }
+
+        .controls {
+            margin: 10px 0 20px 0;
+        }
+
+        .group {
+            margin: 0 -10px 20px -10px;
+        }
+
+        .group::after {
+          content: "";
+          clear: both;
+          display: table;
+        }
+
+        .col2, .col3, .col5, .col6 {
+            float: left;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .col2 {
+            width: 16.6666%;
+        }
+
+        .col3 {
+            width: 25%;
+        }
+
+        .col5 {
+            width: 41.6666%;
+        }
+
+        .col6 {
+            width: 50%;
+        }
+
+        table {
+            border: 1px solid #000;
+        }
+
+        th {
+            background: #dfe0e2;
+            padding: 3px;
+            border: 1px solid #000;
+        }
+
+        td {
+            background: white;
+            white-space: wrap;
+            padding: 3px;
+            border: 1px solid #000;
+        }
+
+        input {
+            font-size: 1rem;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 3px;
+            padding: 5px;
+
+        }
+
+        input[type=button] {
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+
+            border: 1px solid #999;
+            border-radius: 3px;
+            transition: background-color .2s ease-in;
+            line-height: 1.4rem;
+
+            padding: 3px 15px;
+            background-color: #0f8243;
+        }
+
+        .output {
+            margin: 10px 0
+        }
+
+        #map {
+            height: 500px;
+        }
+
+        #tableDiv table {
+            width: 100%;
+            font-size: 1rem;
+            border-collapse: collapse;
+            border-spacing: 0px;
+        }
+    </style>
+	<script src="https://code.jquery.com/jquery-1.11.2.js"></script>
+    <script type="text/javascript">
+        /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+        /* Latitude/longitude spherical geodesy tools                         (c) Chris Veness 2002-2016  */
+        /*                                                                                   MIT Licence  */
+        /* www.movable-type.co.uk/scripts/latlong.html                                                    */
+        /* www.movable-type.co.uk/scripts/geodesy/docs/module-latlon-spherical.html                       */
+        /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+
+        /**
+         * Creates a LatLon point on the earth's surface at the specified latitude / longitude.
+         *
+         * @constructor
+         * @param {number} lat - Latitude in degrees.
+         * @param {number} lon - Longitude in degrees.
+         *
+         * @example
+         *     var p1 = new LatLon(52.205, 0.119);
+         */
+        function LatLon(lat, lon) {
+            // allow instantiation without 'new'
+            if (!(this instanceof LatLon)) return new LatLon(lat, lon);
+
+            this.lat = Number(lat);
+            this.lon = Number(lon);
+        }
+
+
+        /**
+         * Returns the distance from �this� point to destination point (using haversine formula).
+         *
+         * @param   {LatLon} point - Latitude/longitude of destination point.
+         * @param   {number} [radius=6371e3] - (Mean) radius of earth (defaults to radius in metres).
+         * @returns {number} Distance between this point and destination point, in same units as radius.
+         *
+         * @example
+         *     var p1 = new LatLon(52.205, 0.119);
+         *     var p2 = new LatLon(48.857, 2.351);
+         *     var d = p1.distanceTo(p2); // 404.3 km
+         */
+        LatLon.prototype.distanceTo = function(point, radius) {
+            if (!(point instanceof LatLon)) throw new TypeError('point is not LatLon object');
+            radius = (radius === undefined) ? 6371e3 : Number(radius);
+
+            var R = radius;
+            var f1 = this.lat.toRadians(),
+                l1 = this.lon.toRadians();
+            var f2 = point.lat.toRadians(),
+                l2 = point.lon.toRadians();
+            var df = f2 - f1;
+            var dl = l2 - l1;
+
+            var a = Math.sin(df / 2) * Math.sin(df / 2) +
+                Math.cos(f1) * Math.cos(f2) *
+                Math.sin(dl / 2) * Math.sin(dl / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c;
+
+            return d;
+        };
+
+        /** Extend Number object with method to convert numeric degrees to radians */
+        if (Number.prototype.toRadians === undefined) {
+            Number.prototype.toRadians = function() {
+                return this * Math.PI / 180;
+            };
+        }
+
+        /** Extend Number object with method to convert radians to numeric (signed) degrees */
+        if (Number.prototype.toDegrees === undefined) {
+            Number.prototype.toDegrees = function() {
+                return this * 180 / Math.PI;
+            };
+        }
+
+        // end of moveable-type script
+
+        function makeHTMLTable(pArray) {
+            var result = "<tbody>";
+            for (var i = 0; i < pArray.length; i++) {
+                result += "<tr>";
+                for (var j = 0; j < pArray[i].length; j++) {
+                    result += "<td>" + pArray[i][j] + "</td>";
+                }
+                result += "</tr>";
+            }
+            result += "</tbody>";
+            return result;
+        }
+
+        var addresses = [
+            ["ONS Titchfield", "50.862617","-1.2470902", "NaN"],
+            ["ONS Newport", "51.566322","-3.0272245", "NaN"],
+            ["ONS London", "51.489655","-0.1318864", "NaN"]
+         ];
+ 			
+        var locations = [];
+				
+        function updateAll() {
+                var divId = "tableDiv";
+                var pointsArray = addresses;
+                   updateTable(pointsArray, divId);
+                showMap();
+        }
+
+        function updateTable(pointsArray, divId) {
+            var testLat = document.getElementById('lat').value
+            var testLon = document.getElementById('lon').value
+            var testPoint = LatLon(testLat, testLon);
+            document.getElementById(divId).innerHTML = "<table><thead><tr><th>Address</th><th>Latitude</th><th>Longitude</th><th>Distance(mi)</th></thead></tr>" +
+						makeHTMLTable(recalculate(pointsArray, testPoint)) +
+						"</table>"
+        }
+
+        function recalculate(pArray, testPoint) {
+            for (var i = 0; i < pArray.length; i++) {
+                var makeLat = LatLon(pArray[i][1], pArray[i][2])
+                pArray[i][3] = Number(((makeLat.distanceTo(testPoint))*0.000621371192).toFixed(2));
+            }
+            return pArray.sort(function(a, b) {
+                return a[3] - b[3];
+            });
+        }
+				
+			
+        function showMap() {
+            var markLat = 0;
+            var markLon = 0;
+            var newLat = document.getElementById('lat')
+            var newLon = document.getElementById('lon')
+            if (newLat != null && newLat.value != '') {
+                markLat = parseFloat(newLat.value);
+            }
+            if (newLon != null && newLon.value != '') {
+                markLon = parseFloat(newLon.value);
+            }
+            none = [];
+            var test = [
+                ["Start Point", markLat, markLon, "NaN"]
+            ];
+            locations = test.concat(addresses)
+            initMap();
+        }
+
+        var map;
+        var infoWindow;
+
+        function initMap() {
+            var cenLat = 50.7;
+            var cenLon = -3.5;
+            var iZoom = 6;
+            var testLat = document.getElementById('lat')
+            var testLon = document.getElementById('lon')
+            var testZoom = document.getElementById('izoom')
+            if (testLat != null && testLat.value != '') {
+                cenLat = parseFloat(testLat.value);
+            }
+            if (testLon != null && testLon.value != '') {
+                cenLon = parseFloat(testLon.value);
+            }
+            if (testZoom != null && testZoom.value != '') {
+                iZoom = parseFloat(testZoom.value);
+            }
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: iZoom,
+                center: {
+                    lat: cenLat,
+                    lng: cenLon
+                },
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+
+            google.maps.event.addListener(map, 'click', function(e) {
+                var latLng = e.latLng;
+                var clickLat = document.getElementById('lat')
+                var clickLon = document.getElementById('lon')
+                if (clickLat != null) {
+                    clickLat.value = latLng.lat();
+                }
+                if (clickLon != null && clickLon.value != '') {
+                    clickLon.value = latLng.lng();
+                }
+								updateAll();
+            });
+						
+            google.maps.event.addListener(map,'zoom_changed', function() {
+                var zoom =  map.getZoom();
+                testZoom.value = zoom;
+            });
+								
+						var infowindow = new google.maps.InfoWindow();
+
+            var marker, i;
+
+            for (i = 0; i < locations.length; i++) {
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+                    map: map
+                });
+
+                google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                    return function() {
+                        infowindow.setContent(locations[i][0]);
+                        infowindow.open(map, marker);
+                    }
+                })(marker, i));
+            }
+
+            function getParameterByName(name) {
+                var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+            }
+			
+        }
+		
+		    function getAddresses() {
+			if (document.getElementById("term").value == "") {
+			    alert("search term required")
+			}
+			else
+			{
+                getJSONResponseWithKey("https://apigw-in-d-01:9443/ai/develop/addresses?input=" + document.getElementById("term").value +
+				"&lat=" + document.getElementById("lat").value + "&lon=" + document.getElementById("lon").value + 
+			    "&rangekm=" + document.getElementById("range").value + "&filter=" + document.getElementById("filter").value +
+				"&limit=" + document.getElementById("max").value)
+             }			
+        }
+		
+		    function getJSONResponseWithKey(durl) {
+	        var userKey = "demo_ea15dc73-1991-46db-8c02-e3c483bf9e3e" 
+            $("body").css("cursor", "progress");
+            $.support.cors = true; // this is required for IE8
+            $.ajax({
+                    type: 'GET',
+                    url: durl,
+                    dataType: 'json',
+                    headers: {
+                        "Authorization": userKey
+                    }
+
+                })
+
+                .done(function(response) {
+				var jsonString = JSON.stringify(response, null, 2);
+				addresses = [];
+				for (i = 0; i < response.response.addresses.length; i++) {
+					var formAdd = response.response.addresses[i].formattedAddressNag;
+					var resLat = response.response.addresses[i].geo.latitude;
+					var resLon = response.response.addresses[i].geo.longitude;
+					var line = [formAdd,resLat,resLon,"NaN"]
+					addresses.push(line);
+				}
+				updateAll();
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert("failed");
+                })
+                .always(function() {
+                    $("body").css("cursor", "default");
+                });
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyVDBGbSIjOzGO1M_p6ejlZciybNbL728&callback=initMap">
+	
+	  </script>
+</head>
+
+<body onload="updateAll()">
+
+    <div class="wrapper">
+
+        <h1>Address Index Range Demo:</h1>
+
+        <div class="controls">
+            <div class="group">
+                <div class="col3">Latitude: <input type="text" name="lat" id="lat" size="18" placeholder="51.5" value="53.3" /></div>
+                <div class="col3">Longitude: <input type="text" name="lon" id="lon" size="18" placeholder="0.12" value="-2.9" /></div>
+                <div class="col2">Range(km): <input type="text" name="range" id="range" size="2" placeholder="10" value="10" /></div>
+                <div class="col2">Zoom: <input type="text" name="izoom" id="izoom" size="2" placeholder="1-21" value="6" /></div>
+                <div class="col2"><input type="button" onclick="showMap()" name="Map" id="Map" value="Update Map" /></div>
+            </div>
+
+            <div class="group">
+                <div class="col5">Search Term: <input type="text" name="term" id="term" size="38" placeholder="e.g. Business Name, town" value="" /></div>
+                <div class="col3">Filter: <input type="text" name="filter" id="filter" size="20" placeholder="e.g. commercial, RD02" value="" /></div>
+                <div class="col2">Max:&nbsp;<input type="text" name="max" id="max" size="3" placeholder="max results" value="10" /></div>
+                <div class="col2"><input type="button" onclick="getAddresses()" name="Fetch" id="Fetch" value="Get Addresses" /></div>
+            </div>
+        </div>
+
+        <div class="output">
+            <div class="group">
+
+                <div class="table-container col6">
+                    <div id="tableDiv"></div>
+                </div>
+                <div class="map-container col6">
+                    <div id="map"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,503 @@
+@import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+@import uk.gov.ons.addressIndex.parsers.Tokens
+@import java.text.SimpleDateFormat
+
+@(
+address: AddressResponseAddress,
+filter: String,
+historical: Boolean,
+matchthreshold: Int,
+maxScore: Double,
+classification: Option[Map[String, String]],
+tokens: Map[String, String] = Map.empty[String, String],
+pageNum: Int = 0,
+index: Int = 0,
+isClerical: Boolean = false,
+expandRow: Int = 0,
+apiUrl: String = "",
+apiKey: String = ""
+)(implicit messages: Messages)
+
+
+@if(isClerical) {
+    <a name="@index"></a>
+}
+
+<article class="result-short-form">
+
+    @if(isClerical == true){
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn, Some(historical), Some(matchthreshold))}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
+    }else{
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn, Some(historical))}">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</a></h2>
+    }
+
+    <table>
+        <tr>
+            <td class="mars">UPRN</td>
+            <td class="venus">@address.uprn</td>
+        </tr>
+        <tr>
+            <td class="mars">@messages("addressresult.classification")</td>
+            <td class="venus">@if(address.nag.isEmpty) {
+                @messages("category.notfound")
+                } else {
+                @address.nag.map { nag =>
+                @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td class="mars">@messages("addressresult.la")</td>
+            <td class="venus">@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
+        </tr>
+        <tr>
+            <td class="mars">Score</td>
+            <td class="venus">@{((address.confidenceScore*100).toInt).toString + "% match"}</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="mars">
+                @if(address.geo.isEmpty) {
+                @if(address.nag.isEmpty) {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=@address.paf.map { paf =>50.855,-1.18@paf.buildingNumber&ll=50.855,-1.18@paf.buildingNumber&z=20&t=h }" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                } else {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=50.855,-1.187&ll=50.855,-1.187&z=20&t=h" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                }
+                } else {
+                <span class="map-link-txt">
+                    <a href="https://maps.google.com/?q=@address.geo.map { geo => @geo.latitude,@geo.longitude&ll=@geo.latitude,@geo.longitude&z=20&t=h }" target="_blank">@messages("postcode.openmap")</a>
+                </span>
+                }
+            </td>
+        </tr>
+    </table>
+
+    @if(isClerical){
+
+        @if(index != expandRow) {
+            <div class="clericalInfo mars">
+                <a href="?filter=@filter&page=@{pageNum}&historical=@historical&matchthreshold=@matchthreshold&expand=@index#@index">@messages("clerical.addinfo")</a>
+            </div>
+        }
+
+        <section class='@{ if(index == expandRow) "showrow"  else  "hiderow"  } address-result-clerical'>
+            <h2 class="saturn">@messages("clerical.addinfo")</h2>
+
+            @if(index >= 0) {
+                <div class="clericalInfo mars">
+                    <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&expand=-1#@index">Hide</a>
+                </div>
+            }
+
+            <table class="address-result-table mars">
+                <tr>
+                    <td>@messages("clerical.logicalstatus")</td>
+                    <td class="venus">@address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</td>
+                </tr>
+
+                @if(address.nag.map { nag => nag.logicalStatus }.contains("8")) {
+                <tr>
+                    <td>@messages("single.enddate"): </td>
+                    <td class="venus">@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }</td>
+                </tr>
+                }
+                <tr>
+                    <td>@messages("clerical.elasticscore")</td>
+                    <td class="venus">@address.underlyingScore</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.parentuprn")</td>
+                    <td class="venus">
+                        @if(address.parentUprn == "0") {N/A} else {@address.parentUprn}
+                    </td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.la")</td>
+                    <td class="venus">@address.nag.map { nag => @nag.localCustodianName } | @address.nag.map { nag => @nag.localCustodianGeogCode }</td>
+                </tr>
+
+            </table>
+
+            <h3 class="neptune">@messages("clerical.ta"):</h3>
+
+            <table class="address-result-table-clerical mars">
+                @*PAF TABLE*@
+                <tr class="venus">
+                    <th>@messages("clerical.token_description")</th>
+                    <th>@messages("clerical.fieldnamePAF")</th>
+                    <th>@messages("clerical.inputdata")</th>
+                    <th>@messages("clerical.outputdata")</th>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.token.organisation_name")</td>
+                    <td>@messages("clerical.organisation_name")</td>
+                    <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
+                    <td>@address.paf.map { paf => @paf.organisationName }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.token.department_name")</td>
+                    <td>@messages("clerical.department_name")</td>
+                    <td>@tokens.getOrElse(Tokens.departmentName, "")</td>
+                    <td>@address.paf.map { paf => @paf.departmentName }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.token.sub_building_name")</td>
+                    <td>@messages("clerical.sub_building_name")</td>
+                    <td>@tokens.getOrElse(Tokens.subBuildingName, "")</td>
+                    <td>@address.paf.map { paf => @paf.subBuildingName }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.token.building_name")</td>
+                    <td>@messages("clerical.building_name")</td>
+                    <td>@tokens.getOrElse(Tokens.buildingName, "")</td>
+                    <td>@address.paf.map { paf => @paf.buildingName }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.token.building_number")</td>
+                    <td>@messages("clerical.building_number")</td>
+                    <td>@tokens.getOrElse(Tokens.buildingNumber, "")</td>
+                    <td>@address.paf.map { paf => @paf.buildingNumber }</td>
+                </tr>
+                <tr>
+                    <td rowspan="4">@messages("clerical.token.street_name")</td>
+                    <td>@messages("clerical.thoroughfare")</td>
+                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
+                    <td>@address.paf.map { paf => @paf.thoroughfare }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_thoroughfare")</td>
+                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshThoroughfare }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.dependent_thoroughfare")</td>
+                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
+                    <td>@address.paf.map { paf => @paf.dependentThoroughfare }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_dependent_thoroughfare")</td>
+                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshDependentThoroughfare }</td>
+                </tr>
+                <tr>
+                    <td rowspan="6">@messages("clerical.token.locality")</td>
+                    <td>@messages("clerical.post_town")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.paf.map { paf => @paf.postTown }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_post_town")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshPostTown }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.paf.map { paf => @paf.dependentLocality }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshDependentLocality }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.double_dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.paf.map { paf => @paf.doubleDependentLocality }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_double_dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshDoubleDependentLocality }</td>
+                </tr>
+
+                <tr>
+                    <td rowspan="6">@messages("clerical.token.town_name")</td>
+                    <td>@messages("clerical.post_town")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.paf.map { paf => @paf.postTown }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_post_town")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshPostTown }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.paf.map { paf => @paf.dependentLocality }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshDependentLocality }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.double_dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.paf.map { paf => @paf.doubleDependentLocality }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.welsh_double_dependent_locality")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.paf.map { paf => @paf.welshDoubleDependentLocality }</td>
+                </tr>
+
+                <tr>
+                    <td>@messages("clerical.token.postcode")</td>
+                    <td>@messages("clerical.postcode")</td>
+                    <td>@tokens.getOrElse(Tokens.postcode, "")</td>
+                    <td>@address.paf.map { paf => @paf.postcode }</td>
+                </tr>
+
+                @*NAG TABLE*@
+                <tr class="venus">
+                    <th>@messages("clerical.token_description")</th>
+                    <th>@messages("clerical.fieldnameNAG")</th>
+                    <th>@messages("clerical.inputdata")</th>
+                    <th>@messages("clerical.outputdata")</th>
+                </tr>
+
+                <tr>
+                    <td rowspan="4">@messages("clerical.token.organisation_name")</td>
+                    <td>@messages("clerical.organisation")</td>
+                    <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
+                    <td>@address.nag.map { nag => @nag.organisation }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.pao_text")</td>
+                    <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoText }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.legal_name")</td>
+                    <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
+                    <td>@address.nag.map { nag => @nag.legalName }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.sao_text")</td>
+                    <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
+                    <td>@address.nag.map { nag => @nag.sao.saoText }</td>
+                </tr>
+
+                <tr>
+                    <td>@messages("clerical.token.department_name")</td>
+                    <td>@messages("clerical.legal_name")</td>
+                    <td>@tokens.getOrElse(Tokens.departmentName, "")</td>
+                    <td>@address.nag.map { nag => @nag.legalName }</td>
+                </tr>
+
+                <tr>
+                    <td rowspan="5">@messages("clerical.token.sub_building_name")</td>
+                    <td>@messages("clerical.sao_text")</td>
+                    <td>@tokens.getOrElse(Tokens.subBuildingName, "")</td>
+                    <td>@address.nag.map { nag => @nag.sao.saoText }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.sao_start_number")</td>
+                    <td>@tokens.getOrElse(Tokens.saoStartNumber, "")</td>
+                    <td>@address.nag.map { nag => @nag.sao.saoStartNumber }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.sao_start_suffix")</td>
+                    <td>@tokens.getOrElse(Tokens.saoStartSuffix, "")</td>
+                    <td>@address.nag.map { nag => @nag.sao.saoStartSuffix }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.sao_end_number")</td>
+                    <td>@tokens.getOrElse(Tokens.saoEndNumber, "")</td>
+                    <td>@address.nag.map { nag => @nag.sao.saoEndNumber }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.sao_end_suffix")</td>
+                    <td>@tokens.getOrElse(Tokens.saoEndSuffix, "")</td>
+                    <td>@address.nag.map { nag => @nag.sao.saoEndSuffix }</td>
+                </tr>
+
+                <tr>
+                    <td rowspan="5">@messages("clerical.token.building_name")</td>
+                    <td>@messages("clerical.pao_text")</td>
+                    <td>@tokens.getOrElse(Tokens.buildingName, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoText }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.pao_start_number")</td>
+                    <td>@tokens.getOrElse(Tokens.paoStartNumber, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoStartNumber }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.pao_start_suffix")</td>
+                    <td>@tokens.getOrElse(Tokens.paoStartSuffix, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoStartSuffix }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.pao_end_number")</td>
+                    <td>@tokens.getOrElse(Tokens.paoEndNumber, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoEndNumber }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.pao_end_suffix")</td>
+                    <td>@tokens.getOrElse(Tokens.paoEndSuffix, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoEndSuffix }</td>
+                </tr>
+
+                <tr>
+                    <td>@messages("clerical.token.building_number")</td>
+                    <td>@messages("clerical.pao_start_number")</td>
+                    <td>@tokens.getOrElse(Tokens.paoStartNumber, "")</td>
+                    <td>@address.nag.map { nag => @nag.pao.paoStartNumber }</td>
+                </tr>
+
+                <tr>
+                    <td>@messages("clerical.token.street_name")</td>
+                    <td>@messages("clerical.street_descriptor")</td>
+                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
+                    <td>@address.nag.map { nag => @nag.streetDescriptor }</td>
+                </tr>
+
+                <tr>
+                    <td>@messages("clerical.token.locality")</td>
+                    <td>@messages("clerical.locality")</td>
+                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
+                    <td>@address.nag.map { nag => @nag.locality }</td>
+                </tr>
+
+                <tr>
+                    <td rowspan="2">@messages("clerical.token.town_name")</td>
+                    <td>@messages("clerical.town_name")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.nag.map { nag => @nag.townName }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.locality")</td>
+                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
+                    <td>@address.nag.map { nag => @nag.locality }</td>
+                </tr>
+
+                <tr>
+                    <td>@messages("clerical.token.postcode")</td>
+                    <td>@messages("clerical.postcode_locator")</td>
+                    <td>@tokens.getOrElse(Tokens.postcode, "")</td>
+                    <td>@address.nag.map { nag => @nag.postcodeLocator }</td>
+                </tr>
+                @*NAG TABLE*@
+                <tr class="venus">
+                    <th>@messages("clerical.token_description")</th>
+                    <th>@messages("clerical.fieldname_derived")</th>
+                    <th>@messages("clerical.inputdata")</th>
+                    <th>@messages("clerical.outputdata")</th>
+                </tr>
+                <tr>
+                    <td rowspan="2">@messages("clerical.token.postcode")</td>
+                    <td>@messages("clerical.postcode_out")</td>
+                    <td>@tokens.getOrElse(Tokens.postcodeOut, "")</td>
+                    <td>
+                        @if(address.paf.isEmpty) {
+                        @address.nag.map { nag => @nag.postcodeLocator.split(" ").headOption.getOrElse("") }
+                        } else {
+                        @address.paf.map { paf => @paf.postcode.split(" ").headOption.getOrElse("") }
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.postcode_in")</td>
+                    <td>@tokens.getOrElse(Tokens.postcodeIn, "")</td>
+                    <td>
+                        @if(address.paf.isEmpty) {
+                        @address.nag.map { nag => @nag.postcodeLocator.split(" ").lastOption.getOrElse("") }
+                        } else {
+                        @address.paf.map { paf => @paf.postcode.split(" ").lastOption.getOrElse("") }
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="2">@messages("clerical.token.all")</td>
+                    <td>@messages("clerical.paf_all")</td>
+                    <td>@Tokens.concatenate(tokens)</td>
+                    <td>@address.formattedAddressPaf.replaceAll(",", "")</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.nag_all")</td>
+                    <td>@Tokens.concatenate(tokens)</td>
+                    <td>@address.formattedAddressNag.replaceAll(",", "")</td>
+                </tr>
+
+                @* hopper score *@
+                <tr class="venus">
+                    <th>@messages("clerical.score")</th>
+                    <th>@messages("clerical.param")</th>
+                    <th>@messages("clerical.paramvalue")</th>
+                    <th>@messages("clerical.scorevalue")</th>
+                </tr>
+                <tr>
+                    <td rowspan="5">@messages("clerical.locality")</td>
+                    <td>@messages("clerical.organisation_building_name")</td>
+                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.take(1) }</td>
+                    <td rowspan="5">@address.bespokeScore.map { score => @score.localityScore }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.street")</td>
+                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.drop(1).take(1) }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.townlocality")</td>
+                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.drop(2).take(1) }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.postcode")</td>
+                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.drop(3).take(1) }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.ambiguity_penalty")</td>
+                    <td>@address.bespokeScore.map { score => @score.ambiguityPenalty }</td>
+                </tr>
+
+                <tr>
+                    <td rowspan="2">@messages("clerical.building")</td>
+                    <td>@messages("clerical.detailed_organisation_building_name")</td>
+                    <td>@address.bespokeScore.map { score => @score.buildingScoreDebug.take(1) }</td>
+                    <td rowspan="2">@address.bespokeScore.map { score => @score.buildingScore }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.buildingnumber")</td>
+                    <td>@address.bespokeScore.map { score => @score.buildingScoreDebug.drop(1).take(1) }</td>
+                </tr>
+
+                <tr>
+                    <td rowspan="4">@messages("clerical.unit")</td>
+                    <td>@messages("clerical.ref_hierarchy")</td>
+                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.take(1) }</td>
+                    <td rowspan="4">@address.bespokeScore.map { score => @score.unitScore }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.organisation_name")</td>
+                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.drop(1).take(1) }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.subbuildingname")</td>
+                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.drop(2).take(1) }</td>
+                </tr>
+                <tr>
+                    <td>@messages("clerical.sub_building_number")</td>
+                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.drop(3).take(1) }</td>
+                </tr>
+
+            </table>
+
+            @if(index >= 0) {
+            <div class="clericalInfo mars">
+                <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&expand=-1#@index">Hide</a>
+            </div>
+            }
+
+        </section>
+    }
+
+</article>
+
+
+

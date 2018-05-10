@@ -1,5 +1,8 @@
 debug.sfatext=Arddangos ElasticSearch Ymholiad
 
+banner.sitetitle=Mynegai cyfeiriad
+banner.sitetagline=Set ddata daearyddol mwyaf cywir o gyfeiriadau ac eiddo yn y DU
+
 clerical.sfatext=Offeryn clerigol
 clerical.addinfo=Gwybodaeth Clerigol Ychwanegol
 clerical.logicalstatus=Statws rhesymegol
@@ -88,12 +91,14 @@ clerical.organisation_building_name=Enw'r Adeilad Sefydliad
 clerical.detailed_organisation_building_name=Manwl Enw'r Adeilad Sefydliad
 clerical.ref_hierarchy=Cyf Hierarchaeth
 
-help.title="Mynd i'r afael Mynegai UI Tudalen Gymorth"
+help.title=Helpu
 
 home.servicetext=Gwasanaeth Paru Cyfeiriad
 home.headertext=Mae''r gwasanaeth hwn yn eich galluogi i chwilio am gyfeiriad unigol, neu yn cyd-fynd swp o gyfeiriadau o ffeil mewnbwn.
 home.singlehead=Dod o hyd i gyfeiriad
 home.singlebody=Mae hyn yn nodwedd yn eich galluogi i gyd-fynd am un cyfeiriad unigol
+home.postcodehead=Dod o hyd i gyfeiriad gan cod post
+home.postcodebody=Chwilio am un cyfeiriad yn ôl cod post
 home.title=mynegai Cyfeiriad demo - Home
 home.multihead=Cydweddu cyfeiriadau lluosog
 home.multibody=Mae hyn yn nodwedd yn eich galluogi i lwytho swp o gyfeiriadau ar gyfer paru
@@ -117,13 +122,14 @@ logical.class6=ls-provisional
 logical.class8=ls-historical
 
 login.title=Os gwelwch yn dda Mewngofnodi
-login.heading=Gwasanaeth Paru Cyfeiriad
+login.heading=Arwyddo
 login.username=enw defnyddiwr
 login.password=cyfrinair
 login.usernameph=Rhif adnabod y Rhwydwaith ONS
 login.passwordph=cyfrinair rhwydwaith
-login.login=Mewngofnodi
+login.login=Arwyddo
 login.clear=Glir
+login.forgotpassword=Anghofio cyfrinair
 
 main.beta=BETA
 main.licence1=Mae''r holl gynnwys ar gael o dan y
@@ -133,12 +139,17 @@ main.licenceurl=https://www.nationalarchives.gov.uk/doc/open-government-licence-
 main.copyright=hawlfraint y Goron
 main.goto=Ewch i
 multi.sfatext=Cydweddu cyfeiriadau lluosog
+
 navbar.home=Cartref
 navbar.singlematch=Chwilio sengl
+navbar.postcode=Chwiliad cod post
 navbar.multimatch=Match lluosog
 navbar.clerical=Offeryn clerigol
 navbar.query=Ymholiad arddangos
 navbar.help=Helpu
+navbar.radius=Chwilio radiws
+navbar.developers=</datblygwyr>
+
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad
 single.searchbut=Chwilio
@@ -155,13 +166,67 @@ single.confidence=hyder
 single.found=dod o hyd i gyfeiriadau
 single.openmap=Map agored
 single.classification=Dosbarthiad
+single.intro=I ddechrau, rhowch y cyfeiriad neu god post. Darparu cymaint o'r cyfeiriad ag y bo modd i gael y canlyniadau gorau.
+
+addressresult.la_address=Cyfeiriad yr awdurdod lleol
+addressresult.postal_address_file=Ffeil cyfeiriadau post
+addressresult.welsh_language_nag=Iaith Gymraeg (NAG)
+addressresult.welsh_language_paf=Iaith Gymraeg (PAF)
+addressresult.classification=Dosbarthiad
+addressresult.la=Awdurdod lleol
+addressresult.la_code=Cod awdurdod lleol
+addressresult.address_hierarchy=Hierarchaeth cyfeiriad
+addressresult.position_primary=Eiddo sylfaenol
+addressresult.position_secondary=Priodweddau eilaidd
+addressresult.position_tertiary=Eiddo trydyddol
+addressresult.position_quaternary=Eiddo quaternary
+addressresult.position_quinary=Eiddo pumol
+addressresult.address=Cyfeiriad
+
+postcode.title=Cod post demo-dod o hyd i gyfeiriad gan cod post
+postcode.sfatext=Chwilio am gyfeiriad yn ôl cod post
+postcode.found=dod o hyd i gyfeiriadau
+postcode.foundpre=Rydym wedi darparu arian cyfatebol
+postcode.foundpost=cyfeiriadau
+postcode.pleasesupply=Rhowch eich cod post
+postcode.openmap=Map o'r lleoliad
+postcode.intro=I ddechrau, rhowch cod post union.
+
+results.foundatleastpre=Rydym wedi paru o leiaf
+results.foundexactpre=Rydym wedi paru
+results.foundpost=cyfeiriadau
+
+postcodesearchform.labelsearch=Rhowch gyfeiriad
+
+radius.title=Radiws demo-dod o hyd i gyfeiriad o fewn radiws o
+radius.sfatext=Chwilio am gyfeiriad o fewn radiws o
+radius.foundpre=Rydym wedi darparu arian cyfatebol
+radius.foundpost=cyfeiriadau
+radius.pleasesupply=Rhowch tymor radiws a chwilio
+radius.openmap=Map o'r lleoliad
+radius.intro=I gychwyn arni, llenwch y ffurflen gyda tymor ystod, lledred, hydred a chwilio.
+
+radiussearchform.labelsearch=Rhowch term chwilio
+radiussearchform.labelrange=Ystod(km)
+radiussearchform.labellat=Lledred
+radiussearchform.labellon=Hydred
+radiussearchform.labelfilter=Filter (dewisol)
+radiussearchform.placeholdersearch=Er enghraifft, recycling
+radiussearchform.placeholderfilter=Er enghraifft, residential, commercial, RD06
+radiussearchform.placeholderrange=Er enghraifft, 5
+radiussearchform.placeholderlat=Er enghraifft, 50.722563
+radiussearchform.placeholderlon=Er enghraifft, -3.530171
+
 singlesearchform.placeholder=E.g. 16 James Street Swindon SN1 3HE
+postcodesearchform.placeholder=Er enghraifft, EX2 6GA
 clericalsearchform.placeholder=E.g. 23 Hopper Street Portsmouth PO4 8AR
 debugsearchform.placeholder=E.g. Ground Floor Flat, 45 Jones Avenue Swansea SA4 3DF
 singlesearchform.placeholderfilter=E.g. 16 James Street Swindon SN1 3HE
+postcodesearchform.placeholderfilter=E.g. residential, commercial, RD06
 clericalsearchform.placeholderfilter=E.g. 23 Hopper Street Portsmouth PO4 8AR
 debugsearchform.placeholderfilter=E.g. residential, commerical, RD06
 singlesearchform.labelfilter=Filter (dewisol)
+postcodesearchform.labelfilter=Filter (dewisol)
 clericalsearchform.labelfilter=Filter (dewisol)
 debugsearchform.labelfilter=Filter (dewisol)
 error.error=gwall
@@ -742,7 +807,8 @@ multi.table.match.type = Math Match
 multi.table.uprn = UPRN
 multi.table.score = Sgôr
 multi.table.comparable.score = Sgôr cymaradwy
-multi.table.actual.score = Gwirioneddol Score
+multi.table.confidence.score = Sgôr Hyder
+multi.table.actual.score = Sgôr elastig
 multi.table.building.score = Building Sgôr
 multi.table.unit.score = Sgôr Uned
 multi.table.rank = Rank

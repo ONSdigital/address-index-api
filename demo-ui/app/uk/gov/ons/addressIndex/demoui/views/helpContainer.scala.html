@@ -1,0 +1,28 @@
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+
+@(
+    version: DemoUIAddressIndexVersionModule,
+    content: String,
+    userLang: String
+)(implicit messages: Messages)
+
+@main(title = messages("help.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("help")) {
+
+
+    <div class="container mars">
+        <div class="wrapper">
+
+            <div class="group" id="help-container">
+                <div class="col-12">
+
+                    @if(content == "forgotPassword"){
+                        @helpcontent.helpForgotPassword(userLang)
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

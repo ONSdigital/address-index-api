@@ -2,9 +2,9 @@ package uk.gov.ons.addressIndex.client
 
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressResponseVersion}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, PostcodeQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressByPostcodeResponseContainer, AddressResponseVersion}
+import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressIndexPostcodeRequest, BulkBody}
 import scala.language.implicitConversions
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,7 +49,45 @@ trait AddressIndexClient {
       .withHttpHeaders("authorization" -> request.apiKey)
       .withQueryStringParameters(
         "input" -> request.input,
-        "filter" -> request.filter,
+        "classificationfilter" -> request.filter,
+        "historical" -> request.historical.toString,
+        "matchthreshold" -> request.matchthreshold.toString,
+        "rangekm" -> request.rangekm,
+        "lat" -> request.lat,
+        "lon" -> request.lon,
+        "limit" -> request.limit,
+        "offset" -> request.offset
+      )
+  }
+
+
+  /**
+    * perform a postcode search query
+    *
+    * @param request the request
+    * @return a list of addresses
+    */
+  def postcodeQuery(request: AddressIndexPostcodeRequest)
+    (implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] = {
+      postcodeQueryWSRequest(request)
+        .get
+        .map(_.json.as[AddressByPostcodeResponseContainer])
+  }
+
+  /**
+    * testable method for postcodeQuery
+    *
+    * @param request the request
+    * @return
+    */
+  def postcodeQueryWSRequest(request: AddressIndexPostcodeRequest): WSRequest = {
+    PostcodeQuery(request.postcode.toString)
+      .toReq
+      .withHttpHeaders("authorization" -> request.apiKey)
+      .withQueryStringParameters(
+        //"postcode" -> request.postcode,
+        "classificationfilter" -> request.filter,
+        "historical" -> request.historical.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
@@ -99,7 +137,7 @@ trait AddressIndexClient {
       .withHttpHeaders("authorization" -> apiKey)
       .withQueryStringParameters(
         "input" -> input,
-        "filter" -> filter
+        "classificationfilter" -> filter
       ).get.map(response => Json.prettyPrint(response.json))
   }
 
@@ -144,6 +182,25 @@ object AddressIndexClientHelper {
     path = "/addresses",
     method = "GET"
   )
+
+//  object PostcodeQuery extends AddressIndexPath(
+//    path = "/addresses/postcode",
+//    method = "GET"
+//  )
+
+  object PostcodeQuery extends AddressIndexPath(
+    path = "",
+    method = ""
+  ) {
+    def apply(postcode: String) = {
+      val initialRoute = "/addresses/postcode"
+      val fullRoute = s"$initialRoute/$postcode"
+      new AddressIndexPath(
+        path = fullRoute,
+        method = "GET"
+      ) {}
+    }
+  }
 
   object VersionQuery extends AddressIndexPath(
     path = "/version",

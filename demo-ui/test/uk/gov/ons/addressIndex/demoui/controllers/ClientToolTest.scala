@@ -8,7 +8,7 @@ import play.api.test.WithApplication
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import play.api.test.FakeRequest
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
-import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
+import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -28,10 +28,13 @@ class ClientToolTest extends PlaySpec with Results {
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "GATE REACH"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
       val inputAddress = "7 GATE REACH EXETER EX2 6GA"
       val filter = ""
+      val historical = true
+      val matchthreshold = 5
       val response = new ClericalToolController(
         controllerComponents,
         configuration,
@@ -39,8 +42,9 @@ class ClientToolTest extends PlaySpec with Results {
         langs,
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
+        expandedRels,
         version)
-        .doMatchWithInput(inputAddress, filter, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, filter, Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -58,10 +62,13 @@ class ClientToolTest extends PlaySpec with Results {
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Residential"
       val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
       val inputAddress = "7 GATE REACH EXETER EX2 6GA"
       val filter = "residential"
+      val historical = true
+      val matchthreshold = 5
       val response = new ClericalToolController(
         controllerComponents,
         configuration,
@@ -69,8 +76,9 @@ class ClientToolTest extends PlaySpec with Results {
         langs,
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
+        expandedRels,
         version)
-        .doMatchWithInput(inputAddress, filter, Some(1), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, filter, Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

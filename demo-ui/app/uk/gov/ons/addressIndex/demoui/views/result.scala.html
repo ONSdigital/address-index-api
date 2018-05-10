@@ -1,0 +1,64 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import uk.gov.ons.addressIndex.model.db.index.ExpandedRelative
+@(
+singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
+filter: Option[String],
+historical: Boolean,
+warningMessage : Option[String],
+addressByUprnResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponse],
+classification: Option[Map[String,String]],
+expandedRels: Option[Seq[ExpandedRelative]],
+version: DemoUIAddressIndexVersionModule,
+isClerical: Boolean,
+apiUrl: String = "",
+apiKey: String
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("single.title"), version = version, showBannerNavigation = true, showBannerTagline = false, siteSection = Some("")) {
+
+<div class="container">
+    <div class="wrapper">
+        <div class="group">
+            <div class="col-12">
+                @warningMessage.map { message =>
+                <div id="warning-message" class="panel panel-warning address-panel">
+                    <div class="result-content">
+                        <div class="alert alert-danger" role="alert"><span class="error" onclick="setFocus('address');">@message</span></div>
+                    </div>
+                </div>
+                }
+
+
+                    @addressByUprnResponse.map { aresponse =>
+
+                    @aresponse.address.map{ address =>
+
+                    @addressResult(
+                    address,
+                    singleSearchForm("filter").value.getOrElse(""),
+                    address.underlyingScore,
+                    classification,
+                    expandedRels,
+                    isClerical = isClerical,
+                    index = -1,
+                    expandRow = -1,
+                    apiUrl = apiUrl,
+                    apiKey = apiKey
+                    )
+
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+}

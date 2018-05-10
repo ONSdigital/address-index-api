@@ -7,20 +7,19 @@
 * argument is an `Html` object containing the body of the page.
 *@
 
-@main(title = messages("home.title"), version = version) {
+@main(title = messages("home.title"), version = version, showBannerNavigation = true, showBannerTagline = false, siteSection = Some("")) {
 <div class="container">
-    <div class="panel-heading sub-nav-heading">
-        @navigation(Navigation.default)
-    </div>
-    <div class="row">
-        <div><h2 class="panel-title">@messages("home.servicetext") <span class="beta">Beta</span></h2></div>
-    </div>
-    <h3 class="panel-title-error">@messages("error.error"): @statusCode</h3>
-    <div class="panel panel-default">
-            <p class="messageDetail">@messages("error.detail"):</p>
-            <div class="index-nav-error">
-                <p class="errorBody">@error</p>
+
+    <div class="wrapper">
+        <div class="group">
+            <div class="col-12">
+                <h1 class="jupiter">System Error</h1>
+                <h2 class="saturn">@messages("error.error"): @statusCode</h2>
+                <h3 class="neptune">@messages("error.detail"):</h3>
+                <p class="venus">@error</p>
+
             </div>
+        </div>
     </div>
 </div>
 }

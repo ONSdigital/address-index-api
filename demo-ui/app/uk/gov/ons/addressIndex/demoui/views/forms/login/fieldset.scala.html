@@ -6,7 +6,7 @@
 @(errorMessage: String = "", version: DemoUIAddressIndexVersionModule)(implicit messages: Messages)
 
 @helper.form(routes.ApplicationHomeController.login) {
-    @main(title = messages("single.title"), version = version) {
+    @main(title = messages("single.title"), version = version, showBannerNavigation = false, showBannerTagline = true, siteSection = Some("")) {
 
         <link href="/assets/stylesheets/login.css" rel="stylesheet" />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

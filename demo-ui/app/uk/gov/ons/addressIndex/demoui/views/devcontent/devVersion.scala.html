@@ -1,0 +1,66 @@
+@import uk.gov.ons.addressIndex.demoui.controllers.routes
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+
+@(userLang: String,
+conf : DemouiConfigModule)
+
+<script src="http://code.jquery.com/jquery-3.2.0.js"></script>
+
+@if(userLang == "cy") {
+    <article>
+        <h1 class="jupiter">Anghofio cyfrinair</h1>
+        <p>Os ydych chi'n ansicr ynghylch eich manylion mewngofnodi, bydd angen i chi ailosod eich cyfrinair.</p>
+        <p>Mae angen i gyflwyno ffoniwch ddesg gymorth i ailosod eich cyfrinair ddefnyddwyr Swyddfa Ystadegau Gwladol. Defnyddwyr allanol, cysylltwch â ni i gael mynediad at eich cyfrif.</p>
+        <p><a href="@{routes.ApplicationHomeController.login}">Ôl i lofnodi Tudalen</a></p>
+    </article>
+}else{
+
+
+    <div class="group">
+        <div class="col-12">
+            <h1 class="jupiter">Get Version</h1>
+            <p class="venus">Returns version information for the api and the data (AddressBase).</p>
+        </div>
+    </div>
+    <div class="group">
+        <section id="request" class="col-6">
+            <div id="single-match-tab" class="tab-content">
+                <button class="venus" onclick="getVersion()">Get Version</button>
+            </div>
+        </section>
+        <section id="response" class="col-6">
+            <div class="content-container">
+                <div class="venus">Response:</div>
+                <div id="response-text" class="preformatted">Response will appear here</div>
+            </div>
+        </section>
+    </div>
+
+}
+
+
+
+    <script>
+
+		function getVersion() {
+            getJSONResponse("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/version")
+        }
+
+        function getJSONResponse(durl) {
+            $("body").css("cursor", "progress");
+            $.support.cors = true; // this is required for IE8
+            $.getJSON(durl)
+                .done(function(response) {
+                    // convert to string and pretty print
+                    var jsonString = JSON.stringify(response, null, 2);
+                    document.getElementById("response-text").innerHTML = jsonString;
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    alert("failed");
+                })
+                .always(function() {
+                    $("body").css("cursor", "default");
+                });
+        }
+
+    </script>

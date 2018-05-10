@@ -1,0 +1,79 @@
+@(radiusForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm])(implicit messages: Messages)
+@import helper._
+
+<fieldset class="searchfield venus">
+
+    <div class="group">
+
+        <div class="col-4">
+            @inputText(
+            radiusForm("rangekm"),
+            args = '_id -> "rangeNumber",
+            'class -> "form-control mars",
+            '_label -> messages("radiussearchform.labelrange"),
+            'placeholder -> messages("radiussearchform.placeholderrange")
+            )
+        </div>
+
+        <div class="col-4">
+            @inputText(
+            radiusForm("lat"),
+            args = '_id -> "latNumber",
+            'class -> "form-control mars",
+            '_label -> messages("radiussearchform.labellat"),
+            'placeholder -> messages("radiussearchform.placeholderlat")
+            )
+        </div>
+
+        <div class="col-4">
+            @inputText(
+            radiusForm("lon"),
+            args = '_id -> "lonNumber",
+            'class -> "form-control mars",
+            '_label -> messages("radiussearchform.labellon"),
+            'placeholder -> messages("radiussearchform.placeholderlon")
+            )
+        </div>
+
+    </div>
+
+    <div class="group">
+
+        <div class="col-4">
+            @inputText(
+            radiusForm("address"),
+            args = '_id -> "numberOrName",
+            'class -> "form-control mars",
+            '_label -> messages("radiussearchform.labelsearch"),
+            'placeholder -> messages("radiussearchform.placeholdersearch")
+            )
+        </div>
+
+        <div class="col-4">
+            @inputText(
+            radiusForm("filter"),
+            args = '_id -> "presetOrCode",
+            'class -> "form-control mars",
+            '_label -> messages("radiussearchform.labelfilter"),
+            'placeholder -> messages("radiussearchform.placeholderfilter")
+            )
+        </div>
+
+        <div class="col-4">
+            @inputRadioGroup(
+            radiusForm("historical"),
+            options = Seq("true"->"Yes","false"->"No"),
+            'class -> "form-control mars",
+            '_label -> "Include historical data?",
+            '_help -> "Historical data is included by default")
+        </div>
+
+    </div>
+
+    <div class="group">
+        <div class="col-12">
+            <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
+        </div>
+    </div>
+
+</fieldset>

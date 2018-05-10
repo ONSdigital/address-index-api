@@ -653,7 +653,7 @@ div.address-switch-buttons span:hover{
 
 .search-bar-active {
     min-width: 300px;
-    max-width: 522px;
+    max-width: 622px;
 }
 
 div.taTable{
@@ -1038,3 +1038,335 @@ a.address-toggle-welsh:hover {
 .help-container h1 {
     margin-top: 60px;
 }
+
+/* Start Postcode Styles */
+
+div.content-container {
+    max-width: 960px;
+    margin: 20px auto;
+    padding: 0;
+}
+
+h1.search-page-title {
+    margin: 20px 0;
+}
+
+.infobox-standard {
+    background-color: #dfe0e2;
+    padding: 10px;
+    border-left: 5px solid #000000;
+    max-width: 75%;
+}
+
+section.searchbox-initial {
+    margin: 20px 0;
+}
+
+section.searchbox-results {
+    margin: 0;
+}
+
+section.searchbox-initial dd, section.searchbox-initial dt, section.searchbox-results dd, section.searchbox-results dt {
+    margin: 0;
+}
+
+section.postcode-match-form-container section.searchbox-results .searchfield-searchinput {
+    float: left;
+    min-width: 400px;
+}
+
+section.postcode-match-form-container section.searchbox-results button {
+    float: left;
+    margin: 14px 0 0 20px;
+}
+
+section.postcode-match-form-container section.searchbox-results .searchfield-searchfilter {
+    clear: left;
+}
+
+section.searchbox-initial label {
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 40px;
+}
+
+section.searchbox-initial .btn-search {
+    margin: 0;
+}
+
+section.postcode-match-form-container {
+    background-color: #dfe0e2;
+    margin: 30px 2px;
+    padding: 20px;
+}
+
+section.postcode-match-form-container .postcode-match-form {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+section.postcode-match-form-container h1.search-page-title {
+    font-size: 20px;
+    margin: 0;
+}
+
+article.result-short-form {
+    border-top: 1px solid #dfe0e2;
+    margin: 20px 0px 0px 0px;
+    padding: 20px 0px 0 0;
+}
+
+article.result-short-form table tr td {
+    line-height: 30px;
+    padding: 0 40px 0 0;
+}
+
+article.result-short-form a.result-short-form-link:link, .address-result-hierarchy-set a:link {
+    color: #489DC4;
+    text-decoration: none;
+}
+
+article.result-short-form a.result-short-form-link:hover, .address-result-hierarchy-set a:hover {
+    color: #4c2c92 ;
+    text-decoration: underline;
+}
+
+article.result-short-form a.result-short-form-link:visited, .address-result-hierarchy-set a:visited {
+    color: #489DC4;
+    text-decoration: none;
+}
+
+.standout {
+    color: #00914e;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.postcode-match-results .postcode-match-results-count {
+    border-bottom: 1px solid #dfe0e2;
+}
+
+.content-container .panel-match {
+    max-width: 960px;
+}
+
+table.address-result-table tr td:first-child {
+    padding: 0 50px 0 0;
+}
+
+table.address-result-table tr td:last-child {
+    font-weight: bold;
+}
+
+section.address-result-hierarchy {
+    margin: 20px 0px;
+    width: 100%;
+}
+
+section.address-result-hierarchy .address-result-hierarchy-single {
+    margin: 20px 0;
+}
+
+table.address-result-hierarchy-set {
+    margin: 20px 0;
+    padding: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.address-result-hierarchy-set thead {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    text-align: left;
+    padding: 3px 0;
+}
+
+table.address-result-hierarchy-set th, table.address-result-hierarchy-set td {
+    padding: 5px 0;
+}
+
+table.address-result-hierarchy-set tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+table.address-result-hierarchy-set tbody tr td:first-child {
+    width: 180px;
+}
+
+.result-content .infobox-standard {
+    max-width: 100%;
+}
+
+.result-content .address-result-header-type {
+    display: inline-block;
+    padding: 0 30px 0 0;
+}
+
+.result-content .address-result-header-uprn {
+    display: inline-block;
+    padding: 0 30px 0 0;
+}
+
+.result-content .address-result-header {
+    margin: 20px 0px 30px 0px;
+}
+
+/* Radius styles */
+
+section.radius-match-form-container {
+    background-color: #dfe0e2;
+    margin: 30px 2px;
+    padding: 20px;
+}
+
+section.radius-match-form-container .radius-match-form {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+section.radius-match-form-container h1.search-page-title {
+    font-size: 20px;
+    margin: 0;
+}
+
+.radius-match-form section.searchbox-results .searchfield-searchinput {
+    float: left;
+    min-width: 300px;
+}
+
+.radius-match-form section.searchbox-results button {
+    float: none;
+    margin: 0;
+}
+
+.radius-match-form .searchfield-searchfilter {
+    clear: none;
+}
+
+.radius-match-form input#rangekm, input#lat, input#lon {
+    width: 200px;
+    height: 40px;
+    font-size: 1.1em;
+}
+.radius-match-form .searchfields-group .searchfield-searchinput input#address {
+    width: 350px;
+}
+
+.radius-match-form .searchfields-group .searchfield-searchfilter input#filter {
+    width: 350px;
+}
+
+.radius-match-form .searchfield-radius {
+    margin: 0 30px 0 0;
+    float: left;
+}
+
+.radius-match-form .searchfields-group {
+    width: 960px;
+    clear: left;
+}
+
+.radius-match-form .searchfield-searchinput {
+    clear: left;
+    width: 350px;
+    float: left;
+    margin: 0 30px 0 0;
+}
+
+.radius-match-form .searchfield-searchfilter {
+    width: 350px;
+    float: left;
+}
+
+/* Header styles */
+
+header {
+    background-color: #ffffff;
+    margin: 0;
+}
+
+#header-site-brand-container {
+    width: 100%;
+    background-color: #ffffff;
+    position: relative;
+    margin: 10px 0;
+}
+
+#header-site-brand {
+    width: 960px;
+    margin: 0 auto;
+    position: relative;
+}
+
+#header-site-brand-versioning {
+    width: 960px;
+    margin: 0 auto;
+    position: absolute;
+    top: 0;
+    text-align: right;
+}
+
+#header-name-tagline-container {
+    width: 100%;
+    background-color: #3b7a9e;
+    color: #ffffff;
+    padding: 30px 0;
+    position:relative;
+}
+
+#header-name {
+    font-size: 2.5em;
+    width: 960px;
+    margin: 0 auto;
+}
+
+#header-tagline {
+    font-size: 1.3em;
+    width: 960px;
+    margin: 0 auto;
+}
+
+#header-site-brand-versioning-beta-mark span {
+    background-color: #ff9900;
+    padding: 6px 8px 4px 10px;
+    letter-spacing: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+#header-site-brand-versioning-version-info {
+    margin: 2px 0 0 0;
+}
+
+#header-site-brand-versioning-version-info span {
+    background-color: #ffffff;
+    padding: 3px;
+    font-size: 0.6em;
+    font-weight: bold;
+    color: #ff9900;
+    border: 1px solid #ff9900;
+}
+
+@media (max-width: 1020px) {
+
+    div.content-container, section.postcode-match-form-container .postcode-match-form, .postcode-match-results, .content-container .panel-match {
+        max-width: 960px;
+    }
+
+}
+
+@media (max-width: 641px) {
+
+    div.content-container, section.postcode-match-form-container .postcode-match-form, .postcode-match-results, .content-container .panel-match {
+        max-width: 500px;
+    }
+
+    section.searchbox-results .searchfield-searchinput {
+        float: left;
+        min-width: 300px;
+    }
+
+}
+
+/* End Postcode Styles */

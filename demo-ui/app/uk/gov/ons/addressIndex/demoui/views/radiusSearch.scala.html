@@ -1,0 +1,58 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import play.twirl.api.HtmlFormat
+
+@(
+radiusSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm],
+filter: Option[String],
+rangekm: Option[String],
+lat: Option[String],
+lon: Option[String],
+historical: Boolean,
+warningMessage : Option[String],
+pageNum: Int,
+pageSize: Int,
+pageMax: Int,
+addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+classification: Option[Map[String,String]],
+version: DemoUIAddressIndexVersionModule
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("radius.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("radius"))  {
+
+
+
+<div class="container">
+    <div class="wrapper">
+        <div class="group">
+            <div class="col-12">
+                <h1 class="jupiter">@messages("radius.sfatext")</h1>
+            </div>
+        </div>
+        <div class="group">
+            <div class="col-6">
+                <section class="infobox-standard mars">
+                    <p>@messages("radius.intro")</p>
+                </section>
+            </div>
+        </div>
+        <div class="group">
+            <section class="searchbox-initial">
+                <div class="radius-match-form">
+                    @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatch) {
+                    <div id="search-form" class="search-bar-active">
+                        @forms.radiusForm(radiusSearchForm)
+                    </div>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+}

@@ -1,0 +1,67 @@
+@(postcodeForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm], display: String, showfilter: Boolean, labelsearch: String, placeholder: String, labelfilter: String, placeholderfilter: String)(implicit messages: Messages)
+@import helper._
+
+<fieldset class="searchfield venus">
+    <div class="group">
+        @if(display == "inline") {
+            <div class="col-6">
+                <div class="searchfield-searchinput">
+                    @inputText(
+                    postcodeForm("address"),
+                    args = '_id -> "numberOrName",
+                    'class -> "form-control mars",
+                    '_label -> labelsearch,
+                    'placeholder -> placeholder
+                    )
+                </div>
+            </div>
+            <div class="col-2">
+                <dl style="padding: 0.4rem 0;">
+                    <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
+                </dl>
+            </div>
+        } else {
+            <div class="col-6">
+                <div class="searchfield-searchinput">
+                    @inputText(
+                    postcodeForm("address"),
+                    args = '_id -> "numberOrName",
+                    'class -> "form-control mars",
+                    '_label -> labelsearch,
+                    'placeholder -> placeholder
+                    )
+                </div>
+
+                <input type="submit" id="submit" class="neptune" value='@messages("single.searchbut")' />
+
+            </div>
+
+        }
+    </div>
+
+
+    @if(showfilter == true) {
+        <div class="searchfield-searchfilter group">
+
+            <div class="col-4">
+                @inputText(
+                postcodeForm("filter"),
+                args = '_id -> "presetOrCode",
+                'class -> "form-control mars",
+                '_label -> labelfilter,
+                'placeholder -> placeholderfilter
+                )
+            </div>
+
+            <div class="col-4">
+                @inputRadioGroup(
+                postcodeForm("historical"),
+                options = Seq("true"->"Yes","false"->"No"),
+                'class -> "form-control mars",
+                '_label -> "Include historical data?",
+                '_help -> "Historical data is included by default")
+            </div>
+
+        </div>
+    }
+</fieldset>
