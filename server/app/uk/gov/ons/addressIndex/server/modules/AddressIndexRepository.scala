@@ -39,6 +39,14 @@ trait ElasticsearchRepository {
   def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]]
 
   /**
+    * Query the address index by UPRN.
+    *
+    * @param input the identificator of the address
+    * @return Fucture containing a address or `None` if not in the index
+    */
+  def queryPartialAddress(input: String, historical: Boolean = true): Future[HybridAddresses]
+
+  /**
     * Query the address index by postcode.
     *
     * @param postcode the identificator of the address
@@ -115,6 +123,31 @@ class AddressIndexRepository @Inject()(
     } else {
       search(hybridIndex).query(termQuery("uprn", uprn))
     }
+
+
+  def queryPartialAddress(input: String, historical: Boolean = true): Future[HybridAddresses] = {
+
+    val request = generateQueryPartialAddressRequest(input, historical)
+
+    logger.trace(request.toString)
+
+    client.execute(request).map(HybridAddresses.fromEither)
+  }
+
+  /**
+    * Generates request to get address from ES by UPRN
+    * Public for tests
+    *
+    * @param input the uprn of the fetched address
+    * @return Seqrch definition containing query to the ES
+    */
+  def generateQueryPartialAddressRequest(input: String, historical: Boolean = true): SearchDefinition =
+    if (historical) {
+      search(hybridIndexHistorical).query(matchQuery("lpi.nagAll.typeahead", input))
+    } else {
+      search(hybridIndex).query(matchQuery("lpi.nagAll.typeahead", input))
+    }
+
 
   def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 

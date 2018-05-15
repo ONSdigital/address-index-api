@@ -338,6 +338,101 @@ class AddressController @Inject()(
 
 
   /**
+    * UPRN query API
+    *
+    * @param input uprn of the address to be fetched
+    * @return
+    */
+  def partialAddressQuery(input: String, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    // logger.info(s"#uprnQuery: uprn: $uprn")
+
+    // check API key
+    val apiKey = req.headers.get("authorization").getOrElse(missing)
+    val keyStatus = checkAPIkey(apiKey)
+
+    // check source
+    val source = req.headers.get("Source").getOrElse(missing)
+    val sourceStatus = checkSource(source)
+
+    val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
+    val filterString = ""
+    val limitInt = 10
+    val offsetInt = 0
+
+    val startingTime = System.currentTimeMillis()
+    def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+      val responseTime = System.currentTimeMillis() - startingTime
+      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
+        isUprn = true, uprn = input, isNotFound = notFound, formattedOutput = formattedOutput,
+        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
+    }
+
+    if (sourceStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
+      futureJsonUnauthorized(SourceMissing)
+    } else if (sourceStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = SourceInvalidError.message)
+      futureJsonUnauthorized(SourceInvalid)
+    } else if (keyStatus == missing) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyMissingError.message)
+      futureJsonUnauthorized(KeyMissing)
+    } else if (keyStatus == invalid) {
+      writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
+      futureJsonUnauthorized(KeyInvalid)
+    } else {
+
+      val tokens = parser.parse(input)
+
+      val request: Future[HybridAddresses] = esRepo.queryPartialAddress(input, hist)
+      request.map {
+        case HybridAddresses(hybridAddresses, maxScore, total) =>
+
+          val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
+
+          val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens,1D)
+
+          addresses.foreach{ address =>
+            writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
+          }
+
+          writeSplunkLogs()
+
+          jsonOk(
+            AddressByPostcodeResponseContainer(
+              apiVersion = apiVersion,
+              dataVersion = dataVersion,
+              response = AddressByPostcodeResponse(
+                postcode = input,
+                addresses = scoredAdresses,
+                filter = filterString,
+                historical = hist,
+                limit = limitInt,
+                offset = offsetInt,
+                total = total,
+                maxScore = maxScore
+              ),
+              status = OkAddressResponseStatus
+            )
+          )
+
+      }.recover {
+        case NonFatal(exception) =>
+
+          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+
+          logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+          InternalServerError(Json.toJson(FailedRequestToEs))
+      }
+    }
+  }
+
+
+  /**
     * POSTCODE query API
     *
     * @param postcode postcode of the address to be fetched
@@ -472,8 +567,6 @@ class AddressController @Inject()(
 
     }
   }
-
-
 
 
   /**

@@ -105,6 +105,23 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.Addr
 
 
 ###
+#  summary: Gets an address by UPRN.
+#  description: Returns a single address, identified by its UPRN. Primary key of address so /uprn is optional in URL
+#  parameters:
+#    - name: uprn
+#      description: Specifies the address UPRN.
+#    - name: historical
+#      description: Include historical addresses (default true)
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
+###
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.AddressController.partialAddressQuery(input, historical: Option[String])
+
+
+###
 #  summary: Search for an address by postcode.
 #  description: Returns a alpha-numeric ordered list of addresses matching the postcode query.
 #  parameters:
