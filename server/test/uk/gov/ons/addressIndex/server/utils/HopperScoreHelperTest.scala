@@ -953,7 +953,37 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "calculate the sub building name paf score for a flat address " in {
+    // Given
+    val subBuildingName = HopperScoreHelper.getNonNumberPartsFromName("FLAT 2")
+    val pafSubBuildingName = HopperScoreHelper.getNonNumberPartsFromName("FLAT 2-6")
+    val expected = 3
+
+    // When
+    val actual = HopperScoreHelper.calculateSubBuildingNamePafScore(
+      subBuildingName,
+      pafSubBuildingName)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "calculate the sub building name nag score for an address " in {
+    // Given
+    val subBuildingName = HopperScoreHelper.getNonNumberPartsFromName("FLAT 2")
+    val nagSaoText = ""
+    val expected = 6
+
+    // When
+    val actual = HopperScoreHelper.calculateSubBuildingNameNagScore(
+      subBuildingName,
+      nagSaoText)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "calculate the sub building name nag score for a flat address " in {
     // Given
     val subBuildingName = "ANNEX THREE"
     val nagSaoText = "ANNEX 3"
@@ -1023,6 +1053,37 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
+
+  it should "calculate the sub building number nag score for a test address " in {
+    // Given
+    val subBuildingName = "2"
+    val nagSaoStartNumber = ""
+    val nagSaoEndNumber = ""
+    val nagSaoStartSuffix = ""
+    val nagSaoEndSuffix = ""
+    val saoStartSuffix = ""
+    val saoEndSuffix = ""
+    val saoStartNumber = "2"
+    val saoEndNumber = ""
+    val expected = 1
+
+    // When
+    val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore (
+      subBuildingName,
+      nagSaoStartNumber,
+      nagSaoEndNumber,
+      nagSaoStartSuffix,
+      nagSaoEndSuffix,
+      saoStartSuffix,
+      saoEndSuffix,
+      saoStartNumber,
+      saoEndNumber)
+
+    // Then
+    actual shouldBe expected
+  }
+
+
 
   it should "determine that a string contains a number when it does " in {
     // Given

@@ -159,7 +159,7 @@ object HopperScoreHelper  {
       ambiguityPenalty)
 
     val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
-    val elasticRatio = Try(address.underlyingScore).getOrElse(1F) / safeDenominator
+    val elasticRatio = if (elasticDenominator == -1D) 1.2D else Try(address.underlyingScore).getOrElse(1F) / safeDenominator
     val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
     address.copy(bespokeScore = Some(bespokeScore),confidenceScore=confidenceScore)
@@ -889,9 +889,15 @@ object HopperScoreHelper  {
     val subBuildingNamePafScore = calculateSubBuildingNamePafScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
       getNonNumberPartsFromName(pafSubBuildingName))
+    logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
+    logger.info("nameout = " + getNonNumberPartsFromName(pafSubBuildingName))
+    logger.info("subBuildingNamePafScore = " + subBuildingNamePafScore)
     val subBuildingNameNagScore = calculateSubBuildingNameNagScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
       getNonNumberPartsFromName(nagSaoText))
+    logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
+    logger.info("nameout = " + getNonNumberPartsFromName(nagSaoText))
+    logger.info("subBuildingNameNagScore = " + subBuildingNamePafScore)
     val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
 
     val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
@@ -951,6 +957,8 @@ object HopperScoreHelper  {
     * @return
     */
   def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String ) : Int = {
+    logger.info("PAFin = " + subBuildingName)
+    logger.info("PAFout = " + pafSubBuildingName)
     val pafBuildingMatchScore = if (subBuildingName == empty) 4
     else matchNames(subBuildingName,pafSubBuildingName).min(matchNames(pafSubBuildingName,subBuildingName))
       if (subBuildingName == pafSubBuildingName) 1
@@ -968,6 +976,8 @@ object HopperScoreHelper  {
     * @return
     */
   def calculateSubBuildingNameNagScore (subBuildingName: String, nagSaoText: String) : Int = {
+    logger.info("NAGin = " + subBuildingName)
+    logger.info("NAGout = " + nagSaoText)
     val nagBuildingMatchScore = if (subBuildingName == empty) 4 else
       matchNames(subBuildingName,nagSaoText).min(matchNames(nagSaoText,subBuildingName))
       if (subBuildingName == nagSaoText) 1
