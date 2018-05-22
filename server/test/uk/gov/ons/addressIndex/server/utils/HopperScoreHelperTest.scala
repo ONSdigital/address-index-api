@@ -1000,13 +1000,13 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the sub building number paf score for an address " in {
     // Given
-    val subBuildingName = "UNIT 3A"
-    val pafSubBuildingName = "UNIT 3A"
-    val pafBuildingName = "JENGA TOWERS"
-    val pafBuildingNumber ="42"
-    val saoStartSuffix = "A"
+    val subBuildingName = "FLAT 1B"
+    val pafSubBuildingName = "FLAT 1A"
+    val pafBuildingName = "SHEFFIELD HOUSE"
+    val pafBuildingNumber =""
+    val saoStartSuffix = "B"
     val saoEndSuffix = ""
-    val saoStartNumber = "42"
+    val saoStartNumber = "1"
     val saoEndNumber = ""
     val expected = 1
 
@@ -1028,6 +1028,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   it should "calculate the sub building number nag score for an address " in {
     // Given
     val subBuildingName = "UNIT 3A"
+    val nagSaoText = "UNIT 3A"
     val nagSaoStartNumber = "3"
     val nagSaoEndNumber = ""
     val nagSaoStartSuffix = "A"
@@ -1041,6 +1042,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // When
     val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore (
       subBuildingName,
+      nagSaoText,
       nagSaoStartNumber,
       nagSaoEndNumber,
       nagSaoStartSuffix,
@@ -1056,20 +1058,22 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the sub building number nag score for a test address " in {
     // Given
-    val subBuildingName = "2"
-    val nagSaoStartNumber = ""
-    val nagSaoEndNumber = ""
+    val subBuildingName = "FLAT 1B"
+    val nagSaoText = "FLAT 1B"
+    val nagSaoStartNumber = "1"
+    val nagSaoEndNumber = "A"
     val nagSaoStartSuffix = ""
     val nagSaoEndSuffix = ""
     val saoStartSuffix = ""
-    val saoEndSuffix = ""
-    val saoStartNumber = "2"
+    val saoEndSuffix = "B"
+    val saoStartNumber = "1"
     val saoEndNumber = ""
     val expected = 1
 
     // When
     val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore (
       subBuildingName,
+      nagSaoText,
       nagSaoStartNumber,
       nagSaoEndNumber,
       nagSaoStartSuffix,

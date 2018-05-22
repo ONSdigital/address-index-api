@@ -912,6 +912,7 @@ object HopperScoreHelper  {
 
     val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
       atSignForEmpty(getNumberPartsFromName(subBuildingName)),
+      nagSaoText,
       nagSaoStartNumber,
       nagSaoEndNumber,
       nagSaoStartSuffix,
@@ -1024,7 +1025,7 @@ object HopperScoreHelper  {
 
     if (pafSuffixInRange && (pafBuildingLowNum.toString() == saoStartNumber ||
       pafBuildingHighNum.toString() == saoEndNumber)) 1
-    else if (pafInRange) 1
+    else if (pafSuffixInRange && pafInRange) 1
     else if (pafBuildingNumber == saoStartNumber ||
       pafBuildingLowNum.toString() == saoStartNumber ||
       pafBuildingHighNum.toString() == saoEndNumber) 6
@@ -1047,6 +1048,7 @@ object HopperScoreHelper  {
     */
   def calculateSubBuildingNumberNagScore (
     subBuildingName: String,
+    nagSaoText: String,
     nagSaoStartNumber: String,
     nagSaoEndNumber: String,
     nagSaoStartSuffix: String,
@@ -1058,8 +1060,12 @@ object HopperScoreHelper  {
 
     val tokenBuildingLowNum = getRangeBottom(subBuildingName)
     val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
-    val nagBuildingLowNum = Try(nagSaoStartNumber.toInt).getOrElse(-1)
-    val nagBuildingHighNum = nagBuildingLowNum.max(Try(nagSaoEndNumber.toInt).getOrElse(-1))
+    val numBuildingLowNum = Try(nagSaoStartNumber.toInt).getOrElse(-1)
+    val numBuildingHighNum = numBuildingLowNum.max(Try(nagSaoEndNumber.toInt).getOrElse(-1))
+    val saoBuildingLowNum = getRangeBottom(nagSaoText)
+    val saoBuildingHighNum = saoBuildingLowNum.max(getRangeTop(nagSaoText))
+    val nagBuildingLowNum = if (numBuildingLowNum == -1) saoBuildingLowNum else numBuildingLowNum
+    val nagBuildingHighNum = if (numBuildingHighNum == -1) saoBuildingHighNum else numBuildingHighNum
     val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
       && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
     val nagBuildingStartSuffix = if (nagSaoStartSuffix == "" ) empty else nagSaoStartSuffix
@@ -1068,10 +1074,9 @@ object HopperScoreHelper  {
       || (saoEndSuffix == empty && saoStartSuffix >=nagBuildingStartSuffix && saoStartSuffix <= nagBuildingEndSuffix)
       || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= saoStartSuffix && nagBuildingStartSuffix <= saoEndSuffix ))
 
-    if (saoStartNumber == nagSaoStartNumber) 1
-    else if (nagSuffixInRange &&
+    if (nagSuffixInRange &&
         (saoStartNumber == nagSaoStartNumber || saoEndNumber == nagSaoEndNumber )) 1
-    else if (nagInRange) 1
+    else if (nagInRange && nagSuffixInRange) 1
     else if (nagSaoStartNumber == saoStartNumber || saoEndNumber == nagSaoEndNumber) 6
     else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ) || (nagBuildingLowNum == -1)))  8
     else 9
