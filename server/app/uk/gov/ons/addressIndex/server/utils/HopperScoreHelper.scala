@@ -888,7 +888,7 @@ object HopperScoreHelper  {
 
     val subBuildingNamePafScore = calculateSubBuildingNamePafScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
-      getNonNumberPartsFromName(pafSubBuildingName))
+      getNonNumberPartsFromName(pafSubBuildingName),atSignForEmpty(getNonNumberPartsFromName(organisationName)))
     logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
     logger.info("nameout = " + getNonNumberPartsFromName(pafSubBuildingName))
     logger.info("subBuildingNamePafScore = " + subBuildingNamePafScore)
@@ -957,12 +957,12 @@ object HopperScoreHelper  {
     * @param pafSubBuildingName
     * @return
     */
-  def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String ) : Int = {
+  def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String, organisationName: String) : Int = {
     logger.info("PAFin = " + subBuildingName)
     logger.info("PAFout = " + pafSubBuildingName)
     val pafBuildingMatchScore = if (subBuildingName == empty) 4
     else matchNames(subBuildingName,pafSubBuildingName).min(matchNames(pafSubBuildingName,subBuildingName))
-      if (subBuildingName == pafSubBuildingName) 1
+      if (subBuildingName == pafSubBuildingName || organisationName == pafSubBuildingName) 1
       else if (pafBuildingMatchScore < 2) 2
       else if ( pafBuildingMatchScore < 3) 3
       else if (subBuildingName == empty  && pafSubBuildingName == "" ) 9
@@ -1062,18 +1062,21 @@ object HopperScoreHelper  {
     val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
     val numBuildingLowNum = Try(nagSaoStartNumber.toInt).getOrElse(-1)
     val numBuildingHighNum = numBuildingLowNum.max(Try(nagSaoEndNumber.toInt).getOrElse(-1))
-    val saoBuildingLowNum = getRangeBottom(nagSaoText)
-    val saoBuildingHighNum = saoBuildingLowNum.max(getRangeTop(nagSaoText))
+    val saoBuildingLowNum = getRangeBottom(getNumberPartsFromName(nagSaoText))
+    val saoBuildingHighNum = saoBuildingLowNum.max(getRangeTop(getNumberPartsFromName(nagSaoText)))
     val nagBuildingLowNum = if (numBuildingLowNum == -1) saoBuildingLowNum else numBuildingLowNum
     val nagBuildingHighNum = if (numBuildingHighNum == -1) saoBuildingHighNum else numBuildingHighNum
     val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
       && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
+    logger.info("nagInRange = " + nagInRange)
     val nagBuildingStartSuffix = if (nagSaoStartSuffix == "" ) empty else nagSaoStartSuffix
+    logger.info("nagBuildingStartSuffix = " + nagBuildingStartSuffix)
     val nagBuildingEndSuffix = if (nagSaoEndSuffix == "" ) empty else nagSaoEndSuffix
+    logger.info("nagBuildingEndSuffix = " + nagBuildingEndSuffix)
     val nagSuffixInRange = ((saoStartSuffix == nagBuildingStartSuffix && saoEndSuffix == nagBuildingEndSuffix)
       || (saoEndSuffix == empty && saoStartSuffix >=nagBuildingStartSuffix && saoStartSuffix <= nagBuildingEndSuffix)
       || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= saoStartSuffix && nagBuildingStartSuffix <= saoEndSuffix ))
-
+    logger.info("nagSuffixInRange = " + nagSuffixInRange)
     if (nagSuffixInRange &&
         (saoStartNumber == nagSaoStartNumber || saoEndNumber == nagSaoEndNumber )) 1
     else if (nagInRange && nagSuffixInRange) 1
