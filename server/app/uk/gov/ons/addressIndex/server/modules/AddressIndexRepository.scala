@@ -163,7 +163,7 @@ class AddressIndexRepository @Inject()(
         must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
       }
       else {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(termsQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
       }
     }
 
