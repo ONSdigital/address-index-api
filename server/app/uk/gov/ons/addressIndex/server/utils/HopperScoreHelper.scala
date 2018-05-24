@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
+import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseRelative, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
@@ -876,8 +876,14 @@ object HopperScoreHelper  {
     val nagSaoEndSuffix = address.nag.map(_.sao).map(_.saoEndSuffix).getOrElse("")
 
     // test for more than 1 layer - may need to expand this into separate method with more logic
+    val parentUPRN = address.parentUprn
+  //  logger.info("parentUPRN = " + parentUPRN)
     val numRels = address.relatives.size
-    val refHierarchyParam = if (numRels > 1) 1 else 0
+    // if the address is the top level score it as a non-hierarchical
+    // could give different number e.g 2 to allow these to be scored differently
+    val refHierarchyParam = if (numRels > 1){
+    if (parentUPRN == "0") 0 else 1
+    }  else 0
 
     // each element score is the better match of paf and nag
 
@@ -889,15 +895,15 @@ object HopperScoreHelper  {
     val subBuildingNamePafScore = calculateSubBuildingNamePafScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
       getNonNumberPartsFromName(pafSubBuildingName),atSignForEmpty(getNonNumberPartsFromName(organisationName)))
-    logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
-    logger.info("nameout = " + getNonNumberPartsFromName(pafSubBuildingName))
-    logger.info("subBuildingNamePafScore = " + subBuildingNamePafScore)
+ //   logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
+ //   logger.info("nameout = " + getNonNumberPartsFromName(pafSubBuildingName))
+ //   logger.info("subBuildingNamePafScore = " + subBuildingNamePafScore)
     val subBuildingNameNagScore = calculateSubBuildingNameNagScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
       getNonNumberPartsFromName(nagSaoText))
-    logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
-    logger.info("nameout = " + getNonNumberPartsFromName(nagSaoText))
-    logger.info("subBuildingNameNagScore = " + subBuildingNamePafScore)
+ //   logger.info("namein = " + getNonNumberPartsFromName(subBuildingName))
+ //   logger.info("nameout = " + getNonNumberPartsFromName(nagSaoText))
+  //  logger.info("subBuildingNameNagScore = " + subBuildingNamePafScore)
     val subBuildingNameParam = subBuildingNamePafScore.min(subBuildingNameNagScore)
 
     val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore (
@@ -958,8 +964,8 @@ object HopperScoreHelper  {
     * @return
     */
   def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String, organisationName: String) : Int = {
-    logger.info("PAFin = " + subBuildingName)
-    logger.info("PAFout = " + pafSubBuildingName)
+  //  logger.info("PAFin = " + subBuildingName)
+   // logger.info("PAFout = " + pafSubBuildingName)
     val pafBuildingMatchScore = if (subBuildingName == empty) 4
     else matchNames(subBuildingName,pafSubBuildingName).min(matchNames(pafSubBuildingName,subBuildingName))
       if (subBuildingName == pafSubBuildingName || organisationName == pafSubBuildingName) 1
@@ -977,8 +983,8 @@ object HopperScoreHelper  {
     * @return
     */
   def calculateSubBuildingNameNagScore (subBuildingName: String, nagSaoText: String) : Int = {
-    logger.info("NAGin = " + subBuildingName)
-    logger.info("NAGout = " + nagSaoText)
+ //   logger.info("NAGin = " + subBuildingName)
+  //  logger.info("NAGout = " + nagSaoText)
     val nagBuildingMatchScore = if (subBuildingName == empty) 4 else
       matchNames(subBuildingName,nagSaoText).min(matchNames(nagSaoText,subBuildingName))
       if (subBuildingName == nagSaoText) 1
@@ -1068,15 +1074,15 @@ object HopperScoreHelper  {
     val nagBuildingHighNum = if (numBuildingHighNum == -1) saoBuildingHighNum else numBuildingHighNum
     val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
       && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
-    logger.info("nagInRange = " + nagInRange)
+//    logger.info("nagInRange = " + nagInRange)
     val nagBuildingStartSuffix = if (nagSaoStartSuffix == "" ) empty else nagSaoStartSuffix
-    logger.info("nagBuildingStartSuffix = " + nagBuildingStartSuffix)
+//    logger.info("nagBuildingStartSuffix = " + nagBuildingStartSuffix)
     val nagBuildingEndSuffix = if (nagSaoEndSuffix == "" ) empty else nagSaoEndSuffix
-    logger.info("nagBuildingEndSuffix = " + nagBuildingEndSuffix)
+ //   logger.info("nagBuildingEndSuffix = " + nagBuildingEndSuffix)
     val nagSuffixInRange = ((saoStartSuffix == nagBuildingStartSuffix && saoEndSuffix == nagBuildingEndSuffix)
       || (saoEndSuffix == empty && saoStartSuffix >=nagBuildingStartSuffix && saoStartSuffix <= nagBuildingEndSuffix)
       || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= saoStartSuffix && nagBuildingStartSuffix <= saoEndSuffix ))
-    logger.info("nagSuffixInRange = " + nagSuffixInRange)
+//    logger.info("nagSuffixInRange = " + nagSuffixInRange)
     if (nagSuffixInRange &&
         (saoStartNumber == nagSaoStartNumber || saoEndNumber == nagSaoEndNumber )) 1
     else if (nagInRange && nagSuffixInRange) 1
