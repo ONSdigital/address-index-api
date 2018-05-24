@@ -74,8 +74,7 @@ apiKey: String
             @addressBySearchResponse.map { aresponse =>
                 <section class="match-results-container col-12">
                     <div class="match-results-count saturn">
-                        @addressBySearchResponse.map { aresponse =>
-                        @if(aresponse.sampleSize == aresponse.total) {
+                     @if(aresponse.sampleSize == aresponse.total) {
                         <div class="standout">@messages("results.foundatleastpre") @aresponse.total @messages("results.foundpost")</div>
                         }else{
                         <div class="standout">@messages("results.foundexactpre") @aresponse.total @messages("results.foundpost")</div>
