@@ -73,10 +73,15 @@ apiKey: String
 
             @addressBySearchResponse.map { aresponse =>
                 <section class="match-results-container col-12">
-
                     <div class="match-results-count saturn">
-                        <div class="standout">@messages("postcode.foundpre") @aresponse.total @messages("postcode.foundpost")</div>
+                     @if(aresponse.sampleSize == aresponse.total) {
+                        <div class="standout">@messages("results.foundatleastpre") @aresponse.total @messages("results.foundpost")</div>
+                        }else{
+                        <div class="standout">@messages("results.foundexactpre") @aresponse.total @messages("results.foundpost")</div>
+                        }
                     </div>
+
+
                     <div class="match-results">
 
                         @aresponse.addresses.zipWithIndex.map{ case (address, index) =>
