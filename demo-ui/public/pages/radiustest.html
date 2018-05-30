@@ -249,7 +249,7 @@
             }
             none = [];
             var test = [
-                ["Test Point", markLat, markLon, "NaN"]
+                ["Start Point", markLat, markLon, "NaN"]
             ];
             locations = test.concat(addresses)
 			markersLayer.clearLayers();
@@ -371,7 +371,7 @@
 
 </head>
 
-<body onload="updateAll()">
+<body onload="initMap();updateAll();">
 
     <div class="wrapper">
 
