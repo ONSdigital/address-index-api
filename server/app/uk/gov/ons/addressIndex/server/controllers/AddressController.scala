@@ -338,13 +338,13 @@ class AddressController @Inject()(
 
 
   /**
-    * UPRN query API
+    * PartialAddress query API
     *
-    * @param input uprn of the address to be fetched
-    * @return
+    * @param input input for the address to be fetched
+    * @return Json response with addresses information
     */
-  def partialAddressQuery(input: String, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
-    // logger.info(s"#uprnQuery: uprn: $uprn")
+  def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    val startingTime = System.currentTimeMillis()
 
     // check API key
     val apiKey = req.headers.get("authorization").getOrElse(missing)
@@ -354,24 +354,38 @@ class AddressController @Inject()(
     val source = req.headers.get("Source").getOrElse(missing)
     val sourceStatus = checkSource(source)
 
+    // get the defaults and maxima for the paging parameters from the config
+    val defLimit = conf.config.elasticSearch.defaultLimitPostcode
+    val defOffset = conf.config.elasticSearch.defaultOffset
+    val maxLimit = conf.config.elasticSearch.maximumLimit
+    val maxOffset = conf.config.elasticSearch.maximumOffset
+
+    val limval = limit.getOrElse(defLimit.toString)
+    //val limval = "100"
+    val offval = offset.getOrElse(defOffset.toString)
+
+    val filterString = classificationfilter.getOrElse("")
+
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
     }
 
-    val filterString = ""
-    val limitInt = 10
-    val offsetInt = 0
-
-    val startingTime = System.currentTimeMillis()
-    def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
-      val responseTime = System.currentTimeMillis() - startingTime
+    def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+      val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
-        isUprn = true, uprn = input, isNotFound = notFound, formattedOutput = formattedOutput,
+      Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
+        isPartial = true, partialAddress = input, isNotFound = notFound, offset = offval,
+        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
     }
 
+    val limitInvalid = Try(limval.toInt).isFailure
+    val offsetInvalid = Try(offval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+
+    // Check the api key, offset and limit parameters before proceeding with the request
     if (sourceStatus == missing) {
       writeSplunkLogs(badRequestErrorMessage = SourceMissingError.message)
       futureJsonUnauthorized(SourceMissing)
@@ -384,11 +398,32 @@ class AddressController @Inject()(
     } else if (keyStatus == invalid) {
       writeSplunkLogs(badRequestErrorMessage = ApiKeyInvalidError.message)
       futureJsonUnauthorized(KeyInvalid)
+    } else if (limitInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = LimitNotNumericAddressResponseError.message)
+      futureJsonBadRequest(LimitNotNumeric)
+    } else if (limitInt < 1) {
+      writeSplunkLogs(badRequestErrorMessage = LimitTooSmallAddressResponseError.message)
+      futureJsonBadRequest(LimitTooSmall)
+    } else if (limitInt > maxLimit) {
+      writeSplunkLogs(badRequestErrorMessage = LimitTooLargeAddressResponseError.message)
+      futureJsonBadRequest(LimitTooLarge)
+    } else if (offsetInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetNotNumericAddressResponseError.message)
+      futureJsonBadRequest(OffsetNotNumeric)
+    } else if (offsetInt < 0) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetTooSmallAddressResponseError.message)
+      futureJsonBadRequest(OffsetTooSmall)
+    } else if (offsetInt > maxOffset) {
+      writeSplunkLogs(badRequestErrorMessage = OffsetTooLargeAddressResponseError.message)
+      futureJsonBadRequest(OffsetTooLarge)
+    } else if (input.isEmpty) {
+      writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
+      futureJsonBadRequest(EmptySearch)
     } else {
-
       val tokens = parser.parse(input)
 
-      val request: Future[HybridAddresses] = esRepo.queryPartialAddress(input, hist)
+      val request: Future[HybridAddresses] = esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, None, hist)
+
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -403,11 +438,11 @@ class AddressController @Inject()(
           writeSplunkLogs()
 
           jsonOk(
-            AddressByPostcodeResponseContainer(
+            AddressByPartialAddressResponseContainer(
               apiVersion = apiVersion,
               dataVersion = dataVersion,
-              response = AddressByPostcodeResponse(
-                postcode = input,
+              response = AddressByPartialAddressResponse(
+                input = input,
                 addresses = scoredAdresses,
                 filter = filterString,
                 historical = hist,
@@ -420,17 +455,17 @@ class AddressController @Inject()(
             )
           )
 
-      }.recover {
+      }.recover{
         case NonFatal(exception) =>
 
-          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
 
-          logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEs))
+          logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
+          InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
       }
+
     }
   }
-
 
   /**
     * POSTCODE query API
