@@ -8,7 +8,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: input
 #      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
 #    - name: offset
-#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#      description: Specifies the offset from zero, used for pagination (default 0, maximum 250).
 #    - name: limit
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: classificationfilter
