@@ -343,7 +343,11 @@ class SingleMatchController @Inject()(
 
           val rels = resp.response.address.map(_.relatives)
           val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
-            case _: Throwable => Seq()
+         //   case _: Throwable => {
+              case exception => {
+                logger.warn("relatives failed" + exception)
+       //     }
+              Seq()}
           }
 
           futExpandedRels.map { expandedRels =>
