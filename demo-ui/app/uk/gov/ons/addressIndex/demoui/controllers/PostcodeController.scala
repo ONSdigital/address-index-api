@@ -102,7 +102,7 @@ class PostcodeController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, filterText, Some(1), Some(historical)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(historical)))
       )
     }
   }
@@ -113,12 +113,12 @@ class PostcodeController @Inject()(
     * @param postcode the postcode
     * @return result to view
     */
-  def doMatchWithInput(postcode: String, filter: String, page: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(postcode: String, filter: Option[String], page: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
 
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(postcode)
-      val filterText = StringUtils.stripAccents(filter)
+      val filterText = StringUtils.stripAccents(filter.getOrElse(""))
       val limit = pageSize.toString()
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
