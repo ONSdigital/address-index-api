@@ -32,7 +32,7 @@ class RelativesExpander @Inject ()(
 
   private def getFutAddressByUprn(apiKey: String, uprn: Long): Future[AddressByUprnResponseContainer] = {
     val numericUPRN = BigInt(uprn)
-    Thread.sleep(5)
+    Thread.sleep(50)
     apiClient.uprnQuery(
       AddressIndexUPRNRequest(
         uprn = numericUPRN,
