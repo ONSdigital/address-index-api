@@ -4,6 +4,7 @@ import java.util.UUID
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.client.AddressIndexClient
+import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
 import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
 import uk.gov.ons.addressIndex.model.server.response.{AddressByUprnResponseContainer, AddressResponseRelative}
@@ -13,7 +14,8 @@ import scala.language.postfixOps
 
 @Singleton
 class RelativesExpander @Inject ()(
-  apiClient: AddressIndexClient
+  apiClient: AddressIndexClient,
+  conf: DemouiConfigModule,
 )(implicit ec: ExecutionContext) {
 
   def futExpandRelatives(apiKey: String, relatives: Seq[AddressResponseRelative]): Future[Seq[ExpandedRelative]] =
@@ -32,7 +34,7 @@ class RelativesExpander @Inject ()(
 
   private def getFutAddressByUprn(apiKey: String, uprn: Long): Future[AddressByUprnResponseContainer] = {
     val numericUPRN = BigInt(uprn)
-    Thread.sleep(10)
+    Thread.sleep(conf.config.pauseMillis)
     apiClient.uprnQuery(
       AddressIndexUPRNRequest(
         uprn = numericUPRN,
