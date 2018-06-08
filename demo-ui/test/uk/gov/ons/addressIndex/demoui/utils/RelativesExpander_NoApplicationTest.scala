@@ -7,6 +7,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import uk.gov.ons.addressIndex.client.AddressIndexClient
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock.mockAddressResponseStatus
+import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
 import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
 import uk.gov.ons.addressIndex.model.server.response.{AddressByUprnResponse, AddressByUprnResponseContainer, AddressResponseAddress, AddressResponseRelative}
@@ -28,7 +29,8 @@ class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with Mo
 
     implicit val executionContext = scala.concurrent.ExecutionContext.Implicits.global
     val addressIndexClient = mock[AddressIndexClient]
-    val relativesExpander = new RelativesExpander(addressIndexClient)
+    val conf = mock[DemouiConfigModule]
+    val relativesExpander = new RelativesExpander(addressIndexClient,conf)
 
     def anAddressByUprnResponseContainer(uprn: Long, formattedAddress: Option[String]): AddressByUprnResponseContainer = {
       val addressResponseAddressOpt = formattedAddress.map(anAddressResponseFor(uprn))
