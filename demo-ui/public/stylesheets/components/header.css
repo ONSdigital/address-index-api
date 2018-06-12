@@ -29,13 +29,13 @@ header {
 }
 
 span#header-site-brand-versioning-beta-mark {
-    background-color: #ff9900;
+    background-color: #ab6600;
     padding: 6px 10px 6px 10px;
     letter-spacing: 4px;
 
     font-weight: bold;
     color: #ffffff;
-    border: 1px solid #ff9900;
+    border: 1px solid #ab6600;
     margin: 0;
     border-radius: 3px;
 }
@@ -89,4 +89,9 @@ span#header-site-brand-versioning-beta-mark {
 #header-navigation nav ul li a:hover {
     color: #4c2c92 ;
     text-decoration: none;
+}
+
+#header-navigation nav ul li a:focus {
+    background-color: #4262c2;
+    color: #ffffff;
 }
