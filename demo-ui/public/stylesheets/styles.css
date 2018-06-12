@@ -14,11 +14,11 @@ body {
 }
 
 a:link {
-    color: #666666;
+    color: #636363;
 }
 
 a:visited {
-    color: #666666;
+    color: #636363;
 }
 
 a:hover {
@@ -71,6 +71,10 @@ input[type=text], input[type=password] {
     transition: border-color .2s ease-in initial;
     height: 40px;
     width: 90%;
+}
+
+input:focus {
+    border: 2px solid #4262c2;
 }
 
 select {
@@ -132,6 +136,11 @@ input:hover {
 footer {
     background-color: #dfe0e2;
     width: 100%;
+}
+
+footer a:focus {
+    background-color: #4262c2;
+    color: #ffffff;
 }
 
 footer #footer-content {
@@ -1009,6 +1018,11 @@ article.result-short-form {
     padding: 20px 0;
 }
 
+article.result-short-form a:focus {
+    background-color: #4262c2;
+    color: #ffffff;
+}
+
 article.result-short-form table tr td {
     line-height: 30px;
     padding: 0 40px 0 0;
@@ -1027,6 +1041,11 @@ article.result-short-form a.result-short-form-link:hover, .address-result-hierar
 article.result-short-form a.result-short-form-link:visited, .address-result-hierarchy-set a:visited {
     color: #489DC4;
     text-decoration: none;
+}
+
+article.result-short-form a.result-short-form-link:focus, .address-result-hierarchy-set a:focus {
+    background-color: #4262c2;
+    color: #ffffff;
 }
 
 .standout {
