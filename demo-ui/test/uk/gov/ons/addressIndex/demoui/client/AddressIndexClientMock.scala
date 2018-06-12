@@ -21,14 +21,93 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
   //  set config entry to "https://addressindexapitest.cfapps.io" to run from cloud
   override def host: String = s"${conf.config.apiURL.host}:${conf.config.apiURL.port}"
 
+  import AddressIndexClientMock._
+
+  val mockAddressTokens = Map.empty[String, String]
+
+  val mockPostcode = ""
+
+  val mockAddressBySearchResponse = AddressBySearchResponse (
+    tokens = mockAddressTokens,
+    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    limit = 1,
+    offset = 1,
+    filter = "",
+    historical = true,
+    rangekm = "2",
+    latitude = "50.705948",
+    longitude = "-3.5091076",
+    total = 1,
+    sampleSize = 20,
+    maxScore = 1f,
+    matchthreshold = 5f
+  )
+
+  val mockAddressByPostcodeResponse = AddressByPostcodeResponse (
+    postcode = mockPostcode,
+    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    limit = 1,
+    offset = 1,
+    filter = "",
+    historical = true,
+    total = 1,
+    maxScore = 1f
+  )
+
+  val mockSearchResponseContainer = AddressBySearchResponseContainer (
+    apiVersion = "mockApi",
+    dataVersion = "mockData",
+    response = mockAddressBySearchResponse,
+    status = mockAddressResponseStatus,
+    errors = Seq.empty[AddressResponseError]
+  )
+
+  val mockPostcodeResponseContainer = AddressByPostcodeResponseContainer (
+    apiVersion = "mockApi",
+    dataVersion = "mockData",
+    response = mockAddressByPostcodeResponse,
+    status = mockAddressResponseStatus,
+    errors = Seq.empty[AddressResponseError]
+  )
+
+  val mockUprnResponseContainer = AddressByUprnResponseContainer (
+    apiVersion = "mockApi",
+    dataVersion = "mockData",
+    response = mockAddressByUprnResponse,
+    status = mockAddressResponseStatus,
+    errors = Seq.empty[AddressResponseError]
+  )
+
+
+  override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
+    Future.successful(mockSearchResponseContainer)
+
+  override def postcodeQuery(request: AddressIndexPostcodeRequest)(implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] =
+    Future.successful(mockPostcodeResponseContainer)
+
+  override def uprnQuery(request: AddressIndexUPRNRequest)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] =
+    Future.successful(mockUprnResponseContainer)
+}
+
+object AddressIndexClientMock {
   val mockAddressResponseStatus = AddressResponseStatus(
     code = 200,
     message = "OK"
   )
 
-  val mockAddressTokens = Map.empty[String, String]
+  val mockRelative = Relative (
+    level = 1,
+    siblings = Array(6L,7L),
+    parents = Array(8L,9L)
+  )
 
-  val mockPostcode = ""
+  val mockCrossRef = CrossRef(
+    crossReference = "osgb1000000347959147",
+    source = "7666MT"
+  )
+
+  val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
+  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
   val mockPafAddress1 = AddressResponsePaf(
     udprn = "",
@@ -90,20 +169,6 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     lpiEndDate = ""
   )
 
-  val mockRelative = Relative (
-    level = 1,
-    siblings = Array(6L,7L),
-    parents = Array(8L,9L)
-  )
-
-  val mockCrossRef = CrossRef(
-    crossReference = "osgb1000000347959147",
-    source = "7666MT"
-  )
-
-  val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
-  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
-
   val mockBespokeScore = AddressResponseScore(
     objectScore = 0d,
     structuralScore = 0d,
@@ -133,68 +198,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     bespokeScore = Some(mockBespokeScore)
   )
 
-  val mockAddressBySearchResponse = AddressBySearchResponse (
-    tokens = mockAddressTokens,
-    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
-    limit = 1,
-    offset = 1,
-    filter = "",
-    historical = true,
-    rangekm = "2",
-    latitude = "50.705948",
-    longitude = "-3.5091076",
-    total = 1,
-    sampleSize = 20,
-    maxScore = 1f,
-    matchthreshold = 5f
-  )
-
-  val mockAddressByPostcodeResponse = AddressByPostcodeResponse (
-    postcode = mockPostcode,
-    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
-    limit = 1,
-    offset = 1,
-    filter = "",
-    historical = true,
-    total = 1,
-    maxScore = 1f
-  )
-
   val mockAddressByUprnResponse = AddressByUprnResponse (
     address = Some(mockAddressResponseAddress: AddressResponseAddress)
   )
-
-  val mockSearchResponseContainer = AddressBySearchResponseContainer (
-    apiVersion = "mockApi",
-    dataVersion = "mockData",
-    response = mockAddressBySearchResponse,
-    status = mockAddressResponseStatus,
-    errors = Seq.empty[AddressResponseError]
-  )
-
-  val mockPostcodeResponseContainer = AddressByPostcodeResponseContainer (
-    apiVersion = "mockApi",
-    dataVersion = "mockData",
-    response = mockAddressByPostcodeResponse,
-    status = mockAddressResponseStatus,
-    errors = Seq.empty[AddressResponseError]
-  )
-
-  val mockUprnResponseContainer = AddressByUprnResponseContainer (
-    apiVersion = "mockApi",
-    dataVersion = "mockData",
-    response = mockAddressByUprnResponse,
-    status = mockAddressResponseStatus,
-    errors = Seq.empty[AddressResponseError]
-  )
-
-
-  override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
-    Future.successful(mockSearchResponseContainer)
-
-  override def postcodeQuery(request: AddressIndexPostcodeRequest)(implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] =
-    Future.successful(mockPostcodeResponseContainer)
-
-  override def uprnQuery(request: AddressIndexUPRNRequest)(implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] =
-    Future.successful(mockUprnResponseContainer)
 }
