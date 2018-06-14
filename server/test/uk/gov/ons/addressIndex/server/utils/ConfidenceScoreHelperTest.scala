@@ -1,9 +1,8 @@
 package uk.gov.ons.addressIndex.server.utils
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.Logger
-import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
+
 
 /**
   * Unit tests for all the methods in the Confidence Score calculation class
@@ -63,6 +62,21 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "calculate the confidence score for a single address from a batch with only one match " in {
+    // Given
+    val tokens = mockAddressTokens2
+    val structuralScore = 1d
+    val unitScore = 0.5d
+    val elasticRatio = 1.2
+    val expected = 0.9589d
+
+    // When
+    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens,structuralScore, unitScore, elasticRatio)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "calculate the elastic denominator for a list of scores with equal top two " in {
     // Given
     val scores = Seq(10F,10F,5F,3F)
@@ -87,5 +101,30 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "calculate the elastic denominator for a list with only one " in {
+    // Given
+    val scores = Seq(10F)
+    val expected = -1d
+
+    // When
+    val actual = ConfidenceScoreHelper.calculateElasticDenominator(scores)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "calculate the elastic ratio for a list with only one " in {
+    // Given
+    val scores = Seq(4.6F)
+    val expected = 1.2d
+
+    // When
+    val elasticDenominator = ConfidenceScoreHelper.calculateElasticDenominator(scores)
+    val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
+    val actual = if (elasticDenominator == -1D) 1.2D else 4.6F / safeDenominator
+
+    // Then
+    actual shouldBe expected
+  }
 
 }

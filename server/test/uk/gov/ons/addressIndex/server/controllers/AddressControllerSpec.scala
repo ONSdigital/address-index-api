@@ -50,7 +50,9 @@ class AddressControllerSpec extends PlaySpec with Results{
     endDate = "27",
     lastUpdateDate = "28",
     entryDate = "29",
-    pafAll = "30"
+    pafAll = "30",
+    mixedPaf = "31",
+    mixedWelshPaf = "32"
   )
 
   val validNagAddress = NationalAddressGazetteerAddress(
@@ -94,7 +96,8 @@ class AddressControllerSpec extends PlaySpec with Results{
     localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
     nagAll = "nagAll",
-    lpiEndDate = "lpiEndDate"
+    lpiEndDate = "lpiEndDate",
+    mixedNag = "mixedNag"
   )
 
    val validRelative = Relative (
@@ -133,7 +136,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
 
         Future.successful {
           requestsData.map(requestData => {
@@ -162,7 +165,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful{
         requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
@@ -189,7 +192,7 @@ class AddressControllerSpec extends PlaySpec with Results{
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         requestsData.map {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
@@ -220,7 +223,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String,  queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.failed(new Exception("Test exception"))
 
     override def queryHealth(): Future[String] = Future.successful("")
@@ -308,7 +311,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,-1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -343,7 +346,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,-1D),
           filter = "",
           historical = true,
           rangekm = "1",

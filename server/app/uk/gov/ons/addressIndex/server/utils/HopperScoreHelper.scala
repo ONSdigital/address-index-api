@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
+import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseRelative, AddressResponseScore}
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
@@ -159,7 +159,7 @@ object HopperScoreHelper  {
       ambiguityPenalty)
 
     val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
-    val elasticRatio = Try(address.underlyingScore).getOrElse(1F) / safeDenominator
+    val elasticRatio = if (elasticDenominator == -1D) 1.2D else Try(address.underlyingScore).getOrElse(1F) / safeDenominator
     val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
     address.copy(bespokeScore = Some(bespokeScore),confidenceScore=confidenceScore)
@@ -876,8 +876,13 @@ object HopperScoreHelper  {
     val nagSaoEndSuffix = address.nag.map(_.sao).map(_.saoEndSuffix).getOrElse("")
 
     // test for more than 1 layer - may need to expand this into separate method with more logic
+    val parentUPRN = address.parentUprn
     val numRels = address.relatives.size
-    val refHierarchyParam = if (numRels > 1) 1 else 0
+    // if the address is the top level score it as a non-hierarchical
+    // could give different number e.g 2 to allow these to be scored differently
+    val refHierarchyParam = if (numRels > 1){
+    if (parentUPRN == "0") 0 else 1
+    }  else 0
 
     // each element score is the better match of paf and nag
 
@@ -888,7 +893,7 @@ object HopperScoreHelper  {
 
     val subBuildingNamePafScore = calculateSubBuildingNamePafScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
-      getNonNumberPartsFromName(pafSubBuildingName))
+      getNonNumberPartsFromName(pafSubBuildingName),atSignForEmpty(getNonNumberPartsFromName(organisationName)))
     val subBuildingNameNagScore = calculateSubBuildingNameNagScore(
       atSignForEmpty(getNonNumberPartsFromName(subBuildingName)),
       getNonNumberPartsFromName(nagSaoText))
@@ -906,6 +911,7 @@ object HopperScoreHelper  {
 
     val subBuildingNumberNagScore = calculateSubBuildingNumberNagScore (
       atSignForEmpty(getNumberPartsFromName(subBuildingName)),
+      nagSaoText,
       nagSaoStartNumber,
       nagSaoEndNumber,
       nagSaoStartSuffix,
@@ -950,10 +956,10 @@ object HopperScoreHelper  {
     * @param pafSubBuildingName
     * @return
     */
-  def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String ) : Int = {
+  def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String, organisationName: String) : Int = {
     val pafBuildingMatchScore = if (subBuildingName == empty) 4
     else matchNames(subBuildingName,pafSubBuildingName).min(matchNames(pafSubBuildingName,subBuildingName))
-      if (subBuildingName == pafSubBuildingName) 1
+      if (subBuildingName == pafSubBuildingName || organisationName == pafSubBuildingName) 1
       else if (pafBuildingMatchScore < 2) 2
       else if ( pafBuildingMatchScore < 3) 3
       else if (subBuildingName == empty  && pafSubBuildingName == "" ) 9
@@ -1014,7 +1020,7 @@ object HopperScoreHelper  {
 
     if (pafSuffixInRange && (pafBuildingLowNum.toString() == saoStartNumber ||
       pafBuildingHighNum.toString() == saoEndNumber)) 1
-    else if (pafInRange) 1
+    else if (pafSuffixInRange && pafInRange) 1
     else if (pafBuildingNumber == saoStartNumber ||
       pafBuildingLowNum.toString() == saoStartNumber ||
       pafBuildingHighNum.toString() == saoEndNumber) 6
@@ -1037,6 +1043,7 @@ object HopperScoreHelper  {
     */
   def calculateSubBuildingNumberNagScore (
     subBuildingName: String,
+    nagSaoText: String,
     nagSaoStartNumber: String,
     nagSaoEndNumber: String,
     nagSaoStartSuffix: String,
@@ -1048,8 +1055,12 @@ object HopperScoreHelper  {
 
     val tokenBuildingLowNum = getRangeBottom(subBuildingName)
     val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
-    val nagBuildingLowNum = Try(nagSaoStartNumber.toInt).getOrElse(-1)
-    val nagBuildingHighNum = nagBuildingLowNum.max(Try(nagSaoEndNumber.toInt).getOrElse(-1))
+    val numBuildingLowNum = Try(nagSaoStartNumber.toInt).getOrElse(-1)
+    val numBuildingHighNum = numBuildingLowNum.max(Try(nagSaoEndNumber.toInt).getOrElse(-1))
+    val saoBuildingLowNum = getRangeBottom(getNumberPartsFromName(nagSaoText))
+    val saoBuildingHighNum = saoBuildingLowNum.max(getRangeTop(getNumberPartsFromName(nagSaoText)))
+    val nagBuildingLowNum = if (numBuildingLowNum == -1) saoBuildingLowNum else numBuildingLowNum
+    val nagBuildingHighNum = if (numBuildingHighNum == -1) saoBuildingHighNum else numBuildingHighNum
     val nagInRange = ((nagBuildingLowNum >= tokenBuildingLowNum && nagBuildingHighNum <= tokenBuildingHighNum)
       && nagBuildingLowNum > -1  && tokenBuildingLowNum > -1)
     val nagBuildingStartSuffix = if (nagSaoStartSuffix == "" ) empty else nagSaoStartSuffix
@@ -1057,11 +1068,9 @@ object HopperScoreHelper  {
     val nagSuffixInRange = ((saoStartSuffix == nagBuildingStartSuffix && saoEndSuffix == nagBuildingEndSuffix)
       || (saoEndSuffix == empty && saoStartSuffix >=nagBuildingStartSuffix && saoStartSuffix <= nagBuildingEndSuffix)
       || (nagBuildingEndSuffix == empty && nagBuildingStartSuffix >= saoStartSuffix && nagBuildingStartSuffix <= saoEndSuffix ))
-
-    if (saoStartNumber == nagSaoStartNumber) 1
-    else if (nagSuffixInRange &&
+    if (nagSuffixInRange &&
         (saoStartNumber == nagSaoStartNumber || saoEndNumber == nagSaoEndNumber )) 1
-    else if (nagInRange) 1
+    else if (nagInRange && nagSuffixInRange) 1
     else if (nagSaoStartNumber == saoStartNumber || saoEndNumber == nagSaoEndNumber) 6
     else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ) || (nagBuildingLowNum == -1)))  8
     else 9

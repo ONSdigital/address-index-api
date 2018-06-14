@@ -40,10 +40,24 @@ class AddressController @Inject()(
   val valid: String = "valid"
   val notRequired: String = "not required"
 
+  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
+  }
 
-  def codelists(): Action[AnyContent] = Action async { implicit req =>
-      val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-      Future(Ok(message))
+  def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
+  }
+
+  def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
+  }
+
+  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
   }
 
   /**
@@ -829,7 +843,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
     val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(resultLimit), configOverwrite, historical, matchThreshold)
+    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(resultLimit), configOverwrite, historical, matchThreshold, includeFullAddress)
 
     logger.info(s"#bulkQuery processed")
 
@@ -879,6 +893,7 @@ class AddressController @Inject()(
     configOverwrite: Option[QueryParamsConfig] = None,
     historical: Boolean,
     matchThreshold: Float,
+    includeFullAddress: Boolean = false,
     canUpScale: Boolean = true,
     successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty
   ): Stream[Seq[AddressBulkResponseAddress]] = {
@@ -895,7 +910,7 @@ class AddressController @Inject()(
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
     val addressesPerAddress = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, historical, matchThreshold), Duration.Inf)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, historical, matchThreshold, includeFullAddress), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -915,7 +930,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitperaddress, configOverwrite, historical, matchThreshold, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitperaddress, configOverwrite, historical, matchThreshold, includeFullAddress, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -932,10 +947,11 @@ class AddressController @Inject()(
     limitperaddress: Int,
     configOverwrite: Option[QueryParamsConfig] = None,
     historical: Boolean,
-    matchThreshold: Float
+    matchThreshold: Float,
+    includeFullAddress: Boolean = false
   ): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(inputs, limitperaddress, configOverwrite, historical, matchThreshold)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(inputs, limitperaddress, configOverwrite, historical, matchThreshold, includeFullAddress)
 
     val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
 

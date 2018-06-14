@@ -47,7 +47,8 @@ case class NationalAddressGazetteerAddress (
   localCustodianGeogCode: String,
   rpc: String,
   nagAll: String,
-  lpiEndDate: String
+  lpiEndDate: String,
+  mixedNag: String
 )
 
 /**
@@ -100,6 +101,7 @@ object NationalAddressGazetteerAddress {
     val rpc: String = "rpc"
     val nagAll: String = "nagAll"
     val lpiEndDate: String = "lpiEndDate"
+    val mixedNag: String = "mixedNag"
   }
 
   object Languages {
@@ -155,7 +157,8 @@ object NationalAddressGazetteerAddress {
       localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
       nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
-      lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString
+      lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString,
+      mixedNag = filteredNag.getOrElse(Fields.mixedNag, "").toString
     )
   }
 }
