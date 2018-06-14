@@ -81,6 +81,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridPafPostTown = "h8"
   val hybridPafPostcode = "h10"
   val hybridAll = "H100"
+  val hybridMixedPaf = "mixedPaf"
+  val hybridMixedWelshPaf = "MixedWelshPaf"
+  val hybridMixedNag = "mixedNag"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
@@ -187,7 +190,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
     "entryDate" -> hybridNotUsed,
-    "pafAll" -> hybridAll
+    "pafAll" -> hybridAll,
+    "mixedPaf" -> hybridMixedPaf,
+    "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
   val secondHybridPafEs = Map(
@@ -220,7 +225,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
     "entryDate" ->hybridNotUsed,
-    "pafAll" -> secondaryHybridAll
+    "pafAll" -> secondaryHybridAll,
+    "mixedPaf" -> hybridMixedPaf,
+    "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
   val firstHybridNagEs: Map[String, Any] = Map(
@@ -262,7 +269,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
-    "nagAll" -> hybridAll
+    "nagAll" -> hybridAll,
+    "mixedNag" -> hybridMixedNag
   )
 
   val secondHybridNagEs: Map[String, Any] = Map(
@@ -305,7 +313,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
-    "nagAll" -> secondaryHybridAll
+    "nagAll" -> secondaryHybridAll,
+    "mixedNag" -> hybridMixedNag
   )
 
   val firstHybridEs: Map[String, Any] = Map(
@@ -396,7 +405,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
-    hybridAll
+    hybridAll,
+    hybridMixedPaf,
+    hybridMixedWelshPaf
   )
 
   val expectedNag = NationalAddressGazetteerAddress(
@@ -440,7 +451,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNagCustGeogCode,
     hybridNotUsed,
     hybridAll,
-    hybridNotUsed
+    hybridNotUsed,
+    hybridMixedNag
   )
 
   val expectedRelative = Relative (

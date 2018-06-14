@@ -50,7 +50,9 @@ class AddressControllerSpec extends PlaySpec with Results{
     endDate = "27",
     lastUpdateDate = "28",
     entryDate = "29",
-    pafAll = "30"
+    pafAll = "30",
+    mixedPaf = "31",
+    mixedWelshPaf = "32"
   )
 
   val validNagAddress = NationalAddressGazetteerAddress(
@@ -94,7 +96,8 @@ class AddressControllerSpec extends PlaySpec with Results{
     localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
     nagAll = "nagAll",
-    lpiEndDate = "lpiEndDate"
+    lpiEndDate = "lpiEndDate",
+    mixedNag = "mixedNag"
   )
 
    val validRelative = Relative (

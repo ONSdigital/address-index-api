@@ -40,10 +40,24 @@ class AddressController @Inject()(
   val valid: String = "valid"
   val notRequired: String = "not required"
 
+  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
+  }
 
-  def codelists(): Action[AnyContent] = Action async { implicit req =>
-      val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-      Future(Ok(message))
+  def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
+  }
+
+  def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
+  }
+
+  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
+    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+    Future(Ok(message))
   }
 
   /**

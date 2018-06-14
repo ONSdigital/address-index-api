@@ -275,14 +275,14 @@ object AddressResponseAddress {
   def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+    val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = chosenWelshNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+    val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
 
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
-    val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
-    val welshFormattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateWelshFormattedAddress).getOrElse("")
+    val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
+    val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -441,49 +441,6 @@ object AddressResponsePaf {
       other.startDate,
       other.endDate
     )
-
-  /**
-    * Creates formatted address from PAF address
-    * @param paf PAF address
-    * @return String of formatted address
-    */
-  def generateFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
-    val trimmedThoroughfare = paf.thoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
-      paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
-  /**
-    * Creates Welsh formatted address from PAF address
-    * @param paf PAF address
-    * @return String of Welsh formatted address
-    */
-  def generateWelshFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.welshDependentThoroughfare.trim
-    val trimmedThoroughfare = paf.welshThoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.welshDoubleDependentLocality, paf.welshDependentLocality,
-      paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
 }
 
 /**
@@ -566,47 +523,6 @@ object AddressResponseNag {
         other.lpiEndDate
       )
   }
-
-  /**
-    * Formatted address should contain commas between all fields except after digits
-    * The actual logic is pretty complex and should be treated on example-to-example level
-    * (with unit tests)
-    * @param nag NAG address
-    * @return String of formatted address
-    */
-  def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
-
-    val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
-    val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
-    val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
-    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
-      .map(_.trim).mkString
-    val sao =
-      if (nag.saoText == nag.organisation || nag.saoText.isEmpty) saoNumbers
-      else if (saoNumbers.isEmpty) s"${nag.saoText},"
-      else s"$saoNumbers, ${nag.saoText},"
-
-    val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
-    val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
-    val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
-    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
-      .map(_.trim).mkString
-    val pao =
-      if (nag.paoText == nag.organisation || nag.paoText.isEmpty) paoNumbers
-      else if (paoNumbers.isEmpty) s"${nag.paoText},"
-      else s"${nag.paoText}, $paoNumbers"
-
-    val trimmedStreetDescriptor = nag.streetDescriptor.trim
-    val buildingNumberWithStreetDescription =
-      if (pao.isEmpty) s"$sao $trimmedStreetDescriptor"
-      else if (sao.isEmpty) s"$pao $trimmedStreetDescriptor"
-      else if (pao.isEmpty && sao.isEmpty) trimmedStreetDescriptor
-      else s"$sao $pao $trimmedStreetDescriptor"
-
-    Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-    nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
 }
 
 /**
