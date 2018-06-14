@@ -32,20 +32,12 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
-#  summary: Return a list of available codelist lookups.
-#  responses:
-#    200:
-#      description: list of lookups e.g. classification, custodian
-###
-GET     /codelists          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
-
-###
 #  summary: Return a list of available external source codes
 #  responses:
 #    200:
 #      description: list of valid source codes and names (e.g. council tax)
 ###
-GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codeListSource()
 
 ###
 #  summary: Return a list of available classification codes
@@ -53,7 +45,7 @@ GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers
 #    200:
 #      description: list of classifications e.g. RD01=Detached House
 ###
-GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codeListClassification()
 
 ###
 #  summary: Return a list of available local custodian codes
@@ -61,7 +53,7 @@ GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers
 #    200:
 #      description: list of addressbase custodian codes to LA matches
 ###
-GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codeListCustodian()
 
 ###
 #  summary: Return a list of available logical status values
@@ -69,27 +61,11 @@ GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers
 #    200:
 #      description: list of valid statuses e.g. 8=historical
 ###
-GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codeListLogicalStatus()
 
 ###
 #  summary: Gets an address by UPRN.
 #  description: Returns a single address, identified by its UPRN.
-#  parameters:
-#    - name: uprn
-#      description: Specifies the address UPRN.
-#    - name: historical
-#      description: Include historical addresses (default true)
-#  responses:
-#    200:
-#      description: success
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
-###
-GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
-
-###
-#  summary: Gets an address by UPRN.
-#  description: Returns a single address, identified by its UPRN. Primary key of address so /uprn is optional in URL
 #  parameters:
 #    - name: uprn
 #      description: Specifies the address UPRN.

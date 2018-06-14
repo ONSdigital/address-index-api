@@ -33,7 +33,9 @@ case class PostcodeAddressFileAddress(
   endDate: String,
   lastUpdateDate: String,
   entryDate: String,
-  pafAll: String
+  pafAll: String,
+  mixedPaf: String,
+  mixedWelshPaf: String
 )
 
 /**
@@ -76,6 +78,8 @@ object PostcodeAddressFileAddress {
     val lastUpdateDate: String = "lastUpdateDate"
     val entryDate: String = "entryDate"
     val pafAll: String = "pafAll"
+    val mixedPaf: String = "mixedPaf"
+    val mixedWelshPaf: String = "mixedWelshPaf"
   }
 
   def fromEsMap (paf: Map[String, Any]): PostcodeAddressFileAddress = {
@@ -111,7 +115,9 @@ object PostcodeAddressFileAddress {
       endDate = filteredPaf.getOrElse(Fields.endDate, "").toString,
       lastUpdateDate = filteredPaf.getOrElse(Fields.lastUpdateDate, "").toString,
       entryDate = filteredPaf.getOrElse(Fields.entryDate, "").toString,
-      pafAll = filteredPaf.getOrElse(Fields.pafAll, "").toString
+      pafAll = filteredPaf.getOrElse(Fields.pafAll, "").toString,
+      mixedPaf = filteredPaf.getOrElse(Fields.mixedPaf, "").toString,
+      mixedWelshPaf = filteredPaf.getOrElse(Fields.mixedWelshPaf, "").toString
     )
   }
 }
