@@ -169,7 +169,7 @@ object AddressIndexClientHelper {
     method = ""
   ) {
     def apply(uprn: String) = {
-      val initialRoute = "/addresses"
+      val initialRoute = "/addresses/uprn"
       val fullRoute = s"$initialRoute/$uprn"
       new AddressIndexPath(
         path = fullRoute,

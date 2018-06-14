@@ -52,7 +52,7 @@ object AddressByUprnResponse {
   * @param dataVersion version of the address data used for the response
   * @param response relevant data
   * @param status   status code / message
-  * @param errors   encountred errors (or an empty list if there is no errors)
+  * @param errors   encountered errors (or an empty list if there is no errors)
   */
 case class AddressByPostcodeResponseContainer(
                                              apiVersion: String,
@@ -87,8 +87,56 @@ case class AddressByPostcodeResponse(
                                     maxScore: Double
                                   )
 
+
 object AddressByPostcodeResponse {
   implicit lazy val addressByPostcodeResponseFormat: Format[AddressByPostcodeResponse] = Json.format[AddressByPostcodeResponse]
+}
+
+
+/**
+  * Contains the reply for the typeahead address search request
+  *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
+  * @param response relevant data
+  * @param status   status code / message
+  * @param errors   encountered errors (or an empty list if there is no errors)
+  */
+case class AddressByPartialAddressResponseContainer(
+                                               apiVersion: String,
+                                               dataVersion: String,
+                                               response: AddressByPartialAddressResponse,
+                                               status: AddressResponseStatus,
+                                               errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
+                                             )
+
+object AddressByPartialAddressResponseContainer {
+  implicit lazy val addressByPartialAddressResponseContainerFormat: Format[AddressByPartialAddressResponseContainer] =
+    Json.format[AddressByPartialAddressResponseContainer]
+}
+
+/**
+  * Contains relevant, to the address request, data
+  *
+  * @param input    input from query
+  * @param addresses found addresses
+  * @param limit     max number of found addresses
+  * @param offset    offset of found addresses (for pagination)
+  * @param total     total number of found addresses
+  */
+case class AddressByPartialAddressResponse(
+                                      input: String,
+                                      addresses: Seq[AddressResponseAddress],
+                                      filter: String,
+                                      historical: Boolean,
+                                      limit: Int,
+                                      offset: Int,
+                                      total: Long,
+                                      maxScore: Double
+                                    )
+
+object AddressByPartialAddressResponse {
+  implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]
 }
 
 
@@ -867,4 +915,9 @@ object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
 object FilterInvalidPostcodeError extends AddressResponseError(
   code = 35,
   message = "Invalid filter value supplied (postcode)"
+)
+
+object FailedRequestToEsPartialAddressError extends AddressResponseError(
+  code = 36,
+  message = "Failed request to the Elastic Search (partial address)(check api logs)"
 )

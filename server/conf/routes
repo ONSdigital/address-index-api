@@ -81,6 +81,29 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.Addr
 
 
 ###
+#  summary: Search by partial address (for type ahead).
+#  description: Returns a list addresses, from a partial match on the input string
+#  parameters:
+#    - name: input
+#      description: Specifies the address input.
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#    - name: limit
+#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: historical
+#      description: Include historical addresses (default true)
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPartialAddressResponseContainer"
+###
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.AddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
+
+
+###
 #  summary: Search for an address by postcode.
 #  description: Returns a alpha-numeric ordered list of addresses matching the postcode query.
 #  parameters:
