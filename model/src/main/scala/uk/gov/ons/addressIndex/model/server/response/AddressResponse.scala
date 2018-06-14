@@ -441,49 +441,6 @@ object AddressResponsePaf {
       other.startDate,
       other.endDate
     )
-
-  /**
-    * Creates formatted address from PAF address
-    * @param paf PAF address
-    * @return String of formatted address
-    */
-  def generateFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
-    val trimmedThoroughfare = paf.thoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
-      paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
-  /**
-    * Creates Welsh formatted address from PAF address
-    * @param paf PAF address
-    * @return String of Welsh formatted address
-    */
-  def generateWelshFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.welshDependentThoroughfare.trim
-    val trimmedThoroughfare = paf.welshThoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.welshDoubleDependentLocality, paf.welshDependentLocality,
-      paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
 }
 
 /**

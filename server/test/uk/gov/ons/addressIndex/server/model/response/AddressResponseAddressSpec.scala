@@ -182,45 +182,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe expected
     }
 
-    "create formatted address from PAF" in {
-      // Given
-      val paf = givenPaf
-
-      val expected = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16"
-
-      // When
-      val result = AddressResponsePaf.generateFormattedAddress(paf)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "handle absent dependentThoroughfare in the formatted address" in {
-      // Given
-      val paf = givenPaf.copy(dependentThoroughfare = "")
-
-      val expected = "7, 6, 8, 9, PO BOX 24, 10 12, 13, 14, 15, 16"
-
-      // When
-      val result = AddressResponsePaf.generateFormattedAddress(paf)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "handle absent PO box in the formatted address" in {
-      // Given
-      val paf = givenPaf.copy(poBoxNumber = "")
-
-      val expected = "7, 6, 8, 9, 10 11, 12, 13, 14, 15, 16"
-
-      // When
-      val result = AddressResponsePaf.generateFormattedAddress(paf)
-
-      // Then
-      result shouldBe expected
-    }
-
     "create NAG from Elastic NAG response" in {
       // Given
       val nag = givenNag
