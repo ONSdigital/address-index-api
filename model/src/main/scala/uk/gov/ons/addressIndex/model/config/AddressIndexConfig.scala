@@ -242,5 +242,6 @@ case class DemouiConfig (
   limit: Int,
   offset: Int,
   maxLimit: Int,
-  maxOffset: Int
+  maxOffset: Int,
+  pauseMillis: Int
  )

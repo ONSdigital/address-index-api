@@ -1,22 +1,26 @@
 package uk.gov.ons.addressIndex.demoui.utils
 
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.i18n._
 import play.api.mvc.ControllerComponents
 import play.api.test.WithApplication
+import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
-import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling, Relative}
+import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RelativesExpanderTest extends FlatSpec with Matchers {
+class RelativesExpanderTest extends FlatSpec with Matchers with ScalaFutures {
   "RelativesExpander" should
     "add formattedAddresses to siblings in supplied relatives" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
     val langs = app.injector.instanceOf[Langs]
     val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+    val conf = app.injector.instanceOf[DemouiConfigModule]
     val controllerComponents = app.injector.instanceOf[ControllerComponents]
-    val relativesExpander = new RelativesExpander (apiClient)
+    val relativesExpander = new RelativesExpander (apiClient, conf)
     val rel1 = new AddressResponseRelative(1,Seq(1L),Seq())
     val rel2 = new AddressResponseRelative(2,Seq(2L,3L),Seq(1L))
     val rels = Seq(rel1,rel2)
@@ -30,9 +34,8 @@ class RelativesExpanderTest extends FlatSpec with Matchers {
     val expectedSeq = Seq(ex1,ex2)
 
     // When
-    val result = relativesExpander.expandRelatives("antidisestablishmentarianism",rels)
-
-    result shouldBe expectedSeq
+    whenReady(relativesExpander.futExpandRelatives("antidisestablishmentarianism",rels)) { result =>
+      result shouldBe expectedSeq
+    }
   }
-
-  }
+}
