@@ -36,7 +36,7 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         apiKey = ""
       )
     ).url
-    val expected = s"${apiHost}/addresses/101010"
+    val expected = s"${apiHost}/addresses/uprn/101010"
     actual shouldBe expected
   }
 
