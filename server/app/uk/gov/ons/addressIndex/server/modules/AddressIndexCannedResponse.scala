@@ -277,4 +277,28 @@ trait AddressIndexCannedResponse {
       maxScore = 0f
     )
   }
+
+  def FailedRequestToEsPartialAddress: AddressByPartialAddressResponseContainer = {
+    AddressByPartialAddressResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPartialAddress,
+      status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(FailedRequestToEsPartialAddressError)
+    )
+  }
+
+  def ErrorPartialAddress: AddressByPartialAddressResponse = {
+    AddressByPartialAddressResponse(
+      input = "",
+      addresses = Seq.empty,
+      filter= "",
+      historical = true,
+      limit = 10,
+      offset = 0,
+      total = 0,
+      maxScore = 0f
+    )
+  }
+
 }

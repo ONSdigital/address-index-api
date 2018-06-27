@@ -34,9 +34,17 @@ trait ElasticsearchRepository {
     * Query the address index by UPRN.
     *
     * @param uprn the identificator of the address
-    * @return Fucture containing a address or `None` if not in the index
+    * @return Future containing a address or `None` if not in the index
     */
   def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]]
+
+  /**
+    * Query the address index by partial address.
+    *
+    * @param input the identificator of the address
+    * @return Future containing a address or `None` if not in the index
+    */
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index by postcode.
@@ -115,6 +123,57 @@ class AddressIndexRepository @Inject()(
     } else {
       search(hybridIndex).query(termQuery("uprn", uprn))
     }
+
+
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+
+    val request = generateQueryPartialAddressRequest(input, filters, queryParamsConfig, historical).start(start).limit(limit)
+
+    logger.trace(request.toString)
+
+    client.execute(request).map(HybridAddresses.fromEither)
+  }
+
+  /**
+    * Generates request to get address from ES by UPRN
+    * Public for tests
+    *
+    * @param input the uprn of the fetched address
+    * @return Search definition containing query to the ES
+    */
+  def generateQueryPartialAddressRequest(input: String, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+
+    val filterType: String = {
+      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
+      else "term"
+    }
+
+    val filterValue: String = {
+      if (filters == "residential") "R"
+      else if (filters == "commercial") "C"
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
+      else filters.toUpperCase
+    }
+
+    val query =
+      if (filters.isEmpty) {
+        must(matchQuery("lpi.nagAll.typeahead", input)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+      }else {
+        if (filterType == "prefix") {
+          must(matchQuery("lpi.nagAll.typeahead", input)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        }
+        else {
+          must(matchQuery("lpi.nagAll.typeahead", input)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        }
+      }
+
+    if (historical) {
+      search(hybridIndexHistorical).query(query)
+    } else {
+      search(hybridIndex).query(query)
+    }
+
+  }
 
   def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
