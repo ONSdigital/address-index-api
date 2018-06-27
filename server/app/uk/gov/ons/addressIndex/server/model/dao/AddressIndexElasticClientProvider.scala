@@ -68,7 +68,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
     }
   }, new HttpClientConfigCallback {
     override def customizeHttpClient(httpClientBuilder: HttpAsyncClientBuilder) = {
-      httpClientBuilder.setDefaultCredentialsProvider(provider)
+//      httpClientBuilder.setDefaultCredentialsProvider(provider)
       httpClientBuilder.setSSLContext(context)
     }
   })
