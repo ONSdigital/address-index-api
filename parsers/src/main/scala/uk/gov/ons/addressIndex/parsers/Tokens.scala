@@ -35,6 +35,7 @@ object Tokens {
 
   val defaultPreProcessFolder = "parser.input-pre-post-processing.folder"
   val defaultMapFolder = "parser.scoring.folder"
+  val defaultCodelistFolder = "parser.codelist.folder"
   val defaultDelimiter = "="
 
   /**
@@ -380,6 +381,20 @@ object Tokens {
     val resource = getResource(fileName, folder)
     resource.getLines().toList
   }
+
+  /**
+    * Convert external file into array
+    * @param folder
+    * @param fileName
+    * @return
+    */
+  def fileToArray(fileName: String, folder: String = defaultCodelistFolder): Seq[String] = {
+    val resource = getResource(fileName, folder)
+    val lines = (for (line <- resource.getLines()) yield line).toList
+    resource.close
+    lines
+  }
+
 
   /**
     * Make external file such as score matrix file into Map

@@ -46,12 +46,19 @@ class AddressController @Inject()(
     Future(Ok(message))
   }
 
+//  def readFile(filename: String): Seq[String] = {
+ //   val bufferedSource = io.Source.fromFile(filename)
+ //   val lines = (for (line <- bufferedSource.getLines()) yield line).toList
+ //   bufferedSource.close
+ //   lines
+ // }
+
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
 
     // load score matrix from external file in parsers
-    lazy val scoreMatrix: Map[String,String] = Tokens.fileToMap(s"scorematrix.txt")
+    lazy val classList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
 
-    Future(Ok(Json.toJson(scoreMatrix)))
+    Future(Ok(Json.toJson(classList)))
 
   //  val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
    // Future(Ok(message))
