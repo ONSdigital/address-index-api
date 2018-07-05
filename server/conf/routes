@@ -32,6 +32,15 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
+#  summary: Return a list of codelists supported by the API
+#  responses:
+#    200:
+#      description: list of avaiable codelists
+###
+GET     /codelists             uk.gov.ons.addressIndex.server.controllers.AddressController.codeList()
+
+
+###
 #  summary: Return a list of available external source codes
 #  responses:
 #    200:

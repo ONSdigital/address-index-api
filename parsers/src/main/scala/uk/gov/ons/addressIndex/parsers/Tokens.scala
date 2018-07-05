@@ -372,6 +372,32 @@ object Tokens {
   lazy val county: Seq[String] = fileToList(s"county")
 
   /**
+    * List of codelists
+    */
+  lazy val codeList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+
+  /**
+    * List of classifications
+    */
+  lazy val classList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+
+  /**
+    * List of sources
+    */
+  lazy val sourceList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+
+  /**
+    * List of logicalStatuses
+    */
+  lazy val logicalStatusList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+
+  /**
+    * List of custodians
+    */
+  lazy val custodianList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+
+
+  /**
     * Convert external file into list
     * @param folder
     * @param fileName

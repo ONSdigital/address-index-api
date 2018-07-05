@@ -41,38 +41,82 @@ class AddressController @Inject()(
   val valid: String = "valid"
   val notRequired: String = "not required"
 
-  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+
+  /**
+    * Codelist List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
+  def codeList(): Action[AnyContent] = Action async { implicit req =>
+    val classList = Tokens.codeList.map{classval =>
+      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
+        label=classval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val classListContainer = new AddressResponseCodelistContainer(classList)
+    Future(Ok(Json.toJson(classListContainer)))
   }
 
-//  def readFile(filename: String): Seq[String] = {
- //   val bufferedSource = io.Source.fromFile(filename)
- //   val lines = (for (line <- bufferedSource.getLines()) yield line).toList
- //   bufferedSource.close
- //   lines
- // }
-
+  /**
+    * Classification List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-
-    // load score matrix from external file in parsers
-    lazy val classList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
-
-    Future(Ok(Json.toJson(classList)))
-
-  //  val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-   // Future(Ok(message))
+    val classList = Tokens.classList.map{classval =>
+      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
+      label=classval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val classListContainer = new AddressResponseCodelistContainer(classList)
+    Future(Ok(Json.toJson(classListContainer)))
   }
 
+  /**
+    * Custodian List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+    val classList = Tokens.custodianList.map{classval =>
+      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
+        label=classval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val classListContainer = new AddressResponseCodelistContainer(classList)
+    Future(Ok(Json.toJson(classListContainer)))
   }
 
-  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+  /**
+    * Classification List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
+  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
+    val classList = Tokens.sourceList.map{classval =>
+      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
+        label=classval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val classListContainer = new AddressResponseCodelistContainer(classList)
+    Future(Ok(Json.toJson(classListContainer)))
   }
+
+  /**
+    * Classification List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
+  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
+    val classList = Tokens.logicalStatusList.map{classval =>
+      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
+        label=classval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val classListContainer = new AddressResponseCodelistContainer(classList)
+    Future(Ok(Json.toJson(classListContainer)))
+  }
+
 
   /**
     * Address query API
