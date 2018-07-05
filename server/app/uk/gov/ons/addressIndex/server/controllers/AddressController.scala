@@ -14,6 +14,7 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
@@ -46,8 +47,14 @@ class AddressController @Inject()(
   }
 
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+
+    // load score matrix from external file in parsers
+    lazy val scoreMatrix: Map[String,String] = Tokens.fileToMap(s"scorematrix.txt")
+
+    Future(Ok(Json.toJson(scoreMatrix)))
+
+  //  val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
+   // Future(Ok(message))
   }
 
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
