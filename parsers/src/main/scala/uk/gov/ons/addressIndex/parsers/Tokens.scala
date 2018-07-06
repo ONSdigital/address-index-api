@@ -384,12 +384,12 @@ object Tokens {
   /**
     * List of sources
     */
-  lazy val sourceList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+  lazy val sourceList: Seq[String] = Tokens.fileToArray(s"sourceList")
 
   /**
     * List of logicalStatuses
     */
-  lazy val logicalStatusList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+  lazy val logicalStatusList: Seq[String] = Tokens.fileToArray(s"logicalStatusList")
 
   /**
     * List of custodians

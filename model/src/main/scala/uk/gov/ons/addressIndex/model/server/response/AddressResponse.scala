@@ -650,6 +650,8 @@ case class AddressResponseClassification(
   label: String
 )
 
+
+
 case class AddressResponseCodelistContainer(
   codelists: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
 )
@@ -669,6 +671,51 @@ case class AddressResponseCodelist(
   name: String,
   description: String
 )
+
+
+
+
+case class AddressResponseSourcelistContainer(
+  sources: Seq[AddressResponseSourcelist] = Seq.empty[AddressResponseSourcelist]
+)
+
+object AddressResponseSourcelistContainer {
+  implicit lazy val addressResponseSourcelistContainerFormat: Format[AddressResponseSourcelistContainer] =
+    Json.format[AddressResponseSourcelistContainer]
+}
+
+
+object AddressResponseSourcelist {
+  implicit lazy val addressResponseSourcelistFormat: Format[AddressResponseSourcelist] = Json.format[AddressResponseSourcelist]
+
+}
+
+case class AddressResponseSourcelist(
+  code: String,
+  label: String
+)
+
+
+
+case class AddressResponseLogicalStatuslistContainer(
+  logicalStatuses: Seq[AddressResponseLogicalStatuslist] = Seq.empty[AddressResponseLogicalStatuslist]
+)
+
+object AddressResponseLogicalStatuslistContainer {
+  implicit lazy val addressResponseLogicalStatuslistContainerFormat: Format[AddressResponseLogicalStatuslistContainer] =
+    Json.format[AddressResponseLogicalStatuslistContainer]
+}
+
+object AddressResponseLogicalStatuslist {
+  implicit lazy val addressResponseLogicalStatuslistFormat: Format[AddressResponseLogicalStatuslist] = Json.format[AddressResponseLogicalStatuslist]
+
+}
+
+case class AddressResponseLogicalStatuslist(
+  code: String,
+  label: String
+)
+
 
 
 
