@@ -630,8 +630,28 @@ case class AddressResponseGeo(
 )
 
 
+case class AddressResponseClassificationContainer(
+  classifications: Seq[AddressResponseClassification] = Seq.empty[AddressResponseClassification]
+)
+
+object AddressResponseClassificationContainer {
+  implicit lazy val addressResponseClassificationContainerFormat: Format[AddressResponseClassificationContainer] =
+    Json.format[AddressResponseClassificationContainer]
+}
+
+
+object AddressResponseClassification {
+  implicit lazy val addressResponseClassificationFormat: Format[AddressResponseClassification] = Json.format[AddressResponseClassification]
+
+}
+
+case class AddressResponseClassification(
+  code: String,
+  label: String
+)
+
 case class AddressResponseCodelistContainer(
-  codelist: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
+  codelists: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
 )
 
 object AddressResponseCodelistContainer {
@@ -640,22 +660,17 @@ object AddressResponseCodelistContainer {
 }
 
 
-
 object AddressResponseCodelist {
   implicit lazy val addressResponseCodelistFormat: Format[AddressResponseCodelist] = Json.format[AddressResponseCodelist]
 
 }
 
-/**
-  * Contains address geo position
-  *
-  * @param code  code
-  * @param label label
-  */
 case class AddressResponseCodelist(
-  code: String,
-  label: String
+  name: String,
+  description: String
 )
+
+
 
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]

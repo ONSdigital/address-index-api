@@ -1,0 +1,4 @@
+classification=Coded address types e.g. RD02 is a detached house
+logicalstatus=Status of address entry in AddressBase
+custodian=Local Authority or other body responsible for supplying address to AddressBase
+source=Codes to indicate source of linked code e.g. 7666VC is Council Tax

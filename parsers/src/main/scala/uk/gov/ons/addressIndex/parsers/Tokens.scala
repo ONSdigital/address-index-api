@@ -374,7 +374,7 @@ object Tokens {
   /**
     * List of codelists
     */
-  lazy val codeList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+  lazy val codeList: Seq[String] = Tokens.fileToArray(s"codelistlist")
 
   /**
     * List of classifications

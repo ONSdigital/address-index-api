@@ -46,15 +46,15 @@ class AddressController @Inject()(
     * Codelist List API
     *
     * @param none
-    * @return Json response with codelist
+    * @return Json response with codelist 
     */
   def codeList(): Action[AnyContent] = Action async { implicit req =>
     val classList = Tokens.codeList.map{classval =>
-      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
-        label=classval.split("=").lastOption.getOrElse(""))
+      new AddressResponseCodelist(name=classval.split("=").headOption.getOrElse(""),
+        description=classval.split("=").lastOption.getOrElse(""))
     }.toSeq
-    val classListContainer = new AddressResponseCodelistContainer(classList)
-    Future(Ok(Json.toJson(classListContainer)))
+    val codeListContainer = new AddressResponseCodelistContainer(classList)
+    Future(Ok(Json.toJson(codeListContainer)))
   }
 
   /**
@@ -65,10 +65,10 @@ class AddressController @Inject()(
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
     val classList = Tokens.classList.map{classval =>
-      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
+      new AddressResponseClassification(code=classval.split("=").headOption.getOrElse(""),
       label=classval.split("=").lastOption.getOrElse(""))
     }.toSeq
-    val classListContainer = new AddressResponseCodelistContainer(classList)
+    val classListContainer = new AddressResponseClassificationContainer(classList)
     Future(Ok(Json.toJson(classListContainer)))
   }
 
@@ -80,8 +80,8 @@ class AddressController @Inject()(
     */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
     val classList = Tokens.custodianList.map{classval =>
-      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
-        label=classval.split("=").lastOption.getOrElse(""))
+      new AddressResponseCodelist(classval.split("=").headOption.getOrElse(""),
+        classval.split("=").lastOption.getOrElse(""))
     }.toSeq
     val classListContainer = new AddressResponseCodelistContainer(classList)
     Future(Ok(Json.toJson(classListContainer)))
@@ -95,8 +95,8 @@ class AddressController @Inject()(
     */
   def codeListSource(): Action[AnyContent] = Action async { implicit req =>
     val classList = Tokens.sourceList.map{classval =>
-      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
-        label=classval.split("=").lastOption.getOrElse(""))
+      new AddressResponseCodelist(classval.split("=").headOption.getOrElse(""),
+        classval.split("=").lastOption.getOrElse(""))
     }.toSeq
     val classListContainer = new AddressResponseCodelistContainer(classList)
     Future(Ok(Json.toJson(classListContainer)))
@@ -110,8 +110,8 @@ class AddressController @Inject()(
     */
   def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
     val classList = Tokens.logicalStatusList.map{classval =>
-      new AddressResponseCodelist(code=classval.split("=").headOption.getOrElse(""),
-        label=classval.split("=").lastOption.getOrElse(""))
+      new AddressResponseCodelist(classval.split("=").headOption.getOrElse(""),
+        classval.split("=").lastOption.getOrElse(""))
     }.toSeq
     val classListContainer = new AddressResponseCodelistContainer(classList)
     Future(Ok(Json.toJson(classListContainer)))
