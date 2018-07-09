@@ -86,7 +86,7 @@ class AddressController @Inject()(
         custval.split(",").lift(2).getOrElse(""),
         custval.split(",").lift(3).getOrElse(""),
         custval.split(",").lift(4).getOrElse(""),
-        custval.split(",").lift(4).getOrElse("")
+        custval.split(",").lift(5).getOrElse("")
       )
     }.toSeq
     val custListContainer = new AddressResponseCustodianListContainer(custList)

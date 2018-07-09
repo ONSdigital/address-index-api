@@ -639,8 +639,8 @@ case class AddressResponseClassificationListContainer(
   classifications: Seq[AddressResponseClassification] = Seq.empty[AddressResponseClassification]
 )
 
-object AddressResponseClassificationContainer {
-  implicit lazy val addressResponseClassificationContainerFormat: Format[AddressResponseClassificationListContainer] =
+object AddressResponseClassificationListContainer {
+  implicit lazy val addressResponseClassificationListContainerFormat: Format[AddressResponseClassificationListContainer] =
     Json.format[AddressResponseClassificationListContainer]
 }
 
@@ -729,7 +729,7 @@ case class AddressResponseSource(
   * @param logicalStatuses  sequence of logical statuses
   */
 case class AddressResponseLogicalStatusListContainer(
-  logicalStatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
+  logicalstatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
 )
 
 object AddressResponseLogicalStatusListContainer {
