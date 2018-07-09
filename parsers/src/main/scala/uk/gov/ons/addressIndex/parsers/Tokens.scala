@@ -379,7 +379,7 @@ object Tokens {
   /**
     * List of classifications
     */
-  lazy val classList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+  lazy val classList: Seq[String] = Tokens.fileToArray(s"classificationList")
 
   /**
     * List of sources
@@ -394,7 +394,7 @@ object Tokens {
   /**
     * List of custodians
     */
-  lazy val custodianList: Seq[String] = Tokens.fileToArray(s"classificationCodelist")
+  lazy val custodianList: Seq[String] = Tokens.fileToArray(s"custodianList")
 
 
   /**
