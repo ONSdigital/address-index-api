@@ -123,6 +123,21 @@ class AddressControllerSpec extends PlaySpec with Results{
     score = 1f
   )
 
+  val validCodelistList = "{\"codelists\"" +
+    ":[{\"name\":\"classification\",\"description\":\"Coded address types e.g. RD02 is a detached house\"}"
+
+  val validSourceList = "{\"sources\"" +
+    ":[{\"code\":\"7666MT\",\"label\":\"OS MasterMap Topography Layer TOID\"}"
+
+  val validCustodianList = "{\"custodians\"" +
+    ":[{\"custCode\":\"114\",\"custName\":\"BATH AND NORTH EAST SOMERSET\",\"laName\":\"Bath and North East Somerset UA\",\"regCode\":\"E12000009\",\"RegName\":\"South West\",\"laCode\":\"E06000022\"}"
+
+  val validLogicalStatusList = "{\"logicalStatuses\"" +
+    ":[{\"code\":\"1\",\"label\":\"Approved\"}"
+
+  val validClassificationList = "{\"classifications\"" +
+    ":[{\"code\":\"C\",\"label\":\"Commercial\"}"
+
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
@@ -1320,6 +1335,72 @@ class AddressControllerSpec extends PlaySpec with Results{
 
       // When Then
       an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, true, 5F)
+    }
+
+
+    "return list of codelists" in {
+      // Given
+      val expectedCodelist = validCodelistList
+      val controller = queryController
+
+      // When
+      val result = controller.codeList().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of sources" in {
+      // Given
+      val expectedCodelist = validSourceList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListSource().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of classifications" in {
+      // Given
+      val expectedCodelist = validClassificationList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListClassification().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of custodians" in {
+      // Given
+      val expectedCodelist = validCustodianList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListCustodian().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of logical statuses" in {
+      // Given
+      val expectedCodelist = validLogicalStatusList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListLogicalStatus().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
     }
 
   }

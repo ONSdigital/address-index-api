@@ -729,7 +729,7 @@ case class AddressResponseSource(
   * @param logicalStatuses  sequence of logical statuses
   */
 case class AddressResponseLogicalStatusListContainer(
-  logicalstatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
+  logicalStatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
 )
 
 object AddressResponseLogicalStatusListContainer {
@@ -759,7 +759,7 @@ case class AddressResponseLogicalStatus(
   * @param classifications  sequence of custodians
   */
 case class AddressResponseCustodianListContainer(
-  cutodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian]
+  custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian]
 )
 
 object AddressResponseCustodianListContainer {
