@@ -787,7 +787,7 @@ case class AddressResponseCustodian(
   custName: String,
   laName: String,
   regCode: String,
-  RegName: String,
+  regName: String,
   laCode: String
 )
 

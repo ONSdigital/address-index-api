@@ -130,7 +130,7 @@ class AddressControllerSpec extends PlaySpec with Results{
     ":[{\"code\":\"7666MT\",\"label\":\"OS MasterMap Topography Layer TOID\"}"
 
   val validCustodianList = "{\"custodians\"" +
-    ":[{\"custCode\":\"114\",\"custName\":\"BATH AND NORTH EAST SOMERSET\",\"laName\":\"Bath and North East Somerset UA\",\"regCode\":\"E12000009\",\"RegName\":\"South West\",\"laCode\":\"E06000022\"}"
+    ":[{\"custCode\":\"114\",\"custName\":\"BATH AND NORTH EAST SOMERSET\",\"laName\":\"Bath and North East Somerset UA\",\"regCode\":\"E12000009\",\"regName\":\"South West\",\"laCode\":\"E06000022\"}"
 
   val validLogicalStatusList = "{\"logicalStatuses\"" +
     ":[{\"code\":\"1\",\"label\":\"Approved\"}"
