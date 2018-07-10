@@ -12,10 +12,12 @@ object Splunk {
     responseTimeMillis: String = "",
     isUprn: Boolean = false,
     isPostcode: Boolean = false,
+    isPartial: Boolean = false,
     isInput: Boolean = false,
     isBulk: Boolean = false,
     uprn: String = "",
     postcode: String = "",
+    partialAddress: String = "",
     input: String = "",
     offset: String = "",
     limit: String = "",
@@ -36,8 +38,8 @@ object Splunk {
   ): Unit = {
     logger.info(
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis is_uprn=$isUprn " +
-        s"is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter " +
+        s"is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk is_partial=$isPartial " +
+        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter partialAddress=$partialAddress " +
         s"historical=$historical" +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
         s"bulk_size=$bulkSize batch_size=$batchSize " +
@@ -53,10 +55,12 @@ object Splunk {
     responseTimeMillis: String = "",
     isUprn: Boolean = false,
     isPostcode: Boolean = false,
+    isPartial: Boolean = false,
     isInput: Boolean = false,
     isBulk: Boolean = false,
     uprn: String = "",
     postcode: String = "",
+    partialAddress: String = "",
     input: String = "",
     offset: String = "",
     limit: String = "",
@@ -77,8 +81,8 @@ object Splunk {
   ): Unit = {
     logger.trace(
       s" IP=$IP url=$url millis=${System.currentTimeMillis()} response_time_millis=$responseTimeMillis " +
-        s"is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk " +
-        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter " +
+        s"is_uprn=$isUprn is_postcode=$isPostcode is_input=$isInput is_bulk=$isBulk is_partial=$isPartial " +
+        s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter partialAddress=$partialAddress " +
         s"historical=$historical" +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
         s"bulk_size=$bulkSize batch_size=$batchSize " +

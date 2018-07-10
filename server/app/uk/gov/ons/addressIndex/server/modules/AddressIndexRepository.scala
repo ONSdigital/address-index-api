@@ -34,9 +34,17 @@ trait ElasticsearchRepository {
     * Query the address index by UPRN.
     *
     * @param uprn the identificator of the address
-    * @return Fucture containing a address or `None` if not in the index
+    * @return Future containing a address or `None` if not in the index
     */
   def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]]
+
+  /**
+    * Query the address index by partial address.
+    *
+    * @param input the identificator of the address
+    * @return Future containing a address or `None` if not in the index
+    */
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index by postcode.
@@ -73,7 +81,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }
 
 @Singleton
@@ -115,6 +123,57 @@ class AddressIndexRepository @Inject()(
     } else {
       search(hybridIndex).query(termQuery("uprn", uprn))
     }
+
+
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+
+    val request = generateQueryPartialAddressRequest(input, filters, queryParamsConfig, historical).start(start).limit(limit)
+
+    logger.trace(request.toString)
+
+    client.execute(request).map(HybridAddresses.fromEither)
+  }
+
+  /**
+    * Generates request to get address from ES by UPRN
+    * Public for tests
+    *
+    * @param input the uprn of the fetched address
+    * @return Search definition containing query to the ES
+    */
+  def generateQueryPartialAddressRequest(input: String, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+
+    val filterType: String = {
+      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
+      else "term"
+    }
+
+    val filterValue: String = {
+      if (filters == "residential") "R"
+      else if (filters == "commercial") "C"
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
+      else filters.toUpperCase
+    }
+
+    val query =
+      if (filters.isEmpty) {
+        must(matchQuery("lpi.nagAll.typeahead", input)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+      }else {
+        if (filterType == "prefix") {
+          must(matchQuery("lpi.nagAll.typeahead", input)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        }
+        else {
+          must(matchQuery("lpi.nagAll.typeahead", input)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+        }
+      }
+
+    if (historical) {
+      search(hybridIndexHistorical).query(query)
+    } else {
+      search(hybridIndex).query(query)
+    }
+
+  }
 
   def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
@@ -698,7 +757,7 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
@@ -727,7 +786,7 @@ class AddressIndexRepository @Inject()(
             val threshold = Try((matchThreshold / 100).toDouble).getOrElse(0.05D)
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map{ case (b, s) =>
-                AddressBulkResponseAddress.fromBulkAddress(b, s, false)
+                AddressBulkResponseAddress.fromBulkAddress(b, s, includeFullAddress)
             }
             val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limit)
 

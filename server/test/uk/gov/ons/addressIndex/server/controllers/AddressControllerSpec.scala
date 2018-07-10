@@ -50,7 +50,9 @@ class AddressControllerSpec extends PlaySpec with Results{
     endDate = "27",
     lastUpdateDate = "28",
     entryDate = "29",
-    pafAll = "30"
+    pafAll = "30",
+    mixedPaf = "31",
+    mixedWelshPaf = "32"
   )
 
   val validNagAddress = NationalAddressGazetteerAddress(
@@ -94,7 +96,8 @@ class AddressControllerSpec extends PlaySpec with Results{
     localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
     nagAll = "nagAll",
-    lpiEndDate = "lpiEndDate"
+    lpiEndDate = "lpiEndDate",
+    mixedNag = "mixedNag"
   )
 
    val validRelative = Relative (
@@ -120,6 +123,21 @@ class AddressControllerSpec extends PlaySpec with Results{
     score = 1f
   )
 
+  val validCodelistList = "{\"codelists\"" +
+    ":[{\"name\":\"classification\",\"description\":\"Coded address types e.g. RD02 is a detached house\"}"
+
+  val validSourceList = "{\"sources\"" +
+    ":[{\"code\":\"7666MT\",\"label\":\"OS MasterMap Topography Layer TOID\"}"
+
+  val validCustodianList = "{\"custodians\"" +
+    ":[{\"custCode\":\"114\",\"custName\":\"BATH AND NORTH EAST SOMERSET\",\"laName\":\"Bath and North East Somerset UA\",\"regCode\":\"E12000009\",\"regName\":\"South West\",\"laCode\":\"E06000022\"}"
+
+  val validLogicalStatusList = "{\"logicalStatuses\"" +
+    ":[{\"code\":\"1\",\"label\":\"Approved\"}"
+
+  val validClassificationList = "{\"classifications\"" +
+    ":[{\"code\":\"C\",\"label\":\"Commercial\"}"
+
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock = new ElasticsearchRepository {
@@ -130,10 +148,13 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
+      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
 
         Future.successful {
           requestsData.map(requestData => {
@@ -159,10 +180,13 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
+      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful{
         requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
@@ -183,13 +207,15 @@ class AddressControllerSpec extends PlaySpec with Results{
 
     override def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] = Future.successful(None)
 
+    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         requestsData.map {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
@@ -217,10 +243,13 @@ class AddressControllerSpec extends PlaySpec with Results{
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
+    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
+      Future.failed(new Exception("test failure"))
+
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String,  queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.failed(new Exception("Test exception"))
 
     override def queryHealth(): Future[String] = Future.successful("")
@@ -308,7 +337,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,-1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -343,7 +372,7 @@ class AddressControllerSpec extends PlaySpec with Results{
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,-1D),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1306,6 +1335,72 @@ class AddressControllerSpec extends PlaySpec with Results{
 
       // When Then
       an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, true, 5F)
+    }
+
+
+    "return list of codelists" in {
+      // Given
+      val expectedCodelist = validCodelistList
+      val controller = queryController
+
+      // When
+      val result = controller.codeList().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of sources" in {
+      // Given
+      val expectedCodelist = validSourceList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListSource().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of classifications" in {
+      // Given
+      val expectedCodelist = validClassificationList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListClassification().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of custodians" in {
+      // Given
+      val expectedCodelist = validCustodianList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListCustodian().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "return list of logical statuses" in {
+      // Given
+      val expectedCodelist = validLogicalStatusList
+      val controller = queryController
+
+      // When
+      val result = controller.codeListLogicalStatus().apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
     }
 
   }

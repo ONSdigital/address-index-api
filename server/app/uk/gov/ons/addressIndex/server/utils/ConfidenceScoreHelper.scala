@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.utils
 import play.api.Logger
 import scala.math._
 import scala.util.Try
+import uk.gov.ons.addressIndex.parsers.Tokens
 
 object ConfidenceScoreHelper {
 
@@ -20,10 +21,10 @@ object ConfidenceScoreHelper {
     */
   def calculateConfidenceScore(tokens: Map[String,String], structuralScore: Double, unitScore: Double, elasticRatio: Double): Double = {
     val unitScoreReplaced = if (unitScore == -1) 0.3D else unitScore
-    val alpha = if (tokens.contains("OrganisationName") ||
-      tokens.contains("SubBuildingName") ||
-      tokens.contains("saoStartNumber") ||
-      tokens.contains("saoStartSuffix")) 0.8D else 0.9D
+    val alpha = if (tokens.contains(Tokens.organisationName) ||
+      tokens.contains(Tokens.subBuildingName) ||
+      tokens.contains(Tokens.saoStartNumber) ||
+      tokens.contains(Tokens.saoStartSuffix)) 0.8D else 0.9D
     val hScore = structuralScore * (alpha + (0.99-alpha) * unitScoreReplaced)
     val hScoreScaled = pow(hScore,6)
     val elasticRatioScaled = 1 / (1 + exp(15 * (0.99 - elasticRatio)))
@@ -43,7 +44,7 @@ object ConfidenceScoreHelper {
     def maxScore = Try(scores.max).getOrElse(1F)
     def scores2 = scores.sorted(Ordering[Float].reverse).drop(1)
     def maxScore2 = Try(scores2.max).getOrElse(maxScore)
-    Try(((maxScore +  maxScore2) / 2 ).toDouble).getOrElse(1D)
+    if (scores.length == 1) -1D else Try(((maxScore +  maxScore2) / 2 ).toDouble).getOrElse(1D)
   }
 
 }

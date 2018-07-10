@@ -8,7 +8,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: input
 #      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
 #    - name: offset
-#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#      description: Specifies the offset from zero, used for pagination (default 0, maximum 250).
 #    - name: limit
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: classificationfilter
@@ -32,44 +32,60 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
-#  summary: Return a list of available codelist lookups.
+#  summary: Return a list of codelists supported by the API
+#  description: Discovery call which names the available codelists for further calls
 #  responses:
 #    200:
-#      description: list of lookups e.g. classification, custodian
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCodelistListContainer"
 ###
-GET     /codelists          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists             uk.gov.ons.addressIndex.server.controllers.AddressController.codeList()
+
 
 ###
 #  summary: Return a list of available external source codes
+#  description: list of valid source codes and names (e.g. council tax)
 #  responses:
 #    200:
-#      description: list of valid source codes and names (e.g. council tax)
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseSourceListContainer"
 ###
-GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codeListSource()
 
 ###
 #  summary: Return a list of available classification codes
+#  description: list of classifications e.g. RD01=Detached House
 #  responses:
 #    200:
-#      description: list of classifications e.g. RD01=Detached House
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseClassificationListContainer"
 ###
-GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codeListClassification()
 
 ###
 #  summary: Return a list of available local custodian codes
+#  description: list of addressbase custodian codes to LA matches
 #  responses:
 #    200:
-#      description: list of addressbase custodian codes to LA matches
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCustodianListContainer"
 ###
-GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codeListCustodian()
 
 ###
 #  summary: Return a list of available logical status values
+#  description: list of valid statuses e.g. 8=historical
 #  responses:
 #    200:
-#      description: list of valid statuses e.g. 8=historical
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseLogicalStatusListContainer"
 ###
-GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codelists()
+GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codeListLogicalStatus()
 
 ###
 #  summary: Gets an address by UPRN.
@@ -85,23 +101,30 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
 ###
-GET     /addresses/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
+
 
 ###
-#  summary: Gets an address by UPRN.
-#  description: Returns a single address, identified by its UPRN. Primary key of address so /uprn is optional in URL
+#  summary: Search by partial address (for type ahead).
+#  description: Returns a list addresses, from a partial match on the input string
 #  parameters:
-#    - name: uprn
-#      description: Specifies the address UPRN.
+#    - name: input
+#      description: Specifies the address input.
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#    - name: limit
+#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPartialAddressResponseContainer"
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.AddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
 
 
 ###

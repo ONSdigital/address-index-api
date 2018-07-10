@@ -97,7 +97,8 @@ class ApplicationHomeController @Inject()
       }
 
       if (realGateway) {
-        val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
+   //     val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/login")
+        val request: WSRequest = ws.url(conf.config.gatewayURL+"/ai/v1/ui/login")
         logger.info("attempting to login via gateway")
         val complexRequest: WSRequest =
           request.withHttpHeaders("Accept" -> "application/json")

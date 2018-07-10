@@ -52,7 +52,7 @@ object AddressByUprnResponse {
   * @param dataVersion version of the address data used for the response
   * @param response relevant data
   * @param status   status code / message
-  * @param errors   encountred errors (or an empty list if there is no errors)
+  * @param errors   encountered errors (or an empty list if there is no errors)
   */
 case class AddressByPostcodeResponseContainer(
                                              apiVersion: String,
@@ -87,8 +87,56 @@ case class AddressByPostcodeResponse(
                                     maxScore: Double
                                   )
 
+
 object AddressByPostcodeResponse {
   implicit lazy val addressByPostcodeResponseFormat: Format[AddressByPostcodeResponse] = Json.format[AddressByPostcodeResponse]
+}
+
+
+/**
+  * Contains the reply for the typeahead address search request
+  *
+  * @param apiVersion version of the API used for the response
+  * @param dataVersion version of the address data used for the response
+  * @param response relevant data
+  * @param status   status code / message
+  * @param errors   encountered errors (or an empty list if there is no errors)
+  */
+case class AddressByPartialAddressResponseContainer(
+                                               apiVersion: String,
+                                               dataVersion: String,
+                                               response: AddressByPartialAddressResponse,
+                                               status: AddressResponseStatus,
+                                               errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
+                                             )
+
+object AddressByPartialAddressResponseContainer {
+  implicit lazy val addressByPartialAddressResponseContainerFormat: Format[AddressByPartialAddressResponseContainer] =
+    Json.format[AddressByPartialAddressResponseContainer]
+}
+
+/**
+  * Contains relevant, to the address request, data
+  *
+  * @param input    input from query
+  * @param addresses found addresses
+  * @param limit     max number of found addresses
+  * @param offset    offset of found addresses (for pagination)
+  * @param total     total number of found addresses
+  */
+case class AddressByPartialAddressResponse(
+                                      input: String,
+                                      addresses: Seq[AddressResponseAddress],
+                                      filter: String,
+                                      historical: Boolean,
+                                      limit: Int,
+                                      offset: Int,
+                                      total: Long,
+                                      maxScore: Double
+                                    )
+
+object AddressByPartialAddressResponse {
+  implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]
 }
 
 
@@ -275,14 +323,14 @@ object AddressResponseAddress {
   def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = chosenNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+    val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = chosenWelshNag.map(AddressResponseNag.generateFormattedAddress).getOrElse("")
+    val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
 
     val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
-    val formattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateFormattedAddress).getOrElse("")
-    val welshFormattedAddressPaf = chosenPaf.map(AddressResponsePaf.generateWelshFormattedAddress).getOrElse("")
+    val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
+    val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -441,49 +489,6 @@ object AddressResponsePaf {
       other.startDate,
       other.endDate
     )
-
-  /**
-    * Creates formatted address from PAF address
-    * @param paf PAF address
-    * @return String of formatted address
-    */
-  def generateFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.dependentThoroughfare.trim
-    val trimmedThoroughfare = paf.thoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.doubleDependentLocality, paf.dependentLocality,
-      paf.postTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
-  /**
-    * Creates Welsh formatted address from PAF address
-    * @param paf PAF address
-    * @return String of Welsh formatted address
-    */
-  def generateWelshFormattedAddress(paf: PostcodeAddressFileAddress): String = {
-
-    val poBoxNumber = if (paf.poBoxNumber.isEmpty) "" else s"PO BOX ${paf.poBoxNumber}"
-
-    val trimmedBuildingNumber = paf.buildingNumber.trim
-    val trimmedDependentThoroughfare = paf.welshDependentThoroughfare.trim
-    val trimmedThoroughfare = paf.welshThoroughfare.trim
-
-    val buildingNumberWithStreetName =
-      s"$trimmedBuildingNumber ${ if(trimmedDependentThoroughfare.nonEmpty) s"$trimmedDependentThoroughfare, " else "" }$trimmedThoroughfare"
-
-    Seq(paf.departmentName, paf.organisationName, paf.subBuildingName, paf.buildingName,
-      poBoxNumber, buildingNumberWithStreetName, paf.welshDoubleDependentLocality, paf.welshDependentLocality,
-      paf.welshPostTown, paf.postcode).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
 }
 
 /**
@@ -566,47 +571,6 @@ object AddressResponseNag {
         other.lpiEndDate
       )
   }
-
-  /**
-    * Formatted address should contain commas between all fields except after digits
-    * The actual logic is pretty complex and should be treated on example-to-example level
-    * (with unit tests)
-    * @param nag NAG address
-    * @return String of formatted address
-    */
-  def generateFormattedAddress(nag: NationalAddressGazetteerAddress): String = {
-
-    val saoLeftRangeExists = nag.saoStartNumber.nonEmpty || nag.saoStartSuffix.nonEmpty
-    val saoRightRangeExists = nag.saoEndNumber.nonEmpty || nag.saoEndSuffix.nonEmpty
-    val saoHyphen = if (saoLeftRangeExists && saoRightRangeExists) "-" else ""
-    val saoNumbers = Seq(nag.saoStartNumber, nag.saoStartSuffix, saoHyphen, nag.saoEndNumber, nag.saoEndSuffix)
-      .map(_.trim).mkString
-    val sao =
-      if (nag.saoText == nag.organisation || nag.saoText.isEmpty) saoNumbers
-      else if (saoNumbers.isEmpty) s"${nag.saoText},"
-      else s"$saoNumbers, ${nag.saoText},"
-
-    val paoLeftRangeExists = nag.paoStartNumber.nonEmpty || nag.paoStartSuffix.nonEmpty
-    val paoRightRangeExists = nag.paoEndNumber.nonEmpty || nag.paoEndSuffix.nonEmpty
-    val paoHyphen = if (paoLeftRangeExists && paoRightRangeExists) "-" else ""
-    val paoNumbers = Seq(nag.paoStartNumber, nag.paoStartSuffix, paoHyphen, nag.paoEndNumber, nag.paoEndSuffix)
-      .map(_.trim).mkString
-    val pao =
-      if (nag.paoText == nag.organisation || nag.paoText.isEmpty) paoNumbers
-      else if (paoNumbers.isEmpty) s"${nag.paoText},"
-      else s"${nag.paoText}, $paoNumbers"
-
-    val trimmedStreetDescriptor = nag.streetDescriptor.trim
-    val buildingNumberWithStreetDescription =
-      if (pao.isEmpty) s"$sao $trimmedStreetDescriptor"
-      else if (sao.isEmpty) s"$pao $trimmedStreetDescriptor"
-      else if (pao.isEmpty && sao.isEmpty) trimmedStreetDescriptor
-      else s"$sao $pao $trimmedStreetDescriptor"
-
-    Seq(nag.organisation, buildingNumberWithStreetDescription, nag.locality,
-    nag.townName, nag.postcodeLocator).map(_.trim).filter(_.nonEmpty).mkString(", ")
-  }
-
 }
 
 /**
@@ -664,6 +628,169 @@ case class AddressResponseGeo(
   easting: Int,
   northing: Int
 )
+
+
+/**
+  * Container for classifications list
+  *
+  * @param classifications  sequence of classifications
+  */
+case class AddressResponseClassificationListContainer(
+  classifications: Seq[AddressResponseClassification] = Seq.empty[AddressResponseClassification]
+)
+
+object AddressResponseClassificationListContainer {
+  implicit lazy val addressResponseClassificationListContainerFormat: Format[AddressResponseClassificationListContainer] =
+    Json.format[AddressResponseClassificationListContainer]
+}
+
+object AddressResponseClassification {
+  implicit lazy val addressResponseClassificationFormat: Format[AddressResponseClassification] = Json.format[AddressResponseClassification]
+
+}
+
+/**
+  * Classification object for list
+  *
+  * @param code Classification code
+  * @param label Classification name
+  */
+case class AddressResponseClassification(
+  code: String,
+  label: String
+)
+
+
+/**
+  * Container for codelists list
+  *
+  * @param codelists  sequence of codelists
+  */
+case class AddressResponseCodelistListContainer(
+  codelists: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
+)
+
+object AddressResponseCodelistListContainer {
+  implicit lazy val addressResponseCodelistListContainerFormat: Format[AddressResponseCodelistListContainer] =
+    Json.format[AddressResponseCodelistListContainer]
+}
+
+
+object AddressResponseCodelist {
+  implicit lazy val addressResponseCodelistFormat: Format[AddressResponseCodelist] = Json.format[AddressResponseCodelist]
+
+}
+/**
+  * Codelist object for list of codelists
+  *
+  * @param name Name of codelist
+  * @param description Description of codelist
+  */
+case class AddressResponseCodelist(
+  name: String,
+  description: String
+)
+
+
+/**
+  * Container for sources list
+  *
+  * @param sources  sequence of sources
+  */
+case class AddressResponseSourceListContainer(
+  sources: Seq[AddressResponseSource] = Seq.empty[AddressResponseSource]
+)
+
+object AddressResponseSourceListContainer {
+  implicit lazy val addressResponseSourceListContainerFormat: Format[AddressResponseSourceListContainer] =
+    Json.format[AddressResponseSourceListContainer]
+}
+
+
+object AddressResponseSource {
+  implicit lazy val addressResponseSourceFormat: Format[AddressResponseSource] = Json.format[AddressResponseSource]
+
+}
+/**
+  * Source object for list
+  *
+  * @param code Source code
+  * @param label Source name
+  */
+case class AddressResponseSource(
+  code: String,
+  label: String
+)
+
+
+/**
+  * Container for logical status list
+  *
+  * @param logicalStatuses  sequence of logical statuses
+  */
+case class AddressResponseLogicalStatusListContainer(
+  logicalStatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
+)
+
+object AddressResponseLogicalStatusListContainer {
+  implicit lazy val addressResponseLogicalStatusListContainerFormat: Format[AddressResponseLogicalStatusListContainer] =
+    Json.format[AddressResponseLogicalStatusListContainer]
+}
+
+object AddressResponseLogicalStatus {
+  implicit lazy val addressResponseLogicalStatusFormat: Format[AddressResponseLogicalStatus] = Json.format[AddressResponseLogicalStatus]
+
+}
+
+/**
+  * Logical Status object for list
+  *
+  * @param code Logical Status code
+  * @param label Logical Status name
+  */
+case class AddressResponseLogicalStatus(
+  code: String,
+  label: String
+)
+
+/**
+  * Container for custodians list
+  *
+  * @param classifications  sequence of custodians
+  */
+case class AddressResponseCustodianListContainer(
+  custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian]
+)
+
+object AddressResponseCustodianListContainer {
+  implicit lazy val addressResponseCustodianListContainerFormat: Format[AddressResponseCustodianListContainer] =
+    Json.format[AddressResponseCustodianListContainer]
+}
+
+object AddressResponseCustodian {
+  implicit lazy val addressResponseCustodianFormat: Format[AddressResponseCustodian] = Json.format[AddressResponseCustodian]
+
+}
+
+/**
+  * Custodian object for list
+  *
+  * @param custCode AddressBase custodian code
+  * @param custName AddressBase custodian name
+  * @param laName   Local Authority name (can be slightly different to custodian Name)
+  * @param regCode  Standard geographic code for region
+  * @param regName  Region (or country for Welsh) name
+  * @param laCode  Standard geographic code for local authority
+  */
+case class AddressResponseCustodian(
+  custCode: String,
+  custName: String,
+  laName: String,
+  regCode: String,
+  regName: String,
+  laCode: String
+)
+
 
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
@@ -951,4 +1078,9 @@ object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
 object FilterInvalidPostcodeError extends AddressResponseError(
   code = 35,
   message = "Invalid filter value supplied (postcode)"
+)
+
+object FailedRequestToEsPartialAddressError extends AddressResponseError(
+  code = 36,
+  message = "Failed request to the Elastic Search (partial address)(check api logs)"
 )

@@ -44,7 +44,7 @@ class ClientToolTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatchWithInput(inputAddress, filter, Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -78,7 +78,7 @@ class ClientToolTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatchWithInput(inputAddress, filter, Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

@@ -50,13 +50,15 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     localCustodianGeogCode = "localCustodianGeogCode",
     rpc = "rpc",
     nagAll = "nagAll",
-    lpiEndDate = "lpiEndDate"
+    lpiEndDate = "lpiEndDate",
+    mixedNag = "mixedNag"
   )
 
   val givenWelshNag = givenNag.copy(
     townName = "wn20",
     locality = "wn21",
-    language = NationalAddressGazetteerAddress.Languages.welsh
+    language = NationalAddressGazetteerAddress.Languages.welsh,
+    mixedNag = "welshMixedNag"
   )
 
   val givenRealisticNag = givenNag.copy(
@@ -111,7 +113,9 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     endDate = "27",
     lastUpdateDate = "28",
     entryDate = "29",
-    pafAll = "pafAll"
+    pafAll = "pafAll",
+    mixedPaf = "mixedPaf",
+    mixedWelshPaf = "mixedWelshPaf"
   )
 
   val givenRelative =  Relative (
@@ -173,45 +177,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       // When
       val result = AddressResponsePaf.fromPafAddress(paf)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "create formatted address from PAF" in {
-      // Given
-      val paf = givenPaf
-
-      val expected = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16"
-
-      // When
-      val result = AddressResponsePaf.generateFormattedAddress(paf)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "handle absent dependentThoroughfare in the formatted address" in {
-      // Given
-      val paf = givenPaf.copy(dependentThoroughfare = "")
-
-      val expected = "7, 6, 8, 9, PO BOX 24, 10 12, 13, 14, 15, 16"
-
-      // When
-      val result = AddressResponsePaf.generateFormattedAddress(paf)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "handle absent PO box in the formatted address" in {
-      // Given
-      val paf = givenPaf.copy(poBoxNumber = "")
-
-      val expected = "7, 6, 8, 9, 10 11, 12, 13, 14, 15, 16"
-
-      // When
-      val result = AddressResponsePaf.generateFormattedAddress(paf)
 
       // Then
       result shouldBe expected
@@ -291,11 +256,11 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         parentUprn = givenPaf.uprn,
         relatives = Seq(givenRelativeResponse),
         crossRefs = Seq(givenCrossRefResponse),
-        formattedAddress = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
-        formattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
-        formattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 11, 12, 13, 14, 15, 16",
-        welshFormattedAddressNag = "n22, n12n13-n14n15, n11, n6, n7n8-n9n10 n19, n21, n20, n2",
-        welshFormattedAddressPaf = "7, 6, 8, 9, PO BOX 24, 10 19, 20, 21, 22, 23, 16",
+        formattedAddress = "mixedNag",
+        formattedAddressNag = "mixedNag",
+        formattedAddressPaf = "mixedPaf",
+        welshFormattedAddressNag = "mixedNag",
+        welshFormattedAddressPaf = "mixedWelshPaf",
         paf = Some(expectedPaf),
         nag = Some(expectedNag),
         geo = Some(AddressResponseGeo(
@@ -311,79 +276,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       // When
       val result = AddressResponseAddress.fromHybridAddress(hybrid)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "create NAG with expected formatted address (sao empty)" in {
-      // Given
-      val nag = givenRealisticNag.copy(saoStartNumber = "")
-      val expected = "MAJESTIC, 1 BRIBERY ROAD, EXTER, EXO 808"
-
-      // When
-      val result = AddressResponseNag.generateFormattedAddress(nag)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "create NAG with expected formatted address (pao empty)" in {
-      // Given
-      val nag = givenRealisticNag.copy(paoStartNumber = "")
-      val expected = "MAJESTIC, 1 BRIBERY ROAD, EXTER, EXO 808"
-
-      // When
-      val result = AddressResponseNag.generateFormattedAddress(nag)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "create NAG with expected formatted address (saoText field)" in {
-      // Given
-      val nag = givenRealisticNag.copy(
-        paoStartNumber = "",
-        saoText = "UNIT",
-        saoStartNumber = ""
-      )
-      val expected = "MAJESTIC, UNIT, BRIBERY ROAD, EXTER, EXO 808"
-
-      // When
-      val result = AddressResponseNag.generateFormattedAddress(nag)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "create NAG with expected formatted address (paoText field)" in {
-      // Given
-      val nag = givenRealisticNag.copy(
-        paoStartNumber = "",
-        paoText = "UNIT",
-        saoStartNumber = ""
-      )
-      val expected = "MAJESTIC, UNIT, BRIBERY ROAD, EXTER, EXO 808"
-
-      // When
-      val result = AddressResponseNag.generateFormattedAddress(nag)
-
-      // Then
-      result shouldBe expected
-    }
-
-    "create NAG with expected formatted address (saoText and paoText fields)" in {
-      // Given
-      val nag = givenRealisticNag.copy(
-        paoStartNumber = "",
-        saoText = "UNIT",
-        paoText = "BUNIT",
-        saoStartNumber = ""
-      )
-      val expected = "MAJESTIC, UNIT, BUNIT, BRIBERY ROAD, EXTER, EXO 808"
-
-      // When
-      val result = AddressResponseNag.generateFormattedAddress(nag)
 
       // Then
       result shouldBe expected
