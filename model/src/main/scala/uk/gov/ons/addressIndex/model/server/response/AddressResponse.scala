@@ -629,6 +629,169 @@ case class AddressResponseGeo(
   northing: Int
 )
 
+
+/**
+  * Container for classifications list
+  *
+  * @param classifications  sequence of classifications
+  */
+case class AddressResponseClassificationListContainer(
+  classifications: Seq[AddressResponseClassification] = Seq.empty[AddressResponseClassification]
+)
+
+object AddressResponseClassificationListContainer {
+  implicit lazy val addressResponseClassificationListContainerFormat: Format[AddressResponseClassificationListContainer] =
+    Json.format[AddressResponseClassificationListContainer]
+}
+
+object AddressResponseClassification {
+  implicit lazy val addressResponseClassificationFormat: Format[AddressResponseClassification] = Json.format[AddressResponseClassification]
+
+}
+
+/**
+  * Classification object for list
+  *
+  * @param code Classification code
+  * @param label Classification name
+  */
+case class AddressResponseClassification(
+  code: String,
+  label: String
+)
+
+
+/**
+  * Container for codelists list
+  *
+  * @param codelists  sequence of codelists
+  */
+case class AddressResponseCodelistListContainer(
+  codelists: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
+)
+
+object AddressResponseCodelistListContainer {
+  implicit lazy val addressResponseCodelistListContainerFormat: Format[AddressResponseCodelistListContainer] =
+    Json.format[AddressResponseCodelistListContainer]
+}
+
+
+object AddressResponseCodelist {
+  implicit lazy val addressResponseCodelistFormat: Format[AddressResponseCodelist] = Json.format[AddressResponseCodelist]
+
+}
+/**
+  * Codelist object for list of codelists
+  *
+  * @param name Name of codelist
+  * @param description Description of codelist
+  */
+case class AddressResponseCodelist(
+  name: String,
+  description: String
+)
+
+
+/**
+  * Container for sources list
+  *
+  * @param sources  sequence of sources
+  */
+case class AddressResponseSourceListContainer(
+  sources: Seq[AddressResponseSource] = Seq.empty[AddressResponseSource]
+)
+
+object AddressResponseSourceListContainer {
+  implicit lazy val addressResponseSourceListContainerFormat: Format[AddressResponseSourceListContainer] =
+    Json.format[AddressResponseSourceListContainer]
+}
+
+
+object AddressResponseSource {
+  implicit lazy val addressResponseSourceFormat: Format[AddressResponseSource] = Json.format[AddressResponseSource]
+
+}
+/**
+  * Source object for list
+  *
+  * @param code Source code
+  * @param label Source name
+  */
+case class AddressResponseSource(
+  code: String,
+  label: String
+)
+
+
+/**
+  * Container for logical status list
+  *
+  * @param logicalStatuses  sequence of logical statuses
+  */
+case class AddressResponseLogicalStatusListContainer(
+  logicalStatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
+)
+
+object AddressResponseLogicalStatusListContainer {
+  implicit lazy val addressResponseLogicalStatusListContainerFormat: Format[AddressResponseLogicalStatusListContainer] =
+    Json.format[AddressResponseLogicalStatusListContainer]
+}
+
+object AddressResponseLogicalStatus {
+  implicit lazy val addressResponseLogicalStatusFormat: Format[AddressResponseLogicalStatus] = Json.format[AddressResponseLogicalStatus]
+
+}
+
+/**
+  * Logical Status object for list
+  *
+  * @param code Logical Status code
+  * @param label Logical Status name
+  */
+case class AddressResponseLogicalStatus(
+  code: String,
+  label: String
+)
+
+/**
+  * Container for custodians list
+  *
+  * @param classifications  sequence of custodians
+  */
+case class AddressResponseCustodianListContainer(
+  custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian]
+)
+
+object AddressResponseCustodianListContainer {
+  implicit lazy val addressResponseCustodianListContainerFormat: Format[AddressResponseCustodianListContainer] =
+    Json.format[AddressResponseCustodianListContainer]
+}
+
+object AddressResponseCustodian {
+  implicit lazy val addressResponseCustodianFormat: Format[AddressResponseCustodian] = Json.format[AddressResponseCustodian]
+
+}
+
+/**
+  * Custodian object for list
+  *
+  * @param custCode AddressBase custodian code
+  * @param custName AddressBase custodian name
+  * @param laName   Local Authority name (can be slightly different to custodian Name)
+  * @param regCode  Standard geographic code for region
+  * @param regName  Region (or country for Welsh) name
+  * @param laCode  Standard geographic code for local authority
+  */
+case class AddressResponseCustodian(
+  custCode: String,
+  custName: String,
+  laName: String,
+  regCode: String,
+  regName: String,
+  laCode: String
+)
+
+
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
 

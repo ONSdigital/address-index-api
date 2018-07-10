@@ -14,6 +14,7 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
@@ -40,25 +41,88 @@ class AddressController @Inject()(
   val valid: String = "valid"
   val notRequired: String = "not required"
 
-  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+
+  /**
+    * Codelist List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
+  def codeList(): Action[AnyContent] = Action async { implicit req =>
+    val codList = Tokens.codeList.map{clval =>
+      new AddressResponseCodelist(name=clval.split("=").headOption.getOrElse(""),
+        description=clval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val codeListContainer = new AddressResponseCodelistListContainer(codList)
+    Future(Ok(Json.toJson(codeListContainer)))
   }
 
+  /**
+    * Classification List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+    val classList = Tokens.classList.map{classval =>
+      new AddressResponseClassification(code=classval.split("=").headOption.getOrElse(""),
+      label=classval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val codListContainer = new AddressResponseClassificationListContainer(classList)
+    Future(Ok(Json.toJson(codListContainer)))
   }
 
+  /**
+    * Custodian List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+    val custList = Tokens.custodianList.map{custval =>
+      new AddressResponseCustodian(
+        custval.split(",").lift(0).getOrElse(""),
+        custval.split(",").lift(1).getOrElse(""),
+        custval.split(",").lift(2).getOrElse(""),
+        custval.split(",").lift(3).getOrElse(""),
+        custval.split(",").lift(4).getOrElse(""),
+        custval.split(",").lift(5).getOrElse("")
+      )
+    }.toSeq
+    val custListContainer = new AddressResponseCustodianListContainer(custList)
+    Future(Ok(Json.toJson(custListContainer)))
   }
 
-  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
-    val message = "{\"message\":\"codelist functions only available via the API gateway\"}"
-    Future(Ok(message))
+  /**
+    * Classification List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
+  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
+    val sourceList = Tokens.sourceList.map{sourceval =>
+      new AddressResponseSource(sourceval.split("=").headOption.getOrElse(""),
+        sourceval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val sourceListContainer = new AddressResponseSourceListContainer(sourceList)
+    Future(Ok(Json.toJson(sourceListContainer)))
   }
+
+  /**
+    * Classification List API
+    *
+    * @param none
+    * @return Json response with codelist
+    */
+  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
+    val logicalList = Tokens.logicalStatusList.map{logstatval =>
+      new AddressResponseLogicalStatus(logstatval.split("=").headOption.getOrElse(""),
+        logstatval.split("=").lastOption.getOrElse(""))
+    }.toSeq
+    val logicalListContainer = new AddressResponseLogicalStatusListContainer(logicalList)
+    Future(Ok(Json.toJson(logicalListContainer)))
+  }
+
 
   /**
     * Address query API

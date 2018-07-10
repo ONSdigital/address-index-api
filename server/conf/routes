@@ -32,34 +32,58 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
-#  summary: Return a list of available external source codes
+#  summary: Return a list of codelists supported by the API
+#  description: Discovery call which names the available codelists for further calls
 #  responses:
 #    200:
-#      description: list of valid source codes and names (e.g. council tax)
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCodelistListContainer"
+###
+GET     /codelists             uk.gov.ons.addressIndex.server.controllers.AddressController.codeList()
+
+
+###
+#  summary: Return a list of available external source codes
+#  description: list of valid source codes and names (e.g. council tax)
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseSourceListContainer"
 ###
 GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codeListSource()
 
 ###
 #  summary: Return a list of available classification codes
+#  description: list of classifications e.g. RD01=Detached House
 #  responses:
 #    200:
-#      description: list of classifications e.g. RD01=Detached House
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseClassificationListContainer"
 ###
 GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codeListClassification()
 
 ###
 #  summary: Return a list of available local custodian codes
+#  description: list of addressbase custodian codes to LA matches
 #  responses:
 #    200:
-#      description: list of addressbase custodian codes to LA matches
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCustodianListContainer"
 ###
 GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codeListCustodian()
 
 ###
 #  summary: Return a list of available logical status values
+#  description: list of valid statuses e.g. 8=historical
 #  responses:
 #    200:
-#      description: list of valid statuses e.g. 8=historical
+#      description: success
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseLogicalStatusListContainer"
 ###
 GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codeListLogicalStatus()
 
