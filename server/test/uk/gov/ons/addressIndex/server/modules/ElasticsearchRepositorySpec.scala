@@ -108,7 +108,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridNagNorthing = 3f
   val hybridNagEasting = 4f
   val hybridNagCustCode = "1110"
-  val hybridNagCustName = "EXETER"
+  val hybridNagCustName = "Exeter"
   val hybridNagCustGeogCode = "E07000041"
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
@@ -157,7 +157,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondaryHybridNagLongitude = 8.0000000f
   val secondaryHybridNagNorthing = 10f
   val secondaryHybridNagEasting = 11f
-  val secondardyHybridNagLocalCustodianName = "EXETER"
+  val secondardyHybridNagLocalCustodianName = "Exeter"
   val secondardyHybridNagLocalCustodianCode = "1110"
 
   val firstHybridPafEs = Map(
