@@ -26,9 +26,9 @@ class RelativesExpanderTest extends FlatSpec with Matchers with ScalaFutures {
     val rels = Seq(rel1,rel2)
 
     // Given
-    val esib1 = new ExpandedSibling(1,"7, Gate Reach, Exeter, EX2 9GA")
-    val esib2 = new ExpandedSibling(2,"7, Gate Reach, Exeter, EX2 9GA")
-    val esib3 = new ExpandedSibling(3,"7, Gate Reach, Exeter, EX2 9GA")
+    val esib1 = new ExpandedSibling(1,"7, GATE REACH, EXETER, EX2 9GA")
+    val esib2 = new ExpandedSibling(2,"7, GATE REACH, EXETER, EX2 9GA")
+    val esib3 = new ExpandedSibling(3,"7, GATE REACH, EXETER, EX2 9GA")
     val ex1 = new ExpandedRelative(1,Seq(esib1))
     val ex2 = new ExpandedRelative(2,Seq(esib2,esib3))
     val expectedSeq = Seq(ex1,ex2)
