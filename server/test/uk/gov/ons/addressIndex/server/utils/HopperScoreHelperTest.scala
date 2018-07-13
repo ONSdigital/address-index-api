@@ -536,7 +536,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = mockAddressResponseAddressWithScores
 
     // When
-    val actual = HopperScoreHelper.addScoresToAddress(mockAddressResponseAddress,mockAddressTokens,mockLocalityParams,1D)
+    val actual = HopperScoreHelper.addScoresToAddress(0,mockAddressResponseAddress,mockAddressTokens,mockLocalityParams,1D)
 
     // Then
     actual shouldBe expected
