@@ -29,7 +29,8 @@ class RelativesExpander @Inject ()(
 
   private def getFutExpandedSibling(apiKey: String, uprn: Long): Future[ExpandedSibling] =
     getFutAddressByUprn(apiKey, uprn).map {
-      (toMixedCase _).andThen(toExpandedSibling(uprn))
+      // withUnchangedCase to use case settings from API, toMixedCase to override
+      (withUnchangedCase _).andThen(toExpandedSibling(uprn))
     }
 
   private def getFutAddressByUprn(apiKey: String, uprn: Long): Future[AddressByUprnResponseContainer] = {
@@ -51,6 +52,11 @@ class RelativesExpander @Inject ()(
   private def toMixedCase(container: AddressByUprnResponseContainer): Option[String] =
     container.response.address.map { ara =>
       addressToMixedCase(ara.formattedAddress)
+    }
+
+  private def withUnchangedCase(container: AddressByUprnResponseContainer): Option[String] =
+    container.response.address.map { ara =>
+      ara.formattedAddress
     }
 
   private [utils] def addressToMixedCase(ucAddress: String): String = {
