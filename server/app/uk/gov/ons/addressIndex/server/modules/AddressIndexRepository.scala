@@ -157,13 +157,13 @@ class AddressIndexRepository @Inject()(
 
     val query =
       if (filters.isEmpty) {
-        must(matchQuery("lpi.nagAll.typeahead", input)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+        must(matchQuery("lpi.nagAll.typeahead", input).fuzziness("0")).filter(not(termQuery("lpi.addressBasePostal", "N")))
       }else {
         if (filterType == "prefix") {
-          must(matchQuery("lpi.nagAll.typeahead", input)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          must(matchQuery("lpi.nagAll.typeahead", input).fuzziness("0")).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
         }
         else {
-          must(matchQuery("lpi.nagAll.typeahead", input)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          must(matchQuery("lpi.nagAll.typeahead", input).fuzziness("0")).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
         }
       }
 
