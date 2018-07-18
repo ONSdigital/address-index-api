@@ -6,6 +6,7 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.FieldSortDefinition
@@ -131,6 +132,10 @@ class AddressIndexRepository @Inject()(
 
     logger.trace(request.toString)
 
+//    val reqString = SearchBodyBuilderFn(request).string()
+//
+//    logger.info(reqString)
+
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
@@ -157,13 +162,13 @@ class AddressIndexRepository @Inject()(
 
     val query =
       if (filters.isEmpty) {
-        must(matchQuery("lpi.nagAll.typeahead", input).fuzziness("0")).filter(not(termQuery("lpi.addressBasePostal", "N")))
+        must(matchQuery("lpi.nagAll.typeahead", input).operator("AND").fuzziness("0")).filter(not(termQuery("lpi.addressBasePostal", "N")))
       }else {
         if (filterType == "prefix") {
-          must(matchQuery("lpi.nagAll.typeahead", input).fuzziness("0")).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          must(matchQuery("lpi.nagAll.typeahead", input).operator("AND").fuzziness("0")).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
         }
         else {
-          must(matchQuery("lpi.nagAll.typeahead", input).fuzziness("0")).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          must(matchQuery("lpi.nagAll.typeahead", input).operator("AND").fuzziness("0")).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
         }
       }
 
