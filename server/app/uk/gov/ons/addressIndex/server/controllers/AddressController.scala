@@ -1,30 +1,22 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import akka.pattern.CircuitBreaker
-import javax.inject.Inject
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.BulkBody
-import uk.gov.ons.addressIndex.model.BulkBodyDebug
+import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
-import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
-import uk.gov.ons.addressIndex.model.db.BulkAddresses
-import uk.gov.ons.addressIndex.model.db.index.HybridAddress
-import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
+import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules._
-import uk.gov.ons.addressIndex.server.utils.ConfidenceScoreHelper
-import uk.gov.ons.addressIndex.server.utils.HopperScoreHelper
-import uk.gov.ons.addressIndex.server.utils.Overload
-import uk.gov.ons.addressIndex.server.utils.Splunk
+import uk.gov.ons.addressIndex.server.utils.ProtectorStatus
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Overload, Splunk}
 
 import scala.annotation.tailrec
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.math._
@@ -42,8 +34,6 @@ class AddressController @Inject()(
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 
   val logger = Logger("address-index-server:AddressController")
-
-  val breaker: CircuitBreaker = overloadProtection.breaker
 
   override val apiVersion: String = versionProvider.apiVersion
   override val dataVersion: String = versionProvider.dataVersion
@@ -294,7 +284,8 @@ class AddressController @Inject()(
       val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
 
       val request: Future[HybridAddresses] =
-        breaker.withCircuitBreaker(esRepo.queryAddresses(tokens, 0, limitExpanded, filterString,
+
+        overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(tokens, 0, limitExpanded, filterString,
           rangeVal, latVal, lonVal, None, hist))
 
 
@@ -348,21 +339,23 @@ class AddressController @Inject()(
       }.recover {
         case NonFatal(exception) =>
 
-          if (breaker.isHalfOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
-          } else if (breaker.isOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
-          } else {
-            // Circuit Breaker is closed. Some other problem
-            writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
-
-            logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-            InternalServerError(Json.toJson(FailedRequestToEs))
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen => {
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            }
+            case ProtectorStatus.Open => {
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            }
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+              logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEs))
           }
-      }
 
+      }
     }
   }
 
@@ -418,7 +411,7 @@ class AddressController @Inject()(
       futureJsonBadRequest(UprnNotNumeric)
     } else {
 
-      val request: Future[Option[HybridAddress]] = breaker.withCircuitBreaker(esRepo.queryUprn(uprn, hist))
+      val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(esRepo.queryUprn(uprn, hist))
 
       request.map {
         case Some(hybridAddress) =>
@@ -445,19 +438,20 @@ class AddressController @Inject()(
       }.recover {
         case NonFatal(exception) =>
 
-          if (breaker.isHalfOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
-          } else if (breaker.isOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
-          } else {
-            // Circuit Breaker is closed. Some other problem
-            writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
-
-            logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-            InternalServerError(Json.toJson(FailedRequestToEs))
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case ProtectorStatus.Open =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+              logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEs))
           }
+
       }
     }
   }
@@ -549,7 +543,7 @@ class AddressController @Inject()(
       val tokens = parser.parse(input)
 
       val request: Future[HybridAddresses] =
-        breaker.withCircuitBreaker(esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, None, hist))
+        overloadProtection.breaker.withCircuitBreaker(esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, None, hist))
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -585,19 +579,21 @@ class AddressController @Inject()(
       }.recover {
         case NonFatal(exception) =>
 
-          if (breaker.isHalfOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(Json.toJson(FailedRequestToEsTooBusy)))
-          } else if (breaker.isOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(Json.toJson(FailedRequestToEsTooBusy)))
-          } else {
-            // Circuit Breaker is closed. Some other problem
-            writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
-
-            logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-            InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case ProtectorStatus.Open =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+              logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
           }
+
+
       }
     }
   }
@@ -694,7 +690,7 @@ class AddressController @Inject()(
       //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
       val request: Future[HybridAddresses] =
-        breaker.withCircuitBreaker(esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, None, hist))
+        overloadProtection.breaker.withCircuitBreaker(esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, None, hist))
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -730,18 +726,20 @@ class AddressController @Inject()(
       }.recover {
         case NonFatal(exception) =>
 
-          if (breaker.isHalfOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
-          } else if (breaker.isOpen) {
-            logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-            TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
-          } else {
-            // Circuit Breaker is closed. Some other problem
-            writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
-            logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
-            InternalServerError(Json.toJson(FailedRequestToEsPostcode))
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case ProtectorStatus.Open =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+              logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPostcode))
           }
+
       }
     }
   }

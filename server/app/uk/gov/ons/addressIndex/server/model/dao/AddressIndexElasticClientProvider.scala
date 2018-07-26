@@ -7,8 +7,7 @@ import javax.net.ssl.{SSLContext, X509TrustManager}
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
-import org.apache.http.auth.AuthScope
-import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.elasticsearch.client.RestClientBuilder._
 import org.apache.http.impl.nio.client._
 import org.apache.http.client.config.RequestConfig.Builder

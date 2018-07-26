@@ -13,7 +13,6 @@ import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, Bu
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.HopperScoreHelper
-import uk.gov.ons.addressIndex.server.utils.Overload
 import uk.gov.ons.addressIndex.server.utils.impl.OverloadProtector
 
 import scala.concurrent.ExecutionContext.Implicits.global
