@@ -23,7 +23,7 @@ class OverloadProtector @Inject()(conf: ConfigModule)(implicit ec: ExecutionCont
   private val circuitBreakerCallTimeout: Int = esConf.circuitBreakerCallTimeout
   private val circuitBreakerResetTimeout: Int = esConf.circuitBreakerResetTimeout
 
-  private var status: ProtectorStatus = ProtectorStatus.Closed
+  private var status: ProtectorStatus = ProtectorStatus.Closed // scalastyle:ignore
 
   override def currentStatus: ProtectorStatus = {
     status
