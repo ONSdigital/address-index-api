@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import akka.pattern.CircuitBreaker
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json
@@ -12,8 +11,7 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules._
-import uk.gov.ons.addressIndex.server.utils.ProtectorStatus
-import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Overload, Splunk}
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Overload, Splunk, ProtectorStatus}
 
 import scala.annotation.tailrec
 import scala.concurrent.{Await, ExecutionContext, Future}

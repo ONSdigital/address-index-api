@@ -5,8 +5,7 @@ import akka.pattern.CircuitBreaker
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import uk.gov.ons.addressIndex.server.modules.ConfigModule
-import uk.gov.ons.addressIndex.server.utils.Overload
-import uk.gov.ons.addressIndex.server.utils.ProtectorStatus
+import uk.gov.ons.addressIndex.server.utils.{Overload, ProtectorStatus}
 import uk.gov.ons.addressIndex.server.utils.ProtectorStatus.ProtectorStatus
 
 import scala.concurrent.ExecutionContext
@@ -24,7 +23,11 @@ class OverloadProtector @Inject()(conf: ConfigModule)(implicit ec: ExecutionCont
   private val circuitBreakerCallTimeout: Int = esConf.circuitBreakerCallTimeout
   private val circuitBreakerResetTimeout: Int = esConf.circuitBreakerResetTimeout
 
-  var currentStatus: ProtectorStatus = ProtectorStatus.Closed
+  private var status: ProtectorStatus = ProtectorStatus.Closed
+
+  override def currentStatus: ProtectorStatus = {
+    status
+  }
 
   override def breaker: CircuitBreaker = {
     new CircuitBreaker(
@@ -34,15 +37,15 @@ class OverloadProtector @Inject()(conf: ConfigModule)(implicit ec: ExecutionCont
       resetTimeout = circuitBreakerResetTimeout milliseconds)
       .onOpen({
         logger.warn("Circuit breaker is now open")
-        currentStatus = ProtectorStatus.Open
+        status = ProtectorStatus.Open
       })
       .onClose({
         logger.warn("circuit breaker is now closed")
-        currentStatus = ProtectorStatus.Closed
+        status = ProtectorStatus.Closed
       })
       .onHalfOpen({
         logger.warn("Circuit breaker is now half-open")
-        currentStatus = ProtectorStatus.HalfOpen
+        status = ProtectorStatus.HalfOpen
       })
   }
 }
