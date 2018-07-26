@@ -237,6 +237,16 @@ trait AddressIndexCannedResponse {
     )
   }
 
+  def FailedRequestToEsTooBusy: AddressBySearchResponseContainer = {
+    AddressBySearchResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = Error,
+      status = TooManyRequestsResponseStatus,
+      errors = Seq(FailedRequestToEsError)
+    )
+  }
+
   def Error: AddressBySearchResponse = {
     AddressBySearchResponse(
       Map.empty,
@@ -261,6 +271,16 @@ trait AddressIndexCannedResponse {
       dataVersion = dataVersion,
       response = ErrorPostcode,
       status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(FailedRequestToEsPostcodeError)
+    )
+  }
+
+  def FailedRequestToEsTooBusyPostCode: AddressByPostcodeResponseContainer = {
+    AddressByPostcodeResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPostcode,
+      status = TooManyRequestsResponseStatus,
       errors = Seq(FailedRequestToEsPostcodeError)
     )
   }
