@@ -1,26 +1,26 @@
 package uk.gov.ons.addressIndex.server.controllers
 
+import java.text.SimpleDateFormat
 import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.duration._
 import play.api.Logger
-import play.api.mvc._
-
-import scala.concurrent.{Await, ExecutionContext, Future}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
 import play.api.libs.json.Json
-import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
+import play.api.mvc._
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
-import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
-import uk.gov.ons.addressIndex.server.modules._
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
+import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Splunk}
 
 import scala.annotation.tailrec
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.math._
 import scala.util.Try
 import scala.util.control.NonFatal
-import scala.math._
 
 @Singleton
 class AddressController @Inject()(
@@ -40,12 +40,12 @@ class AddressController @Inject()(
   val invalid: String = "invalid"
   val valid: String = "valid"
   val notRequired: String = "not required"
+  val DATE_FORMAT = "yyyy-MM-dd"
 
 
   /**
     * Codelist List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeList(): Action[AnyContent] = Action async { implicit req =>
@@ -60,7 +60,6 @@ class AddressController @Inject()(
   /**
     * Classification List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
@@ -75,7 +74,6 @@ class AddressController @Inject()(
   /**
     * Custodian List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
@@ -94,9 +92,8 @@ class AddressController @Inject()(
   }
 
   /**
-    * Classification List API
+    * Source List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListSource(): Action[AnyContent] = Action async { implicit req =>
@@ -109,9 +106,8 @@ class AddressController @Inject()(
   }
 
   /**
-    * Classification List API
+    * Logical Status List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
@@ -130,7 +126,7 @@ class AddressController @Inject()(
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def addressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -168,6 +164,11 @@ class AddressController @Inject()(
     val latInvalid = if (rangeVal.equals("")) false else Try(latVal.toDouble).isFailure
     val lonInvalid = if (rangeVal.equals("")) false else Try(lonVal.toDouble).isFailure
 
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+
     val latTooFarNorth = if (rangeVal.equals("")) false else {
       (Try(latVal.toDouble).getOrElse(50D) > 60.9)
     }
@@ -186,7 +187,7 @@ class AddressController @Inject()(
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isInput = true, input = input, offset = offval, limit = limval, filter = filterString, historical = hist,
-        rangekm = rangeVal, lat = latVal, lon = lonVal,
+        rangekm = rangeVal, lat = latVal, lon = lonVal, startDate = startDateVal, endDate = endDateVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
     }
@@ -263,6 +264,12 @@ class AddressController @Inject()(
     } else if (lonTooFarWest) {
       writeSplunkLogs(badRequestErrorMessage = LongitudeTooFarWestAddressResponseError.message)
       futureJsonBadRequest(LongitudeTooFarWest)
+    } else if (startDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
+      futureJsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
+      futureJsonBadRequest(EndDateInvalid)
     } else {
       val tokens = parser.parse(input)
 
@@ -271,7 +278,7 @@ class AddressController @Inject()(
       // try to get enough results to accurately calcuate the hybrid score (may need to be more sophisticated)
       val minimumSample = conf.config.elasticSearch.minimumSample
       val limitExpanded = max(offsetInt + (limitInt * 2),minimumSample)
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, None, hist)
+      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist)
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -308,6 +315,8 @@ class AddressController @Inject()(
               rangekm = rangeVal,
               latitude = latVal,
               longitude = lonVal,
+              startDate = startDateVal,
+              endDate = endDateVal,
               limit = limitInt,
               offset = offsetInt,
               total = newTotal,
@@ -337,7 +346,7 @@ class AddressController @Inject()(
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
    // logger.info(s"#uprnQuery: uprn: $uprn")
 
     // check API key
@@ -355,13 +364,18 @@ class AddressController @Inject()(
       case None => true
     }
 
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+
     val startingTime = System.currentTimeMillis()
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         isUprn = true, uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
+        numOfResults = numOfResults, score = score, networkid = networkid, startDate = startDateVal, endDate = endDateVal, historical = hist)
     }
 
     if (sourceStatus == missing) {
@@ -379,8 +393,14 @@ class AddressController @Inject()(
     } else if (uprnInvalid) {
       writeSplunkLogs(badRequestErrorMessage = UprnNotNumericAddressResponseError.message)
       futureJsonBadRequest(UprnNotNumeric)
+    } else if (startDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
+      futureJsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
+      futureJsonBadRequest(EndDateInvalid)
     } else {
-      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn, hist)
+      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn, startDateVal, endDateVal, hist)
       request.map {
         case Some(hybridAddress) =>
 
@@ -393,7 +413,9 @@ class AddressController @Inject()(
               apiVersion = apiVersion,
               dataVersion = dataVersion,
               response = AddressByUprnResponse(
-                address = Some(address)
+                address = Some(address),
+                startDate = startDateVal,
+                endDate = endDateVal
               ),
               status = OkAddressResponseStatus
             )
@@ -421,7 +443,7 @@ class AddressController @Inject()(
     * @param input input for the address to be fetched
     * @return Json response with addresses information
     */
-  def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, startDate: Option[String], endDate: Option[String], historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     // check API key
@@ -444,6 +466,11 @@ class AddressController @Inject()(
 
     val filterString = classificationfilter.getOrElse("")
 
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
@@ -455,7 +482,7 @@ class AddressController @Inject()(
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isPartial = true, partialAddress = input, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
+        numOfResults = numOfResults, score = score, networkid = networkid, startDate = startDateVal, endDate = endDateVal, historical = hist)
     }
 
     val limitInvalid = Try(limval.toInt).isFailure
@@ -497,10 +524,16 @@ class AddressController @Inject()(
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
+    } else if (startDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
+      futureJsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
+      futureJsonBadRequest(EndDateInvalid)
     } else {
       val tokens = parser.parse(input)
 
-      val request: Future[HybridAddresses] = esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, None, hist)
+      val request: Future[HybridAddresses] = esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -527,7 +560,9 @@ class AddressController @Inject()(
                 limit = limitInt,
                 offset = offsetInt,
                 total = total,
-                maxScore = maxScore
+                maxScore = maxScore,
+                startDate = startDateVal,
+                endDate = endDateVal
               ),
               status = OkAddressResponseStatus
             )
@@ -551,7 +586,7 @@ class AddressController @Inject()(
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     // logger.info(s"#addressQuery:\ninput $input, offset: ${offset.getOrElse("default")}, limit: ${limit.getOrElse("default")}")
     val startingTime = System.currentTimeMillis()
 
@@ -575,6 +610,11 @@ class AddressController @Inject()(
 
     val filterString = classificationfilter.getOrElse("")
 
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
@@ -586,7 +626,7 @@ class AddressController @Inject()(
       Splunk.log(IP = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isPostcode = true, postcode = postcode, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, historical = hist)
+        numOfResults = numOfResults, score = score, networkid = networkid, startDate = startDateVal, endDate = endDateVal, historical = hist)
     }
 
     val limitInvalid = Try(limval.toInt).isFailure
@@ -631,12 +671,18 @@ class AddressController @Inject()(
     } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidPostcodeError.message)
       futureJsonBadRequest(FilterInvalidPostcode)
+    } else if (startDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
+      futureJsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
+      futureJsonBadRequest(EndDateInvalid)
     } else {
       val tokens = parser.parse(postcode)
 
       //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, None, hist)
+      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -663,7 +709,9 @@ class AddressController @Inject()(
               limit = limitInt,
               offset = offsetInt,
               total = total,
-              maxScore = maxScore
+              maxScore = maxScore,
+              startDate = startDateVal,
+              endDate = endDateVal
             ),
             status = OkAddressResponseStatus
           )
@@ -686,7 +734,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[String], startDate: Option[String], endDate: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -700,6 +748,11 @@ class AddressController @Inject()(
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
     }
+
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.bulk.limitperaddress
@@ -741,12 +794,18 @@ class AddressController @Inject()(
     } else if (thresholdNotInRange) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
       jsonBadRequest(ThresholdNotInRange)
+    } else if (startDateInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = StartDateInvalidResponseError.message)
+      jsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = EndDateInvalidResponseError.message)
+      jsonBadRequest(EndDateInvalid)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, hist, thresholdFloat)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, startDateVal, endDateVal, hist, thresholdFloat)
     }
   }
 
@@ -759,7 +818,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitperaddress: Option[String], startDate: Option[String], endDate: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -774,6 +833,11 @@ class AddressController @Inject()(
       case None => true
     }
 
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+
     val defLimit = conf.config.bulk.limitperaddress
     val maxLimit = conf.config.bulk.maxLimitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -814,12 +878,18 @@ class AddressController @Inject()(
     } else if (thresholdNotInRange) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
       jsonBadRequest(ThresholdNotInRange)
+    } else if (startDateInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = StartDateInvalidResponseError.message)
+      jsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = EndDateInvalidResponseError.message)
+      jsonBadRequest(EndDateInvalid)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
 
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = true, hist, thresholdFloat)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = true, startDateVal, endDateVal, hist, thresholdFloat)
     }
   }
 
@@ -827,7 +897,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitperaddress: Option[String], startDate: Option[String], endDate: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -841,6 +911,12 @@ class AddressController @Inject()(
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
     }
+
+    val startDateVal = startDate.getOrElse("")
+    val endDateVal = endDate.getOrElse("")
+    val startDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+
     val defLimit = conf.config.bulk.limitperaddress
     val maxLimit = conf.config.bulk.maxLimitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -881,13 +957,19 @@ class AddressController @Inject()(
     } else if (thresholdNotInRange) {
       Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
       jsonBadRequest(ThresholdNotInRange)
+    } else if (startDateInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = StartDateInvalidResponseError.message)
+      jsonBadRequest(StartDateInvalid)
+    } else if (endDateInvalid) {
+      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = EndDateInvalidResponseError.message)
+      jsonBadRequest(EndDateInvalid)
     } else {
       val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
         row => BulkAddressRequestData(row.id, row.tokens.values.mkString(" "), row.tokens)
       }
       val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
-      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, hist, thresholdFloat)
+      bulkQuery(requestsData, configOverwrite, Some(limitInt), false, startDateVal, endDateVal, hist, thresholdFloat)
     }
   }
 
@@ -897,6 +979,7 @@ class AddressController @Inject()(
     configOverwrite: Option[QueryParamsConfig],
     limitperaddress: Option[Int],
     includeFullAddress: Boolean = false,
+    startDate: String, endDate: String,
     historical: Boolean,
     matchThreshold: Float
   )(implicit request: Request[_]): Result = {
@@ -907,7 +990,7 @@ class AddressController @Inject()(
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
     val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(resultLimit), configOverwrite, historical, matchThreshold, includeFullAddress)
+    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(requestData, defaultBatchSize, Some(resultLimit), configOverwrite, startDate, endDate, historical, matchThreshold, includeFullAddress)
 
     logger.info(s"#bulkQuery processed")
 
@@ -955,6 +1038,8 @@ class AddressController @Inject()(
     miniBatchSize: Int,
     limitperaddress: Option[Int] = None,
     configOverwrite: Option[QueryParamsConfig] = None,
+    startDate: String,
+    endDate: String,
     historical: Boolean,
     matchThreshold: Float,
     includeFullAddress: Boolean = false,
@@ -974,7 +1059,7 @@ class AddressController @Inject()(
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
     val addressesPerAddress = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, historical, matchThreshold, includeFullAddress), Duration.Inf)
+    val result: BulkAddresses = Await.result(queryBulkAddresses(miniBatch, addressesPerAddress, configOverwrite, startDate, endDate, historical, matchThreshold, includeFullAddress), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -994,7 +1079,7 @@ class AddressController @Inject()(
 
       val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
 
-      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitperaddress, configOverwrite, historical, matchThreshold, includeFullAddress, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
+      iterateOverRequestsWithBackPressure(requestsLeft, newMiniBatchSize, limitperaddress, configOverwrite, startDate, endDate, historical, matchThreshold, includeFullAddress, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses)
     }
   }
 
@@ -1010,12 +1095,14 @@ class AddressController @Inject()(
     inputs: Stream[BulkAddressRequestData],
     limitperaddress: Int,
     configOverwrite: Option[QueryParamsConfig] = None,
+    startDate: String,
+    endDate: String,
     historical: Boolean,
     matchThreshold: Float,
     includeFullAddress: Boolean = false
   ): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(inputs, limitperaddress, configOverwrite, historical, matchThreshold, includeFullAddress)
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(inputs, limitperaddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress)
 
     val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
 

@@ -12,7 +12,9 @@ trait AddressIndexCannedResponse {
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
-        address = optAddresses
+        address = optAddresses,
+        startDate = "",
+        endDate = ""
       ),
       status = OkAddressResponseStatus
     )
@@ -23,7 +25,9 @@ trait AddressIndexCannedResponse {
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
-        address = None
+        address = None,
+        startDate = "",
+        endDate = ""
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -35,7 +39,9 @@ trait AddressIndexCannedResponse {
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
-        address = None
+        address = None,
+        startDate = "",
+        endDate = ""
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
@@ -54,7 +60,9 @@ trait AddressIndexCannedResponse {
         limit = 10,
         offset = 0,
         total = 0,
-        maxScore = 0f
+        maxScore = 0f,
+        startDate = "",
+        endDate = ""
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -76,7 +84,9 @@ trait AddressIndexCannedResponse {
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
-        address = None
+        address = None,
+        startDate = "",
+        endDate = ""
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
@@ -227,6 +237,14 @@ trait AddressIndexCannedResponse {
     BadRequestTemplate(ThresholdNotInRangeAddressResponseError)
   }
 
+  def StartDateInvalid: AddressBySearchResponseContainer = {
+    BadRequestTemplate(StartDateInvalidResponseError)
+  }
+
+  def EndDateInvalid: AddressBySearchResponseContainer = {
+    BadRequestTemplate(EndDateInvalidResponseError)
+  }
+
   def FailedRequestToEs: AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -246,6 +264,8 @@ trait AddressIndexCannedResponse {
       rangekm = "",
       latitude = "",
       longitude = "",
+      startDate = "",
+      endDate = "",
       limit = 10,
       offset = 0,
       total = 0,
@@ -274,7 +294,9 @@ trait AddressIndexCannedResponse {
       limit = 10,
       offset = 0,
       total = 0,
-      maxScore = 0f
+      maxScore = 0f,
+      startDate = "",
+      endDate = ""
     )
   }
 
@@ -297,7 +319,9 @@ trait AddressIndexCannedResponse {
       limit = 10,
       offset = 0,
       total = 0,
-      maxScore = 0f
+      maxScore = 0f,
+      startDate = "",
+      endDate = ""
     )
   }
 

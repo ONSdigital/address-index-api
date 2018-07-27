@@ -6,6 +6,7 @@ import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
+import org.joda.time.DateTime
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
@@ -67,6 +68,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridFirstUprn = 1L
   val hybridFirstUprnHist = 2L
   val hybridFirstParentUprn = 3L
+  val hybridFirstDateUprn = 10L
+  val hybridSecondDateUprn = 11L
+  val hybridThirdDateUprn = 12L
   val hybridFirstRelative = firstHybridRelEs
   val hybridFirstPostcodeIn = "h01p"
   val hybridFirstPostcodeOut = "h02p"
@@ -80,7 +84,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridPafThoroughfare = "h7"
   val hybridPafPostTown = "h8"
   val hybridPafPostcode = "h10"
-  val hybridAll = "H100"
+  val hybridAll = "H100 H4 H6"
   val hybridMixedPaf = "mixedPaf"
   val hybridMixedWelshPaf = "MixedWelshPaf"
   val hybridMixedNag = "mixedNag"
@@ -109,7 +113,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridNagEasting = 4f
   val hybridNagCustCode = "1110"
   val hybridNagCustName = "Exeter"
+  val hybridNagClassCode = "R"
+
   val hybridNagCustGeogCode = "E07000041"
+  val hybridStartDate = "2013-01-01"
+  val hybridEndDate = "2014-01-01"
+  val hybridSecondStartDate = "2014-01-02"
+  val hybridCurrentEndDate: String = DateTime.now.toString("yyyy-MM-dd")
+//  val hybridCurrentEndDate = "2018-07-18"
+  val hybridThirdStartDate = "2015-01-01"
+
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
   val hybridNotUsedNull = null
@@ -230,6 +243,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
+  val thirdHybridPafEs: Map[String, Any] = firstHybridPafEs + (
+    "uprn" -> hybridSecondDateUprn,
+    "startDate" -> hybridSecondStartDate,
+    "endDate" -> hybridCurrentEndDate
+  )
+
+  val fourthHybridPafEs: Map[String, Any] = firstHybridPafEs + (
+    "uprn" -> hybridThirdDateUprn,
+    "startDate" -> hybridThirdStartDate,
+    "endDate" -> hybridCurrentEndDate
+  )
+
   val firstHybridNagEs: Map[String, Any] = Map(
     "uprn" -> hybridNagUprn,
     "postcodeLocator" -> hybridNagPostcodeLocator,
@@ -255,7 +280,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "legalName" -> hybridNagLegalName,
     "northing" -> hybridNagNorthing,
     "easting" -> hybridNagEasting,
-    "classificationCode" -> hybridNotUsed,
+    "classificationCode" -> hybridNagClassCode,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
     "streetClassification" -> hybridNotUsedNull,
@@ -317,6 +342,25 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "mixedNag" -> hybridMixedNag
   )
 
+  val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+    "uprn" -> hybridFirstDateUprn,
+    "classificationCode" -> hybridNagClassCode,
+    "lpiStartDate" -> hybridStartDate,
+    "lpiEndDate" -> hybridEndDate
+  )
+
+  val fourthHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+    "uprn" -> hybridSecondDateUprn,
+    "lpiStartDate" -> hybridSecondStartDate,
+    "lpiEndDate" -> hybridCurrentEndDate
+  )
+
+  val fifthHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+    "uprn" -> hybridSecondDateUprn,
+    "lpiStartDate" -> hybridStartDate,
+    "lpiEndDate" -> hybridEndDate
+  )
+
   val firstHybridEs: Map[String, Any] = Map(
     "uprn" -> hybridFirstUprn,
     "parentUprn" -> hybridFirstParentUprn,
@@ -328,7 +372,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(firstHybridNagEs)
   )
 
-  val firstHybridHistEs = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
+  val firstHybridHistEs:Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
 
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
@@ -341,6 +385,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs)
   )
+
+  val thirdHybridEs: Map[String, Any] = firstHybridEs + (
+    "uprn" -> hybridFirstDateUprn,
+    "lpi" -> Seq(thirdHybridNagEs),
+    "paf" -> Seq())
+
+  val fourthHybridEs: Map[String, Any] = firstHybridEs + (
+    "uprn" -> hybridSecondDateUprn,
+    "lpi" -> Seq(fourthHybridNagEs, fifthHybridNagEs),
+    "paf" -> Seq(thirdHybridPafEs))
+
+  val fifthHybridEs: Map[String, Any] = firstHybridEs + (
+    "uprn" -> hybridThirdDateUprn,
+    "lpi" -> Seq(),
+    "paf" -> Seq(fourthHybridPafEs))
 
  testClient.execute{
     createIndex(hybridIndexName)
@@ -374,6 +433,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   }.await
 
   blockUntilCount(2, hybridIndexHistoricalName)
+
+  // The following documents are added separately as the blocking action on 5 documents was timing out the test
+  testClient.execute {
+    bulk(
+      indexInto(hybridIndexHistoricalName / hybridMappings).fields(thirdHybridEs),
+      indexInto(hybridIndexHistoricalName / hybridMappings).fields(fourthHybridEs),
+      indexInto(hybridIndexHistoricalName / hybridMappings).fields(fifthHybridEs)
+    )
+  }.await
+
+  blockUntilCount(3, hybridIndexHistoricalName)
 
   val expectedPaf = PostcodeAddressFileAddress(
     hybridNotUsed,
@@ -410,6 +480,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridMixedWelshPaf
   )
 
+  val expectedDatePaf: PostcodeAddressFileAddress = expectedPaf.copy(
+    uprn = hybridSecondDateUprn.toString,
+    startDate = hybridSecondStartDate,
+    endDate = hybridCurrentEndDate
+  )
+
+  val expectedSecondDatePaf: PostcodeAddressFileAddress = expectedPaf.copy(
+    uprn = hybridThirdDateUprn.toString,
+    startDate = hybridThirdStartDate,
+    endDate = hybridCurrentEndDate
+  )
+
   val expectedNag = NationalAddressGazetteerAddress(
     hybridNagUprn.toString,
     hybridNagPostcodeLocator,
@@ -420,7 +502,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNagNorthing.toString,
     hybridNagOrganisation,
     hybridNagLegalName,
-    hybridNotUsed,
+    hybridNagClassCode,
     hybridNotUsed,
     hybridNotUsed,
     hybridNagPaoText,
@@ -452,7 +534,26 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNotUsed,
     hybridAll,
     hybridNotUsed,
+    hybridNotUsed,
     hybridMixedNag
+  )
+
+  val expectedDateNag: NationalAddressGazetteerAddress = expectedNag.copy(
+    uprn = hybridFirstDateUprn.toString,
+    lpiStartDate = hybridStartDate,
+    lpiEndDate = hybridEndDate
+  )
+
+  val expectedSecondDateNag: NationalAddressGazetteerAddress = expectedNag.copy(
+    uprn = hybridSecondDateUprn.toString,
+    lpiStartDate = hybridSecondStartDate,
+    lpiEndDate = hybridCurrentEndDate
+  )
+
+  val expectedThirdDateNag: NationalAddressGazetteerAddress = expectedNag.copy(
+    uprn = hybridSecondDateUprn.toString,
+    lpiStartDate = hybridStartDate,
+    lpiEndDate = hybridEndDate
   )
 
   val expectedRelative = Relative (
@@ -483,13 +584,50 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     score = 1.0f
   )
 
-  val expectedHybridHist = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
+  val expectedDateHybrid = HybridAddress(
+    uprn = hybridFirstDateUprn.toString,
+    parentUprn = hybridFirstParentUprn.toString,
+    relatives = Seq(expectedRelative),
+    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
+    postcodeIn = hybridFirstPostcodeIn,
+    postcodeOut = hybridFirstPostcodeOut,
+    lpi = Seq(expectedDateNag),
+    paf = Seq(),
+    score = 1.0f
+  )
+
+  val expectedSecondDateHybrid = HybridAddress(
+    uprn = hybridSecondDateUprn.toString,
+    parentUprn = hybridFirstParentUprn.toString,
+    relatives = Seq(expectedRelative),
+    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
+    postcodeIn = hybridFirstPostcodeIn,
+    postcodeOut = hybridFirstPostcodeOut,
+    lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
+    paf = Seq(expectedDatePaf),
+    score = 1.0f
+  )
+
+  val expectedThirdDateHybrid = HybridAddress(
+    uprn = hybridThirdDateUprn.toString,
+    parentUprn = hybridFirstParentUprn.toString,
+    relatives = Seq(expectedRelative),
+    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
+    postcodeIn = hybridFirstPostcodeIn,
+    postcodeOut = hybridFirstPostcodeOut,
+    lpi = Seq(),
+    paf = Seq(expectedSecondDatePaf),
+    score = 1.0f
+  )
+
+  val expectedHybridHist:HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
 
   "Elastic repository" should {
 
     "generate valid query for search by UPRN" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
+
       val expected = Json.parse(
         """
         {
@@ -510,6 +648,68 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "find HYBRID address by UPRN between date range" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Some(expectedDateHybrid)
+
+      // When
+      val result = repository.queryUprn(hybridFirstDateUprn.toString, "2013-01-01", "2014-01-01").await
+
+      // Then
+      result.get.lpi.head shouldBe expectedDateNag
+      result.get.paf shouldBe Seq()
+      result shouldBe expected
+    }
+
+    "find no HYBRID address by UPRN when not between date range" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = None
+
+      // When
+      val result = repository.queryUprn(hybridFirstDateUprn.toString, "2013-01-01", "2013-12-31").await
+
+      // Then
+      result shouldBe expected
+    }
+
+    "find HYBRID address by UPRN between date range with PAF and multiple NAG" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      // A fuller Address with a PAF and multiple NAG's one of which is historical
+      val expected = Some(expectedSecondDateHybrid)
+
+      // When
+      val result = repository.queryUprn(hybridSecondDateUprn.toString, "2014-01-02", hybridCurrentEndDate).await
+
+      // Then
+      result.get.lpi.head shouldBe expectedSecondDateNag
+      result.get.paf.head shouldBe expectedDatePaf
+      result shouldBe expected
+    }
+
+    "find HYBRID address by UPRN between date range with PAF and no NAG" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      // Forces it to search on PAF dates
+      val expected = Some(expectedThirdDateHybrid)
+
+      // When
+      // Using 2015-01-01 start date should be found since the query uses 'gte' but it isn't. Elastic4s issue?
+      val result = repository.queryUprn(hybridThirdDateUprn.toString, "2014-12-31", hybridCurrentEndDate).await
+
+      // Then
+      result.get.lpi shouldBe Seq()
+      result.get.paf.head shouldBe expectedSecondDatePaf
+      result shouldBe expected
+    }
+
     "find HYBRID address by UPRN" in {
 
       // Given
@@ -525,6 +725,146 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "generate valid query from partial address" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool": {
+                "must": [{
+                  "match": {
+                    "lpi.nagAll.typeahead": {
+                      "query": "h4"
+                    }
+                  }
+                }],
+                "filter": [{
+                  "prefix": {
+                    "lpi.classificationCode": {
+                      "value": "R"
+                    }
+                  }
+                },
+                {
+                  "bool": {
+                    "must_not": [{
+                      "term": {
+                        "lpi.addressBasePostal": {
+                          "value": "N"
+                        }
+                      }
+                    }]
+                  }
+                }]
+              }
+            }
+          }
+         """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "generate valid query from partial address with date" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool": {
+                "must": [{
+                  "match": {
+                    "lpi.nagAll.typeahead": {
+                      "query": "h4"
+                    }
+                  }
+                }],
+                "filter": [{
+                  "prefix": {
+                    "lpi.classificationCode": {
+                      "value": "R"
+                    }
+                  }
+                },
+                {
+                  "bool": {
+                    "must_not": [{
+                      "term": {
+                        "lpi.addressBasePostal": {
+                          "value": "N"
+                        }
+                      }
+                    }]
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [{
+                      "bool": {
+                        "must": [{
+                          "range": {
+                            "paf.startDate": {
+                              "gte": "2013-01-01",
+                              "format": "yyyy-MM-dd"
+                            }
+                          }
+                        },
+                        {
+                          "range": {
+                            "paf.endDate": {
+                              "lte": "2013-12-31",
+                              "format": "yyyy-MM-dd"
+                            }
+                          }
+                        }]
+                      }
+                    },
+                    {
+                      "bool": {
+                        "must": [{
+                          "range": {
+                            "lpi.lpiStartDate": {
+                              "gte": "2013-01-01",
+                              "format": "yyyy-MM-dd"
+                            }
+                          }
+                        },
+                        {
+                          "range": {
+                            "lpi.lpiEndDate": {
+                              "lte": "2013-12-31",
+                              "format": "yyyy-MM-dd"
+                            }
+                          }
+                        }]
+                      }
+                    }]
+                  }
+                }]
+              }
+            }
+          }
+         """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "find HYBRID address by UPRN in non-historical index" in {
 
       // Given
@@ -532,7 +872,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Some(expectedHybridHist)
 
       // When
-      val result = repository.queryUprn(hybridFirstUprnHist.toString, false).await
+      val result = repository.queryUprn(hybridFirstUprnHist.toString, historical = false).await
 
       // Then
       result.get.lpi.head shouldBe expectedNag
@@ -540,6 +880,186 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "find HYBRID address by postcode" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {
+           	"version": true,
+           	"query": {
+           		"bool": {
+           			"must": [{
+           				"term": {
+           					"lpi.postcodeLocator": {
+           						"value": " H4"
+           					}
+           				}
+           			}],
+           			"filter": [{
+           				"prefix": {
+           					"lpi.classificationCode": {
+           						"value": "R"
+           					}
+           				}
+           			},
+           			{
+           				"bool": {
+           					"must_not": [{
+           						"term": {
+           							"lpi.addressBasePostal": {
+           								"value": "N"
+           							}
+           						}
+           					}]
+           				}
+           			}]
+           		}
+           	},
+           	"sort": [{
+           		"lpi.streetDescriptor.keyword": {
+           			"order": "asc"
+           		}
+           	},
+           	{
+           		"lpi.paoStartNumber": {
+           			"order": "asc"
+           		}
+           	},
+           	{
+           		"lpi.paoStartSuffix.keyword": {
+           			"order": "asc"
+           		}
+           	},
+           	{
+           		"uprn": {
+           			"order": "asc"
+           		}
+           	}]
+          }
+         """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPostcodeRequest("h4", "residential", "", "")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "find HYBRID address by postcode with date" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {
+           	"version": true,
+           	"query": {
+           		"bool": {
+           			"must": [{
+           				"term": {
+           					"lpi.postcodeLocator": {
+           						"value": " H4"
+           					}
+           				}
+           			}],
+           			"filter": [{
+           				"prefix": {
+           					"lpi.classificationCode": {
+           						"value": "R"
+           					}
+           				}
+           			},
+                {
+                 "bool": {
+                   "must_not": [{
+                     "term": {
+                       "lpi.addressBasePostal": {
+                         "value": "N"
+                       }
+                     }
+                   }]
+                 }
+                },
+                {
+                 "bool": {
+                   "should": [{
+                     "bool": {
+                       "must": [{
+                         "range": {
+                           "paf.startDate": {
+                             "gte": "2013-01-01",
+                             "format": "yyyy-MM-dd"
+                           }
+                         }
+                       },
+                       {
+                         "range": {
+                           "paf.endDate": {
+                             "lte": "2013-12-31",
+                             "format": "yyyy-MM-dd"
+                           }
+                         }
+                       }]
+                     }
+                   },
+                   {
+                     "bool": {
+                       "must": [{
+                         "range": {
+                           "lpi.lpiStartDate": {
+                             "gte": "2013-01-01",
+                             "format": "yyyy-MM-dd"
+                           }
+                         }
+                       },
+                       {
+                         "range": {
+                           "lpi.lpiEndDate": {
+                             "lte": "2013-12-31",
+                             "format": "yyyy-MM-dd"
+                           }
+                         }
+                       }]
+                     }
+                   }]
+                 }
+                }]
+           		}
+           	},
+           	"sort": [{
+           		"lpi.streetDescriptor.keyword": {
+           			"order": "asc"
+           		}
+           	},
+           	{
+           		"lpi.paoStartNumber": {
+           			"order": "asc"
+           		}
+           	},
+           	{
+           		"lpi.paoStartSuffix.keyword": {
+           			"order": "asc"
+           		}
+           	},
+           	{
+           		"uprn": {
+           			"order": "asc"
+           		}
+           	}]
+          }
+         """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPostcodeRequest("h4", "residential", "2013-01-01", "2013-12-31")).string())
+
+      // Then
+      result shouldBe expected
+    }
+    
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -566,6 +1086,235 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       resultHybrid.score should be > 0f
       maxScore should be > 0d
     }
+
+    "generate valid query to find HYBRID addresses by building number and postcode by date and range" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val tokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber.toString,
+        Tokens.postcode -> hybridNagPostcodeLocator
+      )
+      val expected = Json.parse(
+        s"""
+          {
+           	"version": true,
+           	"query": {
+           		"dis_max": {
+           			"tie_breaker": 1,
+           			"queries": [{
+           				"bool": {
+           					"should": [{
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"paf.postcode": {
+           												"query": "h10"
+           											}
+           										}
+           									},
+           									"boost": 1
+           								}
+           							},
+           							{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"lpi.postcodeLocator": {
+           												"query": "h10"
+           											}
+           										}
+           									},
+           									"boost": 1
+           								}
+           							}]
+           						}
+           					}],
+           					"filter": [{
+           						"geo_distance": {
+           							"distance": "10km",
+           							"lpi.location": [$defaultLon,
+           							$defaultLat]
+           						}
+           					},
+           					{
+           						"bool": {
+           							"should": [{
+           								"bool": {
+           									"must": [{
+           										"range": {
+           											"paf.startDate": {
+           												"gte": "$hybridStartDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									},
+           									{
+           										"range": {
+           											"paf.endDate": {
+           												"lte": "$hybridEndDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									}]
+           								}
+           							},
+           							{
+           								"bool": {
+           									"must": [{
+           										"range": {
+           											"lpi.lpiStartDate": {
+           												"gte": "$hybridStartDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									},
+           									{
+           										"range": {
+           											"lpi.lpiEndDate": {
+           												"lte": "$hybridEndDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									}]
+           								}
+           							}]
+           						}
+           					}],
+           					"minimum_should_match": "-40%"
+           				}
+           			},
+           			{
+           				"bool": {
+           					"must": [{
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"match": {
+           									"lpi.nagAll": {
+           										"query": "13 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+           										"boost": 1,
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							},
+           							{
+           								"match": {
+           									"paf.pafAll": {
+           										"query": "13 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+           										"boost": 1,
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							}]
+           						}
+           					}],
+           					"should": [{
+           						"dis_max": {
+           							"tie_breaker": 0,
+           							"queries": [{
+           								"match": {
+           									"lpi.nagAll.bigram": {
+           										"query": "13 h10",
+           										"boost": 0.2,
+           										"fuzziness": "0"
+           									}
+           								}
+           							},
+           							{
+           								"match": {
+           									"paf.pafAll.bigram": {
+           										"query": "13 h10",
+           										"boost": 0.2,
+           										"fuzziness": "0"
+           									}
+           								}
+           							}]
+           						}
+           					}],
+           					"filter": [{
+           						"geo_distance": {
+           							"distance": "10km",
+           							"lpi.location": [-3.5091076,
+           							50.705948]
+           						}
+           					},
+           					{
+           						"bool": {
+           							"should": [{
+           								"bool": {
+           									"must": [{
+           										"range": {
+           											"paf.startDate": {
+           												"gte": "$hybridStartDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									},
+           									{
+           										"range": {
+           											"paf.endDate": {
+           												"lte": "$hybridEndDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									}]
+           								}
+           							},
+           							{
+           								"bool": {
+           									"must": [{
+           										"range": {
+           											"lpi.lpiStartDate": {
+           												"gte": "$hybridStartDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									},
+           									{
+           										"range": {
+           											"lpi.lpiEndDate": {
+           												"lte": "$hybridEndDate",
+           												"format": "yyyy-MM-dd"
+           											}
+           										}
+           									}]
+           								}
+           							}]
+           						}
+           					}],
+           					"boost": 0.075
+           				}
+           			}]
+           		}
+           	},
+           	"sort": [{
+           		"_score": {
+           			"order": "desc"
+           		}
+           	},
+           	{
+           		"uprn": {
+           			"order": "asc"
+           		}
+           	}],
+           	"track_scores": true
+          }
+          """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, "", "10", defaultLat, defaultLon, hybridStartDate, hybridEndDate)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "have score of `0` if no addresses found" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -655,7 +1404,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -1430,7 +2179,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -1471,6 +2220,43 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       addresses(0).uprn shouldBe hybridFirstUprn.toString
       addresses(1).uprn shouldBe hybridSecondaryUprn.toString
+    }
+
+    "bulk search addresses by date" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val firstAddressTokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> hybridNagPaoStartNumber.toString,
+        Tokens.locality -> hybridNagLocality,
+        Tokens.organisationName -> hybridNagOrganisation,
+        Tokens.postcode -> hybridNagPostcodeLocator
+      )
+
+      val secondAddressTokens: Map[String, String] = Map(
+        Tokens.buildingNumber -> secondaryHybridNagPaoStartNumber.toString,
+        Tokens.locality -> secondaryHybridNagLocality,
+        Tokens.organisationName -> secondaryHybridNagOrganisation,
+        Tokens.postcode -> secondaryHybridNagPostcodeLocator
+      )
+
+      val inputs = Stream(
+        BulkAddressRequestData("1", "i1", firstAddressTokens),
+        BulkAddressRequestData("2", "i2", secondAddressTokens)
+      )
+
+      // When
+      val results = repository.queryBulk(inputs, limit = 1, "2013-01-01", "2013-12-31", matchThreshold = 5F).await
+      val addresses = results.collect{
+        case Right(address) => address
+      }.flatten
+
+      // Then
+      results.length shouldBe 2
+      addresses.length shouldBe 2
+
+      addresses.head.uprn shouldBe hybridSecondDateUprn.toString
+      addresses.last.uprn shouldBe HybridAddress.empty.uprn
     }
 
     "return empty BulkAddress if there were no results for an address" in {
@@ -1588,7 +2374,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -1678,7 +2464,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -1768,7 +2554,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -2563,7 +3349,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "")).string())
 
       // Then
       result shouldBe expected

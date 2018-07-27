@@ -1,26 +1,27 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
+
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
+import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
-import com.sksamuel.elastic4s.searches.sort.FieldSortDefinition
-import com.sksamuel.elastic4s.searches.sort.SortOrder
+import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
+import com.sksamuel.elastic4s.searches.{QueryBuilderFn, SearchDefinition, SearchType}
 import play.api.Logger
+import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
-import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.db.index._
+import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseAddress, AddressResponseAddress}
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 import scala.math._
+import scala.util.Try
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
@@ -36,7 +37,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]]
+  def queryUprn(uprn: String, startDate: String, endDate:String, historical: Boolean = true): Future[Option[HybridAddress]]
 
   /**
     * Query the address index by partial address.
@@ -44,7 +45,7 @@ trait ElasticsearchRepository {
     * @param input the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index by postcode.
@@ -52,7 +53,7 @@ trait ElasticsearchRepository {
     * @param postcode the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index for addresses.
@@ -62,7 +63,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -71,7 +72,7 @@ trait ElasticsearchRepository {
     * @param tokens tokens for the ES query
     * @return Search definition containing query to the ES
     */
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition
 
   /**
     * Query ES using MultiSearch endpoint
@@ -81,7 +82,7 @@ trait ElasticsearchRepository {
     * @return a stream of `Either`, `Right` will contain resulting bulk address,
     *         `Left` will contain request data that is to be re-send
     */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }
 
 @Singleton
@@ -93,15 +94,16 @@ class AddressIndexRepository @Inject()(
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
+  private val DATE_FORMAT = "yyyy-MM-dd"
 
   val client: HttpClient = elasticClientProvider.client
   val logger = Logger("AddressIndexRepository")
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  def queryUprn(uprn: String, historical: Boolean = true): Future[Option[HybridAddress]] = {
+  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true): Future[Option[HybridAddress]] = {
 
-    val request = generateQueryUprnRequest(uprn, historical)
+    val request = generateQueryUprnRequest(uprn, startDate, endDate, historical)
 
     logger.trace(request.toString)
 
@@ -117,17 +119,33 @@ class AddressIndexRepository @Inject()(
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String, historical: Boolean = true): SearchDefinition =
-    if (historical) {
-      search(hybridIndexHistorical).query(termQuery("uprn", uprn))
-    } else {
-      search(hybridIndex).query(termQuery("uprn", uprn))
+  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true): SearchDefinition = {
+
+    val query = {
+      if(!startDate.isEmpty && !endDate.isEmpty) {
+        must(termQuery("uprn", uprn))
+          .filter(
+            should(
+              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
+                   rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
+              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
+                   rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+
+      } else {
+        termQuery("uprn", uprn)
+      }
     }
 
+    if (historical) {
+      search(hybridIndexHistorical).query(query)
+    } else {
+      search(hybridIndex).query(query)
+    }
+  }
 
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
-    val request = generateQueryPartialAddressRequest(input, filters, queryParamsConfig, historical).start(start).limit(limit)
+    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -141,7 +159,7 @@ class AddressIndexRepository @Inject()(
     * @param input the uprn of the fetched address
     * @return Search definition containing query to the ES
     */
-  def generateQueryPartialAddressRequest(input: String, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -155,15 +173,30 @@ class AddressIndexRepository @Inject()(
       else filters.toUpperCase
     }
 
+    val dateQuery: Option[QueryDefinition] = {
+      if (!startDate.isEmpty && !endDate.isEmpty) {
+        Some(
+        should(
+          must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
+            rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
+          must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
+            rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+      }
+      else None
+    }
+
     val query =
       if (filters.isEmpty) {
-        must(matchQuery("lpi.nagAll.typeahead", input)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+        must(matchQuery("lpi.nagAll.typeahead", input))
+          .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
       }else {
         if (filterType == "prefix") {
-          must(matchQuery("lpi.nagAll.typeahead", input)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          must(matchQuery("lpi.nagAll.typeahead", input))
+            .filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
         }
         else {
-          must(matchQuery("lpi.nagAll.typeahead", input)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          must(matchQuery("lpi.nagAll.typeahead", input))
+            .filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
         }
       }
 
@@ -172,12 +205,11 @@ class AddressIndexRepository @Inject()(
     } else {
       search(hybridIndex).query(query)
     }
-
   }
 
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
-    val request = generateQueryPostcodeRequest(postcode, filters, queryParamsConfig, historical).start(start).limit(limit)
+    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -191,7 +223,7 @@ class AddressIndexRepository @Inject()(
     * @param postcode the postcode of the fetched address
     * @return Search definition containing query to the ES
     */
-  def generateQueryPostcodeRequest(postcode: String, filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -214,17 +246,31 @@ class AddressIndexRepository @Inject()(
       else postcode.toUpperCase
     }
 
-    val query =
-    if (filters.isEmpty) {
-      must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(not(termQuery("lpi.addressBasePostal", "N")))
-    }else {
-      if (filterType == "prefix") {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+    val dateQuery: Option[QueryDefinition] = {
+      if (!startDate.isEmpty && !endDate.isEmpty) {
+        Some(
+          should(
+            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
+              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
+            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
+              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
       }
-      else {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
-      }
+      else None
     }
+
+    val query =
+      if (filters.isEmpty) {
+        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+      }else {
+        if (filterType == "prefix") {
+          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+        }
+        else {
+          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+        }
+      }
+
+//    var temp = Json.parse(QueryBuilderFn(query).toString)
 
     if (historical) {
       search(hybridIndexHistorical).query(query)
@@ -235,17 +281,16 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, queryParamsConfig, historical).start(start).limit(limit)
-
+    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -254,6 +299,18 @@ class AddressIndexRepository @Inject()(
     val saoEndNumber = tokens.getOrElse(Tokens.saoEndNumber, "")
     val saoEndSuffix = tokens.getOrElse(Tokens.saoEndSuffix, "")
     val skipSao = (saoEndNumber == "" && saoEndSuffix == "")
+
+    val dateQuery: Option[QueryDefinition] = {
+      if (!startDate.isEmpty && !endDate.isEmpty) {
+        Some(
+          should(
+            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
+              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
+            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
+              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+      }
+      else None
+    }
 
     val saoQuery = if (skipSao) Seq() else
     Seq(
@@ -611,20 +668,19 @@ class AddressIndexRepository @Inject()(
         Seq()
       else
         Seq(
-          geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km")
+          geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km")
         )
     }
 
     val prefixWithGeo = if (range.equals(""))
       Seq(prefixQuery("lpi.classificationCode", filterValue))
     else
-      Seq(prefixQuery("lpi.classificationCode", filterValue),geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km"))
+      Seq(prefixQuery("lpi.classificationCode", filterValue),geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km"))
 
     val termWithGeo = if (range.equals(""))
       Seq(termQuery("lpi.classificationCode", filterValue))
     else
-      Seq(termQuery("lpi.classificationCode", filterValue),geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(range + "km"))
-
+      Seq(termQuery("lpi.classificationCode", filterValue),geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km"))
 
     val fallbackQuery =
       if (filters.isEmpty) {
@@ -647,7 +703,7 @@ class AddressIndexRepository @Inject()(
               .fuzziness(queryParams.fallback.bigramFuzziness)
               .boost(queryParams.fallback.fallbackPafBigramBoost))
             .tieBreaker(0.0)),
-          Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(radiusQuery)
+          Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(radiusQuery ++ Seq(dateQuery).flatten)
       }
       else {
         if (filterType == "prefix") {
@@ -671,7 +727,7 @@ class AddressIndexRepository @Inject()(
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
             Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(prefixWithGeo)
+            .filter(prefixWithGeo ++ Seq(dateQuery).flatten)
         }
         else {
           bool(
@@ -693,13 +749,9 @@ class AddressIndexRepository @Inject()(
                 .fuzziness(queryParams.fallback.bigramFuzziness)
                 .boost(queryParams.fallback.fallbackPafBigramBoost))
               .tieBreaker(0.0)),
-            Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(termWithGeo)
+            Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(termWithGeo ++ Seq(dateQuery).flatten)
         }
       }
-
-
-
 
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
@@ -734,15 +786,17 @@ class AddressIndexRepository @Inject()(
       if (shouldQuery.isEmpty) fallbackQuery
       else if (filters.isEmpty)
         dismax(
-          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery), fallbackQuery)
+          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery ++ Seq(dateQuery).flatten), fallbackQuery)
           .tieBreaker(queryParams.topDisMaxTieBreaker)
       else if (filterType == "prefix") dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixWithGeo), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
       else dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo), fallbackQuery)
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
+
+    var temp = Json.parse(QueryBuilderFn(query).toString)
 
     if (historical) {
       search(hybridIndexHistorical).query(query)
@@ -757,11 +811,11 @@ class AddressIndexRepository @Inject()(
     }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

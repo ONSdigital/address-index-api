@@ -36,7 +36,9 @@ object AddressByUprnResponseContainer {
   * @param address found address
   */
 case class AddressByUprnResponse(
-  address: Option[AddressResponseAddress]
+  address: Option[AddressResponseAddress],
+  startDate: String,
+  endDate: String
 )
 
 object AddressByUprnResponse {
@@ -84,7 +86,9 @@ case class AddressByPostcodeResponse(
                                     limit: Int,
                                     offset: Int,
                                     total: Long,
-                                    maxScore: Double
+                                    maxScore: Double,
+                                    startDate: String,
+                                    endDate: String
                                   )
 
 
@@ -132,7 +136,9 @@ case class AddressByPartialAddressResponse(
                                       limit: Int,
                                       offset: Int,
                                       total: Long,
-                                      maxScore: Double
+                                      maxScore: Double,
+                                      startDate: String,
+                                      endDate: String
                                     )
 
 object AddressByPartialAddressResponse {
@@ -180,6 +186,8 @@ case class AddressBySearchResponse(
   rangekm: String,
   latitude: String,
   longitude: String,
+  startDate: String,
+  endDate: String,
   limit: Int,
   offset: Int,
   total: Long,
@@ -756,7 +764,7 @@ case class AddressResponseLogicalStatus(
 /**
   * Container for custodians list
   *
-  * @param classifications  sequence of custodians
+  * @param custodians  sequence of custodians
   */
 case class AddressResponseCustodianListContainer(
   custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian]
@@ -1037,7 +1045,7 @@ object RangeNotNumericAddressResponseError extends AddressResponseError(
 
 object LatitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 27,
-  message = "Latitiude parameter not numeric"
+  message = "Latitude parameter not numeric"
 )
 
 object LongitudeNotNumericAddressResponseError extends AddressResponseError(
@@ -1047,7 +1055,7 @@ object LongitudeNotNumericAddressResponseError extends AddressResponseError(
 
 object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
   code = 29,
-  message = "Latitiude parameter must be less than 60.9"
+  message = "Latitude parameter must be less than 60.9"
 )
 
 object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
@@ -1057,7 +1065,7 @@ object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
 
 object LongitudeTooFarEastAddressResponseError extends AddressResponseError(
   code = 31,
-  message = "Latitiude parameter must be less than 1.8"
+  message = "Latitude parameter must be less than 1.8"
 )
 
 object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
@@ -1083,4 +1091,14 @@ object FilterInvalidPostcodeError extends AddressResponseError(
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 36,
   message = "Failed request to the Elastic Search (partial address)(check api logs)"
+)
+
+object StartDateInvalidResponseError extends AddressResponseError(
+  code = 37,
+  message = "Failed request to the Elastic Search start date cannot be parsed"
+)
+
+object EndDateInvalidResponseError extends AddressResponseError(
+  code = 37,
+  message = "Failed request to the Elastic Search end date cannot be parsed"
 )

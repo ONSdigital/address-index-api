@@ -51,6 +51,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     rpc = "rpc",
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
+    lpiStartDate = "lpiStartDate",
     mixedNag = "mixedNag"
   )
 

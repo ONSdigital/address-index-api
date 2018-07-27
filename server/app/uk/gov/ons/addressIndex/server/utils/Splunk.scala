@@ -26,8 +26,10 @@ object Splunk {
     rangekm: String = "",
     lat: String = "",
     lon: String = "",
+    startDate: String = "",
+    endDate: String = "",
     bulkSize: String = "",
-    batchSize: String = "", // bulk is splitted into smaller batches
+    batchSize: String = "", // bulk is split into smaller batches
     badRequestMessage: String = "",
     isNotFound: Boolean = false,
     formattedOutput: String = "",
@@ -42,6 +44,7 @@ object Splunk {
         s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter partialAddress=$partialAddress " +
         s"historical=$historical" +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
+        s"startDate=$startDate endDate=$endDate " +
         s"bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
@@ -69,8 +72,10 @@ object Splunk {
     rangekm: String = "",
     lat: String = "",
     lon: String = "",
+    startDate: String = "",
+    endDate: String = "",
     bulkSize: String = "",
-    batchSize: String = "", // bulk is splitted into smaller batches
+    batchSize: String = "", // bulk is split into smaller batches
     badRequestMessage: String = "",
     isNotFound: Boolean = false,
     formattedOutput: String = "",
@@ -85,6 +90,7 @@ object Splunk {
         s"uprn=$uprn postcode=$postcode input=$input offset=$offset limit=$limit filter=$filter partialAddress=$partialAddress " +
         s"historical=$historical" +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
+        s"startDate=$startDate endDate=$endDate " +
         s"bulk_size=$bulkSize batch_size=$batchSize " +
         s"bad_request_message=$badRequestMessage is_not_found=$isNotFound formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score uuid=$uuid networkid=$networkid"
