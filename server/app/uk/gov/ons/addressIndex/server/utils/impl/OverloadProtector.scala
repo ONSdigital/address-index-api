@@ -12,7 +12,6 @@ import scala.concurrent.ExecutionContext
 import scala.language.postfixOps
 import scala.concurrent.duration._
 
-
 @Singleton
 class OverloadProtector @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) extends Overload {
   private val logger = Logger("address-index-server:OverloadProtector")
@@ -23,10 +22,10 @@ class OverloadProtector @Inject()(conf: ConfigModule)(implicit ec: ExecutionCont
   private val circuitBreakerCallTimeout: Int = esConf.circuitBreakerCallTimeout
   private val circuitBreakerResetTimeout: Int = esConf.circuitBreakerResetTimeout
 
-  private var status: ProtectorStatus = ProtectorStatus.Closed // scalastyle:ignore
-
   override def currentStatus: ProtectorStatus = {
-    status
+    if (breaker.isOpen) ProtectorStatus.Open
+    if (breaker.isClosed) ProtectorStatus.Closed
+    ProtectorStatus.HalfOpen
   }
 
   override def breaker: CircuitBreaker = {
@@ -37,15 +36,12 @@ class OverloadProtector @Inject()(conf: ConfigModule)(implicit ec: ExecutionCont
       resetTimeout = circuitBreakerResetTimeout milliseconds)
       .onOpen({
         logger.warn("Circuit breaker is now open")
-        status = ProtectorStatus.Open
       })
       .onClose({
         logger.warn("circuit breaker is now closed")
-        status = ProtectorStatus.Closed
       })
       .onHalfOpen({
         logger.warn("Circuit breaker is now half-open")
-        status = ProtectorStatus.HalfOpen
       })
   }
 }
