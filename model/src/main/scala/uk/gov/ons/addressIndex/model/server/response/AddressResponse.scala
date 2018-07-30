@@ -889,6 +889,10 @@ object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
   message = "Internal server error"
 )
 
+object TooManyRequestsResponseStatus extends AddressResponseStatus(
+  code = Status.TOO_MANY_REQUESTS,
+  message = "Too Many Requests"
+)
 
 /**
   * Contains one response error
