@@ -1,0 +1,55 @@
+{
+  "version": true,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "lpi.postcodeLocator": {
+              "value": "PO14 7GQ"
+            }
+          }
+        }
+      ],
+      "filter": [
+        {
+          "bool": {
+            "must_not": [
+              {
+                "term": {
+                  "lpi.addressBasePostal": {
+                    "value": "N"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "from": 0,
+  "size": 10,
+  "sort": [
+    {
+      "lpi.streetDescriptor.keyword": {
+        "order": "asc"
+      }
+    },
+    {
+      "lpi.paoStartNumber": {
+        "order": "asc"
+      }
+    },
+    {
+      "lpi.paoStartSuffix.keyword": {
+        "order": "asc"
+      }
+    },
+    {
+      "uprn": {
+        "order": "asc"
+      }
+    }
+  ]
+}

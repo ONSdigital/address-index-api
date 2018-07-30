@@ -12,6 +12,7 @@ import spray.revolver.RevolverPlugin.autoImport.Revolver
 lazy val Versions = new {
   val elastic4s = "6.1.2"
   val scala = "2.12.4"
+  val gatlingVersion = "2.3.1"
 }
 
 name := "address-index"
@@ -97,7 +98,9 @@ val serverDeps = Seq(
   filters,
   specs2 % Test,
   "org.scalatestplus.play"   %% "scalatestplus-play" % "3.1.2" % Test,
-  "org.webjars" % "swagger-ui" % "3.4.4"
+  "org.webjars" % "swagger-ui" % "3.4.4",
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
+  "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test"
  )++ commonDeps
 
 val uiDeps = Seq(
@@ -141,6 +144,7 @@ lazy val `address-index-client` = project.in(file("client"))
     SbtWeb
   )
 
+
 lazy val `address-index-server` = project.in(file("server"))
   .settings(localCommonSettings: _*)
   .settings(
@@ -161,6 +165,7 @@ lazy val `address-index-server` = project.in(file("server"))
     `address-index-model`
   )
   .enablePlugins(
+    GatlingPlugin,
     PlayScala,
     PlayNettyServer,
     PlayAkkaHttpServer,
