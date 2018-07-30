@@ -1,16 +1,16 @@
+import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
+import com.typesafe.sbt.SbtNativePackager.autoImport.NativePackagerHelper._
 import com.typesafe.sbt.web.SbtWeb
 import play.sbt.PlayScala
 import play.sbt.routes.RoutesKeys._
 import sbt.Keys._
-import sbt.Resolver.{file => _, url => _, _}
+import sbt.Resolver.{file => _, url => _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
-import NativePackagerHelper._
-import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 lazy val Versions = new {
-  val elastic4s = "6.1.2"
+  val elastic4s = "6.1.3"
   val scala = "2.12.4"
 }
 
@@ -25,9 +25,9 @@ scmInfo := Some(
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
   mappings in Universal ++= directory("parsers/src/main/resources"),
   assemblyJarName in assembly := "ons-ai-api.jar",
-  mainClass in assembly := Some("play.core.server.NettyServer"),
+  mainClass in assembly := Some("play.core.server.AkkaHttpServerProvider"),
   assemblyMergeStrategy in assembly := {
-    case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
+//    case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
     case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
     case x =>
       val oldStrategy = (assemblyMergeStrategy in assembly).value
@@ -162,7 +162,7 @@ lazy val `address-index-server` = project.in(file("server"))
   )
   .enablePlugins(
     PlayScala,
-    PlayNettyServer,
+    // PlayNettyServer,
     PlayAkkaHttpServer,
     LauncherJarPlugin,
     SbtWeb,
@@ -186,6 +186,6 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   )
   .enablePlugins(
     PlayScala,
-    PlayNettyServer,
+    //PlayNettyServer,
     PlayAkkaHttpServer
   )
