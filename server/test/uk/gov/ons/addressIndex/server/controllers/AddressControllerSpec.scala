@@ -1174,7 +1174,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
       // Given
       val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection)
 
@@ -1192,7 +1192,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsPostcodeError)
+        errors = Seq(FailedRequestToEsError)
       ))
 
       // When - retry param must be true

@@ -281,7 +281,7 @@ trait AddressIndexCannedResponse {
       dataVersion = dataVersion,
       response = ErrorPostcode,
       status = TooManyRequestsResponseStatus,
-      errors = Seq(FailedRequestToEsPostcodeError)
+      errors = Seq(FailedRequestToEsError)
     )
   }
 

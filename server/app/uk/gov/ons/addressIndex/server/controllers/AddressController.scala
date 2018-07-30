@@ -727,10 +727,10 @@ class AddressController @Inject()(
           overloadProtection.currentStatus match {
             case ProtectorStatus.HalfOpen =>
               logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
             case ProtectorStatus.Open =>
               logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
             case _ =>
               // Circuit Breaker is closed. Some other problem
               writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
