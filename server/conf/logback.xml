@@ -27,8 +27,8 @@
     <logger name="addressIndex" level="INFO" />
     <logger name="application"  level="WARN" />
     <logger name="akka"         level="WARN" />
-    <logger name="SPLUNK"       level="WARN" />
-
+    <logger name="SPLUNK"       level="INFO" />
+    
     <logger name="com.avaje.ebean.config.PropertyMapLoader"            level="WARN" />
     <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
     <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
