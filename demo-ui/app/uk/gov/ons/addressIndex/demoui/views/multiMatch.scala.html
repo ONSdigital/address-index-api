@@ -248,8 +248,6 @@
                                     @tableHeaderHelper(messages("multi.table.match.type"))
                                     @tableHeaderHelper(messages("multi.table.confidence.score"))
                                     @tableHeaderHelper(messages("multi.table.actual.score"))
-                                    @tableHeaderHelper(messages("multi.table.building.score"))
-                                    @tableHeaderHelper(messages("multi.table.unit.score"))
                                     @tableHeaderHelper(messages("multi.table.rank"))
                                     @tableHeaderHelper(messages("multi.table.matched"))
                                     </thead>
@@ -264,8 +262,6 @@
                                         <td align="center" class="match-type-@matchType">@matchType</td>
                                         <td align="center">@{"%.2f".format(result.confidenceScore)}</td>
                                         <td align="center">@{"%.2f".format(result.score)}</td>
-                                        <td align="center">@{ "%.2f".format(result.bespokeScore.map(score => score.structuralScore).getOrElse(0)) }</td>
-                                        <td align="center">@{ result.bespokeScore.map(score => "%.2f".format(score.objectScore)).getOrElse("-1.0") }</td>
                                         <td align="center">@{ScoreHelper.getRank(i, bulkResp)}</td>
                                         <td>
                                             <input type="radio" id="matched-@i-yes" class="matched-yes" name="matched-@i" checked="checked"/> <label for="matched-@i-yes">@messages("multi.table.yes")</label><br>

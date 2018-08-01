@@ -270,8 +270,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           northing = 93861
         )),
         confidenceScore = 1,
-        underlyingScore = 1,
-        bespokeScore = expectedBespokeScore
+        underlyingScore = 1
       )
 
       // When
