@@ -194,8 +194,7 @@ object AddressIndexClientMock {
     nag = Some(mockNagAddress1),
     geo = None,
     confidenceScore = 1.0f,
-    underlyingScore = 1.0f,
-    bespokeScore = Some(mockBespokeScore)
+    underlyingScore = 1.0f
   )
 
   val mockAddressByUprnResponse = AddressByUprnResponse (
