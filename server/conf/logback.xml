@@ -23,7 +23,7 @@
         <appender-ref ref="STDOUT" />
     </appender>
 
-    <logger name="play"         level="WARN" />
+    <logger name="play"         level="INFO" />
     <logger name="addressIndex" level="INFO" />
     <logger name="application"  level="WARN" />
     <logger name="akka"         level="WARN" />

@@ -164,6 +164,7 @@ lazy val `address-index-server` = project.in(file("server"))
     PlayScala,
     PlayNettyServer,
     PlayAkkaHttpServer,
+    LauncherJarPlugin,
     SbtWeb,
     JavaAppPackaging,
     GitVersioning,

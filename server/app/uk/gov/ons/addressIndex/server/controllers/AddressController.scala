@@ -548,8 +548,6 @@ class AddressController @Inject()(
 
           val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-          val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, 1D)
-
           addresses.foreach { address =>
             writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
           }
@@ -562,7 +560,7 @@ class AddressController @Inject()(
               dataVersion = dataVersion,
               response = AddressByPartialAddressResponse(
                 input = input,
-                addresses = scoredAdresses,
+                addresses = addresses,
                 filter = filterString,
                 historical = hist,
                 limit = limitInt,
@@ -695,8 +693,6 @@ class AddressController @Inject()(
 
           val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-          val scoredAdresses: Seq[AddressResponseAddress] = HopperScoreHelper.getScoresForAddresses(addresses, tokens, 1D)
-
           addresses.foreach { address =>
             writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
           }
@@ -709,7 +705,7 @@ class AddressController @Inject()(
               dataVersion = dataVersion,
               response = AddressByPostcodeResponse(
                 postcode = postcode,
-                addresses = scoredAdresses,
+                addresses = addresses,
                 filter = filterString,
                 historical = hist,
                 limit = limitInt,

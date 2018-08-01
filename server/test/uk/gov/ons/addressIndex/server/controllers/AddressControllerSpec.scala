@@ -310,7 +310,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "some query",
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),Map.empty,1D),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),
           filter = "",
           historical = true,
           limit = 100,
