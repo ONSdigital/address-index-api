@@ -935,7 +935,7 @@ object AddressResponseVersion {
 
 object NotFoundAddressResponseStatus extends AddressResponseStatus(
   code = Status.NOT_FOUND,
-  message = "Not Found"
+  message = "Not found"
 )
 
 object BadRequestAddressResponseStatus extends AddressResponseStatus(
@@ -955,7 +955,7 @@ object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
 
 object TooManyRequestsResponseStatus extends AddressResponseStatus(
   code = Status.TOO_MANY_REQUESTS,
-  message = "Too Many Requests"
+  message = "Too many requests"
 )
 
 /**
@@ -990,92 +990,92 @@ object NotFoundAddressResponseError extends AddressResponseError(
 
 object LimitNotNumericAddressResponseError extends AddressResponseError(
   code = 4,
-  message = "Limit parameter not numeric"
+  message = "Limit parameter is not numeric"
 )
 
 object OffsetNotNumericAddressResponseError extends AddressResponseError(
   code = 5,
-  message = "Offset parameter not numeric"
+  message = "Offset parameter is not numeric"
 )
 
 object LimitTooSmallAddressResponseError extends AddressResponseError(
   code = 6,
-  message = "Limit parameter too small, minimum = 1"
+  message = "Limit parameter is too small, minimum = 1"
 )
 
 object OffsetTooSmallAddressResponseError extends AddressResponseError(
   code = 7,
-  message = "Offset parameter too small, minimum = 0"
+  message = "Offset parameter is too small, minimum = 0"
 )
 
 object LimitTooLargeAddressResponseError extends AddressResponseError(
   code = 8,
-  message = "Limit parameter too large (maximum configurable)"
+  message = "Limit parameter is too large (maximum configurable)"
 )
 
 object OffsetTooLargeAddressResponseError extends AddressResponseError(
   code = 9,
-  message = "Offset parameter too large (maximum configurable)"
+  message = "Offset parameter is too large (maximum configurable)"
 )
 
 object FailedRequestToEsError extends AddressResponseError(
   code = 10,
-  message = "Failed request to the Elastic Search (check api logs)"
+  message = "Request to Elasticsearch failed (check the API logs)"
 )
 
 object ApiKeyMissingError extends AddressResponseError(
   code = 11,
-  message = "Api key not supplied"
+  message = "The API key is missing"
 )
 
 object ApiKeyInvalidError extends AddressResponseError(
   code = 12,
-  message = "Invalid Api key supplied"
+  message = "An Invalid API key was provided"
 )
 
 object SourceMissingError extends AddressResponseError(
   code = 13,
-  message = "Source key not supplied (check that using Gateway)"
+  message = "Source key not provided (are you using the API Gateway?)"
 )
 
 object SourceInvalidError extends AddressResponseError(
   code = 14,
-  message = "Invalid source key supplied (check that using Gateway)"
+  message = "Invalid source key provided (are you using the API Gateway?)"
 )
 
 object FilterInvalidError extends AddressResponseError(
   code = 15,
-  message = "Invalid filter value supplied"
+  message = "Invalid filter value provided"
 )
 
 object OffsetNotNumericPostcodeAddressResponseError extends AddressResponseError(
   code = 16,
-  message = "Offset parameter not numeric (postcode)"
+  message = "Offset parameter is not numeric (postcode)"
 )
 
 object LimitNotNumericPostcodeAddressResponseError extends AddressResponseError(
   code = 17,
-  message = "Limit parameter not numeric (postcode)"
+  message = "Limit parameter is not numeric (postcode)"
 )
 
 object OffsetTooSmallPostcodeAddressResponseError extends AddressResponseError(
   code = 18,
-  message = "Offset parameter too small, minimum = 0 (postcode)"
+  message = "Offset parameter is too small, minimum = 0 (postcode)"
 )
 
 object LimitTooSmallPostcodeAddressResponseError extends AddressResponseError(
   code = 19,
-  message = "Limit parameter too small, minimum = 1 (postcode)"
+  message = "Limit parameter is too small, minimum = 1 (postcode)"
 )
 
 object LimitTooLargePostcodeAddressResponseError extends AddressResponseError(
   code = 20,
-  message = "Limit parameter too large (maximum configurable) (postcode)"
+  message = "Limit parameter is too large (maximum configurable) (postcode)"
 )
 
 object OffsetTooLargePostcodeAddressResponseError extends AddressResponseError(
   code = 21,
-  message = "Offset parameter too large (maximum configurable) (postcode)"
+  message = "Offset parameter is too large (maximum configurable) (postcode)"
 )
 
 object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
@@ -1085,7 +1085,7 @@ object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
 
 object FailedRequestToEsPostcodeError extends AddressResponseError(
   code = 23,
-  message = "Failed request to the Elastic Search (postcode)(check api logs)"
+  message = "Request to Elasticsearch failed (postcode)(check the API logs)"
 )
 
 object NotFoundPostcodeResponseError extends AddressResponseError(
@@ -1095,22 +1095,22 @@ object NotFoundPostcodeResponseError extends AddressResponseError(
 
 object UprnNotNumericAddressResponseError extends AddressResponseError(
   code = 25,
-  message = "UPRNs nust be numeric"
+  message = "UPRNs must be numeric"
 )
 
 object RangeNotNumericAddressResponseError extends AddressResponseError(
   code = 26,
-  message = "Range km parameter not numeric"
+  message = "Range KM parameter is not numeric"
 )
 
 object LatitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 27,
-  message = "Latitiude parameter not numeric"
+  message = "Latitiude parameter is not numeric"
 )
 
 object LongitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 28,
-  message = "Longitude parameter not numeric"
+  message = "Longitude parameter is not numeric"
 )
 
 object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
@@ -1135,7 +1135,7 @@ object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
 
 object ThresholdNotNumericAddressResponseError extends AddressResponseError(
   code = 33,
-  message = "Matchthreshold parameter not numeric"
+  message = "Matchthreshold parameter is not numeric"
 )
 
 object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
@@ -1145,10 +1145,10 @@ object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
 
 object FilterInvalidPostcodeError extends AddressResponseError(
   code = 35,
-  message = "Invalid filter value supplied (postcode)"
+  message = "Invalid filter value provided (postcode)"
 )
 
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 36,
-  message = "Failed request to the Elastic Search (partial address)(check api logs)"
+  message = "Request to Elasticsearch failed (partial address)(check the API logs)"
 )
