@@ -1,97 +1,28 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import javax.inject.{Inject, Singleton}
-
-import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
-import com.sksamuel.elastic4s.searches.{QueryBuilderFn, SearchDefinition, SearchType}
-import play.api.Logger
-import play.api.libs.json.Json
+import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
+import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseAddress, AddressResponseAddress}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
 import scala.util.Try
 
-@ImplementedBy(classOf[AddressIndexRepository])
-trait ElasticsearchRepository {
-
-  /**
-    * Queries if ES is up
-    */
-  def queryHealth(): Future[String]
-
-  /**
-    * Query the address index by UPRN.
-    *
-    * @param uprn the identificator of the address
-    * @return Future containing a address or `None` if not in the index
-    */
-  def queryUprn(uprn: String, startDate: String, endDate:String, historical: Boolean = true): Future[Option[HybridAddress]]
-
-  /**
-    * Query the address index by partial address.
-    *
-    * @param input the identificator of the address
-    * @return Future containing a address or `None` if not in the index
-    */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
-
-  /**
-    * Query the address index by postcode.
-    *
-    * @param postcode the identificator of the address
-    * @return Future containing a address or `None` if not in the index
-    */
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
-
-  /**
-    * Query the address index for addresses.
-    *
-    * @param start  the offset for the query
-    * @param limit  maximum number of returned results
-    * @param tokens address tokens
-    * @return Future with found addresses and the maximum score
-    */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
-
-  /**
-    * Generates request to get address from ES by UPRN
-    * Public so that it could be accessible to controllers for User's debug purposes
-    *
-    * @param tokens tokens for the ES query
-    * @return Search definition containing query to the ES
-    */
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition
-
-  /**
-    * Query ES using MultiSearch endpoint
-    *
-    * @param requestsData data that will be used in the multi search request
-    * @param limit        how many addresses to take per a request
-    * @return a stream of `Either`, `Right` will contain resulting bulk address,
-    *         `Left` will contain request data that is to be re-send
-    */
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
-}
-
 @Singleton
-class AddressIndexRepository @Inject()(
-  conf: AddressIndexConfigModule,
-  elasticClientProvider: ElasticClientProvider
-)(implicit ec: ExecutionContext) extends ElasticsearchRepository {
+class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
+                                        elasticClientProvider: ElasticClientProvider
+                                      )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
@@ -99,7 +30,7 @@ class AddressIndexRepository @Inject()(
   private val DATE_FORMAT = "yyyy-MM-dd"
 
   val client: HttpClient = elasticClientProvider.client
-  val logger = Logger("AddressIndexRepository")
+  lazy val logger = GenericLogger("AddressIndexRepository")
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
@@ -151,9 +82,9 @@ class AddressIndexRepository @Inject()(
 
     logger.trace(request.toString)
 
-//    val reqString = SearchBodyBuilderFn(request).string()
-//
-//    logger.info(reqString)
+    //    val reqString = SearchBodyBuilderFn(request).string()
+    //
+    //    logger.info(reqString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
@@ -199,7 +130,7 @@ class AddressIndexRepository @Inject()(
       if (inputNumber.isEmpty) {
         if (filters.isEmpty) {
           must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-        }else {
+        } else {
           if (filterType == "prefix") {
             must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
           }
@@ -211,7 +142,7 @@ class AddressIndexRepository @Inject()(
       else {
         if (filters.isEmpty) {
           must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-        }else {
+        } else {
           if (filterType == "prefix") {
             must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
           }
@@ -262,7 +193,7 @@ class AddressIndexRepository @Inject()(
     val postcodeFormatted: String = {
       if (!postcode.contains(" ")) {
         val postcodeLength = postcode.length()
-        val (postcodeStart, postcodeEnd) = postcode.splitAt(postcodeLength-3)
+        val (postcodeStart, postcodeEnd) = postcode.splitAt(postcodeLength - 3)
         (postcodeStart + " " + postcodeEnd).toUpperCase
       }
       else postcode.toUpperCase
@@ -283,7 +214,7 @@ class AddressIndexRepository @Inject()(
     val query =
       if (filters.isEmpty) {
         must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-      }else {
+    }else {
         if (filterType == "prefix") {
           must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
         }
@@ -333,33 +264,33 @@ class AddressIndexRepository @Inject()(
     }
 
     val saoQuery = if (skipSao) Seq() else
-    Seq(
-      tokens.get(Tokens.saoStartNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoStartNumber",
-          value = token
-        )).boost(queryParams.subBuildingRange.lpiSaoStartNumberBoost)),
-      tokens.get(Tokens.saoStartSuffix).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoStartSuffix",
-          value = token
-        )).boost(queryParams.subBuildingRange.lpiSaoStartSuffixBoost)),
-      tokens.get(Tokens.saoEndNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoEndNumber",
-          value = token
-        )).boost(queryParams.subBuildingRange.lpiSaoEndNumberBoost)),
-      tokens.get(Tokens.saoEndSuffix).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoEndSuffix",
-          value = token
-        )).boost(queryParams.subBuildingRange.lpiSaoEndSuffixBoost)),
-      tokens.get(Tokens.saoEndNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoStartNumber",
-          value = token
-        )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
-    ).flatten
+      Seq(
+        tokens.get(Tokens.saoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          )).boost(queryParams.subBuildingRange.lpiSaoStartNumberBoost)),
+        tokens.get(Tokens.saoStartSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartSuffix",
+            value = token
+          )).boost(queryParams.subBuildingRange.lpiSaoStartSuffixBoost)),
+        tokens.get(Tokens.saoEndNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoEndNumber",
+            value = token
+          )).boost(queryParams.subBuildingRange.lpiSaoEndNumberBoost)),
+        tokens.get(Tokens.saoEndSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoEndSuffix",
+            value = token
+          )).boost(queryParams.subBuildingRange.lpiSaoEndSuffixBoost)),
+        tokens.get(Tokens.saoEndNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
+      ).flatten
 
     val subBuildingNameQuery = Seq(Seq(
       tokens.get(Tokens.subBuildingName).map(token =>
@@ -372,8 +303,8 @@ class AddressIndexRepository @Inject()(
           field = "lpi.saoText",
           value = token
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
-         .boost(queryParams.subBuildingName.lpiSaoTextBoost))
-      ).flatten,
+          .boost(queryParams.subBuildingName.lpiSaoTextBoost))
+    ).flatten,
       Seq(Seq(
         tokens.get(Tokens.saoStartNumber).map(token =>
           constantScoreQuery(matchQuery(
@@ -381,58 +312,58 @@ class AddressIndexRepository @Inject()(
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
         tokens.get(Tokens.saoStartSuffix).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoStartSuffix",
-          value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartSuffix",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
       ).flatten
       ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition])
-       .tieBreaker(queryParams.includingDisMaxTieBreaker))
+        .tieBreaker(queryParams.includingDisMaxTieBreaker))
     ).flatten
 
     // this part of query should be blank unless there is an end number or end suffix
     val paoEndNumber = tokens.getOrElse(Tokens.paoEndNumber, "")
     val paoEndSuffix = tokens.getOrElse(Tokens.paoEndSuffix, "")
-    val skipPao = (paoEndNumber == "" && paoEndSuffix == "")
+    val skipPao = paoEndNumber == "" && paoEndSuffix == ""
 
     val paoQuery = if (skipPao) Seq() else
-    Seq(
-      tokens.get(Tokens.paoStartNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.paoStartNumber",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoStartNumberBoost)),
-      tokens.get(Tokens.paoStartSuffix).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.paoStartSuffix",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoStartSuffixBoost)),
-      tokens.get(Tokens.paoEndNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.paoEndNumber",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoEndNumberBoost)),
-      tokens.get(Tokens.paoEndSuffix).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.paoEndSuffix",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoEndSuffixBoost)),
-      tokens.get(Tokens.paoEndNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.paoStartNumber",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
-      tokens.get(Tokens.paoEndNumber).map(token =>
-      constantScoreQuery(matchQuery(
-        field = "paf.buildingNumber",
-        value = token
-      )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
-      tokens.get(Tokens.paoStartNumber).map(token =>
-      constantScoreQuery(matchQuery(
-        field = "paf.buildingNumber",
-        value = token
-      )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
-    ).flatten
+      Seq(
+        tokens.get(Tokens.paoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.paoStartNumber",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartNumberBoost)),
+        tokens.get(Tokens.paoStartSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.paoStartSuffix",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartSuffixBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.paoEndNumber",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoEndNumberBoost)),
+        tokens.get(Tokens.paoEndSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.paoEndSuffix",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoEndSuffixBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.paoStartNumber",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "paf.buildingNumber",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
+        tokens.get(Tokens.paoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "paf.buildingNumber",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
+      ).flatten
 
     val paoBuildingNameMust = for {
       paoStartNumber <- tokens.get(Tokens.paoStartNumber)
@@ -464,8 +395,7 @@ class AddressIndexRepository @Inject()(
 
     ).flatten
 
-
-    val buildingNumberQuery =  if (skipPao) Seq(
+    val buildingNumberQuery = if (skipPao) Seq(
       tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
@@ -482,7 +412,6 @@ class AddressIndexRepository @Inject()(
           value = token
         )).boost(queryParams.buildingNumber.lpiPaoEndNumberBoost))
     ).flatten else Seq()
-
 
     val streetNameQuery = Seq(
       tokens.get(Tokens.streetName).map(token =>
@@ -772,7 +701,6 @@ class AddressIndexRepository @Inject()(
             Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(termWithGeo ++ Seq(dateQuery).flatten)
         }
       }
-
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
       buildingNameQuery,
@@ -797,9 +725,7 @@ class AddressIndexRepository @Inject()(
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
-
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
-
     val shouldQueryItr = shouldQuery.asInstanceOf[Iterable[QueryDefinition]]
 
     val query =
@@ -838,8 +764,8 @@ class AddressIndexRepository @Inject()(
           // something that will indicate an empty result
           val tokens = requestData.tokens
           val emptyBulk = BulkAddress.empty(requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress)),tokens, 1D)
-          val emptyBulkAddress =  AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, false)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress)), tokens, 1D)
+          val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, false)
           if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
           else {
             val bulkAddresses = hybridAddresses.map { hybridAddress =>
@@ -853,11 +779,11 @@ class AddressIndexRepository @Inject()(
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
             // add the Hopper and hybrid scores to the address
-           // val matchThreshold = 5
+            // val matchThreshold = 5
             val threshold = Try((matchThreshold / 100).toDouble).getOrElse(0.05D)
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
-            val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map{ case (b, s) =>
-                AddressBulkResponseAddress.fromBulkAddress(b, s, includeFullAddress)
+            val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map { case (b, s) =>
+              AddressBulkResponseAddress.fromBulkAddress(b, s, includeFullAddress)
             }
             val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(limit)
 
