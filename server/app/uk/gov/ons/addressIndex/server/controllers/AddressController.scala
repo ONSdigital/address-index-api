@@ -34,7 +34,8 @@ class AddressController @Inject()(
   val logger = Logger("address-index-server:AddressController")
 
   override val apiVersion: String = versionProvider.apiVersion
-  override val dataVersion: String = versionProvider.dataVersion
+  // lazy to avoid application crash at startup if ES is down
+  override lazy val dataVersion: String = versionProvider.dataVersion
 
   val missing: String = "missing"
   val invalid: String = "invalid"

@@ -71,7 +71,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
 
       def getAcceptedIssuers: Array[X509Certificate] = Array()
     }
-  ), null);
+  ), null)
 
   val client = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
 
