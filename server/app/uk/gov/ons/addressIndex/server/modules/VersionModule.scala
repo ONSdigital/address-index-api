@@ -2,9 +2,10 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import com.sksamuel.elastic4s.http.index.alias.IndexAliases
-import com.sksamuel.elastic4s.http.{RequestFailure,RequestSuccess}
+import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
 import com.sksamuel.elastic4s.http.ElasticDsl._
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
+
 import scala.language.postfixOps
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -20,8 +21,7 @@ trait VersionModule {
 @Singleton
 class AddressIndexVersionModule @Inject()(
   configProvider: ConfigModule,
-  elasticClientProvider: ElasticClientProvider
-) extends VersionModule{
+  elasticClientProvider: ElasticClientProvider) extends VersionModule {
 
   private val logger = Logger("address-index:VersionModule")
 
@@ -40,30 +40,32 @@ class AddressIndexVersionModule @Inject()(
     resource.getLines().mkString("")
   }
 
+  // lazy to avoid application crash at startup if ES is down
   lazy val dataVersion: String = {
 
     val alias: String = configProvider.config.elasticSearch.indexes.hybridIndex
-    val aliaseq: Seq[String] = Seq{alias}
+    val aliaseq: Seq[String] = Seq {
+      alias
+    }
     val requestForIdexes = elasticClientProvider.client.execute {
-      getAliases(Nil,aliaseq)
+      getAliases(Nil, aliaseq)
     }
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
-    val indexes: Either[RequestFailure, RequestSuccess[IndexAliases]] = Await.result(requestForIdexes, 10 seconds)
+      val indexes: Either[RequestFailure, RequestSuccess[IndexAliases]] = Await.result(requestForIdexes, 10 seconds)
 
-    val index: String = indexes match {
-       case Left(l) => l.error.reason
-       case Right(r) => r.result.mappings.toMap.keys.toString()
-    }
+      val index: String = indexes match {
+        case Left(l) => l.error.reason
+        case Right(r) => r.result.mappings.keys.toString()
+      }
 
-    logger.info("index name(s) = " + index)
+      logger.info("index name(s) = " + index)
 
-    Option(index).map(removeBaseIndexName)
-      .map(removeLetters)
-      .filter(_.length >= 2) // epoch number should contain at least 2 numbers
-      .map(_.substring(0, 2))
-      .getOrElse("NA")
-
+      Option(index).map(removeBaseIndexName)
+        .map(removeLetters)
+        .filter(_.length >= 2) // epoch number should contain at least 2 numbers
+        .map(_.substring(0, 2))
+        .getOrElse("NA")
   }
 
   private def removeBaseIndexName(index: String): String = index.substring(index.indexOf('_') + 1).takeWhile(_ != '_')
