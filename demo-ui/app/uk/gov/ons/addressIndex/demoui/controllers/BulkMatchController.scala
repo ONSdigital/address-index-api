@@ -103,7 +103,7 @@ class BulkMatchController @Inject()(
           bulkAddress.uprn,
           MatchTypeHelper.matchType(bulkAddress.id, ids, bulkAddress.matchedFormattedAddress),
           bulkAddress.confidenceScore,
-          bulkAddress.score,
+          bulkAddress.underlyingScore,
           ScoreHelper.getRank(index, apiResponse)
         ).mkString(",") + "\n"
       }.toList
