@@ -51,11 +51,12 @@ definitions:
               type: array
               items:
                 $ref: '#/definitions/Token'
-            score:
+            underlyingScore:
               type: number
               format: float
-            bespokeScore:
-              "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseScore"
+            confidenceScore:
+              type: number
+              format: double
           required:
           - id
           - inputAddress
