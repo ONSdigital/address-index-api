@@ -18,6 +18,10 @@
 * `re-start` utilise sbt-revolver, we have some eager singletons which load share objects
 * Go to web browser `localhost:9000`
 
+### How do I run performance tests ###
+
+See [Running Performance Tests](server/src/it/Running%20Performance%20Tests.md)
+
 ### Contribution guidelines ###
 
 * Scaladoc

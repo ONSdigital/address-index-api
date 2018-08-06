@@ -12,12 +12,12 @@ import scala.language.postfixOps
 class RegistersSimulation extends Simulation {
 
   val baseUrl: String = ConfigLoader("baseUrl")
-  val numOfConcurrentUsers: Int = ConfigLoader("concurrentUsers") toInt
+  val numOfRequestsPerSecond: Int = ConfigLoader("requestsPerSecond") toInt
   val requestRelPath = ConfigLoader("request_rel_path")
   val requestType = ConfigLoader("request_type")
   val requestName: String = ConfigLoader("request_name_prefix").stripSuffix(" ") + ": " + baseUrl + requestRelPath
 
-  println(s"Running test with numOfConcurrentUsers: $numOfConcurrentUsers, baseUrl : $baseUrl, $requestType Request : $requestRelPath")
+  println(s"Running test with numOfRequestsPerSecond: $numOfRequestsPerSecond, baseUrl : $baseUrl, $requestType Request : $requestRelPath")
 
   val httpProtocol: HttpProtocolBuilder = http
     .baseURL(baseUrl)
@@ -47,8 +47,8 @@ class RegistersSimulation extends Simulation {
     scenario(requestName).exec(httpRequestBuilder)
   }
 
-  setUp(scn.inject(constantUsersPerSec(numOfConcurrentUsers) during (1 minute)))
-    .throttle(jumpToRps(numOfConcurrentUsers), holdFor(1 minute))
+  setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
+    .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
     .protocols(httpProtocol)
 
 }
