@@ -13,7 +13,7 @@ object ConfigLoader {
     .withFallback(applicationConfig)
     .resolve()
 
-  lazy val apiSpecificConfigName: String = System.getProperty("configName", "generic_get_request")
+  lazy val apiSpecificConfigName: String = System.getProperty("CONFIG_NAME", "generic_get_request")
 
   def apply(configurationKey: String): String = config.getString(apiSpecificConfigName + "." + configurationKey)
   def getPOSTRequestBodyJSONPath() = "%s%s%s".format(PathPrefix, apiSpecificConfigName, ".json")
