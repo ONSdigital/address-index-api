@@ -160,17 +160,36 @@ class AddressIndexRepository @Inject()(
       else filters.toUpperCase
     }
 
+    val inputNumberOnlyPattern = "([0-9]+)".r
+
+    val inputNumber = input.replaceAll("[^0-9]", "")
+
     val query =
-      if (filters.isEmpty) {
-        must(matchQuery("lpi.nagAll.typeahead", input).operator("AND").fuzziness("0"), matchQuery("lpi.nagAll.typeaheadNumber", input)).filter(not(termQuery("lpi.addressBasePostal", "N")))
-      }else {
-        if (filterType == "prefix") {
-          must(matchQuery("lpi.nagAll.typeahead", input).operator("AND").fuzziness("0"), matchQuery("lpi.nagAll.typeaheadNumber", input)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
-        }
-        else {
-          must(matchQuery("lpi.nagAll.typeahead", input).operator("AND").fuzziness("0"), matchQuery("lpi.nagAll.typeaheadNumber", input)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+      if (inputNumber.isEmpty) {
+        if (filters.isEmpty) {
+          must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(not(termQuery("lpi.addressBasePostal", "N")))
+        }else {
+          if (filterType == "prefix") {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          }
+          else {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          }
         }
       }
+      else {
+        if (filters.isEmpty) {
+          must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(not(termQuery("lpi.addressBasePostal", "N")))
+        }else {
+          if (filterType == "prefix") {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(prefixQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          }
+          else {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(termQuery("lpi.classificationCode", filterValue), not(termQuery("lpi.addressBasePostal", "N")))
+          }
+        }
+      }
+
 
     if (historical) {
       search(hybridIndexHistorical).query(query)
