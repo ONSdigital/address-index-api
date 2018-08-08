@@ -270,8 +270,6 @@ class AddressIndexRepository @Inject()(
         }
       }
 
-//    var temp = Json.parse(QueryBuilderFn(query).toString)
-
     if (historical) {
       search(hybridIndexHistorical).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
@@ -795,9 +793,6 @@ class AddressIndexRepository @Inject()(
         should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
-
-    var temp = Json.parse(QueryBuilderFn(query).toString)
-
     if (historical) {
       search(hybridIndexHistorical).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
@@ -859,5 +854,4 @@ class AddressIndexRepository @Inject()(
 
     Future.sequence(addressRequests)
   }
-
 }

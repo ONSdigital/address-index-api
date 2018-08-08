@@ -20,9 +20,9 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -98,9 +98,9 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #    - name: uprn
 #      description: Specifies the address UPRN.
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -125,9 +125,9 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.Addr
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -152,9 +152,9 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -188,9 +188,9 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -217,9 +217,9 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -240,9 +240,9 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -262,9 +262,9 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
 #    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd)
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd)
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold

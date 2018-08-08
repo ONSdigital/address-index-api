@@ -734,7 +734,7 @@ class AddressController @Inject()(
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitperaddress: Option[String], startDate: Option[String], endDate: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -751,8 +751,8 @@ class AddressController @Inject()(
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.bulk.limitperaddress
@@ -818,7 +818,7 @@ class AddressController @Inject()(
     * this version is slower and more memory-consuming
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitperaddress: Option[String], startDate: Option[String], endDate: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulkFull(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -835,8 +835,8 @@ class AddressController @Inject()(
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     val defLimit = conf.config.bulk.limitperaddress
     val maxLimit = conf.config.bulk.maxLimitperaddress
@@ -897,7 +897,7 @@ class AddressController @Inject()(
     * Bulk endpoint that accepts tokens instead of input texts for each address
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitperaddress: Option[String], startDate: Option[String], endDate: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
+  def bulkDebug(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
     // check API key
     val apiKey = request.headers.get("authorization").getOrElse(missing)
@@ -914,8 +914,8 @@ class AddressController @Inject()(
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
+    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
+    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     val defLimit = conf.config.bulk.limitperaddress
     val maxLimit = conf.config.bulk.maxLimitperaddress
