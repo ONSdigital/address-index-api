@@ -92,7 +92,7 @@ class BulkMatchController @Inject()(
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
-      val header = "id,inputAddress,matchedAddress,uprn,matchType,confidenceScore,documentScore,buildingScore,unitScore,rank\n"
+      val header = "id,inputAddress,matchedAddress,uprn,matchType,confidenceScore,documentScore,rank\n"
 
       val ids = apiResponse.bulkAddresses.map(_.id)
       val data = apiResponse.bulkAddresses.zipWithIndex.map { case (bulkAddress, index) =>
@@ -103,9 +103,7 @@ class BulkMatchController @Inject()(
           bulkAddress.uprn,
           MatchTypeHelper.matchType(bulkAddress.id, ids, bulkAddress.matchedFormattedAddress),
           bulkAddress.confidenceScore,
-          bulkAddress.score,
-          bulkAddress.bespokeScore.map(_.structuralScore).getOrElse(0),
-          bulkAddress.bespokeScore.map(_.objectScore).getOrElse(-1),
+          bulkAddress.underlyingScore,
           ScoreHelper.getRank(index, apiResponse)
         ).mkString(",") + "\n"
       }.toList

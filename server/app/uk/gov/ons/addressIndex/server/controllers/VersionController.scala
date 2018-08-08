@@ -26,9 +26,11 @@ class VersionController @Inject()(
   val logger = Logger("address-index-server:AddressController")
 
   override val apiVersion: String = versionProvider.apiVersion
-  override val dataVersion: String = versionProvider.dataVersion
+  // lazy to avoid application crash at startup if ES is down
+  override lazy val dataVersion: String = versionProvider.dataVersion
 
-  val versionResults = new AddressResponseVersion(apiVersion, dataVersion)
+  // lazy to avoid application crash at startup if ES is down
+  lazy val versionResults = new AddressResponseVersion(apiVersion, dataVersion)
 
   def versionQuery(): Action[AnyContent] = Action { implicit req =>
     Ok(Json.toJson(versionResults))

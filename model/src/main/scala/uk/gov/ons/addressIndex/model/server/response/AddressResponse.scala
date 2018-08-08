@@ -232,8 +232,7 @@ case class AddressBulkResponseAddress(
   matchedAddress: Option[AddressResponseAddress],
   tokens: Map[String, String],
   confidenceScore: Double,
-  score: Float,
-  bespokeScore: Option[AddressResponseScore]
+  underlyingScore: Float
 )
 
 object AddressBulkResponseAddress {
@@ -251,8 +250,7 @@ object AddressBulkResponseAddress {
     matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,
-    score = bulkAddress.hybridAddress.score,
-    bespokeScore = addressResponseAddress.bespokeScore
+    underlyingScore = bulkAddress.hybridAddress.score
   )
 
 }
@@ -291,8 +289,7 @@ object AddressTokens {
   * @param paf                optional, information from Paf index
   * @param nag                optional, information from Nag index
   * @param underlyingScore    score from elastic search
-  * @param bespokeScore       custom scoring, optional so that it can be added during additional
-  *                           step in the HopperScoreHelper
+  *
   */
 case class AddressResponseAddress(
   uprn: String,
@@ -308,8 +305,7 @@ case class AddressResponseAddress(
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
   confidenceScore: Double,
-  underlyingScore: Float,
-  bespokeScore: Option[AddressResponseScore]
+  underlyingScore: Float
 )
 
 object AddressResponseAddress {
@@ -346,8 +342,7 @@ object AddressResponseAddress {
       nag = chosenNag.map(AddressResponseNag.fromNagAddress),
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       confidenceScore = other.score,
-      underlyingScore = other.score,
-      bespokeScore = None
+      underlyingScore = other.score
     )
   }
 
@@ -889,6 +884,10 @@ object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
   message = "Internal server error"
 )
 
+object TooManyRequestsResponseStatus extends AddressResponseStatus(
+  code = Status.TOO_MANY_REQUESTS,
+  message = "Too Many Requests"
+)
 
 /**
   * Contains one response error

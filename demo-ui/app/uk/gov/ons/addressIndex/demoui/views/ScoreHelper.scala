@@ -22,7 +22,7 @@ object ScoreHelper {
     * @return
     */
   def getRelativePercentageScore(score: Double, set: AddressBulkResponseContainer): Int = {
-    ((score / set.bulkAddresses.maxBy(_.score).score) * 100).toInt
+    ((score / set.bulkAddresses.maxBy(_.underlyingScore).underlyingScore) * 100).toInt
   }
 
   /**
