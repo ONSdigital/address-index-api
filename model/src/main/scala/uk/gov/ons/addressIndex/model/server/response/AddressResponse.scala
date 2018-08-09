@@ -1099,6 +1099,6 @@ object StartDateInvalidResponseError extends AddressResponseError(
 )
 
 object EndDateInvalidResponseError extends AddressResponseError(
-  code = 37,
+  code = 38,
   message = "Failed request to the Elastic Search end date cannot be parsed"
 )
