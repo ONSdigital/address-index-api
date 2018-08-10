@@ -50,6 +50,7 @@ case class NationalAddressGazetteerAddress (
   rpc: String,
   nagAll: String,
   lpiEndDate: String,
+  lpiStartDate: String,
   mixedNag: String
 )
 
@@ -103,6 +104,7 @@ object NationalAddressGazetteerAddress {
     val rpc: String = "rpc"
     val nagAll: String = "nagAll"
     val lpiEndDate: String = "lpiEndDate"
+    val lpiStartDate: String = "lpiStartDate"
     val mixedNag: String = "mixedNag"
   }
 
@@ -160,6 +162,7 @@ object NationalAddressGazetteerAddress {
       rpc = filteredNag.getOrElse(Fields.rpc, "").toString,
       nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
       lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString,
+      lpiStartDate = filteredNag.getOrElse(Fields.lpiStartDate, "").toString,
       mixedNag = filteredNag.getOrElse(Fields.mixedNag, "").toString
     )
   }

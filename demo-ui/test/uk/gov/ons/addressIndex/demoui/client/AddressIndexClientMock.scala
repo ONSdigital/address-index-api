@@ -37,6 +37,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     rangekm = "2",
     latitude = "50.705948",
     longitude = "-3.5091076",
+    startDate = "",
+    endDate = "",
     total = 1,
     sampleSize = 20,
     maxScore = 1f,
@@ -51,7 +53,9 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     filter = "",
     historical = true,
     total = 1,
-    maxScore = 1f
+    maxScore = 1f,
+    startDate = "",
+    endDate = ""
   )
 
   val mockSearchResponseContainer = AddressBySearchResponseContainer (
@@ -198,6 +202,8 @@ object AddressIndexClientMock {
   )
 
   val mockAddressByUprnResponse = AddressByUprnResponse (
-    address = Some(mockAddressResponseAddress: AddressResponseAddress)
+    address = Some(mockAddressResponseAddress: AddressResponseAddress),
+    startDate = "",
+    endDate = ""
   )
 }

@@ -19,6 +19,10 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Latitude of point in decimal format (e.g. 50.705948).
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -29,7 +33,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Return a list of codelists supported by the API
@@ -93,6 +97,10 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #  parameters:
 #    - name: uprn
 #      description: Specifies the address UPRN.
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -101,7 +109,7 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, startdate: Option[String], enddate: Option[String], historical: Option[String])
 
 
 ###
@@ -116,6 +124,10 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.Addr
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -124,7 +136,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.Addr
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPartialAddressResponseContainer"
 ###
-GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.AddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.AddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
 
 
 ###
@@ -139,6 +151,10 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      description: Specifies the number of addresses to return (default 10, maximum 100).
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
@@ -147,7 +163,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponseContainer"
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.AddressController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.AddressController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
 
 ###
 #  summary: Test elastic is connected.
@@ -171,13 +187,17 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      description: Latitude of point in decimal format (e.g. 50.705948).
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #  responses:
 #    200:
 #      description: success
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
 
 ###
 #  summary: Get version information.
@@ -196,6 +216,10 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #  parameters:
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -206,7 +230,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -215,6 +239,10 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  parameters:
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -225,7 +253,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses as tokens.
@@ -233,6 +261,10 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  parameters:
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address (default 5).
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: matchthreshold
@@ -243,7 +275,7 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

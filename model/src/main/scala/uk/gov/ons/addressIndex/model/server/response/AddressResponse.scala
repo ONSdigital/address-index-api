@@ -36,7 +36,9 @@ object AddressByUprnResponseContainer {
   * @param address found address
   */
 case class AddressByUprnResponse(
-  address: Option[AddressResponseAddress]
+  address: Option[AddressResponseAddress],
+  startDate: String,
+  endDate: String
 )
 
 object AddressByUprnResponse {
@@ -84,7 +86,9 @@ case class AddressByPostcodeResponse(
                                     limit: Int,
                                     offset: Int,
                                     total: Long,
-                                    maxScore: Double
+                                    maxScore: Double,
+                                    startDate: String,
+                                    endDate: String
                                   )
 
 
@@ -132,7 +136,9 @@ case class AddressByPartialAddressResponse(
                                       limit: Int,
                                       offset: Int,
                                       total: Long,
-                                      maxScore: Double
+                                      maxScore: Double,
+                                      startDate: String,
+                                      endDate: String
                                     )
 
 object AddressByPartialAddressResponse {
@@ -180,6 +186,8 @@ case class AddressBySearchResponse(
   rangekm: String,
   latitude: String,
   longitude: String,
+  startDate: String,
+  endDate: String,
   limit: Int,
   offset: Int,
   total: Long,
@@ -1151,4 +1159,14 @@ object FilterInvalidPostcodeError extends AddressResponseError(
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 36,
   message = "Failed request to the Elastic Search (partial address)(check api logs)"
+)
+
+object StartDateInvalidResponseError extends AddressResponseError(
+  code = 37,
+  message = "Failed request to the Elastic Search start date cannot be parsed"
+)
+
+object EndDateInvalidResponseError extends AddressResponseError(
+  code = 38,
+  message = "Failed request to the Elastic Search end date cannot be parsed"
 )
