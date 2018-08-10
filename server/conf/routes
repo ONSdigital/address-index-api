@@ -40,7 +40,7 @@ GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCodelistListContainer"
 ###
-GET     /codelists             uk.gov.ons.addressIndex.server.controllers.AddressController.codeList()
+GET     /codelists             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeList()
 
 
 ###
@@ -52,7 +52,7 @@ GET     /codelists             uk.gov.ons.addressIndex.server.controllers.Addres
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseSourceListContainer"
 ###
-GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.AddressController.codeListSource()
+GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListSource()
 
 ###
 #  summary: Return a list of available classification codes
@@ -63,7 +63,7 @@ GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseClassificationListContainer"
 ###
-GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.AddressController.codeListClassification()
+GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListClassification()
 
 ###
 #  summary: Return a list of available local custodian codes
@@ -74,7 +74,7 @@ GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCustodianListContainer"
 ###
-GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.AddressController.codeListCustodian()
+GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListCustodian()
 
 ###
 #  summary: Return a list of available logical status values
@@ -85,7 +85,7 @@ GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseLogicalStatusListContainer"
 ###
-GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.AddressController.codeListLogicalStatus()
+GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListLogicalStatus()
 
 ###
 #  summary: Gets an address by UPRN.
@@ -101,7 +101,7 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponseContainer"
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.AddressController.uprnQuery(uprn, historical: Option[String])
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String])
 
 
 ###
@@ -147,7 +147,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponseContainer"
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.AddressController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
 
 ###
 #  summary: Test elastic is connected.
@@ -206,7 +206,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -225,7 +225,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses as tokens.
@@ -243,7 +243,7 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.AddressController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

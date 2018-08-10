@@ -82,15 +82,15 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
 
   "ClassHierarchy" should
     "return the original code and the three classifications in the (partial) hierarchy" in new WithApplication {
-    val messagesApi = app.injector.instanceOf[MessagesApi]
-    val langs = app.injector.instanceOf[Langs]
+    val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+    val langs: Langs = app.injector.instanceOf[Langs]
     val classHierarchy = new ClassHierarchy(messagesApi, langs)
 
     // Given
     val expectedSeq = " [ MF99UG ] [ Military ] [ Air Force ] [ Air Force Military Storage ]"
 
     // When
-    val result = classHierarchy.analyseClassCode("MF99UG")
+    val result: String = classHierarchy.analyseClassCode("MF99UG")
 
     result shouldBe expectedSeq
   }

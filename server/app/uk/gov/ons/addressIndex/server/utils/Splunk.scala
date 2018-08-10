@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
 
+
 object Splunk {
 
   private val logger = Logger("SPLUNK")

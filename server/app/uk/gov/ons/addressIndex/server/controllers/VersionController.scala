@@ -1,12 +1,12 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion
+import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 
 import scala.concurrent.ExecutionContext
 
@@ -21,13 +21,9 @@ class VersionController @Inject()(
   val controllerComponents: ControllerComponents,
   conf: ConfigModule,
   versionProvider: VersionModule
-)(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
+)(implicit ec: ExecutionContext) extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
-  val logger = Logger("address-index-server:AddressController")
-
-  override val apiVersion: String = versionProvider.apiVersion
-  // lazy to avoid application crash at startup if ES is down
-  override lazy val dataVersion: String = versionProvider.dataVersion
+  lazy val logger = Logger("address-index-server:AddressController")
 
   // lazy to avoid application crash at startup if ES is down
   lazy val versionResults = new AddressResponseVersion(apiVersion, dataVersion)
