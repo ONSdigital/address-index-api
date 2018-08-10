@@ -738,36 +738,43 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
-            "query":{
-              "bool": {
-                "must": [{
-                  "match": {
-                    "lpi.nagAll.typeahead": {
-                      "query": "h4"
-                    }
-                  }
-                }],
-                "filter": [{
-                  "prefix": {
-                    "lpi.classificationCode": {
-                      "value": "R"
-                    }
-                  }
-                },
-                {
-                  "bool": {
-                    "must_not": [{
-                      "term": {
-                        "lpi.addressBasePostal": {
-                          "value": "N"
-                        }
-                      }
-                    }]
-                  }
-                }]
-              }
-            }
+           	"version": true,
+           	"query": {
+           		"bool": {
+           			"must": [{
+           				"multi_match": {
+           					"query": "h4",
+           					"fields": ["lpi.nagAll.partial"],
+           					"type": "best_fields"
+           				}
+           			}],
+           			"should": [{
+           				"match": {
+           					"lpi.paoStartNumber": {
+           						"query": "4"
+           					}
+           				}
+           			}],
+           			"filter": [{
+           				"prefix": {
+           					"lpi.classificationCode": {
+           						"value": "R"
+           					}
+           				}
+           			},
+           			{
+           				"bool": {
+           					"must_not": [{
+           						"term": {
+           							"lpi.addressBasePostal": {
+           								"value": "N"
+           							}
+           						}
+           					}]
+           				}
+           			}]
+           		}
+           	}
           }
          """.stripMargin
       )
@@ -786,80 +793,87 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
-            "query":{
-              "bool": {
-                "must": [{
-                  "match": {
-                    "lpi.nagAll.typeahead": {
-                      "query": "h4"
-                    }
-                  }
-                }],
-                "filter": [{
-                  "prefix": {
-                    "lpi.classificationCode": {
-                      "value": "R"
-                    }
-                  }
-                },
-                {
-                  "bool": {
-                    "must_not": [{
-                      "term": {
-                        "lpi.addressBasePostal": {
-                          "value": "N"
-                        }
-                      }
-                    }]
-                  }
-                },
-                {
-                  "bool": {
-                    "should": [{
-                      "bool": {
-                        "must": [{
-                          "range": {
-                            "paf.startDate": {
-                              "gte": "2013-01-01",
-                              "format": "yyyy-MM-dd"
-                            }
-                          }
-                        },
-                        {
-                          "range": {
-                            "paf.endDate": {
-                              "lte": "2013-12-31",
-                              "format": "yyyy-MM-dd"
-                            }
-                          }
-                        }]
-                      }
-                    },
-                    {
-                      "bool": {
-                        "must": [{
-                          "range": {
-                            "lpi.lpiStartDate": {
-                              "gte": "2013-01-01",
-                              "format": "yyyy-MM-dd"
-                            }
-                          }
-                        },
-                        {
-                          "range": {
-                            "lpi.lpiEndDate": {
-                              "lte": "2013-12-31",
-                              "format": "yyyy-MM-dd"
-                            }
-                          }
-                        }]
-                      }
-                    }]
-                  }
-                }]
-              }
-            }
+           	"version": true,
+           	"query": {
+           		"bool": {
+           			"must": [{
+           				"multi_match": {
+           					"query": "h4",
+           					"fields": ["lpi.nagAll.partial"],
+           					"type": "best_fields"
+           				}
+           			}],
+           			"should": [{
+           				"match": {
+           					"lpi.paoStartNumber": {
+           						"query": "4"
+           					}
+           				}
+           			}],
+           			"filter": [{
+           				"prefix": {
+           					"lpi.classificationCode": {
+           						"value": "R"
+           					}
+           				}
+           			},
+           			{
+           				"bool": {
+           					"must_not": [{
+           						"term": {
+           							"lpi.addressBasePostal": {
+           								"value": "N"
+           							}
+           						}
+           					}]
+           				}
+           			},
+           			{
+           				"bool": {
+           					"should": [{
+           						"bool": {
+           							"must": [{
+           								"range": {
+           									"paf.startDate": {
+           										"gte": "2013-01-01",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							},
+           							{
+           								"range": {
+           									"paf.endDate": {
+           										"lte": "2013-12-31",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							}]
+           						}
+           					},
+           					{
+           						"bool": {
+           							"must": [{
+           								"range": {
+           									"lpi.lpiStartDate": {
+           										"gte": "2013-01-01",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							},
+           							{
+           								"range": {
+           									"lpi.lpiEndDate": {
+           										"lte": "2013-12-31",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							}]
+           						}
+           					}]
+           				}
+           			}]
+           		}
+           	}
           }
          """.stripMargin
       )
@@ -2608,7 +2622,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterNone)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterNone, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -2649,7 +2663,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterNone)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterNone, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -2705,7 +2719,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterCode)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterCode, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -2760,7 +2774,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterPrefix)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterPrefix, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -2808,7 +2822,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterCode)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterCode, "", "")).string())
 
       // Then
       result shouldBe expected
@@ -2856,7 +2870,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterPrefix)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterPrefix, "", "")).string())
 
       // Then
       result shouldBe expected
