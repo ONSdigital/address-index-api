@@ -336,15 +336,15 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = queryController
 
-      val expected = Json.toJson(AddressByPartialResponseContainer(
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        response = AddressByPartialResponse(
+        response = AddressByPartialAddressResponse(
           input = "some query",
           addresses = Seq(AddressResponsePartialAddress.fromHybridAddress(validHybridAddress)),
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 20,
           offset = 0,
           total = 1,
           maxScore = 1.0f

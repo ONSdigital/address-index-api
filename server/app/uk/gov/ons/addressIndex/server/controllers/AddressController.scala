@@ -474,7 +474,7 @@ class AddressController @Inject()(
     val sourceStatus = checkSource(source)
 
     // get the defaults and maxima for the paging parameters from the config
-    val defLimit = conf.config.elasticSearch.defaultLimit
+    val defLimit = conf.config.elasticSearch.defaultLimitPartial
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
@@ -555,10 +555,10 @@ class AddressController @Inject()(
           writeSplunkLogs()
 
           jsonOk(
-            AddressByPartialResponseContainer(
+            AddressByPartialAddressResponseContainer(
               apiVersion = apiVersion,
               dataVersion = dataVersion,
-              response = AddressByPartialResponse(
+              response = AddressByPartialAddressResponse(
                 input = input,
                 addresses = addresses,
                 filter = filterString,

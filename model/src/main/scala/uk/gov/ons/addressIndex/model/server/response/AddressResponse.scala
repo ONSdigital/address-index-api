@@ -102,17 +102,17 @@ object AddressByPostcodeResponse {
   * @param status   status code / message
   * @param errors   encountered errors (or an empty list if there is no errors)
   */
-case class AddressByPartialResponseContainer(
+case class AddressByPartialAddressResponseContainer(
                                                apiVersion: String,
                                                dataVersion: String,
-                                               response: AddressByPartialResponse,
+                                               response: AddressByPartialAddressResponse,
                                                status: AddressResponseStatus,
                                                errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
                                              )
 
-object AddressByPartialResponseContainer {
-  implicit lazy val addressByPartialResponseContainerFormat: Format[AddressByPartialResponseContainer] =
-    Json.format[AddressByPartialResponseContainer]
+object AddressByPartialAddressResponseContainer {
+  implicit lazy val addressByPartialAddressResponseContainerFormat: Format[AddressByPartialAddressResponseContainer] =
+    Json.format[AddressByPartialAddressResponseContainer]
 }
 
 /**
@@ -124,7 +124,7 @@ object AddressByPartialResponseContainer {
   * @param offset    offset of found addresses (for pagination)
   * @param total     total number of found addresses
   */
-case class AddressByPartialResponse(
+case class AddressByPartialAddressResponse(
                                       input: String,
                                       addresses: Seq[AddressResponsePartialAddress],
                                       filter: String,
@@ -135,8 +135,8 @@ case class AddressByPartialResponse(
                                       maxScore: Double
                                     )
 
-object AddressByPartialResponse {
-  implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialResponse] = Json.format[AddressByPartialResponse]
+object AddressByPartialAddressResponse {
+  implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]
 }
 
 
@@ -376,13 +376,11 @@ object AddressResponseAddress {
   */
 case class AddressResponsePartialAddress(
   uprn: String,
-  parentUprn: String,
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
   welshFormattedAddressNag: String,
   welshFormattedAddressPaf: String,
-  confidenceScore: Double,
   underlyingScore: Float
 )
 
@@ -408,13 +406,11 @@ object AddressResponsePartialAddress {
 
     AddressResponsePartialAddress(
       uprn = other.uprn,
-      parentUprn = other.parentUprn,
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
-      confidenceScore = other.score,
       underlyingScore = other.score
     )
   }

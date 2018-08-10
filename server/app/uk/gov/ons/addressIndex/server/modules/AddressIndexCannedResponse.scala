@@ -298,8 +298,8 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  def FailedRequestToEsPartialAddress: AddressByPartialResponseContainer = {
-    AddressByPartialResponseContainer(
+  def FailedRequestToEsPartialAddress: AddressByPartialAddressResponseContainer = {
+    AddressByPartialAddressResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = ErrorPartialAddress,
@@ -308,8 +308,8 @@ trait AddressIndexCannedResponse {
     )
   }
 
-  def ErrorPartialAddress: AddressByPartialResponse = {
-    AddressByPartialResponse(
+  def ErrorPartialAddress: AddressByPartialAddressResponse = {
+    AddressByPartialAddressResponse(
       input = "",
       addresses = Seq.empty,
       filter= "",
