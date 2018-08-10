@@ -2,22 +2,22 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import java.text.SimpleDateFormat
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
-import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
+import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
+import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
+import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules._
-import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Splunk}
+import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, HopperScoreHelper, Overload, Splunk, ProtectorStatus}
 
 import scala.annotation.tailrec
-import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import scala.math._
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -28,13 +28,15 @@ class AddressController @Inject()(
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: ConfigModule,
-  versionProvider: VersionModule
+  versionProvider: VersionModule,
+  overloadProtection: Overload
 )(implicit ec: ExecutionContext) extends PlayHelperController with AddressIndexCannedResponse {
 
   val logger = Logger("address-index-server:AddressController")
 
   override val apiVersion: String = versionProvider.apiVersion
-  override val dataVersion: String = versionProvider.dataVersion
+  // lazy to avoid application crash at startup if ES is down
+  override lazy val dataVersion: String = versionProvider.dataVersion
 
   val missing: String = "missing"
   val invalid: String = "invalid"
@@ -42,18 +44,20 @@ class AddressController @Inject()(
   val notRequired: String = "not required"
   val DATE_FORMAT = "yyyy-MM-dd"
 
-
   /**
     * Codelist List API
     *
     * @return Json response with codelist
     */
   def codeList(): Action[AnyContent] = Action async { implicit req =>
-    val codList = Tokens.codeList.map{clval =>
-      new AddressResponseCodelist(name=clval.split("=").headOption.getOrElse(""),
-        description=clval.split("=").lastOption.getOrElse(""))
-    }.toSeq
+    val codList = Tokens.codeList.map { clval =>
+
+      new AddressResponseCodelist(name = clval.split("=").headOption.getOrElse(""),
+        description = clval.split("=").lastOption.getOrElse(""))
+    }
+
     val codeListContainer = new AddressResponseCodelistListContainer(codList)
+
     Future(Ok(Json.toJson(codeListContainer)))
   }
 
@@ -63,10 +67,12 @@ class AddressController @Inject()(
     * @return Json response with codelist
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-    val classList = Tokens.classList.map{classval =>
-      new AddressResponseClassification(code=classval.split("=").headOption.getOrElse(""),
-      label=classval.split("=").lastOption.getOrElse(""))
-    }.toSeq
+    val classList = Tokens.classList.map { classval =>
+
+      new AddressResponseClassification(code = classval.split("=").headOption.getOrElse(""),
+        label = classval.split("=").lastOption.getOrElse(""))
+    }
+
     val codListContainer = new AddressResponseClassificationListContainer(classList)
     Future(Ok(Json.toJson(codListContainer)))
   }
@@ -77,7 +83,8 @@ class AddressController @Inject()(
     * @return Json response with codelist
     */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
-    val custList = Tokens.custodianList.map{custval =>
+    val custList = Tokens.custodianList.map { custval =>
+
       new AddressResponseCustodian(
         custval.split(",").lift(0).getOrElse(""),
         custval.split(",").lift(1).getOrElse(""),
@@ -86,7 +93,8 @@ class AddressController @Inject()(
         custval.split(",").lift(4).getOrElse(""),
         custval.split(",").lift(5).getOrElse("")
       )
-    }.toSeq
+    }
+
     val custListContainer = new AddressResponseCustodianListContainer(custList)
     Future(Ok(Json.toJson(custListContainer)))
   }
@@ -97,10 +105,12 @@ class AddressController @Inject()(
     * @return Json response with codelist
     */
   def codeListSource(): Action[AnyContent] = Action async { implicit req =>
-    val sourceList = Tokens.sourceList.map{sourceval =>
+
+    val sourceList = Tokens.sourceList.map { sourceval =>
       new AddressResponseSource(sourceval.split("=").headOption.getOrElse(""),
         sourceval.split("=").lastOption.getOrElse(""))
-    }.toSeq
+    }
+
     val sourceListContainer = new AddressResponseSourceListContainer(sourceList)
     Future(Ok(Json.toJson(sourceListContainer)))
   }
@@ -111,14 +121,15 @@ class AddressController @Inject()(
     * @return Json response with codelist
     */
   def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
-    val logicalList = Tokens.logicalStatusList.map{logstatval =>
+
+    val logicalList = Tokens.logicalStatusList.map { logstatval =>
       new AddressResponseLogicalStatus(logstatval.split("=").headOption.getOrElse(""),
         logstatval.split("=").lastOption.getOrElse(""))
-    }.toSeq
+    }
+
     val logicalListContainer = new AddressResponseLogicalStatusListContainer(logicalList)
     Future(Ok(Json.toJson(logicalListContainer)))
   }
-
 
   /**
     * Address query API
@@ -156,7 +167,7 @@ class AddressController @Inject()(
       case None => true
     }
 
-    // validate radius paramas
+    // validate radius parameters
     val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("")
     val lonVal = lon.getOrElse("")
@@ -170,16 +181,16 @@ class AddressController @Inject()(
     val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     val latTooFarNorth = if (rangeVal.equals("")) false else {
-      (Try(latVal.toDouble).getOrElse(50D) > 60.9)
+      Try(latVal.toDouble).getOrElse(50D) > 60.9
     }
     val latTooFarSouth = if (rangeVal.equals("")) false else {
-      (Try(latVal.toDouble).getOrElse(50D) < 49.8)
+      Try(latVal.toDouble).getOrElse(50D) < 49.8
     }
     val lonTooFarEast = if (rangeVal.equals("")) false else {
-      (Try(lonVal.toDouble).getOrElse(0D) > 1.8)
+      Try(lonVal.toDouble).getOrElse(0D) > 1.8
     }
     val lonTooFarWest = if (rangeVal.equals("")) false else {
-      (Try(lonVal.toDouble).getOrElse(0D) < -8.6)
+      Try(lonVal.toDouble).getOrElse(0D) < -8.6
     }
 
     def writeSplunkLogs(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
@@ -240,7 +251,7 @@ class AddressController @Inject()(
     } else if (input.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryAddressResponseError.message)
       futureJsonBadRequest(EmptySearch)
-    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidError.message)
       futureJsonBadRequest(FilterInvalid)
     } else if (rangeInvalid) {
@@ -273,12 +284,17 @@ class AddressController @Inject()(
     } else {
       val tokens = parser.parse(input)
 
-    //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
+      //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      // try to get enough results to accurately calcuate the hybrid score (may need to be more sophisticated)
+      // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
       val minimumSample = conf.config.elasticSearch.minimumSample
-      val limitExpanded = max(offsetInt + (limitInt * 2),minimumSample)
-      val request: Future[HybridAddresses] = esRepo.queryAddresses(tokens, 0, limitExpanded, filterString, rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist)
+      val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
+
+      val request: Future[HybridAddresses] =
+
+        overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(tokens, 0, limitExpanded, filterString,
+          rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist))
+
 
       request.map { case HybridAddresses(hybridAddresses, maxScore, total) =>
 
@@ -286,7 +302,9 @@ class AddressController @Inject()(
         //  calculate the elastic denominator value which will be used when scoring each address
         val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
         // calculate the Hopper and hybrid scores for each  address
+
         val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
+
         // work out the threshold for accepting matches (default 5% -> 0.05)
         val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
 
@@ -297,7 +315,7 @@ class AddressController @Inject()(
         // trim the result list according to offset and limit paramters
         val limitedSortedAddresses = sortedAddresses.drop(offsetInt).take(limitInt)
 
-        addresses.foreach{ address =>
+        addresses.foreach { address =>
           writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
         }
 
@@ -321,21 +339,32 @@ class AddressController @Inject()(
               offset = offsetInt,
               total = newTotal,
               maxScore = maxScore,
-              sampleSize=limitExpanded,
+              sampleSize = limitExpanded,
               matchthreshold = thresholdFloat
             ),
             status = OkAddressResponseStatus
           )
         )
-      }.recover{
+      }.recover {
         case NonFatal(exception) =>
 
-          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen => {
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            }
+            case ProtectorStatus.Open => {
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            }
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+              logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEs))
+          }
 
-          logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-            InternalServerError(Json.toJson(FailedRequestToEs))
       }
-
     }
   }
 
@@ -370,6 +399,7 @@ class AddressController @Inject()(
     val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     val startingTime = System.currentTimeMillis()
+
     def writeSplunkLogs(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
@@ -400,7 +430,9 @@ class AddressController @Inject()(
       writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
       futureJsonBadRequest(EndDateInvalid)
     } else {
-      val request: Future[Option[HybridAddress]] = esRepo.queryUprn(uprn, startDateVal, endDateVal, hist)
+
+      val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(esRepo.queryUprn(uprn, startDateVal, endDateVal, hist))
+
       request.map {
         case Some(hybridAddress) =>
 
@@ -428,10 +460,20 @@ class AddressController @Inject()(
       }.recover {
         case NonFatal(exception) =>
 
-          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case ProtectorStatus.Open =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsError.message)
+              logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEs))
+          }
 
-          logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
-            InternalServerError(Json.toJson(FailedRequestToEs))
       }
     }
   }
@@ -533,16 +575,15 @@ class AddressController @Inject()(
     } else {
       val tokens = parser.parse(input)
 
-      val request: Future[HybridAddresses] = esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
+      val request: Future[HybridAddresses] =
+        overloadProtection.breaker.withCircuitBreaker(esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist))
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
 
           val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-          val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens,1D)
-
-          addresses.foreach{ address =>
+          addresses.foreach { address =>
             writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
           }
 
@@ -554,7 +595,7 @@ class AddressController @Inject()(
               dataVersion = dataVersion,
               response = AddressByPartialAddressResponse(
                 input = input,
-                addresses = scoredAdresses,
+                addresses = addresses,
                 filter = filterString,
                 historical = hist,
                 limit = limitInt,
@@ -568,15 +609,25 @@ class AddressController @Inject()(
             )
           )
 
-      }.recover{
+      }.recover {
         case NonFatal(exception) =>
 
-          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case ProtectorStatus.Open =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+              logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
+          }
 
-          logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
+
       }
-
     }
   }
 
@@ -668,7 +719,7 @@ class AddressController @Inject()(
     } else if (postcode.isEmpty) {
       writeSplunkLogs(badRequestErrorMessage = EmptyQueryPostcodeAddressResponseError.message)
       futureJsonBadRequest(EmptySearchPostcode)
-    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""") ) {
+    } else if (!filterString.isEmpty && !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
       writeSplunkLogs(badRequestErrorMessage = FilterInvalidPostcodeError.message)
       futureJsonBadRequest(FilterInvalidPostcode)
     } else if (startDateInvalid) {
@@ -682,56 +733,65 @@ class AddressController @Inject()(
 
       //  logger.info(s"#addressQuery parsed:\n${tokens.map{case (label, token) => s"label: $label , value:$token"}.mkString("\n")}")
 
-      val request: Future[HybridAddresses] = esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
+      val request: Future[HybridAddresses] =
+        overloadProtection.breaker.withCircuitBreaker(esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist))
 
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
 
-        val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
+          val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
 
-        val scoredAdresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens,1D)
+          addresses.foreach { address =>
+            writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
+          }
 
-        addresses.foreach{ address =>
-          writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
-        }
+          writeSplunkLogs()
 
-        writeSplunkLogs()
-
-        jsonOk(
-          AddressByPostcodeResponseContainer(
-            apiVersion = apiVersion,
-            dataVersion = dataVersion,
-            response = AddressByPostcodeResponse(
-              postcode = postcode,
-              addresses = scoredAdresses,
-              filter = filterString,
-              historical = hist,
-              limit = limitInt,
-              offset = offsetInt,
-              total = total,
-              maxScore = maxScore,
-              startDate = startDateVal,
-              endDate = endDateVal
-            ),
-            status = OkAddressResponseStatus
+          jsonOk(
+            AddressByPostcodeResponseContainer(
+              apiVersion = apiVersion,
+              dataVersion = dataVersion,
+              response = AddressByPostcodeResponse(
+                postcode = postcode,
+                addresses = addresses,
+                filter = filterString,
+                historical = hist,
+                limit = limitInt,
+                offset = offsetInt,
+                total = total,
+                maxScore = maxScore,
+                startDate = startDateVal,
+                endDate = endDateVal
+              ),
+              status = OkAddressResponseStatus
+            )
           )
-        )
 
-      }.recover{
+      }.recover {
         case NonFatal(exception) =>
 
-          writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+          overloadProtection.currentStatus match {
+            case ProtectorStatus.HalfOpen =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
+            case ProtectorStatus.Open =>
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
+            case _ =>
+              // Circuit Breaker is closed. Some other problem
+              writeSplunkLogs(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+              logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPostcode))
+          }
 
-          logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
-          InternalServerError(Json.toJson(FailedRequestToEsPostcode))
       }
-
     }
   }
 
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
+    *
     * @return reduced information on found addresses (uprn, formatted address)
     */
   def bulk(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
@@ -809,13 +869,15 @@ class AddressController @Inject()(
     }
   }
 
-  private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
+  private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData]
+  = request.body.addresses.toStream.map {
     row => BulkAddressRequestData(row.id, row.address, parser.parse(row.address))
   }
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
     * this version is slower and more memory-consuming
+    *
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
   def bulkFull(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
@@ -895,6 +957,7 @@ class AddressController @Inject()(
 
   /**
     * Bulk endpoint that accepts tokens instead of input texts for each address
+    *
     * @return reduced info on found addresses
     */
   def bulkDebug(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(parse.json[BulkBodyDebug]) { implicit request =>
@@ -982,7 +1045,9 @@ class AddressController @Inject()(
     startDate: String, endDate: String,
     historical: Boolean,
     matchThreshold: Float
-  )(implicit request: Request[_]): Result = {
+  )(implicit request: Request[_]): Result
+
+  = {
 
     val networkid = request.headers.get("authorization").getOrElse("Anon").split("_").headOption.getOrElse("")
 
@@ -997,7 +1062,7 @@ class AddressController @Inject()(
     // Used to distinguish individual bulk logs
     val uuid = java.util.UUID.randomUUID.toString
 
-    val bulkItems = results.flatMap{ addresses =>
+    val bulkItems = results.flatMap { addresses =>
       addresses
     }
 
@@ -1025,10 +1090,11 @@ class AddressController @Inject()(
     *
     * It should throw an exception if the situation is desperate (we only do one request at
     * a time and this request fails)
-    * @param requests Stream of data that will be used to query ES
-    * @param miniBatchSize the size of the bulk to use
-    * @param configOverwrite optional configuration that will overwrite current queryParam
-    * @param canUpScale wether or not this particular iteration can upscale the mini-batch size
+    *
+    * @param requests          Stream of data that will be used to query ES
+    * @param miniBatchSize     the size of the bulk to use
+    * @param configOverwrite   optional configuration that will overwrite current queryParam
+    * @param canUpScale        whether or not this particular iteration can upscale the mini-batch size
     * @param successfulResults accumulator of successfull results
     * @return Queried addresses
     */
@@ -1045,7 +1111,9 @@ class AddressController @Inject()(
     includeFullAddress: Boolean = false,
     canUpScale: Boolean = true,
     successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty
-  ): Stream[Seq[AddressBulkResponseAddress]] = {
+  ): Stream[Seq[AddressBulkResponseAddress]]
+
+  = {
 
     Splunk.log(isBulk = true, batchSize = miniBatchSize.toString)
 
@@ -1065,7 +1133,8 @@ class AddressController @Inject()(
 
     if (requestsLeft.isEmpty) successfulResults ++ result.successfulBulkAddresses
     else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
-      throw new Exception(s"""
+      throw new Exception(
+        s"""
            Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.
            Last request failure message: ${result.failedRequests.head.lastFailExceptionMessage}
         """)
@@ -1087,6 +1156,7 @@ class AddressController @Inject()(
     * Requests addresses for each tokens sequence supplied.
     * This method should not be in `Repository` because it uses `queryAddress`
     * that needs to be mocked through dependency injection
+    *
     * @param inputs an iterator containing a collection of tokens per each lines,
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
@@ -1116,18 +1186,23 @@ class AddressController @Inject()(
   }
 
 
-  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]): Stream[Seq[AddressBulkResponseAddress]] =
+  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]): Stream[Seq[AddressBulkResponseAddress]]
+
+  =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
     }
 
-  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]): Stream[BulkAddressRequestData] =
+  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]): Stream[BulkAddressRequestData]
+
+  =
     addresses.collect {
       case Left(address) => address
     }
 
   /**
     * Method to validate api key
+    *
     * @param apiKey
     * @return not required, valid, invalid or missing
     */
@@ -1135,7 +1210,7 @@ class AddressController @Inject()(
     val keyRequired = conf.config.apiKeyRequired
     if (keyRequired) {
       val masterKey = conf.config.masterKey
-      val apiKeyTest = apiKey.drop(apiKey.indexOf("_")+1)
+      val apiKeyTest = apiKey.drop(apiKey.indexOf("_") + 1)
       apiKeyTest match {
         case key if key == missing => missing
         case key if key == masterKey => valid
@@ -1148,6 +1223,7 @@ class AddressController @Inject()(
 
   /**
     * Method to check source of query
+    *
     * @param source
     * @return not required, valid, invalid or missing
     */

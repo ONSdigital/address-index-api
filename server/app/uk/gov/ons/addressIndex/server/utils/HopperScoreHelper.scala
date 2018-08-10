@@ -133,22 +133,12 @@ object HopperScoreHelper  {
     val respBuildingScoreDebug = Try(buildingScoreDebug.substring(buildingScoreDebug.indexOf(".") + 1)).getOrElse("99")
     val respLocalityScoreDebug = Try(localityScoreDebug.substring(localityScoreDebug.indexOf(".") + 1)).getOrElse("9999")
     val respUnitScoreDebug = Try(unitScoreDebug.substring(unitScoreDebug.indexOf(".") + 1)).getOrElse("9999")
-    val bespokeScore = AddressResponseScore(
-      objectScore,
-      structuralScore,
-      buildingScore,
-      localityScore,
-      unitScore,
-      respBuildingScoreDebug,
-      respLocalityScoreDebug,
-      respUnitScoreDebug,
-      ambiguityPenalty)
 
     val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
     val elasticRatio = if (elasticDenominator == -1D) 1.2D else Try(address.underlyingScore).getOrElse(1F) / safeDenominator
     val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
-    address.copy(bespokeScore = Some(bespokeScore),confidenceScore=confidenceScore)
+    address.copy(confidenceScore=confidenceScore)
   }
 
   /**

@@ -6,6 +6,8 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
+import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{QueryBuilderFn, SearchDefinition, SearchType}
@@ -149,6 +151,10 @@ class AddressIndexRepository @Inject()(
 
     logger.trace(request.toString)
 
+//    val reqString = SearchBodyBuilderFn(request).string()
+//
+//    logger.info(reqString)
+
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
@@ -173,6 +179,10 @@ class AddressIndexRepository @Inject()(
       else filters.toUpperCase
     }
 
+    val inputNumberOnlyPattern = "([0-9]+)".r
+
+    val inputNumber = input.replaceAll("[^0-9]", "")
+
     val dateQuery: Option[QueryDefinition] = {
       if (!startDate.isEmpty && !endDate.isEmpty) {
         Some(
@@ -186,19 +196,31 @@ class AddressIndexRepository @Inject()(
     }
 
     val query =
-      if (filters.isEmpty) {
-        must(matchQuery("lpi.nagAll.typeahead", input))
-          .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-      }else {
-        if (filterType == "prefix") {
-          must(matchQuery("lpi.nagAll.typeahead", input))
-            .filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-        }
-        else {
-          must(matchQuery("lpi.nagAll.typeahead", input))
-            .filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+      if (inputNumber.isEmpty) {
+        if (filters.isEmpty) {
+          must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+        }else {
+          if (filterType == "prefix") {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          }
+          else {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          }
         }
       }
+      else {
+        if (filters.isEmpty) {
+          must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+        }else {
+          if (filterType == "prefix") {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          }
+          else {
+            must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          }
+        }
+      }
+
 
     if (historical) {
       search(hybridIndexHistorical).query(query)

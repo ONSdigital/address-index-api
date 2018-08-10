@@ -23,9 +23,9 @@ class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with Mo
     val UprnOne = 123L
     val UprnTwo = 456L
     val UprnThree = 789L
-    val Address1 = "1, GATE REACH, EXETER, EX1 1GA"
-    val Address2 = "2, GATE REACH, EXETER, EX2 2GA"
-    val Address3 = "3, GATE REACH, EXETER, EX3 3GA"
+    val Address1 = "1, Gate Reach, Exeter, EX1 1GA"
+    val Address2 = "2, Gate Reach, Exeter, EX2 2GA"
+    val Address3 = "3, Gate Reach, Exeter, EX3 3GA"
 
     implicit val executionContext = scala.concurrent.ExecutionContext.Implicits.global
     val addressIndexClient = mock[AddressIndexClient]
