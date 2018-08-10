@@ -10,8 +10,8 @@ import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.validation.BatchValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
+import uk.gov.ons.addressIndex.server.utils.APILogging
 import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
-import uk.gov.ons.addressIndex.server.utils.{APILogging, Overload, Splunk}
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
@@ -87,8 +87,8 @@ class BatchController @Inject()(
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
   def bulkFull(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(
-    parse.json[BulkBody]
-  ) { implicit request =>
+    parse.json[BulkBody]) { implicit request =>
+
     logger.info(s"#bulkFullQuery with ${
       request.body.addresses.size
     } items")
@@ -133,8 +133,8 @@ class BatchController @Inject()(
     * @return reduced info on found addresses
     */
   def bulkDebug(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(
-    parse.json[BulkBodyDebug]
-  ) { implicit request =>
+    parse.json[BulkBodyDebug]) { implicit request =>
+
     logger.info(s"#bulkDebugQuery with ${
       request.body.addresses.size
     } items")
@@ -143,6 +143,7 @@ class BatchController @Inject()(
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
     }
+
     val defLimit = conf.config.bulk.limitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -202,29 +203,25 @@ class BatchController @Inject()(
     matchThreshold: Float,
     includeFullAddress: Boolean = false,
     canUpScale: Boolean = true,
-    successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty
-  ): Stream[Seq[AddressBulkResponseAddress]] = {
+    successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty): Stream[Seq[AddressBulkResponseAddress]] = {
 
-    Splunk.log(isBulk = true, batchSize = miniBatchSize.toString)
+    log(AddressLogMessage(batchSize = miniBatchSize.toString))
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
     val bulkSizeWarningThreshold = conf.config.bulk.batch.warningThreshold
 
     if (miniBatchSize < defaultBatchSize * bulkSizeWarningThreshold)
-      logger.warn(s"#bulkQuery mini-bulk size it less than a ${
-        defaultBatchSize * bulkSizeWarningThreshold
-      }: size = $miniBatchSize , check if everything is fine with ES"
-      )
+      logger.warn(s"#bulkQuery mini-bulk size it less than a ${defaultBatchSize * bulkSizeWarningThreshold}: size = $miniBatchSize , check if everything is fine with ES")
+
     else logger.info(s"#bulkQuery sending a mini-batch of the size $miniBatchSize")
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
     val addressesPerAddress = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val result: BulkAddresses = Await.result(
-      queryBulkAddresses(
-        miniBatch, addressesPerAddress, configOverwrite, historical, matchThreshold, includeFullAddress
-      ), Duration.Inf
-    )
+
+    val result: BulkAddresses = Await.result(queryBulkAddresses(
+      miniBatch, addressesPerAddress, configOverwrite, historical, matchThreshold, includeFullAddress
+    ), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
@@ -333,10 +330,10 @@ class BatchController @Inject()(
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
-    Splunk.log(
-      IP = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString, isBulk = true,
+    log(AddressLogMessage(
+      ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
       bulkSize = requestData.size.toString
-    )
+    ))
 
     response
   }

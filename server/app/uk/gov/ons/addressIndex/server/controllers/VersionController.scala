@@ -12,9 +12,6 @@ import scala.concurrent.ExecutionContext
 
 /**
   * Returns version information - could later become general purpose info
-  * @param conf
-  * @param versionProvider
-  * @param ec
   */
 @Singleton
 class VersionController @Inject()(

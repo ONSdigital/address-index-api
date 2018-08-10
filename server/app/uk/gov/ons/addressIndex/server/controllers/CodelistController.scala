@@ -35,7 +35,6 @@ class CodelistController @Inject()(
   /**
     * Codelist List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeList(): Action[AnyContent] = Action async { implicit req =>
@@ -55,7 +54,6 @@ class CodelistController @Inject()(
   /**
     * Classification List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
@@ -74,7 +72,6 @@ class CodelistController @Inject()(
   /**
     * Custodian List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
@@ -97,7 +94,6 @@ class CodelistController @Inject()(
   /**
     * Classification List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListSource(): Action[AnyContent] = Action async { implicit req =>
@@ -116,7 +112,6 @@ class CodelistController @Inject()(
   /**
     * Classification List API
     *
-    * @param none
     * @return Json response with codelist
     */
   def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>

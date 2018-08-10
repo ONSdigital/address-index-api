@@ -28,11 +28,11 @@ class UPRNController @Inject()(
 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNResponse with APILogging[AddressLogMessage] {
 
+  lazy val logger = Logger("address-index-server:PostcodeController")
+
   override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
   override def log(message: AddressLogMessage): Unit = AddressLogging trace message
   override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
-
-  lazy val logger = Logger("address-index-server:PostcodeController")
 
   /**
     * UPRN query API

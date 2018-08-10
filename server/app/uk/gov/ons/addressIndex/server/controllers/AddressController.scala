@@ -36,7 +36,7 @@ class AddressController @Inject()(
   val notRequired: String = "not required"
 
   override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-
+  override def log(message: AddressLogMessage): Unit = AddressLogging log message
   override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
 
   /**
@@ -209,8 +209,6 @@ class AddressController @Inject()(
         }
     }
   }
-
-  override def log(message: AddressLogMessage): Unit = AddressLogging log message
 
   /**
     * PartialAddress query API
