@@ -343,7 +343,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply on a found address (by partial)" in {
       // Given
-      val controller = queryController
+      val controller = addressController
 
       val expected = Json.toJson(AddressByPartialAddressResponseContainer(
         apiVersion = apiVersionExpected,

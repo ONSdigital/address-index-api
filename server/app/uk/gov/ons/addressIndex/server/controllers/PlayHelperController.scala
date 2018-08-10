@@ -1,8 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.Singleton
-import play.api.libs.json.{Json, Writes}
-import play.api.mvc.{BaseController, Result}
+import play.api.mvc.BaseController
 import uk.gov.ons.addressIndex.server.modules.VersionModule
 import uk.gov.ons.addressIndex.server.modules.response.Response
 

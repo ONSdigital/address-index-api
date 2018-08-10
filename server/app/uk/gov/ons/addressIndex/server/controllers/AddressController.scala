@@ -1,14 +1,13 @@
 package uk.gov.ons.addressIndex.server.controllers
-
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
 import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressValidation
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils._
 import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
 
@@ -37,7 +36,7 @@ class AddressController @Inject()(
   val notRequired: String = "not required"
 
   override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def log(message: AddressLogMessage): Unit = AddressLogging log message
+
   override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
 
   /**
@@ -211,6 +210,8 @@ class AddressController @Inject()(
     }
   }
 
+  override def log(message: AddressLogMessage): Unit = AddressLogging log message
+
   /**
     * PartialAddress query API
     *
@@ -272,9 +273,9 @@ class AddressController @Inject()(
 
         request.map {
           case HybridAddresses(hybridAddresses, maxScore, total) =>
-
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress
+            //TODO: Verify AddressResponsePartialAddress is correct after the merge
+            val addresses: Seq[AddressResponsePartialAddress] = hybridAddresses.map(
+              AddressResponsePartialAddress.fromHybridAddress
             )
 
             addresses.foreach { address =>
