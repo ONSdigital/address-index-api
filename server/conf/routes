@@ -122,7 +122,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.Addr
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPartialAddressResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPartialResponseContainer"
 ###
 GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.AddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String])
 
