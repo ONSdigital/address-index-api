@@ -474,13 +474,12 @@ class AddressController @Inject()(
     val sourceStatus = checkSource(source)
 
     // get the defaults and maxima for the paging parameters from the config
-    val defLimit = conf.config.elasticSearch.defaultLimitPostcode
+    val defLimit = conf.config.elasticSearch.defaultLimit
     val defOffset = conf.config.elasticSearch.defaultOffset
     val maxLimit = conf.config.elasticSearch.maximumLimit
     val maxOffset = conf.config.elasticSearch.maximumOffset
 
     val limval = limit.getOrElse(defLimit.toString)
-    //val limval = "100"
     val offval = offset.getOrElse(defOffset.toString)
 
     val filterString = classificationfilter.getOrElse("")
@@ -547,7 +546,7 @@ class AddressController @Inject()(
       request.map {
         case HybridAddresses(hybridAddresses, maxScore, total) =>
 
-          val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(AddressResponseAddress.fromHybridAddress)
+          val addresses: Seq[AddressResponsePartialAddress] = hybridAddresses.map(AddressResponsePartialAddress.fromHybridAddress)
 
           addresses.foreach { address =>
             writeSplunkLogs(formattedOutput = address.formattedAddressNag, numOfResults = total.toString, score = address.underlyingScore.toString)
@@ -556,10 +555,10 @@ class AddressController @Inject()(
           writeSplunkLogs()
 
           jsonOk(
-            AddressByPartialAddressResponseContainer(
+            AddressByPartialResponseContainer(
               apiVersion = apiVersion,
               dataVersion = dataVersion,
-              response = AddressByPartialAddressResponse(
+              response = AddressByPartialResponse(
                 input = input,
                 addresses = addresses,
                 filter = filterString,
