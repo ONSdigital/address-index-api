@@ -401,10 +401,10 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress)),
+          addresses = Seq(AddressResponsePartialAddress.fromHybridAddress(validHybridAddress)),
           filter = "",
           historical = true,
-          limit = 100,
+          limit = 20,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
@@ -416,6 +416,39 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result: Future[Result] = controller.partialAddressQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+
+    "reply on a found address (by partial)" in {
+      // Given
+      val controller = queryController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPartialAddressResponse(
+          input = "some query",
+          addresses = Seq(AddressResponsePartialAddress.fromHybridAddress(validHybridAddress)),
+          filter = "",
+          historical = true,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          startDate = "2013-01-01",
+          endDate = "2014-01-01"
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.partialAddressQuery("some query", None, None, None, None, None).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
