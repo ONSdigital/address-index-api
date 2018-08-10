@@ -1,0 +1,1 @@
+sbt "project address-index-server" "run 9000"

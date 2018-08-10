@@ -426,66 +426,6 @@ apiKey: String = ""
                     <td>@address.formattedAddressNag.replaceAll(",", "")</td>
                 </tr>
 
-                @* hopper score *@
-                <tr class="venus">
-                    <th>@messages("clerical.score")</th>
-                    <th>@messages("clerical.param")</th>
-                    <th>@messages("clerical.paramvalue")</th>
-                    <th>@messages("clerical.scorevalue")</th>
-                </tr>
-                <tr>
-                    <td rowspan="5">@messages("clerical.locality")</td>
-                    <td>@messages("clerical.organisation_building_name")</td>
-                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.take(1) }</td>
-                    <td rowspan="5">@address.bespokeScore.map { score => @score.localityScore }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.street")</td>
-                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.drop(1).take(1) }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.townlocality")</td>
-                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.drop(2).take(1) }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.postcode")</td>
-                    <td>@address.bespokeScore.map { score => @score.localityScoreDebug.drop(3).take(1) }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.ambiguity_penalty")</td>
-                    <td>@address.bespokeScore.map { score => @score.ambiguityPenalty }</td>
-                </tr>
-
-                <tr>
-                    <td rowspan="2">@messages("clerical.building")</td>
-                    <td>@messages("clerical.detailed_organisation_building_name")</td>
-                    <td>@address.bespokeScore.map { score => @score.buildingScoreDebug.take(1) }</td>
-                    <td rowspan="2">@address.bespokeScore.map { score => @score.buildingScore }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.buildingnumber")</td>
-                    <td>@address.bespokeScore.map { score => @score.buildingScoreDebug.drop(1).take(1) }</td>
-                </tr>
-
-                <tr>
-                    <td rowspan="4">@messages("clerical.unit")</td>
-                    <td>@messages("clerical.ref_hierarchy")</td>
-                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.take(1) }</td>
-                    <td rowspan="4">@address.bespokeScore.map { score => @score.unitScore }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.organisation_name")</td>
-                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.drop(1).take(1) }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.subbuildingname")</td>
-                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.drop(2).take(1) }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.sub_building_number")</td>
-                    <td>@address.bespokeScore.map { score => @score.unitScoreDebug.drop(3).take(1) }</td>
-                </tr>
-
             </table>
 
             @if(index >= 0) {

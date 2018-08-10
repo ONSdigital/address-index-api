@@ -19,15 +19,24 @@ case class ElasticSearchConfig(
   uri: String,
   port: String,
   ssl: String,
+  connectionTimeout: Int,
+  connectionRequestTimeout: Int,
+  socketTimeout: Int,
+  maxESConnections: Int,
   indexes: IndexesConfig,
   queryParams: QueryParamsConfig,
   defaultLimit: Int,
+  defaultLimitPartial: Int,
   defaultLimitPostcode: Int,
   defaultOffset: Int,
   maximumLimit: Int,
   maximumOffset: Int,
   matchThreshold: Float,
-  minimumSample: Int
+  minimumSample: Int,
+  circuitBreakerMaxFailures: Int,
+  circuitBreakerCallTimeout: Int,
+  circuitBreakerResetTimeout: Int
+
 )
 
 case class QueryParamsConfig(

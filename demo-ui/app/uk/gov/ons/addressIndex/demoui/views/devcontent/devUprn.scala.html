@@ -76,7 +76,7 @@ conf : DemouiConfigModule)
     <script>
 
         function getUPRN() {
-            getJSONResponseWithKey("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/" + document.getElementById("uprn").value)
+            getJSONResponseWithKey("@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/uprn/" + document.getElementById("uprn").value)
         }
 
         function getJSONResponseWithKey(durl) {
