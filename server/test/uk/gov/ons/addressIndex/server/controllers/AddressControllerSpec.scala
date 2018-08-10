@@ -441,8 +441,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          startDate = "2013-01-01",
-          endDate = "2014-01-01"
+          startDate = "",
+          endDate = ""
         ),
         OkAddressResponseStatus
       ))
