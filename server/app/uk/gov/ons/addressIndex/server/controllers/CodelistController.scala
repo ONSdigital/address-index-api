@@ -13,8 +13,7 @@ import uk.gov.ons.addressIndex.server.utils.APIThrottler
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CodelistController @Inject()(
-  val controllerComponents: ControllerComponents,
+class CodelistController @Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: ConfigModule,

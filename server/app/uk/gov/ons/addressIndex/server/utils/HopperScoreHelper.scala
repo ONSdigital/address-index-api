@@ -1,9 +1,9 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
+import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.server.utils.impl.GenericLogger
 
 import scala.util.Try
 
@@ -14,7 +14,7 @@ import scala.util.Try
   */
 object HopperScoreHelper  {
 
-  val logger = Logger("HopperScoreHelper")
+  val logger = GenericLogger("HopperScoreHelper")
   val empty = "@"
   val defaultBuildingScore = "99"
   val defaultLocalityScore = "9999"

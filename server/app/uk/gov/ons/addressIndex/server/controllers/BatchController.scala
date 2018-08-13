@@ -17,8 +17,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 
 @Singleton
-class BatchController @Inject()(
-  val controllerComponents: ControllerComponents,
+class BatchController @Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: ConfigModule,

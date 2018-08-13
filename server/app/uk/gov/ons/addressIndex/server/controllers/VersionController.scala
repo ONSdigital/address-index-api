@@ -13,8 +13,7 @@ import scala.concurrent.ExecutionContext
   * Returns version information - could later become general purpose info
   */
 @Singleton
-class VersionController @Inject()(
-  val controllerComponents: ControllerComponents,
+class VersionController @Inject()(val controllerComponents: ControllerComponents,
   conf: ConfigModule,
   versionProvider: VersionModule
 )(implicit ec: ExecutionContext) extends PlayHelperController(versionProvider) with AddressIndexResponse {

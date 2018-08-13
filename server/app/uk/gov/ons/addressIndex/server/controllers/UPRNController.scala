@@ -16,8 +16,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class UPRNController @Inject()(
-  val controllerComponents: ControllerComponents,
+class UPRNController @Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule,
   conf: ConfigModule,

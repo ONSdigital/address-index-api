@@ -1,4 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
+
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -16,15 +17,14 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class AddressController @Inject()(
-  val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  parser: ParserModule,
-  conf: ConfigModule,
-  versionProvider: VersionModule,
-  overloadProtection: APIThrottler,
-  addressValidation: APIValidation
-)(implicit ec: ExecutionContext)
+class AddressController @Inject()(val controllerComponents: ControllerComponents,
+                                   esRepo: ElasticsearchRepository,
+                                   parser: ParserModule,
+                                   conf: ConfigModule,
+                                   versionProvider: VersionModule,
+                                   overloadProtection: APIThrottler,
+                                   addressValidation: APIValidation
+                                 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:AddressController")
@@ -41,9 +41,9 @@ class AddressController @Inject()(
     * @return Json response with addresses information
     */
   def addressQuery(implicit input: String, offset: Option[String] = None, limit: Option[String] = None,
-    classificationfilter: Option[String] = None, rangekm: Option[String] = None,
-    lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None,
-    matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                   classificationfilter: Option[String] = None, rangekm: Option[String] = None,
+                   lat: Option[String] = None, lon: Option[String] = None, historical: Option[String] = None,
+                   matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime: Long = System.currentTimeMillis()
     val IP: String = req.remoteAddress
@@ -204,7 +204,7 @@ class AddressController @Inject()(
     * @return Json response with addresses information
     */
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
-    classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                          classificationfilter: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     // get the defaults and maxima for the paging parameters from the config
@@ -302,9 +302,7 @@ class AddressController @Inject()(
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
               case _ =>
                 // Circuit Breaker is closed. Some other problem
-                writeLog(
-                  badRequestErrorMessage = FailedRequestToEsPartialAddressError.message
-                )
+                writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
                 logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
                 InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
             }

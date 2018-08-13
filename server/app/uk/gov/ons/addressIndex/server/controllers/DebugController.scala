@@ -12,8 +12,7 @@ import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-class DebugController@Inject()(
-  val controllerComponents: ControllerComponents,
+class DebugController@Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
   parser: ParserModule
 )(implicit ec: ExecutionContext) extends BaseController {

@@ -1,19 +1,19 @@
 package uk.gov.ons.addressIndex.server.model.dao
 
-import javax.inject.{Inject, Singleton}
 import java.security.cert.X509Certificate
 
-import javax.net.ssl.{SSLContext, X509TrustManager}
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
+import javax.inject.{Inject, Singleton}
+import javax.net.ssl.{SSLContext, X509TrustManager}
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
-import org.elasticsearch.client.RestClientBuilder._
-import org.apache.http.impl.nio.client._
 import org.apache.http.client.config.RequestConfig.Builder
 import org.apache.http.impl.client.BasicCredentialsProvider
-import play.api.Logger
+import org.apache.http.impl.nio.client._
+import org.elasticsearch.client.RestClientBuilder._
 import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
+import uk.gov.ons.addressIndex.server.utils.impl.GenericLogger
 
 /**
   * Provides access to Elastic client
@@ -39,7 +39,7 @@ trait ElasticClientProvider {
 class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule) extends ElasticClientProvider {
 
   private val esConf = conf.config.elasticSearch
-  private val logger = Logger("address-index:ElasticsearchRepositoryModule")
+  private val logger = GenericLogger("address-index:ElasticsearchRepositoryModule")
 
   val host: String = esConf.uri
   val port: String = esConf.port

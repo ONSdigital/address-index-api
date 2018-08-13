@@ -14,7 +14,7 @@ import scala.language.postfixOps
 @Singleton
 class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) extends APIThrottler {
 
-  lazy val logger = GenericLogger("address-index-server:APIThrottle")
+  private lazy val logger = GenericLogger("address-index-server:APIThrottle")
 
   private val esConf = conf.config.elasticSearch
   private val system: ActorSystem = ActorSystem("ONS")

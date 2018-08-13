@@ -1,16 +1,16 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
+import com.sksamuel.elastic4s.http.ElasticDsl._
 import com.sksamuel.elastic4s.http.index.alias.IndexAliases
 import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
-import com.sksamuel.elastic4s.http.ElasticDsl._
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
+import uk.gov.ons.addressIndex.server.utils.impl.GenericLogger
 
-import scala.language.postfixOps
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.io.Source
-import play.api.Logger
+import scala.language.postfixOps
 
 @ImplementedBy(classOf[AddressIndexVersionModule])
 trait VersionModule {
@@ -23,7 +23,7 @@ class AddressIndexVersionModule @Inject()(
   configProvider: ConfigModule,
   elasticClientProvider: ElasticClientProvider) extends VersionModule {
 
-  private val logger = Logger("address-index:VersionModule")
+  private val logger = GenericLogger("address-index:VersionModule")
 
   lazy val apiVersion: String = {
     val filename = "version.app"
@@ -32,8 +32,7 @@ class AddressIndexVersionModule @Inject()(
 
     // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
     // `getResource` may return null, that's why we wrap it into an `Option`
-    val resource =
-    Option(getClass.getResource(path))
+    val resource = Option(getClass.getResource(path))
       .map(Source.fromURL)
       .getOrElse(Source.fromFile(currentDirectory + path))
 
