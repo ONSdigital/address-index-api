@@ -1,9 +1,10 @@
 import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import com.typesafe.sbt.SbtNativePackager.autoImport.NativePackagerHelper._
+import com.typesafe.sbt.packager.universal.ZipHelper
 import com.typesafe.sbt.web.SbtWeb
 import play.sbt.PlayScala
 import play.sbt.routes.RoutesKeys._
-import sbt.Keys._
+import sbt.Keys.{mappings, _}
 import sbt.Resolver.{file => _, url => _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
@@ -33,6 +34,16 @@ lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
     case x =>
       val oldStrategy = (assemblyMergeStrategy in assembly).value
       oldStrategy(x)
+  }
+)
+
+lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
+  // The following will cause parsers/.../resources directory to be added to the list of mappings recursively
+  // excluding .md and .conf files
+  mappings in Universal ++= {
+    val rootDir = (baseDirectory.value).getParentFile
+    def directoryToAdd = (rootDir / "parsers/src/main/resources")
+    ((directoryToAdd.***) * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
   }
 )
 
@@ -147,6 +158,7 @@ lazy val `address-index-client` = project.in(file("client"))
 
 lazy val `address-index-server` = project.in(file("server"))
   .settings(localCommonSettings: _*)
+  .settings(serverUniversalMappings: _*)
   .settings(
     libraryDependencies ++= serverDeps,
     routesGenerator := InjectedRoutesGenerator,
@@ -154,6 +166,44 @@ lazy val `address-index-server` = project.in(file("server"))
     Revolver.settings ++ Seq(
       mainClass in reStart := Some("play.core.server.ProdServerStart")
     ),
+    packageBin in Universal := {
+      // Get the name of the package being built
+      val originalFileName = (packageBin in Universal).value
+
+      // Create a new temp file name.
+      val (base, ext) = originalFileName.baseAndExt
+      val newFileName = file(originalFileName.getParent) / (base + "_dist." + ext)
+
+      // Unzip the zip archive created
+      val extractedFiles = IO.unzip(originalFileName, file(originalFileName.getParent))
+
+      // Move any files in "parsers" directory to root
+      val mappings: Set[(File, String)] = extractedFiles.map(f => {
+        val relativePathWithoutRootDir = f.getAbsolutePath.substring(originalFileName.getParent.size + base.size + 2)
+        val relativePathWithRootDir = f.getAbsolutePath.substring(originalFileName.getParent.size + 1)
+
+        val justFileName = f.getName
+
+        // if path of file starts with parsers, then add to root of zip
+        if (relativePathWithoutRootDir.startsWith("parsers")) {
+          val (base, ext) = f.baseAndExt
+          (f, justFileName)
+        } else {
+          (f, relativePathWithRootDir)
+        }
+      })
+
+      // Set files under bin as executable just as the universalBin task does
+      val binFiles = mappings.filter { case (file, path) => path.startsWith("bin/") }
+      for (f <- binFiles) f._1.setExecutable(true)
+
+      // Zip the files up and rename to the original zip name
+      ZipHelper.zip(mappings, newFileName)
+      IO.move(newFileName, originalFileName)
+      IO.delete(file(originalFileName.getParent + "/" + originalFileName.base))
+
+      originalFileName
+    },
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
       val contents = git.gitHeadCommit.value.map{ sha => s"v_$sha" }.getOrElse("develop")
