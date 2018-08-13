@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
@@ -9,8 +8,8 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeValidation
-import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
-import uk.gov.ons.addressIndex.server.utils.{APILogging, Overload, ProtectorStatus}
+import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.{APIThrottler, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -23,16 +22,12 @@ class PostcodeController @Inject()(
   parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
-  overloadProtection: Overload,
+  overloadProtection: APIThrottler,
   postcodeValidation: PostcodeValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with PostcodeResponse with APILogging[AddressLogMessage] {
+  extends PlayHelperController(versionProvider) with PostcodeResponse {
 
-  override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def log(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
-
-  lazy val logger = Logger("address-index-server:PostcodeController")
+  lazy val logger = AddressAPILogger("address-index-server:PostcodeController")
 
   /**
     * POSTCODE query API
@@ -60,13 +55,13 @@ class PostcodeController @Inject()(
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      log(AddressLogMessage(
+      logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         postcode = postcode, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, historical = hist
-      ))
+      )
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -131,12 +126,12 @@ class PostcodeController @Inject()(
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
-              case ProtectorStatus.HalfOpen =>
+              case ThrottlerStatus.HalfOpen =>
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode))
-              case ProtectorStatus.Open =>
+              case ThrottlerStatus.Open =>
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                 )

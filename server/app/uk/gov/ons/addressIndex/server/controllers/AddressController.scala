@@ -1,15 +1,14 @@
 package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
-import uk.gov.ons.addressIndex.server.modules.validation.AddressValidation
+import uk.gov.ons.addressIndex.server.modules.validation.APIValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils._
-import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
+import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
@@ -23,21 +22,17 @@ class AddressController @Inject()(
   parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
-  overloadProtection: Overload,
-  addressValidation: AddressValidation
+  overloadProtection: APIThrottler,
+  addressValidation: APIValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with AddressIndexResponse with APILogging[AddressLogMessage] {
+  extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
-  lazy val logger = Logger("address-index-server:AddressController")
+  lazy val logger = AddressAPILogger("address-index-server:AddressController")
 
   val missing: String = "missing"
   val invalid: String = "invalid"
   val valid: String = "valid"
   val notRequired: String = "not required"
-
-  override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def log(message: AddressLogMessage): Unit = AddressLogging log message
-  override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
 
   /**
     * Address query API
@@ -80,13 +75,11 @@ class AddressController @Inject()(
 
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
 
-      log(AddressLogMessage(ip = IP, url = URL, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
+      logger.systemLog(ip = IP, url = URL, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offval, limit = limval, filter = filterString,
         historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid
-      ))
-
+        numOfResults = numOfResults, score = score, networkid = networkid)
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -186,24 +179,18 @@ class AddressController @Inject()(
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
-              case ProtectorStatus.HalfOpen => {
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
+              case ThrottlerStatus.HalfOpen => {
+                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
               }
-              case ProtectorStatus.Open => {
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
+              case ThrottlerStatus.Open => {
+                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
               }
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
-                logger.warn(
-                  s"Could not handle individual request (address input), problem with ES ${exception.getMessage}"
-                )
+                logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
                 InternalServerError(Json.toJson(FailedRequestToEs))
             }
         }
@@ -237,13 +224,13 @@ class AddressController @Inject()(
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      log(AddressLogMessage(
+      logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         partialAddress = input, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, historical = hist
-      ))
+      )
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -307,24 +294,18 @@ class AddressController @Inject()(
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
-              case ProtectorStatus.HalfOpen =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
+              case ThrottlerStatus.HalfOpen =>
+                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
-              case ProtectorStatus.Open =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
+              case ThrottlerStatus.Open =>
+                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(
                   badRequestErrorMessage = FailedRequestToEsPartialAddressError.message
                 )
-                logger.warn(
-                  s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}"
-                )
+                logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
                 InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
             }
         }

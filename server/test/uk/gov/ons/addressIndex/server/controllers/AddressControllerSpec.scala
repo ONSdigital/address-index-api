@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
 import uk.gov.ons.addressIndex.server.utils.HopperScoreHelper
-import uk.gov.ons.addressIndex.server.utils.impl.OverloadProtector
+import uk.gov.ons.addressIndex.server.utils.impl.APIThrottle
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -271,10 +271,10 @@ class AddressControllerSpec extends PlaySpec with Results {
     val dataVersion: String = dataVersionExpected
   }
 
-  val overloadProtection: OverloadProtector = new OverloadProtector(config)
+  val overloadProtection: APIThrottle = new APIThrottle(config)
   val components: ControllerComponents = stubControllerComponents()
   val rh: RequestHeader = FakeRequest(GET, "/")
-  val addressValidation : AddressValidation = new AddressValidation()(config, versions)
+  val addressValidation : APIValidation = new APIValidation()(config, versions)
   val postcodeValidation : PostcodeValidation = new PostcodeValidation()(config, versions)
   val uprnValidation : UPRNValidation = new UPRNValidation()(config, versions)
   val batchValidation : BatchValidation = new BatchValidation()(config, versions)

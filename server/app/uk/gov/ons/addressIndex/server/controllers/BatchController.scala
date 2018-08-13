@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
@@ -10,8 +9,7 @@ import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.validation.BatchValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.APILogging
-import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
+import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
@@ -27,15 +25,9 @@ class BatchController @Inject()(
   versionProvider: VersionModule,
   batchValidation: BatchValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with AddressIndexResponse with APILogging[AddressLogMessage] {
+  extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
-  lazy val logger = Logger("address-index-server:BatchController")
-
-  override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-
-  override def log(message: AddressLogMessage): Unit = AddressLogging trace message
-
-  override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
+  lazy val logger = AddressAPILogger("address-index-server:AddressController")
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
@@ -89,9 +81,7 @@ class BatchController @Inject()(
   def bulkFull(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(
     parse.json[BulkBody]) { implicit request =>
 
-    logger.info(s"#bulkFullQuery with ${
-      request.body.addresses.size
-    } items")
+    logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -135,9 +125,7 @@ class BatchController @Inject()(
   def bulkDebug(limitperaddress: Option[String], historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(
     parse.json[BulkBodyDebug]) { implicit request =>
 
-    logger.info(s"#bulkDebugQuery with ${
-      request.body.addresses.size
-    } items")
+    logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -205,15 +193,15 @@ class BatchController @Inject()(
     canUpScale: Boolean = true,
     successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty): Stream[Seq[AddressBulkResponseAddress]] = {
 
-    log(AddressLogMessage(batchSize = miniBatchSize.toString))
+    logger.systemLog(batchSize = miniBatchSize.toString)
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
     val bulkSizeWarningThreshold = conf.config.bulk.batch.warningThreshold
 
     if (miniBatchSize < defaultBatchSize * bulkSizeWarningThreshold)
       logger.warn(s"#bulkQuery mini-bulk size it less than a ${defaultBatchSize * bulkSizeWarningThreshold}: size = $miniBatchSize , check if everything is fine with ES")
-
-    else logger.info(s"#bulkQuery sending a mini-batch of the size $miniBatchSize")
+    else
+      logger.info(s"#bulkQuery sending a mini-batch of the size $miniBatchSize")
 
     val miniBatch = requests.take(miniBatchSize)
     val requestsAfterMiniBatch = requests.drop(miniBatchSize)
@@ -230,9 +218,7 @@ class BatchController @Inject()(
       throw new Exception(
         s"""
            Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.
-           Last request failure message: ${
-          result.failedRequests.head.lastFailExceptionMessage
-        }
+           Last request failure message: ${result.failedRequests.head.lastFailExceptionMessage}
         """
       )
     else {
@@ -287,8 +273,7 @@ class BatchController @Inject()(
     } yield BulkAddresses(successful, failed)
   }
 
-  private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData]
-  = request.body.addresses.toStream.map {
+  private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
     row => BulkAddressRequestData(row.id, row.address, parser.parse(row.address))
   }
 
@@ -330,10 +315,10 @@ class BatchController @Inject()(
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
-    log(AddressLogMessage(
+    logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
       bulkSize = requestData.size.toString
-    ))
+    )
 
     response
   }

@@ -1,5 +1,5 @@
 package uk.gov.ons.addressIndex.server.utils
 
-trait APILogMessage {
-
+trait APILoggerMessage {
+  def message: String
 }

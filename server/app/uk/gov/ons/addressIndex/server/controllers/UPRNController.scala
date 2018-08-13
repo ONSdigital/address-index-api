@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
@@ -9,8 +8,8 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
-import uk.gov.ons.addressIndex.server.utils.{APILogging, Overload, ProtectorStatus}
+import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.{APIThrottler, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -23,16 +22,12 @@ class UPRNController @Inject()(
   parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
-  overloadProtection: Overload,
+  overloadProtection: APIThrottler,
   uprnValidation: UPRNValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with UPRNResponse with APILogging[AddressLogMessage] {
+  extends PlayHelperController(versionProvider) with UPRNResponse {
 
-  lazy val logger = Logger("address-index-server:PostcodeController")
-
-  override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def log(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
+  lazy val logger = new AddressAPILogger("address-index-server:PostcodeController")
 
   /**
     * UPRN query API
@@ -53,10 +48,10 @@ class UPRNController @Inject()(
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
 
-      log(AddressLogMessage(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
+      logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, historical = hist
-      ))
+      )
     }
 
     val result: Option[Future[Result]] =
@@ -102,12 +97,12 @@ class UPRNController @Inject()(
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
-              case ProtectorStatus.HalfOpen =>
+              case ThrottlerStatus.HalfOpen =>
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
-              case ProtectorStatus.Open =>
+              case ThrottlerStatus.Open =>
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                 )
@@ -120,9 +115,7 @@ class UPRNController @Inject()(
                 )
                 InternalServerError(Json.toJson(FailedRequestToEs))
             }
-
         }
     }
   }
-
 }

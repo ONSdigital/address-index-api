@@ -4,13 +4,12 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.impl.AddressLogMessage
 
 import scala.util.Try
 
 @Singleton
 class BatchValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
-  extends AddressValidation {
+  extends APIValidation {
 
   // The batch does not use Futures for the validation so we have to override the address ones to return the
   // error without a Future wrapping.
@@ -21,10 +20,10 @@ class BatchValidation @Inject()(implicit conf: ConfigModule, versionProvider: Ve
 
     checkSource(source) match {
       case `missing` =>
-        log(AddressLogMessage(badRequestMessage = SourceMissingError.message))
+        logger.systemLog(badRequestMessage = SourceMissingError.message)
         Some(super.jsonUnauthorized(SourceMissing))
       case `invalid` =>
-        log(AddressLogMessage(badRequestMessage = SourceInvalidError.message))
+        logger.systemLog(badRequestMessage = SourceInvalidError.message)
         Some(jsonUnauthorized(SourceInvalid))
       case _ =>
         None
@@ -36,10 +35,10 @@ class BatchValidation @Inject()(implicit conf: ConfigModule, versionProvider: Ve
 
     checkAPIkey(apiKey) match {
       case `missing` =>
-        log(AddressLogMessage(badRequestMessage = ApiKeyMissingError.message))
+        logger.systemLog(badRequestMessage = ApiKeyMissingError.message)
         Some(jsonUnauthorized(KeyMissing))
       case `invalid` =>
-        log(AddressLogMessage(badRequestMessage = ApiKeyInvalidError.message))
+        logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
         Some(jsonUnauthorized(KeyInvalid))
       case _ =>
         None
@@ -55,13 +54,13 @@ class BatchValidation @Inject()(implicit conf: ConfigModule, versionProvider: Ve
     val maxLimit: Int = conf.config.elasticSearch.maximumLimit
 
     if (limitInvalid) {
-      log(AddressLogMessage(badRequestMessage =LimitNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage =LimitNotNumericAddressResponseError.message)
       Some(jsonBadRequest(LimitNotNumeric))
     } else if (limitInt < 1) {
-      log(AddressLogMessage(badRequestMessage = LimitTooSmallAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
       Some(jsonBadRequest(LimitTooSmall))
     } else if (limitInt > maxLimit) {
-      log(AddressLogMessage(badRequestMessage = LimitTooLargeAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
       Some(jsonBadRequest(LimitTooLarge))
     } else None
   }
@@ -75,13 +74,12 @@ class BatchValidation @Inject()(implicit conf: ConfigModule, versionProvider: Ve
     val thresholdInvalid = Try(threshval.toFloat).isFailure
 
     if (thresholdInvalid) {
-      log(AddressLogMessage(badRequestMessage = ThresholdNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
       Some(jsonBadRequest(ThresholdNotNumeric))
     } else if (thresholdNotInRange) {
-      log(AddressLogMessage(badRequestMessage = ThresholdNotInRangeAddressResponseError.message))
+      logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
       Some(jsonBadRequest(ThresholdNotInRange))
     } else None
   }
-
 }
 

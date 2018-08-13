@@ -5,19 +5,13 @@ import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.APILogging
-import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
 
 import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
-class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
-  extends Validation with AddressIndexResponse with APILogging[AddressLogMessage] {
-
-  override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def log(message: AddressLogMessage): Unit = AddressLogging log message
-  override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
+class APIValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
+  extends Validation with AddressIndexResponse {
 
   // get the defaults and maxima for the paging parameters from the config
 
@@ -36,29 +30,29 @@ class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: 
     val lonTooFarWest: Boolean = if (rangeVal.equals("")) false else Try(lonVal.toDouble).getOrElse(0D) < -8.6
 
     if (latInvalid) {
-      log(AddressLogMessage(badRequestMessage = LatitudeNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(LatitiudeNotNumeric))
     } else if (lonInvalid) {
-      log(AddressLogMessage(badRequestMessage = LongitudeNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LongitudeNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(LongitudeNotNumeric))
     } else if (latTooFarNorth) {
-      log(AddressLogMessage(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
       Some(futureJsonBadRequest(LatitudeTooFarNorth))
     } else if (latTooFarSouth) {
-      log(AddressLogMessage(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
       Some(futureJsonBadRequest(LatitudeTooFarSouth))
     } else if (lonTooFarEast) {
-      log(AddressLogMessage(badRequestMessage = LongitudeTooFarEastAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
       Some(futureJsonBadRequest(LongitudeTooFarEast))
     } else if (lonTooFarWest) {
-      log(AddressLogMessage(badRequestMessage = LongitudeTooFarWestAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
       Some(futureJsonBadRequest(LongitudeTooFarWest))
     } else None
   }
 
   def validateInput(input: String): Option[Future[Result]] = {
     if (input.isEmpty) {
-      log(AddressLogMessage(badRequestMessage = EmptyQueryAddressResponseError.message))
+      logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearch))
     } else None
   }
@@ -71,13 +65,13 @@ class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: 
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     if (offsetInvalid) {
-      log(AddressLogMessage(badRequestMessage = OffsetNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(OffsetNotNumeric))
     } else if (offsetInt < 0) {
-      log(AddressLogMessage(badRequestMessage = OffsetTooSmallAddressResponseError.message))
+      logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
       Some(futureJsonBadRequest(OffsetTooSmall))
     } else if (offsetInt > maxOffset) {
-      log(AddressLogMessage(badRequestMessage = OffsetTooLargeAddressResponseError.message))
+      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseError.message)
       Some(futureJsonBadRequest(OffsetTooLarge))
     } else None
   }
@@ -88,7 +82,7 @@ class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: 
 
     if (!filterString.isEmpty &&
       !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
-      log(AddressLogMessage(badRequestMessage = FilterInvalidError.message))
+      logger.systemLog(badRequestMessage = FilterInvalidError.message)
       Some(futureJsonBadRequest(AddressFilterInvalid))
     } else None
   }
@@ -103,13 +97,13 @@ class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: 
     val maxLimit: Int = conf.config.elasticSearch.maximumLimit
 
     if (limitInvalid) {
-      log(AddressLogMessage(badRequestMessage =LimitNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage =LimitNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(LimitNotNumeric))
     } else if (limitInt < 1) {
-      log(AddressLogMessage(badRequestMessage = LimitTooSmallAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
       Some(futureJsonBadRequest(LimitTooSmall))
     } else if (limitInt > maxLimit) {
-      log(AddressLogMessage(badRequestMessage = LimitTooLargeAddressResponseError.message))
+      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
       Some(futureJsonBadRequest(LimitTooLarge))
     } else None
   }
@@ -119,7 +113,7 @@ class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: 
     val rangeInvalid: Boolean = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
 
     if (rangeInvalid) {
-      log(AddressLogMessage(badRequestMessage = RangeNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(RangeNotNumeric))
     } else None
   }
@@ -133,10 +127,10 @@ class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: 
     val thresholdInvalid = Try(threshval.toFloat).isFailure
 
     if (thresholdInvalid) {
-      log(AddressLogMessage(badRequestMessage = ThresholdNotNumericAddressResponseError.message))
+      logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(ThresholdNotNumeric))
     } else if (thresholdNotInRange) {
-      log(AddressLogMessage(badRequestMessage = ThresholdNotInRangeAddressResponseError.message))
+      logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
       Some(futureJsonBadRequest(ThresholdNotInRange))
     } else None
   }

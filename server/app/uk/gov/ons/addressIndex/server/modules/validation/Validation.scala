@@ -4,7 +4,7 @@ import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.impl.AddressLogMessage
+import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
 
 import scala.concurrent.Future
 
@@ -15,24 +15,23 @@ abstract class Validation()(implicit conf: ConfigModule, versionProvider: Versio
   override lazy val dataVersion: String = versionProvider.dataVersion
   override lazy val apiVersion: String = versionProvider.apiVersion
 
+  lazy val logger = AddressAPILogger("address-index-server:Validation")
+
   val missing: String = "missing"
   val invalid: String = "invalid"
   val valid: String = "valid"
   val notRequired: String = "not required"
 
-  def trace(message: AddressLogMessage): Unit
-  def log(message: AddressLogMessage): Unit
-  def debug(message: AddressLogMessage): Unit
-
   def validateKeyStatus(implicit request: RequestHeader): Option[Future[Result]] = {
+
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
       case `missing` =>
-        log(AddressLogMessage(badRequestMessage = ApiKeyMissingError.message))
+        logger.systemLog(badRequestMessage = ApiKeyMissingError.message)
         Some(futureJsonUnauthorized(KeyMissing))
       case `invalid` =>
-        log(AddressLogMessage(badRequestMessage = ApiKeyInvalidError.message))
+        logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
         Some(futureJsonUnauthorized(KeyInvalid))
       case _ =>
         None
@@ -46,6 +45,7 @@ abstract class Validation()(implicit conf: ConfigModule, versionProvider: Versio
     * @return not required, valid, invalid or missing
     */
   protected def checkAPIkey(apiKey: String): String = {
+
     val keyRequired = conf.config.apiKeyRequired
 
     if (keyRequired) {
@@ -68,10 +68,10 @@ abstract class Validation()(implicit conf: ConfigModule, versionProvider: Versio
 
     checkSource(source) match {
       case `missing` =>
-        log(AddressLogMessage(badRequestMessage = SourceMissingError.message))
+        logger.systemLog(badRequestMessage = SourceMissingError.message)
         Some(futureJsonUnauthorized(SourceMissing))
       case `invalid` =>
-        log(AddressLogMessage(badRequestMessage = SourceInvalidError.message))
+        logger.systemLog(badRequestMessage = SourceInvalidError.message)
         Some(futureJsonUnauthorized(SourceInvalid))
       case _ =>
         None
@@ -85,7 +85,9 @@ abstract class Validation()(implicit conf: ConfigModule, versionProvider: Versio
     * @return not required, valid, invalid or missing
     */
   protected def checkSource(source: String): String = {
+
     val sourceRequired = conf.config.sourceRequired
+
     if (sourceRequired) {
       val sourceName = conf.config.sourceKey
       source match {
@@ -97,5 +99,4 @@ abstract class Validation()(implicit conf: ConfigModule, versionProvider: Versio
       notRequired
     }
   }
-
 }

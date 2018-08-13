@@ -1,16 +1,14 @@
 package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.server.modules.response.Response
+import uk.gov.ons.addressIndex.server.modules.validation.CodelistValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.modules.response.{Response, PostcodeResponse}
-import uk.gov.ons.addressIndex.server.modules.validation.{CodelistValidation, PostcodeValidation}
-import uk.gov.ons.addressIndex.server.utils.{APILogging, Overload}
-import uk.gov.ons.addressIndex.server.utils.impl.{AddressLogMessage, AddressLogging}
+import uk.gov.ons.addressIndex.server.utils.APIThrottler
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,16 +19,10 @@ class CodelistController @Inject()(
   parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
-  overloadProtection: Overload,
+  overloadProtection: APIThrottler,
   codelistValidation: CodelistValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with Response with APILogging[AddressLogMessage] {
-
-  override def trace(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def log(message: AddressLogMessage): Unit = AddressLogging trace message
-  override def debug(message: AddressLogMessage): Unit = AddressLogging debug message
-
-  lazy val logger = Logger("address-index-server:CodelistController")
+  extends PlayHelperController(versionProvider) with Response {
 
   /**
     * Codelist List API
