@@ -1,0 +1,162 @@
+#!groovy
+@Library('jenkins-pipeline-shared') _
+
+
+pipeline {
+    environment {
+        DEPLOY_NAME = "dev"
+        GIT_TYPE = "Github"
+        GITLAB_CREDS = "ai-gitlab-credentials"
+
+        ORGANIZATION = "ons"
+        TEAM = "ai"
+        MODULE_NAME = "address-index-api"
+        CF_MODULE_NAME = "addressindex-api"
+
+        GATLING_REQUESTS_PER_SECOND = 20
+        GATLING_GET_ENDPOINT = "https://addressindex-api-${DEPLOY_NAME}.apps.cf1.ons.statistics.gov.uk/addresses?input=26%20FROG%20LANE%20TITCHFIELD%20PO144DU"
+    }
+    options {
+        skipDefaultCheckout()
+        buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+    agent any
+    stages {
+        stage('Checkout') {
+            agent any
+            steps {
+                deleteDir()
+                checkout scm
+                stash name: 'app'
+                sh "$SBT version"
+                script {
+                    version = '1.0.' + env.BUILD_NUMBER
+                    currentBuild.displayName = version
+                    env.NODE_STAGE = "Checkout"
+                }
+
+            }
+        }
+
+        stage('Build') {
+            agent any
+            steps {
+                colourText("info", "Building ${env.BUILD_ID} on ${env.JENKINS_URL} from branch ${env.BRANCH_NAME}")
+                script {
+                    env.NODE_STAGE = "Build"
+                    sh '''
+                        $SBT "project address-index-server" clean compile universal:packageBin 
+                    '''
+                    stash name: 'compiled'
+                }
+            }
+        }
+
+        stage('Static Analysis') {
+            agent any
+            steps {
+                parallel(
+                        "Unit": {
+                            colourText("info", "Running unit tests")
+                            sh "$SBT \"project address-index-server\" test"
+                        },
+                )
+            }
+            post {
+                always {
+                    script {
+                        env.NODE_STAGE = "Static Analysis"
+                    }
+                }
+                failure {
+                    colourText("warn", "Failed on Tests.")
+                }
+            }
+        }
+
+        // bundle all libs and dependencies
+        stage('Bundle') {
+            agent any
+            steps {
+                script {
+                    env.NODE_STAGE = "Bundle"
+                }
+                colourText("info", "Bundling....")
+                dir('conf') {
+                    git(url: "$GITLAB_URL/AddressIndex/${MODULE_NAME}.git", credentialsId: GITLAB_CREDS, branch: "master")
+                }
+            }
+        }
+
+        stage('Deploy') {
+            agent any
+            steps {
+                script {
+                    env.NODE_STAGE = "Deploy"
+                }
+                milestone(1)
+                lock('Deployment Initiated') {
+                    colourText("info", 'deployment in progress')
+                    deploy()
+                    colourText("success", 'Deploy.')
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            agent any
+            steps {
+                script {
+                    env.NODE_STAGE = "Integration Tests"
+                }
+                unstash 'compiled'
+                sh "$SBT -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" gatling-it:test"
+                colourText("success", 'Integration Tests - For Release or Dev environment.')
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                colourText("info", 'Post steps initiated')
+                deleteDir()
+            }
+        }
+        success {
+            colourText("success", "All stages complete. Build was successful.")
+            sendNotifications currentBuild.result, "Ash.Jindal@ext.ons.gov.uk"
+        }
+        unstable {
+            colourText("warn", "Something went wrong, build finished with result ${currentResult}. This may be caused by failed tests, code violation or in some cases unexpected interrupt.")
+            sendNotifications currentBuild.result, "Ash.Jindal@ext.ons.gov.uk", "${env.NODE_STAGE}"
+        }
+        failure {
+            colourText("warn", "Process failed at: ${env.NODE_STAGE}")
+            sendNotifications currentBuild.result, "Ash.Jindal@ext.ons.gov.uk", "${env.NODE_STAGE}"
+        }
+    }
+}
+
+def deploy() {
+    deploymentName = "${env.DEPLOY_NAME}"
+    credentialsId = "${TEAM}-${deploymentName}-cf"  			    // ai-dev-cf
+    CF_ORG = "${TEAM}".toUpperCase()             					// AI
+    CF_SPACE = "${deploymentName}".capitalize() 					// eg Dev
+    appName = "${CF_MODULE_NAME}-${deploymentName}"  				// addressindex-api-dev
+    appPath = "server/target/universal/address-index-server.zip"
+    manifestPath = "conf/${deploymentName}/manifest.yml" 			// conf/dev/manifest.yml
+
+    echo "Deploying Api app to ${deploymentName}"
+    echo "Deployment params : \n" +
+            "credentialsId : " + credentialsId +
+            "CF_ORG : " + CF_ORG +
+            "CF_SPACE : " + CF_SPACE +
+            "appName : " + appName +
+            "appPath : " + appPath +
+            "manifestPath : " + manifestPath
+
+
+    deployToCloudFoundry(credentialsId, "${CF_ORG}", "${CF_SPACE}", appName, appPath, manifestPath)
+}
