@@ -1,11 +1,10 @@
-package uk.gov.ons.addressIndex.server.utils.impl
+package uk.gov.ons.addressIndex.server.utils
 
 import akka.actor.ActorSystem
 import akka.pattern.CircuitBreaker
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.server.modules.ConfigModule
 import uk.gov.ons.addressIndex.server.utils.ThrottlerStatus.ThrottleStatus
-import uk.gov.ons.addressIndex.server.utils.{APIThrottler, ThrottlerStatus}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

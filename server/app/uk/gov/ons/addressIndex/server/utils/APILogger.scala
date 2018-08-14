@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import play.api.Logger
-import uk.gov.ons.addressIndex.server.utils.impl.AddressLoggerMessage
 
 trait APILogger {
 

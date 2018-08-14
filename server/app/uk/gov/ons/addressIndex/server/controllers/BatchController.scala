@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.validation.BatchValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
@@ -26,7 +26,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
-  lazy val logger = AddressAPILogger("address-index-server:AddressController")
+  lazy val logger = AddressAPILogger("address-index-server:BatchController")
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`

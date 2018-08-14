@@ -8,8 +8,7 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.validation.APIValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils._
-import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._

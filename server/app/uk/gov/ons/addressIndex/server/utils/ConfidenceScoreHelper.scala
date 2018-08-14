@@ -3,7 +3,6 @@ package uk.gov.ons.addressIndex.server.utils
 import scala.math._
 import scala.util.Try
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.server.utils.impl.GenericLogger
 
 object ConfidenceScoreHelper {
 

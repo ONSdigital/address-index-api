@@ -8,8 +8,7 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
-import uk.gov.ons.addressIndex.server.utils.{APIThrottler, ThrottlerStatus}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -26,7 +25,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNResponse {
 
-  lazy val logger = new AddressAPILogger("address-index-server:PostcodeController")
+  lazy val logger = new AddressAPILogger("address-index-server:UPRNController")
 
   /**
     * UPRN query API

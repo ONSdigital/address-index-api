@@ -1,6 +1,4 @@
-package uk.gov.ons.addressIndex.server.utils.impl
-
-import uk.gov.ons.addressIndex.server.utils.APILogger
+package uk.gov.ons.addressIndex.server.utils
 
 /**
   * A generic logger

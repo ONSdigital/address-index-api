@@ -8,8 +8,7 @@ import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeValidation
-import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
-import uk.gov.ons.addressIndex.server.utils.{APIThrottler, ThrottlerStatus}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try

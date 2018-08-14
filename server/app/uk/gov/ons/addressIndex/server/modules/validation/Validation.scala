@@ -4,7 +4,7 @@ import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.impl.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
 import scala.concurrent.Future
 

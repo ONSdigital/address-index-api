@@ -1,6 +1,4 @@
-package uk.gov.ons.addressIndex.server.utils.impl
-
-import uk.gov.ons.addressIndex.server.utils.APILoggerMessage
+package uk.gov.ons.addressIndex.server.utils
 
 class AddressLoggerMessage(messg: String) extends APILoggerMessage {
   val message: String = messg

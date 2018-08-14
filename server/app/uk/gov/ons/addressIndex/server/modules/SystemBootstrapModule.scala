@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{AbstractModule, Singleton}
-import uk.gov.ons.addressIndex.server.utils.APIThrottler
-import uk.gov.ons.addressIndex.server.utils.impl.APIThrottle
+import uk.gov.ons.addressIndex.server.model.dao.{AddressIndexElasticClientProvider, ElasticClientProvider}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, APIThrottler}
 
 /**
   * Application Play Module as EagerSingleton.
@@ -15,6 +15,11 @@ class SystemBootstrapModule extends AbstractModule {
     bind(classOf[ConfigModule]).to(classOf[AddressIndexConfigModule]).asEagerSingleton()
     bind(classOf[ElasticsearchRepository]).to(classOf[AddressIndexRepository]).asEagerSingleton()
     bind(classOf[ParserModule]).to(classOf[AddressParserModule]).asEagerSingleton()
+    bind(classOf[ElasticsearchRepository]).to(classOf[AddressIndexRepository]).asEagerSingleton()
+    bind(classOf[ParserModule]).to(classOf[AddressParserModule]).asEagerSingleton()
+    bind(classOf[ConfigModule]).to(classOf[AddressIndexConfigModule]).asEagerSingleton()
     bind(classOf[VersionModule]).to(classOf[AddressIndexVersionModule]).asEagerSingleton()
+    bind(classOf[ElasticClientProvider]).to(classOf[AddressIndexElasticClientProvider]).asEagerSingleton()
+
   }
 }
