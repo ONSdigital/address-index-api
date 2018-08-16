@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try

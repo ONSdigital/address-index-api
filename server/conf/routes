@@ -161,7 +161,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
 ###
 GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
 

@@ -4,9 +4,9 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
-import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
-import uk.gov.ons.addressIndex.server.modules.validation.AddressValidation
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
+import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
