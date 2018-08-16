@@ -29,7 +29,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
   extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:BatchController")
-  val DATE_FORMAT = "yyyy-MM-dd"
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
@@ -44,10 +43,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
 
-    /*TODO: I believe startDateInvalid and endDateInvalid along with DATE_FORMAT will move to APIValidation */
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
-
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.bulk.limitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -59,6 +54,9 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource
+        .orElse(batchValidation.validateBatchStartDate(startDateVal))
+        .orElse(batchValidation.validateBatchEndDate(endDateVal))
+        .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold))
@@ -101,9 +99,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
-
 
     val defLimit = conf.config.bulk.limitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -117,6 +112,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource
+        .orElse(batchValidation.validateBatchStartDate(startDateVal))
+        .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold))
@@ -152,8 +149,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     val defLimit = conf.config.bulk.limitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -167,6 +162,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource
+        .orElse(batchValidation.validateBatchStartDate(startDateVal))
+        .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold))

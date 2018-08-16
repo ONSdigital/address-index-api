@@ -274,7 +274,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val overloadProtection: APIThrottle = new APIThrottle(config)
   val components: ControllerComponents = stubControllerComponents()
   val rh: RequestHeader = FakeRequest(GET, "/")
-  val addressValidation : APIValidation = new APIValidation()(config, versions)
+  val addressValidation : AddressValidation = new AddressValidation()(config, versions)
   val postcodeValidation : PostcodeValidation = new PostcodeValidation()(config, versions)
   val uprnValidation : UPRNValidation = new UPRNValidation()(config, versions)
   val batchValidation : BatchValidation = new BatchValidation()(config, versions)

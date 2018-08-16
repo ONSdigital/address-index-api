@@ -45,7 +45,6 @@ class PostcodeValidation @Inject()(implicit conf: ConfigModule, versionProvider:
     } else None
   }
 
-
   def validatePostcodeOffset(offset: Option[String]): Option[Future[Result]] = {
     val maxOffset: Int = conf.config.elasticSearch.maximumOffset
     val defOffset: Int = conf.config.elasticSearch.defaultOffset

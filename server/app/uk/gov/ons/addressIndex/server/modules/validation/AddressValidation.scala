@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules.validation
 
+import java.text.SimpleDateFormat
+
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response._
@@ -10,24 +12,8 @@ import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
-class APIValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
+class AddressValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Validation with AddressIndexResponse {
-
-  /* TODO: Need to add validation for endDate and startDate and remove from individual controllers
-  *
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
-
-    } else if (startDateInvalid) {
-      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = StartDateInvalidResponseError.message)
-      jsonBadRequest(StartDateInvalid)
-    } else if (endDateInvalid) {
-      Splunk.log(IP = request.remoteAddress, url = request.uri, isBulk = true, badRequestMessage = EndDateInvalidResponseError.message)
-      jsonBadRequest(EndDateInvalid)
-
-  * */
-
-
 
   // get the defaults and maxima for the paging parameters from the config
 

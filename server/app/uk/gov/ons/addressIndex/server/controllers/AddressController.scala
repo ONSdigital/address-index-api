@@ -8,7 +8,7 @@ import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
-import uk.gov.ons.addressIndex.server.modules.validation.APIValidation
+import uk.gov.ons.addressIndex.server.modules.validation.AddressValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 import scala.math._
@@ -24,7 +24,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                                    conf: ConfigModule,
                                    versionProvider: VersionModule,
                                    overloadProtection: APIThrottler,
-                                   addressValidation: APIValidation
+                                   addressValidation: AddressValidation
                                  )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressIndexResponse {
 
@@ -141,12 +141,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val IP: String = req.remoteAddress
     val URL: String = req.uri
 
-    // get the defaults and maxima for the paging parameters from the config
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
+    // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
     val defOffset = conf.config.elasticSearch.defaultOffset
     val defThreshold = conf.config.elasticSearch.matchThreshold
@@ -184,6 +182,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val result: Option[Future[Result]] =
       addressValidation.validateAddressFilter(classificationfilter)
+        .orElse(addressValidation.validateStartDate(startDateVal))
+        .orElse(addressValidation.validateEndDate(endDateVal))
         .orElse(addressValidation.validateThreshold(matchthreshold))
         .orElse(addressValidation.validateRange(rangekm))
         .orElse(addressValidation.validateSource)
@@ -326,8 +326,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -342,24 +340,19 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         partialAddress = input, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, startDate = startDateVal, endDate = endDateVal, historical = hist
+        numOfResults = numOfResults, score = score, networkid = networkid, startDate = startDateVal, endDate = endDateVal,
+        historical = hist
       )
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    /*TODO: Add code equivalent to this Validation block
-    	    } else if (startDateInvalid) {
-	      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
-	      futureJsonBadRequest(StartDateInvalid)
-	    } else if (endDateInvalid) {
-	      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
-	      futureJsonBadRequest(EndDateInvalid)
-    */
     val result: Option[Future[Result]] =
       addressValidation.validateAddressLimit(limit)
         .orElse(addressValidation.validateAddressOffset(offset))
+        .orElse(addressValidation.validateStartDate(startDateVal))
+        .orElse(addressValidation.validateEndDate(endDateVal))
         .orElse(addressValidation.validateSource)
         .orElse(addressValidation.validateKeyStatus)
         .orElse(addressValidation.validateInput(input))

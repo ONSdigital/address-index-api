@@ -12,6 +12,14 @@ trait Response {
   val dataVersion: String
   val apiVersion: String
 
+  def StartDateInvalid: AddressBySearchResponseContainer = {
+    BadRequestTemplate(StartDateInvalidResponseError)
+  }
+
+  def EndDateInvalid: AddressBySearchResponseContainer = {
+    BadRequestTemplate(EndDateInvalidResponseError)
+  }
+
   def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,

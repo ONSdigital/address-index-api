@@ -28,7 +28,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
   extends PlayHelperController(versionProvider) with UPRNResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:UPRNController")
-  val DATE_FORMAT = "yyyy-MM-dd"
 
   /**
     * UPRN query API
@@ -46,10 +45,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
 
-    /*TODO: I believe startDateInvalid and endDateInvalid along with DATE_FORMAT will move to APIValidation */
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
-
     val startingTime = System.currentTimeMillis()
 
     def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
@@ -64,7 +59,12 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     }
 
     val result: Option[Future[Result]] =
-      uprnValidation.validateUprn(uprn) orElse uprnValidation.validateSource orElse uprnValidation.validateKeyStatus orElse None
+      uprnValidation.validateUprn(uprn)
+        .orElse(uprnValidation.validateStartDate(startDateVal))
+        .orElse(uprnValidation.validateEndDate(endDateVal))
+        .orElse(uprnValidation.validateSource)
+        .orElse(uprnValidation.validateKeyStatus)
+        .orElse(None)
 
     result match {
 

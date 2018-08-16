@@ -1,5 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules.validation
 
+import java.text.SimpleDateFormat
+
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.server.modules.response.Response
@@ -7,6 +9,7 @@ import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
 import scala.concurrent.Future
+import scala.util.Try
 
 abstract class Validation()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Object with Response {
@@ -21,6 +24,22 @@ abstract class Validation()(implicit conf: ConfigModule, versionProvider: Versio
   val invalid: String = "invalid"
   val valid: String = "valid"
   val notRequired: String = "not required"
+
+  protected def invalidDate(date: String) : Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
+
+  def validateStartDate(startDate: String) : Option[Future[Result]] = {
+    if (invalidDate(startDate)) {
+      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
+      Some(futureJsonBadRequest(StartDateInvalid))
+    } else None
+  }
+
+  def validateEndDate(endDate: String) : Option[Future[Result]] = {
+    if (invalidDate(endDate)) {
+      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
+      Some(futureJsonBadRequest(EndDateInvalid))
+    } else None
+  }
 
   def validateKeyStatus(implicit request: RequestHeader): Option[Future[Result]] = {
 

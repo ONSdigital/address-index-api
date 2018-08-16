@@ -53,11 +53,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
 
-    /*TODO: I believe startDateInvalid and endDateInvalid along with DATE_FORMAT will move to APIValidation */
-    val startDateInvalid = !startDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(startDateVal)).isFailure
-    val endDateInvalid = !endDateVal.isEmpty && Try(new SimpleDateFormat(DATE_FORMAT).parse(endDateVal)).isFailure
-
-
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
@@ -79,18 +74,10 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    /*
-    * TODO: Add validation for
-    } else if (startDateInvalid) {
-      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
-      futureJsonBadRequest(StartDateInvalid)
-    } else if (endDateInvalid) {
-      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
-      futureJsonBadRequest(EndDateInvalid)
-    *
-    * */
     val result: Option[Future[Result]] =
       postcodeValidation.validatePostcodeLimit(limit)
+        .orElse(postcodeValidation.validateStartDate(startDateVal))
+        .orElse(postcodeValidation.validateEndDate(endDateVal))
         .orElse(postcodeValidation.validatePostcodeOffset(offset))
         .orElse(postcodeValidation.validateSource)
         .orElse(postcodeValidation.validateKeyStatus)
