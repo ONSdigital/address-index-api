@@ -1,7 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import java.text.SimpleDateFormat
-
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig

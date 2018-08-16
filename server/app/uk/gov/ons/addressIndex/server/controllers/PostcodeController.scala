@@ -1,7 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import java.text.SimpleDateFormat
-
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -28,7 +26,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
   extends PlayHelperController(versionProvider) with PostcodeResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:PostcodeController")
-  val DATE_FORMAT = "yyyy-MM-dd"
 
   /**
     * POSTCODE query API

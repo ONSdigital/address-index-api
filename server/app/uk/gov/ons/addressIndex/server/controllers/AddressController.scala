@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import java.text.SimpleDateFormat
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -11,9 +10,9 @@ import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
-import scala.math._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.math._
 import scala.util.Try
 import scala.util.control.NonFatal
 

@@ -1,7 +1,5 @@
 package uk.gov.ons.addressIndex.server.modules.validation
 
-import java.text.SimpleDateFormat
-
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response._
