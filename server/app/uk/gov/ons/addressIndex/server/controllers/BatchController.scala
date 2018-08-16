@@ -4,10 +4,11 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address.OkAddressResponseStatus
+import uk.gov.ons.addressIndex.model.server.response.bulk.{AddressBulkResponseAddress, AddressBulkResponseContainer}
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
-import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
-import uk.gov.ons.addressIndex.server.modules.validation.BatchValidation
+import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
+import uk.gov.ons.addressIndex.server.modules.validation.BatchControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
@@ -22,9 +23,9 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
   parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
-  batchValidation: BatchValidation
+  batchValidation: BatchControllerValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with AddressIndexResponse {
+  extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:BatchController")
 
@@ -320,9 +321,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     )
 
     logger.info(s"#bulkQuery processed")
-
-    // Used to distinguish individual bulk logs
-    val uuid = java.util.UUID.randomUUID.toString
 
     val bulkItems = results.flatMap {
       addresses =>

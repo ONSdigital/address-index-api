@@ -2,14 +2,14 @@ package uk.gov.ons.addressIndex.server.modules.validation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.{RequestHeader, Result}
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.util.Try
 
 @Singleton
-class BatchValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
-  extends AddressValidation {
+class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
+  extends AddressControllerValidation {
 
   // The batch does not use Futures for the validation so we have to override the address ones to return the
   // error without a Future wrapping.

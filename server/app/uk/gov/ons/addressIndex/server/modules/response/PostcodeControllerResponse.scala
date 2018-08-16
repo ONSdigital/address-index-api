@@ -1,8 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 
-trait PostcodeResponse extends Response {
+trait PostcodeControllerResponse extends Response {
 
   def NoAddressFoundPostcode: AddressByPostcodeResponseContainer = {
     AddressByPostcodeResponseContainer(

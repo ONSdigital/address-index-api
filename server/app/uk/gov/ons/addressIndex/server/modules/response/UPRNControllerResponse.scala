@@ -1,8 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 
-trait UPRNResponse extends Response {
+trait UPRNControllerResponse extends Response {
 
   def UprnNotNumeric: AddressByUprnResponseContainer = {
     BadRequestNonNumericUprn

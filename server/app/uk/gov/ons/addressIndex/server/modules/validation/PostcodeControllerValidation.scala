@@ -2,16 +2,16 @@ package uk.gov.ons.addressIndex.server.modules.validation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
-import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules.response.PostcodeResponse
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
-class PostcodeValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
-  extends Validation with PostcodeResponse {
+class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
+  extends Validation with PostcodeControllerResponse {
 
   def validatePostcodeLimit(limit: Option[String]): Option[Future[Result]] = {
 

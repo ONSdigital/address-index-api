@@ -4,10 +4,11 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
-import uk.gov.ons.addressIndex.server.modules.response.PostcodeResponse
-import uk.gov.ons.addressIndex.server.modules.validation.PostcodeValidation
+import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
+import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,9 +22,9 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
-  postcodeValidation: PostcodeValidation
+  postcodeValidation: PostcodeControllerValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with PostcodeResponse {
+  extends PlayHelperController(versionProvider) with PostcodeControllerResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:PostcodeController")
 

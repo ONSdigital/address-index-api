@@ -31,7 +31,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
 ###
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
@@ -54,7 +54,7 @@ GET     /codelists             uk.gov.ons.addressIndex.server.controllers.Codeli
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseSourceListContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer"
 ###
 GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListSource()
 
@@ -65,7 +65,7 @@ GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseClassificationListContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer"
 ###
 GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListClassification()
 
@@ -76,7 +76,7 @@ GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseCustodianListContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer"
 ###
 GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListCustodian()
 
@@ -87,7 +87,7 @@ GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseLogicalStatusListContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer"
 ###
 GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListLogicalStatus()
 
@@ -206,7 +206,7 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseVersion"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVersion"
 ###
 GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery
 
@@ -251,7 +251,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    200:
 #      description: success
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.batch.AddressBulkResponseContainer"
 ###
 POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 

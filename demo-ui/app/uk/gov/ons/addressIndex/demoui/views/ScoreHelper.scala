@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.demoui.views
 
-import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer
 
 object ScoreHelper {
   /**

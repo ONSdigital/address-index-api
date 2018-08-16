@@ -4,9 +4,10 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
-import uk.gov.ons.addressIndex.model.server.response._
-import uk.gov.ons.addressIndex.server.modules.response.UPRNResponse
-import uk.gov.ons.addressIndex.server.modules.validation.UPRNValidation
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
+import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
@@ -21,9 +22,9 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
-  uprnValidation: UPRNValidation
+  uprnValidation: UPRNControllerValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with UPRNResponse {
+  extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:UPRNController")
 

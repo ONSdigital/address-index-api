@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.response
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, Ok, Unauthorized, _}
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
 
 import scala.concurrent.Future
 

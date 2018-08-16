@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import uk.gov.ons.addressIndex.model.server.response.AddressResponseCustodian
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try

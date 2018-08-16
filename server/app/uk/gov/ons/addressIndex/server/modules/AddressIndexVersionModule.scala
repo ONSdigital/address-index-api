@@ -2,16 +2,15 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{Inject, Singleton}
 import com.sksamuel.elastic4s.http.ElasticDsl._
-import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
 import com.sksamuel.elastic4s.http.index.alias.IndexAliases
+import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
 
 import scala.concurrent.Await
-import scala.io.Source
-
-import scala.language.postfixOps
 import scala.concurrent.duration._
+import scala.io.Source
+import scala.language.postfixOps
 
 @Singleton
 class AddressIndexVersionModule @Inject()

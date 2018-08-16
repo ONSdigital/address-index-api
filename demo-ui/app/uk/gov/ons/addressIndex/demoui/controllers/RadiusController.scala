@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
@@ -13,8 +13,8 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer}
+import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
+import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions

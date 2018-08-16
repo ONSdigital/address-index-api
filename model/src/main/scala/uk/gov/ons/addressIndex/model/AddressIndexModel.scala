@@ -36,7 +36,6 @@ case class AddressIndexPostcodeRequest(
   apiKey: String
 )
 
-
 /**
   * The body of the request that is sent to the bulk api endpoint
   * @param addresses collection of addresses that will be queried

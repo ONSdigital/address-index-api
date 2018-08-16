@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import java.text.SimpleDateFormat
 
 import play.api.mvc.{RequestHeader, Result}
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 import scala.concurrent.Future
 import scala.util.Try
 
-abstract class Validation()(implicit conf: ConfigModule, versionProvider: VersionModule)
+abstract class Validation (implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Object with Response {
 
   // lazy to avoid application crash at startup if ES is down

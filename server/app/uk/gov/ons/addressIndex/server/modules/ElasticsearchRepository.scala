@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.searches.SearchDefinition
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
-import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 import scala.concurrent.Future
 

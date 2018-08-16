@@ -3,10 +3,11 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.codelists.{AddressResponseCodelist, AddressResponseCodelistListContainer}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules.response.Response
-import uk.gov.ons.addressIndex.server.modules.validation.CodelistValidation
+import uk.gov.ons.addressIndex.server.modules.validation.CodelistControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.APIThrottler
 
@@ -19,7 +20,7 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
-  codelistValidation: CodelistValidation
+  codelistValidation: CodelistControllerValidation
 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with Response {
 

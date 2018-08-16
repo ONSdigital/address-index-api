@@ -4,10 +4,11 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
-import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address.{FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer, AddressResponsePartialAddress}
+import uk.gov.ons.addressIndex.server.modules.response.{AddressControllerResponse, PartialAddressControllerResponse}
+import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.modules.response.AddressIndexResponse
-import uk.gov.ons.addressIndex.server.modules.validation.AddressValidation
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,9 +22,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
-  addressValidation: AddressValidation
+  partialAddressValidation: PartialAddressControllerValidation
 )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with AddressIndexResponse {
+  extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:PartialAddressController")
 
@@ -73,13 +74,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     val result: Option[Future[Result]] =
-      addressValidation.validateAddressLimit(limit)
-        .orElse(addressValidation.validateAddressOffset(offset))
-        .orElse(addressValidation.validateStartDate(startDateVal))
-        .orElse(addressValidation.validateEndDate(endDateVal))
-        .orElse(addressValidation.validateSource)
-        .orElse(addressValidation.validateKeyStatus)
-        .orElse(addressValidation.validateInput(input))
+      partialAddressValidation.validateAddressLimit(limit)
+        .orElse(partialAddressValidation.validateAddressOffset(offset))
+        .orElse(partialAddressValidation.validateStartDate(startDateVal))
+        .orElse(partialAddressValidation.validateEndDate(endDateVal))
+        .orElse(partialAddressValidation.validateSource)
+        .orElse(partialAddressValidation.validateKeyStatus)
+        .orElse(partialAddressValidation.validateInput(input))
         .orElse(None)
 
     result match {
@@ -96,7 +97,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         request.map {
           case HybridAddresses(hybridAddresses, maxScore, total) =>
-            //TODO: Verify AddressResponsePartialAddress is correct after the merge
             val addresses: Seq[AddressResponsePartialAddress] = hybridAddresses.map(
               AddressResponsePartialAddress.fromHybridAddress
             )

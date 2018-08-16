@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.model.response
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
 
 /**
   * Test conversion between ES reply and the model that will be send in the response

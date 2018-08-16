@@ -1,13 +1,12 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import javax.inject.Inject
-
 import cats.Show
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.SearchDefinition
+import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserModule}
-import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try

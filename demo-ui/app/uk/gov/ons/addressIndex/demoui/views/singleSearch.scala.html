@@ -2,6 +2,7 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import play.twirl.api.HtmlFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 filter: Option[String],
@@ -13,7 +14,7 @@ warningMessage : Option[String],
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
-addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)

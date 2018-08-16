@@ -22,9 +22,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                                    conf: ConfigModule,
                                    versionProvider: VersionModule,
                                    overloadProtection: APIThrottler,
-                                   addressValidation: AddressValidation
+                                   addressValidation: AddressControllerValidation
                                  )(implicit ec: ExecutionContext)
-  extends PlayHelperController(versionProvider) with AddressIndexResponse {
+  extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:AddressController")
 
