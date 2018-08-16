@@ -281,10 +281,11 @@ class AddressControllerSpec extends PlaySpec with Results {
   val codelistValidation : CodelistValidation = new CodelistValidation()(config, versions)
 
   val addressController = new AddressController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
+  val partialAddressController = new PartialAddressController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
+
   val postcodeController = new PostcodeController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, postcodeValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, codelistValidation)
-
 
   "Address controller" should {
 
@@ -423,7 +424,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.partialAddressQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
+      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -456,7 +457,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.partialAddressQuery("some query", None, None, None, None, None).apply(FakeRequest())
+      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, None, None).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -1574,7 +1575,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.partialAddressQuery("query", None, None, None, Some("xyz"), Some("2013-01-01")).apply(FakeRequest())
+      val result = partialAddressController.partialAddressQuery("query", None, None, None, Some("xyz"), Some("2013-01-01")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1611,7 +1612,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.partialAddressQuery("query", None, None, None, Some("2013-01-01"), Some("xyz")).apply(FakeRequest())
+      val result = partialAddressController.partialAddressQuery("query", None, None, None, Some("2013-01-01"), Some("xyz")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
