@@ -138,8 +138,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime: Long = System.currentTimeMillis()
-    val IP: String = req.remoteAddress
-    val URL: String = req.uri
+    val ip: String = req.remoteAddress
+    val url: String = req.uri
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
@@ -169,7 +169,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
 
-      logger.systemLog(ip = IP, url = URL, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
+      logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offval, limit = limval, filter = filterString,
         endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
@@ -301,15 +301,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     * @param input input for the address to be fetched
     * @return Json response with addresses information
     */
-    /*TODO: Add validation for 
-    
-        } else if (startDateInvalid) {
-      writeSplunkLogs(badRequestErrorMessage = StartDateInvalidResponseError.message)
-      futureJsonBadRequest(StartDateInvalid)
-    } else if (endDateInvalid) {
-      writeSplunkLogs(badRequestErrorMessage = EndDateInvalidResponseError.message)
-      futureJsonBadRequest(EndDateInvalid)
-    */
+
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
                           classificationfilter: Option[String] = None, startDate: Option[String], endDate: Option[String],
 			  historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>

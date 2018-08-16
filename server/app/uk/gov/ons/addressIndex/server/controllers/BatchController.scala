@@ -236,7 +236,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
-    if (requestsLeft.isEmpty) successfulResults ++ result.successfulBulkAddresses
+    if (requestsLeft.isEmpty)
+      successfulResults ++ result.successfulBulkAddresses
     else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
       throw new Exception(
         s"""
