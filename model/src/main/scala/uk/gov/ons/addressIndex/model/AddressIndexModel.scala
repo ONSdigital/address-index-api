@@ -9,7 +9,9 @@ case class AddressIndexUPRNRequest(
   uprn: BigInt,
   id: UUID,
   apiKey: String,
-  historical: Boolean
+  historical: Boolean,
+  startdate: String,
+  enddate: String,
 )
 
 case class AddressIndexSearchRequest(
@@ -17,6 +19,8 @@ case class AddressIndexSearchRequest(
   filter: String,
   historical: Boolean,
   matchthreshold: Int,
+  startdate: String,
+  enddate: String,
   rangekm: String,
   lat: String,
   lon: String,
@@ -30,6 +34,8 @@ case class AddressIndexPostcodeRequest(
   postcode: String,
   filter: String,
   historical: Boolean,
+  startdate: String,
+  enddate: String,
   limit: String,
   offset: String,
   id: UUID,

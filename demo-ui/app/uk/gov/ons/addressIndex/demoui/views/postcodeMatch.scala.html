@@ -6,6 +6,8 @@
     postcodeSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm],
     filter: Option[String],
     historical: Boolean,
+    startdate: Option[String],
+    enddate: Option[String],
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
@@ -44,7 +46,7 @@ version: DemoUIAddressIndexVersionModule
                 <section class='@if(warningMessage){search-error}else{searchbox-results}'>
                     @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatch) {
                     <div id="search-form" class="search-bar-active">
-                        @forms.postcodeForm(postcodeSearchForm, display = "inline", true, "", messages("postcodesearchform.placeholder"), messages("postcodesearchform.labelfilter"), messages("postcodesearchform.placeholderfilter"))
+                        @forms.postcodeForm(postcodeSearchForm, display = "inline", true, "", messages("postcodesearchform.placeholder"), messages("postcodesearchform.labelfilter"), messages("postcodesearchform.placeholderfilter"), messages("postcodesearchform.labelstartdate"), messages("postcodesearchform.placeholderstartdate"), messages("postcodesearchform.labelenddate"), messages("postcodesearchform.placeholderenddate"))
                     </div>
                     }
                 </section>
@@ -68,11 +70,13 @@ version: DemoUIAddressIndexVersionModule
                                 postcodeSearchForm("filter").value.getOrElse(""),
                                 postcodeSearchForm("historical").value.getOrElse("true").toBoolean,
                                 5,
+                                postcodeSearchForm("startdate").value.getOrElse(""),
+                                postcodeSearchForm("enddate").value.getOrElse(""),
                                 aresponse.maxScore,
                                 classification
                             )
                         }
-                        @pager(pageNum,pageSize,pageMax,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5)
+                        @pager(pageNum,pageSize,pageMax,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5,postcodeSearchForm("startdate").value.getOrElse(""),postcodeSearchForm("enddate").value.getOrElse(""))
                         }
                     </div>
                 </section>

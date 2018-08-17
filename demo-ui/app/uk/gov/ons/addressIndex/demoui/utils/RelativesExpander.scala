@@ -41,7 +41,9 @@ class RelativesExpander @Inject ()(
         uprn = numericUPRN,
         id = UUID.randomUUID,
         historical = true,
-        apiKey = apiKey
+        apiKey = apiKey,
+        startdate = "",
+        enddate = ""
       )
     )
   }

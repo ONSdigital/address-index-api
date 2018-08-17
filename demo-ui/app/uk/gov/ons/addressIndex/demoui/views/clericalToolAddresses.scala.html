@@ -4,6 +4,8 @@
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
     filter: String,
     historical: Boolean,
+    startdate: String,
+    enddate: String,
     matchthreshold: String,
     pageNum: Int,
     pageSize: Int,
@@ -29,6 +31,8 @@
                     singleSearchForm("filter").value.getOrElse(""),
                     singleSearchForm("historical").value,
                     singleSearchForm("matchthreshold").value.getOrElse(""),
+                    singleSearchForm("startdate").value.getOrElse(""),
+                    singleSearchForm("enddate").value.getOrElse(""),
                     aresponse.maxScore,
                     classification,
                     aresponse.tokens,
@@ -41,5 +45,5 @@
                 )
 
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value, singleSearchForm("matchthreshold").value.getOrElse("5").toInt)
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("startdate").value.getOrElse(""), singleSearchForm("enddate").value.getOrElse(""))
             }

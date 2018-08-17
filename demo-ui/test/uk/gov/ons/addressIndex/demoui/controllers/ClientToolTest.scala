@@ -44,7 +44,43 @@ class ClientToolTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold), None, None).apply(FakeRequest().withSession("api-key" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
+
+    "return a page containing additional information with dates" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val expectedString = "GATE REACH"
+      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
+
+      // When
+      val inputAddress = "7 GATE REACH EXETER EX2 6GA"
+      val filter = ""
+      val historical = true
+      val matchthreshold = 5
+      val startdate = "2012-01-01"
+      val enddate = "2013-01-01"
+      val response = new ClericalToolController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient.asInstanceOf[AddressIndexClientInstance],
+        classHierarchy,
+        expandedRels,
+        version)
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold), Some(startdate), Some(enddate)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -78,7 +114,7 @@ class ClientToolTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold), None, None).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -86,6 +122,41 @@ class ClientToolTest extends PlaySpec with Results {
       content must include(expectedString)
     }
 
+    "return a page containing additional information with a filter and dates" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val expectedString = "Residential"
+      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
+
+      // When
+      val inputAddress = "7 GATE REACH EXETER EX2 6GA"
+      val filter = "residential"
+      val historical = true
+      val matchthreshold = 5
+      val startdate = "2012-01-01"
+      val enddate = "2013-01-01"
+      val response = new ClericalToolController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient.asInstanceOf[AddressIndexClientInstance],
+        classHierarchy,
+        expandedRels,
+        version)
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchthreshold), Some(startdate), Some(enddate)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
   }
 }
 

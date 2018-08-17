@@ -274,14 +274,14 @@ trait AddressIndexCannedResponse {
       rangekm = "",
       latitude = "",
       longitude = "",
-      startDate = "",
-      endDate = "",
       limit = 10,
       offset = 0,
       total = 0,
       sampleSize = 20,
       maxScore = 0f,
-      matchthreshold = 5f
+      matchthreshold = 5f,
+      startDate = "",
+      endDate = ""
     )
   }
 

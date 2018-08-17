@@ -6,6 +6,8 @@
 @(
 address: AddressResponseAddress,
 filter: String,
+startdate: String,
+enddate: String,
 maxScore: Double,
 classification: Option[Map[String, String]],
 expandedRels: Option[Seq[ExpandedRelative]],
@@ -47,7 +49,7 @@ apiKey: String = ""
 
             </section>
 
-            <p class="venus"><a href='@{uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput("Add search term", None, Some("5"), address.geo.map { geo => geo.latitude.toString}, address.geo.map { geo => geo.longitude.toString}, None, Some(true), Some(5))}'>Radius search from this location</a></p>
+            <p class="venus"><a href='@{uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput("Add search term", None, Some("5"), address.geo.map { geo => geo.latitude.toString}, address.geo.map { geo => geo.longitude.toString}, None, Some(true), Some(5), Some(startdate), Some(enddate))}'>Radius search from this location</a></p>
 
             <section class="infobox-standard">
                 <table class="address-result-table mars">

@@ -10,6 +10,7 @@ warningMessage : Option[String],
 query: String,
 filter: String,
 historical: Boolean,
+dates: Map[String, String],
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
@@ -45,7 +46,7 @@ apiKey: String
                 <section class="searchbox-results">
                     @helper.form(action = action) {
                     <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter)
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter, messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
                     </div>
                     }
                 </section>
@@ -91,6 +92,8 @@ apiKey: String
                         singleSearchForm("filter").value.getOrElse(""),
                         singleSearchForm("historical").value.getOrElse("true").toBoolean,
                         singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
+                        dates.getOrElse("startdate", ""),
+                        dates.getOrElse("enddate", ""),
                         aresponse.maxScore,
                         classification,
                         aresponse.tokens,
@@ -103,7 +106,7 @@ apiKey: String
                         )
 
                         }
-                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt)
+                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""))
 
                     </div>
                 </section>

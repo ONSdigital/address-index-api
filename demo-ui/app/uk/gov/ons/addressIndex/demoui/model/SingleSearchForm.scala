@@ -10,7 +10,9 @@ case class SingleSearchForm(
  address: String,
  filter: String,
  historical: Boolean,
- matchthreshold: Int
+ matchthreshold: Int,
+ startdate: String,
+ enddate: String
 )
 
 object SingleSearchForm {

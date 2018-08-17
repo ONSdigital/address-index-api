@@ -333,14 +333,14 @@ class AddressController @Inject()(
               rangekm = rangeVal,
               latitude = latVal,
               longitude = lonVal,
-              startDate = startDateVal,
-              endDate = endDateVal,
               limit = limitInt,
               offset = offsetInt,
               total = newTotal,
               maxScore = maxScore,
               sampleSize = limitExpanded,
-              matchthreshold = thresholdFloat
+              matchthreshold = thresholdFloat,
+              startDate = startDateVal,
+              endDate = endDateVal
             ),
             status = OkAddressResponseStatus
           )

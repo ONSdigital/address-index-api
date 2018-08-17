@@ -186,14 +186,14 @@ case class AddressBySearchResponse(
   rangekm: String,
   latitude: String,
   longitude: String,
-  startDate: String,
-  endDate: String,
   limit: Int,
   offset: Int,
   total: Long,
   sampleSize: Long,
   maxScore: Double,
-  matchthreshold: Float
+  matchthreshold: Float,
+  startDate: String,
+  endDate: String
 )
 
 object AddressBySearchResponse {
