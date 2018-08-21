@@ -10,6 +10,8 @@ rangekm: Option[String],
 lat: Option[String],
 lon: Option[String],
 historical: Boolean,
+startdate: Option[String],
+enddate: Option[String],
 warningMessage : Option[String],
 pageNum: Int,
 pageSize: Int,
@@ -73,11 +75,13 @@ version: DemoUIAddressIndexVersionModule
                     radiusSearchForm("filter").value.getOrElse(""),
                     radiusSearchForm("historical").value.getOrElse("true").toBoolean,
                     5,
+                    radiusSearchForm("startdate").value.getOrElse(""),
+                    radiusSearchForm("enddate").value.getOrElse(""),
                     aresponse.maxScore,
                     classification
                     )
                     }
-                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5)
+                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5, radiusSearchForm("startdate").value.getOrElse(""), radiusSearchForm("enddate").value.getOrElse(""))
                     }
                 </div>
             </section>

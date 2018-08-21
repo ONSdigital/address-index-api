@@ -1,4 +1,4 @@
-@(postcodeForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm], display: String, showfilter: Boolean, labelsearch: String, placeholder: String, labelfilter: String, placeholderfilter: String)(implicit messages: Messages)
+@(postcodeForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm], display: String, showfilter: Boolean, labelsearch: String, placeholder: String, labelfilter: String, placeholderfilter: String, labelstartdate: String, placeholderstartdate: String, labelenddate: String, placeholderenddate: String)(implicit messages: Messages)
 @import helper._
 
 <fieldset class="searchfield venus">
@@ -60,6 +60,30 @@
                 'class -> "form-control mars",
                 '_label -> "Include historical data?",
                 '_help -> "Historical data is included by default")
+            </div>
+
+        </div>
+
+        <div class="group">
+
+            <div class="col-2">
+                @inputText(
+                postcodeForm("startdate"),
+                args = '_id -> "startDate",
+                'class -> "form-control mars",
+                '_label -> labelstartdate,
+                'placeholder -> placeholderstartdate
+                )
+            </div>
+
+            <div class="col-2">
+                @inputText(
+                postcodeForm("enddate"),
+                args = '_id -> "endDate",
+                'class -> "form-control mars",
+                '_label -> labelenddate,
+                'placeholder -> placeholderenddate
+                )
             </div>
 
         </div>

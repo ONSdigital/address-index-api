@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String)(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String, labelstartdate: String, placeholderstartdate: String, labelenddate: String, placeholderenddate: String)(implicit messages: Messages)
 @import helper._
 
 <fieldset class="searchfield venus">
@@ -69,6 +69,26 @@
                 '_label -> "Minimum match %",
                 '_default -> "Select",
                 '_help -> "Match score must be greater than this value")
+            </div>
+
+            <div class="col-2">
+                @inputText(
+                singleSearchForm("startdate"),
+                args = '_id -> "startDate",
+                'class -> "form-control mars",
+                '_label -> labelstartdate,
+                'placeholder -> placeholderstartdate
+                )
+            </div>
+
+            <div class="col-2">
+                @inputText(
+                singleSearchForm("enddate"),
+                args = '_id -> "endDate",
+                'class -> "form-control mars",
+                '_label -> labelenddate,
+                'placeholder -> placeholderenddate
+                )
             </div>
 
         </div>
