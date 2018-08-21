@@ -2,9 +2,13 @@ package uk.gov.ons.addressIndex.client
 
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, PostcodeQuery, Bulk, ShowQuery, UprnQuery, VersionQuery}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBulkResponseContainer, AddressBySearchResponseContainer, AddressByUprnResponseContainer, AddressByPostcodeResponseContainer, AddressResponseVersion}
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest, AddressIndexPostcodeRequest, BulkBody}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, PostcodeQuery, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponseContainer, AddressResponseVersion}
+import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer
+import uk.gov.ons.addressIndex.model.{AddressIndexPostcodeRequest, AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
+
 import scala.language.implicitConversions
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,6 +56,8 @@ trait AddressIndexClient {
         "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
         "matchthreshold" -> request.matchthreshold.toString,
+        "startdate" -> request.startdate.toString,
+        "enddate" -> request.enddate.toString,
         "rangekm" -> request.rangekm,
         "lat" -> request.lat,
         "lon" -> request.lon,
@@ -88,6 +94,8 @@ trait AddressIndexClient {
         //"postcode" -> request.postcode,
         "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
+        "startdate" -> request.startdate.toString,
+        "enddate" -> request.enddate.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
@@ -131,13 +139,15 @@ trait AddressIndexClient {
       .toReq
   }
 
-  def showQuery(input: String, filter: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
+  def showQuery(input: String, filter: String, startdate: String, enddate: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
     ShowQuery
       .toReq
       .withHttpHeaders("authorization" -> apiKey)
       .withQueryStringParameters(
         "input" -> input,
-        "classificationfilter" -> filter
+        "classificationfilter" -> filter,
+        "startdate" -> startdate,
+        "enddate" -> enddate
       ).get.map(response => Json.prettyPrint(response.json))
   }
 

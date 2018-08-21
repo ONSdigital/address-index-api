@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 import uk.gov.ons.addressIndex.model.AddressIndexPostcodeRequest
-import uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -58,6 +58,8 @@ class PostcodeController @Inject()(
         postcodeSearchForm = PostcodeController.form,
         filter = None,
         historical = true,
+        startdate = None,
+        enddate = None,
         warningMessage = None,
         pageNum = 1,
         pageSize = pageSize,
@@ -84,12 +86,16 @@ class PostcodeController @Inject()(
     val optFilter: Option[String] = Try(request.body.asFormUrlEncoded.get("filter").mkString).toOption
     val filterText = optFilter.getOrElse("")
     val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
+    val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
+    val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     if (addressText.trim.isEmpty) {
       logger info "Postcode Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
         postcodeSearchForm = PostcodeController.form,
         filter = None,
         historical = historical,
+        startdate = startDateVal,
+        enddate = endDateVal,
         warningMessage = Some(messagesApi("postcode.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -102,7 +108,7 @@ class PostcodeController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(historical)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(historical), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -113,12 +119,14 @@ class PostcodeController @Inject()(
     * @param postcode the postcode
     * @return result to view
     */
-  def doMatchWithInput(postcode: String, filter: Option[String], page: Option[Int], historical: Option[Boolean]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(postcode: String, filter: Option[String], page: Option[Int], historical: Option[Boolean], startdate: Option[String], enddate: Option[String]): Action[AnyContent] = Action.async { implicit request =>
 
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(postcode)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
+      val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
+      val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
       val limit = pageSize.toString()
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
@@ -130,6 +138,8 @@ class PostcodeController @Inject()(
           postcodeSearchForm = PostcodeController.form,
           filter = None,
           historical = historicalValue,
+          startdate = Some(startDateVal),
+          enddate = Some(endDateVal),
           warningMessage = Some(messagesApi("postcode.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
@@ -148,13 +158,15 @@ class PostcodeController @Inject()(
             postcode = addressText,
             filter = filterText,
             historical = historicalValue,
+            startdate = startDateVal,
+            enddate = endDateVal,
             limit = limit,
             offset = offset,
             id = UUID.randomUUID,
             apiKey = apiKey
           )
         } map { resp: AddressByPostcodeResponseContainer =>
-          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText, historicalValue))
+          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText, historicalValue, startDateVal, endDateVal))
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -169,6 +181,8 @@ class PostcodeController @Inject()(
             postcodeSearchForm = filledForm,
             filter = None,
             historical = historicalValue,
+            startdate = Some(startDateVal),
+            enddate = Some(endDateVal),
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
@@ -192,7 +206,9 @@ object PostcodeController {
     mapping(
       "address" -> text,
       "filter" -> text,
-      "historical" -> boolean
+      "historical" -> boolean,
+      "startdate" -> text,
+      "enddate" -> text
     )(PostcodeSearchForm.apply)(PostcodeSearchForm.unapply)
   )
 }

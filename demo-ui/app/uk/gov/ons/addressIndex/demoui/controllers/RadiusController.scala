@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import org.apache.commons.lang3.StringUtils
 import play.api.Logger
 import play.api.data.Forms._
@@ -13,8 +13,8 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
-import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest}
-import uk.gov.ons.addressIndex.model.server.response.{AddressBySearchResponseContainer}
+import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
+import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -58,6 +58,8 @@ class RadiusController @Inject()(
         radiusSearchForm = RadiusController.form,
         filter = None,
         historical = false,
+        startdate = None,
+        enddate = None,
         rangekm = None,
         lat = None,
         lon = None,
@@ -95,6 +97,8 @@ class RadiusController @Inject()(
     val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     val optmatchthreshold: Option[Int] = Try(request.body.asFormUrlEncoded.get("matchthreshold").mkString.toInt).toOption
     val matchthresholdValue = optmatchthreshold.getOrElse(5)
+    val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
+    val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     if (addressText.trim.isEmpty) {
       logger info "Radius Match with Empty search term"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
@@ -104,6 +108,8 @@ class RadiusController @Inject()(
         lat = None,
         lon = None,
         historical = historical,
+        startdate = startDateVal,
+        enddate = endDateVal,
         warningMessage = Some(messagesApi("radius.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -116,7 +122,7 @@ class RadiusController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchthresholdValue)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -127,7 +133,7 @@ class RadiusController @Inject()(
     * @param input the term
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String] = None, enddate: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
 
   val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
@@ -142,12 +148,16 @@ class RadiusController @Inject()(
       val lonString = lon.getOrElse("")
       val historicalValue = historical.getOrElse(true)
       val matchthresholdValue = matchthreshold.getOrElse(5)
+      val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
+      val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
         logger info ("Radius Match with expected search term missing")
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
           radiusSearchForm = RadiusController.form,
           filter = None,
           historical = historicalValue,
+          startdate = Some(startDateVal),
+          enddate = Some(endDateVal),
           rangekm = None,
           lat = None,
           lon = None,
@@ -171,6 +181,8 @@ class RadiusController @Inject()(
             offset = offset,
             filter = filterText,
             historical = historicalValue,
+            startdate = startDateVal,
+            enddate = endDateVal,
             matchthreshold = matchthresholdValue,
             rangekm = rangeString,
             lat = latString,
@@ -179,7 +191,7 @@ class RadiusController @Inject()(
             apiKey = apiKey
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue))
+          val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue, startDateVal, endDateVal))
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
@@ -197,6 +209,8 @@ class RadiusController @Inject()(
             lat = lat,
             lon = lon,
             historical = historicalValue,
+            startdate = Some(startDateVal),
+            enddate = Some(endDateVal),
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
@@ -223,7 +237,9 @@ object RadiusController {
       "rangekm" -> text,
       "lat" -> text,
       "lon" -> text,
-      "historical" -> boolean
+      "historical" -> boolean,
+      "startdate" -> text,
+      "enddate" -> text
     )(RadiusSearchForm.apply)(RadiusSearchForm.unapply)
   )
 }

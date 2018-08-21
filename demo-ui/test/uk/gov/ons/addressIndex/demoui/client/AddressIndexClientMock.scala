@@ -6,6 +6,9 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.{AddressIndexPostcodeRequest, AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,6 +40,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     rangekm = "2",
     latitude = "50.705948",
     longitude = "-3.5091076",
+    startDate = "",
+    endDate = "",
     total = 1,
     sampleSize = 20,
     maxScore = 1f,
@@ -51,7 +56,9 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     filter = "",
     historical = true,
     total = 1,
-    maxScore = 1f
+    maxScore = 1f,
+    startDate = "",
+    endDate = ""
   )
 
   val mockSearchResponseContainer = AddressBySearchResponseContainer (
@@ -198,6 +205,8 @@ object AddressIndexClientMock {
   )
 
   val mockAddressByUprnResponse = AddressByUprnResponse (
-    address = Some(mockAddressResponseAddress: AddressResponseAddress)
+    address = Some(mockAddressResponseAddress: AddressResponseAddress),
+    startDate = "",
+    endDate = ""
   )
 }

@@ -3,6 +3,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 /**

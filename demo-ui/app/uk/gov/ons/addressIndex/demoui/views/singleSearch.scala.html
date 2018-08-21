@@ -2,6 +2,7 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import play.twirl.api.HtmlFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 filter: Option[String],
@@ -9,11 +10,13 @@ rangekm: Option[String],
 lat: Option[String],
 lon: Option[String],
 historical: Boolean,
+startdate: Option[String],
+enddate: Option[String],
 warningMessage : Option[String],
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
-addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
@@ -46,7 +49,7 @@ version: DemoUIAddressIndexVersionModule
         <section class="searchbox-initial">
             @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
             <div id="search-form" class="search-bar-active">
-                @forms.singleAddressForm(singleSearchForm, display = "stacked", false, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"))
+                @forms.singleAddressForm(singleSearchForm, display = "stacked", false, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
             </div>
             }
         </section>
