@@ -56,6 +56,8 @@ trait AddressIndexClient {
         "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
         "matchthreshold" -> request.matchthreshold.toString,
+        "startdate" -> request.startdate.toString,
+        "enddate" -> request.enddate.toString,
         "rangekm" -> request.rangekm,
         "lat" -> request.lat,
         "lon" -> request.lon,
@@ -92,6 +94,8 @@ trait AddressIndexClient {
         //"postcode" -> request.postcode,
         "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
+        "startdate" -> request.startdate.toString,
+        "enddate" -> request.enddate.toString,
         "limit" -> request.limit,
         "offset" -> request.offset
       )
@@ -135,13 +139,15 @@ trait AddressIndexClient {
       .toReq
   }
 
-  def showQuery(input: String, filter: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
+  def showQuery(input: String, filter: String, startdate: String, enddate: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
     ShowQuery
       .toReq
       .withHttpHeaders("authorization" -> apiKey)
       .withQueryStringParameters(
         "input" -> input,
-        "classificationfilter" -> filter
+        "classificationfilter" -> filter,
+        "startdate" -> startdate,
+        "enddate" -> enddate
       ).get.map(response => Json.prettyPrint(response.json))
   }
 

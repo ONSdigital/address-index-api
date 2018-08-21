@@ -487,14 +487,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 1,
           sampleSize = 20,
           maxScore = 1.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         OkAddressResponseStatus
       ))
@@ -524,14 +524,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "1",
           latitude = "50.705948",
           longitude = "-3.5091076",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 1,
           sampleSize = 20,
           maxScore = 1.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         OkAddressResponseStatus
       ))
@@ -561,14 +561,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "2013-01-01",
-          endDate = "2014-01-01",
           limit = 10,
           offset = 0,
           total = 1,
           sampleSize = 20,
           maxScore = 1.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "2013-01-01",
+          endDate = "2014-01-01"
         ),
         OkAddressResponseStatus
       ))
@@ -597,14 +597,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -635,14 +635,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -704,14 +704,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -773,14 +773,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -842,14 +842,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -911,14 +911,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooLargeAddressResponseError)
@@ -980,14 +980,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooLargeAddressResponseError)
@@ -1049,14 +1049,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -1086,14 +1086,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -1123,14 +1123,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -1160,14 +1160,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -1197,14 +1197,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -1234,14 +1234,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -1271,14 +1271,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -1308,14 +1308,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -1345,14 +1345,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -1382,14 +1382,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -1419,14 +1419,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -1456,14 +1456,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -1493,14 +1493,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -1530,14 +1530,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -1567,14 +1567,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -1604,14 +1604,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -1673,14 +1673,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(FailedRequestToEsError)
@@ -1742,14 +1742,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          startDate = "",
-          endDate = "",
           limit = 10,
           offset = 0,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(FailedRequestToEsError)
