@@ -63,28 +63,28 @@
 <h3>Parameters</h3>
 
 <h4>offset</h4>
-<p>Specifies the offset from zero, used for pagination (default: 0, maximum: 1000)</p>
+<p>Optional<br>Specifies the offset from zero, used for pagination (default: 0, maximum: 1000)</p>
 
 <h4>limit</h4>
-<p>Specifies the number of addresses to return (default: 10, maximum: 100)</p>
+<p>Optional<br>Specifies the number of addresses to return (default: 10, maximum: 100)</p>
 
 <h4>classificationfilter</h4>
-<p>Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06, or a preset keyword e.g. residential; commercial</p>
+<p>Optional<br>Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06, or a preset keyword e.g. residential; commercial</p>
 
 <h4>rangekm</h4>
-<p>Limit results to those within this number of kilometers of point (decimal: e.g. 0.1)</p>
+<p>Optional<br>Limit results to those within this number of kilometers of point (decimal: e.g. 0.1)</p>
 
 <h4>lat</h4>
-<p>Latitude of point in decimal format (e.g. 50.705948)</p>
+<p>Optional<br>Latitude of point in decimal format (e.g. 50.705948)</p>
 
 <h4>lon</h4>
-<p>Longitude of point in decimal format (e.g. -3.5091076)</p>
+<p>Optional<br>Longitude of point in decimal format (e.g. -3.5091076)</p>
 
 <h4>historical</h4>
-<p>Include historical addresses (default: true)</p>
+<p>Optional<br>Include historical addresses (default: true)</p>
 
 <h4>matchthreshold</h4>
-<p>Minimum confidence score (percentage) for match to be included in results (default: 5.0)</p>
+<p>Optional<br>Minimum confidence score (percentage) for match to be included in results (default: 5.0)</p>
 
 
 <h2>Address Index Simple Tester</h2>
