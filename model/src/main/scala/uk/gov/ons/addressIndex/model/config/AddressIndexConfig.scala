@@ -235,7 +235,9 @@ case class ApiConfig(
   port: Int,
   ajaxHost: String,
   ajaxPort: String,
-  gatewayPath: String
+  gatewayPath: String,
+  apidocs: String,
+  swaggerui: String
 )
 
 case class DemouiConfig (
