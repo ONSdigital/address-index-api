@@ -1,33 +1,18 @@
 package uk.gov.ons.addressIndex.server.model.dao
 
-import javax.inject.{Inject, Singleton}
 import java.security.cert.X509Certificate
 
-import javax.net.ssl.{SSLContext, X509TrustManager}
-import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
+import javax.inject.{Inject, Singleton}
+import javax.net.ssl.{SSLContext, X509TrustManager}
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
-import org.elasticsearch.client.RestClientBuilder._
-import org.apache.http.impl.nio.client._
 import org.apache.http.client.config.RequestConfig.Builder
 import org.apache.http.impl.client.BasicCredentialsProvider
-import play.api.Logger
-import uk.gov.ons.addressIndex.server.modules.AddressIndexConfigModule
-
-/**
-  * Provides access to Elastic client
-  */
-
-@ImplementedBy(classOf[AddressIndexElasticClientProvider])
-trait ElasticClientProvider {
-  /**
-    * Defines a getter for Elastic client
-    *
-    * @return
-    */
-  def client: HttpClient
-}
+import org.apache.http.impl.nio.client._
+import org.elasticsearch.client.RestClientBuilder._
+import uk.gov.ons.addressIndex.server.modules.ConfigModule
+import uk.gov.ons.addressIndex.server.utils.GenericLogger
 
 /**
   * Gets the information from the configuration file and then creates a corresponding client
@@ -36,10 +21,11 @@ trait ElasticClientProvider {
   * @param conf injected configuration
   */
 @Singleton
-class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule) extends ElasticClientProvider {
+class AddressIndexElasticClientProvider @Inject()
+(conf: ConfigModule) extends ElasticClientProvider {
 
   private val esConf = conf.config.elasticSearch
-  private val logger = Logger("address-index:ElasticsearchRepositoryModule")
+  private val logger = GenericLogger("address-index:ElasticsearchRepositoryModule")
 
   val host: String = esConf.uri
   val port: String = esConf.port
@@ -51,7 +37,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
   private val context = SSLContext.getInstance("SSL")
 
   /* This looks like dead code. Is it? */
-   val provider: BasicCredentialsProvider = {
+  val provider: BasicCredentialsProvider = {
 
     logger info "Connecting to Elasticsearch"
 
@@ -60,7 +46,6 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
 
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
-
   }
 
   context.init(null, Array(
@@ -73,7 +58,7 @@ class AddressIndexElasticClientProvider @Inject()(conf: AddressIndexConfigModule
     }
   ), null)
 
-  val client = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
+  val client: HttpClient = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
       requestConfigBuilder.setConnectTimeout(connectionTimeout)

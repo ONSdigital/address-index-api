@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.db
 
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
-import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 /**
   * DTO to hold the information about found address while doing bulk requests

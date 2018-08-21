@@ -9,6 +9,7 @@ import com.sksamuel.elastic4s.testkit._
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
+import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -17,10 +18,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
 
-  val testClient = http
+  val testClient: HttpClient = http
 
   // injections
-  val elasticClientProvider = new ElasticClientProvider {
+  val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
     override def client: HttpClient = testClient
   }
 
@@ -28,11 +29,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val defaultLon = "-3.5091076"
 
   val config = new AddressIndexConfigModule
-  val queryParams = config.config.elasticSearch.queryParams
+  val queryParams: QueryParamsConfig = config.config.elasticSearch.queryParams
 
-  val hybridIndexName = config.config.elasticSearch.indexes.hybridIndex
-  val hybridIndexHistoricalName = config.config.elasticSearch.indexes.hybridIndexHistorical
-  val hybridMappings = config.config.elasticSearch.indexes.hybridMapping
+  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex
+  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical
+  val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
   val hybridRelSibArray = List(6L,7L)
@@ -71,7 +72,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridFirstDateUprn = 10L
   val hybridSecondDateUprn = 11L
   val hybridThirdDateUprn = 12L
-  val hybridFirstRelative = firstHybridRelEs
+  val hybridFirstRelative: Map[String, Any] = firstHybridRelEs
   val hybridFirstPostcodeIn = "h01p"
   val hybridFirstPostcodeOut = "h02p"
   // Fields that are not in this list are not used for search
@@ -80,7 +81,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridPafDepartmentName = "h3"
   val hybridPafSubBuildingName = "h4"
   val hybridPafBuildingName = "h5"
-  val hybridPafBuildingNumber = 6.toShort
+  val hybridPafBuildingNumber: Short = 6.toShort
   val hybridPafThoroughfare = "h7"
   val hybridPafPostTown = "h8"
   val hybridPafPostcode = "h10"

@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import akka.stream.scaladsl.Source
 import com.github.tototoshi.csv._
 import play.api.Logger
@@ -12,7 +11,7 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
 import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
 import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 import uk.gov.ons.addressIndex.demoui.views.{MatchTypeHelper, ScoreHelper}
-import uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}

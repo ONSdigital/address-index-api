@@ -2,6 +2,7 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import play.twirl.api.HtmlFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
 title: String,
 action: Call,
@@ -15,7 +16,7 @@ pageSize: Int,
 pageMax: Int,
 expandRow: Int,
 pagerAction: String,
-addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 apiUrl: String,
 version: DemoUIAddressIndexVersionModule,

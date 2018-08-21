@@ -1,5 +1,6 @@
 @import play.twirl.api.HtmlFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
     filter: String,
@@ -10,7 +11,7 @@
     pageMax: Int,
     expandRow: Int,
     pagerAction: String,
-    addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+    addressBySearchResponse: Option[AddressBySearchResponse],
     classification: Option[Map[String, String]],
     apiUrl: String,
     apiKey: String

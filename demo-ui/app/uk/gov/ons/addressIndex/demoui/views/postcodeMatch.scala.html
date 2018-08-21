@@ -2,6 +2,7 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import play.twirl.api.HtmlFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponse
 @(
     postcodeSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm],
     filter: Option[String],
@@ -10,7 +11,7 @@
     pageNum: Int,
     pageSize: Int,
     pageMax: Int,
-    addressByPostcodeResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressByPostcodeResponse],
+    addressByPostcodeResponse: Option[AddressByPostcodeResponse],
     classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
