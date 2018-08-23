@@ -105,7 +105,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
     localCustodianGeogCode = "E06000042",
-    lpiEndDate = ""
+    lpiEndDate = "",
+    lpiStartDate = ""
   )
 
   val mockNagAddress2 = AddressResponseNag(
@@ -140,7 +141,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
     localCustodianGeogCode = "E06000042",
-    lpiEndDate = ""
+    lpiEndDate = "",
+    lpiStartDate = ""
   )
 
   val mockRelative = Relative(

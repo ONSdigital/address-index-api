@@ -220,7 +220,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.localCustodianCode,
         nag.localCustodianName,
         nag.localCustodianGeogCode,
-        nag.lpiEndDate
+        nag.lpiEndDate,
+        nag.lpiStartDate
       )
 
       // When
