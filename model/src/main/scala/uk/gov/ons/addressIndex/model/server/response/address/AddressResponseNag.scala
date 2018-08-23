@@ -41,7 +41,8 @@ case class AddressResponseNag(
   localCustodianCode: String,
   localCustodianName: String,
   localCustodianGeogCode: String,
-  lpiEndDate: String
+  lpiEndDate: String,
+  lpiStartDate: String
 )
 
 object AddressResponseNag {
@@ -80,7 +81,8 @@ object AddressResponseNag {
         other.localCustodianCode,
         other.localCustodianName,
         other.localCustodianGeogCode,
-        other.lpiEndDate
+        other.lpiEndDate,
+        other.lpiStartDate
       )
   }
 }

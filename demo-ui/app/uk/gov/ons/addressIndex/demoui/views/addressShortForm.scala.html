@@ -77,6 +77,22 @@ apiKey: String = ""
                 }
             </td>
         </tr>
+        <tr>
+            <td class="mars">LPI Start Date</td>
+            <td class="venus">@address.nag.map { nag => @nag.lpiStartDate }</td>
+        </tr>
+        <tr>
+            <td class="mars">LPI End Date</td>
+            <td class="venus">@address.nag.map { nag => @nag.lpiEndDate }</td>
+        </tr>
+        <tr>
+            <td class="mars">PAF Start Date</td>
+            <td class="venus">@address.paf.map { paf => @paf.startDate }</td>
+        </tr>
+        <tr>
+            <td class="mars">PAF End Date</td>
+            <td class="venus">@address.paf.map { paf => @paf.endDate }</td>
+        </tr>
     </table>
 
     @if(isClerical){
