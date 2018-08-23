@@ -371,11 +371,9 @@ class SingleMatchController @Inject()(
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
           val rels = resp.response.address.map(_.relatives)
-          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
-         //   case _: Throwable => {
+          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.get.getOrElse(Seq())).recover {
               case exception => {
                 logger.warn("relatives failed" + exception)
-       //     }
               Seq()}
           }
 
@@ -465,7 +463,7 @@ class SingleMatchController @Inject()(
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
           val rels = resp.response.address.map(_.relatives)
-          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
+          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.get.getOrElse(Seq())).recover {
             case _: Throwable => Seq()
           }
 

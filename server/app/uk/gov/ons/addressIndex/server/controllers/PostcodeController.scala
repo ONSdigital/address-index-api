@@ -36,7 +36,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     */
   def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
                     startDate: Option[String] = None, endDate: Option[String] = None,
-                    historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     // get the defaults and maxima for the paging parameters from the config
@@ -56,6 +56,11 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case None => true
     }
 
+    val verb = verbose match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
@@ -67,6 +72,10 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         numOfResults = numOfResults, score = score, networkid = networkid,
         startDate = startDateVal, endDate = endDateVal, historical = hist
       )
+    }
+
+    def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
+      fullAddresses.map{address => address.copy(nag=None,paf=None,relatives=None,crossRefs=None)}
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -111,13 +120,17 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
             writeLog()
 
+            // if verbose is false, strip out full address details (these are needed for score so must be
+            // removed retrospectively)
+            val finalAddresses = if (verb) addresses else trimAddresses(addresses)
+
             jsonOk(
               AddressByPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByPostcodeResponse(
                   postcode = postcode,
-                  addresses = addresses,
+                  addresses = finalAddresses,
                   filter = filterString,
                   historical = hist,
                   limit = limitInt,

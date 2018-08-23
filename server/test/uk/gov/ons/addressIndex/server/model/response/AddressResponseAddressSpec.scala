@@ -257,8 +257,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
-        relatives = Seq(givenRelativeResponse),
-        crossRefs = Seq(givenCrossRefResponse),
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
         formattedAddress = "mixedNag",
         formattedAddressNag = "mixedNag",
         formattedAddressPaf = "mixedPaf",

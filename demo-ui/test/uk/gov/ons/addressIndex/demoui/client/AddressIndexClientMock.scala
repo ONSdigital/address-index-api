@@ -191,8 +191,8 @@ object AddressIndexClientMock {
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
-    relatives = Seq(mockRelativeResponse),
-    crossRefs = Seq(mockCrossRefResponse),
+    relatives = Some(Seq(mockRelativeResponse)),
+    crossRefs = Some(Seq(mockCrossRefResponse)),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",

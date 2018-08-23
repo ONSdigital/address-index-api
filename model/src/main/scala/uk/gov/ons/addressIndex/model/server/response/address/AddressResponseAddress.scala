@@ -16,8 +16,8 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGaz
 case class AddressResponseAddress(
   uprn: String,
   parentUprn: String,
-  relatives: Seq[AddressResponseRelative],
-  crossRefs: Seq[AddressResponseCrossRef],
+  relatives: Option[Seq[AddressResponseRelative]],
+  crossRefs: Option[Seq[AddressResponseCrossRef]],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -53,8 +53,8 @@ object AddressResponseAddress {
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
-      relatives = other.relatives.map(AddressResponseRelative.fromRelative),
-      crossRefs = other.crossRefs.map(AddressResponseCrossRef.fromCrossRef),
+      relatives = Some(other.relatives.map(AddressResponseRelative.fromRelative)),
+      crossRefs = Some(other.crossRefs.map(AddressResponseCrossRef.fromCrossRef)),
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
