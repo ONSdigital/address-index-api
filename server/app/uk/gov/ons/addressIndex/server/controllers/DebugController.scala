@@ -37,7 +37,7 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
-  def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, startDate: Option[String], endDate: Option[String], historical: Option[String] = None): Action[AnyContent] = Action { implicit req =>
+  def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, startDate: Option[String], endDate: Option[String], historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val filterString = classificationfilter.getOrElse("")

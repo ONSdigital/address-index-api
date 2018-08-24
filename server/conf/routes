@@ -201,11 +201,13 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses (default true)
+#    - name: verbose
+#      description: Include the full address details in the response,  true or false, default true.
 #  responses:
 #    200:
 #      description: success
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
 ###
 #  summary: Get version information.
