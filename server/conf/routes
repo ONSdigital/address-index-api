@@ -135,7 +135,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: historical
 #      description: Include historical addresses (default true)
 #    - name: verbose
-#      description: Include the full address details in the response,  true or false, default true.
+#      description: Include the full address details in the response,  true or false, default false.
 #  responses:
 #    200:
 #      description: success
