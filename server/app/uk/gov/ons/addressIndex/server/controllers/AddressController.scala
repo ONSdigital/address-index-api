@@ -135,7 +135,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           case HybridAddresses(hybridAddresses, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress
+              AddressResponseAddress.fromHybridAddress(_,true)
             )
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(
@@ -191,7 +191,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   total = newTotal,
                   maxScore = maxScore,
                   sampleSize = limitExpanded,
-                  matchthreshold = thresholdFloat
+                  matchthreshold = thresholdFloat,
+                  verbose = verb
                 ),
                 status = OkAddressResponseStatus
               )

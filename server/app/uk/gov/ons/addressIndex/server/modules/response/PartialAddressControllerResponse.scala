@@ -26,7 +26,8 @@ trait PartialAddressControllerResponse extends AddressResponse {
       total = 0,
       maxScore = 0f,
       startDate = "",
-      endDate = ""
+      endDate = "",
+      verbose = true
     )
   }
 

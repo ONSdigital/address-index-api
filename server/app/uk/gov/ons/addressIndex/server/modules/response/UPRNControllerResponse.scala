@@ -15,8 +15,10 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
+        historical = true,
         startDate = "",
-        endDate = ""
+        endDate = "",
+        verbose = true
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
@@ -29,8 +31,10 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = optAddresses,
+        historical = true,
         startDate = "",
-        endDate = ""
+        endDate = "",
+        verbose = true
       ),
       status = OkAddressResponseStatus
     )
@@ -42,8 +46,10 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
+        historical = true,
         startDate = "",
-        endDate = ""
+        endDate = "",
+        verbose = true
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -56,8 +62,10 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
+        historical = true,
         startDate = "",
-        endDate = ""
+        endDate = "",
+        verbose = true
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)

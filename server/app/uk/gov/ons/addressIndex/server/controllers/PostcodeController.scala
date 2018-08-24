@@ -74,10 +74,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       )
     }
 
-    def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map{address => address.copy(nag=None,paf=None,relatives=None,crossRefs=None)}
-    }
-
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
@@ -108,7 +104,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           case HybridAddresses(hybridAddresses, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress
+              AddressResponseAddress.fromHybridAddress(_,verb)
             )
 
             addresses.foreach { address =>
@@ -120,17 +116,13 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
             writeLog()
 
-            // if verbose is false, strip out full address details (these are needed for score so must be
-            // removed retrospectively)
-            val finalAddresses = if (verb) addresses else trimAddresses(addresses)
-
             jsonOk(
               AddressByPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByPostcodeResponse(
                   postcode = postcode,
-                  addresses = finalAddresses,
+                  addresses = addresses,
                   filter = filterString,
                   historical = hist,
                   limit = limitInt,
@@ -138,7 +130,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   total = total,
                   maxScore = maxScore,
                   startDate = startDateVal,
-                  endDate = endDateVal
+                  endDate = endDateVal,
+                  verbose = verb
                 ),
                 status = OkAddressResponseStatus
               )

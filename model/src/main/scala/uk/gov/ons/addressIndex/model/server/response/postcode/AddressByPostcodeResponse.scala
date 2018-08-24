@@ -22,7 +22,8 @@ case class AddressByPostcodeResponse(
                                     total: Long,
                                     maxScore: Double,
                                     startDate: String,
-                                    endDate: String
+                                    endDate: String,
+                                    verbose: Boolean
                                   )
 
 object AddressByPostcodeResponse {
