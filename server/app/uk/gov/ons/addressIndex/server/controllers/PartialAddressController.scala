@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
-import uk.gov.ons.addressIndex.model.server.response.address.{FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer, AddressResponsePartialAddress}
 import uk.gov.ons.addressIndex.server.modules.response.{AddressControllerResponse, PartialAddressControllerResponse}
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
@@ -37,7 +37,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
     classificationfilter: Option[String] = None, startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     // get the defaults and maxima for the paging parameters from the config
@@ -55,6 +55,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
+    }
+
+    val verb = verbose match {
+      case Some(x) => Try(x.toBoolean).getOrElse(false)
+      case None => false
     }
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
@@ -97,8 +102,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         request.map {
           case HybridAddresses(hybridAddresses, maxScore, total) =>
-            val addresses: Seq[AddressResponsePartialAddress] = hybridAddresses.map(
-              AddressResponsePartialAddress.fromHybridAddress
+            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+              AddressResponseAddress.fromHybridAddress(_,verb)
             )
 
             addresses.foreach { address =>
@@ -124,7 +129,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   total = total,
                   maxScore = maxScore,
                   startDate = startDateVal,
-                  endDate = endDateVal
+                  endDate = endDateVal,
+                  verbose  = verb
                 ),
                 status = OkAddressResponseStatus
               )

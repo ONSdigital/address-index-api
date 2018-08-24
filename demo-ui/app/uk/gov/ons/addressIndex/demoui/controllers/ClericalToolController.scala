@@ -200,7 +200,8 @@ class ClericalToolController @Inject()(
             lon = "-3.5091076",
             offset = offset,
             id = UUID.randomUUID,
-            apiKey = apiKey
+            apiKey = apiKey,
+            verbose = true
           )
         ) map { resp: AddressBySearchResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -339,7 +340,8 @@ class ClericalToolController @Inject()(
           apiKey = apiKey,
           historical = historicalValue,
           startdate = startDateVal,
-          enddate = endDateVal
+          enddate = endDateVal,
+          verbose = true
         )
       ) map { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.getOrElse(""), historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -398,7 +400,8 @@ class ClericalToolController @Inject()(
           apiKey = apiKey,
           historical = historicalValue,
           startdate = startDateVal,
-          enddate = endDateVal
+          enddate = endDateVal,
+          verbose = true
         )
       ) flatMap { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString,"", historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -412,7 +415,7 @@ class ClericalToolController @Inject()(
           else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
         val rels = resp.response.address.map(_.relatives)
-        val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
+        val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.get.getOrElse(Seq())).recover {
           case _: Throwable => Seq()
         }
 
@@ -551,7 +554,8 @@ class ClericalToolController @Inject()(
               lon = "-3.5091076",
               offset = offset,
               id = UUID.randomUUID,
-              apiKey = apiKey
+              apiKey = apiKey,
+              verbose = true
             )
           ) map { resp: AddressBySearchResponseContainer =>
             val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))

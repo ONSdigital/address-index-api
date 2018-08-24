@@ -36,7 +36,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     */
   def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
                     startDate: Option[String] = None, endDate: Option[String] = None,
-                    historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     // get the defaults and maxima for the paging parameters from the config
@@ -52,6 +52,11 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val endDateVal = endDate.getOrElse("")
 
     val hist = historical match {
+      case Some(x) => Try(x.toBoolean).getOrElse(true)
+      case None => true
+    }
+
+    val verb = verbose match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
     }
@@ -99,7 +104,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           case HybridAddresses(hybridAddresses, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress
+              AddressResponseAddress.fromHybridAddress(_,verb)
             )
 
             addresses.foreach { address =>
@@ -125,7 +130,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   total = total,
                   maxScore = maxScore,
                   startDate = startDateVal,
-                  endDate = endDateVal
+                  endDate = endDateVal,
+                  verbose = verb
                 ),
                 status = OkAddressResponseStatus
               )

@@ -35,7 +35,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         id = UUID.randomUUID,
         apiKey = "",
         startdate = "",
-        enddate = ""
+        enddate = "",
+        verbose = true
       )
     ).url
     val expected = s"${apiHost}/addresses/uprn/101010"
@@ -66,7 +67,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         id = UUID.randomUUID,
         limit = "10",
         offset = "0",
-        apiKey = ""
+        apiKey = "",
+        verbose = true
       )
     ).queryString
     val expected = Map(

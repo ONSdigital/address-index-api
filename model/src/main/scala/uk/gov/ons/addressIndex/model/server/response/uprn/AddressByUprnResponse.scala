@@ -10,8 +10,10 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
 */
 case class AddressByUprnResponse(
   address: Option[AddressResponseAddress],
+  historical: Boolean,
   startDate: String,
-  endDate: String
+  endDate: String,
+  verbose: Boolean
 )
 
 object AddressByUprnResponse {

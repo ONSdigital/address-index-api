@@ -16,8 +16,8 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGaz
 case class AddressResponseAddress(
   uprn: String,
   parentUprn: String,
-  relatives: Seq[AddressResponseRelative],
-  crossRefs: Seq[AddressResponseCrossRef],
+  relatives: Option[Seq[AddressResponseRelative]],
+  crossRefs: Option[Seq[AddressResponseCrossRef]],
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
@@ -38,7 +38,7 @@ object AddressResponseAddress {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddress(other: HybridAddress): AddressResponseAddress = {
+  def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddress = {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
@@ -53,17 +53,17 @@ object AddressResponseAddress {
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
-      relatives = other.relatives.map(AddressResponseRelative.fromRelative),
-      crossRefs = other.crossRefs.map(AddressResponseCrossRef.fromCrossRef),
+      relatives = {if (verbose) Some(other.relatives.map(AddressResponseRelative.fromRelative)) else None},
+      crossRefs = {if (verbose) Some(other.crossRefs.map(AddressResponseCrossRef.fromCrossRef)) else None},
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
-      paf = chosenPaf.map(AddressResponsePaf.fromPafAddress),
-      nag = chosenNag.map(AddressResponseNag.fromNagAddress),
+      paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
+      nag = {if (verbose) chosenNag.map(AddressResponseNag.fromNagAddress) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      confidenceScore = other.score,
+      confidenceScore = 1D,
       underlyingScore = other.score
     )
   }

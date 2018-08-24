@@ -192,6 +192,7 @@ class SingleMatchController @Inject()(
             rangekm = rangeString,
             lat = latString,
             lon = lonString,
+            verbose = true,
             id = UUID.randomUUID,
             apiKey = apiKey
           )
@@ -274,9 +275,10 @@ class SingleMatchController @Inject()(
           uprn = numericUPRN,
           id = UUID.randomUUID,
           historical = historicalValue,
-            apiKey = apiKey,
+          apiKey = apiKey,
           startdate = startDateVal,
-          enddate = endDateVal
+          enddate = endDateVal,
+          verbose = true
         )
       ) map { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -357,7 +359,8 @@ class SingleMatchController @Inject()(
             historical = historicalValue,
             apiKey = apiKey,
             startdate = startDateVal,
-            enddate = endDateVal
+            enddate = endDateVal,
+            verbose = true
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue,matchthresholdValue, startDateVal, endDateVal))
@@ -371,11 +374,9 @@ class SingleMatchController @Inject()(
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
           val rels = resp.response.address.map(_.relatives)
-          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
-         //   case _: Throwable => {
+          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.get.getOrElse(Seq())).recover {
               case exception => {
                 logger.warn("relatives failed" + exception)
-       //     }
               Seq()}
           }
 
@@ -451,7 +452,8 @@ class SingleMatchController @Inject()(
             historical = historical,
             apiKey = apiKey,
             startdate = startDateVal,
-            enddate = endDateVal
+            enddate = endDateVal,
+            verbose = true
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historical, matchthresholdValue, startDateVal, endDateVal))
@@ -465,7 +467,7 @@ class SingleMatchController @Inject()(
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
           val rels = resp.response.address.map(_.relatives)
-          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.getOrElse(Seq())).recover {
+          val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.get.getOrElse(Seq())).recover {
             case _: Throwable => Seq()
           }
 

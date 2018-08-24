@@ -188,7 +188,8 @@ class RadiusController @Inject()(
             lat = latString,
             lon = lonString,
             id = UUID.randomUUID,
-            apiKey = apiKey
+            apiKey = apiKey,
+            verbose = true
           )
         ) map { resp: AddressBySearchResponseContainer =>
           val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue, startDateVal, endDateVal))

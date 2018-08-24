@@ -12,6 +12,7 @@ case class AddressIndexUPRNRequest(
   historical: Boolean,
   startdate: String,
   enddate: String,
+  verbose: Boolean
 )
 
 case class AddressIndexSearchRequest(
@@ -26,6 +27,7 @@ case class AddressIndexSearchRequest(
   lon: String,
   limit: String,
   offset: String,
+  verbose: Boolean,
   id: UUID,
   apiKey: String
 )
@@ -38,6 +40,7 @@ case class AddressIndexPostcodeRequest(
   enddate: String,
   limit: String,
   offset: String,
+  verbose: Boolean,
   id: UUID,
   apiKey: String
 )
