@@ -277,7 +277,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddress.fromHybridAddress(hybrid)
+      val result = AddressResponseAddress.fromHybridAddress(hybrid, true)
 
       // Then
       result shouldBe expected

@@ -38,7 +38,7 @@ class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with Mo
       AddressByUprnResponseContainer(
         "api-version",
         "data-version",
-        response = AddressByUprnResponse(addressResponseAddressOpt, "", ""),
+        response = AddressByUprnResponse(addressResponseAddressOpt,true, "", "",true),
         status = mockAddressResponseStatus,
         errors = Seq.empty)
     }
