@@ -45,6 +45,19 @@ case class AddressIndexPostcodeRequest(
   apiKey: String
 )
 
+case class AddressIndexPartialRequest(
+  partial: String,
+  filter: String,
+  historical: Boolean,
+  startdate: String,
+  enddate: String,
+  limit: String,
+  offset: String,
+  verbose: Boolean,
+  id: UUID,
+  apiKey: String
+)
+
 /**
   * The body of the request that is sent to the bulk api endpoint
   * @param addresses collection of addresses that will be queried
