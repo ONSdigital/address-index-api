@@ -295,7 +295,33 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   "Address controller" should {
 
-    "reply with a found address (by uprn)" in {
+    "reply with a found address in concise format (by uprn)" in {
+      // Given
+      val controller = uprnController
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByUprnResponse(
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, false)),
+          historical = true,
+          startDate = "",
+          endDate = "",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose=Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in verbose format (by uprn)" in {
       // Given
       val controller = uprnController
 
@@ -313,7 +339,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn,  verbose=Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -321,7 +347,33 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a found address (by uprn query with start and end date)" in {
+    "reply on a found address in concise format (by uprn query with start and end date)" in {
+      // Given
+      val controller = uprnController
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByUprnResponse(
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, false)),
+          historical = true,
+          startDate = "2013-01-01",
+          endDate = "2014-01-01",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply on a found address in verbose format (by uprn query with start and end date)" in {
       // Given
       val controller = uprnController
 
@@ -339,7 +391,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -347,7 +399,40 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a found address (by postcode)" in {
+    "reply with a found address in concise format (by postcode)" in {
+      // Given
+      val controller = postcodeController
+
+      val expected = Json.toJson(AddressByPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPostcodeResponse(
+          postcode = "some query",
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, false)),
+          filter = "",
+          historical = true,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          startDate = "",
+          endDate = "",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.postcodeQuery("some query",verbose=Some("false")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in verbose format (by postcode)" in {
       // Given
       val controller = postcodeController
 
@@ -371,7 +456,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.postcodeQuery("some query").apply(FakeRequest())
+      val result: Future[Result] = controller.postcodeQuery("some query",verbose=Some("true")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -380,7 +465,40 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a found address (by postcode query with start and end date)" in {
+    "reply on a found address in concise format (by postcode query with start and end date)" in {
+      // Given
+      val controller = postcodeController
+
+      val expected = Json.toJson(AddressByPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPostcodeResponse(
+          postcode = "some query",
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, false)),
+          filter = "",
+          historical = true,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          startDate = "2013-01-01",
+          endDate = "2014-01-01",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.postcodeQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("false")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply on a found address in verbose format (by postcode query with start and end date)" in {
       // Given
       val controller = postcodeController
 
@@ -404,7 +522,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.postcodeQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
+      val result: Future[Result] = controller.postcodeQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("true")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -413,7 +531,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a found address (by partial address query with start and end date)" in {
+    "reply on a found address in concise format (by partial address query with start and end date)" in {
       // Given
       val controller = addressController
 
@@ -437,7 +555,40 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
+      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("false")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply on a found address in verbose format (by partial address query with start and end date)" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPartialAddressResponse(
+          input = "some query",
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress,true)),
+          filter = "",
+          historical = true,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          startDate = "2013-01-01",
+          endDate = "2014-01-01",
+          verbose = true
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("true")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -447,7 +598,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     }
 
 
-    "reply on a found address (by partial)" in {
+    "reply on a found address in concise format (by partial)" in {
       // Given
       val controller = addressController
 
@@ -471,7 +622,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, None, None).apply(FakeRequest())
+      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, None, None, verbose=Some("false")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -480,7 +631,77 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a found address (by address query)" in {
+    "reply on a found address in verbose format (by partial)" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPartialAddressResponse(
+          input = "some query",
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, true)),
+          filter = "",
+          historical = true,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          startDate = "",
+          endDate = "",
+          verbose = true
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = partialAddressController.partialAddressQuery("some query", None, None, None, None, None, verbose=Some("true")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in concise format (by address query)" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, false)),Map.empty,-1D),
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 1,
+          sampleSize = 20,
+          maxScore = 1.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in verbose format (by address query)" in {
       // Given
       val controller = addressController
 
@@ -509,7 +730,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.addressQuery("some query").apply(FakeRequest())
+      val result = controller.addressQuery("some query", verbose = Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -518,7 +739,44 @@ class AddressControllerSpec extends PlaySpec with Results {
     }
 
 
-    "reply with a found address (by address query with radius)" in {
+    "reply with a found address in concise format (by address query with radius)" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress,false)),Map.empty,-1D),
+          filter = "",
+          historical = true,
+          rangekm = "1",
+          latitude = "50.705948",
+          longitude = "-3.5091076",
+          limit = 10,
+          offset = 0,
+          total = 1,
+          sampleSize = 20,
+          maxScore = 1.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", None, None, None, Some("1"), Some("50.705948"), Some("-3.5091076"), verbose=Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in verbose (by address query with radius)" in {
       // Given
       val controller = addressController
 
@@ -547,7 +805,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.addressQuery("some query", None, None, None, Some("1"), Some("50.705948"), Some("-3.5091076")).apply(FakeRequest())
+      val result = controller.addressQuery("some query", None, None, None, Some("1"), Some("50.705948"), Some("-3.5091076"), verbose=Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -556,7 +814,44 @@ class AddressControllerSpec extends PlaySpec with Results {
     }
 
 
-    "reply with a found address (by address query with start and end date)" in {
+    "reply with a found address in concise format (by address query with start and end date)" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, false)),Map.empty,-1D),
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 1,
+          sampleSize = 20,
+          maxScore = 1.0f,
+          matchthreshold = 5f,
+          startDate = "2013-01-01",
+          endDate = "2014-01-01",
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", None, None, None, None, None, None, Some("2013-01-01"), Some("2014-01-01"),verbose=Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in verbose format (by address query with start and end date)" in {
       // Given
       val controller = addressController
 
@@ -585,13 +880,14 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.addressQuery("some query", None, None, None, None, None, None, Some("2013-01-01"), Some("2014-01-01")).apply(FakeRequest())
+      val result = controller.addressQuery("some query", None, None, None, None, None, None, Some("2013-01-01"), Some("2014-01-01"),verbose=Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
       status(result) mustBe OK
       actual mustBe expected
     }
+
 
     "reply with a 400 error if an invalid filter value is supplied" in {
       // Given
