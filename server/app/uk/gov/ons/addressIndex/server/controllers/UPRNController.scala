@@ -42,8 +42,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     }
 
     val verb = verbose match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
+      case Some(x) => Try(x.toBoolean).getOrElse(false)
+      case None => false
     }
 
     val startDateVal = startDate.getOrElse("")

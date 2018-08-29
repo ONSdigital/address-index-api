@@ -57,8 +57,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     }
 
     val verb = verbose match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
+      case Some(x) => Try(x.toBoolean).getOrElse(false)
+      case None => false
     }
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
