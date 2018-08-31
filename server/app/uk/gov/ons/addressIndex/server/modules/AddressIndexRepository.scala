@@ -250,7 +250,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     // this part of query should be blank unless there is an end number or end suffix
     val saoEndNumber = tokens.getOrElse(Tokens.saoEndNumber, "")
     val saoEndSuffix = tokens.getOrElse(Tokens.saoEndSuffix, "")
-    val skipSao = (saoEndNumber == "" && saoEndSuffix == "")
+    val skipSao = saoEndNumber == "" && saoEndSuffix == ""
 
     val dateQuery: Option[QueryDefinition] = {
       if (!startDate.isEmpty && !endDate.isEmpty) {
