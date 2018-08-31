@@ -21,7 +21,7 @@
 <p><strong>Query form:</strong> /addresses?input=&lt;search term&gt;<br>
 <strong>With parameters:</strong> /addresses?input=&lt;search term&gt;&classificationfilter=RD</p>
 
-<p>Address allows for the following parameters: offset, limit, classificationfilter, rangekm, lat, lon, historical, matchthreshold</p>
+<p>Address allows for the following parameters: offset, limit, classificationfilter, rangekm, lat, lon, historical, matchthreshold, verbose</p>
 
 <h3>UPRN</h3>
 
@@ -30,7 +30,7 @@
 <p><strong>Query form:</strong> /addresses/uprn/&lt;uprn&gt;<br>
 <strong>With parameters:</strong> /addresses/uprn/&lt;uprn&gt;?historical=false</p>
 
-<p>UPRN allows for the following parameters: historical</p>
+<p>UPRN allows for the following parameters: historical, verbose</p>
 
 <h3>Postcode</h3>
 
@@ -41,20 +41,18 @@
 <p><strong>Query form:</strong> /addresses/postcode/&lt;postcode&gt;<br>
 <strong>With parameters:</strong> /addresses/postcode/&lt;postcode&gt;?classificationfilter=RD</p>
 
-<p>Postcode allows for the following parameters: offset, limit, classificationfilter, historical</p>
+<p>Postcode allows for the following parameters: offset, limit, classificationfilter, historical, verbose</p>
 
 <h3>Partial</h3>
 
 <p>The partial end point is designed for typeahead/'search as you type' style queries, returning 20 results by default. It is currently configured for matching of the terms in any order, and can match against partial words. Results will become more accurate the more is typed. Test results are good for number or house name and postcode (postcode must include a space in this instance).</p>
-
-<p>The partial end point returns only a subset of the address information for each result: formattedAddress, formattedAddressNag, formattedAddressPaf, WelshFormattedAddressNag, WelshFormattedAddressPaf, uprn, underlyingScore
 
 <p><strong>This end point is still being refined. Unusual/unexpected results should be fed back to improve the service.</strong></p>
 
 <p><strong>Query form:</strong> /addresses/partial/&lt;partial&gt;<br>
 <strong>With parameters:</strong> /addresses/partial/&lt;partial&gt;?classificationfilter=RD</p>
 
-<p>Partial allows for the following parameters: offset, limit, classificationfilter, historical</p>
+<p>Partial allows for the following parameters: offset, limit, classificationfilter, historical, verbose</p>
 
 <h3>Bulk</h3>
 
@@ -86,6 +84,8 @@
 <h4>matchthreshold</h4>
 <p>Optional<br>Minimum confidence score (percentage) for match to be included in results (default: 5.0)</p>
 
+<h4>verbose</h4>
+<p>Optional<br>Specifies whether to return the full address response (true), or a compact response (false) (default: false)</p>
 
 <h2>Address Index Simple Tester</h2>
 
