@@ -2,12 +2,13 @@ package uk.gov.ons.addressIndex.client
 
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest}
-import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, PostcodeQuery, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, PartialQuery, PostcodeQuery, ShowQuery, UprnQuery, VersionQuery}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponseContainer, AddressResponseVersion}
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
 import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer
-import uk.gov.ons.addressIndex.model.{AddressIndexPostcodeRequest, AddressIndexSearchRequest, AddressIndexUPRNRequest, BulkBody}
+import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
+import uk.gov.ons.addressIndex.model._
 
 import scala.language.implicitConversions
 import scala.concurrent.duration._
@@ -62,7 +63,8 @@ trait AddressIndexClient {
         "lat" -> request.lat,
         "lon" -> request.lon,
         "limit" -> request.limit,
-        "offset" -> request.offset
+        "offset" -> request.offset,
+        "verbose" -> request.verbose.toString
       )
   }
 
@@ -91,13 +93,47 @@ trait AddressIndexClient {
       .toReq
       .withHttpHeaders("authorization" -> request.apiKey)
       .withQueryStringParameters(
-        //"postcode" -> request.postcode,
         "classificationfilter" -> request.filter,
         "historical" -> request.historical.toString,
         "startdate" -> request.startdate.toString,
         "enddate" -> request.enddate.toString,
         "limit" -> request.limit,
-        "offset" -> request.offset
+        "offset" -> request.offset,
+        "verbose" -> request.verbose.toString
+      )
+  }
+
+  /**
+    * perform a postcode search query
+    *
+    * @param request the request
+    * @return a list of addresses
+    */
+  def partialQuery(request: AddressIndexPartialRequest)
+    (implicit ec: ExecutionContext): Future[AddressByPartialAddressResponseContainer] = {
+    partialQueryWSRequest(request)
+      .get
+      .map(_.json.as[AddressByPartialAddressResponseContainer])
+  }
+
+  /**
+    * testable method for postcodeQuery
+    *
+    * @param request the request
+    * @return
+    */
+  def partialQueryWSRequest(request: AddressIndexPartialRequest): WSRequest = {
+    PartialQuery(request.partial.toString)
+      .toReq
+      .withHttpHeaders("authorization" -> request.apiKey)
+      .withQueryStringParameters(
+        "classificationfilter" -> request.filter,
+        "historical" -> request.historical.toString,
+        "startdate" -> request.startdate.toString,
+        "enddate" -> request.enddate.toString,
+        "limit" -> request.limit,
+        "offset" -> request.offset,
+        "verbose" -> request.verbose.toString
       )
   }
 
@@ -125,7 +161,16 @@ trait AddressIndexClient {
     */
   def uprnQuery(request: AddressIndexUPRNRequest)
                   (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
-    uprnQueryWSRequest(request).withHttpHeaders("authorization" -> request.apiKey).get.map(_.json.as[AddressByUprnResponseContainer])
+    uprnQueryWSRequest(request)
+      .withHttpHeaders("authorization" -> request.apiKey)
+      .withQueryStringParameters(
+        "historical" -> request.historical.toString,
+        "startdate" -> request.startdate.toString,
+        "enddate" -> request.enddate.toString,
+        "verbose" -> request.verbose.toString
+      )
+      .get
+      .map(_.json.as[AddressByUprnResponseContainer])
   }
 
   /**
@@ -193,11 +238,6 @@ object AddressIndexClientHelper {
     method = "GET"
   )
 
-//  object PostcodeQuery extends AddressIndexPath(
-//    path = "/addresses/postcode",
-//    method = "GET"
-//  )
-
   object PostcodeQuery extends AddressIndexPath(
     path = "",
     method = ""
@@ -205,6 +245,20 @@ object AddressIndexClientHelper {
     def apply(postcode: String) = {
       val initialRoute = "/addresses/postcode"
       val fullRoute = s"$initialRoute/$postcode"
+      new AddressIndexPath(
+        path = fullRoute,
+        method = "GET"
+      ) {}
+    }
+  }
+
+  object PartialQuery extends AddressIndexPath(
+    path = "",
+    method = ""
+  ) {
+    def apply(partial: String) = {
+      val initialRoute = "/addresses/partial"
+      val fullRoute = s"$initialRoute/$partial"
       new AddressIndexPath(
         path = fullRoute,
         method = "GET"

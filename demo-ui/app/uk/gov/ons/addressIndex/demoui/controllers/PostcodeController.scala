@@ -163,7 +163,8 @@ class PostcodeController @Inject()(
             limit = limit,
             offset = offset,
             id = UUID.randomUUID,
-            apiKey = apiKey
+            apiKey = apiKey,
+            verbose = true
           )
         } map { resp: AddressByPostcodeResponseContainer =>
           val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText, historicalValue, startDateVal, endDateVal))

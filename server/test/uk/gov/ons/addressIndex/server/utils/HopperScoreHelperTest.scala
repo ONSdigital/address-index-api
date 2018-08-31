@@ -185,8 +185,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   val mockAddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
-    relatives = Seq(mockRelativeResponse),
-    crossRefs = Seq(mockCrossRefResponse),
+    relatives = Some(Seq(mockRelativeResponse)),
+    crossRefs = Some(Seq(mockCrossRefResponse)),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
@@ -203,8 +203,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   val mockAddressResponseAddress1 = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
-    relatives = Seq(mockRelativeResponse),
-    crossRefs = Seq(mockCrossRefResponse),
+    relatives = Some(Seq(mockRelativeResponse)),
+    crossRefs = Some(Seq(mockCrossRefResponse)),
     formattedAddress = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressNag = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressPaf = "7, GATE REACH, EXETER, PO7 PO7",
@@ -221,8 +221,8 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   val mockAddressResponseAddressWithScores = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
-    relatives = Seq(mockRelativeResponse),
-    crossRefs = Seq(mockCrossRefResponse),
+    relatives = Some(Seq(mockRelativeResponse)),
+    crossRefs = Some(Seq(mockCrossRefResponse)),
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",

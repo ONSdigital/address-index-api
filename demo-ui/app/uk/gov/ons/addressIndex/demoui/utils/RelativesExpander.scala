@@ -44,7 +44,8 @@ class RelativesExpander @Inject ()(
         historical = true,
         apiKey = apiKey,
         startdate = "",
-        enddate = ""
+        enddate = "",
+        verbose = false
       )
     )
   }

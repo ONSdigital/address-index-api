@@ -26,7 +26,8 @@ case class AddressBySearchResponse(
   total: Long,
   sampleSize: Long,
   maxScore: Double,
-  matchthreshold: Float
+  matchthreshold: Float,
+  verbose: Boolean
 )
 
 object AddressBySearchResponse {

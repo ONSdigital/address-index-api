@@ -44,7 +44,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    lat: Option[String] = None, lon: Option[String] = None,
                    startDate: Option[String] = None, endDate: Option[String] = None,
                    historical: Option[String] = None,
-                   matchthreshold: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                   matchthreshold: Option[String] = None,
+                   verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
@@ -69,6 +70,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       case None => true
     }
 
+    val verb = verbose match {
+      case Some(x) => Try(x.toBoolean).getOrElse(false)
+      case None => false
+    }
+
     // validate radius parameters
     val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("")
@@ -83,6 +89,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid)
+    }
+
+    def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
+      fullAddresses.map{address => address.copy(nag=None,paf=None,relatives=None,crossRefs=None)}
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -125,7 +135,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           case HybridAddresses(hybridAddresses, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress
+              AddressResponseAddress.fromHybridAddress(_,true)
             )
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(
@@ -149,6 +159,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.drop(offsetInt).take(limitInt)
 
+            // if verbose is false, strip out full address details (these are needed for score so must be
+           // removed retrospectively)
+            val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
+
             addresses.foreach { address =>
               writeLog(
                 formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
@@ -164,7 +178,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                 dataVersion = dataVersion,
                 response = AddressBySearchResponse(
                   tokens = tokens,
-                  addresses = limitedSortedAddresses,
+                  addresses = finalAddresses,
                   filter = filterString,
                   historical = hist,
                   rangekm = rangeVal,
@@ -177,7 +191,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   total = newTotal,
                   maxScore = maxScore,
                   sampleSize = limitExpanded,
-                  matchthreshold = thresholdFloat
+                  matchthreshold = thresholdFloat,
+                  verbose = verb
                 ),
                 status = OkAddressResponseStatus
               )

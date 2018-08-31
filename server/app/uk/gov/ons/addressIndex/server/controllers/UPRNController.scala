@@ -34,11 +34,16 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
+    }
+
+    val verb = verbose match {
+      case Some(x) => Try(x.toBoolean).getOrElse(false)
+      case None => false
     }
 
     val startDateVal = startDate.getOrElse("")
@@ -79,7 +84,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddress)
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddress,verb)
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",
@@ -92,8 +97,10 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                 dataVersion = dataVersion,
                 response = AddressByUprnResponse(
                   address = Some(address),
+                  historical = hist,
                   startDate = startDateVal,
-                  endDate = endDateVal
+                  endDate = endDateVal,
+                  verbose = verb
                 ),
                 status = OkAddressResponseStatus
               )

@@ -19,7 +19,8 @@ trait PostcodeControllerResponse extends Response {
         total = 0,
         maxScore = 0f,
         startDate = "",
-        endDate = ""
+        endDate = "",
+        verbose = true
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -61,7 +62,8 @@ trait PostcodeControllerResponse extends Response {
       total = 0,
       maxScore = 0f,
       startDate = "",
-      endDate = ""
+      endDate = "",
+      verbose = true
     )
   }
 
