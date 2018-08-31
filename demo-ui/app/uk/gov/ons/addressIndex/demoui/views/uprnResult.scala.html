@@ -4,8 +4,10 @@
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
 filter: Option[String],
 historical: Boolean,
+startdate: Option[String],
+enddate: Option[String],
 warningMessage : Option[String],
-addressByUprnResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressByUprnResponse],
+addressByUprnResponse: Option[uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule,
 isClerical: Boolean,
@@ -42,7 +44,7 @@ apiKey: String = ""
             <section class='@if(warningMessage){search-error}else{searchbox-results}'>
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"))
+                    @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
                 </div>
                 }
             </section>
@@ -70,6 +72,8 @@ apiKey: String = ""
                     singleSearchForm("filter").value.getOrElse(""),
                     singleSearchForm("historical").value.getOrElse("true").toBoolean,
                     5,
+                    singleSearchForm("startdate").value.getOrElse(""),
+                    singleSearchForm("enddate").value.getOrElse(""),
                     address.underlyingScore,
                     classification,
                     isClerical = isClerical,

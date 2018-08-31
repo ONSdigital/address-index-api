@@ -2,6 +2,7 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @import play.twirl.api.HtmlFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
 radiusSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm],
 filter: Option[String],
@@ -9,11 +10,13 @@ rangekm: Option[String],
 lat: Option[String],
 lon: Option[String],
 historical: Boolean,
+startdate: Option[String],
+enddate: Option[String],
 warningMessage : Option[String],
 pageNum: Int,
 pageSize: Int,
 pageMax: Int,
-addressBySearchResponse: Option[uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse],
+addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
@@ -72,11 +75,13 @@ version: DemoUIAddressIndexVersionModule
                     radiusSearchForm("filter").value.getOrElse(""),
                     radiusSearchForm("historical").value.getOrElse("true").toBoolean,
                     5,
+                    radiusSearchForm("startdate").value.getOrElse(""),
+                    radiusSearchForm("enddate").value.getOrElse(""),
                     aresponse.maxScore,
                     classification
                     )
                     }
-                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5)
+                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5, radiusSearchForm("startdate").value.getOrElse(""), radiusSearchForm("enddate").value.getOrElse(""))
                     }
                 </div>
             </section>

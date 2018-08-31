@@ -1,13 +1,10 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import play.api.Logger
 import scala.math._
 import scala.util.Try
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 object ConfidenceScoreHelper {
-
-  val logger = Logger("ConfidenceScoreHelper")
 
   /**
     * Calculate the confidence (hybrid) score for a single result

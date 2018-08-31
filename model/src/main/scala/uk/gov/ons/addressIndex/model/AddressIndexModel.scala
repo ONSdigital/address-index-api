@@ -9,7 +9,10 @@ case class AddressIndexUPRNRequest(
   uprn: BigInt,
   id: UUID,
   apiKey: String,
-  historical: Boolean
+  historical: Boolean,
+  startdate: String,
+  enddate: String,
+  verbose: Boolean
 )
 
 case class AddressIndexSearchRequest(
@@ -17,11 +20,14 @@ case class AddressIndexSearchRequest(
   filter: String,
   historical: Boolean,
   matchthreshold: Int,
+  startdate: String,
+  enddate: String,
   rangekm: String,
   lat: String,
   lon: String,
   limit: String,
   offset: String,
+  verbose: Boolean,
   id: UUID,
   apiKey: String
 )
@@ -30,12 +36,27 @@ case class AddressIndexPostcodeRequest(
   postcode: String,
   filter: String,
   historical: Boolean,
+  startdate: String,
+  enddate: String,
   limit: String,
   offset: String,
+  verbose: Boolean,
   id: UUID,
   apiKey: String
 )
 
+case class AddressIndexPartialRequest(
+  partial: String,
+  filter: String,
+  historical: Boolean,
+  startdate: String,
+  enddate: String,
+  limit: String,
+  offset: String,
+  verbose: Boolean,
+  id: UUID,
+  apiKey: String
+)
 
 /**
   * The body of the request that is sent to the bulk api endpoint

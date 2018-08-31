@@ -1,8 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.{AddressResponseAddress, AddressResponseScore}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
@@ -14,7 +13,7 @@ import scala.util.Try
   */
 object HopperScoreHelper  {
 
-  val logger = Logger("HopperScoreHelper")
+  val logger = GenericLogger("HopperScoreHelper")
   val empty = "@"
   val defaultBuildingScore = "99"
   val defaultLocalityScore = "9999"
@@ -41,8 +40,8 @@ object HopperScoreHelper  {
 
   def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
-    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress),tokens))
-    val scoredAddresses = addresses.zipWithIndex.map{case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress), tokens, localityParams, elasticDenominator)}
+    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, true),tokens))
+    val scoredAddresses = addresses.zipWithIndex.map{case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, true), tokens, localityParams, elasticDenominator)}
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses

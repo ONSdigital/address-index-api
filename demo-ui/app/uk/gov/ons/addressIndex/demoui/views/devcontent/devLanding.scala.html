@@ -27,7 +27,7 @@ conf : DemouiConfigModule)
 
             <ul>
                 <li><a href="@{routes.StaticController.devVersion}">Get Version</a></li>
-                <li>Swagger Definition <a href='@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/api-docs'>JSON</a> <a href='@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/swaggerui?url=@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/api-docs'>UI</a></li>
+                <li>Swagger Definition <a href='@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath + "/" + conf.config.apiURL.apidocs}'>JSON</a> <a href='@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath + "/" + conf.config.apiURL.swaggerui}?url=@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath + "/" + conf.config.apiURL.apidocs}'>UI</a></li>
                 <li><a href="@{routes.StaticController.devUprn}">UPRN Search</a></li>
                 <li><a href="@{routes.StaticController.devSingleMatch}">Single Search</a></li>
                 <li><a href="@{routes.StaticController.devPostcode}">Postcode Search</a></li>

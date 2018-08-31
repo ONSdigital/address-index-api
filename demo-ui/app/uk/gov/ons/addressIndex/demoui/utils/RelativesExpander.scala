@@ -7,7 +7,8 @@ import uk.gov.ons.addressIndex.client.AddressIndexClient
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
 import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
-import uk.gov.ons.addressIndex.model.server.response.{AddressByUprnResponseContainer, AddressResponseRelative}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRelative
+import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -41,7 +42,10 @@ class RelativesExpander @Inject ()(
         uprn = numericUPRN,
         id = UUID.randomUUID,
         historical = true,
-        apiKey = apiKey
+        apiKey = apiKey,
+        startdate = "",
+        enddate = "",
+        verbose = false
       )
     )
   }

@@ -8,7 +8,7 @@ import play.api.test.WithApplication
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
 import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
-import uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRelative
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

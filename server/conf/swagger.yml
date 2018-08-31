@@ -65,11 +65,11 @@ definitions:
           - tokens
           - score
       status:
-        "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseStatus"
+        "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
       errors:
         type: array
         items:
-          "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.AddressResponseError"
+          "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
     required:
     - apiVersion
     - dataVersion

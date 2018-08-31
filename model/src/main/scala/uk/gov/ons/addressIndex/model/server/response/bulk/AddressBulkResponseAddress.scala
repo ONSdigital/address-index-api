@@ -1,0 +1,47 @@
+package uk.gov.ons.addressIndex.model.server.response.bulk
+
+import play.api.libs.json.{Format, Json}
+import uk.gov.ons.addressIndex.model.db.BulkAddress
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+
+/**
+  *
+  * Container for relevant information on each of the address result in bulk search
+  *
+  * @param id address's id provided in the input
+  * @param inputAddress input address
+  * @param uprn found address' uprn
+  * @param matchedFormattedAddress formatted found address
+  * @param matchedAddress found address
+  * @param tokens tokens into which the input address was split
+  * @param score resulting address score
+  */
+case class AddressBulkResponseAddress(
+  id: String,
+  inputAddress: String,
+  uprn: String,
+  matchedFormattedAddress: String,
+  matchedAddress: Option[AddressResponseAddress],
+  tokens: Map[String, String],
+  confidenceScore: Double,
+  underlyingScore: Float
+)
+
+object AddressBulkResponseAddress {
+  implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
+
+  def fromBulkAddress(
+    bulkAddress: BulkAddress,
+    addressResponseAddress: AddressResponseAddress,
+    includeFullAddress: Boolean
+  ): AddressBulkResponseAddress = AddressBulkResponseAddress(
+    id = bulkAddress.id,
+    inputAddress = bulkAddress.inputAddress,
+    uprn = bulkAddress.hybridAddress.uprn,
+    matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
+    matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
+    tokens = bulkAddress.tokens,
+    confidenceScore = addressResponseAddress.confidenceScore,
+    underlyingScore = bulkAddress.hybridAddress.score
+  )
+}

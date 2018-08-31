@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.model.response
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response._
+import uk.gov.ons.addressIndex.model.server.response.address._
 
 /**
   * Test conversion between ES reply and the model that will be send in the response
@@ -51,6 +52,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     rpc = "rpc",
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
+    lpiStartDate = "lpiStartDate",
     mixedNag = "mixedNag"
   )
 
@@ -218,7 +220,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.localCustodianCode,
         nag.localCustodianName,
         nag.localCustodianGeogCode,
-        nag.lpiEndDate
+        nag.lpiEndDate,
+        nag.lpiStartDate
       )
 
       // When
@@ -254,8 +257,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
-        relatives = Seq(givenRelativeResponse),
-        crossRefs = Seq(givenCrossRefResponse),
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
         formattedAddress = "mixedNag",
         formattedAddressNag = "mixedNag",
         formattedAddressPaf = "mixedPaf",
@@ -274,7 +277,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddress.fromHybridAddress(hybrid)
+      val result = AddressResponseAddress.fromHybridAddress(hybrid, true)
 
       // Then
       result shouldBe expected

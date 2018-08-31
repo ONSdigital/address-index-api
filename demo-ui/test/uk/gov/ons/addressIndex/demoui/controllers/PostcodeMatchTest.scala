@@ -124,7 +124,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-      .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical)).apply(FakeRequest().withSession("api-key" -> ""))
+      .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -155,7 +155,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -163,5 +163,37 @@ class PostcodeMatchTest extends PlaySpec with Results {
       content must include(expectedString)
     }
 
+    "return a page including some search results with a filter and dates" in new WithApplication {
+      // Given
+      val messagesApi = app.injector.instanceOf[MessagesApi]
+      val langs = app.injector.instanceOf[Langs]
+      val configuration = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
+      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val expectedString = "[ R ] [ Residential ]"
+      val inputAddress = "EX2 6GA"
+      val filter = "RD"
+      val startdate = "2012-01-01"
+      val enddate = "2013-01-01"
+      val historical = true
+      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+
+      // When
+      val response = new PostcodeController(
+        controllerComponents,
+        configuration,
+        messagesApi,
+        langs,
+        apiClient.asInstanceOf[AddressIndexClientInstance],
+        classHierarchy,
+        version)
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), Some(startdate), Some(enddate)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content = contentAsString(response)
+
+      // Then
+      status(response) mustBe OK
+      content must include(expectedString)
+    }
   }
 }

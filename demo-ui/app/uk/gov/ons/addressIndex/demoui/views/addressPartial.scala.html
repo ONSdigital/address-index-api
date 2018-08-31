@@ -1,12 +1,16 @@
-@import uk.gov.ons.addressIndex.model.server.response.AddressResponseAddress
 @import uk.gov.ons.addressIndex.parsers.Tokens
 @import java.text.SimpleDateFormat
 
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRelative
 @(
     address: AddressResponseAddress,
     filter: String,
     historical: Boolean,
     matchthreshold: String,
+    startdate: String,
+    enddate: String,
     maxScore: Double,
     classification: Option[Map[String, String]],
     tokens: Map[String, String] = Map.empty[String, String],
@@ -876,7 +880,7 @@
                             <details>
                                 <summary><strong>See Hierarchy Information</strong></summary>
 
-                                @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: uk.gov.ons.addressIndex.model.server.response.AddressResponseRelative, position: String) =>
+                                @address.relatives.zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary"), "", "").filter(element => element._1 != "").map { case (relative: AddressResponseRelative, position: String) =>
                                 <details id="@position@address.uprn">
                                     <summary><strong>@position</strong></summary>
                                     @relative.siblings.sorted.map { uprn =>
