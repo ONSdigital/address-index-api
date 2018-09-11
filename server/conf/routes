@@ -8,9 +8,13 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: input
 #      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
 #    - name: offset
-#      description: Specifies the offset from zero, used for pagination (default 0, maximum 250).
+#      description: Specifies the offset from zero, used for pagination.
+#      default: 0
+#      maximum: 250
 #    - name: limit
-#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #    - name: rangekm
@@ -24,11 +28,14 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: matchthreshold
-#      description: Minimum confidence score (percentage) for match to be included in results (default 5.0)
+#      description: Minimum confidence score (percentage) for match to be included in results.
+#      default: 5.0
 #    - name: verbose
-#      description: Include the full address details in the response,  true or false, default false.
+#      description: Include the full address details in the response.
+#      default: false
 #  responses:
 #    200:
 #      description: success
@@ -104,9 +111,11 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: verbose
-#      description: Include the full address details in the response,  true or false, default false.
+#      description: Include the full address details in the response.
+#      default: false
 #  responses:
 #    200:
 #      description: success
@@ -123,9 +132,13 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: input
 #      description: Specifies the address input.
 #    - name: offset
-#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#      description: Specifies the offset from zero, used for pagination.
+#      default: 0
+#      maximum: 1000
 #    - name: limit
-#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #    - name: startdate
@@ -133,9 +146,11 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: verbose
-#      description: Include the full address details in the response,  true or false, default false.
+#      description: Include the full address details in the response.
+#      default: false
 #  responses:
 #    200:
 #      description: success
@@ -152,9 +167,13 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    - name: postcode
 #      description: Specifies the postcode search string (e.g. 'HA4 8RG').
 #    - name: offset
-#      description: Specifies the offset from zero, used for pagination (default 0, maximum 1000).
+#      description: Specifies the offset from zero, used for pagination.
+#      default: 0
+#      maximum: 1000
 #    - name: limit
-#      description: Specifies the number of addresses to return (default 10, maximum 100).
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
 #    - name: startdate
@@ -162,9 +181,11 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: verbose
-#      description: Include the full address details in the response,  true or false, default false.
+#      description: Include the full address details in the response.
+#      default: false
 #  responses:
 #    200:
 #      description: success
@@ -200,7 +221,8 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #  responses:
 #    200:
 #      description: success
@@ -223,15 +245,18 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #  description: Will process all `BulkQuery` items in the `BulkBody` returns reduced information on found addresses (uprn, formatted address).
 #  parameters:
 #    - name: limitperaddress
-#      description: Specifies the maximum number of matches to return per address (default 5).
+#      description: Specifies the maximum number of matches to return per address.
+#      default: 5
 #    - name: startdate
 #      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: matchthreshold
-#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
+#      description: Minimum confidence score (percentage) for match to be included in results.
+#      default: 5.0
 #  responses:
 #    200:
 #      description: success
@@ -246,15 +271,18 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #               since all the information on found addresses is returned.
 #  parameters:
 #    - name: limitperaddress
-#      description: Specifies the maximum number of matches to return per address (default 5).
+#      description: Specifies the maximum number of matches to return per address.
+#      default: 5
 #    - name: startdate
 #      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: matchthreshold
-#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
+#      description: Minimum confidence score (percentage) for match to be included in results.
+#      default: 5.0
 #  responses:
 #    200:
 #      description: success
@@ -268,15 +296,18 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 #  description: Bulk endpoint that accepts tokens instead of input texts for each address.
 #  parameters:
 #    - name: limitperaddress
-#      description: Specifies the maximum number of matches to return per address (default 5).
+#      description: Specifies the maximum number of matches to return per address.
+#      default: 5
 #    - name: startdate
 #      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
 #    - name: enddate
 #      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
-#      description: Include historical addresses (default true)
+#      description: Include historical addresses
+#      default: true
 #    - name: matchthreshold
-#      description: minimum confidence score (percentage) for match to be included in results (default 5.0)
+#      description: Minimum confidence score (percentage) for match to be included in results.
+#      default: 5.0
 #  responses:
 #    200:
 #      description: success
