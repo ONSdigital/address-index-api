@@ -9,7 +9,7 @@ import uk.gov.ons.gatling.conf.ConfigLoader
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class RegistersSimulation extends Simulation {
+class RegistersSimulationOpenModel extends Simulation {
 
   val baseUrl: String = ConfigLoader("baseUrl")
   val numOfRequestsPerSecond: Int = ConfigLoader("requestsPerSecond") toInt
@@ -17,7 +17,8 @@ class RegistersSimulation extends Simulation {
   val requestType = ConfigLoader("request_type")
   val requestName: String = ConfigLoader("request_name_prefix").stripSuffix(" ") + ": " + baseUrl + requestRelPath
 
-  println(s"Running test with numOfRequestsPerSecond: $numOfRequestsPerSecond, baseUrl : $baseUrl, $requestType Request : $requestRelPath")
+  println(s"Running test with numOfRequestsPerSecond: $numOfRequestsPerSecond, " +
+    s"baseUrl : $baseUrl, $requestType Request : $requestRelPath")
 
   val httpProtocol: HttpProtocolBuilder = http
     .baseURL(baseUrl)
