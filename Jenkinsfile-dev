@@ -126,15 +126,15 @@ pipeline {
         }
         success {
             colourText("success", "All stages complete. Build was successful.")
-            sendNotifications currentBuild.result, "Ash.Jindal@ext.ons.gov.uk"
+            sendNotifications currentBuild.result, "\$AI_EMAIL_LIST"
         }
         unstable {
             colourText("warn", "Something went wrong, build finished with result ${currentResult}. This may be caused by failed tests, code violation or in some cases unexpected interrupt.")
-            sendNotifications currentBuild.result, "Ash.Jindal@ext.ons.gov.uk", "${env.NODE_STAGE}"
+            sendNotifications currentBuild.result, "\$AI_EMAIL_LIST", "${env.NODE_STAGE}"
         }
         failure {
             colourText("warn", "Process failed at: ${env.NODE_STAGE}")
-            sendNotifications currentBuild.result, "Ash.Jindal@ext.ons.gov.uk", "${env.NODE_STAGE}"
+            sendNotifications currentBuild.result, "\$AI_EMAIL_LIST", "${env.NODE_STAGE}"
         }
     }
 }
