@@ -17,7 +17,7 @@ object ConfidenceScoreHelper {
     * @return confidence score as double
     */
   def calculateConfidenceScore(tokens: Map[String,String], structuralScore: Double, unitScore: Double, elasticRatio: Double): Double = {
-    val unitScoreReplaced = if (unitScore == -1) 0.3D else unitScore
+    val unitScoreReplaced = if (unitScore == -1D) 0.3D else unitScore
     val alpha = if (tokens.contains(Tokens.organisationName) ||
       tokens.contains(Tokens.subBuildingName) ||
       tokens.contains(Tokens.saoStartNumber) ||

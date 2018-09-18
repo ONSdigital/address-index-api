@@ -320,7 +320,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       historical, matchThreshold, includeFullAddress
     )
 
-    logger.info(s"#bulkQuery processed")
+    logger.info("#bulkQuery processed")
 
     val bulkItems = results.flatMap {
       addresses =>
