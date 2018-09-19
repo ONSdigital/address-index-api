@@ -59,19 +59,36 @@ pipeline {
             steps {
                 parallel(
                         "Unit": {
-                            colourText("info", "Running unit tests")
-                            sh "$SBT \"project address-index-server\" test"
+                            colourText("info", "Running unit tests and coverage")
+                            sh "$SBT \"project address-index-server\" coverage test coverageReport"
                         },
+                        "Style" : {
+                            colourText("info","Running style tests")
+                            sh """
+                            $SBT  \"project address-index-server\" scalastyle
+                        """
+                        },
+                        "Additional" : {
+                            colourText("info","Running additional tests")
+                            sh "$SBT  \"project address-index-server\" scapegoat"
+                        }
                 )
             }
             post {
                 always {
                     script {
-                        env.NODE_STAGE = "Static Analysis"
+                        STAGE = "Static Analysis"
                     }
                 }
+                success {
+                    colourText("info","Generating reports for tests")
+                    //   junit '**/target/test-reports/*.xml'
+
+                    step([$class: 'CoberturaPublisher', coberturaReportFile: '**/server/target/scala-2.12/coverage-report/*.xml'])
+                    step([$class: 'CheckStylePublisher', pattern: 'server/target/scalastyle-result.xml, server/target/scala-2.12/scapegoat-report/scapegoat-scalastyle.xml'])
+                }
                 failure {
-                    colourText("warn", "Failed on Tests.")
+                    colourText("warn","Failed to retrieve reports.")
                 }
             }
         }
