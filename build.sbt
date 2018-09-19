@@ -14,6 +14,7 @@ lazy val Versions = new {
   val elastic4s = "6.1.3"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
+  val scapegoatVersion = "1.3.8"
 }
 
 name := "address-index"
@@ -47,8 +48,19 @@ lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
   }
 )
 
+lazy val Resolvers: Seq[MavenRepository] = Seq(
+  Resolver.typesafeRepo("releases"),
+  "elasticsearch-releases"     at "https://maven.elasticsearch.org/releases",
+  "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
+  "Twitter Repository"         at "http://maven.twttr.com",
+  "Artima Maven Repository"    at "http://repo.artima.com/releases",
+  "scalaz-bintray"             at "https://dl.bintray.com/scalaz/releases"
+)
+
+
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
+  scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
     "-encoding", "UTF-8",
@@ -63,14 +75,10 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
     "-Ywarn-dead-code", // Warn when dead code is identified
     "-Ywarn-unused" // Warn when local and private vals, vars, defs, and types are unused
   ),
+  // TODO: Fix the following errors highlighted by scapegoat. Remove the corresponding overrides below.
+  scalacOptions in Scapegoat += "-P:scapegoat:overrideLevels:TraversableHead=Warning:OptionSize=Warning:ComparingFloatingPointTypes=Warning",
   ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
-  resolvers ++= Seq(
-    "elasticsearch-releases"     at "https://maven.elasticsearch.org/releases",
-    "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
-    "Twitter Repository"         at "http://maven.twttr.com",
-    "Artima Maven Repository"    at "http://repo.artima.com/releases",
-    "scalaz-bintray"             at "https://dl.bintray.com/scalaz/releases"
-  )
+  resolvers ++= Resolvers
 )
 
 val commonDeps = Seq(
