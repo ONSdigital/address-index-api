@@ -20,7 +20,7 @@ object HopperScoreHelper  {
   val defaultUnitScore = "9999"
 
   // load score matrix from external file in parsers
-  lazy val scoreMatrix: Map[String,String] = Tokens.fileToMap(s"scorematrix.txt")
+  lazy val scoreMatrix: Map[String,String] = Tokens.fileToMap("scorematrix.txt")
 
   /**
     * Creates a new immutable sequence of addresses with the scores set
@@ -149,7 +149,7 @@ object HopperScoreHelper  {
     * @return score as a double rounded to 4dp
     */
   def calculateObjectScore(buildingScore: Double, localityScore: Double, unitScore: Double): Double = {
-    val score = if (unitScore == -1) -1 else buildingScore * localityScore * unitScore
+    val score = if (unitScore == -1D) -1 else buildingScore * localityScore * unitScore
     BigDecimal(score).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
