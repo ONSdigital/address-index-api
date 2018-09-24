@@ -78,6 +78,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
+  /**
+    * Generates request to get address from partial string (e.g typeahead)
+    * Pass on to fallback if needed
+    *
+    * @param input             the partial string to be searched
+    * @param start start result
+    * @param limit maximum number of results
+    * @param filters           classification filter
+    * @param startDate         start date
+    * @param endDate           end date
+    * @param queryParamsConfig config
+    * @param historical        historical flag
+    * @return Search definition containing query to the ES
+    */
   def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false).start(start).limit(limit)
@@ -90,6 +104,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     endResult.flatten
   }
 
+  /**
+    * Generates request to get address from partial string (e.g typeahead)
+    * Fallback version
+    *
+    * @param input the partial string to be searched
+    * @param start start result
+    * @param limit maximum number of results
+    * @param filters classification filter
+    * @param startDate start date
+    * @param endDate end date
+    * @param queryParamsConfig config
+    * @param historical historical flag
+    * @return Search definition containing query to the ES
+    */
   def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
     logger.warn("in fallback")
     val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, true).start(start).limit(limit)
@@ -97,10 +125,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   }
 
   /**
-    * Generates request to get address from ES by UPRN
+    * Generates request to get address from partial string (e.g typeahead)
     * Public for tests
     *
-    * @param input the uprn of the fetched address
+    * @param input partial string
+    * @param filters classification filter
+    * @param startDate start date
+    * @param endDate end date
+    * @param queryParamsConfig config
+    * @param historical historical flag
+    * @param fallback flag to indicate if fallback query is required
     * @return Search definition containing query to the ES
     */
   def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, fallback: Boolean = false): SearchDefinition = {
