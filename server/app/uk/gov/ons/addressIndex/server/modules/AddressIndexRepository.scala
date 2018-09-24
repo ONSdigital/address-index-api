@@ -171,30 +171,30 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       if (inputNumber.isEmpty) {
         if (filters.isEmpty) {
           if (fallback) must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-          else must(multiMatchQuery(input).matchType("phrase").slop(3).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          else must(multiMatchQuery(input).matchType("phrase").slop(4).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
         } else {
           if (filterType == "prefix") {
             if (fallback) must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-            else must(multiMatchQuery(input).matchType("phrase").slop(3).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+            else must(multiMatchQuery(input).matchType("phrase").slop(4).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
           }
           else {
             if (fallback) must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-            else must(multiMatchQuery(input).matchType("phrase").slop(3)fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+            else must(multiMatchQuery(input).matchType("phrase").slop(4)fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
           }
         }
       }
       else {
         if (filters.isEmpty) {
           if (fallback) must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-          else must(multiMatchQuery(input).matchType("phrase").slop(3).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          else must(multiMatchQuery(input).matchType("phrase").slop(4).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
         } else {
           if (filterType == "prefix") {
             if (fallback) must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-            else must(multiMatchQuery(input).matchType("phrase").slop(3).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+            else must(multiMatchQuery(input).matchType("phrase").slop(4).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(prefixQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
           }
           else {
             if (fallback) must(multiMatchQuery(input).matchType("best_fields").fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
-            else must(multiMatchQuery(input).matchType("phrase").slop(3).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+            else must(multiMatchQuery(input).matchType("phrase").slop(4).fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf")).should(matchQuery("lpi.paoStartNumber",inputNumber)).filter(Seq(Option(termQuery("lpi.classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
           }
         }
       }
