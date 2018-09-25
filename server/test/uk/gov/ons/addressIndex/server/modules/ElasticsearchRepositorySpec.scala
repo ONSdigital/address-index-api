@@ -625,6 +625,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
   val partialInput = "7 Gate Re"
   val partialInputWithout = "Gate Re"
+  val partialInputFallback = "7 Gate Ret"
+  val partialInputWithoutFallback = "Gate Ret"
   val partialFilterNone = ""
   val partialFilterCode = "RD"
   val partialFilterPrefix = "residential"
@@ -788,6 +790,61 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "generate valid fallback query from partial address" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {
+           	"version": true,
+           	"query": {
+           		"bool": {
+           			"must": [{
+           				"multi_match": {
+           					"query": "h4",
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"type": "best_fields"
+           				}
+           			}],
+           			"should": [{
+           				"match": {
+           					"lpi.paoStartNumber": {
+           						"query": "4"
+           					}
+           				}
+           			}],
+           			"filter": [{
+           				"prefix": {
+           					"lpi.classificationCode": {
+           						"value": "R"
+           					}
+           				}
+           			},
+           			{
+           				"bool": {
+           					"must_not": [{
+           						"term": {
+           							"lpi.addressBasePostal": {
+           								"value": "N"
+           							}
+           						}
+           					}]
+           				}
+           			}]
+           		}
+           	}
+          }
+         """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "",fallback = true)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "generate valid query from partial address with date" in {
 
       // Given
@@ -883,6 +940,105 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "generate valid fallback query from partial address with date" in {
+
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {
+           	"version": true,
+           	"query": {
+           		"bool": {
+           			"must": [{
+           				"multi_match": {
+           					"query": "h4",
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"type": "best_fields"
+           				}
+           			}],
+           			"should": [{
+           				"match": {
+           					"lpi.paoStartNumber": {
+           						"query": "4"
+           					}
+           				}
+           			}],
+           			"filter": [{
+           				"prefix": {
+           					"lpi.classificationCode": {
+           						"value": "R"
+           					}
+           				}
+           			},
+           			{
+           				"bool": {
+           					"must_not": [{
+           						"term": {
+           							"lpi.addressBasePostal": {
+           								"value": "N"
+           							}
+           						}
+           					}]
+           				}
+           			},
+           			{
+           				"bool": {
+           					"should": [{
+           						"bool": {
+           							"must": [{
+           								"range": {
+           									"paf.startDate": {
+           										"gte": "2013-01-01",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							},
+           							{
+           								"range": {
+           									"paf.endDate": {
+           										"lte": "2013-12-31",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							}]
+           						}
+           					},
+           					{
+           						"bool": {
+           							"must": [{
+           								"range": {
+           									"lpi.lpiStartDate": {
+           										"gte": "2013-01-01",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							},
+           							{
+           								"range": {
+           									"lpi.lpiEndDate": {
+           										"lte": "2013-12-31",
+           										"format": "yyyy-MM-dd"
+           									}
+           								}
+           							}]
+           						}
+           					}]
+           				}
+           			}]
+           		}
+           	}
+          }
+         """.stripMargin
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31", fallback=true)).string())
 
       // Then
       result shouldBe expected
@@ -2632,6 +2788,54 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "generate valid fallback query for search via partial endpoint - term with house number" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val expected = Json.parse(
+        """
+        {
+          "version":true,
+          "query" : {
+            "bool" : {
+              "must" : [{
+                "multi_match":{
+                  "query":"7 Gate Ret",
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "type":"best_fields"
+                }
+              }],
+              "should":[{
+                "match":{
+                  "lpi.paoStartNumber":{
+                    "query":"7"
+                  }
+                }
+              }],
+              "filter":[{
+                "bool":{
+                  "must_not":[{
+                    "term":{
+                      "lpi.addressBasePostal":{
+                        "value":"N"
+                      }
+                    }
+                  }]
+                }
+              }]
+            }
+          }
+        }
+        """
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterNone, "", "", fallback=true)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "generate valid query for search via partial endpoint - term without house number" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -2673,6 +2877,48 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       // Then
       result shouldBe expected
     }
+
+    "generate valid fallback query for search via partial endpoint - term without house number" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val expected = Json.parse(
+        """
+        {
+          "version":true,
+          "query" : {
+            "bool" : {
+              "must" : [{
+                "multi_match":{
+                  "query":"Gate Ret",
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "type":"best_fields"
+                }
+              }],
+              "filter":[{
+                "bool":{
+                  "must_not":[{
+                    "term":{
+                      "lpi.addressBasePostal":{
+                        "value":"N"
+                      }
+                    }
+                  }]
+                }
+              }]
+            }
+          }
+        }
+        """
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterNone, "", "",fallback=true)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
 
 
     "generate valid query for search via partial endpoint - term with house number and exact filter" in {
@@ -2726,6 +2972,62 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterCode, "", "")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+
+    "generate valid fallback query for search via partial endpoint - term with house number and exact filter" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val expected = Json.parse(
+        """
+        {
+          "version":true,
+          "query" : {
+            "bool" : {
+              "must" : [{
+                "multi_match":{
+                  "query":"7 Gate Ret",
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "type":"best_fields"
+                }
+              }],
+              "should":[{
+                "match":{
+                  "lpi.paoStartNumber":{
+                    "query":"7"
+                  }
+                }
+              }],
+              "filter":[{
+                "term":{
+                  "lpi.classificationCode":{
+                    "value":"RD"
+                  }
+                }
+              },{
+                "bool":{
+                  "must_not":[{
+                    "term":{
+                      "lpi.addressBasePostal":{
+                        "value":"N"
+                      }
+                    }
+                  }]
+                }
+              }]
+            }
+          }
+        }
+
+        """
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterCode, "", "", fallback=true)).string())
 
       // Then
       result shouldBe expected
@@ -2787,6 +3089,61 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "generate valid fallback query for search via partial endpoint - term with house number and prefix filter" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val expected = Json.parse(
+        """
+        {
+          "version":true,
+          "query" : {
+            "bool" : {
+              "must" : [{
+                "multi_match":{
+                  "query":"7 Gate Ret",
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "type":"best_fields"
+                }
+              }],
+              "should":[{
+                "match":{
+                  "lpi.paoStartNumber":{
+                    "query":"7"
+                  }
+                }
+              }],
+              "filter":[{
+                "prefix":{
+                  "lpi.classificationCode":{
+                    "value":"R"
+                  }
+                }
+              },{
+                "bool":{
+                  "must_not":[{
+                    "term":{
+                      "lpi.addressBasePostal":{
+                        "value":"N"
+                      }
+                    }
+                  }]
+                }
+              }]
+            }
+          }
+        }
+
+        """
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterPrefix, "", "", fallback=true)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "generate valid query for search via partial endpoint - term without house number and exact filter" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -2836,6 +3193,54 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
+    "generate valid fallback query for search via partial endpoint - term without house number and exact filter" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val expected = Json.parse(
+        """
+        {
+          "version":true,
+          "query" : {
+            "bool" : {
+              "must" : [{
+                "multi_match":{
+                  "query":"Gate Ret",
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "type":"best_fields"
+                }
+              }],
+              "filter":[{
+                "term":{
+                  "lpi.classificationCode":{
+                    "value":"RD"
+                  }
+                }
+              },{
+                "bool":{
+                  "must_not":[{
+                    "term":{
+                      "lpi.addressBasePostal":{
+                        "value":"N"
+                      }
+                    }
+                  }]
+                }
+              }]
+            }
+          }
+        }
+
+        """
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterCode, "", "", fallback=true)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "generate valid query for search via partial endpoint - term without house number and prefix filter" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -2880,6 +3285,54 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterPrefix, "", "")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "generate valid fallback query for search via partial endpoint - term without house number and prefix filter" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val expected = Json.parse(
+        """
+        {
+          "version":true,
+          "query" : {
+            "bool" : {
+              "must" : [{
+                "multi_match":{
+                  "query":"Gate Ret",
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "type":"best_fields"
+                }
+              }],
+              "filter":[{
+                "prefix":{
+                  "lpi.classificationCode":{
+                    "value":"R"
+                  }
+                }
+              },{
+                "bool":{
+                  "must_not":[{
+                    "term":{
+                      "lpi.addressBasePostal":{
+                        "value":"N"
+                      }
+                    }
+                  }]
+                }
+              }]
+            }
+          }
+        }
+
+        """
+      )
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterPrefix, "", "", fallback=true)).string())
 
       // Then
       result shouldBe expected
