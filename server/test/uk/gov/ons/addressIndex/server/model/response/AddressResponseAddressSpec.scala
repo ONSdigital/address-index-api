@@ -235,8 +235,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       // Given
       val nag = givenRealisticNag
       val expected = Some(AddressResponseGeo(
-        latitude = 50.7341677d,
-        longitude = -3.540302d,
+        latitude = 50.7341677,
+        longitude = -3.540302,
         easting = 291398,
         northing = 93861
       ))
@@ -267,8 +267,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         paf = Some(expectedPaf),
         nag = Some(expectedNag),
         geo = Some(AddressResponseGeo(
-          latitude = 50.7341677d,
-          longitude = -3.540302d,
+          latitude = 50.7341677,
+          longitude = -3.540302,
           easting = 291398,
           northing = 93861
         )),
