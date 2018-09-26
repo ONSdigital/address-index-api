@@ -36,6 +36,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     */
   def uprnQuery(uprn: String, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
+    val endpointType = "uprn"
+
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
@@ -51,14 +53,14 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val startingTime = System.currentTimeMillis()
 
-    def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+    def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
 
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid,
-        startDate = startDateVal, endDate = endDateVal, historical = hist
+        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb, endpoint = endpointType, activity = activity
       )
     }
 
@@ -88,7 +90,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",
-              score = hybridAddress.score.toString
+              score = hybridAddress.score.toString, activity = "address_request"
             )
 
             jsonOk(

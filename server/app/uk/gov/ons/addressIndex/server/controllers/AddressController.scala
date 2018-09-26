@@ -64,6 +64,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
 
     val filterString = classificationfilter.getOrElse("")
+    val endpointType = "address"
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -80,7 +81,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val latVal = lat.getOrElse("")
     val lonVal = lon.getOrElse("")
 
-    def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+    def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
 
@@ -88,7 +89,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         input = input, offset = offval, limit = limval, filter = filterString,
         endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid)
+        numOfResults = numOfResults, score = score, networkid = networkid, verbose = verb, endpoint = endpointType, activity = activity)
     }
 
     def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
@@ -163,14 +164,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
            // removed retrospectively)
             val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
 
-            addresses.foreach { address =>
-              writeLog(
-                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
-                score = address.underlyingScore.toString
-              )
-            }
+//            addresses.foreach { address =>
+//              writeLog(
+//                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
+//                score = address.underlyingScore.toString, activity = "address_response"
+//              )
+//            }
 
-            writeLog()
+            writeLog(activity = "address_request")
 
             jsonOk(
               AddressBySearchResponseContainer(
