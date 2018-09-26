@@ -47,6 +47,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val offval = offset.getOrElse(defOffset.toString)
 
     val filterString = classificationfilter.getOrElse("")
+    val endpointType = "postcode"
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
@@ -61,7 +62,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case None => false
     }
 
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       logger.systemLog(
@@ -70,7 +71,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid,
-        startDate = startDateVal, endDate = endDateVal, historical = hist
+        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb, endpoint = endpointType, activity = activity
       )
     }
 
@@ -107,14 +108,14 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
               AddressResponseAddress.fromHybridAddress(_,verb)
             )
 
-            addresses.foreach { address =>
-              writeLog(
-                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
-                score = address.underlyingScore.toString
-              )
-            }
+//            addresses.foreach { address =>
+//              writeLog(
+//                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
+//                score = address.underlyingScore.toString, activity = "address_response"
+//              )
+//            }
 
-            writeLog()
+            writeLog(activity = "address_request")
 
             jsonOk(
               AddressByPostcodeResponseContainer(
