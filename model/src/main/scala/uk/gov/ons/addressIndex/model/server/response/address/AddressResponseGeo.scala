@@ -34,8 +34,8 @@ object AddressResponseGeo {
     )(AddressResponseGeo.apply _)
 
   val geoWrites: Writes[AddressResponseGeo] = (
-      (JsPath \ "latitide").write[BigDecimal](Writes((o: BigDecimal) => JsNumber(BigDecimal(JsString(o.bigDecimal.toPlainString).value.toDouble)))) and
-      (JsPath \ "longitude").write[BigDecimal] (Writes((o: BigDecimal) => JsNumber(BigDecimal(JsString(o.bigDecimal.toPlainString).value.toDouble)))) and
+      (JsPath \ "latitide").write[BigDecimal](Writes((o: BigDecimal) => JsNumber(BigDecimal(JsString(o.bigDecimal.toPlainString).value)))) and
+      (JsPath \ "longitude").write[BigDecimal] (Writes((o: BigDecimal) => (JsString(o.bigDecimal.toPlainString)))) and
       (JsPath \ "easting").write[Int] and
       (JsPath \ "northing").write[Int]
     )(unlift(AddressResponseGeo.unapply))
