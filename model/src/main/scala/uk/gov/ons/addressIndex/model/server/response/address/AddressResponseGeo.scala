@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
-import play.api.libs.json._
-import scala.math.BigDecimal
+import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.NationalAddressGazetteerAddress
 
 import scala.util.Try
