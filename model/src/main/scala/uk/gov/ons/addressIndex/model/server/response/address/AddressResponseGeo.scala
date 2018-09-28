@@ -51,10 +51,9 @@ object AddressResponseGeo {
     */
   def fromNagAddress(other: NationalAddressGazetteerAddress): Option[AddressResponseGeo] = (for {
       latitude <- Try(BigDecimal(other.latitude))
-     // longitude <- Try(BigDecimal("0.0000093"))
+   //   longitude <- Try(BigDecimal("0.0000993"))
       longitude <- Try(BigDecimal(other.longitude))
       easting <- Try(other.easting.split("\\.").head.toInt)
       northing <- Try(other.northing.split("\\.").head.toInt)
     } yield AddressResponseGeo(latitude, longitude, easting, northing)).toOption
-
 }
