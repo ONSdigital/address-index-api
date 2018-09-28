@@ -296,7 +296,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable (with empty geo field) from Elastic NAG response with invalid longitude" in {
       // Given
-      val nag = givenNag.copy(longitude = "0.0000093")
+      val nag = givenNag.copy(longitude = "invalid")
 
       // When
       val result = AddressResponseGeo.fromNagAddress(nag)
