@@ -34,15 +34,23 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Minimum confidence score (percentage) for match to be included in results.
 #      default: 5.0
 #    - name: verbose
-#      description: Include the full address details in the response.
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
 #  responses:
 #    200:
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
+#    400:
+#      description: bad request (see response for details)
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
+#
 ###
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String])
+
 
 ###
 #  summary: Return a list of codelists supported by the API
@@ -114,7 +122,7 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #      description: Include historical addresses
 #      default: true
 #    - name: verbose
-#      description: Include the full address details in the response.
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
 #  responses:
 #    200:
@@ -149,7 +157,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: Include historical addresses
 #      default: true
 #    - name: verbose
-#      description: Include the full address details in the response.
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
 #  responses:
 #    200:
@@ -184,7 +192,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      description: Include historical addresses
 #      default: true
 #    - name: verbose
-#      description: Include the full address details in the response.
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
 #  responses:
 #    200:
