@@ -43,6 +43,8 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
 #    400:
 #      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
 #    429:
 #      description: server too busy
 #    500:
@@ -60,6 +62,14 @@ GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.codelists.AddressResponseCodelistListContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /codelists             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeList()
 
@@ -72,6 +82,14 @@ GET     /codelists             uk.gov.ons.addressIndex.server.controllers.Codeli
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListSource()
 
@@ -83,6 +101,14 @@ GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListClassification()
 
@@ -94,6 +120,14 @@ GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListCustodian()
 
@@ -105,6 +139,14 @@ GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListLogicalStatus()
 
@@ -129,6 +171,16 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    404:
+#      description: not found
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
@@ -164,6 +216,14 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
@@ -199,6 +259,14 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
@@ -234,6 +302,14 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #  responses:
 #    200:
 #      description: success
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
 
@@ -245,6 +321,14 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVersion"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery
 
@@ -270,6 +354,14 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
@@ -296,6 +388,14 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #      description: success
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
@@ -321,6 +421,14 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 #      description: success
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
+#    400:
+#      description: bad request (see response for details)
+#    401:
+#      description: unauthorised
+#    429:
+#      description: server too busy
+#    500:
+#      description: internal server error
 ###
 POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
