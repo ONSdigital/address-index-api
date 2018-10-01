@@ -9,13 +9,13 @@ consumes:
 produces:
 - application/json
 definitions:
-  uk.gov.ons.addressIndex.model.server.response.AddressBySearchResponse:
+  uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse:
     properties:
       tokens:
         type: array
         items:
           $ref: '#/definitions/Token'
-  uk.gov.ons.addressIndex.model.server.response.AddressBulkResponseAddress:
+  uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress:
     properties:
       tokens:
         type: array
