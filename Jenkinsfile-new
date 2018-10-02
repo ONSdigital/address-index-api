@@ -47,9 +47,10 @@ pipeline {
                     }
 
                     function runCurlCommand() {
-                        $curlCmd                    -L $ENDPOINT_URL     #Curl request which inherits env configuration for proxies
+                        # $curlCmd                    -L $ENDPOINT_URL     #Curl request which inherits env configuration for proxies
                         $curlCmd --noproxy  "*"     -L $ENDPOINT_URL     #Ask curl not to use proxy for any requests
-                        $curlCmd --proxy    $PROXY  -L $ENDPOINT_URL     #Ask curl to use a proxy for all requests
+                        # $curlCmd --proxy    $PROXY  -L $ENDPOINT_URL     #Ask curl to use a proxy for all requests
+                         cf login -a https://api.system.cf1.ons.statistics.gov.uk -u s_jenkins_ai_dev -p burgundy-grapes_southern -o AI -s Dev --skip-ssl-validation
                     }
 
                     function resetProxVarsInEnv(){
