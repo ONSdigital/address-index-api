@@ -13,6 +13,8 @@ pipeline {
         DEPLOY_NAME = "dev"
         GATLING_REQUESTS_PER_SECOND = 20
         GATLING_GET_ENDPOINT = "https://addressindex-api-${DEPLOY_NAME}.apps.cf1.ons.statistics.gov.uk/addresses?input=26%20FROG%20LANE%20TITCHFIELD%20PO144DU"
+        ENDPOINT_URL="https://addressindex-api-dev.apps.cf1.ons.statistics.gov.uk/addresses?input=26%20FROG%20LANE%20TITCHFIELD%20PO144DU"
+        PROXY="http://10.171.93.69:8080"
     }
     options {
         skipDefaultCheckout()
@@ -52,6 +54,46 @@ pipeline {
                 failure {
                     colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
                 }
+            }
+        }
+
+        stage('CheckProxyForCFEndpoint') {
+            agent any
+            steps {
+                sh '''
+                    set +e
+                    echo " *********************** ENV *****************"
+                    wget --version
+                    curl --version
+                    echo HTTP_PROXY : $HTTP_PROXY
+                    echo HTTPS_PROXY : $HTTPS_PROXY
+                    echo http_proxy : $http_proxy
+                    echo https_proxy : $https_proxy
+                    echo " ****************************************"
+
+                    echo " *********************** CURL and WGET to $ENDPOINT_URL without Proxy *****************"
+                    wget --no-check-certificate -e use_proxy=no  $ENDPOINT_URL
+                    curl --insecure --noproxy "*" -L $ENDPOINT_URL
+                    echo " ****************************************"
+                    
+                    echo " *********************** CURL and WGET to $ENDPOINT_URL *WITH* $PROXY as Proxy *****************"
+                    wget --no-check-certificate -e use_proxy=yes -e http_proxy=$PROXY $ENDPOINT_URL
+                    curl --insecure -x $PROXY -L $ENDPOINT_URL
+                    echo " ****************************************"
+
+                    echo " ****************************************"
+                    echo "Curl without any proxy settings"
+                    curl --silent --show-error --insecure -x $PROXY -L $ENDPOINT_URL
+                    echo "Setting environmental proxy vars to empty"
+                    export HTTP_PROXY=
+                    export HTTPS_PROXY=
+                    echo "Curl request after unsetting env vars for proxy settings"
+                    curl --silent --show-error --insecure -x $PROXY -L $ENDPOINT_URL
+                    echo " ****************************************"
+
+                    set -e
+                '''
+                error("Build failed because of this and that..")
             }
         }
 
