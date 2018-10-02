@@ -42,22 +42,22 @@ pipeline {
                     echo " ****************************************"
 
                     echo " *********************** CURL to $ENDPOINT_URL with no proxy and env proxy left unaltered  *****************"
-                    curl --show-error --insecure -L $ENDPOINT_URL
+                    curl -v --insecure -L $ENDPOINT_URL
                     echo " ****************************************"
 
                     echo " *********************** CURL to $ENDPOINT_URL setting no proxy for everything *****************"
-                    curl --show-error --insecure --noproxy "*" -L $ENDPOINT_URL
+                    curl -v --insecure --noproxy "*" -L $ENDPOINT_URL
                     echo " ****************************************"
                     
                     echo " *********************** CURL to $ENDPOINT_URL *WITH* $PROXY as Proxy *****************"
-                    curl --show-error --insecure -x $PROXY -L $ENDPOINT_URL
+                    curl -v --insecure -x $PROXY -L $ENDPOINT_URL
                     echo " ****************************************"
 
                     echo " *********************** CURL to $ENDPOINT_URL with no proxy and empty env proxy  *****************"
                     echo "Setting environmental proxy vars to empty"
                     export HTTP_PROXY=
                     export HTTPS_PROXY=
-                    curl --show-error --insecure -L $ENDPOINT_URL
+                    curl -v --insecure -L $ENDPOINT_URL
                     echo " ****************************************"
 
                     set -e
