@@ -64,7 +64,7 @@ pipeline {
         }
 
         stage('CheckProxyForCFEndpoint') {
-            agent any
+            agent { label 'build.sbt_0-13-13' }
             steps {
                 sh '''
                     set +e
