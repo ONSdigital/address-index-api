@@ -69,7 +69,6 @@ pipeline {
                 sh '''
                     set +e
                     echo " *********************** ENV *****************"
-                    wget --version
                     curl --version
                     echo HTTP_PROXY : $HTTP_PROXY
                     echo HTTPS_PROXY : $HTTPS_PROXY
@@ -77,24 +76,23 @@ pipeline {
                     echo https_proxy : $https_proxy
                     echo " ****************************************"
 
-                    echo " *********************** CURL and WGET to $ENDPOINT_URL without Proxy *****************"
-                    wget --no-check-certificate -e use_proxy=no  $ENDPOINT_URL
-                    curl --insecure --noproxy "*" -L $ENDPOINT_URL
-                    echo " ****************************************"
-                    
-                    echo " *********************** CURL and WGET to $ENDPOINT_URL *WITH* $PROXY as Proxy *****************"
-                    wget --no-check-certificate -e use_proxy=yes -e http_proxy=$PROXY $ENDPOINT_URL
-                    curl --insecure -x $PROXY -L $ENDPOINT_URL
+                    echo " *********************** CURL to $ENDPOINT_URL with no proxy and env proxy left unaltered  *****************"
+                    curl --show-error --insecure -L $ENDPOINT_URL
                     echo " ****************************************"
 
+                    echo " *********************** CURL to $ENDPOINT_URL setting no proxy for everything *****************"
+                    curl --show-error --insecure --noproxy "*" -L $ENDPOINT_URL
                     echo " ****************************************"
-                    echo "Curl without any proxy settings"
-                    curl --silent --show-error --insecure -x $PROXY -L $ENDPOINT_URL
+                    
+                    echo " *********************** CURL to $ENDPOINT_URL *WITH* $PROXY as Proxy *****************"
+                    curl --show-error --insecure -x $PROXY -L $ENDPOINT_URL
+                    echo " ****************************************"
+
+                    echo " *********************** CURL to $ENDPOINT_URL with no proxy and empty env proxy  *****************"
                     echo "Setting environmental proxy vars to empty"
                     export HTTP_PROXY=
                     export HTTPS_PROXY=
-                    echo "Curl request after unsetting env vars for proxy settings"
-                    curl --silent --show-error --insecure -x $PROXY -L $ENDPOINT_URL
+                    curl --show-error --insecure -L $ENDPOINT_URL
                     echo " ****************************************"
 
                     set -e
