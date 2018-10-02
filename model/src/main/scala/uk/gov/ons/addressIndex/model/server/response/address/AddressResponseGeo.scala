@@ -14,8 +14,8 @@ import scala.util.Try
   * @param northing  northing
   */
 case class AddressResponseGeo(
-  latitude: Double,
-  longitude: Double,
+  latitude: BigDecimal,
+  longitude: BigDecimal,
   easting: Int,
   northing: Int
 )
@@ -29,10 +29,9 @@ object AddressResponseGeo {
     * @return
     */
   def fromNagAddress(other: NationalAddressGazetteerAddress): Option[AddressResponseGeo] = (for {
-      latitude <- Try(other.latitude.toDouble)
-      longitude <- Try(other.longitude.toDouble)
+      latitude <- Try(BigDecimal(other.latitude))
+      longitude <- Try(BigDecimal(other.longitude))
       easting <- Try(other.easting.split("\\.").head.toInt)
       northing <- Try(other.northing.split("\\.").head.toInt)
     } yield AddressResponseGeo(latitude, longitude, easting, northing)).toOption
-
 }
