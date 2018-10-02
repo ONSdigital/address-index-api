@@ -29,7 +29,7 @@ pipeline {
     agent { label 'download.jenkins.slave' }
     stages {
         stage('CheckProxyForCFEndpoint') {
-            agent { label 'build.sbt_0-13-13' }
+            agent { label 'deploy.cf' }
             steps {
                 sh '''
                     set +e
