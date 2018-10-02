@@ -64,13 +64,15 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
-      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      val organisation =  if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         postcode = postcode, isNotFound = notFound, offset = offval,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid,
+        numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb, endpoint = endpointType, activity = activity
       )
     }

@@ -203,6 +203,8 @@ object AddressIndexClientMock {
     paf = Some(mockPafAddress1),
     nag = Some(mockNagAddress1),
     geo = None,
+    classificationCode = "RD",
+    lpiLogicalStatus = "1",
     confidenceScore = 1.0f,
     underlyingScore = 1.0f
   )

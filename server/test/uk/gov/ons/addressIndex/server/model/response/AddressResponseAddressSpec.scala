@@ -272,6 +272,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
           easting = 291398,
           northing = 93861
         )),
+        classificationCode = givenNag.classificationCode,
+        lpiLogicalStatus = givenNag.lpiLogicalStatus,
         confidenceScore = 1,
         underlyingScore = 1
       )
