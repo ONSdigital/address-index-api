@@ -48,6 +48,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val offval = offset.getOrElse(defOffset.toString)
 
     val filterString = classificationfilter.getOrElse("")
+    val endpointType = "partial"
 
     val startDateVal = startDate.getOrElse("")
     val endDateVal = endDate.getOrElse("")
@@ -62,7 +63,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case None => false
     }
 
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = ""): Unit = {
+    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       logger.systemLog(
@@ -71,7 +72,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, startDate = startDateVal, endDate = endDateVal,
-        historical = hist
+        historical = hist, verbose = verb, endpoint = endpointType, activity = activity
       )
     }
 
@@ -106,14 +107,14 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               AddressResponseAddress.fromHybridAddress(_,verb)
             )
 
-            addresses.foreach { address =>
-              writeLog(
-                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
-                score = address.underlyingScore.toString
-              )
-            }
+//            addresses.foreach { address =>
+//            writeLog(
+//              formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
+//              score = address.underlyingScore.toString, activity = "address_response"
+//            )
+//          }
 
-            writeLog()
+            writeLog(activity = "address_request")
 
             jsonOk(
               AddressByPartialAddressResponseContainer(
