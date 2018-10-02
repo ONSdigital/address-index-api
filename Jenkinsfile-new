@@ -33,32 +33,32 @@ pipeline {
             steps {
                 sh '''
                     set +e
-                    echo " *********************** ENV *****************"
-                    curl  --connect-timeout 10 --version
+                    // " *********************** ENV *****************"
+                    curl  --connect-timeout 20 --version
                     echo HTTP_PROXY : $HTTP_PROXY
                     echo HTTPS_PROXY : $HTTPS_PROXY
                     echo http_proxy : $http_proxy
                     echo https_proxy : $https_proxy
-                    echo " ****************************************"
+                    // " ****************************************"
 
-                    echo " *********************** CURL to $ENDPOINT_URL with no proxy and env proxy left unaltered  *****************"
-                    curl  --connect-timeout 10 -v --insecure -L $ENDPOINT_URL
-                    echo " ****************************************"
+                    // " *********************** CURL to $ENDPOINT_URL with no proxy and env proxy left unaltered  *****************"
+                    curl  --connect-timeout 20 -v --insecure -L $ENDPOINT_URL
+                    // " ****************************************"
 
-                    echo " *********************** CURL to $ENDPOINT_URL setting no proxy for everything *****************"
-                    curl  --connect-timeout 10 -v --insecure --noproxy "*" -L $ENDPOINT_URL
-                    echo " ****************************************"
+                    // " *********************** CURL to $ENDPOINT_URL setting no proxy for everything *****************"
+                    curl  --connect-timeout 20 -v --insecure --noproxy "*" -L $ENDPOINT_URL
+                    // " ****************************************"
                     
-                    echo " *********************** CURL to $ENDPOINT_URL *WITH* $PROXY as Proxy *****************"
-                    curl  --connect-timeout 10 -v --insecure -x $PROXY -L $ENDPOINT_URL
-                    echo " ****************************************"
+                    // " *********************** CURL to $ENDPOINT_URL *WITH* $PROXY as Proxy *****************"
+                    curl  --connect-timeout 20 -v --insecure -x $PROXY -L $ENDPOINT_URL
+                    // " ****************************************"
 
-                    echo " *********************** CURL to $ENDPOINT_URL with no proxy and empty env proxy  *****************"
+                    // " *********************** CURL to $ENDPOINT_URL with no proxy and empty env proxy  *****************"
                     echo "Setting environmental proxy vars to empty"
                     export HTTP_PROXY=
                     export HTTPS_PROXY=
-                    curl  --connect-timeout 10 -v --insecure -L $ENDPOINT_URL
-                    echo " ****************************************"
+                    curl  --connect-timeout 20 -v --insecure -L $ENDPOINT_URL
+                    // " ****************************************"
 
                     set -e
                 '''
