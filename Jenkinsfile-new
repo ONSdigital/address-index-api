@@ -15,6 +15,9 @@ pipeline {
         GATLING_GET_ENDPOINT = "https://addressindex-api-${DEPLOY_NAME}.apps.cf1.ons.statistics.gov.uk/addresses?input=26%20FROG%20LANE%20TITCHFIELD%20PO144DU"
         ENDPOINT_URL="https://addressindex-api-dev.apps.cf1.ons.statistics.gov.uk/addresses?input=26%20FROG%20LANE%20TITCHFIELD%20PO144DU"
         PROXY="http://10.171.93.69:8080"
+        GIT_TRACE=1
+        GIT_TRACE_PERFORMANCE=1
+        GIT_CURL_VERBOSE=1
     }
     options {
         skipDefaultCheckout()
