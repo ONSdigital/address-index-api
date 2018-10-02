@@ -28,41 +28,6 @@ pipeline {
     }
     agent { label 'download.jenkins.slave' }
     stages {
-        stage('Checkout') {
-            agent { label 'download.jenkins.slave' }
-            steps {
-                sh '''
-                    git --version
-                '''
-                deleteDir()
-                checkout scm
-                script {
-                    buildInfo.name = "${SVC_NAME}"
-                    buildInfo.number = "${BUILD_NUMBER}"
-                    buildInfo.env.collect()
-                }
-                colourText("info", "BuildInfo: ${buildInfo.name}-${buildInfo.number}")
-                stash name: 'Checkout'
-            }
-        }
-
-        stage('Build') {
-            agent { label 'build.sbt_0-13-13' }
-            steps {
-                unstash name: 'Checkout'
-                sh "sbt 'project address-index-server' clean compile"
-                stash name: 'compiled'
-            }
-            post {
-                success {
-                    colourText("info", "Stage: ${env.STAGE_NAME} successful!")
-                }
-                failure {
-                    colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
-                }
-            }
-        }
-
         stage('CheckProxyForCFEndpoint') {
             agent { label 'build.sbt_0-13-13' }
             steps {
@@ -101,18 +66,6 @@ pipeline {
             }
         }
 
-        stage('Test: acceptance') {
-            agent { label 'build.sbt_0-13-13' }
-            steps {
-                script {
-                    env.NODE_STAGE = "Integration Tests"
-                }
-                unstash 'compiled'
-                sh "sbt -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" \"gatling-it:testOnly uk.gov.ons.gatling.simulations.RegistersSimulationClosedModel\""
-                colourText("success", 'Integration Tests - For Release or Dev environment.')
-                gatlingArchive()
-            }
-        }
     }
 
     post {
