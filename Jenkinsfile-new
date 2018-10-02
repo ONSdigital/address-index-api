@@ -31,6 +31,9 @@ pipeline {
         stage('Checkout') {
             agent { label 'download.jenkins.slave' }
             steps {
+                sh '''
+                    git --version
+                '''
                 deleteDir()
                 checkout scm
                 script {
