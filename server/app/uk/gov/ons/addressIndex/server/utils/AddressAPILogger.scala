@@ -16,7 +16,8 @@ class AddressAPILogger(log: String) extends APILogger {
     rangekm: String = "", lat: String = "", lon: String = "", bulkSize: String = "",
     batchSize: String = "", badRequestMessage: String = "", isNotFound: Boolean = false,
     formattedOutput: String = "", numOfResults: String = "", score: String = "",
-                endpoint: String = "", activity: String = "", uuid: String = "", networkid: String = ""): Unit = {
+                endpoint: String = "", activity: String = "", uuid: String = "",
+                networkid: String = "", organisation: String = ""): Unit = {
 
     // Note we are using the info level for Splunk
 
@@ -33,7 +34,7 @@ class AddressAPILogger(log: String) extends APILogger {
           s"bad_request_message=$badRequestMessage is_not_found=$isNotFound " +
           s"formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
           s"numOfResults=$numOfResults score=$score endpoint=$endpoint " +
-          s"activity=$activity uuid=$uuid networkid=$networkid "
+          s"activity=$activity uuid=$uuid networkid=$networkid organisation=$organisation "
       )
     )
   }
