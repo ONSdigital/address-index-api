@@ -338,9 +338,12 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
+    val networkid = if (request.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) request.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else request.headers.get("authorization").getOrElse("Anon").split("_")(0)
+    val organisation =  if (request.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) request.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
-      bulkSize = requestData.size.toString
+      bulkSize = requestData.size.toString, networkid = networkid, organisation = organisation,
     )
 
     response

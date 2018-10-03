@@ -26,8 +26,10 @@ case class AddressResponseAddress(
   paf: Option[AddressResponsePaf],
   nag: Option[AddressResponseNag],
   geo: Option[AddressResponseGeo],
+  classificationCode: String,
+  lpiLogicalStatus: String,
   confidenceScore: Double,
-  underlyingScore: Float
+  underlyingScore: Float,
 )
 
 object AddressResponseAddress {
@@ -42,6 +44,8 @@ object AddressResponseAddress {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
+    val classificationCode = if (chosenNag.isEmpty) "" else chosenNag.get.classificationCode
+    val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
     val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
@@ -63,8 +67,11 @@ object AddressResponseAddress {
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
       nag = {if (verbose) chosenNag.map(AddressResponseNag.fromNagAddress) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      classificationCode = classificationCode,
+      lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
       underlyingScore = other.score
+
     )
   }
 

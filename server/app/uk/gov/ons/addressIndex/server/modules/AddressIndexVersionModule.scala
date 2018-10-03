@@ -52,7 +52,7 @@ class AddressIndexVersionModule @Inject()
       case Right(r) => r.result.mappings.keys.toString()
     }
 
-    logger.info("index name(s) = " + index)
+    logger.warn("index name(s) = " + index)
 
     Option(index).map(removeBaseIndexName)
       .map(removeLetters)

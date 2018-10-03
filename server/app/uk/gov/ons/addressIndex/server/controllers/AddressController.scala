@@ -83,13 +83,15 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
-      val networkid = req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      val organisation =  if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offval, limit = limval, filter = filterString,
         endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, verbose = verb, endpoint = endpointType, activity = activity)
+        numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
+        verbose = verb, endpoint = endpointType, activity = activity)
     }
 
     def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
