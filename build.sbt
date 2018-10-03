@@ -78,7 +78,8 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   // TODO: Fix the following errors highlighted by scapegoat. Remove the corresponding overrides below.
   scalacOptions in Scapegoat += "-P:scapegoat:overrideLevels:TraversableHead=Warning:OptionSize=Warning:ComparingFloatingPointTypes=Warning",
   ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
-  resolvers ++= Resolvers
+  resolvers ++= Resolvers,
+  coverageExcludedPackages := ".*Routes.*;.*ReverseRoutes.*;.*javascript.*"
 )
 
 val commonDeps = Seq(
