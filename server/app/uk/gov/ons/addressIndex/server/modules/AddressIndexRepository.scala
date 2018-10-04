@@ -36,9 +36,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true): Future[Option[HybridAddress]] = {
+  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, clusterid: String = ""): Future[Option[HybridAddress]] = {
 
-    val request = generateQueryUprnRequest(uprn, startDate, endDate, historical)
+    val request = generateQueryUprnRequest(uprn, startDate, endDate, historical, clusterid)
 
     logger.trace(request.toString)
 
@@ -54,7 +54,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true): SearchDefinition = {
+  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, clusterid: String = ""): SearchDefinition = {
 
     val query = {
       if(!startDate.isEmpty && !endDate.isEmpty) {
@@ -72,9 +72,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
 
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      search(hybridIndexHistorical + clusterid).query(query)
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndex + clusterid).query(query)
     }
   }
 
@@ -92,13 +92,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param historical        historical flag
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, clusterid: String = ""): Future[HybridAddresses] = {
 
-    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false).start(start).limit(limit)
+    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false, clusterid).start(start).limit(limit)
     val partResult = client.execute(request).map(HybridAddresses.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
-      if (adds.addresses.isEmpty) queryPartialAddressFallback(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical)
+      if (adds.addresses.isEmpty) queryPartialAddressFallback(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,clusterid)
       else partResult
     }
     endResult.flatten
@@ -118,9 +118,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param historical historical flag
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, clusterid: String = ""): Future[HybridAddresses] = {
     logger.warn("best fields fallback query invoked for input string " + input)
-    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, true).start(start).limit(limit)
+    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, true, clusterid).start(start).limit(limit)
     client.execute(fallback).map(HybridAddresses.fromEither)
   }
 
@@ -137,7 +137,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param fallback flag to indicate if fallback query is required
     * @return Search definition containing query to the ES
     */
-  def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, fallback: Boolean = false): SearchDefinition = {
+  def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, fallback: Boolean = false, clusterid: String = ""): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -282,17 +282,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
-
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      search(hybridIndexHistorical + clusterid).query(query)
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndex + clusterid).query(query)
     }
   }
 
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, clusterid: String = ""): Future[HybridAddresses] = {
 
-    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
+    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical, clusterid).start(start).limit(limit)
 
     logger.trace(request.toString)
 
@@ -306,7 +305,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param postcode the postcode of the fetched address
     * @return Search definition containing query to the ES
     */
-  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, clusterid: String = ""): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -354,24 +353,24 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
 
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      search(hybridIndexHistorical + clusterid).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndex + clusterid).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
     }
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, clusterid: String = ""): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical, clusterid).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, clusterid: String = ""): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -872,23 +871,23 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      search(hybridIndexHistorical + clusterid).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndex + clusterid).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
     }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, clusterid: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical, clusterid).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

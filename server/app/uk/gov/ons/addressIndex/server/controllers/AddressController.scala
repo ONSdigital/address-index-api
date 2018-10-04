@@ -47,6 +47,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
+    val clusterid = conf.config.elasticSearch.clusterPolicies.address
+
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
     val url: String = req.uri
@@ -131,7 +133,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(
             tokens, 0, limitExpanded, filterString,
-            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist)
+            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist, clusterid)
           )
 
         request.map {

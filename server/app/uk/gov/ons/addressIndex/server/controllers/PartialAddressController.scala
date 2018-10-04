@@ -40,6 +40,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
+    val clusterid = conf.config.elasticSearch.clusterPolicies.partial
+
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPartial
     val defOffset = conf.config.elasticSearch.defaultOffset
@@ -101,7 +103,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         val request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
+            esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, clusterid)
           )
 
         request.map {
