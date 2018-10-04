@@ -105,19 +105,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Scapegoat') {
-                    agent { label 'build.sbt_0-13-13' }
-                    steps {
-                        unstash name: 'Checkout'
-                        colourText("info", "Running additional tests")
-                        sh 'sbt "project address-index-server" scapegoat'
-                    }
-                    post {
-                        always {
-                            checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'server/target/scala-2.11/scapegoat-report/scapegoat-scalastyle.xml', unHealthy: ''
-                        }
-                    }
-                }
             }
             post {
                 success {
@@ -132,7 +119,7 @@ pipeline {
         stage('Publish') {
             agent { label 'build.sbt_0-13-13' }
             when {
-                branch "REG-1843_Build-script-for-new-jenkins"
+                branch "REG-1984_Codacy-static-analysis"
                 // evaluate the when condition before entering this stage's agent, if any
                 beforeAgent true
             }
