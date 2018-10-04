@@ -77,7 +77,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         startDate = startDateVal, endDate = endDateVal,
-        historical = hist, verbose = verb, endpoint = endpointType, activity = activity
+        historical = hist, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 

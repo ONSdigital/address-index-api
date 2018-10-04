@@ -75,7 +75,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb, endpoint = endpointType, activity = activity
+        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+        endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 

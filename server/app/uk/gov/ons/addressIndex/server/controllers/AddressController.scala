@@ -93,7 +93,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        verbose = verb, endpoint = endpointType, activity = activity)
+        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid)
     }
 
     def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
