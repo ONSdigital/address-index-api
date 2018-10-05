@@ -36,6 +36,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     */
   def uprnQuery(uprn: String, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
+    val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
+
     val endpointType = "uprn"
 
     val hist = historical match {
@@ -62,7 +64,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb, endpoint = endpointType, activity = activity
+        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+        endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
