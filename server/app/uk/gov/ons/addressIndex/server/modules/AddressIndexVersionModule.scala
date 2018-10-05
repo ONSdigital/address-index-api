@@ -35,17 +35,17 @@ class AddressIndexVersionModule @Inject()
   // lazy to avoid application crash at startup if ES is down
   lazy val dataVersion: String = {
 
-    val alias: String = configProvider.config.elasticSearch.indexes.hybridIndex
+    val alias: String = configProvider.config.elasticSearch.indexes.hybridIndex + configProvider.config.elasticSearch.clusterPolicies.version
     val aliaseq: Seq[String] = Seq {
       alias
     }
 
-    val requestForIdexes = elasticClientProvider.client.execute {
+    val requestForIndexes = elasticClientProvider.client.execute {
       getAliases(Nil, aliaseq)
     }
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
-    val indexes: Either[RequestFailure, RequestSuccess[IndexAliases]] = Await.result(requestForIdexes, 10 seconds)
+    val indexes: Either[RequestFailure, RequestSuccess[IndexAliases]] = Await.result(requestForIndexes, 10 seconds)
 
     val index: String = indexes match {
       case Left(l) => l.error.reason

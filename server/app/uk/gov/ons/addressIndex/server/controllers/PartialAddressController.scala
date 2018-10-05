@@ -40,6 +40,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
+    val clusterid = conf.config.elasticSearch.clusterPolicies.partial
+
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPartial
     val defOffset = conf.config.elasticSearch.defaultOffset
@@ -75,7 +77,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         startDate = startDateVal, endDate = endDateVal,
-        historical = hist, verbose = verb, endpoint = endpointType, activity = activity
+        historical = hist, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
