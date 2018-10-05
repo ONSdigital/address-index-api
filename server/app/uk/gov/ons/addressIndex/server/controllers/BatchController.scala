@@ -343,7 +343,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
-      bulkSize = requestData.size.toString, networkid = networkid, organisation = organisation,
+      bulkSize = requestData.size.toString, networkid = networkid, organisation = organisation
     )
 
     response
