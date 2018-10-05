@@ -71,10 +71,19 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
     }
 
+
+    val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
+      clusterid + "/" + hybridIndexHistorical.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
+
+    val hybridIndexWithCluster = hybridIndex.split("/")(0) +
+      clusterid + "/" + hybridIndex.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexWithCluster)
+
     if (historical) {
-      search(hybridIndexHistorical + clusterid).query(query)
+      search(hybridIndexHistoricalWithCluster).query(query)
     } else {
-      search(hybridIndex + clusterid).query(query)
+      search(hybridIndexWithCluster).query(query)
     }
   }
 
@@ -282,10 +291,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
+    val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
+      clusterid + "/" + hybridIndexHistorical.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
+
+    val hybridIndexWithCluster = hybridIndex.split("/")(0) +
+      clusterid + "/" + hybridIndex.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexWithCluster)
+
     if (historical) {
-      search(hybridIndexHistorical + clusterid).query(query)
+      search(hybridIndexHistoricalWithCluster).query(query)
     } else {
-      search(hybridIndex + clusterid).query(query)
+      search(hybridIndexWithCluster).query(query)
     }
   }
 
@@ -352,11 +369,19 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
+    val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
+      clusterid + "/" + hybridIndexHistorical.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
+
+    val hybridIndexWithCluster = hybridIndex.split("/")(0) +
+      clusterid + "/" + hybridIndex.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexWithCluster)
+
     if (historical) {
-      search(hybridIndexHistorical + clusterid).query(query)
+      search(hybridIndexHistoricalWithCluster).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
     } else {
-      search(hybridIndex + clusterid).query(query)
+      search(hybridIndexWithCluster).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
     }
   }
@@ -870,13 +895,21 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
+    val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
+      clusterid + "/" + hybridIndexHistorical.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
+
+    val hybridIndexWithCluster = hybridIndex.split("/")(0) +
+      clusterid + "/" + hybridIndex.split("/")(1)
+    System.out.println("index with cluster=" + hybridIndexWithCluster)
+
     if (historical) {
-      search(hybridIndexHistorical + clusterid).query(query)
+      search(hybridIndexHistoricalWithCluster).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
     } else {
-      search(hybridIndex + clusterid).query(query)
+      search(hybridIndexWithCluster).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
