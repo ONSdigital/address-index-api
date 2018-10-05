@@ -74,11 +74,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
       clusterid + "/" + hybridIndexHistorical.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
 
     val hybridIndexWithCluster = hybridIndex.split("/")(0) +
       clusterid + "/" + hybridIndex.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexWithCluster)
 
     if (historical) {
       search(hybridIndexHistoricalWithCluster).query(query)
@@ -293,11 +291,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
       clusterid + "/" + hybridIndexHistorical.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
 
     val hybridIndexWithCluster = hybridIndex.split("/")(0) +
       clusterid + "/" + hybridIndex.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexWithCluster)
 
     if (historical) {
       search(hybridIndexHistoricalWithCluster).query(query)
@@ -371,11 +367,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
       clusterid + "/" + hybridIndexHistorical.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
 
     val hybridIndexWithCluster = hybridIndex.split("/")(0) +
       clusterid + "/" + hybridIndex.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexWithCluster)
 
     if (historical) {
       search(hybridIndexHistoricalWithCluster).query(query)
@@ -897,11 +891,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val hybridIndexHistoricalWithCluster = hybridIndexHistorical.split("/")(0) +
       clusterid + "/" + hybridIndexHistorical.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexHistoricalWithCluster)
 
     val hybridIndexWithCluster = hybridIndex.split("/")(0) +
       clusterid + "/" + hybridIndex.split("/")(1)
-    System.out.println("index with cluster=" + hybridIndexWithCluster)
 
     if (historical) {
       search(hybridIndexHistoricalWithCluster).query(query)
