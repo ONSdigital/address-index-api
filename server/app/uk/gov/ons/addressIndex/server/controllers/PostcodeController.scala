@@ -103,7 +103,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
         val request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, clusterid)
+            esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
           )
 
         request.map {

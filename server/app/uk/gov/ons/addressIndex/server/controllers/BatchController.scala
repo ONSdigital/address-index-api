@@ -285,7 +285,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
   ): Future[BulkAddresses] = {
 
     val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(
-      inputs, limitperaddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress, clusterid
+      inputs, limitperaddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress
     )
 
     val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(

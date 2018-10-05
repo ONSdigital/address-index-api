@@ -85,7 +85,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       case _ =>
 
         val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
-          esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, clusterid)
+          esRepo.queryUprn(uprn, startDateVal, endDateVal, hist)
         )
 
         request.map {

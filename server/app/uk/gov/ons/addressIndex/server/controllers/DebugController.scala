@@ -56,7 +56,7 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
       case None => true
     }
 
-    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString, startDateVal, endDateVal, None, hist, clusterid)
+    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString, startDateVal, endDateVal, None, hist)
     val showQuery = DebugShow.show(query)
     Ok(Json.parse(showQuery))
   }

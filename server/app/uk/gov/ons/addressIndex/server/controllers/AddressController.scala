@@ -133,7 +133,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(
             tokens, 0, limitExpanded, filterString,
-            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist, clusterid)
+            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist)
           )
 
         request.map {
