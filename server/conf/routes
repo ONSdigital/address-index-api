@@ -38,17 +38,17 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      default: false
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String])
@@ -59,94 +59,94 @@ GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressCo
 #  description: Discovery call which names the available codelists for further calls
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of available codelists.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.codelists.AddressResponseCodelistListContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /codelists             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeList()
 
 
 ###
 #  summary: Return a list of available external source codes
-#  description: list of valid source codes and names (e.g. council tax)
+#  description: List of valid source codes and names (e.g. council tax)
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of external source codes.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListSource()
 
 ###
 #  summary: Return a list of available classification codes
-#  description: list of classifications e.g. RD01=Detached House
+#  description: List of classifications e.g. RD01=Detached House
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of available classification codes.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListClassification()
 
 ###
 #  summary: Return a list of available local custodian codes
-#  description: list of addressbase custodian codes to LA matches
+#  description: List of addressbase custodian codes to LA matches
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of address base custodian codes to local authority matches.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListCustodian()
 
 ###
 #  summary: Return a list of available logical status values
-#  description: list of valid statuses e.g. 8=historical
+#  description: List of valid statuses e.g. 8=historical
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of valid statuses for the lpiLogicalStatus.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListLogicalStatus()
 
@@ -168,19 +168,19 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #      default: false
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    404:
-#      description: not found
+#      description: Not found. The requested UPRN was not found in the index.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
@@ -213,17 +213,17 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: false
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
@@ -256,17 +256,17 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      default: false
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
@@ -301,15 +301,15 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      default: true
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of the elasticsearch query.
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
 
@@ -318,17 +318,17 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #  description: Returns version information for the api and the data (AddressBase).
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of version information.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVersion"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery
 
@@ -351,17 +351,17 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      default: 5.0
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
@@ -385,17 +385,17 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #      default: 5.0
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
@@ -418,17 +418,17 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 #      default: 5.0
 #  responses:
 #    200:
-#      description: success
+#      description: Success. A json return of matched addresses.
 #      schema:
 #        $ref: "#/definitions/AddressBulkResponse"
 #    400:
-#      description: bad request (see response for details)
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
-#      description: unauthorised
+#      description: Unauthorised. The API key provided with the request is invalid.
 #    429:
-#      description: server too busy
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
 #    500:
-#      description: internal server error
+#      description: Internal server error. Failed to process the request due to an internal error.
 ###
 POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
