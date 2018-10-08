@@ -36,8 +36,8 @@ case class ElasticSearchConfig(
   minimumSample: Int,
   circuitBreakerMaxFailures: Int,
   circuitBreakerCallTimeout: Int,
-  circuitBreakerResetTimeout: Int
-
+  circuitBreakerResetTimeout: Int,
+  minimumPartial: Int,
 )
 
 case class QueryParamsConfig(
