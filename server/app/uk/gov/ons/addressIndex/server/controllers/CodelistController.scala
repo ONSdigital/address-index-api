@@ -50,12 +50,16 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
     print("REG-1985 : Inside codeListClassification")
-    val classList = Tokens.classList.map { classval =>
+    print("REG-1985 : Tokens.classList " + Tokens.classList)
+    val classList = Tokens.classList.map { classval => {
+
+      print("REG-1985 : classval " + classval)
 
       new AddressResponseClassification(
         code = classval.split("=").headOption.getOrElse(""),
         label = classval.split("=").lastOption.getOrElse("")
       )
+    }
     }
     print("REG-1985 : After creation of codeList")
 
