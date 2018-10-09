@@ -46,7 +46,7 @@ pipeline {
                     agent { label 'build.sbt_0-13-13' }
                     steps {
                         unstash name: 'Checkout'
-                        sh 'JAVA_OPTS="-Dfile.encoding=UTF8" sbt "project address-index-server" "test:testOnly *AddressControllerSpec -- -z classifications"'
+                        sh 'JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8" sbt "project address-index-server" "test:testOnly *AddressControllerSpec -- -z classifications"'
 
                     }
                 }

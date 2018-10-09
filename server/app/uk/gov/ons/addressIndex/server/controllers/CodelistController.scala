@@ -51,9 +51,9 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
     println("REG-1985 : Inside codeListClassification")
-    println("REG-1985 : Tokens.classList " + Tokens.classList)
     println("REG-1985 : ********* defaultCharSet " + Charset.defaultCharset())
     println("REG-1985 : ********* System.prop " + System.getProperty("file.encoding"))
+    println("REG-1985 : Tokens.classList " + Tokens.classList)
 
     val classList = Tokens.classList.map { classval => {
 
