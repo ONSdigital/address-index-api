@@ -20,6 +20,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
         timeout(time: 1, unit: 'HOURS')
         ansiColor('xterm')
+        timestamps()
     }
     agent { label 'download.jenkins.slave' }
     stages {
@@ -38,23 +39,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            agent { label 'build.sbt_0-13-13' }
-            steps {
-                unstash name: 'Checkout'
-                sh "sbt 'project address-index-server' clean compile universal:packageBin"
-                stash name: 'compiled'
-            }
-            post {
-                success {
-                    colourText("info", "Stage: ${env.STAGE_NAME} successful!")
-                }
-                failure {
-                    colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
-                }
-            }
-        }
-
         stage('Validate') {
             failFast true
             parallel {
@@ -62,180 +46,12 @@ pipeline {
                     agent { label 'build.sbt_0-13-13' }
                     steps {
                         unstash name: 'Checkout'
-                        sh 'sbt "project address-index-server" clean compile coverage test coverageReport'
+                        sh 'JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8" sbt "project address-index-server" "test:testOnly *AddressControllerSpec -- -z classifications"'
 
-                        //TODO: Integrate Codacy
-//                        sbt codacyCoverage
-//                        export CODACY_PROJECT_TOKEN=%Project_Token%
-                    }
-                    post {
-                        always {
-                            junit '**/server/target/test-reports/*.xml'
-//
-                            cobertura autoUpdateHealth: false,
-                                    autoUpdateStability: false,
-                                    coberturaReportFile: 'server/target/**/coverage-report/cobertura.xml',
-                                    conditionalCoverageTargets: '70, 0, 0',
-                                    failUnhealthy: false,
-                                    failUnstable: false,
-                                    lineCoverageTargets: '80, 0, 0',
-                                    maxNumberOfBuilds: 0,
-                                    methodCoverageTargets: '80, 0, 0',
-                                    onlyStable: false,
-                                    zoomCoverageChart: false
-                        }
-                        success {
-                            colourText("info", "Stage: ${env.STAGE_NAME} successful!")
-                        }
-                        failure {
-                            colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
-                        }
                     }
                 }
-                stage('Style') {
-                    agent { label 'build.sbt_0-13-13' }
-                    steps {
-                        unstash name: 'Checkout'
-                        colourText("info", "Running style tests")
-                        sh 'sbt "project address-index-server" scalastyleGenerateConfig scalastyle'
-                    }
-                    post {
-                        always {
-                            checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'server/target/scalastyle-result.xml', unHealthy: ''
-                        }
-                    }
-                }
-                stage('Scapegoat') {
-                    agent { label 'build.sbt_0-13-13' }
-                    steps {
-                        unstash name: 'Checkout'
-                        colourText("info", "Running additional tests")
-                        sh 'sbt "project address-index-server" scapegoat'
-                    }
-                    post {
-                        always {
-                            checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'server/target/scala-2.11/scapegoat-report/scapegoat-scalastyle.xml', unHealthy: ''
-                        }
-                    }
-                }
-            }
-            post {
-                success {
-                    colourText("info", "Stage: ${env.STAGE_NAME} successful!")
-                }
-                failure {
-                    colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
-                }
-            }
-        }
-
-        stage('Publish') {
-            agent { label 'build.sbt_0-13-13' }
-            when {
-                branch "REG-1992_Move-sensitive-data-to-Gitlab"
-                // evaluate the when condition before entering this stage's agent, if any
-                beforeAgent true
-            }
-            steps {
-                colourText("info", "Building ${env.BUILD_ID} on ${env.JENKINS_URL} from branch ${env.BRANCH_NAME}")
-                colourText("info", "Will upload to registers-sbt-snapshots/uk/gov/ons/${buildInfo.name}/${buildInfo.number}/")
-                unstash name: 'Checkout'
-                sh 'sbt "project address-index-server" universal:packageBin'
-                sh 'find . -name "*.zip" -type f'
-                script {
-                    try {
-                        def uploadSpec = """{
-                            "files": [
-                                {
-                                    "pattern": "server/target/universal/*.zip",
-                                    "target": "registers-sbt-snapshots/uk/gov/ons/${buildInfo.name}/${buildInfo.number}/"
-                                }
-                            ]
-                        }"""
-                        artServer.upload spec: uploadSpec, buildInfo: buildInfo
-                    } catch (Exception e) {
-                        echo "Caught $e"
-                    }
-
-                }
-            }
-            post {
-                success {
-                    colourText("info", "Stage: ${env.STAGE_NAME} successful!")
-                }
-                failure {
-                    colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
-                }
-            }
-        }
-
-        stage('Deploy: Dev') {
-            agent { label 'deploy.cf' }
-            when {
-                branch "REG-1843_Build-script-for-new-jenkins"
-                // evaluate the when condition before entering this stage's agent, if any
-                beforeAgent true
-            }
-            environment {
-                CREDS = 's_jenkins_ai_dev'
-                SPACE = 'Dev'
-            }
-            steps {
-                script {
-                    def downloadSpec = """{
-                        "files": [
-                            {
-                                "pattern": "registers-sbt-snapshots/uk/gov/ons/${buildInfo.name}/${buildInfo.number}/*.zip",
-                                "target": "${distDir}",
-                                "flat": "true"
-                            }
-                        ]
-                    }"""
-                    artServer.download spec: downloadSpec, buildInfo: buildInfo
-                    sh "mv ${distDir}address-index-server.zip ${distDir}${env.SVC_NAME}.zip"
-                }
-                dir('config') {
-                    git url: "${GITLAB_URL}/AddressIndex/${env.SVC_NAME}.git", credentialsId: 'JenkinsAI__gitlab'
-                }
-                script {
-                    cfDeploy {
-                        credentialsId = "${this.env.CREDS}"
-                        org = "${this.env.ORG}"
-                        space = "${this.env.SPACE}"
-                        appName = "addressindex-api-${this.env.DEPLOY_NAME}"
-                        appPath = "./${distDir}/${this.env.SVC_NAME}.zip"
-                        manifestPath = "config/${this.env.SPACE.toLowerCase()}/manifest.yml"
-                    }
-                }
-            }
-            post {
-                success {
-                    colourText("info", "Stage: ${env.STAGE_NAME} successful!")
-                }
-                failure {
-                    colourText("warn", "Stage: ${env.STAGE_NAME} failed!")
-                }
-            }
-        }
-
-        stage('Test: acceptance') {
-            agent { label 'build.sbt_0-13-13' }
-           steps {
-                dir('.') {
-                    git url: "${GITLAB_URL}/AddressIndex/${env.SVC_NAME}.git", credentialsId: 'JenkinsAI__gitlab'
-                }
-                script {
-                    env.NODE_STAGE = "Integration Tests"
-                }
-                unstash 'compiled'
-               
-               sh "cp -rv gatling/* server/src/it/resources/uk/gov/ons/gatling/conf"
-               sh "ls -la server/src/it/resources/uk/gov/ons/gatling/conf"
-               sh "sbt -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" \"gatling-it:testOnly uk.gov.ons.gatling.simulations.RegistersSimulationClosedModel\""
-               colourText("success", 'Integration Tests - For Release or Dev environment.')
-               gatlingArchive()
-            }
-            post {
+           }
+        post {
                 success {
                     colourText("info", "Stage: ${env.STAGE_NAME} successful!")
                 }

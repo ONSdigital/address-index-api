@@ -2279,15 +2279,17 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist
     }
 
-    //TODO: resurrect this test
-    "return list of classifications" ignore {
+    "return list of classifications" in {
       // Given
       val expectedCodelist = validClassificationList
       val controller = codelistController
 
       // When
+      print("Test1 ***************")
       val result = controller.codeListClassification().apply(FakeRequest())
+      print("Test2 ***************")
       val actual: JsValue = contentAsJson(result)
+      print("Test3 ***************")
 
       // Then
       actual.toString().substring(0,expectedCodelist.length) mustBe expectedCodelist

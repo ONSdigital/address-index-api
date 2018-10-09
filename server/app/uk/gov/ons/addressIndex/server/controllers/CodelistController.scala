@@ -12,6 +12,7 @@ import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchReposi
 import uk.gov.ons.addressIndex.server.utils.APIThrottler
 
 import scala.concurrent.{ExecutionContext, Future}
+import java.nio.charset.Charset
 
 @Singleton
 class CodelistController @Inject()(val controllerComponents: ControllerComponents,
@@ -49,15 +50,26 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     * @return Json response with codelist
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-    val classList = Tokens.classList.map { classval =>
+    println("REG-1985 : Inside codeListClassification")
+    println("REG-1985 : ********* defaultCharSet " + Charset.defaultCharset())
+    println("REG-1985 : ********* System.prop " + System.getProperty("file.encoding"))
+    println("REG-1985 : Tokens.classList " + Tokens.classList)
+
+    val classList = Tokens.classList.map { classval => {
+
+      println("REG-1985 : classval " + classval)
 
       new AddressResponseClassification(
         code = classval.split("=").headOption.getOrElse(""),
         label = classval.split("=").lastOption.getOrElse("")
       )
     }
+    }
+    println("REG-1985 : After creation of codeList")
 
     val codListContainer = new AddressResponseClassificationListContainer(classList)
+    println("REG-1985 : Before Future")
+
     Future(Ok(Json.toJson(codListContainer)))
   }
 
