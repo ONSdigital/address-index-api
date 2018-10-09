@@ -105,6 +105,19 @@ pipeline {
                         }
                     }
                 }
+                stage('Scapegoat') {
+                    agent { label 'build.sbt_0-13-13' }
+                    steps {
+                        unstash name: 'Checkout'
+                        colourText("info", "Running additional tests")
+                        sh 'sbt "project address-index-server" scapegoat'
+                    }
+                    post {
+                        always {
+                            checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'server/target/scala-2.11/scapegoat-report/scapegoat-scalastyle.xml', unHealthy: ''
+                        }
+                    }
+                }
             }
             post {
                 success {
@@ -119,7 +132,7 @@ pipeline {
         stage('Publish') {
             agent { label 'build.sbt_0-13-13' }
             when {
-                branch "REG-1984_Codacy-static-analysis"
+                branch "REG-1992_Move-sensitive-data-to-Gitlab"
                 // evaluate the when condition before entering this stage's agent, if any
                 beforeAgent true
             }
@@ -207,19 +220,22 @@ pipeline {
 
         stage('Test: acceptance') {
             agent { label 'build.sbt_0-13-13' }
-            steps {
+           steps {
+                dir('.') {
+                    git url: "${GITLAB_URL}/AddressIndex/${env.SVC_NAME}.git", credentialsId: 'JenkinsAI__gitlab'
+                }
                 script {
                     env.NODE_STAGE = "Integration Tests"
                 }
                 unstash 'compiled'
-                sh "sbt -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" \"gatling-it:testOnly uk.gov.ons.gatling.simulations.RegistersSimulationClosedModel\""
-                colourText("success", 'Integration Tests - For Release or Dev environment.')
-                gatlingArchive()
+               
+               sh "cp -rv gatling/* server/src/it/resources/uk/gov/ons/gatling/conf"
+               sh "ls -la server/src/it/resources/uk/gov/ons/gatling/conf"
+               sh "sbt -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" \"gatling-it:testOnly uk.gov.ons.gatling.simulations.RegistersSimulationClosedModel\""
+               colourText("success", 'Integration Tests - For Release or Dev environment.')
+               gatlingArchive()
             }
             post {
-                always {
-                    junit '**/server/target/test-reports/*.xml'
-                }
                 success {
                     colourText("info", "Stage: ${env.STAGE_NAME} successful!")
                 }
