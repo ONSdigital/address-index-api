@@ -1887,6 +1887,44 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if query is too short (by partial address query)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = true
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(ShortQueryAddressResponseError)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery("foo", startDate = None, endDate = None).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply on a 400 error if startDate is not valid (by partial address query)" in {
       // Given
       val controller = addressController

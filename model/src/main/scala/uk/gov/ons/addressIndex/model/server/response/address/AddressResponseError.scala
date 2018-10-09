@@ -206,3 +206,8 @@ object EndDateInvalidResponseError extends AddressResponseError(
   code = 38,
   message = "Invalid end date"
 )
+
+object ShortQueryAddressResponseError extends AddressResponseError(
+  code = 39,
+  message = "Partial address string too short, minimum 5 characters"
+)
