@@ -12,6 +12,7 @@ import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchReposi
 import uk.gov.ons.addressIndex.server.utils.APIThrottler
 
 import scala.concurrent.{ExecutionContext, Future}
+import java.nio.charset.Charset
 
 @Singleton
 class CodelistController @Inject()(val controllerComponents: ControllerComponents,
@@ -51,6 +52,9 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
     println("REG-1985 : Inside codeListClassification")
     println("REG-1985 : Tokens.classList " + Tokens.classList)
+    println("REG-1985 : ********* defaultCharSet " + Charset.defaultCharset())
+    println("REG-1985 : ********* System.prop " + System.getProperty("file.encoding"))
+
     val classList = Tokens.classList.map { classval => {
 
       println("REG-1985 : classval " + classval)

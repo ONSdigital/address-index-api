@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.parsers
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.lang3.StringUtils
 
-import scala.io.{BufferedSource, Source}
+import scala.io.{BufferedSource, Codec, Source}
 import scala.util.Try
 
 /**
@@ -453,6 +453,7 @@ object Tokens {
     val currentDirectory = new java.io.File(".").getCanonicalPath
     // `Source.fromFile` needs an absolute path to the file, and current directory depends on where sbt was lauched
     // `getResource` may return null, that's why we wrap it into an `Option`
+    implicit val codec:Codec = Codec.UTF8
     Option(getClass.getResource(path)).map(Source.fromURL).getOrElse(Source.fromFile(currentDirectory + path))
   }
 
