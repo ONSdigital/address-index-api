@@ -62,16 +62,13 @@ pipeline {
                     agent { label 'build.sbt_0-13-13' }
                     steps {
                         unstash name: 'Checkout'
-                        sh 'sbt "project address-index-server" clean compile coverage test coverageReport'
+                        sh 'JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8" sbt "project address-index-server" clean compile coverage test coverageReport'
 
-                        //TODO: Integrate Codacy
-//                        sbt codacyCoverage
-//                        export CODACY_PROJECT_TOKEN=%Project_Token%
                     }
                     post {
                         always {
                             junit '**/server/target/test-reports/*.xml'
-//
+
                             cobertura autoUpdateHealth: false,
                                     autoUpdateStability: false,
                                     coberturaReportFile: 'server/target/**/coverage-report/cobertura.xml',
