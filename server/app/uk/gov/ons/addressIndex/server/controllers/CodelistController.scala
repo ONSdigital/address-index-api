@@ -49,11 +49,11 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     * @return Json response with codelist
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-    print("REG-1985 : Inside codeListClassification")
-    print("REG-1985 : Tokens.classList " + Tokens.classList)
+    println("REG-1985 : Inside codeListClassification")
+    println("REG-1985 : Tokens.classList " + Tokens.classList)
     val classList = Tokens.classList.map { classval => {
 
-      print("REG-1985 : classval " + classval)
+      println("REG-1985 : classval " + classval)
 
       new AddressResponseClassification(
         code = classval.split("=").headOption.getOrElse(""),
@@ -61,10 +61,10 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
       )
     }
     }
-    print("REG-1985 : After creation of codeList")
+    println("REG-1985 : After creation of codeList")
 
     val codListContainer = new AddressResponseClassificationListContainer(classList)
-    print("REG-1985 : Before Future")
+    println("REG-1985 : Before Future")
 
     Future(Ok(Json.toJson(codListContainer)))
   }

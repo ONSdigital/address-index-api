@@ -415,6 +415,9 @@ object Tokens {
     * @return
     */
   private def fileToArray(fileName: String, folder: String = defaultCodelistFolder): Seq[String] = {
+    println("REG-1985 : fileName " + fileName)
+    println("REG-1985 : folder " + folder)
+
     val resource = getResource(fileName, folder)
     val lines = (for {line <- resource.getLines()} yield line).toList
     resource.close
