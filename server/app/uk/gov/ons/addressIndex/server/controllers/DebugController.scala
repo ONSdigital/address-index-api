@@ -6,14 +6,15 @@ import com.sksamuel.elastic4s.searches.SearchDefinition
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule}
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 class DebugController@Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
-  parser: ParserModule
+  parser: ParserModule,
+  conf: ConfigModule
 )(implicit ec: ExecutionContext) extends BaseController {
 
   implicit object DebugShow extends Show[SearchDefinition]{
@@ -39,6 +40,8 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     */
   def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, startDate: Option[String], endDate: Option[String], historical: Option[String] = None): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
+
+    val clusterid = conf.config.elasticSearch.clusterPolicies.address
 
     val filterString = classificationfilter.getOrElse("")
     val rangeString = rangekm.getOrElse("")

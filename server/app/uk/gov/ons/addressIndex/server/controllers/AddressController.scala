@@ -47,6 +47,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
+    val clusterid = conf.config.elasticSearch.clusterPolicies.address
+
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
     val url: String = req.uri
@@ -91,7 +93,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        verbose = verb, endpoint = endpointType, activity = activity)
+        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid)
     }
 
     def trimAddresses (fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {

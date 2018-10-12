@@ -39,6 +39,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
+    val clusterid = conf.config.elasticSearch.clusterPolicies.postcode
+
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPostcode
     val defOffset = conf.config.elasticSearch.defaultOffset
@@ -73,7 +75,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb, endpoint = endpointType, activity = activity
+        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+        endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 

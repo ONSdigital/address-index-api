@@ -23,6 +23,7 @@ case class ElasticSearchConfig(
   connectionRequestTimeout: Int,
   socketTimeout: Int,
   maxESConnections: Int,
+  clusterPolicies: ClusterPoliciesConfig,
   indexes: IndexesConfig,
   queryParams: QueryParamsConfig,
   defaultLimit: Int,
@@ -35,8 +36,8 @@ case class ElasticSearchConfig(
   minimumSample: Int,
   circuitBreakerMaxFailures: Int,
   circuitBreakerCallTimeout: Int,
-  circuitBreakerResetTimeout: Int
-
+  circuitBreakerResetTimeout: Int,
+  minimumPartial: Int,
 )
 
 case class QueryParamsConfig(
@@ -65,6 +66,16 @@ case class QueryParamsConfig(
 object QueryParamsConfig {
   implicit val queryParamsConfigFormat: Format[QueryParamsConfig] = Json.format[QueryParamsConfig]
 }
+
+// for now each endpoint runs on one cluster, so the values are numbers.
+case class ClusterPoliciesConfig (
+  bulk: String,
+  address: String,
+  partial: String,
+  postcode: String,
+  uprn: String,
+  version: String
+)
 
 case class IndexesConfig(
   hybridIndexHistorical: String,

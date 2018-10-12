@@ -29,6 +29,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val esConf = conf.config.elasticSearch
   private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexUprn = esConf.indexes.hybridIndex + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexPartial = esConf.indexes.hybridIndex + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexPostcode = esConf.indexes.hybridIndex + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexAddress = esConf.indexes.hybridIndex + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexBulk = esConf.indexes.hybridIndex + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
+
+
   private val DATE_FORMAT = "yyyy-MM-dd"
 
   val client: HttpClient = elasticClientProvider.client
@@ -71,10 +83,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
     }
 
-    if (historical) {
-      search(hybridIndexHistorical).query(query)
+
+      if (historical) {
+      search(hybridIndexHistoricalUprn).query(query)
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndexUprn).query(query)
     }
   }
 
@@ -282,11 +295,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
-
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      search(hybridIndexHistoricalPartial).query(query)
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndexPartial).query(query)
     }
   }
 
@@ -354,24 +366,24 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
 
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      search(hybridIndexHistoricalPostcode).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
     } else {
-      search(hybridIndex).query(query)
+      search(hybridIndexPostcode).query(query)
         .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
     }
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical, isBulk).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -872,15 +884,29 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
     if (historical) {
-      search(hybridIndexHistorical).query(query)
+      if (isBulk) {
+        search(hybridIndexHistoricalBulk).query(query)
+          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .trackScores(true)
+          .searchType(SearchType.DfsQueryThenFetch)
+      } else {
+      search(hybridIndexHistoricalAddress).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
+      }
     } else {
-      search(hybridIndex).query(query)
-        .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-        .trackScores(true)
-        .searchType(SearchType.DfsQueryThenFetch)
+      if (isBulk) {
+        search(hybridIndexBulk).query(query)
+          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .trackScores(true)
+          .searchType(SearchType.DfsQueryThenFetch)
+      } else {
+        search(hybridIndexAddress).query(query)
+          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .trackScores(true)
+          .searchType(SearchType.DfsQueryThenFetch)
+      }
     }
   }
 
@@ -888,7 +914,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical, true).map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
