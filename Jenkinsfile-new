@@ -216,7 +216,7 @@ pipeline {
         }
 
         stage('Test: acceptance') {
-            agent { label 'build.sbt_0-13-13' }
+            agent { label 'test.sbt_0-13-13' }
            steps {
                 dir('.') {
                     git url: "${GITLAB_URL}/AddressIndex/${env.SVC_NAME}.git", credentialsId: 'JenkinsAI__gitlab'
