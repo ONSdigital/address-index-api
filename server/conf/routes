@@ -271,49 +271,6 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
 
 ###
-#  summary: Test elastic is connected.
-#  responses:
-#    200:
-#      description: success
-###
-GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest
-
-###
-#  summary: Gets the query that should be generated for a particular input.
-#  description: Returns query that is sent to Elastic (for debug purposes).
-#  parameters:
-#    - name: input
-#      description: Specifies the input for which the query should be generated.
-#    - name: classificationfilter
-#      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
-#    - name: rangekm
-#      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
-#    - name: lat
-#      description: Latitude of point in decimal format (e.g. 50.705948).
-#    - name: lon
-#      description: Longitude of point in decimal format (e.g. -3.5091076).
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#  responses:
-#    200:
-#      description: Success. A json return of the elasticsearch query.
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
-
-###
 #  summary: Get version information.
 #  description: Returns version information for the api and the data (AddressBase).
 #  responses:
@@ -399,6 +356,52 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 ###
 POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
 
+### NoDocs ###
+###
+#  summary: Test elastic is connected.
+#  responses:
+#    200:
+#      description: success
+###
+GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest
+
+### NoDocs ###
+###
+#  summary: Gets the query that should be generated for a particular input.
+#  description: Returns query that is sent to Elastic (for debug purposes).
+#  parameters:
+#    - name: input
+#      description: Specifies the input for which the query should be generated.
+#    - name: classificationfilter
+#      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: rangekm
+#      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
+#    - name: lat
+#      description: Latitude of point in decimal format (e.g. 50.705948).
+#    - name: lon
+#      description: Longitude of point in decimal format (e.g. -3.5091076).
+#    - name: startdate
+#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
+#    - name: enddate
+#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
+#    - name: historical
+#      description: Include historical addresses
+#      default: true
+#  responses:
+#    200:
+#      description: Success. A json return of the elasticsearch query.
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
+
+### NoDocs ###
 ###
 #  summary: Post bulk addresses as tokens.
 #  description: Bulk endpoint that accepts tokens instead of input texts for each address.
