@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   title: ONS Address Index API
-  description: ONS Address Index API.
+  description: The ONS Address Index API lets you retrieve the official version of addresses in England and Wales. The data is currently updated on a 6 week rolling basis.
   version: see /version below
 consumes:
 - application/json
