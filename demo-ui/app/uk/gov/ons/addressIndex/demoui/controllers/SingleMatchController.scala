@@ -201,7 +201,7 @@ class SingleMatchController @Inject()(
 
           val nags = resp.response.addresses.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
-            (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+            (nag(0).uprn, classHierarchy.analyseClassCode(nag(0).classificationCode))).toMap
 
           val warningMessage =
             if (resp.status.code == 200) None
@@ -285,7 +285,7 @@ class SingleMatchController @Inject()(
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
-            (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+            (nag(0).uprn, classHierarchy.analyseClassCode(nag(0).classificationCode))).toMap
 
           val warningMessage =
             if (resp.status.code == 200) None
@@ -367,7 +367,7 @@ class SingleMatchController @Inject()(
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
-            (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+            (nag(0).uprn, classHierarchy.analyseClassCode(nag(0).classificationCode))).toMap
 
           val warningMessage =
             if (resp.status.code == 200) None
@@ -460,7 +460,7 @@ class SingleMatchController @Inject()(
 
           val nags = resp.response.address.flatMap(_.nag)
           val classCodes: Map[String, String] = nags.map(nag =>
-            (nag.uprn, classHierarchy.analyseClassCode(nag.classificationCode))).toMap
+            (nag(0).uprn, classHierarchy.analyseClassCode(nag(0).classificationCode))).toMap
 
           val warningMessage =
             if (resp.status.code == 200) None

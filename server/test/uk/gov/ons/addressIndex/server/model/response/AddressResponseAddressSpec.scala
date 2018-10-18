@@ -265,7 +265,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         welshFormattedAddressNag = "mixedNag",
         welshFormattedAddressPaf = "mixedWelshPaf",
         paf = Some(expectedPaf),
-        nag = Some(expectedNag),
+        nag = Some(Seq(expectedNag)),
         geo = Some(AddressResponseGeo(
           latitude = 50.7341677,
           longitude = -3.540302,

@@ -49,13 +49,13 @@
                 <div class="resultRow formatted-address">
                     <div>
                         <strong>@messages("single.address"): </strong>
-                        <span class="address-english formatted-nag">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</span>
+                        <span class="address-english formatted-nag">@address.formattedAddressNag.substring(0, address.formattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag(0).postcodeLocator}</span>
                         <span style="display: none" class="address-english formatted-paf">@address.formattedAddressPaf.substring(0, address.formattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</span>
-                        <span style="display: none" class="address-welsh formatted-nag">@address.welshFormattedAddressNag.substring(0, address.welshFormattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag.postcodeLocator}</span>
+                        <span style="display: none" class="address-welsh formatted-nag">@address.welshFormattedAddressNag.substring(0, address.welshFormattedAddressNag.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.nag.map{ nag => @nag(0).postcodeLocator}</span>
                         <span style="display: none" class="address-welsh formatted-paf">@address.welshFormattedAddressPaf.substring(0, address.welshFormattedAddressPaf.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") @address.paf.map{ paf => @paf.postcode}</span>
-                        <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
-                        title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
-                                &nbsp;@address.nag.map{ nag => @messages("logical.letter"+nag.logicalStatus) }&nbsp;
+                        <span class='@address.nag.map{ nag => @messages("logical.class"+nag(0).logicalStatus) }'
+                        title='@address.nag.map{ nag => @messages("logical."+nag(0).logicalStatus) }'>
+                                &nbsp;@address.nag.map{ nag => @messages("logical.letter"+nag(0).logicalStatus) }&nbsp;
                         </span>
                     </div>
                 </div>
@@ -83,18 +83,18 @@
                         @messages("category.notfound")
                     } else {
                         @address.nag.map { nag =>
-                            @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                            @classification.getOrElse(Map.empty).getOrElse(nag(0).uprn, "")
                         }
                     }
                 </div>
                 <div class="resultRow">
                     <strong>@messages("clerical.la"):</strong>
-                    <span class="formatted-nag"> @address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}  |  @address.nag.map{ nag => @nag.localCustodianGeogCode}</span>
+                    <span class="formatted-nag"> @address.nag.map{ nag => @nag(0).localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}  |  @address.nag.map{ nag => @nag(0).localCustodianGeogCode}</span>
                 </div>
 
-                @if(address.nag.map(_.logicalStatus).contains("8")) {
+                @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
                     <div class="resultRow">
-                        <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }
+                        <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }
                     </div>
                 }
 
@@ -119,12 +119,12 @@
                         }
                         <div class="clerical2">
                             <strong>@messages("clerical.logicalstatus"): </strong>
-                            <span class="clericalgrey"> @address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</span>
+                            <span class="clericalgrey"> @address.nag.map { nag => @messages("logical." + nag(0).logicalStatus) }</span>
                         </div>
-                        @if(address.nag.map { nag => nag.logicalStatus }.contains("8")) {
+                        @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
                             <div class="clerical2">
                                 <strong>@messages("single.enddate"): </strong>
-                                <span class="clericalgrey">&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }</span>
+                                <span class="clericalgrey">&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }</span>
                             </div>
                         }
                         <div class="clerical2">
@@ -143,7 +143,7 @@
                         </div>
                         <div class="clerical2">
                             <strong>@messages("clerical.la"):</strong>
-                            <span class="clericalgrey"> @address.nag.map { nag => @nag.localCustodianName } | @address.nag.map { nag => @nag.localCustodianGeogCode }</span>
+                            <span class="clericalgrey"> @address.nag.map { nag => @nag(0).localCustodianName } | @address.nag.map { nag => @nag(0).localCustodianGeogCode }</span>
                         </div>
                         <div class="clerical2">
                             <strong>@messages("clerical.ta"):</strong>
@@ -504,7 +504,7 @@
                                 @tokens.getOrElse(Tokens.organisationName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.organisation }
+                                @address.nag.map { nag => @nag(0).organisation }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -518,7 +518,7 @@
                                 @tokens.getOrElse(Tokens.organisationName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoText }
+                                @address.nag.map { nag => @nag(0).pao.paoText }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -532,7 +532,7 @@
                                 @tokens.getOrElse(Tokens.organisationName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.legalName }
+                                @address.nag.map { nag => @nag(0).legalName }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -546,7 +546,7 @@
                                 @tokens.getOrElse(Tokens.organisationName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.sao.saoText }
+                                @address.nag.map { nag => @nag(0).sao.saoText }
                                 </div>
                             </div>
 
@@ -561,7 +561,7 @@
                                 @tokens.getOrElse(Tokens.departmentName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.legalName }
+                                @address.nag.map { nag => @nag(0).legalName }
                                 </div>
                             </div>
 
@@ -576,7 +576,7 @@
                                 @tokens.getOrElse(Tokens.subBuildingName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.sao.saoText }
+                                @address.nag.map { nag => @nag(0).sao.saoText }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -590,7 +590,7 @@
                                 @tokens.getOrElse(Tokens.saoStartNumber, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.sao.saoStartNumber }
+                                @address.nag.map { nag => @nag(0).sao.saoStartNumber }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -604,7 +604,7 @@
                                 @tokens.getOrElse(Tokens.saoStartSuffix, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.sao.saoStartSuffix }
+                                @address.nag.map { nag => @nag(0).sao.saoStartSuffix }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -618,7 +618,7 @@
                                 @tokens.getOrElse(Tokens.saoEndNumber, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.sao.saoEndNumber }
+                                @address.nag.map { nag => @nag(0).sao.saoEndNumber }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -632,7 +632,7 @@
                                 @tokens.getOrElse(Tokens.saoEndSuffix, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.sao.saoEndSuffix }
+                                @address.nag.map { nag => @nag(0).sao.saoEndSuffix }
                                 </div>
                             </div>
 
@@ -647,7 +647,7 @@
                                 @tokens.getOrElse(Tokens.buildingName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoText }
+                                @address.nag.map { nag => @nag(0).pao.paoText }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -661,7 +661,7 @@
                                 @tokens.getOrElse(Tokens.paoStartNumber, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoStartNumber }
+                                @address.nag.map { nag => @nag(0).pao.paoStartNumber }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -675,7 +675,7 @@
                                 @tokens.getOrElse(Tokens.paoStartSuffix, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoStartSuffix }
+                                @address.nag.map { nag => @nag(0).pao.paoStartSuffix }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -689,7 +689,7 @@
                                 @tokens.getOrElse(Tokens.paoEndNumber, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoEndNumber }
+                                @address.nag.map { nag => @nag(0).pao.paoEndNumber }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -703,7 +703,7 @@
                                 @tokens.getOrElse(Tokens.paoEndSuffix, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoEndSuffix }
+                                @address.nag.map { nag => @nag(0).pao.paoEndSuffix }
                                 </div>
                             </div>
 
@@ -718,7 +718,7 @@
                                 @tokens.getOrElse(Tokens.paoStartNumber, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.pao.paoStartNumber }
+                                @address.nag.map { nag => @nag(0).pao.paoStartNumber }
                                 </div>
                             </div>
 
@@ -733,7 +733,7 @@
                                 @tokens.getOrElse(Tokens.streetName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.streetDescriptor }
+                                @address.nag.map { nag => @nag(0).streetDescriptor }
                                 </div>
                             </div>
 
@@ -748,7 +748,7 @@
                                 @tokens.getOrElse(Tokens.locality, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.locality }
+                                @address.nag.map { nag => @nag(0).locality }
                                 </div>
                             </div>
 
@@ -763,7 +763,7 @@
                                 @tokens.getOrElse(Tokens.townName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.townName }
+                                @address.nag.map { nag => @nag(0).townName }
                                 </div>
                             </div>
                             <div class="taRow">
@@ -777,7 +777,7 @@
                                 @tokens.getOrElse(Tokens.townName, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.locality }
+                                @address.nag.map { nag => @nag(0).locality }
                                 </div>
                             </div>
 
@@ -792,7 +792,7 @@
                                 @tokens.getOrElse(Tokens.postcode, "")
                                 </div>
                                 <div class="taColumn4">
-                                @address.nag.map { nag => @nag.postcodeLocator }
+                                @address.nag.map { nag => @nag(0).postcodeLocator }
                                 </div>
                             </div>
                             @*NAG TABLE*@
@@ -822,7 +822,7 @@
                                 </div>
                                 <div class="taColumn4">
                                 @if(address.paf.isEmpty) {
-                                    @address.nag.map { nag => @nag.postcodeLocator.split(" ").headOption.getOrElse("") }
+                                    @address.nag.map { nag => @nag(0).postcodeLocator.split(" ").headOption.getOrElse("") }
                                 } else {
                                     @address.paf.map { paf => @paf.postcode.split(" ").headOption.getOrElse("") }
                                 }
@@ -840,7 +840,7 @@
                                 </div>
                                 <div class="taColumn4">
                                 @if(address.paf.isEmpty) {
-                                    @address.nag.map { nag => @nag.postcodeLocator.split(" ").lastOption.getOrElse("") }
+                                    @address.nag.map { nag => @nag(0).postcodeLocator.split(" ").lastOption.getOrElse("") }
                                 } else {
                                     @address.paf.map { paf => @paf.postcode.split(" ").lastOption.getOrElse("") }
                                 }
