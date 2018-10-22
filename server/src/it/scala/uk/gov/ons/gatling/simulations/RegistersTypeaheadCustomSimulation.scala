@@ -4,7 +4,6 @@ import io.gatling.core.Predef._
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
-import io.gatling.http.request.builder.HttpRequestBuilder
 import uk.gov.ons.gatling.conf.ConfigLoader
 
 import scala.concurrent.duration._
@@ -32,7 +31,7 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
 
   val headers = Map("Upgrade-Insecure-Requests" -> "1")
 
-  val feeder = csv("typeahead.csv").random
+  val feeder = csv("typeahead.csv").circular
 
   val scn: ScenarioBuilder  =
     scenario(requestName)
@@ -42,10 +41,10 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
         .get(requestRelPath + "${addresspart}")
       )
 
- // setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
- //   .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
- //   .protocols(httpProtocol)
+  setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
+    .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
+    .protocols(httpProtocol)
 
-  setUp(scn.inject(atOnceUsers(numOfRequestsPerSecond))).maxDuration(1 minute).protocols(httpProtocol)
+ // setUp(scn.inject(atOnceUsers(numOfRequestsPerSecond))).maxDuration(1 minute).protocols(httpProtocol)
 
 }
