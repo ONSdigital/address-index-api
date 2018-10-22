@@ -34,17 +34,7 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
 
   val feeder = csv("typeahead.csv").random
 
-  val scn: ScenarioBuilder = {
-    scenario(requestName).exec(http("Home")
-      .head("/"))
-      .pause(100 millis)
-      .feed(feeder)
-      .exec(http("Typeahead")
-      .get(requestRelPath + "/" + "${addresspart}")
-    )
-  }
-
-  val scn2: ScenarioBuilder  =
+  val scn: ScenarioBuilder  =
     scenario(requestName)
       .pause(300 millis)
       .feed(feeder)
@@ -52,8 +42,10 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
         .get(requestRelPath + "${addresspart}")
       )
 
-  setUp(scn2.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
-    .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
-    .protocols(httpProtocol)
+ // setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
+ //   .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
+ //   .protocols(httpProtocol)
+
+  setUp(scn.inject(atOnceUsers(numOfRequestsPerSecond))).maxDuration(1 minute).protocols(httpProtocol)
 
 }
