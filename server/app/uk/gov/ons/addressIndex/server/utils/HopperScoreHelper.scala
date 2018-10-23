@@ -40,8 +40,8 @@ object HopperScoreHelper  {
 
   def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
-    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, true),tokens))
-    val scoredAddresses = addresses.zipWithIndex.map{case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, true), tokens, localityParams, elasticDenominator)}
+    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true),tokens))
+    val scoredAddresses = addresses.zipWithIndex.map{case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens, localityParams, elasticDenominator)}
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses
@@ -59,7 +59,7 @@ object HopperScoreHelper  {
     val postcodeOut = tokens.getOrElse(Tokens.postcodeOut, empty)
 
     val pafPostcode = address.paf.map(_.postcode).getOrElse("")
-    val nagPostcode = address.nag.map(_.headOption.get.postcodeLocator).getOrElse("")
+    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("")
     val postcodeToUse = if (pafPostcode != "") pafPostcode else nagPostcode
 
     (calculateLocalityScore(
@@ -143,9 +143,9 @@ object HopperScoreHelper  {
   /**
     * The object cscore is the product of the structural score and the unit score
     * except where the building unambiguously identifies the object when it is set to missing (?)
-    * @param buildingScore
-    * @param localityScore
-    * @param unitScore
+    * @param buildingScore building score
+    * @param localityScore locality score
+    * @param unitScore unit score
     * @return score as a double rounded to 4dp
     */
   def calculateObjectScore(buildingScore: Double, localityScore: Double, unitScore: Double): Double = {
@@ -155,8 +155,8 @@ object HopperScoreHelper  {
 
   /**
     * The structural score is the product of the locality score and the building score
-    * @param buildingScore
-    * @param localityScore
+    * @param buildingScore building score
+    * @param localityScore locality score
     * @return score as a double rounded to 4dp
     */
   def calculateStructuralScore(buildingScore: Double, localityScore: Double): Double = {
@@ -192,13 +192,13 @@ object HopperScoreHelper  {
     val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
 
     //get nag values
-    val nagPaoStartNumber = address.nag.map(_.headOption.get.pao).map(_.paoStartNumber).getOrElse("")
-    val nagPaoEndNumber = address.nag.map(_.headOption.get.pao).map(_.paoEndNumber).getOrElse("")
-    val nagPaoStartSuffix = address.nag.map(_.headOption.get.pao).map(_.paoStartSuffix).getOrElse("")
-    val nagPaoEndSuffix = address.nag.map(_.headOption.get.pao).map(_.paoEndSuffix).getOrElse("")
-    val nagPaoText = address.nag.map(_.headOption.get.pao).map(_.paoText).getOrElse("")
-    val nagSaoText = address.nag.map(_.headOption.get.sao).map(_.saoText).getOrElse("")
-    val nagOrganisationName = address.nag.map(_.headOption.get.organisation).getOrElse("")
+    val nagPaoStartNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartNumber).getOrElse("")
+    val nagPaoEndNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndNumber).getOrElse("")
+    val nagPaoStartSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartSuffix).getOrElse("")
+    val nagPaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndSuffix).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
+    val nagSaoText = address.nag.getOrElse(Nil).headOption.map(_.sao.saoText).getOrElse("")
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
 
     // each element score is the better match of paf and nag
 
@@ -448,12 +448,12 @@ object HopperScoreHelper  {
     val pafPostcode = address.paf.map(_.postcode).getOrElse("")
 
     //get nag values
-    val nagPaoText = address.nag.map(_.headOption.get.pao).map(_.paoText).getOrElse("")
-    val nagOrganisationName = address.nag.map(_.headOption.get.organisation).getOrElse("")
-    val nagStreetDescriptor = address.nag.map(_.headOption.get.streetDescriptor).getOrElse("")
-    val nagTownName = address.nag.map(_.headOption.get.townName).getOrElse("")
-    val nagLocality = address.nag.map(_.headOption.get.locality).getOrElse("")
-    val nagPostcode = address.nag.map(_.headOption.get.postcodeLocator).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
+    val nagStreetDescriptor = address.nag.getOrElse(Nil).headOption.map(_.streetDescriptor).getOrElse("")
+    val nagTownName = address.nag.getOrElse(Nil).headOption.map(_.townName).getOrElse("")
+    val nagLocality = address.nag.getOrElse(Nil).headOption.map(_.locality).getOrElse("")
+    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("")
 
     // create test fields for postcode match
     val postcodeWithInvertedIncode = if (postcodeIn.length < 3) empty else swap(postcodeIn,1,2)
@@ -842,13 +842,13 @@ object HopperScoreHelper  {
     val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
 
     //get nag values
-    val nagPaoText = address.nag.map(_.headOption.get.pao).map(_.paoText).getOrElse("")
-    val nagSaoText = address.nag.map(_.headOption.get.sao).map(_.saoText).getOrElse("")
-    val nagOrganisationName = address.nag.map(_.headOption.get.organisation).getOrElse("")
-    val nagSaoStartNumber = address.nag.map(_.headOption.get.sao).map(_.saoStartNumber).getOrElse("")
-    val nagSaoEndNumber = address.nag.map(_.headOption.get.sao).map(_.saoEndNumber).getOrElse("")
-    val nagSaoStartSuffix = address.nag.map(_.headOption.get.sao).map(_.saoStartSuffix).getOrElse("")
-    val nagSaoEndSuffix = address.nag.map(_.headOption.get.sao).map(_.saoEndSuffix).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
+    val nagSaoText = address.nag.getOrElse(Nil).headOption.map(_.sao.saoText).getOrElse("")
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
+    val nagSaoStartNumber = address.nag.getOrElse(Nil).headOption.map(_.sao.saoStartNumber).getOrElse("")
+    val nagSaoEndNumber = address.nag.getOrElse(Nil).headOption.map(_.sao.saoEndNumber).getOrElse("")
+    val nagSaoStartSuffix = address.nag.getOrElse(Nil).headOption.map(_.sao.saoStartSuffix).getOrElse("")
+    val nagSaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.sao.saoEndSuffix).getOrElse("")
 
     // test for more than 1 layer - may need to expand this into separate method with more logic
     val parentUPRN = address.parentUprn
