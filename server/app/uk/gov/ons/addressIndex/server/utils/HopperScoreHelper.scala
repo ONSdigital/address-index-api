@@ -40,8 +40,8 @@ object HopperScoreHelper  {
 
   def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
-    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, true),tokens))
-    val scoredAddresses = addresses.zipWithIndex.map{case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, true), tokens, localityParams, elasticDenominator)}
+    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true),tokens))
+    val scoredAddresses = addresses.zipWithIndex.map{case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens, localityParams, elasticDenominator)}
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calucation time = "+(endingTime-startingTime)+" milliseconds")
     scoredAddresses
@@ -59,7 +59,7 @@ object HopperScoreHelper  {
     val postcodeOut = tokens.getOrElse(Tokens.postcodeOut, empty)
 
     val pafPostcode = address.paf.map(_.postcode).getOrElse("")
-    val nagPostcode = address.nag.map(_.postcodeLocator).getOrElse("")
+    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("")
     val postcodeToUse = if (pafPostcode != "") pafPostcode else nagPostcode
 
     (calculateLocalityScore(
@@ -143,9 +143,9 @@ object HopperScoreHelper  {
   /**
     * The object cscore is the product of the structural score and the unit score
     * except where the building unambiguously identifies the object when it is set to missing (?)
-    * @param buildingScore
-    * @param localityScore
-    * @param unitScore
+    * @param buildingScore building score
+    * @param localityScore locality score
+    * @param unitScore unit score
     * @return score as a double rounded to 4dp
     */
   def calculateObjectScore(buildingScore: Double, localityScore: Double, unitScore: Double): Double = {
@@ -155,8 +155,8 @@ object HopperScoreHelper  {
 
   /**
     * The structural score is the product of the locality score and the building score
-    * @param buildingScore
-    * @param localityScore
+    * @param buildingScore building score
+    * @param localityScore locality score
     * @return score as a double rounded to 4dp
     */
   def calculateStructuralScore(buildingScore: Double, localityScore: Double): Double = {
@@ -166,14 +166,14 @@ object HopperScoreHelper  {
 
   /**
     * The building score captures how the the building level identifiers match in source and reference
-    * @param address
-    * @param buildingName
-    * @param buildingNumber
-    * @param paoStartNumber
-    * @param paoEndNumber
-    * @param paoStartSuffix
-    * @param paoEndSuffix
-    * @param organisationName
+    * @param address address
+    * @param buildingName building name
+    * @param buildingNumber building number
+    * @param paoStartNumber pao start number
+    * @param paoEndNumber pao end number
+    * @param paoStartSuffix pao start suffix
+    * @param paoEndSuffix pao end suffix
+    * @param organisationName organisation name
     * @return score between 0 and 1 (during testing lookup string returned instead for diagnostic purposes)
     */
   def calculateBuildingScore(
@@ -192,13 +192,13 @@ object HopperScoreHelper  {
     val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
 
     //get nag values
-    val nagPaoStartNumber = address.nag.map(_.pao).map(_.paoStartNumber).getOrElse("")
-    val nagPaoEndNumber = address.nag.map(_.pao).map(_.paoEndNumber).getOrElse("")
-    val nagPaoStartSuffix = address.nag.map(_.pao).map(_.paoStartSuffix).getOrElse("")
-    val nagPaoEndSuffix = address.nag.map(_.pao).map(_.paoEndSuffix).getOrElse("")
-    val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
-    val nagSaoText = address.nag.map(_.sao).map(_.saoText).getOrElse("")
-    val nagOrganisationName = address.nag.map(_.organisation).getOrElse("")
+    val nagPaoStartNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartNumber).getOrElse("")
+    val nagPaoEndNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndNumber).getOrElse("")
+    val nagPaoStartSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartSuffix).getOrElse("")
+    val nagPaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndSuffix).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
+    val nagSaoText = address.nag.getOrElse(Nil).headOption.map(_.sao.saoText).getOrElse("")
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
 
     // each element score is the better match of paf and nag
 
@@ -245,11 +245,11 @@ object HopperScoreHelper  {
   }
 
   /**
-    * Detailed match of origaisation and building name using PAF
-    * @param buildingName
-    * @param pafBuildingName
-    * @param organisationName
-    * @param pafOrganisationName
+    * Detailed match of organisation and building name using PAF
+    * @param buildingName building name
+    * @param pafBuildingName paf building name
+    * @param organisationName organisation name
+    * @param pafOrganisationName paf organisation name
     * @return
     */
   def calculateDetailedOrganisationBuildingNamePafScore (
@@ -283,10 +283,10 @@ object HopperScoreHelper  {
 
   /**
     * Detailed match of origaisation and building name using NAG
-    * @param buildingName
-    * @param nagPaoText
-    * @param organisationName
-    * @param nagOrganisationName
+    * @param buildingName building name
+    * @param nagPaoText nag pao text
+    * @param organisationName organisation name
+    * @param nagOrganisationName nag organisation name
     * @return
     */
   def calculateDetailedOrganisationBuildingNameNagScore (
@@ -411,14 +411,14 @@ object HopperScoreHelper  {
 
   /**
     * The locality score aims to state how certain we know the locality of an address
-    * @param address
-    * @param postcodeIn
-    * @param postcodeOut
-    * @param locality
-    * @param townName
-    * @param streetName
-    * @param organisationName
-    * @param buildingName
+    * @param address address
+    * @param postcodeIn postcode in
+    * @param postcodeOut postcode out
+    * @param locality locality
+    * @param townName town name
+    * @param streetName street name
+    * @param organisationName organisation name
+    * @param buildingName building name
     * @return score between 0 and 1 (during testing lookup string returned instead for diagnostic purposes)
     */
   def calculateLocalityScore(
@@ -448,12 +448,12 @@ object HopperScoreHelper  {
     val pafPostcode = address.paf.map(_.postcode).getOrElse("")
 
     //get nag values
-    val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
-    val nagOrganisationName = address.nag.map(_.organisation).getOrElse("")
-    val nagStreetDescriptor = address.nag.map(_.streetDescriptor).getOrElse("")
-    val nagTownName = address.nag.map(_.townName).getOrElse("")
-    val nagLocality = address.nag.map(_.locality).getOrElse("")
-    val nagPostcode = address.nag.map(_.postcodeLocator).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
+    val nagStreetDescriptor = address.nag.getOrElse(Nil).headOption.map(_.streetDescriptor).getOrElse("")
+    val nagTownName = address.nag.getOrElse(Nil).headOption.map(_.townName).getOrElse("")
+    val nagLocality = address.nag.getOrElse(Nil).headOption.map(_.locality).getOrElse("")
+    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("")
 
     // create test fields for postcode match
     val postcodeWithInvertedIncode = if (postcodeIn.length < 3) empty else swap(postcodeIn,1,2)
@@ -532,10 +532,10 @@ object HopperScoreHelper  {
 
   /**
     * Match building and organisation using PAF
-    * @param buildingName
-    * @param pafBuildingName
-    * @param organisationName
-    * @param pafOrganisationName
+    * @param buildingName building name
+    * @param pafBuildingName paf building name
+    * @param organisationName organisation name
+    * @param pafOrganisationName paf organisation name
     * @return
     */
   def calculateOrganisationBuildingNamePafScore (
@@ -569,10 +569,10 @@ object HopperScoreHelper  {
 
   /**
     * Match organisation and building name using NAG
-    * @param buildingName
-    * @param nagPaoText
-    * @param organisationName
-    * @param nagOrganisationName
+    * @param buildingName building name
+    * @param nagPaoText nag pao text
+    * @param organisationName organisation name
+    * @param nagOrganisationName nag organisation name
     * @return
     */
   def calculateOrganisationBuildingNameNagScore (
@@ -601,11 +601,11 @@ object HopperScoreHelper  {
 
   /**
     * Match Street using PAF
-    * @param streetName
-    * @param pafThoroughfare
-    * @param pafDependentThoroughfare
-    * @param pafWelshThoroughfare
-    * @param pafWelshDependentThoroughfare
+    * @param streetName street name
+    * @param pafThoroughfare paf thorough fare
+    * @param pafDependentThoroughfare paf dependent thoroughfare
+    * @param pafWelshThoroughfare paf welsh thoroughfare
+    * @param pafWelshDependentThoroughfare paf welsh dependent thoroughfare
     * @return
     */
   def calculateStreetPafScore (
@@ -634,8 +634,8 @@ object HopperScoreHelper  {
 
   /**
     * Match Street using NAG
-    * @param streetName
-    * @param nagStreetDescriptor
+    * @param streetName street name
+    * @param nagStreetDescriptor nag street descriptor
     * @return
     */
   def calculateStreetNagScore(streetName: String, nagStreetDescriptor: String) : Int = {
@@ -652,15 +652,15 @@ object HopperScoreHelper  {
 
   /**
     * Attempt to  match town and locality using PAF
-    * @param townName
-    * @param locality
-    * @param pafPostTown
-    * @param pafWelshPostTown
-    * @param pafDependentLocality
-    * @param pafWelshDependentLocality
-    * @param pafDoubleDependentLocality
-    * @param pafWelshDoubleDependentLocality
-    * @param streetName
+    * @param townName town name
+    * @param locality locality
+    * @param pafPostTown paf post town
+    * @param pafWelshPostTown paf welsh post town
+    * @param pafDependentLocality paf dependent locality
+    * @param pafWelshDependentLocality paf welsh dependent locality
+    * @param pafDoubleDependentLocality paf double dependent locality
+    * @param pafWelshDoubleDependentLocality paf welsh double dependent locality
+    * @param streetName street name
     * @return
     */
   def calculateTownLocalityPafScore (
@@ -722,11 +722,11 @@ object HopperScoreHelper  {
 
   /**
     * Attempt to match town and locality using NAG
-    * @param townName
-    * @param nagTownName
-    * @param locality
-    * @param nagLocality
-    * @param streetName
+    * @param townName town name
+    * @param nagTownName nag town name
+    * @param locality locality
+    * @param nagLocality nag locality
+    * @param streetName street name
     * @return
     */
   def calculateTownLocalityNagScore (
@@ -758,12 +758,12 @@ object HopperScoreHelper  {
     * Match PAF postocde
     * Postcode token is formatted with space so can do exact match
     * Use helpers to match inversion, sector, outcode and area
-    * @param postcode
-    * @param pafPostcode
-    * @param postcodeOut
-    * @param postcodeWithInvertedIncode
-    * @param postcodeSector
-    * @param postcodeArea
+    * @param postcode postcode
+    * @param pafPostcode paf postcode
+    * @param postcodeOut postcode out
+    * @param postcodeWithInvertedIncode postcode with inverted in code
+    * @param postcodeSector postcode sector
+    * @param postcodeArea postcode area
     * @return
     */
   def calculatePostcodePafScore (
@@ -787,12 +787,12 @@ object HopperScoreHelper  {
     * Match NAG postcode
     * Postcode token is formatted with space so can do exact match
     * Use helpers to match inversion, sector, outcode and area
-    * @param postcode
-    * @param nagPostcode
-    * @param postcodeOut
-    * @param postcodeWithInvertedIncode
-    * @param postcodeSector
-    * @param postcodeArea
+    * @param postcode postcode
+    * @param nagPostcode nag postcode
+    * @param postcodeOut postcode out
+    * @param postcodeWithInvertedIncode postcode with inverted in code
+    * @param postcodeSector postcode sector
+    * @param postcodeArea postcode area
     * @return
     */
   def calculatePostcodeNagScore (
@@ -817,13 +817,13 @@ object HopperScoreHelper  {
     * The hierarchical field is not currently available
     * If not hierarchical set to missing (?) or source sub-building name
     * or source origanisation name is unmatched
-    * @param address
-    * @param subBuildingName
-    * @param saoStartNumber
-    * @param saoEndNumber
-    * @param saoStartSuffix
-    * @param saoEndSuffix
-    * @param organisationName
+    * @param address address
+    * @param subBuildingName sub-building name
+    * @param saoStartNumber sao start number
+    * @param saoEndNumber sao end number
+    * @param saoStartSuffix sao start suffix
+    * @param saoEndSuffix sao end suffix
+    * @param organisationName organisation name
     * @return score between 0 and 1 (during testing lookup string returned instead for diagnostic purposes)
     */
   def calculateUnitScore(
@@ -842,13 +842,13 @@ object HopperScoreHelper  {
     val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
 
     //get nag values
-    val nagPaoText = address.nag.map(_.pao).map(_.paoText).getOrElse("")
-    val nagSaoText = address.nag.map(_.sao).map(_.saoText).getOrElse("")
-    val nagOrganisationName = address.nag.map(_.organisation).getOrElse("")
-    val nagSaoStartNumber = address.nag.map(_.sao).map(_.saoStartNumber).getOrElse("")
-    val nagSaoEndNumber = address.nag.map(_.sao).map(_.saoEndNumber).getOrElse("")
-    val nagSaoStartSuffix = address.nag.map(_.sao).map(_.saoStartSuffix).getOrElse("")
-    val nagSaoEndSuffix = address.nag.map(_.sao).map(_.saoEndSuffix).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
+    val nagSaoText = address.nag.getOrElse(Nil).headOption.map(_.sao.saoText).getOrElse("")
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
+    val nagSaoStartNumber = address.nag.getOrElse(Nil).headOption.map(_.sao.saoStartNumber).getOrElse("")
+    val nagSaoEndNumber = address.nag.getOrElse(Nil).headOption.map(_.sao.saoEndNumber).getOrElse("")
+    val nagSaoStartSuffix = address.nag.getOrElse(Nil).headOption.map(_.sao.saoStartSuffix).getOrElse("")
+    val nagSaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.sao.saoEndSuffix).getOrElse("")
 
     // test for more than 1 layer - may need to expand this into separate method with more logic
     val parentUPRN = address.parentUprn
@@ -927,8 +927,8 @@ object HopperScoreHelper  {
 
   /**
     * Match subbuildingname using PAF
-    * @param subBuildingName
-    * @param pafSubBuildingName
+    * @param subBuildingName sub-building name
+    * @param pafSubBuildingName paf sub-building name
     * @return
     */
   def calculateSubBuildingNamePafScore (subBuildingName: String, pafSubBuildingName: String, organisationName: String) : Int = {
@@ -938,14 +938,14 @@ object HopperScoreHelper  {
       else if (pafBuildingMatchScore < 2) 2
       else if ( pafBuildingMatchScore < 3) 3
       else if (subBuildingName == empty  && pafSubBuildingName == "" ) 9
-      else if (!((subBuildingName != empty && pafSubBuildingName != "" ) )) 8
+      else if (!(subBuildingName != empty && pafSubBuildingName != "" ) ) 8
       else 6
   }
 
   /**
     * Match buildingName against saoText
-    * @param subBuildingName
-    * @param nagSaoText
+    * @param subBuildingName sub-building name
+    * @param nagSaoText nag sao text
     * @return
     */
   def calculateSubBuildingNameNagScore (subBuildingName: String, nagSaoText: String) : Int = {
@@ -955,20 +955,20 @@ object HopperScoreHelper  {
       else if (nagBuildingMatchScore < 2) 2
       else if (nagBuildingMatchScore < 3) 3
       else if (subBuildingName == empty && nagSaoText == "" ) 9
-      else if (!((subBuildingName != empty && nagSaoText != "" ) )) 8
+      else if (!(subBuildingName != empty && nagSaoText != "" ) ) 8
       else 6
   }
 
   /**
     * Match subbuilding number / suffix using PAF
-    * @param subBuildingName
-    * @param pafSubBuildingName
-    * @param pafBuildingName
-    * @param saoStartSuffix
-    * @param saoEndSuffix
-    * @param saoStartNumber
-    * @param saoEndNumber
-    * @param pafBuildingNumber
+    * @param subBuildingName sub-building name
+    * @param pafSubBuildingName paf sub-building name
+    * @param pafBuildingName paf building name
+    * @param saoStartSuffix sao start suffix
+    * @param saoEndSuffix sao end suffix
+    * @param saoStartNumber sao start number
+    * @param saoEndNumber sao end number
+    * @param pafBuildingNumber paf building number
     * @return
     */
   def calculateSubBuildingNumberPafScore (
@@ -985,8 +985,8 @@ object HopperScoreHelper  {
     val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(subBuildingName))
     val pafBuildingLowNum = getRangeBottom(pafSubBuildingName)
     val pafBuildingHighNum = pafBuildingLowNum.max(getRangeTop(pafSubBuildingName))
-    val pafInRange = (((pafBuildingLowNum >= tokenBuildingLowNum && pafBuildingHighNum <= tokenBuildingHighNum)
-      && tokenBuildingLowNum > -1))
+    val pafInRange = ((pafBuildingLowNum >= tokenBuildingLowNum && pafBuildingHighNum <= tokenBuildingHighNum)
+      && tokenBuildingLowNum > -1)
     val pafBuildingStartSuffix = getStartSuffix(pafBuildingName)
     val pafBuildingEndSuffix = getEndSuffix(pafBuildingName)
     val pafSuffixInRange = ((saoStartSuffix == pafBuildingStartSuffix && saoEndSuffix == pafBuildingEndSuffix)
@@ -999,21 +999,21 @@ object HopperScoreHelper  {
     else if (pafBuildingNumber == saoStartNumber ||
       pafBuildingLowNum.toString() == saoStartNumber ||
       pafBuildingHighNum.toString() == saoEndNumber) 6
-    else if (!((tokenBuildingLowNum == -1 && saoStartNumber == empty ))) 8
+    else if (!(tokenBuildingLowNum == -1 && saoStartNumber == empty )) 8
     else 9
   }
 
   /**
     * Match subbuilding number / suffix
-    * @param subBuildingName
-    * @param nagSaoStartNumber
-    * @param nagSaoEndNumber
-    * @param nagSaoStartSuffix
-    * @param nagSaoEndSuffix
-    * @param saoStartSuffix
-    * @param saoEndSuffix
-    * @param saoStartNumber
-    * @param saoEndNumber
+    * @param subBuildingName sub-building name
+    * @param nagSaoStartNumber nag sao start number
+    * @param nagSaoEndNumber nag sao end number
+    * @param nagSaoStartSuffix nag sao start suffix
+    * @param nagSaoEndSuffix nag sao end suffix
+    * @param saoStartSuffix sao start suffix
+    * @param saoEndSuffix sao end suffix
+    * @param saoStartNumber sao start number
+    * @param saoEndNumber sao end number
     * @return
     */
   def calculateSubBuildingNumberNagScore (
@@ -1053,8 +1053,8 @@ object HopperScoreHelper  {
 
   /**
     * Calculates the edit distance between two strings
-    * @param str1
-    * @param str2
+    * @param str1 string 1
+    * @param str2 string 2
     * @return int number of edits required
     */
   def levenshtein(str1: String, str2: String): Int = {
@@ -1076,14 +1076,14 @@ object HopperScoreHelper  {
 
   /**
     * Return the smallest number in a list
-    * @param nums
+    * @param nums nums
     * @return
     */
   def min(nums: Int*): Int = nums.min
 
   /**
     * Try to get the lowest numbers in a range
-    * @param range
+    * @param range range
     * @return
     */
   def getRangeBottom(range: String): Int = {
@@ -1094,7 +1094,7 @@ object HopperScoreHelper  {
 
   /**
     * Try to get the highest number in a range
-    * @param range
+    * @param range range
     * @return
     */
   def getRangeTop(range: String): Int = {
@@ -1105,7 +1105,7 @@ object HopperScoreHelper  {
 
   /**
     * Try to get the first letter that follows a number
-    * @param range
+    * @param range range
     * @return
     */
   def getStartSuffix(range: String): String = {
@@ -1118,7 +1118,7 @@ object HopperScoreHelper  {
 
   /**
     * Try to get the last letter that follows a number
-    * @param range
+    * @param range range
     * @return
     */
   def getEndSuffix(range: String): String = {
@@ -1131,8 +1131,8 @@ object HopperScoreHelper  {
 
   /**
     * Compare to multipart names and return an edit distance
-    * @param name1
-    * @param name2
+    * @param name1 name1
+    * @param name2 name2
     * @return edit distance number
     */
   def matchNames(name1: String, name2: String): Int = {
@@ -1147,8 +1147,8 @@ object HopperScoreHelper  {
   /**
     * Compare to multipart street names and return an edit distance
     * For street names also try joining first two words and score ROAD v STREET as 2
-    * @param name1
-    * @param name2
+    * @param name1 name1
+    * @param name2 name2
     * @return edit distance number
     */
   def matchStreets(name1: String, name2: String): Int = {
@@ -1169,7 +1169,7 @@ object HopperScoreHelper  {
 
   /**
     * Check if word is ROAD, STREET etc.
-    * @param word
+    * @param word word
     * @return
     */
   def isRoadWord(word: String): Boolean = {
@@ -1178,9 +1178,9 @@ object HopperScoreHelper  {
 
   /**
     * Function to swap two characters in a string
-    * @param s
-    * @param idx1
-    * @param idx2
+    * @param s string
+    * @param idx1 index1
+    * @param idx2 index2
     * @return new string
     */
   def swap(s : String, idx1 : Int, idx2 : Int): String = {
@@ -1193,7 +1193,7 @@ object HopperScoreHelper  {
 
   /**
     * Exctract sector part of postcode
-    * @param pcode
+    * @param pcode postcode
     * @return
     */
   def getSector(pcode: String): String = {
@@ -1203,7 +1203,7 @@ object HopperScoreHelper  {
 
   /**
     * Extract outcode part of postcode
-    * @param pcode
+    * @param pcode postcode
     * @return
     */
   def getOutcode(pcode: String): String = {
@@ -1217,8 +1217,8 @@ object HopperScoreHelper  {
     * Postcode match score must be 4 or higher.
     * Example: three results have locality score string of 9614. If they all have the same postcode sector
     * the pentaly is 1 (so no reduction). If they are all different the penalty is 3.
-    * @param localityScoreDebug
-    * @param localityParams
+    * @param localityScoreDebug locality score debug
+    * @param localityParams locality params
     * @return
     */
   def calculateAmbiguityPenalty(localityScoreDebug: String, localityParams: Seq[(String,String)]): Double = {
@@ -1231,7 +1231,7 @@ object HopperScoreHelper  {
   /**
     * Method 1 to separate the number and name parts e.g 6A HEDGEHOG HOUSE
     * Return just the number bit, discard the rest
-    * @param name
+    * @param name name
     * @return String containing just e.g 6A
     * */
   def getNumberPartsFromName(name: String): String = {
@@ -1242,7 +1242,7 @@ object HopperScoreHelper  {
   /**
     * Method 2 to separate the number and name parts e.g 6A HEDGEHOG HOUSE
     * Remove the number part and return the rest
-    * @param name
+    * @param name name
     * @return String containing just e.g HEDEGEHOG HOUSE
     * */
   def getNonNumberPartsFromName(name: String): String = {
@@ -1253,7 +1253,7 @@ object HopperScoreHelper  {
 
   /**
     * Test there is at least one number in a String
-    * @param namepart
+    * @param namepart name part
     * @return
     */
   def containsNumber(namepart: String): Boolean = {
@@ -1263,7 +1263,7 @@ object HopperScoreHelper  {
 
   /**
     * If token becomes empty treat it as missing by setting it to the atsign character
-    * @param tokenString
+    * @param tokenString token string
     * @return
     */
   def atSignForEmpty (tokenString: String): String = {

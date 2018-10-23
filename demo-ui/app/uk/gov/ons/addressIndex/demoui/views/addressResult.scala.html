@@ -26,9 +26,9 @@ apiKey: String = ""
             <h1 class="jupiter">@address.formattedAddressNag</h1>
             <section class="address-result-header mars">
                 <span class="address-result-header-type">
-                    <span class='@address.nag.map{ nag => @messages("logical.class"+nag.logicalStatus) }'
-                      title='@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }'>
-                                &nbsp;@address.nag.map{ nag => @messages("logical."+nag.logicalStatus) }&nbsp;
+                    <span class='@address.nag.map{ nag => @messages("logical.class"+nag(0).logicalStatus) }'
+                      title='@address.nag.map{ nag => @messages("logical."+nag(0).logicalStatus) }'>
+                                &nbsp;@address.nag.map{ nag => @messages("logical."+nag(0).logicalStatus) }&nbsp;
                     </span>
                 </span>
                 <span class="address-result-header-uprn uprn-txt">@messages("single.uprn") &nbsp;<span class="venus">@address.uprn</span></span>
@@ -76,24 +76,24 @@ apiKey: String = ""
                             @messages("category.notfound")
                             } else {
                             @address.nag.map { nag =>
-                            @classification.getOrElse(Map.empty).getOrElse(nag.uprn, "")
+                            @classification.getOrElse(Map.empty).getOrElse(nag(0).uprn, "")
                             }
                             }</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.la")</td>
-                        <td class="venus">@address.nag.map{ nag => @nag.localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
+                        <td class="venus">@address.nag.map{ nag => @nag(0).localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
                     </tr>
                     <tr>
                         <td>@messages("addressresult.la_code")</td>
-                        <td class="venus">@address.nag.map{ nag => @nag.localCustodianGeogCode}</td>
+                        <td class="venus">@address.nag.map{ nag => @nag(0).localCustodianGeogCode}</td>
                     </tr>
                 </table>
             </section>
 
-            @if(address.nag.map(_.logicalStatus).contains("8")) {
+            @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
             <div class="resultRow">
-                <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }
+                <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }
             </div>
             }
 
@@ -104,13 +104,13 @@ apiKey: String = ""
                     <table class="address-result-table mars">
                         <tr>
                             <td>@messages("clerical.logicalstatus")</td>
-                            <td class="venus">@address.nag.map { nag => @messages("logical." + nag.logicalStatus) }</td>
+                            <td class="venus">@address.nag.map { nag => @messages("logical." + nag(0).logicalStatus) }</td>
                         </tr>
 
-                        @if(address.nag.map { nag => nag.logicalStatus }.contains("8")) {
+                        @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
                             <tr>
                                 <td>@messages("single.enddate"): </td>
-                                <td class="venus">@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag.lpiEndDate))) }</td>
+                                <td class="venus">@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }</td>
                             </tr>
                         }
                         <tr>
@@ -125,7 +125,7 @@ apiKey: String = ""
                         </tr>
                         <tr>
                             <td>@messages("clerical.la")</td>
-                            <td class="venus">@address.nag.map { nag => @nag.localCustodianName } | @address.nag.map { nag => @nag.localCustodianGeogCode }</td>
+                            <td class="venus">@address.nag.map { nag => @nag(0).localCustodianName } | @address.nag.map { nag => @nag(0).localCustodianGeogCode }</td>
                         </tr>
 
                     </table>
@@ -274,123 +274,123 @@ apiKey: String = ""
                             <td rowspan="4">@messages("clerical.token.organisation_name")</td>
                             <td>@messages("clerical.organisation")</td>
                             <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
-                            <td>@address.nag.map { nag => @nag.organisation }</td>
+                            <td>@address.nag.map { nag => @nag(0).organisation }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.pao_text")</td>
                             <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoText }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoText }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.legal_name")</td>
                             <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
-                            <td>@address.nag.map { nag => @nag.legalName }</td>
+                            <td>@address.nag.map { nag => @nag(0).legalName }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.sao_text")</td>
                             <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
-                            <td>@address.nag.map { nag => @nag.sao.saoText }</td>
+                            <td>@address.nag.map { nag => @nag(0).sao.saoText }</td>
                         </tr>
 
                         <tr>
                             <td>@messages("clerical.token.department_name")</td>
                             <td>@messages("clerical.legal_name")</td>
                             <td>@tokens.getOrElse(Tokens.departmentName, "")</td>
-                            <td>@address.nag.map { nag => @nag.legalName }</td>
+                            <td>@address.nag.map { nag => @nag(0).legalName }</td>
                         </tr>
 
                         <tr>
                             <td rowspan="5">@messages("clerical.token.sub_building_name")</td>
                             <td>@messages("clerical.sao_text")</td>
                             <td>@tokens.getOrElse(Tokens.subBuildingName, "")</td>
-                            <td>@address.nag.map { nag => @nag.sao.saoText }</td>
+                            <td>@address.nag.map { nag => @nag(0).sao.saoText }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.sao_start_number")</td>
                             <td>@tokens.getOrElse(Tokens.saoStartNumber, "")</td>
-                            <td>@address.nag.map { nag => @nag.sao.saoStartNumber }</td>
+                            <td>@address.nag.map { nag => @nag(0).sao.saoStartNumber }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.sao_start_suffix")</td>
                             <td>@tokens.getOrElse(Tokens.saoStartSuffix, "")</td>
-                            <td>@address.nag.map { nag => @nag.sao.saoStartSuffix }</td>
+                            <td>@address.nag.map { nag => @nag(0).sao.saoStartSuffix }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.sao_end_number")</td>
                             <td>@tokens.getOrElse(Tokens.saoEndNumber, "")</td>
-                            <td>@address.nag.map { nag => @nag.sao.saoEndNumber }</td>
+                            <td>@address.nag.map { nag => @nag(0).sao.saoEndNumber }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.sao_end_suffix")</td>
                             <td>@tokens.getOrElse(Tokens.saoEndSuffix, "")</td>
-                            <td>@address.nag.map { nag => @nag.sao.saoEndSuffix }</td>
+                            <td>@address.nag.map { nag => @nag(0).sao.saoEndSuffix }</td>
                         </tr>
 
                         <tr>
                             <td rowspan="5">@messages("clerical.token.building_name")</td>
                             <td>@messages("clerical.pao_text")</td>
                             <td>@tokens.getOrElse(Tokens.buildingName, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoText }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoText }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.pao_start_number")</td>
                             <td>@tokens.getOrElse(Tokens.paoStartNumber, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoStartNumber }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoStartNumber }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.pao_start_suffix")</td>
                             <td>@tokens.getOrElse(Tokens.paoStartSuffix, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoStartSuffix }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoStartSuffix }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.pao_end_number")</td>
                             <td>@tokens.getOrElse(Tokens.paoEndNumber, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoEndNumber }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoEndNumber }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.pao_end_suffix")</td>
                             <td>@tokens.getOrElse(Tokens.paoEndSuffix, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoEndSuffix }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoEndSuffix }</td>
                         </tr>
 
                         <tr>
                             <td>@messages("clerical.token.building_number")</td>
                             <td>@messages("clerical.pao_start_number")</td>
                             <td>@tokens.getOrElse(Tokens.paoStartNumber, "")</td>
-                            <td>@address.nag.map { nag => @nag.pao.paoStartNumber }</td>
+                            <td>@address.nag.map { nag => @nag(0).pao.paoStartNumber }</td>
                         </tr>
 
                         <tr>
                             <td>@messages("clerical.token.street_name")</td>
                             <td>@messages("clerical.street_descriptor")</td>
                             <td>@tokens.getOrElse(Tokens.streetName, "")</td>
-                            <td>@address.nag.map { nag => @nag.streetDescriptor }</td>
+                            <td>@address.nag.map { nag => @nag(0).streetDescriptor }</td>
                         </tr>
 
                         <tr>
                             <td>@messages("clerical.token.locality")</td>
                             <td>@messages("clerical.locality")</td>
                             <td>@tokens.getOrElse(Tokens.locality, "")</td>
-                            <td>@address.nag.map { nag => @nag.locality }</td>
+                            <td>@address.nag.map { nag => @nag(0).locality }</td>
                         </tr>
 
                         <tr>
                             <td rowspan="2">@messages("clerical.token.town_name")</td>
                             <td>@messages("clerical.town_name")</td>
                             <td>@tokens.getOrElse(Tokens.townName, "")</td>
-                            <td>@address.nag.map { nag => @nag.townName }</td>
+                            <td>@address.nag.map { nag => @nag(0).townName }</td>
                         </tr>
                         <tr>
                             <td>@messages("clerical.locality")</td>
                             <td>@tokens.getOrElse(Tokens.townName, "")</td>
-                            <td>@address.nag.map { nag => @nag.locality }</td>
+                            <td>@address.nag.map { nag => @nag(0).locality }</td>
                         </tr>
 
                         <tr>
                             <td>@messages("clerical.token.postcode")</td>
                             <td>@messages("clerical.postcode_locator")</td>
                             <td>@tokens.getOrElse(Tokens.postcode, "")</td>
-                            <td>@address.nag.map { nag => @nag.postcodeLocator }</td>
+                            <td>@address.nag.map { nag => @nag(0).postcodeLocator }</td>
                         </tr>
                         @*NAG TABLE*@
                         <tr class="venus">
@@ -405,7 +405,7 @@ apiKey: String = ""
                             <td>@tokens.getOrElse(Tokens.postcodeOut, "")</td>
                             <td>
                                 @if(address.paf.isEmpty) {
-                                @address.nag.map { nag => @nag.postcodeLocator.split(" ").headOption.getOrElse("") }
+                                @address.nag.map { nag => @nag(0).postcodeLocator.split(" ").headOption.getOrElse("") }
                                 } else {
                                 @address.paf.map { paf => @paf.postcode.split(" ").headOption.getOrElse("") }
                                 }
@@ -416,7 +416,7 @@ apiKey: String = ""
                             <td>@tokens.getOrElse(Tokens.postcodeIn, "")</td>
                             <td>
                                 @if(address.paf.isEmpty) {
-                                @address.nag.map { nag => @nag.postcodeLocator.split(" ").lastOption.getOrElse("") }
+                                @address.nag.map { nag => @nag(0).postcodeLocator.split(" ").lastOption.getOrElse("") }
                                 } else {
                                 @address.paf.map { paf => @paf.postcode.split(" ").lastOption.getOrElse("") }
                                 }

@@ -201,7 +201,7 @@ object AddressIndexClientMock {
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
-    nag = Some(mockNagAddress1),
+    nag = Some(Seq(mockNagAddress1)),
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
