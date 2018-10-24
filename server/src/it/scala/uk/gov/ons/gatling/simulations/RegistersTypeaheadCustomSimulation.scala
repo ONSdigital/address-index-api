@@ -31,8 +31,11 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
 
   val headers = Map("Upgrade-Insecure-Requests" -> "1")
 
+  // partial addresses from the Random Address Generator
   val feeder = csv("typeahead.csv").circular
 
+  // user pause of 300ms between keystrokes, then get next partial from file
+  // requestRelpath is addresses/partial/ (no further)
   val scn: ScenarioBuilder  =
     scenario(requestName)
       .pause(300 millis)
@@ -44,7 +47,5 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
   setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
     .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
     .protocols(httpProtocol)
-
- // setUp(scn.inject(atOnceUsers(numOfRequestsPerSecond))).maxDuration(1 minute).protocols(httpProtocol)
 
 }
