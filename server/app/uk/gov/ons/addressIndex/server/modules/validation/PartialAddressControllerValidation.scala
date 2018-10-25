@@ -19,7 +19,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   // override error message with named length
   object ShortQueryAddressResponseErrorCustom extends AddressResponseError(
     code = 39,
-    message = "Partial address string too short, minimum " + minimumTermLength + " characters"
+    message = ShortQueryAddressResponseError.message.replace("x",minimumTermLength.toString)
   )
 
   override def ShortSearch: AddressBySearchResponseContainer = {
