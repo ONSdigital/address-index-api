@@ -54,12 +54,12 @@ object OffsetTooSmallAddressResponseError extends AddressResponseError(
 
 object LimitTooLargeAddressResponseError extends AddressResponseError(
   code = 8,
-  message = "Limit parameter is too large (maximum configurable)"
+  message = "Limit parameter is too large, maximum = *"
 )
 
 object OffsetTooLargeAddressResponseError extends AddressResponseError(
   code = 9,
-  message = "Offset parameter is too large (maximum configurable)"
+  message = "Offset parameter is too large, maximum = *"
 )
 
 object FailedRequestToEsError extends AddressResponseError(
@@ -92,35 +92,35 @@ object FilterInvalidError extends AddressResponseError(
   message = "Invalid filter value provided"
 )
 
-object OffsetNotNumericPostcodeAddressResponseError extends AddressResponseError(
-  code = 16,
-  message = "Offset parameter is not numeric (postcode)"
-)
-
-object LimitNotNumericPostcodeAddressResponseError extends AddressResponseError(
-  code = 17,
-  message = "Limit parameter is not numeric (postcode)"
-)
-
-object OffsetTooSmallPostcodeAddressResponseError extends AddressResponseError(
-  code = 18,
-  message = "Offset parameter is too small, minimum = 0 (postcode)"
-)
-
-object LimitTooSmallPostcodeAddressResponseError extends AddressResponseError(
-  code = 19,
-  message = "Limit parameter is too small, minimum = 1 (postcode)"
-)
-
-object LimitTooLargePostcodeAddressResponseError extends AddressResponseError(
-  code = 20,
-  message = "Limit parameter is too large (maximum configurable) (postcode)"
-)
-
-object OffsetTooLargePostcodeAddressResponseError extends AddressResponseError(
-  code = 21,
-  message = "Offset parameter is too large (maximum configurable) (postcode)"
-)
+//object OffsetNotNumericPostcodeAddressResponseError extends AddressResponseError(
+//  code = 16,
+//  message = "Offset parameter is not numeric (postcode)"
+//)
+//
+//object LimitNotNumericPostcodeAddressResponseError extends AddressResponseError(
+//  code = 17,
+//  message = "Limit parameter is not numeric (postcode)"
+//)
+//
+//object OffsetTooSmallPostcodeAddressResponseError extends AddressResponseError(
+//  code = 18,
+//  message = "Offset parameter is too small, minimum = 0 (postcode)"
+//)
+//
+//object LimitTooSmallPostcodeAddressResponseError extends AddressResponseError(
+//  code = 19,
+//  message = "Limit parameter is too small, minimum = 1 (postcode)"
+//)
+//
+//object LimitTooLargePostcodeAddressResponseError extends AddressResponseError(
+//  code = 20,
+//  message = "Limit parameter is too large (maximum configurable) (postcode)"
+//)
+//
+//object OffsetTooLargePostcodeAddressResponseError extends AddressResponseError(
+//  code = 21,
+//  message = "Offset parameter is too large (maximum configurable) (postcode)"
+//)
 
 object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
   code = 22,
@@ -209,5 +209,5 @@ object EndDateInvalidResponseError extends AddressResponseError(
 
 object ShortQueryAddressResponseError extends AddressResponseError(
   code = 39,
-  message = "Partial address string too short, minimum x characters"
+  message = "Partial address string too short, minimum * characters"
 )

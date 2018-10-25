@@ -988,7 +988,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetNotNumericPostcodeAddressResponseError)
+        errors = Seq(OffsetNotNumericAddressResponseError)
       ))
 
       // When
@@ -1059,7 +1059,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(LimitNotNumericPostcodeAddressResponseError)
+        errors = Seq(LimitNotNumericAddressResponseError)
       ))
 
       // When
@@ -1130,7 +1130,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooSmallPostcodeAddressResponseError)
+        errors = Seq(OffsetTooSmallAddressResponseError)
       ))
 
       // When
@@ -1201,7 +1201,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooSmallPostcodeAddressResponseError)
+        errors = Seq(LimitTooSmallAddressResponseError)
       ))
 
       // When
@@ -1239,7 +1239,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooLargeAddressResponseError)
+        errors = Seq(addressValidation.OffsetTooLargeAddressResponseErrorCustom)
       ))
 
       // When
@@ -1272,7 +1272,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(OffsetTooLargePostcodeAddressResponseError)
+        errors = Seq(postcodeValidation.OffsetTooLargeAddressResponseErrorCustom)
       ))
 
       // When
@@ -1310,7 +1310,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooLargeAddressResponseError)
+        errors = Seq(addressValidation.LimitTooLargeAddressResponseErrorCustom)
       ))
 
       // When
@@ -1343,7 +1343,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(LimitTooLargePostcodeAddressResponseError)
+        errors = Seq(postcodeValidation.LimitTooLargeAddressResponseErrorCustom)
       ))
 
       // When
@@ -1891,29 +1891,24 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = partialAddressController
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
+        AddressByPartialAddressResponse(
+          input = "",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
           limit = 10,
           offset = 0,
           total = 0,
-          sampleSize = 20,
           maxScore = 0.0f,
-          matchthreshold = 5f,
           startDate = "",
           endDate = "",
           verbose = true
         ),
         BadRequestAddressResponseStatus,
-        errors = Seq(ShortQueryAddressResponseError)
+        errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
       ))
 
       // When

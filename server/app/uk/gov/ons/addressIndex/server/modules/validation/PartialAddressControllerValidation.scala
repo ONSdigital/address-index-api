@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponseContainer, AddressResponseError, EmptyQueryAddressResponseError, ShortQueryAddressResponseError}
+import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -10,7 +11,7 @@ import scala.concurrent.Future
 
 @Singleton
 class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
-  extends AddressValidation with PartialAddressControllerResponse {
+  extends AddressControllerValidation with PartialAddressControllerResponse {
 
 
   // set minimum string length from config
@@ -19,11 +20,11 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   // override error message with named length
   object ShortQueryAddressResponseErrorCustom extends AddressResponseError(
     code = 39,
-    message = ShortQueryAddressResponseError.message.replace("x",minimumTermLength.toString)
+    message = ShortQueryAddressResponseError.message.replace("*",minimumTermLength.toString)
   )
 
-  override def ShortSearch: AddressBySearchResponseContainer = {
-    BadRequestTemplate(ShortQueryAddressResponseErrorCustom)
+  override def ShortSearch: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(ShortQueryAddressResponseErrorCustom)
   }
 
   // minimum length only for partial so override

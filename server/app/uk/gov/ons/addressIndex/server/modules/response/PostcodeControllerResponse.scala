@@ -68,10 +68,10 @@ trait PostcodeControllerResponse extends Response {
   }
 
   def OffsetNotNumericPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(OffsetNotNumericPostcodeAddressResponseError)
+    BadRequestPostcodeTemplate(OffsetNotNumericAddressResponseError)
   }
 
-  private def BadRequestPostcodeTemplate(errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
+  def BadRequestPostcodeTemplate(errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -82,23 +82,23 @@ trait PostcodeControllerResponse extends Response {
   }
 
   def LimitNotNumericPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(LimitNotNumericPostcodeAddressResponseError)
+    BadRequestPostcodeTemplate(LimitNotNumericAddressResponseError)
   }
 
   def LimitTooSmallPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(LimitTooSmallPostcodeAddressResponseError)
+    BadRequestPostcodeTemplate(LimitTooSmallAddressResponseError)
   }
 
   def OffsetTooSmallPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(OffsetTooSmallPostcodeAddressResponseError)
+    BadRequestPostcodeTemplate(OffsetTooSmallAddressResponseError)
   }
 
   def LimitTooLargePostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(LimitTooLargePostcodeAddressResponseError)
+    BadRequestPostcodeTemplate(LimitTooLargeAddressResponseError)
   }
 
   def OffsetTooLargePostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(OffsetTooLargePostcodeAddressResponseError)
+    BadRequestPostcodeTemplate(OffsetTooLargeAddressResponseError)
   }
 
   def EmptySearchPostcode: AddressByPostcodeResponseContainer = {
