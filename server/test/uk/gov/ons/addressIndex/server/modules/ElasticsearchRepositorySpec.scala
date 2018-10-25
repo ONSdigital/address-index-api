@@ -70,6 +70,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridFirstUprnHist = 2L
   val hybridFirstParentUprn = 3L
   val hybridFirstDateUprn = 10L
+  val hybridFirstClassificationCode = "classificationCode"
   val hybridSecondDateUprn = 11L
   val hybridThirdDateUprn = 12L
   val hybridFirstRelative: Map[String, Any] = firstHybridRelEs
@@ -114,7 +115,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridNagEasting = 4f
   val hybridNagCustCode = "1110"
   val hybridNagCustName = "Exeter"
-  val hybridNagClassCode = "R"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -281,7 +281,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "legalName" -> hybridNagLegalName,
     "northing" -> hybridNagNorthing,
     "easting" -> hybridNagEasting,
-    "classificationCode" -> hybridNagClassCode,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
     "streetClassification" -> hybridNotUsedNull,
@@ -290,7 +289,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "multiOccCount" -> hybridNotUsedNull,
     "location" -> List(hybridNagLongitude, hybridNagLatitude),
     "language" -> hybridNotUsed,
-    "classScheme" -> hybridNotUsed,
     "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
     "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
@@ -324,7 +322,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "legalName" -> secondaryHybridNagLegalName,
     "northing" -> secondaryHybridNagNorthing,
     "easting" -> secondaryHybridNagEasting,
-    "classificationCode" -> hybridNotUsed,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
     "streetClassification" -> hybridNotUsedNull,
@@ -334,7 +331,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "location" -> List(secondaryHybridNagLongitude, secondaryHybridNagLatitude),
     "nagAll" -> hybridNotUsed,
     "language" -> hybridNotUsed,
-    "classScheme" -> hybridNotUsed,
     "localCustodianCode" -> secondardyHybridNagLocalCustodianCode,
     "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
@@ -345,7 +341,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
   val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs + (
     "uprn" -> hybridFirstDateUprn,
-    "classificationCode" -> hybridNagClassCode,
     "lpiStartDate" -> hybridStartDate,
     "lpiEndDate" -> hybridEndDate
   )
@@ -503,7 +498,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNagNorthing.toString,
     hybridNagOrganisation,
     hybridNagLegalName,
-    hybridNagClassCode,
     hybridNotUsed,
     hybridNotUsed,
     hybridNagPaoText,
@@ -521,7 +515,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNagStreetDescriptor,
     hybridNagTownName,
     hybridNagLocality,
-    hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
@@ -582,7 +575,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedNag),
     paf = Seq(expectedPaf),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedDateHybrid = HybridAddress(
@@ -594,7 +588,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedDateNag),
     paf = Seq(),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedSecondDateHybrid = HybridAddress(
@@ -606,7 +601,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
     paf = Seq(expectedDatePaf),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedThirdDateHybrid = HybridAddress(
@@ -618,7 +614,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(),
     paf = Seq(expectedSecondDatePaf),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedHybridHist:HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
@@ -761,7 +758,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -816,7 +813,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -872,7 +869,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -971,7 +968,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -1078,7 +1075,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -1146,7 +1143,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -2532,7 +2529,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "filter": [
                     {
                       "prefix": {
-                        "lpi.classificationCode": {
+                        "classificationCode": {
                           "value": "R"
                         }
                       }
@@ -2622,7 +2619,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "filter": [
                     {
                       "prefix": {
-                        "lpi.classificationCode": {
+                        "classificationCode": {
                           "value": "C"
                         }
                       }
@@ -2712,7 +2709,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "filter": [
                     {
                       "term": {
-                        "lpi.classificationCode": {
+                        "classificationCode": {
                           "value": "RD06"
                         }
                       }
@@ -2948,7 +2945,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3004,7 +3001,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3060,7 +3057,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -3115,7 +3112,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -3164,7 +3161,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3212,7 +3209,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3261,7 +3258,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -3309,7 +3306,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -4044,7 +4041,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     "filter": [
                       {
                         "term": {
-                          "lpi.classificationCode": {
+                          "classificationCode": {
                             "value": "RD06"
                           }
                         }
@@ -4103,7 +4100,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     "filter": [
                       {
                         "term": {
-                          "lpi.classificationCode": {
+                          "classificationCode": {
                             "value": "RD06"
                           }
                         }
