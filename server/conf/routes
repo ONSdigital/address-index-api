@@ -194,7 +194,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
-#      maximum: 1000
+#      maximum: 250
 #    - name: limit
 #      description: Specifies the number of addresses to return.
 #      default: 10

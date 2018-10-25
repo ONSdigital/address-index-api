@@ -105,4 +105,8 @@ trait PostcodeControllerResponse extends Response {
     BadRequestPostcodeTemplate(EmptyQueryPostcodeAddressResponseError)
   }
 
+  def InvalidPostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(InvalidPostcodeAddressResponseError)
+  }
+
 }

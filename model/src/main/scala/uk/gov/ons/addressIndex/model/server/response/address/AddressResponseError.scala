@@ -92,122 +92,98 @@ object FilterInvalidError extends AddressResponseError(
   message = "Invalid filter value provided"
 )
 
-//object OffsetNotNumericPostcodeAddressResponseError extends AddressResponseError(
-//  code = 16,
-//  message = "Offset parameter is not numeric (postcode)"
-//)
-//
-//object LimitNotNumericPostcodeAddressResponseError extends AddressResponseError(
-//  code = 17,
-//  message = "Limit parameter is not numeric (postcode)"
-//)
-//
-//object OffsetTooSmallPostcodeAddressResponseError extends AddressResponseError(
-//  code = 18,
-//  message = "Offset parameter is too small, minimum = 0 (postcode)"
-//)
-//
-//object LimitTooSmallPostcodeAddressResponseError extends AddressResponseError(
-//  code = 19,
-//  message = "Limit parameter is too small, minimum = 1 (postcode)"
-//)
-//
-//object LimitTooLargePostcodeAddressResponseError extends AddressResponseError(
-//  code = 20,
-//  message = "Limit parameter is too large (maximum configurable) (postcode)"
-//)
-//
-//object OffsetTooLargePostcodeAddressResponseError extends AddressResponseError(
-//  code = 21,
-//  message = "Offset parameter is too large (maximum configurable) (postcode)"
-//)
+object InvalidPostcodeAddressResponseError extends AddressResponseError(
+  code = 16,
+  message = "Postcode supplied is not valid according to the UK addresses pattern match"
+)
 
+// can't happen when postcode is part of URI - keep in case it mmoves to query string
 object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
-  code = 22,
-  message = "Empty query (postcode)"
+  code = 17,
+  message = "No postcode supplied"
 )
 
 object FailedRequestToEsPostcodeError extends AddressResponseError(
-  code = 23,
+  code = 18,
   message = "Request to Elasticsearch failed (postcode)(check the API logs)"
 )
 
 object NotFoundPostcodeResponseError extends AddressResponseError(
-  code = 24,
+  code = 19,
   message = "Postcode request didn't yield a result"
 )
 
 object UprnNotNumericAddressResponseError extends AddressResponseError(
-  code = 25,
+  code = 20,
   message = "UPRNs must be numeric"
 )
 
 object RangeNotNumericAddressResponseError extends AddressResponseError(
-  code = 26,
+  code = 21,
   message = "Range KM parameter is not numeric"
 )
 
 object LatitudeNotNumericAddressResponseError extends AddressResponseError(
-  code = 27,
+  code = 22,
   message = "Latitiude parameter is not numeric"
 )
 
 object LongitudeNotNumericAddressResponseError extends AddressResponseError(
-  code = 28,
+  code = 23,
   message = "Longitude parameter is not numeric"
 )
 
 object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
-  code = 29,
+  code = 24,
   message = "Latitiude parameter must be less than 60.9"
 )
 
 object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
-  code = 30,
+  code = 25,
   message = "Latitude parameter must be greater than 49.8"
 )
 
 object LongitudeTooFarEastAddressResponseError extends AddressResponseError(
-  code = 31,
+  code = 26,
   message = "Latitiude parameter must be less than 1.8"
 )
 
 object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
-  code = 32,
+  code = 27,
   message = "Longitude parameter must be greater than -8.6"
 )
 
 object ThresholdNotNumericAddressResponseError extends AddressResponseError(
-  code = 33,
+  code = 28,
   message = "Matchthreshold parameter is not numeric"
 )
 
 object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
-  code = 34,
+  code = 29,
   message = "Matchthreshold parameter must be greater than 0 and less than or equal to 100"
 )
 
 object FilterInvalidPostcodeError extends AddressResponseError(
-  code = 35,
+  code = 30,
   message = "Invalid filter value provided (postcode)"
 )
 
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
-  code = 36,
+  code = 31,
   message = "Request to Elasticsearch failed (partial address)(check the API logs)"
 )
 
 object StartDateInvalidResponseError extends AddressResponseError(
-  code = 37,
+  code = 32,
   message = "Invalid start date"
 )
 
 object EndDateInvalidResponseError extends AddressResponseError(
-  code = 38,
+  code = 33,
   message = "Invalid end date"
 )
 
 object ShortQueryAddressResponseError extends AddressResponseError(
-  code = 39,
+  code = 34,
   message = "Partial address string too short, minimum * characters"
 )

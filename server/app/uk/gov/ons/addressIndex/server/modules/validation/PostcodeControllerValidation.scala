@@ -77,6 +77,10 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     if (postcode.isEmpty) {
       logger.systemLog(badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearchPostcode))
+    } else if (!postcode.matches("^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$")) {
+   // } else if (!postcode.matches("^((GIR &0AA)|((([A-PR-UWYZ][A-HK-Y]?[0-9][0-9]?)|(([A-PR-UWYZ][0-9][A-HJKSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRV-Y]))) &[0-9][ABD-HJLNP-UW-Z]{2}))$")) {
+      logger.systemLog(badRequestMessage = FilterInvalidError.message)
+      Some(futureJsonBadRequest(InvalidPostcode))
     } else None
   }
 
