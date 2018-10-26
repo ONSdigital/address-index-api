@@ -70,7 +70,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridFirstUprnHist = 2L
   val hybridFirstParentUprn = 3L
   val hybridFirstDateUprn = 10L
-  val hybridFirstClassificationCode = "classificationCode"
+  val hybridFirstClassificationCode = "R"
   val hybridSecondDateUprn = 11L
   val hybridThirdDateUprn = 12L
   val hybridFirstRelative: Map[String, Any] = firstHybridRelEs
@@ -365,7 +365,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "postcodeIn" -> hybridFirstPostcodeIn,
     "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
-    "lpi" -> Seq(firstHybridNagEs)
+    "lpi" -> Seq(firstHybridNagEs),
+    "classificationCode" -> hybridFirstClassificationCode
   )
 
   val firstHybridHistEs:Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
@@ -379,7 +380,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "postcodeIn" -> hybridSecondaryPostcodeIn,
     "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
-    "lpi" -> Seq(secondHybridNagEs)
+    "lpi" -> Seq(secondHybridNagEs),
+    "classificationCode" -> hybridFirstClassificationCode
   )
 
   val thirdHybridEs: Map[String, Any] = firstHybridEs + (
