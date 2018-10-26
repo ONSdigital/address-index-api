@@ -28,7 +28,7 @@ trait PostcodeControllerResponse extends Response {
   }
 
   def PostcodeFilterInvalid: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(FilterInvalidPostcodeError)
+    BadRequestPostcodeTemplate(FilterInvalidError)
   }
 
   def FailedRequestToEsPostcode: AddressByPostcodeResponseContainer = {

@@ -19,9 +19,10 @@ object AddressResponseError {
 
 object EmptyQueryAddressResponseError extends AddressResponseError(
   code = 1,
-  message = "Empty query"
+  message = "No address string supplied. The string is free format and supplied using the input= query string parameter. "
 )
 
+// not currently used - check
 object FormatNotSupportedAddressResponseError extends AddressResponseError(
   code = 2,
   message = "Address format is not supported"
@@ -29,7 +30,7 @@ object FormatNotSupportedAddressResponseError extends AddressResponseError(
 
 object NotFoundAddressResponseError extends AddressResponseError(
   code = 3,
-  message = "UPRN request didn't yield a result"
+  message = "UPRN request didn't yield a result. The UPRN may no longer exist on the current AddressBase, or only be available with historical=true query string parameter"
 )
 
 object LimitNotNumericAddressResponseError extends AddressResponseError(
@@ -64,50 +65,52 @@ object OffsetTooLargeAddressResponseError extends AddressResponseError(
 
 object FailedRequestToEsError extends AddressResponseError(
   code = 10,
-  message = "Request to Elasticsearch failed (check the API logs)"
+  message = "Request to Elasticsearch failed (see logs)"
 )
 
 object ApiKeyMissingError extends AddressResponseError(
   code = 11,
-  message = "The API key is missing"
+  message = "The API key is missing. It should be provided via the Authorization header."
 )
 
 object ApiKeyInvalidError extends AddressResponseError(
   code = 12,
-  message = "An Invalid API key was provided"
+  message = "An Invalid API key was provided. A key has been found but it does not match any on the list of currently active keys."
 )
 
 object SourceMissingError extends AddressResponseError(
   code = 13,
-  message = "Source key not provided (are you using the API Gateway?)"
+  message = "Source key not provided. The API is now only available via the Gateway URL, enforced by this key."
 )
 
 object SourceInvalidError extends AddressResponseError(
   code = 14,
-  message = "Invalid source key provided (are you using the API Gateway?)"
+  message = "Invalid source key provided. The API is now only available via the Gateway URL, enforced by this key."
 )
 
 object FilterInvalidError extends AddressResponseError(
   code = 15,
-  message = "Invalid filter value provided"
+  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /codelists/classification) or use a pattern match such as RD*. There are also two presets residential and commercial."
 )
 
+//  this error is currently logged only, not returned
 object InvalidPostcodeAddressResponseError extends AddressResponseError(
   code = 16,
-  message = "Postcode supplied is not valid according to the UK addresses pattern match"
+  message = "Postcode supplied is not valid according to the UK addresses pattern match."
 )
 
-// can't happen when postcode is part of URI - keep in case it mmoves to query string
+// can't happen when postcode is part of URI - keep in case it moves to query string
 object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
   code = 17,
-  message = "No postcode supplied"
+  message = "No postcode supplied. The postcode is supplied as part of the URL body, space optional e.g. /addresses/postcode/PO155RR"
 )
 
 object FailedRequestToEsPostcodeError extends AddressResponseError(
   code = 18,
-  message = "Request to Elasticsearch failed (postcode)(check the API logs)"
+  message = "Request to Elasticsearch failed (postcode)(see logs)"
 )
 
+// This error is currently not used, a 200 with no addresses found is returned instead
 object NotFoundPostcodeResponseError extends AddressResponseError(
   code = 19,
   message = "Postcode request didn't yield a result"
@@ -115,7 +118,7 @@ object NotFoundPostcodeResponseError extends AddressResponseError(
 
 object UprnNotNumericAddressResponseError extends AddressResponseError(
   code = 20,
-  message = "UPRNs must be numeric"
+  message = "UPRNs must be numeric. They are up to 12 digits and do not have leading zeroes."
 )
 
 object RangeNotNumericAddressResponseError extends AddressResponseError(
@@ -125,12 +128,12 @@ object RangeNotNumericAddressResponseError extends AddressResponseError(
 
 object LatitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 22,
-  message = "Latitiude parameter is not numeric"
+  message = "Latitiude parameter is not numeric. The API expects decimal degrees."
 )
 
 object LongitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 23,
-  message = "Longitude parameter is not numeric"
+  message = "Longitude parameter is not numeric. The API expects decimal degrees. "
 )
 
 object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
@@ -163,27 +166,22 @@ object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
   message = "Matchthreshold parameter must be greater than 0 and less than or equal to 100"
 )
 
-object FilterInvalidPostcodeError extends AddressResponseError(
-  code = 30,
-  message = "Invalid filter value provided (postcode)"
-)
-
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
-  code = 31,
+  code = 30,
   message = "Request to Elasticsearch failed (partial address)(check the API logs)"
 )
 
 object StartDateInvalidResponseError extends AddressResponseError(
-  code = 32,
-  message = "Invalid start date"
+  code = 31,
+  message = "Invalid start date. Format is YYYY-MM-DD."
 )
 
 object EndDateInvalidResponseError extends AddressResponseError(
-  code = 33,
-  message = "Invalid end date"
+  code = 32,
+  message = "Invalid end date. Format is YYYY-MM-DD."
 )
 
 object ShortQueryAddressResponseError extends AddressResponseError(
-  code = 34,
+  code = 33,
   message = "Partial address string too short, minimum * characters"
 )

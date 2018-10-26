@@ -20,7 +20,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
 
   // override error message with named length
   object ShortQueryAddressResponseErrorCustom extends AddressResponseError(
-    code = 34,
+    code = 33,
     message = ShortQueryAddressResponseError.message.replace("*",minimumTermLength.toString)
   )
 
