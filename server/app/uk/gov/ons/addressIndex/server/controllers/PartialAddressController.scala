@@ -85,8 +85,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     val result: Option[Future[Result]] =
-      partialAddressValidation.validateLimit(limit)
-        .orElse(partialAddressValidation.validateOffset(offset))
+      partialAddressValidation.validatePartialLimit(limit)
+        .orElse(partialAddressValidation.validatePartialOffset(offset))
         .orElse(partialAddressValidation.validateStartDate(startDateVal))
         .orElse(partialAddressValidation.validateEndDate(endDateVal))
         .orElse(partialAddressValidation.validateSource)

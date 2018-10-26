@@ -19,6 +19,30 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(ShortQueryAddressResponseError)
   }
 
+  def LimitNotNumericPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(LimitNotNumericAddressResponseError)
+  }
+
+  def OffsetNotNumericPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(OffsetNotNumericAddressResponseError)
+  }
+
+  def LimitTooSmallPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(LimitTooSmallAddressResponseError)
+  }
+
+  def OffsetTooSmallPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(OffsetTooSmallAddressResponseError)
+  }
+
+  def LimitTooLargePartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(LimitTooLargeAddressResponseError)
+  }
+
+  def OffsetTooLargePartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(OffsetTooLargeAddressResponseError)
+  }
+
   def FailedRequestToEsPartialAddress: AddressByPartialAddressResponseContainer = {
     AddressByPartialAddressResponseContainer(
       apiVersion = apiVersion,
