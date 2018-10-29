@@ -23,10 +23,6 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Latitude of point in decimal format (e.g. 50.705948).
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -51,7 +47,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String])
 
 
 ###
@@ -156,10 +152,6 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #  parameters:
 #    - name: uprn
 #      description: Specifies the address UPRN.
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -182,7 +174,7 @@ GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String])
 
 
 ###
@@ -201,10 +193,6 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -225,7 +213,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
 
 
 ###
@@ -244,10 +232,6 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -268,7 +252,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
 
 ###
 #  summary: Get version information.
@@ -296,10 +280,6 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address.
 #      default: 5
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -320,7 +300,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -330,10 +310,6 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address.
 #      default: 5
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -354,7 +330,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 ###
@@ -380,10 +356,6 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      description: Latitude of point in decimal format (e.g. 50.705948).
 #    - name: lon
 #      description: Longitude of point in decimal format (e.g. -3.5091076).
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -399,7 +371,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String])
 
 ### NoDocs ###
 ###
@@ -409,10 +381,6 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: limitperaddress
 #      description: Specifies the maximum number of matches to return per address.
 #      default: 5
-#    - name: startdate
-#      description: Date that address was first loaded into the database (yyyy-MM-dd). Required if endDate given.
-#    - name: enddate
-#      description: Date that address ceased to exist in the database (yyyy-MM-dd). Required if startDate given.
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -433,7 +401,7 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], startdate: Option[String], enddate: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

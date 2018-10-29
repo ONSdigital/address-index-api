@@ -42,7 +42,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
   def addressQuery(implicit input: String, offset: Option[String] = None, limit: Option[String] = None,
                    classificationfilter: Option[String] = None, rangekm: Option[String] = None,
                    lat: Option[String] = None, lon: Option[String] = None,
-                   startDate: Option[String] = None, endDate: Option[String] = None,
+  //                 startDate: Option[String] = None, endDate: Option[String] = None,
                    historical: Option[String] = None,
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
@@ -53,8 +53,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val ip: String = req.remoteAddress
     val url: String = req.uri
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+ //   val startDateVal = startDate.getOrElse("")
+ //   val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
@@ -90,7 +92,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offval, limit = limval, filter = filterString,
-        endDate=endDateVal, startDate = startDateVal, historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
+        endDate=endDateVal, startDate = startDateVal,
+        historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid)
@@ -106,8 +109,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val result: Option[Future[Result]] =
       addressValidation.validateAddressFilter(classificationfilter)
-        .orElse(addressValidation.validateStartDate(startDateVal))
-        .orElse(addressValidation.validateEndDate(endDateVal))
+   //     .orElse(addressValidation.validateStartDate(startDateVal))
+    //    .orElse(addressValidation.validateEndDate(endDateVal))
         .orElse(addressValidation.validateThreshold(matchthreshold))
         .orElse(addressValidation.validateRange(rangekm))
         .orElse(addressValidation.validateSource)

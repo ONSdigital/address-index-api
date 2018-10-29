@@ -34,7 +34,9 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String, startDate: Option[String] = None, endDate: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String,
+   // startDate: Option[String] = None, endDate: Option[String] = None,
+    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -50,8 +52,10 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       case None => false
     }
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+    //  val startDateVal = startDate.getOrElse("")
+    //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     val startingTime = System.currentTimeMillis()
 
@@ -71,8 +75,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Future[Result]] =
       uprnValidation.validateUprn(uprn)
-        .orElse(uprnValidation.validateStartDate(startDateVal))
-        .orElse(uprnValidation.validateEndDate(endDateVal))
+  //      .orElse(uprnValidation.validateStartDate(startDateVal))
+   //     .orElse(uprnValidation.validateEndDate(endDateVal))
         .orElse(uprnValidation.validateSource)
         .orElse(uprnValidation.validateKeyStatus)
         .orElse(None)

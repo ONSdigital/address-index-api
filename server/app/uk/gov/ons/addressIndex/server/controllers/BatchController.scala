@@ -34,15 +34,18 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return reduced information on found addresses (uprn, formatted address)
     */
-  def bulk(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None,
-           historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+  def bulk(limitperaddress: Option[String],
+ //   startDate: Option[String] = None, endDate: Option[String] = None,
+    historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
 
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.bulk
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+  //  val startDateVal = startDate.getOrElse("")
+  //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.bulk.limitperaddress
@@ -55,8 +58,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource
-        .orElse(batchValidation.validateBatchStartDate(startDateVal))
-        .orElse(batchValidation.validateBatchEndDate(endDateVal))
+   //     .orElse(batchValidation.validateBatchStartDate(startDateVal))
+   //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
@@ -87,8 +90,9 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
-  def bulkFull(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None,
-               historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(
+  def bulkFull(limitperaddress: Option[String],
+  //  startDate: Option[String] = None, endDate: Option[String] = None,
+    historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBody] = Action(
     parse.json[BulkBody]) { implicit request =>
 
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
@@ -98,8 +102,10 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       case None => true
     }
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+    //  val startDateVal = startDate.getOrElse("")
+    //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     val defLimit = conf.config.bulk.limitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -113,8 +119,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource
-        .orElse(batchValidation.validateBatchStartDate(startDateVal))
-        .orElse(batchValidation.validateBatchEndDate(endDateVal))
+ //       .orElse(batchValidation.validateBatchStartDate(startDateVal))
+  //      .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold))
@@ -137,8 +143,9 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitperaddress: Option[String], startDate: Option[String] = None, endDate: Option[String] = None,
-                historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(
+  def bulkDebug(limitperaddress: Option[String],
+ //   startDate: Option[String] = None, endDate: Option[String] = None,
+    historical: Option[String] = None, matchthreshold: Option[String] = None): Action[BulkBodyDebug] = Action(
     parse.json[BulkBodyDebug]) { implicit request =>
 
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
@@ -148,8 +155,10 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       case None => true
     }
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+    //  val startDateVal = startDate.getOrElse("")
+    //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     val defLimit = conf.config.bulk.limitperaddress
     val limval = limitperaddress.getOrElse(defLimit.toString)
@@ -163,8 +172,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource
-        .orElse(batchValidation.validateBatchStartDate(startDateVal))
-        .orElse(batchValidation.validateBatchEndDate(endDateVal))
+   //     .orElse(batchValidation.validateBatchStartDate(startDateVal))
+   //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus)
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold))

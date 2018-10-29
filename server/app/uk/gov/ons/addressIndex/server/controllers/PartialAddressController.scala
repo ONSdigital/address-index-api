@@ -36,7 +36,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     */
 
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
-    classificationfilter: Option[String] = None, startDate: Option[String], endDate: Option[String],
+    classificationfilter: Option[String] = None,
+    // startDate: Option[String], endDate: Option[String],
     historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -52,8 +53,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val filterString = classificationfilter.getOrElse("")
     val endpointType = "partial"
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+    //  val startDateVal = startDate.getOrElse("")
+    //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -87,8 +90,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val result: Option[Future[Result]] =
       partialAddressValidation.validatePartialLimit(limit)
         .orElse(partialAddressValidation.validatePartialOffset(offset))
-        .orElse(partialAddressValidation.validateStartDate(startDateVal))
-        .orElse(partialAddressValidation.validateEndDate(endDateVal))
+  //      .orElse(partialAddressValidation.validateStartDate(startDateVal))
+  //      .orElse(partialAddressValidation.validateEndDate(endDateVal))
         .orElse(partialAddressValidation.validateSource)
         .orElse(partialAddressValidation.validateKeyStatus)
         .orElse(partialAddressValidation.validateInput(input))
