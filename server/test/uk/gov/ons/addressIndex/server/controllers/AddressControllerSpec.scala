@@ -71,7 +71,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     northing = "28",
     organisation = "22",
     legalName = "23",
-    classificationCode = "29",
     usrn = "4",
     lpiKey = "5",
     paoText = "6",
@@ -96,7 +95,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     streetClassification = "streetClassification",
     multiOccCount = "multiOccCount",
     language = "language",
-    classScheme = "classScheme",
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
@@ -127,7 +125,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     postcodeOut = "3",
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
-    score = 1f
+    score = 1f,
+    classificationCode = "29"
   )
 
   val validCodelistList: String = "{\"codelists\"" +

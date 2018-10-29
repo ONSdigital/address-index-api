@@ -144,7 +144,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "[ R ] [ Residential ]"
+      val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "gate reach"
       val filter = "RD"
       val range = ""

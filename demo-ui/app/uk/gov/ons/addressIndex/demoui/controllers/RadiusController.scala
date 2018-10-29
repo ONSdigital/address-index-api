@@ -194,9 +194,8 @@ class RadiusController @Inject()(
         ) map { resp: AddressBySearchResponseContainer =>
           val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue, startDateVal, endDateVal))
 
-          val nags = resp.response.addresses.flatMap(_.nag)
-          val classCodes: Map[String, String] = nags.map(nag =>
-            (nag(0).uprn, classHierarchy.analyseClassCode(nag(0).classificationCode))).toMap
+          val classCodes: Map[String, String] = resp.response.addresses.map(address =>
+            (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
 
           val warningMessage =
             if (resp.status.code == 200) None
