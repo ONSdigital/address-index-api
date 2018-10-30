@@ -35,7 +35,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     * @return Json response with addresses information
     */
   def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
-                    startDate: Option[String] = None, endDate: Option[String] = None,
+  //                  startDate: Option[String] = None, endDate: Option[String] = None,
                     historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -51,8 +51,10 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val filterString = classificationfilter.getOrElse("")
     val endpointType = "postcode"
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+    //  val startDateVal = startDate.getOrElse("")
+    //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -85,8 +87,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
     val result: Option[Future[Result]] =
       postcodeValidation.validatePostcodeLimit(limit)
-        .orElse(postcodeValidation.validateStartDate(startDateVal))
-        .orElse(postcodeValidation.validateEndDate(endDateVal))
+  //      .orElse(postcodeValidation.validateStartDate(startDateVal))
+  //      .orElse(postcodeValidation.validateEndDate(endDateVal))
         .orElse(postcodeValidation.validatePostcodeOffset(offset))
         .orElse(postcodeValidation.validateSource)
         .orElse(postcodeValidation.validateKeyStatus)

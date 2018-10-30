@@ -11,7 +11,30 @@ import scala.util.Try
 abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Validation with AddressResponse  {
 
-  def validateAddressLimit(limit: Option[String]): Option[Future[Result]] = {
+  // get maxima length from config
+  val maximumLimit = conf.config.elasticSearch.maximumLimit
+  val maximumOffset = conf.config.elasticSearch.maximumOffset
+
+  // override error messages with maxima
+  object LimitTooLargeAddressResponseErrorCustom extends AddressResponseError(
+    code = 8,
+    message = LimitTooLargeAddressResponseError.message.replace("*",maximumLimit.toString)
+  )
+
+  object OffsetTooLargeAddressResponseErrorCustom extends AddressResponseError(
+    code = 9,
+    message = OffsetTooLargeAddressResponseError.message.replace("*",maximumOffset.toString)
+  )
+
+  override def LimitTooLarge: AddressBySearchResponseContainer = {
+    BadRequestTemplate(LimitTooLargeAddressResponseErrorCustom)
+  }
+
+  override def OffsetTooLarge: AddressBySearchResponseContainer = {
+    BadRequestTemplate(OffsetTooLargeAddressResponseErrorCustom)
+  }
+
+  def validateLimit(limit: Option[String]): Option[Future[Result]] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -26,12 +49,12 @@ abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: 
       logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
       Some(futureJsonBadRequest(LimitTooSmall))
     } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
       Some(futureJsonBadRequest(LimitTooLarge))
     } else None
   }
 
-  def validateAddressOffset(offset: Option[String]): Option[Future[Result]] = {
+  def validateOffset(offset: Option[String]): Option[Future[Result]] = {
     val maxOffset: Int = conf.config.elasticSearch.maximumOffset
     val defOffset: Int = conf.config.elasticSearch.defaultOffset
     val offval = offset.getOrElse(defOffset.toString)
@@ -45,7 +68,7 @@ abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: 
       logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
       Some(futureJsonBadRequest(OffsetTooSmall))
     } else if (offsetInt > maxOffset) {
-      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
       Some(futureJsonBadRequest(OffsetTooLarge))
     } else None
   }

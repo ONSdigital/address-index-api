@@ -27,19 +27,19 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
 
   protected def invalidDate(date: String) : Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
 
-  def validateStartDate(startDate: String) : Option[Future[Result]] = {
-    if (invalidDate(startDate)) {
-      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
-      Some(futureJsonBadRequest(StartDateInvalid))
-    } else None
-  }
-
-  def validateEndDate(endDate: String) : Option[Future[Result]] = {
-    if (invalidDate(endDate)) {
-      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
-      Some(futureJsonBadRequest(EndDateInvalid))
-    } else None
-  }
+//  def validateStartDate(startDate: String) : Option[Future[Result]] = {
+//    if (invalidDate(startDate)) {
+//      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
+//      Some(futureJsonBadRequest(StartDateInvalid))
+//    } else None
+//  }
+//
+//  def validateEndDate(endDate: String) : Option[Future[Result]] = {
+//    if (invalidDate(endDate)) {
+//      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
+//      Some(futureJsonBadRequest(EndDateInvalid))
+//    } else None
+//  }
 
   def validateKeyStatus(implicit request: RequestHeader): Option[Future[Result]] = {
 

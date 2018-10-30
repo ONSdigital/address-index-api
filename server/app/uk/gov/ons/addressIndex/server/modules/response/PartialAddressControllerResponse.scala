@@ -1,9 +1,47 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
-import uk.gov.ons.addressIndex.model.server.response.address.{FailedRequestToEsPartialAddressError, InternalServerErrorAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 
 trait PartialAddressControllerResponse extends AddressResponse {
+
+  def BadRequestPartialTemplate(errors: AddressResponseError*): AddressByPartialAddressResponseContainer = {
+    AddressByPartialAddressResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPartialAddress,
+      status = BadRequestAddressResponseStatus,
+      errors = errors
+    )
+  }
+
+  def ShortSearch: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(ShortQueryAddressResponseError)
+  }
+
+  def LimitNotNumericPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(LimitNotNumericAddressResponseError)
+  }
+
+  def OffsetNotNumericPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(OffsetNotNumericAddressResponseError)
+  }
+
+  def LimitTooSmallPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(LimitTooSmallAddressResponseError)
+  }
+
+  def OffsetTooSmallPartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(OffsetTooSmallAddressResponseError)
+  }
+
+  def LimitTooLargePartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(LimitTooLargeAddressResponseError)
+  }
+
+  def OffsetTooLargePartial: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(OffsetTooLargeAddressResponseError)
+  }
 
   def FailedRequestToEsPartialAddress: AddressByPartialAddressResponseContainer = {
     AddressByPartialAddressResponseContainer(
