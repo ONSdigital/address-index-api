@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -11,7 +12,15 @@ import scala.util.Try
 
 @Singleton
 class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
-  extends Validation with PostcodeControllerResponse {
+  extends AddressValidation with PostcodeControllerResponse {
+
+  override def LimitTooLargePostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(LimitTooLargeAddressResponseErrorCustom)
+  }
+
+  override def OffsetTooLargePostcode: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(OffsetTooLargeAddressResponseErrorCustom)
+  }
 
   def validatePostcodeLimit(limit: Option[String]): Option[Future[Result]] = {
 
@@ -22,13 +31,13 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     val maxLimit: Int = conf.config.elasticSearch.maximumLimit
 
     if (limitInvalid) {
-      logger.systemLog(badRequestMessage = LimitNotNumericPostcodeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(LimitNotNumericPostcode))
     } else if (limitInt < 1) {
-      logger.systemLog(badRequestMessage = LimitTooSmallPostcodeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
       Some(futureJsonBadRequest(LimitTooSmallPostcode))
     } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargePostcodeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
       Some(futureJsonBadRequest(LimitTooLargePostcode))
     } else None
 
@@ -53,13 +62,13 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     if (offsetInvalid) {
-      logger.systemLog(badRequestMessage = OffsetNotNumericPostcodeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
       Some(futureJsonBadRequest(OffsetNotNumericPostcode))
     } else if (offsetInt < 0) {
-      logger.systemLog(badRequestMessage = OffsetTooSmallPostcodeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
       Some(futureJsonBadRequest(OffsetTooSmallPostcode))
     } else if (offsetInt > maxOffset) {
-      logger.systemLog(badRequestMessage = OffsetTooLargePostcodeAddressResponseError.message)
+      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
       Some(futureJsonBadRequest(OffsetTooLargePostcode))
     } else None
   }
@@ -68,6 +77,11 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     if (postcode.isEmpty) {
       logger.systemLog(badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearchPostcode))
+    } else if (!postcode.matches("^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$")) {
+       logger.systemLog(badRequestMessage = postcode + ": " + FilterInvalidError.message)
+      // log postcode format error only unless we decide we want to return it to uses
+      //  Some(futureJsonBadRequest(InvalidPostcode))
+      None
     } else None
   }
 
