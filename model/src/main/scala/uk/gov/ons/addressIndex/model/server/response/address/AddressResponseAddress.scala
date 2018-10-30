@@ -44,7 +44,6 @@ object AddressResponseAddress {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
-    val classificationCode = if (chosenNag.isEmpty) "" else chosenNag.get.classificationCode
     val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
@@ -67,7 +66,7 @@ object AddressResponseAddress {
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
       nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress)) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      classificationCode = classificationCode,
+      classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
       underlyingScore = other.score

@@ -6,20 +6,19 @@ import uk.gov.ons.addressIndex.model.db.index.NationalAddressGazetteerAddress
 /**
   * @param uprn uprn
   * @param postcodeLocator postcode
-  * @param addressBasePostal
+  * @param addressBasePostal Address Base Postal
   * @param usrn ursn
   * @param lpiKey lpi key
-  * @param pao
-  * @param sao
+  * @param pao PAO
+  * @param sao SAO
   * @param level ground and first floor
-  * @param officialFlag
-  * @param logicalStatus
-  * @param streetDescriptor
-  * @param townName
-  * @param locality
-  * @param organisation
-  * @param legalName
-  * @param classificationCode
+  * @param officialFlag Official Flag
+  * @param logicalStatus Logical Status
+  * @param streetDescriptor Street Descriptor
+  * @param townName Town Name
+  * @param locality Locality
+  * @param organisation Organisation
+  * @param legalName Legal name
   */
 case class AddressResponseNag(
   uprn: String,
@@ -37,7 +36,6 @@ case class AddressResponseNag(
   locality: String,
   organisation: String,
   legalName: String,
-  classificationCode: String,
   localCustodianCode: String,
   localCustodianName: String,
   localCustodianGeogCode: String,
@@ -77,7 +75,6 @@ object AddressResponseNag {
         other.locality,
         other.organisation,
         other.legalName,
-        other.classificationCode,
         other.localCustodianCode,
         other.localCustodianName,
         other.localCustodianGeogCode,

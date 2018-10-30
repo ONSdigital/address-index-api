@@ -22,7 +22,8 @@ case class HybridAddress(
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
   paf: Seq[PostcodeAddressFileAddress],
-  score: Float
+  score: Float,
+  classificationCode: String
 )
 
 object HybridAddress {
@@ -41,7 +42,8 @@ object HybridAddress {
     postcodeOut = "",
     lpi = Seq.empty,
     paf = Seq.empty,
-    score = 0
+    score = 0,
+    classificationCode = ""
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -81,7 +83,8 @@ object HybridAddress {
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
-        score = hit.score
+        score = hit.score,
+        classificationCode = hit.sourceAsMap("classificationCode").toString
       ))
     }
   }
@@ -116,7 +119,7 @@ object HybridAddresses {
     * the compamion object of `HybridAddress`
     *
     * @throws Exception if there is at least one shard failing
-    * @param response
+    * @param response Response
     * @return
     */
   def fromSearchResponse(response: SearchResponse): HybridAddresses = {

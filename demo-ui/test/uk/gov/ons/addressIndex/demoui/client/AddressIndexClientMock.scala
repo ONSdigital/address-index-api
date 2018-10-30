@@ -171,7 +171,6 @@ object AddressIndexClientMock {
     locality= "",
     organisation= "",
     legalName= "",
-    classificationCode = "R",
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
     localCustodianGeogCode = "E06000042",

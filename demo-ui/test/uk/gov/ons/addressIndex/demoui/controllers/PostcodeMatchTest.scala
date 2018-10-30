@@ -140,7 +140,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "[ R ] [ Residential ]"
+      val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "EX2 6GA"
       val filter = "RD"
       val historical = true
@@ -171,7 +171,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val apiClient = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val expectedString = "[ R ] [ Residential ]"
+      val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "EX2 6GA"
       val filter = "RD"
       val startdate = "2012-01-01"

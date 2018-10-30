@@ -18,7 +18,6 @@ case class NationalAddressGazetteerAddress (
   northing: String,
   organisation: String,
   legalName: String,
-  classificationCode: String,
   usrn: String,
   lpiKey: String,
   paoText: String,
@@ -43,7 +42,6 @@ case class NationalAddressGazetteerAddress (
   streetClassification: String,
   multiOccCount: String,
   language: String,
-  classScheme: String,
   localCustodianCode: String,
   localCustodianName: String,
   localCustodianGeogCode: String,
@@ -71,7 +69,6 @@ object NationalAddressGazetteerAddress {
     val northing: String = "northing"
     val organisation: String = "organisation"
     val legalName: String = "legalName"
-    val classificationCode: String = "classificationCode"
     val usrn: String = "usrn"
     val lpiKey: String = "lpiKey"
     val paoText: String = "paoText"
@@ -97,7 +94,6 @@ object NationalAddressGazetteerAddress {
     val multiOccCount: String = "multiOccCount"
     val location: String = "location"
     val language: String = "language"
-    val classScheme: String = "classScheme"
     val localCustodianCode: String = "localCustodianCode"
     val localCustodianName: String = "localCustodianName"
     val localCustodianGeogCode: String = "localCustodianGeogCode"
@@ -130,7 +126,6 @@ object NationalAddressGazetteerAddress {
       northing = filteredNag.getOrElse(Fields.northing, "").toString,
       organisation = filteredNag.getOrElse(Fields.organisation, "").toString,
       legalName = filteredNag.getOrElse(Fields.legalName, "").toString,
-      classificationCode = filteredNag.getOrElse(Fields.classificationCode, "").toString,
       usrn = filteredNag.getOrElse(Fields.usrn, "").toString,
       lpiKey = filteredNag.getOrElse(Fields.lpiKey, "").toString,
       paoText = filteredNag.getOrElse(Fields.paoText, "").toString,
@@ -155,7 +150,6 @@ object NationalAddressGazetteerAddress {
       streetClassification = filteredNag.getOrElse(Fields.streetClassification, "").toString,
       multiOccCount = filteredNag.getOrElse(Fields.multiOccCount, "").toString,
       language = filteredNag.getOrElse(Fields.language, "").toString,
-      classScheme = filteredNag.getOrElse(Fields.classScheme, "").toString,
       localCustodianCode = filteredNag.getOrElse(Fields.localCustodianCode, "").toString,
       localCustodianName = LocalCustodian.getLAName(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
       localCustodianGeogCode = LocalCustodian.getLACode(filteredNag.getOrElse(Fields.localCustodianCode, "").toString),
