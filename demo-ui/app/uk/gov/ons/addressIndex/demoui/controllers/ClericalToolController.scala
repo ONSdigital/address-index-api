@@ -345,10 +345,6 @@ class ClericalToolController @Inject()(
       ) map { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.getOrElse(""), historicalValue, matchthresholdValue, startDateVal, endDateVal))
 
-//        val nags = resp.response.address.flatMap(_.nag)
-//        val classCodes: Map[String, String] = nags.map(nag =>
-//          (nag(0).uprn , classHierarchy.analyseClassCode(nag(0).classificationCode))).toMap
-
         val classCodes: Map[String, String] = resp.response.address.map(address =>
           (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
 
