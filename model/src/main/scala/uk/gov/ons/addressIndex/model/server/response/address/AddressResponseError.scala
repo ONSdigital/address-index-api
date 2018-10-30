@@ -70,7 +70,7 @@ object FailedRequestToEsError extends AddressResponseError(
 
 object ApiKeyMissingError extends AddressResponseError(
   code = 11,
-  message = "The API key is missing. It should be provided via the Authorization header."
+  message = "The API key is missing from the Authorization header."
 )
 
 object ApiKeyInvalidError extends AddressResponseError(
@@ -118,7 +118,7 @@ object NotFoundPostcodeResponseError extends AddressResponseError(
 
 object UprnNotNumericAddressResponseError extends AddressResponseError(
   code = 20,
-  message = "UPRNs must be numeric. They are up to 12 digits and do not have leading zeroes."
+  message = "UPRNs must be numeric. They can have up to 12 digits and have no leading zeroes."
 )
 
 object RangeNotNumericAddressResponseError extends AddressResponseError(
