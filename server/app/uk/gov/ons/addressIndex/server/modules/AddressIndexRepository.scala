@@ -187,7 +187,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
-    val query =
+     val query =
       if (inputNumberList.isEmpty) {
         if (filters.isEmpty) {
           if (fallback) {
@@ -242,14 +242,21 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
       else {
-        if (filters.isEmpty) {
+        val numberQuery =
+          if (inputNumberList.length == 1) {
+            Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+              matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
+          } else {
+            Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("lpi.paoStartNumber",inputNumberList(1)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+          }
+            if (filters.isEmpty) {
           if (fallback) {
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
-              .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+              .should(numberQuery)
               .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                 .flatten)
           }
@@ -257,9 +264,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             must(multiMatchQuery(input)
               .matchType("phrase").slop(slopVal)
               .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
-              .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+              .should(numberQuery)
               .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                 .flatten)
           }
@@ -269,9 +274,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
-                .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+                .should(numberQuery)
                 .filter(Seq(Option(prefixQuery("classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
@@ -280,9 +283,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
-                .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+                .should(numberQuery)
                 .filter(Seq(Option(prefixQuery("classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
@@ -292,9 +293,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
-                .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+                .should(numberQuery)
                 .filter(Seq(Option(termQuery("classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
@@ -302,9 +301,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
-                .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-                  matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+                .should(numberQuery)
                 .filter(Seq(Option(termQuery("classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
