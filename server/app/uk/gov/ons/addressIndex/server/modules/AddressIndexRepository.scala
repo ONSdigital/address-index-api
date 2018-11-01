@@ -248,7 +248,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("best_fields")
               .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
               .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10),
-              matchQuery("lpi.paoStartNumber",inputNumberList(max(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
+              matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
                 matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D))
               .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                 .flatten)
@@ -258,7 +258,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase").slop(slopVal)
               .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
               .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10),
-                matchQuery("lpi.paoStartNumber",inputNumberList(max(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
+                matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
                 matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D))
               .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                 .flatten)
@@ -270,7 +270,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
                 .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10),
-                  matchQuery("lpi.paoStartNumber",inputNumberList(max(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
+                  matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
                   matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D))
                 .filter(Seq(Option(prefixQuery("classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
@@ -281,7 +281,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .slop(slopVal)
                 .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
                 .should(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10),
-                  matchQuery("lpi.paoStartNumber",inputNumberList(max(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
+                  matchQuery("lpi.paoStartNumber",inputNumberList(min(1,inputNumberList.length-1))).prefixLength(1).maxExpansions(10),
                   matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D))
                 .filter(Seq(Option(prefixQuery("classificationCode", filterValue)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
