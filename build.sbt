@@ -237,7 +237,8 @@ lazy val `address-index-server` = project.in(file("server"))
     SbtWeb,
     JavaAppPackaging,
     GitVersioning,
-    SwaggerPlugin
+    SwaggerPlugin,
+    DockerPlugin
   )
 
 lazy val `address-index-parsers` = project.in(file("parsers"))
