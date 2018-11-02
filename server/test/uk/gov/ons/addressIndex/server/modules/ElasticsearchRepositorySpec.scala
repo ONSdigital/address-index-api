@@ -752,12 +752,33 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            				}
            			}],
            			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                     "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "4",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "4",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
            			"filter": [{
            				"prefix": {
            					"classificationCode": {
@@ -806,13 +827,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"type": "best_fields"
            				}
            			}],
-           			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                      			"should": [{
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "match": {
+                                        "lpi.paoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "match": {
+                                        "lpi.saoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.2,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }],
            			"filter": [{
            				"prefix": {
            					"classificationCode": {
@@ -862,13 +904,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     "slop":4
            				}
            			}],
-           			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                      			"should": [{
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "match": {
+                                        "lpi.paoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "match": {
+                                        "lpi.saoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.2,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }],
            			"filter": [{
            				"prefix": {
            					"classificationCode": {
@@ -961,13 +1024,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"type": "best_fields"
            				}
            			}],
-           			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                      			"should": [{
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "match": {
+                                        "lpi.paoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "match": {
+                                        "lpi.saoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.2,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }],
            			"filter": [{
            				"prefix": {
            					"classificationCode": {
@@ -2756,13 +2840,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "slop":4
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "bool":{
                   "must_not":[{
@@ -2804,13 +2909,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "type":"best_fields"
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                              "lpi.paoStartNumber": {
+                              "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "bool":{
                   "must_not":[{
@@ -2938,13 +3064,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "slop":4
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "term":{
                   "classificationCode":{
@@ -2994,13 +3141,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "type":"best_fields"
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "term":{
                   "classificationCode":{
@@ -3050,13 +3218,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "slop":4
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "prefix":{
                   "classificationCode":{
@@ -3105,13 +3294,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "type":"best_fields"
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+          			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "prefix":{
                   "classificationCode":{

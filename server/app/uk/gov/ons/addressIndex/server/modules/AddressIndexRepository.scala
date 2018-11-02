@@ -109,8 +109,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false).start(start).limit(limit)
 
-    val requestString = SearchBodyBuilderFn(request).string()
-    logger.warn(requestString)
     val partResult = client.execute(request).map(HybridAddresses.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
@@ -167,10 +165,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else filters.toUpperCase
     }
 
-    val inputNumberOnlyPattern = "([0-9]+)".r
-
-   // val inputNumber = input.replaceAll("[^0-9]", "")
-
+    // collect all numbers in input as separate tokens
     val inputNumberList: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
 
     val slopVal = 4
@@ -242,6 +237,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
       else {
+        // if there is only one number, give boost for pao or sao not both.
+        // if there are two or more numbers, boost for either matching pao and first matching sao
         val numberQuery =
           if (inputNumberList.length == 1) {
             Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
