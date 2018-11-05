@@ -340,7 +340,7 @@
 						"required": false,
 						"description": "Specifies the offset from zero, used for pagination.",
 						"default": 0,
-						"maximum": 1000
+						"maximum": 250
 					},
 					{
 						"in": "query",
@@ -461,92 +461,6 @@
 						"schema": {
 							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
 						}
-					},
-					"400": {
-						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
-					},
-					"401": {
-						"description": "Unauthorised. The API key provided with the request is invalid."
-					},
-					"429": {
-						"description": "Server too busy. The Address Index API is experiencing exceptional load."
-					},
-					"500": {
-						"description": "Internal server error. Failed to process the request due to an internal error."
-					}
-				}
-			}
-		},
-		"/es": {
-			"get": {
-				"operationId": "elasticTest",
-				"tags": [
-					"routes"
-				],
-				"summary": "Test elastic is connected.",
-				"responses": {
-					"200": {
-						"description": "success"
-					}
-				}
-			}
-		},
-		"/query-debug": {
-			"get": {
-				"operationId": "queryDebug",
-				"tags": [
-					"routes"
-				],
-				"summary": "Gets the query that should be generated for a particular input.",
-				"description": "Returns query that is sent to Elastic (for debug purposes).",
-				"parameters": [
-					{
-						"in": "query",
-						"name": "input",
-						"type": "string",
-						"required": true,
-						"description": "Specifies the input for which the query should be generated."
-					},
-					{
-						"in": "query",
-						"name": "classificationfilter",
-						"type": "string",
-						"required": false,
-						"description": "Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial"
-					},
-					{
-						"in": "query",
-						"name": "rangekm",
-						"type": "string",
-						"required": false,
-						"description": "Limit results to those within this number of kilometers of point (decimal e.g. 0.1)"
-					},
-					{
-						"in": "query",
-						"name": "lat",
-						"type": "string",
-						"required": false,
-						"description": "Latitude of point in decimal format (e.g. 50.705948)."
-					},
-					{
-						"in": "query",
-						"name": "lon",
-						"type": "string",
-						"required": false,
-						"description": "Longitude of point in decimal format (e.g. -3.5091076)."
-					},
-					{
-						"in": "query",
-						"name": "historical",
-						"type": "string",
-						"required": false,
-						"description": "Include historical addresses",
-						"default": true
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Success. A json return of the elasticsearch query."
 					},
 					"400": {
 						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
@@ -704,62 +618,6 @@
 					}
 				}
 			}
-		},
-		"/bulk-debug": {
-			"post": {
-				"operationId": "bulkDebug",
-				"tags": [
-					"routes"
-				],
-				"summary": "Post bulk addresses as tokens.",
-				"description": "Bulk endpoint that accepts tokens instead of input texts for each address.",
-				"parameters": [
-					{
-						"in": "query",
-						"name": "limitperaddress",
-						"type": "string",
-						"required": false,
-						"description": "Specifies the maximum number of matches to return per address.",
-						"default": 5
-					},
-					{
-						"in": "query",
-						"name": "historical",
-						"type": "string",
-						"required": false,
-						"description": "Include historical addresses",
-						"default": true
-					},
-					{
-						"in": "query",
-						"name": "matchthreshold",
-						"type": "string",
-						"required": false,
-						"description": "Minimum confidence score (percentage) for match to be included in results.",
-						"default": 5
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Success. A json return of matched addresses.",
-						"schema": {
-							"$ref": "#/definitions/AddressBulkResponse"
-						}
-					},
-					"400": {
-						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
-					},
-					"401": {
-						"description": "Unauthorised. The API key provided with the request is invalid."
-					},
-					"429": {
-						"description": "Server too busy. The Address Index API is experiencing exceptional load."
-					},
-					"500": {
-						"description": "Internal server error. Failed to process the request due to an internal error."
-					}
-				}
-			}
 		}
 	},
 	"definitions": {
@@ -798,12 +656,20 @@
 				"historical": {
 					"type": "boolean"
 				},
+				"startDate": {
+					"type": "string"
+				},
+				"endDate": {
+					"type": "string"
+				},
 				"verbose": {
 					"type": "boolean"
 				}
 			},
 			"required": [
 				"historical",
+				"startDate",
+				"endDate",
 				"verbose"
 			]
 		},
@@ -869,6 +735,12 @@
 					"type": "number",
 					"format": "double"
 				},
+				"startDate": {
+					"type": "string"
+				},
+				"endDate": {
+					"type": "string"
+				},
 				"verbose": {
 					"type": "boolean"
 				}
@@ -882,6 +754,8 @@
 				"offset",
 				"total",
 				"maxScore",
+				"startDate",
+				"endDate",
 				"verbose"
 			]
 		},
@@ -1087,6 +961,12 @@
 				"longitude": {
 					"type": "string"
 				},
+				"startDate": {
+					"type": "string"
+				},
+				"endDate": {
+					"type": "string"
+				},
 				"limit": {
 					"type": "integer",
 					"format": "int32"
@@ -1123,6 +1003,8 @@
 				"rangekm",
 				"latitude",
 				"longitude",
+				"startDate",
+				"endDate",
 				"limit",
 				"offset",
 				"total",
@@ -1330,9 +1212,6 @@
 				"legalName": {
 					"type": "string"
 				},
-				"classificationCode": {
-					"type": "string"
-				},
 				"localCustodianCode": {
 					"type": "string"
 				},
@@ -1365,7 +1244,6 @@
 				"locality",
 				"organisation",
 				"legalName",
-				"classificationCode",
 				"localCustodianCode",
 				"localCustodianName",
 				"localCustodianGeogCode",
@@ -1547,7 +1425,10 @@
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponsePaf"
 				},
 				"nag": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNag"
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNag"
+					}
 				},
 				"geo": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseGeo"
@@ -1614,6 +1495,12 @@
 					"type": "number",
 					"format": "double"
 				},
+				"startDate": {
+					"type": "string"
+				},
+				"endDate": {
+					"type": "string"
+				},
 				"verbose": {
 					"type": "boolean"
 				}
@@ -1627,6 +1514,8 @@
 				"offset",
 				"total",
 				"maxScore",
+				"startDate",
+				"endDate",
 				"verbose"
 			]
 		},
@@ -1805,7 +1694,7 @@
 	},
 	"info": {
 		"title": "ONS Address Index API",
-		"description": "ONS Address Index API.",
+		"description": "The ONS Address Index API lets you retrieve the official version of addresses in England and Wales. The data is currently updated on a 6 week rolling basis.",
 		"version": "see /version below"
 	},
 	"produces": [
