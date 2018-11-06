@@ -254,8 +254,8 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 
 
 ###
-#  summary: Search by partial address (for type ahead).
-#  description: Returns a list addresses, from a partial match on the input string
+#  summary: Deprecated. Search by partial address (for type ahead).
+#  description: Deprecated. Returns a list addresses, from a partial match on the input string
 #  parameters:
 #    - name: input
 #      description: Specifies the address input.
@@ -291,6 +291,44 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 ###
 GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
 
+
+###
+#  summary: Search by partial address (for type ahead).
+#  description: Returns a list addresses, from a partial match on the input string
+#  parameters:
+#    - name: input
+#      description: Specifies the address input.
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination.
+#      default: 0
+#      maximum: 250
+#    - name: limit
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#    - name: historical
+#      description: Include historical addresses
+#      default: true
+#    - name: verbose
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#      default: false
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
