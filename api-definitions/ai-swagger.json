@@ -145,6 +145,36 @@
 				"tags": [
 					"routes"
 				],
+				"summary": "Deprecated. Return a list of available external source codes",
+				"description": "Deprecated. List of valid source codes and names (e.g. council tax)",
+				"responses": {
+					"200": {
+						"description": "Success. A json return of external source codes.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/sources": {
+			"get": {
+				"operationId": "codeListSource",
+				"tags": [
+					"routes"
+				],
 				"summary": "Return a list of available external source codes",
 				"description": "List of valid source codes and names (e.g. council tax)",
 				"responses": {
@@ -170,6 +200,36 @@
 			}
 		},
 		"/codelists/classification": {
+			"get": {
+				"operationId": "codeListClassification",
+				"tags": [
+					"routes"
+				],
+				"summary": "Deprecated. Return a list of available classification codes",
+				"description": "Deprecated. List of classifications e.g. RD01=Detached House",
+				"responses": {
+					"200": {
+						"description": "Success. A json return of available classification codes.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/classifications": {
 			"get": {
 				"operationId": "codeListClassification",
 				"tags": [
@@ -205,6 +265,36 @@
 				"tags": [
 					"routes"
 				],
+				"summary": "Deprecated. Return a list of available local custodian codes",
+				"description": "Deprecated. List of addressbase custodian codes to LA matches",
+				"responses": {
+					"200": {
+						"description": "Success. A json return of address base custodian codes to local authority matches.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/custodians": {
+			"get": {
+				"operationId": "codeListCustodian",
+				"tags": [
+					"routes"
+				],
 				"summary": "Return a list of available local custodian codes",
 				"description": "List of addressbase custodian codes to LA matches",
 				"responses": {
@@ -230,6 +320,36 @@
 			}
 		},
 		"/codelists/logicalstatus": {
+			"get": {
+				"operationId": "codeListLogicalStatus",
+				"tags": [
+					"routes"
+				],
+				"summary": "Deprecated. Return a list of available logical status values",
+				"description": "Deprecated. List of valid statuses e.g. 8=historical",
+				"responses": {
+					"200": {
+						"description": "Success. A json return of valid statuses for the lpiLogicalStatus.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/logicalstatuses": {
 			"get": {
 				"operationId": "codeListLogicalStatus",
 				"tags": [
@@ -323,11 +443,91 @@
 				"tags": [
 					"routes"
 				],
+				"summary": "Deprecated. Search by partial address (for type ahead).",
+				"description": "Deprecated. Returns a list addresses, from a partial match on the input string",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "input",
+						"type": "string",
+						"required": true,
+						"description": "Specifies the address input."
+					},
+					{
+						"in": "query",
+						"name": "offset",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the offset from zero, used for pagination.",
+						"default": 0,
+						"maximum": 250
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the number of addresses to return.",
+						"default": 10,
+						"maximum": 100
+					},
+					{
+						"in": "query",
+						"name": "classificationfilter",
+						"type": "string",
+						"required": false,
+						"description": "Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial"
+					},
+					{
+						"in": "query",
+						"name": "historical",
+						"type": "string",
+						"required": false,
+						"description": "Include historical addresses",
+						"default": true
+					},
+					{
+						"in": "query",
+						"name": "verbose",
+						"type": "string",
+						"required": false,
+						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
+						"default": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success. A json return of matched addresses.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/addresses/partial": {
+			"get": {
+				"operationId": "partialAddressQuery",
+				"tags": [
+					"routes"
+				],
 				"summary": "Search by partial address (for type ahead).",
 				"description": "Returns a list addresses, from a partial match on the input string",
 				"parameters": [
 					{
-						"in": "path",
+						"in": "query",
 						"name": "input",
 						"type": "string",
 						"required": true,
@@ -788,49 +988,6 @@
 				"errors"
 			]
 		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian": {
-			"properties": {
-				"custCode": {
-					"type": "string"
-				},
-				"custName": {
-					"type": "string"
-				},
-				"laName": {
-					"type": "string"
-				},
-				"regCode": {
-					"type": "string"
-				},
-				"regName": {
-					"type": "string"
-				},
-				"laCode": {
-					"type": "string"
-				}
-			},
-			"required": [
-				"custCode",
-				"custName",
-				"laName",
-				"regCode",
-				"regName",
-				"laCode"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer": {
-			"properties": {
-				"custodians": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian"
-					}
-				}
-			},
-			"required": [
-				"custodians"
-			]
-		},
 		"uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress": {
 			"properties": {
 				"id": {
@@ -903,33 +1060,6 @@
 				"bulkAddresses",
 				"status",
 				"errors"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSource": {
-			"properties": {
-				"code": {
-					"type": "string"
-				},
-				"label": {
-					"type": "string"
-				}
-			},
-			"required": [
-				"code",
-				"label"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer": {
-			"properties": {
-				"sources": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSource"
-					}
-				}
-			},
-			"required": [
-				"sources"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse": {
@@ -1041,6 +1171,33 @@
 				"response",
 				"status",
 				"errors"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSource": {
+			"properties": {
+				"code": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"code",
+				"label"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer": {
+			"properties": {
+				"sources": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSource"
+					}
+				}
+			},
+			"required": [
+				"sources"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVersion": {
@@ -1546,6 +1703,49 @@
 				"response",
 				"status",
 				"errors"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian": {
+			"properties": {
+				"custCode": {
+					"type": "string"
+				},
+				"custName": {
+					"type": "string"
+				},
+				"laName": {
+					"type": "string"
+				},
+				"regCode": {
+					"type": "string"
+				},
+				"regName": {
+					"type": "string"
+				},
+				"laCode": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"custCode",
+				"custName",
+				"laName",
+				"regCode",
+				"regName",
+				"laCode"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer": {
+			"properties": {
+				"custodians": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian"
+					}
+				}
+			},
+			"required": [
+				"custodians"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassification": {
