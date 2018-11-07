@@ -46,7 +46,7 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
       .pause(300 millis)
       .feed(feeder)
       .exec(http("Typeahead")
-        .get(requestRelPath + "${addresspart}" + "?limit=1")
+        .get(requestRelPath + "${addresspart}" + "?limit=4")
         .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
         .check(jsonPath("$..input").findAll.saveAs("inputs"))
       )
