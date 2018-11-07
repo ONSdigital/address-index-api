@@ -34,6 +34,8 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
   // partial addresses from the Random Address Generator
   val feeder = csv("typeahead.csv").circular
 
+  var uprns: List[String] = List("10012133622","100041030637")
+
 //  val writer = {
 //    val fos = new java.io.FileOutputStream("foo.csv")
 //    new java.io.PrintWriter(fos,true)
@@ -56,7 +58,9 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
         println(foundaddress("input").as[String])
         foundaddress}).foreach("${uprns}", "uprn") {
         exec(foundaddress => {
-          println(foundaddress("uprn").as[String])
+          var uprnString = foundaddress("uprn").as[String]
+          var hit = {if (uprns.contains(uprnString)) " => HIT" else " "}
+          println(uprnString + hit)
           foundaddress})
       }
     }
