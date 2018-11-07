@@ -48,11 +48,17 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
       .exec(http("Typeahead")
         .get(requestRelPath + "${addresspart}" + "?limit=1")
         .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
+        .check(jsonPath("$..input").findAll.saveAs("inputs"))
       )
-    .foreach("${uprns}", "uprn") {
+
+    .foreach("${inputs}", "input") {
       exec(foundaddress => {
-        println(foundaddress("uprn").as[String])
-        foundaddress})
+        println(foundaddress("input").as[String])
+        foundaddress}).foreach("${uprns}", "uprn") {
+        exec(foundaddress => {
+          println(foundaddress("uprn").as[String])
+          foundaddress})
+      }
     }
 
 
