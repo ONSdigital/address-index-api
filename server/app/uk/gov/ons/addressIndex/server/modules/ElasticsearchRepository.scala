@@ -4,7 +4,7 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.searches.SearchDefinition
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses, HybridAddressesPartial}
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ trait ElasticsearchRepository {
     * @param input the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddressesPartial]
 
   /**
     * Query the address index by postcode.

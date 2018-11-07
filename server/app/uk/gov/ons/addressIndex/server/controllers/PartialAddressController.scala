@@ -3,10 +3,10 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressesPartial
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer, AddressResponsePartialAddress}
-import uk.gov.ons.addressIndex.server.modules.response.{AddressControllerResponse, PartialAddressControllerResponse}
+import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
@@ -104,15 +104,15 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
       case _ =>
 
-        val request: Future[HybridAddresses] =
+        val request: Future[HybridAddressesPartial] =
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
           )
 
         request.map {
-          case HybridAddresses(hybridAddresses, maxScore, total) =>
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_,verb)
+          case HybridAddressesPartial(hybridAddressesPartial, maxScore, total) =>
+            val addresses: Seq[AddressResponseAddress] = hybridAddressesPartial.map(
+              AddressResponseAddress.fromHybridAddressPartial(_,verb)
             )
 
 //            addresses.foreach { address =>
