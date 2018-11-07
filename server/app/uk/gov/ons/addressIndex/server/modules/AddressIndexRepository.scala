@@ -105,11 +105,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param historical        historical flag
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddressesPartial] = {
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false).start(start).limit(limit)
-
-    val partResult = client.execute(request).map(HybridAddresses.fromEither)
+    val partResult = client.execute(request).map(HybridAddressesPartial.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
       if (adds.addresses.isEmpty) queryPartialAddressFallback(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical)
@@ -132,10 +131,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param historical historical flag
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddressesPartial] = {
     logger.warn("best fields fallback query invoked for input string " + input)
     val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, true).start(start).limit(limit)
-    client.execute(fallback).map(HybridAddresses.fromEither)
+    client.execute(fallback).map(HybridAddressesPartial.fromEither)
   }
 
   /**

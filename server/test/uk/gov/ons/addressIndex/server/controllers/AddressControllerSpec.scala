@@ -13,7 +13,7 @@ import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, Bu
 import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
-import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer, AddressResponsePartialAddress}
+import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
@@ -129,6 +129,15 @@ class AddressControllerSpec extends PlaySpec with Results {
     classificationCode = "29"
   )
 
+  val validHybridAddressPartial = HybridAddressPartial(
+    uprn = "1",
+    parentUprn = "4",
+    paf = Seq(validPafAddress),
+    lpi = Seq(validNagAddress),
+    score = 1f,
+    classificationCode = "29"
+  )
+
   val validCodelistList: String = "{\"codelists\"" +
     ":[{\"name\":\"classification\",\"description\":\"Coded address types e.g. RD02 is a detached house\"}"
 
@@ -154,8 +163,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
+      Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
@@ -187,8 +196,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
+      Future.successful(HybridAddressesPartial(Seq.empty, 1.0f, 0))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
@@ -216,7 +225,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       startDate:String, endDate:String,
       historical: Boolean = true): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] = Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
 
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
@@ -253,7 +262,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
+    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
       Future.failed(new Exception("test failure"))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
@@ -645,7 +654,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddressPartial(validHybridAddressPartial, true)),
           filter = "",
           historical = true,
           limit = 20,
