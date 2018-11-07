@@ -32,14 +32,29 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
   val headers = Map("Upgrade-Insecure-Requests" -> "1")
 
   // partial addresses from the Random Address Generator
-  val feeder = csv("typeahead.csv").circular
+  val feeder = csv("typeahead2.csv").circular
 
-  var uprns: List[String] = List("10012133622","100041030637")
-
-//  val writer = {
-//    val fos = new java.io.FileOutputStream("foo.csv")
-//    new java.io.PrintWriter(fos,true)
- // }
+  var uprns: List[String] = List(
+    "100021379998",
+    "5148433",
+    "10002750695",
+    "100061135150",
+    "130075070",
+    "38063271",
+    "10091942995",
+    "38252540",
+    "10000150196",
+    "72096502",
+    "10009187440",
+    "310052801",
+    "10024253131",
+    "10014515642",
+    "200000843531",
+    "10008566546",
+    "10093567792",
+    "100052116048",
+    "100070699315"
+  )
 
   // user pause of 300ms between keystrokes, then get next partial from file
   // requestRelpath is addresses/partial/ (no further)
