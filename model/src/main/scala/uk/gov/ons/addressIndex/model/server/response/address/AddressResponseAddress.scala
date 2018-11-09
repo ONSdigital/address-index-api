@@ -64,7 +64,7 @@ object AddressResponseAddress {
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
-      nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress)) else None},
+      nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
@@ -103,7 +103,7 @@ object AddressResponseAddress {
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
-      nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress)) else None},
+      nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
@@ -124,6 +124,12 @@ object AddressResponseAddress {
     else if (addresses.exists(address => address.lpiLogicalStatus == "6" && address.language == language))
       addresses.find(_.lpiLogicalStatus == "6")
     else if (addresses.exists(address => address.lpiLogicalStatus == "8" && address.language == language))
+      addresses.find(_.lpiLogicalStatus == "8")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "1"))
+      addresses.find(_.lpiLogicalStatus == "1")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "6"))
+      addresses.find(_.lpiLogicalStatus == "6")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "8"))
       addresses.find(_.lpiLogicalStatus == "8")
     else addresses.headOption
   }
