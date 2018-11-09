@@ -29,7 +29,8 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     */
   def elasticTest(): Action[AnyContent] = Action async { implicit req =>
     esRepo.queryHealth().map { resp =>
-      Ok(resp)
+      val output = "{" + resp.split("\\{")(1).split("\\}")(0) + "}"
+      Ok(Json.parse(output))
     }
   }
 
@@ -38,7 +39,9 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
-  def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, startDate: Option[String], endDate: Option[String], historical: Option[String] = None): Action[AnyContent] = Action { implicit req =>
+  def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None,
+    //startDate: Option[String], endDate: Option[String],
+    historical: Option[String] = None): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.address
@@ -48,8 +51,10 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     val latString = lat.getOrElse("50.705948")
     val lonString = lon.getOrElse("-3.5091076")
 
-    val startDateVal = startDate.getOrElse("")
-    val endDateVal = endDate.getOrElse("")
+    //  val startDateVal = startDate.getOrElse("")
+    //  val endDateVal = endDate.getOrElse("")
+    val startDateVal = ""
+    val endDateVal = ""
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)

@@ -32,7 +32,4 @@ trait AddressResponse extends Response {
     BadRequestTemplate(EmptyQueryAddressResponseError)
   }
 
-  def ShortSearch: AddressBySearchResponseContainer = {
-    BadRequestTemplate(ShortQueryAddressResponseError)
-  }
 }

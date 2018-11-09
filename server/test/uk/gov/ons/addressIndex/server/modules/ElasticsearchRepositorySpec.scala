@@ -70,6 +70,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridFirstUprnHist = 2L
   val hybridFirstParentUprn = 3L
   val hybridFirstDateUprn = 10L
+  val hybridFirstClassificationCode = "R"
   val hybridSecondDateUprn = 11L
   val hybridThirdDateUprn = 12L
   val hybridFirstRelative: Map[String, Any] = firstHybridRelEs
@@ -114,7 +115,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridNagEasting = 4f
   val hybridNagCustCode = "1110"
   val hybridNagCustName = "Exeter"
-  val hybridNagClassCode = "R"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -281,7 +281,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "legalName" -> hybridNagLegalName,
     "northing" -> hybridNagNorthing,
     "easting" -> hybridNagEasting,
-    "classificationCode" -> hybridNagClassCode,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
     "streetClassification" -> hybridNotUsedNull,
@@ -290,7 +289,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "multiOccCount" -> hybridNotUsedNull,
     "location" -> List(hybridNagLongitude, hybridNagLatitude),
     "language" -> hybridNotUsed,
-    "classScheme" -> hybridNotUsed,
     "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
     "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
@@ -324,7 +322,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "legalName" -> secondaryHybridNagLegalName,
     "northing" -> secondaryHybridNagNorthing,
     "easting" -> secondaryHybridNagEasting,
-    "classificationCode" -> hybridNotUsed,
     "usrnMatchIndicator" -> hybridNotUsed,
     "parentUprn" -> hybridNotUsedNull,
     "streetClassification" -> hybridNotUsedNull,
@@ -334,7 +331,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "location" -> List(secondaryHybridNagLongitude, secondaryHybridNagLatitude),
     "nagAll" -> hybridNotUsed,
     "language" -> hybridNotUsed,
-    "classScheme" -> hybridNotUsed,
     "localCustodianCode" -> secondardyHybridNagLocalCustodianCode,
     "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
@@ -345,7 +341,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
   val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs + (
     "uprn" -> hybridFirstDateUprn,
-    "classificationCode" -> hybridNagClassCode,
     "lpiStartDate" -> hybridStartDate,
     "lpiEndDate" -> hybridEndDate
   )
@@ -370,7 +365,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "postcodeIn" -> hybridFirstPostcodeIn,
     "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
-    "lpi" -> Seq(firstHybridNagEs)
+    "lpi" -> Seq(firstHybridNagEs),
+    "classificationCode" -> hybridFirstClassificationCode
   )
 
   val firstHybridHistEs:Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
@@ -384,7 +380,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "postcodeIn" -> hybridSecondaryPostcodeIn,
     "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
-    "lpi" -> Seq(secondHybridNagEs)
+    "lpi" -> Seq(secondHybridNagEs),
+    "classificationCode" -> hybridFirstClassificationCode
   )
 
   val thirdHybridEs: Map[String, Any] = firstHybridEs + (
@@ -503,7 +500,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNagNorthing.toString,
     hybridNagOrganisation,
     hybridNagLegalName,
-    hybridNagClassCode,
     hybridNotUsed,
     hybridNotUsed,
     hybridNagPaoText,
@@ -521,7 +517,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNagStreetDescriptor,
     hybridNagTownName,
     hybridNagLocality,
-    hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
@@ -582,7 +577,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedNag),
     paf = Seq(expectedPaf),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedDateHybrid = HybridAddress(
@@ -594,7 +590,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedDateNag),
     paf = Seq(),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedSecondDateHybrid = HybridAddress(
@@ -606,7 +603,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
     paf = Seq(expectedDatePaf),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedThirdDateHybrid = HybridAddress(
@@ -618,7 +616,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = hybridFirstPostcodeOut,
     lpi = Seq(),
     paf = Seq(expectedSecondDatePaf),
-    score = 1.0f
+    score = 1.0f,
+    classificationCode = hybridFirstClassificationCode
   )
 
   val expectedHybridHist:HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
@@ -753,15 +752,36 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            				}
            			}],
            			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                     "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "4",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "4",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -807,16 +827,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"type": "best_fields"
            				}
            			}],
-           			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                      			"should": [{
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "match": {
+                                        "lpi.paoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "match": {
+                                        "lpi.saoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.2,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -863,16 +904,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     "slop":4
            				}
            			}],
-           			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                      			"should": [{
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "match": {
+                                        "lpi.paoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "match": {
+                                        "lpi.saoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.2,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -962,16 +1024,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"type": "best_fields"
            				}
            			}],
-           			"should": [{
-           				"match": {
-           					"lpi.paoStartNumber": {
-           						"query": "4"
-           					}
-           				}
-           			}],
+                      			"should": [{
+                                "dis_max": {
+                                  "queries": [
+                                    {
+                                      "match": {
+                                        "lpi.paoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "match": {
+                                        "lpi.saoStartNumber": {
+                                          "query": "4",
+                                          "boost": 0.2,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -1078,7 +1161,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -1146,7 +1229,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			}],
            			"filter": [{
            				"prefix": {
-           					"lpi.classificationCode": {
+           					"classificationCode": {
            						"value": "R"
            					}
            				}
@@ -2532,7 +2615,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "filter": [
                     {
                       "prefix": {
-                        "lpi.classificationCode": {
+                        "classificationCode": {
                           "value": "R"
                         }
                       }
@@ -2622,7 +2705,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "filter": [
                     {
                       "prefix": {
-                        "lpi.classificationCode": {
+                        "classificationCode": {
                           "value": "C"
                         }
                       }
@@ -2712,7 +2795,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "filter": [
                     {
                       "term": {
-                        "lpi.classificationCode": {
+                        "classificationCode": {
                           "value": "RD06"
                         }
                       }
@@ -2757,13 +2840,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "slop":4
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "bool":{
                   "must_not":[{
@@ -2805,13 +2909,34 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "type":"best_fields"
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                              "lpi.paoStartNumber": {
+                              "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "bool":{
                   "must_not":[{
@@ -2939,16 +3064,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "slop":4
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -2995,16 +3141,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "type":"best_fields"
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3051,16 +3218,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "slop":4
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+           			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -3106,16 +3294,37 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "type":"best_fields"
                 }
               }],
-              "should":[{
-                "match":{
-                  "lpi.paoStartNumber":{
-                    "query":"7"
-                  }
-                }
-              }],
+          			"should": [{
+                      "dis_max": {
+                       "queries": [
+                         {
+                           "match": {
+                             "lpi.paoStartNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         },
+                         {
+                           "match": {
+                             "lpi.saoStartNumber": {
+                               "query": "7",
+                               "boost": 0.2,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
+                         }
+                       ]
+                     }
+                   }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -3164,7 +3373,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3212,7 +3421,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "term":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"RD"
                   }
                 }
@@ -3261,7 +3470,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -3309,7 +3518,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               }],
               "filter":[{
                 "prefix":{
-                  "lpi.classificationCode":{
+                  "classificationCode":{
                     "value":"R"
                   }
                 }
@@ -4044,7 +4253,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     "filter": [
                       {
                         "term": {
-                          "lpi.classificationCode": {
+                          "classificationCode": {
                             "value": "RD06"
                           }
                         }
@@ -4103,7 +4312,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     "filter": [
                       {
                         "term": {
-                          "lpi.classificationCode": {
+                          "classificationCode": {
                             "value": "RD06"
                           }
                         }

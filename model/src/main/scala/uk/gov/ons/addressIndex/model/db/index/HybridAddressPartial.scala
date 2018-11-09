@@ -13,41 +13,21 @@ import scala.util.Try
   * @param paf list of corresponding paf addresses
   * @param score score of the address in the returned ES result
   */
-case class HybridAddress(
-  uprn: String,
-  parentUprn: String,
-  relatives: Seq[Relative],
-  crossRefs: Seq[CrossRef],
-  postcodeIn: String,
-  postcodeOut: String,
-  lpi: Seq[NationalAddressGazetteerAddress],
-  paf: Seq[PostcodeAddressFileAddress],
-  score: Float,
-  classificationCode: String
-)
+case class HybridAddressPartial(
+                          uprn: String,
+                          parentUprn: String,
+                          lpi: Seq[NationalAddressGazetteerAddress],
+                          paf: Seq[PostcodeAddressFileAddress],
+                          score: Float,
+                          classificationCode: String
+                        )
 
-object HybridAddress {
+object HybridAddressPartial {
 
-  val name = "HybridAddress"
-
-  /**
-    * An empty HybridAddress, used in bulk search to show the address that didn't yield any results
-    */
-  val empty = HybridAddress(
-    uprn = "",
-    parentUprn = "",
-    relatives = Seq.empty,
-    crossRefs = Seq.empty,
-    postcodeIn = "",
-    postcodeOut = "",
-    lpi = Seq.empty,
-    paf = Seq.empty,
-    score = 0,
-    classificationCode = ""
-  )
+  val name = "HybridAddressPartial"
 
   // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitReader extends HitReader[HybridAddress] {
+  implicit object HybridAddressHitReader extends HitReader[HybridAddressPartial] {
 
 
     /**
@@ -56,15 +36,7 @@ object HybridAddress {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def read(hit: Hit): Either[Throwable, HybridAddress] = {
-
-      val cRefs: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
-      val rels: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("relatives").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
+    override def read(hit: Hit): Either[Throwable, HybridAddressPartial] = {
 
       val lpis: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("lpi").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
@@ -74,13 +46,9 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-      Right(HybridAddress(
+      Right(HybridAddressPartial(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
-        crossRefs = cRefs.map(CrossRef.fromEsMap),
-        postcodeIn = hit.sourceAsMap("postcodeIn").toString,
-        postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         score = hit.score,
@@ -98,15 +66,15 @@ object HybridAddress {
   *                 (even those that are not in the list because of the limit)
   * @param total total number of all of the addresses regardless of the limit
   */
-case class HybridAddresses(
-  addresses: Seq[HybridAddress],
-  maxScore: Double,
-  total: Long
-)
+case class HybridAddressesPartial(
+                            addresses: Seq[HybridAddressPartial],
+                            maxScore: Double,
+                            total: Long
+                          )
 
-object HybridAddresses {
+object HybridAddressesPartial {
 
-  def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddresses = {
+  def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddressesPartial = {
     resp match {
       case Left(l) => throw new Exception("search failed" + l.error.reason)
       case Right(r) => fromSearchResponse(r.result)
@@ -115,28 +83,29 @@ object HybridAddresses {
 
   /**
     * Transforms `SearchResponse` into a hybrid address
-    * It needs implicit `HitAs[HybridAddress]` that's why the definition should be after
-    * the compamion object of `HybridAddress`
+    * It needs implicit `HitAs[HybridAddressPartial]` that's why the definition should be after
+    * the compamion object of `HybridAddressPartial`
     *
     * @throws Exception if there is at least one shard failing
     * @param response Response
     * @return
     */
-  def fromSearchResponse(response: SearchResponse): HybridAddresses = {
+  def fromSearchResponse(response: SearchResponse): HybridAddressesPartial = {
 
-     if (response.shards.failed > 0)
+    if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
     val maxScore = if (total == 0) 0 else response.maxScore
 
-    HybridAddresses(
-      addresses = response.to[HybridAddress],
+    HybridAddressesPartial(
+      addresses = response.to[HybridAddressPartial],
       maxScore = maxScore,
       total = total
     )
   }
 
 }
+
 

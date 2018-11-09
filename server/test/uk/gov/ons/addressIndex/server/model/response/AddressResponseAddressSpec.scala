@@ -20,7 +20,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     northing = "093861.00",
     organisation = "n22",
     legalName = "n23",
-    classificationCode = "n24",
     usrn = "n4",
     lpiKey = "n5",
     paoText = "n6",
@@ -45,7 +44,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     streetClassification = "streetClassification",
     multiOccCount = "multiOccCount",
     language = NationalAddressGazetteerAddress.Languages.english,
-    classScheme = "classScheme",
     localCustodianCode = "localCustodianCode",
     localCustodianName = "localCustodianName",
     localCustodianGeogCode = "localCustodianGeogCode",
@@ -216,7 +214,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         nag.locality,
         nag.organisation,
         nag.legalName,
-        nag.classificationCode,
         nag.localCustodianCode,
         nag.localCustodianName,
         nag.localCustodianGeogCode,
@@ -250,7 +247,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), Seq(givenCrossRef), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1)
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), Seq(givenCrossRef), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1, "classificationCode")
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expectedBespokeScore = None
@@ -265,14 +262,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         welshFormattedAddressNag = "mixedNag",
         welshFormattedAddressPaf = "mixedWelshPaf",
         paf = Some(expectedPaf),
-        nag = Some(expectedNag),
+        nag = Some(Seq(expectedNag)),
         geo = Some(AddressResponseGeo(
           latitude = 50.7341677,
           longitude = -3.540302,
           easting = 291398,
           northing = 93861
         )),
-        classificationCode = givenNag.classificationCode,
+        classificationCode = "classificationCode",
         lpiLogicalStatus = givenNag.lpiLogicalStatus,
         confidenceScore = 1,
         underlyingScore = 1

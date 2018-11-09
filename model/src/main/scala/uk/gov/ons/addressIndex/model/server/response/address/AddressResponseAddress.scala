@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressPartial, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 
 /**
   * Contains address information retrieved in ES (PAF or NAG)
@@ -24,7 +24,7 @@ case class AddressResponseAddress(
   welshFormattedAddressNag: String,
   welshFormattedAddressPaf: String,
   paf: Option[AddressResponsePaf],
-  nag: Option[AddressResponseNag],
+  nag: Option[Seq[AddressResponseNag]],
   geo: Option[AddressResponseGeo],
   classificationCode: String,
   lpiLogicalStatus: String,
@@ -44,7 +44,6 @@ object AddressResponseAddress {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
-    val classificationCode = if (chosenNag.isEmpty) "" else chosenNag.get.classificationCode
     val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
@@ -65,13 +64,51 @@ object AddressResponseAddress {
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
-      nag = {if (verbose) chosenNag.map(AddressResponseNag.fromNagAddress) else None},
+      nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
-      classificationCode = classificationCode,
+      classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
       underlyingScore = other.score
 
+    )
+  }
+
+  /**
+    * Transforms hybrid object returned by ES into an Address that will be in the json response
+    * @param other HybridAddress from ES
+    * @return
+    */
+  def fromHybridAddressPartial(other: HybridAddressPartial, verbose: Boolean): AddressResponseAddress = {
+
+    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
+    val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
+    val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
+
+    val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
+    val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
+
+    val chosenPaf: Option[PostcodeAddressFileAddress] =  other.paf.headOption
+    val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
+    val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
+
+    AddressResponseAddress(
+      uprn = other.uprn,
+      parentUprn = other.parentUprn,
+      relatives = None,
+      crossRefs = None,
+      formattedAddress = formattedAddressNag,
+      formattedAddressNag = formattedAddressNag,
+      formattedAddressPaf = formattedAddressPaf,
+      welshFormattedAddressNag = welshFormattedAddressNag,
+      welshFormattedAddressPaf = welshFormattedAddressPaf,
+      paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
+      nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
+      geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      classificationCode = other.classificationCode,
+      lpiLogicalStatus = lpiLogicalStatus,
+      confidenceScore = 1D,
+      underlyingScore = other.score
     )
   }
 
@@ -87,6 +124,12 @@ object AddressResponseAddress {
     else if (addresses.exists(address => address.lpiLogicalStatus == "6" && address.language == language))
       addresses.find(_.lpiLogicalStatus == "6")
     else if (addresses.exists(address => address.lpiLogicalStatus == "8" && address.language == language))
+      addresses.find(_.lpiLogicalStatus == "8")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "1"))
+      addresses.find(_.lpiLogicalStatus == "1")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "6"))
+      addresses.find(_.lpiLogicalStatus == "6")
+    else if (addresses.exists(address => address.lpiLogicalStatus == "8"))
       addresses.find(_.lpiLogicalStatus == "8")
     else addresses.headOption
   }
