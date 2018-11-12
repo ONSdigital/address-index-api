@@ -31,23 +31,25 @@ trait PostcodeControllerResponse extends Response {
     BadRequestPostcodeTemplate(FilterInvalidError)
   }
 
-  def FailedRequestToEsPostcode: AddressByPostcodeResponseContainer = {
+  def FailedRequestToEsPostcode(detail: String): AddressByPostcodeResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs",detail))
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = ErrorPostcode,
       status = InternalServerErrorAddressResponseStatus,
-      errors = Seq(FailedRequestToEsPostcodeError)
+      errors = Seq(enhancedError)
     )
   }
 
-  def FailedRequestToEsTooBusyPostCode: AddressByPostcodeResponseContainer = {
+  def FailedRequestToEsTooBusyPostCode(detail: String): AddressByPostcodeResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs",detail))
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = ErrorPostcode,
       status = TooManyRequestsResponseStatus,
-      errors = Seq(FailedRequestToEsError)
+      errors = Seq(enhancedError)
     )
   }
 

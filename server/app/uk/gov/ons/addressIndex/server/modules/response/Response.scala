@@ -30,23 +30,25 @@ trait Response {
     )
   }
 
-  def FailedRequestToEs: AddressBySearchResponseContainer = {
+  def FailedRequestToEs(detail: String): AddressBySearchResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = Error,
       status = InternalServerErrorAddressResponseStatus,
-      errors = Seq(FailedRequestToEsError)
+      errors = Seq(enhancedError)
     )
   }
 
-  def FailedRequestToEsTooBusy: AddressBySearchResponseContainer = {
+  def FailedRequestToEsTooBusy (detail: String): AddressBySearchResponseContainer = {
+   val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = Error,
       status = TooManyRequestsResponseStatus,
-      errors = Seq(FailedRequestToEsError)
+      errors = Seq(enhancedError)
     )
   }
 

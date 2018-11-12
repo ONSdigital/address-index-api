@@ -151,15 +151,15 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
             overloadProtection.currentStatus match {
               case ThrottlerStatus.HalfOpen =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
               case ThrottlerStatus.Open =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
                 logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                InternalServerError(Json.toJson(FailedRequestToEsPartialAddress))
+                InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage)))
             }
         }
     }
