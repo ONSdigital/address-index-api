@@ -168,7 +168,7 @@ object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
 
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 30,
-  message = "Request to Elasticsearch failed (partial address)(check the API logs)"
+  message = "Request to Elasticsearch failed (partial address)(see logs)"
 )
 
 object StartDateInvalidResponseError extends AddressResponseError(

@@ -153,12 +153,12 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
               case ThrottlerStatus.Open =>
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                 )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
