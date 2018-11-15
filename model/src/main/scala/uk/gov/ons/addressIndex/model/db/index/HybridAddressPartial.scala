@@ -76,7 +76,7 @@ object HybridAddressesPartial {
 
   def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddressesPartial = {
     resp match {
-      case Left(l) => throw new Exception("search failed" + l.error.reason)
+      case Left(l) => throw new Exception("search failed - " + l.error.reason)
       case Right(r) => fromSearchResponse(r.result)
     }
   }

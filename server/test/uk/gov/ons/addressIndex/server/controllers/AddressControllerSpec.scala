@@ -262,7 +262,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
       Future.failed(new Exception("test failure"))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
@@ -2047,6 +2047,8 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
 
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs","Test exception"))
+
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
@@ -2069,7 +2071,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsError)
+        errors = Seq(enhancedError)
       ))
 
       // When
@@ -2084,6 +2086,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
       // Given
       val controller = new PostcodeController(components, failingRepositoryMock, parser, config, versions, overloadProtection, postcodeValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs","test failure"))
 
       val expected = Json.toJson(AddressByPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
@@ -2102,7 +2106,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsError)
+        errors = Seq(enhancedError)
       ))
 
       // When - retry param must be true
@@ -2114,9 +2118,46 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for a partial address" in {
+      // Given
+      val controller = new PartialAddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, partialAddressValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs","test failure"))
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "",
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          startDate = "",
+          endDate = "",
+          verbose = true
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      // When - retry param must be true
+      val result = controller.partialAddressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe TOO_MANY_REQUESTS
+      actual mustBe expected
+    }
+
     "reply with a 429 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
       val controller = new UPRNController(components, failingRepositoryMock, parser, config, versions, overloadProtection, uprnValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs","test failure"))
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
@@ -2140,7 +2181,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsError)
+        errors = Seq(enhancedError)
       ))
 
       // When

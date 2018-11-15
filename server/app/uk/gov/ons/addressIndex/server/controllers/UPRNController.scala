@@ -129,19 +129,19 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
               case ThrottlerStatus.Open =>
                 logger.warn(
                   s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                 )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
                 logger.warn(
                   s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
                 )
-                InternalServerError(Json.toJson(FailedRequestToEs))
+                InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage)))
             }
         }
     }
