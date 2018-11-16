@@ -2794,10 +2794,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   }],
                   "filter": [
                     {
-                      "term": {
-                        "classificationCode": {
-                          "value": "RD06"
-                        }
+                      "terms": {
+                        "classificationCode": ["RD06"]
                       }
                     }
                   ],
@@ -3093,10 +3091,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                      }
                    }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode": ["RD"]
                 }
               },{
                 "bool":{
@@ -3170,10 +3166,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                      }
                    }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode": ["RD"]
                 }
               },{
                 "bool":{
@@ -3372,10 +3366,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                 }
               }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode":["RD"]
                 }
               },{
                 "bool":{
@@ -3420,10 +3412,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                 }
               }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode": ["RD"]
                 }
               },{
                 "bool":{
@@ -4252,10 +4242,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					}],
                     "filter": [
                       {
-                        "term": {
-                          "classificationCode": {
-                            "value": "RD06"
-                          }
+                        "terms": {
+                          "classificationCode": ["RD06"]
                         }
                       }
                     ],
@@ -4311,10 +4299,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					}],
                     "filter": [
                       {
-                        "term": {
-                          "classificationCode": {
-                            "value": "RD06"
-                          }
+                        "terms": {
+                          "classificationCode": ["RD06"]
                         }
                       }
                     ],
