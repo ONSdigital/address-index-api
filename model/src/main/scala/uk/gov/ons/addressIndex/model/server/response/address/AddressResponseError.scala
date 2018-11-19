@@ -90,7 +90,7 @@ object SourceInvalidError extends AddressResponseError(
 
 object FilterInvalidError extends AddressResponseError(
   code = 15,
-  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /classification) or use a pattern match such as RD*. There are also two presets residential and commercial."
+  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /classifications) or use a pattern match such as RD*. There are also two presets residential and commercial."
 )
 
 //  this error is currently logged only, not returned
@@ -188,5 +188,5 @@ object ShortQueryAddressResponseError extends AddressResponseError(
 
 object MixedFilterError extends AddressResponseError(
   code = 34,
-  message = "Invalid classification filter value provided. Filters must contain one or more full classification codes (see /classification) or use a single pattern match such as RD*. A mixture of exact match and pattern match is not valid."
+  message = "Invalid classification filter value provided. Filters must contain one or more full classification codes (see /classifications) or use a single pattern match such as RD*. A mixture of exact match and pattern match is not valid."
 )
