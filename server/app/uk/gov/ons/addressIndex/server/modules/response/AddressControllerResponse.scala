@@ -8,6 +8,10 @@ trait AddressControllerResponse extends AddressResponse {
     BadRequestTemplate(FilterInvalidError)
   }
 
+  def AddressMixedFilter: AddressBySearchResponseContainer = {
+    BadRequestTemplate(MixedFilterError)
+  }
+
   def PostcodeFilterInvalid: AddressBySearchResponseContainer = {
     BadRequestTemplate(FilterInvalidError)
   }

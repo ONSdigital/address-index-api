@@ -95,6 +95,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         .orElse(partialAddressValidation.validateSource)
         .orElse(partialAddressValidation.validateKeyStatus)
         .orElse(partialAddressValidation.validateInput(input))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter))
         .orElse(None)
 
     result match {

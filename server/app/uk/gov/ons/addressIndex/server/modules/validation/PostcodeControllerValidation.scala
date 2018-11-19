@@ -47,11 +47,17 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
 
     val filterString: String = classificationfilter.getOrElse("")
 
-    if (!filterString.isEmpty &&
-      !filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
-      logger.systemLog(badRequestMessage = FilterInvalidError.message)
-      Some(futureJsonBadRequest(PostcodeFilterInvalid))
+    if (!filterString.isEmpty){
+      if (filterString.contains("*") && filterString.contains(",")){
+        logger.systemLog(badRequestMessage = MixedFilterError.message)
+        Some(futureJsonBadRequest(PostcodeMixedFilter))
+      }
+      else if (!filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
+        logger.systemLog(badRequestMessage = FilterInvalidError.message)
+        Some(futureJsonBadRequest(PostcodeFilterInvalid))
+      } else None
     } else None
+
   }
 
   def validatePostcodeOffset(offset: Option[String]): Option[Future[Result]] = {
