@@ -941,6 +941,44 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if an invalid midex filter value is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = true
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(MixedFilterError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD*,RD02")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
 
     "reply with a 400 error if a non-numeric offset parameter is supplied" in {
       // Given
