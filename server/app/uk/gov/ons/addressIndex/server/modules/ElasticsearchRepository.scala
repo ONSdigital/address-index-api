@@ -31,7 +31,7 @@ trait ElasticsearchRepository {
     * @param input the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddressesPartial]
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial]
 
   /**
     * Query the address index by postcode.

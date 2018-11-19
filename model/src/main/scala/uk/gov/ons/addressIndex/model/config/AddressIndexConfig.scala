@@ -80,6 +80,8 @@ case class ClusterPoliciesConfig (
 case class IndexesConfig(
   hybridIndexHistorical: String,
   hybridIndex: String,
+  hybridIndexHistoricalSkinny: String,
+  hybridIndexSkinny: String,
   hybridMapping: String
 )
 
