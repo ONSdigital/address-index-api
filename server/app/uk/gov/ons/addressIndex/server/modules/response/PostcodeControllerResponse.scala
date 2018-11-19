@@ -31,6 +31,10 @@ trait PostcodeControllerResponse extends Response {
     BadRequestPostcodeTemplate(FilterInvalidError)
   }
 
+  def PostcodeMixedFilter: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(MixedFilterError)
+  }
+
   def FailedRequestToEsPostcode(detail: String): AddressByPostcodeResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs",detail))
     AddressByPostcodeResponseContainer(

@@ -50,7 +50,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = classificationfilter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "partial"
 
     //  val startDateVal = startDate.getOrElse("")
@@ -95,6 +95,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         .orElse(partialAddressValidation.validateSource)
         .orElse(partialAddressValidation.validateKeyStatus)
         .orElse(partialAddressValidation.validateInput(input))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter))
         .orElse(None)
 
     result match {
