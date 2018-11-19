@@ -39,7 +39,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial"
 					},
 					{
 						"in": "query",
@@ -356,7 +356,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial"
 					},
 					{
 						"in": "query",
@@ -436,7 +436,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial"
 					},
 					{
 						"in": "query",
