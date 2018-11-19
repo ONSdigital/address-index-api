@@ -48,7 +48,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = classificationfilter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "postcode"
 
     //  val startDateVal = startDate.getOrElse("")

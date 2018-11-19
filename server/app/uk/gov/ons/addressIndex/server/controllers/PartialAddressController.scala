@@ -50,7 +50,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = classificationfilter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "partial"
 
     //  val startDateVal = startDate.getOrElse("")

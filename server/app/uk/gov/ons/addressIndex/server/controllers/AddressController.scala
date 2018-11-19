@@ -67,7 +67,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val offval = offset.getOrElse(defOffset.toString)
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
 
-    val filterString = classificationfilter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "address"
 
     val hist = historical match {
