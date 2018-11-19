@@ -106,7 +106,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         val request: Future[HybridAddressesPartial] =
           overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
+            esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
           )
 
         request.map {
