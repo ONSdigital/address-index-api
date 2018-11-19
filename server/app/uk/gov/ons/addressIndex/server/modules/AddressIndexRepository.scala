@@ -312,18 +312,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     if (historical) {
       if (verbose) {
-        logger.warn(hybridIndexHistoricalPartial)
         search(hybridIndexHistoricalPartial).query(query)
       } else {
-        logger.warn(hybridIndexHistoricalSkinnyPartial)
         search(hybridIndexHistoricalSkinnyPartial).query(query)
       }
     } else {
       if (verbose) {
-        logger.warn(hybridIndexPartial)
         search(hybridIndexPartial).query(query)
       } else {
-        logger.warn(hybridIndexSkinnyPartial)
         search(hybridIndexSkinnyPartial).query(query)
       }
     }
