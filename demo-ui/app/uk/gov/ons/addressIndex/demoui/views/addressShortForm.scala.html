@@ -52,7 +52,7 @@ apiKey: String = ""
         </tr>
         <tr>
             <td class="mars">@messages("addressresult.la")</td>
-            <td class="venus">@address.nag.map{ nag => @nag(0).localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}</td>
+            <td class="venus">@address.nag.map{ nag => @nag(0).localCustodianName }</td>
         </tr>
         <tr>
             <td class="mars">Score</td>
