@@ -12,6 +12,7 @@ import scala.language.postfixOps
 class RegistersTypeaheadCustomSimulation extends Simulation {
 
   val baseUrl: String = ConfigLoader("baseUrl")
+  val apiKey: String = ConfigLoader("apiKey")
   val numOfRequestsPerSecond: Int = ConfigLoader("requestsPerSecond") toInt
   val requestRelPath = ConfigLoader("request_rel_path")
   val requestType = ConfigLoader("request_type")
@@ -28,6 +29,7 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
     .acceptLanguageHeader("en-GB,en;q=0.5")
     .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:60.0) Gecko/20100101 Firefox/60.0")
     .shareConnections
+    .authorizationHeader(apiKey)
 
   val headers = Map("Upgrade-Insecure-Requests" -> "1")
 
