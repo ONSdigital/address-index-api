@@ -10,6 +10,7 @@ import scala.language.postfixOps
 class RegistersSimulationClosedModel extends Simulation {
 
   private val baseUrl: String = ConfigLoader("baseUrl")
+  private val apiKey: String = ConfigLoader("apiKey")
   private val numOfRequestsPerSecond: Int = ConfigLoader("requestsPerSecond") toInt
   private val requestRelPath = ConfigLoader("request_rel_path")
   private val requestType = ConfigLoader("request_type")
@@ -28,6 +29,7 @@ class RegistersSimulationClosedModel extends Simulation {
     .acceptLanguageHeader("en-GB,en;q=0.5")
     .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:60.0) Gecko/20100101 Firefox/60.0")
     .shareConnections
+    .authorizationHeader(apiKey)
 
   private val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath()
   println(s"payload name $postRequestBody")
