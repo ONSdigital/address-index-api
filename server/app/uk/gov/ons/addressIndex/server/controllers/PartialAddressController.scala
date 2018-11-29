@@ -71,8 +71,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     }
 
     val sboost = startboost match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
+      case Some(x) => Try(x.toInt).getOrElse(1)
+      case None => 1
     }
 
     logger.warn("sboost = " + sboost)
@@ -83,12 +83,12 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress =  {
-      logger.warn("input =  " + input.toUpperCase())
-      logger.warn("formatted address = " + add.formattedAddress.toUpperCase())
-      logger.warn("underlying score = " + add.underlyingScore)
-      if (add.formattedAddress.toUpperCase().startsWith(input.toUpperCase())){
-      logger.warn("uprating " + input.toUpperCase())
-      add.copy(underlyingScore = add.underlyingScore + 1F)
+   //   logger.warn("input =  " + input.toUpperCase())
+   //   logger.warn("formatted address = " + add.formattedAddress.toUpperCase())
+    //  logger.warn("underlying score = " + add.underlyingScore)
+      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))){
+    //  logger.warn("uprating " + input.toUpperCase())
+      add.copy(underlyingScore = add.underlyingScore + sboost)
     } else add.copy(underlyingScore = add.underlyingScore)
     }
 
@@ -140,7 +140,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               AddressResponseAddress.fromHybridAddressPartial(_,verb)
             )
 
-            val sortAddresses = if (sboost) boostAtStart(addresses) else addresses
+            val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
 
 //            addresses.foreach { address =>
 //            writeLog(

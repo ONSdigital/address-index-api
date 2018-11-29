@@ -111,8 +111,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] = {
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false, verbose).start(start).limit(limit)
-    val requestString = SearchBodyBuilderFn(request).string()
-    logger.warn(requestString)
+ //   val requestString = SearchBodyBuilderFn(request).string()
+  //  logger.warn(requestString)
 
     val partResult = client.execute(request).map(HybridAddressesPartial.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
