@@ -111,6 +111,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] = {
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false, verbose).start(start).limit(limit)
+    val requestString = SearchBodyBuilderFn(request).string()
+    logger.warn(requestString)
+
     val partResult = client.execute(request).map(HybridAddressesPartial.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
@@ -194,7 +197,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           if (fallback) {
             must(multiMatchQuery(input)
               .matchType("best_fields")
-              .fields("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf"))
+              .fields("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial"))
               .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                 .flatten)
           }
@@ -202,7 +205,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             must(multiMatchQuery(input)
               .matchType("phrase")
               .slop(slopVal)
-              .fields("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf"))
+              .fields("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial"))
               .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                 .flatten)
           }
@@ -211,7 +214,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             if (fallback) {
               must(multiMatchQuery(input)
                 .matchType("best_fields")
-                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
+                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"))
                 .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
@@ -219,7 +222,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("phrase")
                 .slop(slopVal)
-                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
+                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"))
                 .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
@@ -228,14 +231,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             if (fallback) {
               must(multiMatchQuery(input)
                 .matchType("best_fields")
-                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
+                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"))
                 .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
-                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"))
+                .fields("lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"))
                 .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
                   .flatten)
             }
