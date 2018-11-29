@@ -190,3 +190,8 @@ object MixedFilterError extends AddressResponseError(
   code = 34,
   message = "Invalid classification filter value provided. Filters must contain one or more full classification codes (see /classifications) or use a single pattern match such as RD*. A mixture of exact match and pattern match is not valid."
 )
+
+object FailedRequestToEsRandomError extends AddressResponseError(
+  code = 35,
+  message = "Request to Elasticsearch failed (random)(see logs)"
+)

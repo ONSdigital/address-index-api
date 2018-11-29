@@ -369,6 +369,34 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
 
 ###
+#  summary: Search for a random address.
+#  description: Returns a random address.
+#  parameters:
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
+#    - name: historical
+#      description: Include historical addresses
+#      default: true
+#    - name: verbose
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#      default: false
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
+
+###
 #  summary: Get version information.
 #  description: Returns version information for the api and the data (AddressBase).
 #  responses:

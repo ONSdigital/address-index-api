@@ -401,6 +401,64 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
+  def queryRandom(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+
+    val request = generateQueryRandomRequest(filters, queryParamsConfig, historical)
+
+    logger.trace(request.toString)
+
+    client.execute(request).map(HybridAddresses.fromEither)
+  }
+
+  /**
+    * Generates request to get random address from ES
+    * Public for tests
+    *
+    * @return Search definition containing query to the ES
+    */
+  def generateQueryRandomRequest(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+
+    val filterType: String = {
+      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
+      else "term"
+    }
+
+    val filterValuePrefix: String = {
+      if (filters == "residential") "R"
+      else if (filters == "commercial") "C"
+      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
+      else filters.toUpperCase
+    }
+
+    val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
+
+    val timestamp: Long = System.currentTimeMillis
+
+//    logger.warn(timestamp.toString)
+
+    val query =
+
+      if (filters.isEmpty) { functionScoreQuery().functions(randomScore(timestamp.toInt))
+        .query(boolQuery().filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .boostMode("replace")
+      }else {
+        if (filterType == "prefix") { functionScoreQuery().functions(randomScore(timestamp.toInt))
+          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .boostMode("replace")
+        }
+        else { functionScoreQuery().functions(randomScore(timestamp.toInt))
+          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .boostMode("replace")
+        }
+      }
+
+    if (historical) {
+      search(hybridIndexHistoricalPostcode).size(1).query(query)
+    } else {
+      search(hybridIndexPostcode).size(1).query(query)
+    }
+  }
+
   def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] = {
 
     val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical, isBulk).start(start).limit(limit)

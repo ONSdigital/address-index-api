@@ -74,7 +74,8 @@ case class ClusterPoliciesConfig (
   partial: String,
   postcode: String,
   uprn: String,
-  version: String
+  version: String,
+  random: String
 )
 
 case class IndexesConfig(
