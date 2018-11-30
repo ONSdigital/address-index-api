@@ -12,6 +12,7 @@ trait RandomControllerResponse extends Response {
       response = AddressByRandomResponse(
         addresses = Seq.empty,
         filter = "",
+        limit = 1,
         historical = true,
         verbose = true
       ),
@@ -54,6 +55,7 @@ trait RandomControllerResponse extends Response {
     AddressByRandomResponse(
       addresses = Seq.empty,
       filter = "",
+      limit = 1,
       historical = true,
       verbose = true
     )
@@ -69,6 +71,16 @@ trait RandomControllerResponse extends Response {
     )
   }
 
+  def LimitNotNumericRandom: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(LimitNotNumericAddressResponseError)
+  }
 
+  def LimitTooSmallRandom: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(LimitTooSmallAddressResponseError)
+  }
+
+  def LimitTooLargeRandom: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(LimitTooLargeAddressResponseError)
+  }
 
 }

@@ -33,10 +33,14 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return Json response with addresses information
     */
-  def randomQuery(classificationfilter: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def randomQuery(classificationfilter: Option[String] = None, limit: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
+
+    val defLimit = conf.config.elasticSearch.defaultLimitRandom
+
+    val limval = limit.getOrElse(defLimit.toString)
 
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "random"
@@ -59,15 +63,18 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         isNotFound = notFound, filter = filterString, badRequestMessage = badRequestErrorMessage,
-        formattedOutput = formattedOutput,
+        limit = limval, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         historical = hist, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+
     val result: Option[Future[Result]] =
       randomValidation.validateSource
+          .orElse(randomValidation.validateRandomLimit(limit))
         .orElse(randomValidation.validateKeyStatus)
         .orElse(randomValidation.validateRandomFilter(classificationfilter))
         .orElse(None)
@@ -81,7 +88,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
         val request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryRandom(filterString, None, hist)
+            esRepo.queryRandom(filterString, limitInt, None, hist)
           )
 
         request.map {
@@ -101,6 +108,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   addresses = addresses,
                   filter = filterString,
                   historical = hist,
+                  limit = limitInt,
                   verbose = verb
                 ),
                 status = OkAddressResponseStatus

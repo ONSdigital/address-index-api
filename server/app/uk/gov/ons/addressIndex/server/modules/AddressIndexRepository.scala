@@ -401,9 +401,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryRandom(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
-    val request = generateQueryRandomRequest(filters, queryParamsConfig, historical)
+    val request = generateQueryRandomRequest(filters, queryParamsConfig, historical).limit(limit)
 
     logger.trace(request.toString)
 
@@ -453,9 +453,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
 
     if (historical) {
-      search(hybridIndexHistoricalPostcode).size(1).query(query)
+      search(hybridIndexHistoricalPostcode).query(query)
     } else {
-      search(hybridIndexPostcode).size(1).query(query)
+      search(hybridIndexPostcode).query(query)
     }
   }
 

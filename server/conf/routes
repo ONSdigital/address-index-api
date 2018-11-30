@@ -374,6 +374,10 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #  parameters:
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
+#    - name: limit
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -394,7 +398,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String])
 
 ###
 #  summary: Get version information.

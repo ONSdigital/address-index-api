@@ -8,13 +8,13 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   *
   * @param addresses found addresses
   * @param limit     max number of found addresses
-  * @param offset    offset of found addresses (for pagination)
   * @param total     total number of found addresses
   */
 case class AddressByRandomResponse(
                                       addresses: Seq[AddressResponseAddress],
                                       filter: String,
                                       historical: Boolean,
+                                      limit: Int,
                                       verbose: Boolean
                                     )
 
