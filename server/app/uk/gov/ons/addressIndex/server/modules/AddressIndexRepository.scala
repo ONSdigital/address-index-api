@@ -191,11 +191,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
-   // val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
+    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
 
-    val fieldsToSearch = Seq("lpi.nagAll.partial")
-
-     val query =
+    val query =
       if (inputNumberList.isEmpty) {
         if (filters.isEmpty) {
           if (fallback) {

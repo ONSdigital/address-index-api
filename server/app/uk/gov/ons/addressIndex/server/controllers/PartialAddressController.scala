@@ -77,8 +77,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case None => defStartBoost
     }
 
-    logger.warn("sboost = " + sboost)
-
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map {add => boostAddress(add)}
       boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)

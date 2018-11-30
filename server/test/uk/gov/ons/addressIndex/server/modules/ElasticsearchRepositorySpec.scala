@@ -746,7 +746,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "phrase",
                     "slop":4
            				}
@@ -823,7 +823,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "best_fields"
            				}
            			}],
@@ -899,7 +899,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "phrase",
                     "slop":4
            				}
@@ -1020,7 +1020,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "best_fields"
            				}
            			}],
@@ -3009,7 +3009,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3079,7 +3079,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3148,7 +3148,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3190,7 +3190,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3233,7 +3233,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3309,7 +3309,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3383,7 +3383,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3460,7 +3460,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3536,7 +3536,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3583,7 +3583,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3629,7 +3629,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3678,7 +3678,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
