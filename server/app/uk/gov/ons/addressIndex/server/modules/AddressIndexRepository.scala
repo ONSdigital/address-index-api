@@ -984,6 +984,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
       // Successful requests are stored in the `Right`
       // Failed requests will be stored in the `Left`
+      // ignore red line in IntelliJ
       bulkAddressRequest.map(Right(_)).recover {
         case exception: Exception =>
           logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) : ${exception.getMessage}")

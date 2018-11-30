@@ -276,7 +276,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
 #    - name: startboost
-#      description: Boost results where the input string appears at the start of the address (0= no boost).
+#      description: Boost results where the input string appears at the start of the address (0 = no boost).
 #      default: 2
 #  responses:
 #    200:
@@ -318,7 +318,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
 #    - name: startboost
-#      description: Boost results where the input string appears at the start of the address (0=no boost).
+#      description: Boost results where the input string appears at the start of the address (0 = no boost).
 #      default: 2
 #  responses:
 #    200:

@@ -4504,7 +4504,5 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       // Then
       result shouldBe expected
     }
-
   }
-
 }

@@ -67,7 +67,7 @@ object QueryParamsConfig {
   implicit val queryParamsConfigFormat: Format[QueryParamsConfig] = Json.format[QueryParamsConfig]
 }
 
-// for now each endpoint runs on one cluster, so the values are numbers.
+// for now each endpoint runs on one cluster, so the values are numbers (1 or 2).
 case class ClusterPoliciesConfig (
   bulk: String,
   address: String,

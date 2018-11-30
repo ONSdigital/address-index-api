@@ -244,7 +244,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
               Right(Seq(emptyBulkAddress))
             }
-
         }
       }
 
