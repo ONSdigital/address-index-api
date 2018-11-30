@@ -70,9 +70,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case None => false
     }
 
+    val defStartBoost = conf.config.elasticSearch.defaultStartBoost
+
     val sboost = startboost match {
-      case Some(x) => Try(x.toInt).getOrElse(1)
-      case None => 1
+      case Some(x) => Try(x.toInt).getOrElse(defStartBoost)
+      case None => defStartBoost
     }
 
     logger.warn("sboost = " + sboost)
