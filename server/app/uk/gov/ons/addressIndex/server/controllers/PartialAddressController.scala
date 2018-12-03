@@ -38,7 +38,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
     classificationfilter: Option[String] = None,
     // startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    historical: Option[String] = None, verbose: Option[String] = None,
+    startboost: Option[String] = None
+  ): Action[AnyContent] = Action async { implicit req =>
+
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.partial
@@ -66,6 +69,24 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val verb = verbose match {
       case Some(x) => Try(x.toBoolean).getOrElse(false)
       case None => false
+    }
+
+    val defStartBoost = conf.config.elasticSearch.defaultStartBoost
+    // query string param for testing, will probably be removed
+    val sboost = startboost match {
+      case Some(x) => Try(x.toInt).getOrElse(defStartBoost)
+      case None => defStartBoost
+    }
+
+    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
+      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map {add => boostAddress(add)}
+      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
+    }
+
+    def boostAddress(add: AddressResponseAddress): AddressResponseAddress =  {
+      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))){
+        add.copy(underlyingScore = add.underlyingScore + sboost)
+      } else add.copy(underlyingScore = add.underlyingScore)
     }
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
@@ -116,6 +137,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               AddressResponseAddress.fromHybridAddressPartial(_,verb)
             )
 
+            val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
+
 //            addresses.foreach { address =>
 //            writeLog(
 //              formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
@@ -131,7 +154,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 dataVersion = dataVersion,
                 response = AddressByPartialAddressResponse(
                   input = input,
-                  addresses = addresses,
+                  addresses = sortAddresses,
                   filter = filterString,
                   historical = hist,
                   limit = limitInt,
