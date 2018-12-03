@@ -40,6 +40,7 @@ case class ElasticSearchConfig(
   circuitBreakerCallTimeout: Int,
   circuitBreakerResetTimeout: Int,
   minimumPartial: Int,
+  defaultStartBoost: Int
 )
 
 case class QueryParamsConfig(

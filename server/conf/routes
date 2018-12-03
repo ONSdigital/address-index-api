@@ -275,6 +275,9 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: startboost
+#      description: Boost results where the input string appears at the start of the address (0 = no boost).
+#      default: 2
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -289,8 +292,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
-
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead).
@@ -314,6 +316,9 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: startboost
+#      description: Boost results where the input string appears at the start of the address (0 = no boost).
+#      default: 2
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -328,7 +333,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
