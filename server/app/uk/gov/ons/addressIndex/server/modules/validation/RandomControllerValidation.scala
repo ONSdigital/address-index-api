@@ -2,7 +2,8 @@ package uk.gov.ons.addressIndex.server.modules.validation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
-import uk.gov.ons.addressIndex.model.server.response.address.{FilterInvalidError, LimitNotNumericAddressResponseError, LimitTooSmallAddressResponseError, LimitTooLargeAddressResponseError, MixedFilterError}
+import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -10,8 +11,33 @@ import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
-class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
-  extends Validation with RandomControllerResponse {
+class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
+  extends AddressValidation with RandomControllerResponse {
+
+  override def LimitTooLargeRandom: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(LimitTooLargeAddressResponseErrorCustom)
+  }
+
+  def validateRandomLimit(limit: Option[String]): Option[Future[Result]] = {
+
+    val defLimit: Int = conf.config.elasticSearch.defaultLimit
+    val limval = limit.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limval.toInt).isFailure
+    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+    val maxLimit: Int = conf.config.elasticSearch.maximumLimit
+
+    if (limitInvalid) {
+      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+      Some(futureJsonBadRequest(LimitNotNumericRandom))
+    } else if (limitInt < 1) {
+      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+      Some(futureJsonBadRequest(LimitTooSmallRandom))
+    } else if (limitInt > maxLimit) {
+      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+      Some(futureJsonBadRequest(LimitTooLargeRandom))
+    } else None
+
+  }
 
   def validateRandomFilter(classificationfilter: Option[String]): Option[Future[Result]] = {
 
@@ -30,24 +56,4 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
   }
 
-  def validateRandomLimit(limit: Option[String]): Option[Future[Result]] = {
-
-    val defLimit: Int = conf.config.elasticSearch.defaultLimitRandom
-    val limval = limit.getOrElse(defLimit.toString)
-    val limitInvalid = Try(limval.toInt).isFailure
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
-    val maxLimit: Int = conf.config.elasticSearch.maximumLimitRandom
-
-    if (limitInvalid) {
-      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumericRandom))
-    } else if (limitInt < 1) {
-      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmallRandom))
-    } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooLargeRandom))
-    } else None
-
-  }
 }
