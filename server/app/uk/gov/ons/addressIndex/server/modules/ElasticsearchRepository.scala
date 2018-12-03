@@ -42,6 +42,13 @@ trait ElasticsearchRepository {
   def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
 
   /**
+    * Query the address index for a random address.
+    *
+    * @return Future containing an address or `None` if not in the index
+    */
+  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
+
+  /**
     * Query the address index for addresses.
     *
     * @param start  the offset for the query

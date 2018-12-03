@@ -29,8 +29,10 @@ case class ElasticSearchConfig(
   defaultLimit: Int,
   defaultLimitPartial: Int,
   defaultLimitPostcode: Int,
+  defaultLimitRandom: Int,
   defaultOffset: Int,
   maximumLimit: Int,
+  maximumLimitRandom: Int,
   maximumOffset: Int,
   matchThreshold: Float,
   minimumSample: Int,
@@ -75,7 +77,8 @@ case class ClusterPoliciesConfig (
   partial: String,
   postcode: String,
   uprn: String,
-  version: String
+  version: String,
+  random: String
 )
 
 case class IndexesConfig(
