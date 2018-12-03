@@ -84,11 +84,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress =  {
-      //   logger.warn("input =  " + input.toUpperCase())
-      //   logger.warn("formatted address = " + add.formattedAddress.toUpperCase())
-      //  logger.warn("underlying score = " + add.underlyingScore)
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))){
-        //  logger.warn("uprating " + input.toUpperCase())
         add.copy(underlyingScore = add.underlyingScore + sboost)
       } else add.copy(underlyingScore = add.underlyingScore)
     }
