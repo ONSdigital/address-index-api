@@ -407,7 +407,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val request = generateQueryRandomRequest(filters, queryParamsConfig, historical).limit(limit)
 
-    logger.trace(request.toString)
+    val requestString = SearchBodyBuilderFn(request).string()
+    logger.warn(requestString)
+    //logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
