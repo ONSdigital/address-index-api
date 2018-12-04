@@ -406,11 +406,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
 
     val request = generateQueryRandomRequest(filters, queryParamsConfig, historical).limit(limit)
-
-    val requestString = SearchBodyBuilderFn(request).string()
-    logger.warn(requestString)
-    //logger.trace(request.toString)
-
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
@@ -437,8 +432,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
 
     val timestamp: Long = System.currentTimeMillis
-
-//    logger.warn(timestamp.toString)
 
     val query =
 

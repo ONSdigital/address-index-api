@@ -9,7 +9,7 @@ Address Index is a Play Framework (2.6) application which matches addresses.
 
 The input can be a complete address (may be poor quality), and the system will use advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
 
-Address can be matched one at a time or in batches.
+Addresses can be matched one at a time or in batches.
 
 Additional functions exist for postcode searching and partial address string matching for typeaheads.
 
@@ -45,8 +45,10 @@ The application will be deployed in 2019 as a service free to all members of the
     * The application.conf of the demo-ui can point to the API on localhost or a deployed copy of the API
     * The application.conf of the server project points to an elastic search endpoint, this can be local or a server
 
-    To run or test the demo-ui and server together on your local machine
+    To run or test the demo-ui and server together on your local machine:
+    
     Open two command windows running sbt as shown above, one for the API and one for UI
+    
     Use run 9001 to have the API on port 9001 and run 9000 to have the UI on 9000
     (i.e. from the root of the address-index-api project run the following commands : 
         sbt "project address-index-server" "run 9001"
@@ -88,4 +90,4 @@ The main contributors to this repo are
 * Richard Smith
 * Steve Thorne
 
-Software engineers working for the Office For National Statistsics
+Software engineers working for the Office For National Statistsics.
