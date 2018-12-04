@@ -68,7 +68,6 @@ will run them all, or you can select a subproject, or use testOnly feature to re
 
 See [Running Performance Tests](server/src/it/Running%20Performance%20Tests.md)
 
-
 ### Related Repos ###
 
 [Address Index Data](https://github.com/ONSdigital/address-index-data) - Apache Spark job used to create the Elasticsearch index
@@ -77,17 +76,6 @@ See [Running Performance Tests](server/src/it/Running%20Performance%20Tests.md)
 
 [Address Index UI](https://github.com/ONSdigital/address-index-ui) - New Flask UI to replace current demo-ui
 
-
 ### What if I just want to use the API ###
 
 See [API Help and Swagger](api-definitions/readme.md)
-
-### Who do I talk to? ###
-
-The main contributors to this repo are
-
-* Paul Joel
-* Richard Smith
-* Steve Thorne
-
-Software engineers working for the Office For National Statistsics.
