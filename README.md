@@ -7,13 +7,13 @@
 
 Address Index is a Play Framework (2.6) application which matches addresses.
 
-The input can be a complete address (may be poor quality), and the system will use advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
+The input can be a complete address (from any source), and the system will use advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
 
 Addresses can be matched one at a time or in batches.
 
 Additional functions exist for postcode searching and partial address string matching for typeaheads.
 
-The application will be deployed in 2019 as a service free to all members of the Public Sector Mapping Agreement.
+It is planned to deploy the application in the near future as a service intended to be freely available to all members of the Public Sector Mapping Agreement.
 
 ### How do I get set up? ###
 
