@@ -8,9 +8,8 @@ Table of Contents
     * [Setup Gatling](#setup-gatling)
     * [OS Tuning](#os-tuning)
         * [MacOS](#macos)
-        * [Windows (Blocked)](#windows-blocked)
+        * [Windows](#windows-blocked)
 * [Usage](#usage)
-* [~~Running gatling tests from a docker container~~](#running-gatling-tests-from-a-docker-container)
 * [Configuration](#configuration)
 * [License](#license)
 
@@ -34,7 +33,7 @@ See below for links to this setup documentation.
 
 ### Setup address-index-api, address-index-demo-ui, address-index-data
 
-Head over to the [following](https://collaborate2.ons.gov.uk/confluence/display/RAI/Setting+up+Address+Index+Server+and+UI+with+local+ElasticSearch) page on Confluence.
+Head over to the [following](https://github.com/ONSdigital/address-index-api) and check the readme.
 
 ## Setup Gatling
 
@@ -57,11 +56,10 @@ On macOS, the constraints most relevant to Gatling load tests include:
 
 Instructions on altering all of the above limits is detailed in [macOS Tuning for Gatling](macOS%20Tuning%20for%20Gatling.md)
 
-### Windows (Blocked)
+### Windows 
 
 A similar exercise from a Windows on-network machine would require elevated privileges since most required operations would require admin access (assuming that removes other security restrictions such as being able to edit the Windows registry).
-At the time of this writing, it has not been possible to obtain either a Windows machine (off-network, admin access) OR admin access on the on-network Window laptop.
-It is worth bearing in mind that the machine from which the Gatling tests are run must be capable of supporting running load tests of high RPS.
+
 
 # Usage
 
@@ -100,16 +98,6 @@ sbt "project address-index-server" "run 9001"
 ```
 The above runs the AI server and configures it to use ElasticSearch running at `localhost:9200` with index name specified by ONS_AI_API_HYBRID_INDEX_HIST property.
 )
-
-# ~~Running gatling tests from a docker container~~
-
-This is work in progress.
-
-Execute the following command:
-
-```shell
-docker run --rm -it -v /Users/ashjindal/ons/gatling/registers-performance-tests:/usr/perftest-workdir --env JAVA_OPTS="-DCONFIG_NAME=ai-api-simple-pcs -DREQUESTS_PER_SECOND=2000 -DBASE_URL=http://host.docker.internal:9001"  onsdigital/jenkins-slave-sbt
-```
 
 # Configuration
 
