@@ -46,7 +46,7 @@ trait ElasticsearchRepository {
     *
     * @return Future containing an address or `None` if not in the index
     */
-  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses]
+  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial]
 
   /**
     * Query the address index for addresses.

@@ -41,7 +41,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
   private val hybridIndexBulk = esConf.indexes.hybridIndex + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
-
+  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
 
   private val DATE_FORMAT = "yyyy-MM-dd"
 
@@ -403,13 +406,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
+  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial] = {
 
-    val request = generateQueryRandomRequest(filters, queryParamsConfig, historical).limit(limit)
+    val request = generateQueryRandomRequest(filters, queryParamsConfig, historical, verbose).limit(limit)
 
     logger.trace(request.toString)
 
-    client.execute(request).map(HybridAddresses.fromEither)
+    client.execute(request).map(HybridAddressesPartial.fromEither)
   }
 
   /**
@@ -418,7 +421,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     *
     * @return Search definition containing query to the ES
     */
-  def generateQueryRandomRequest(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryRandomRequest(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -435,8 +438,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
 
     val timestamp: Long = System.currentTimeMillis
-
-//    logger.warn(timestamp.toString)
 
     val query =
 
@@ -455,9 +456,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
 
     if (historical) {
-      search(hybridIndexHistoricalPostcode).query(query)
+      if (verbose) {
+        search(hybridIndexHistoricalRandom).query(query)
+      } else {
+        search(hybridIndexHistoricalSkinnyRandom).query(query)
+      }
     } else {
-      search(hybridIndexPostcode).query(query)
+      if (verbose) {
+        search(hybridIndexRandom).query(query)
+      } else {
+        search(hybridIndexSkinnyRandom).query(query)
+      }
     }
   }
 

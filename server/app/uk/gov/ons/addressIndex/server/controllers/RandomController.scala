@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesPartial}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
@@ -86,16 +86,16 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
       case _ =>
 
-        val request: Future[HybridAddresses] =
+        val request: Future[HybridAddressesPartial] =
           overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryRandom(filterString, limitInt, None, hist)
+            esRepo.queryRandom(filterString, limitInt, None, hist, verb)
           )
 
         request.map {
-          case HybridAddresses(hybridAddresses, maxScore, total) =>
+          case HybridAddressesPartial(hybridAddresses, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_,verb)
+              AddressResponseAddress.fromHybridAddressPartial(_,verb)
             )
 
             writeLog(activity = "random_address_request")
