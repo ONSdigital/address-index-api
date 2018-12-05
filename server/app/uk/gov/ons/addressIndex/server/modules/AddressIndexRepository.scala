@@ -43,8 +43,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
   private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexRandom = esConf.indexes.hybridIndex + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
 
   private val DATE_FORMAT = "yyyy-MM-dd"
 
