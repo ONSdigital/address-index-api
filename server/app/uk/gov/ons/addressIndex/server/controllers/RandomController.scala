@@ -37,7 +37,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
-    logger.warn("clusterid="+clusterid)
+
     val defLimit = conf.config.elasticSearch.defaultLimitRandom
 
     val limval = limit.getOrElse(defLimit.toString)
