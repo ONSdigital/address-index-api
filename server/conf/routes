@@ -16,7 +16,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: rangekm
 #      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
 #    - name: lat
@@ -268,13 +268,16 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: startboost
+#      description: Boost results where the input string appears at the start of the address (0 = no boost).
+#      default: 2
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -289,8 +292,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
-
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead).
@@ -307,13 +309,16 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: startboost
+#      description: Boost results where the input string appears at the start of the address (0 = no boost).
+#      default: 2
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -328,7 +333,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -345,7 +350,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -448,6 +453,39 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 
 ### NoDocs ###
 ###
+#  summary: Search for a random address.
+#  description: Returns a random address.
+#  parameters:
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
+#    - name: limit
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
+#    - name: historical
+#      description: Include historical addresses
+#      default: true
+#    - name: verbose
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#      default: false
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String])
+
+### NoDocs ###
+###
 #  summary: Test elastic is connected.
 #  responses:
 #    200:
@@ -463,7 +501,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: input
 #      description: Specifies the input for which the query should be generated.
 #    - name: classificationfilter
-#      description: Classsification code filter. Can be pattern match e.g. ZW*, exact match e.g. RD06 or a preset keyword such as residential or commercial
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: rangekm
 #      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
 #    - name: lat

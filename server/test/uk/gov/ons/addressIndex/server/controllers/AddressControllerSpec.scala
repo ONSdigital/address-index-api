@@ -15,6 +15,7 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
@@ -163,7 +164,10 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial] =
+      Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
+
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] =
       Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
@@ -196,7 +200,10 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial] =
+      Future.successful(HybridAddressesPartial(Seq.empty, 1.0f, 0))
+
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] =
       Future.successful(HybridAddressesPartial(Seq.empty, 1.0f, 0))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
@@ -225,9 +232,11 @@ class AddressControllerSpec extends PlaySpec with Results {
       startDate:String, endDate:String,
       historical: Boolean = true): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] = Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
+    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] = Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
 
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial] = Future.successful(HybridAddressesPartial(Seq(validHybridAddressPartial), 1.0f, 1))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
@@ -262,7 +271,10 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true): Future[HybridAddressesPartial] =
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial] =
+      Future.failed(new Exception("test failure"))
+
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] =
       Future.failed(new Exception("test failure"))
 
     override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
@@ -294,6 +306,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val addressValidation : AddressControllerValidation = new AddressControllerValidation()(config, versions)
   val partialAddressValidation : PartialAddressControllerValidation = new PartialAddressControllerValidation()(config, versions)
   val postcodeValidation : PostcodeControllerValidation = new PostcodeControllerValidation()(config, versions)
+  val randomValidation : RandomControllerValidation = new RandomControllerValidation()(config, versions)
   val uprnValidation : UPRNControllerValidation = new UPRNControllerValidation()(config, versions)
   val batchValidation : BatchControllerValidation = new BatchControllerValidation()(config, versions)
   val codelistValidation : CodelistControllerValidation = new CodelistControllerValidation()(config, versions)
@@ -302,6 +315,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val partialAddressController = new PartialAddressController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, partialAddressValidation)
 
   val postcodeController = new PostcodeController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, postcodeValidation)
+  val randomController = new RandomController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, codelistValidation)
 
@@ -478,6 +492,61 @@ class AddressControllerSpec extends PlaySpec with Results {
       status(result) mustBe OK
       actual mustBe expected
     }
+
+    "reply with a random address in concise format" in {
+      // Given
+      val controller = randomController
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByRandomResponse(
+          addresses = Seq(AddressResponseAddress.fromHybridAddressPartial(validHybridAddressPartial, false)),
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.randomQuery(verbose=Some("false")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a random address in verbose format" in {
+      // Given
+      val controller = randomController
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByRandomResponse(
+          addresses = Seq(AddressResponseAddress.fromHybridAddressPartial(validHybridAddressPartial, true)),
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = true
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.randomQuery(verbose=Some("true")).apply(FakeRequest())
+
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
 
     "reply on a found address in concise format (by postcode query with start and end date)" ignore {
       // Given
@@ -941,6 +1010,44 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if an invalid mixed filter value is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = true
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(MixedFilterError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD*,RD02")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
 
     "reply with a 400 error if a non-numeric offset parameter is supplied" in {
       // Given
@@ -1077,6 +1184,33 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.postcodeQuery("some query", Some("1"), Some("thing")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a non-numeric limit parameter is supplied (random)" in {
+      // Given
+      val controller = randomController
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByRandomResponse(
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = true
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LimitNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.randomQuery(Some("1"), Some("thing")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1226,6 +1360,33 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if a negative or zero limit parameter is supplied (random)" in {
+      // Given
+      val controller = randomController
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByRandomResponse(
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = true
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(LimitTooSmallAddressResponseError)
+      ))
+
+      // When
+      val result = controller.randomQuery(Some("some query"), Some("0"), Some("0")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply with a 400 error if an offset parameter greater than the maximum allowed is supplied" in {
       // Given
       val controller = addressController
@@ -1361,6 +1522,33 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.postcodeQuery("some query", Some("0"), Some("999999")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a limit parameter larger than the maximum allowed is supplied (random)" in {
+      // Given
+      val controller = randomController
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByRandomResponse(
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = true
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(randomValidation.LimitTooLargeAddressResponseErrorCustom)
+      ))
+
+      // When
+      val result = controller.randomQuery(Some(""), Some("999999")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -2047,6 +2235,8 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
 
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs","Test exception"))
+
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
@@ -2069,7 +2259,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsError)
+        errors = Seq(enhancedError)
       ))
 
       // When
@@ -2084,6 +2274,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
       // Given
       val controller = new PostcodeController(components, failingRepositoryMock, parser, config, versions, overloadProtection, postcodeValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs","test failure"))
 
       val expected = Json.toJson(AddressByPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
@@ -2102,7 +2294,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsError)
+        errors = Seq(enhancedError)
       ))
 
       // When - retry param must be true
@@ -2114,9 +2306,75 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for a random address" in {
+      // Given
+      val controller = new RandomController(components, failingRepositoryMock, parser, config, versions, overloadProtection, randomValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code,FailedRequestToEsRandomError.message.replace("see logs","test failure"))
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByRandomResponse(
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = true
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      // When - retry param must be true
+      val result = controller.randomQuery(limit=Some("10")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe TOO_MANY_REQUESTS
+      actual mustBe expected
+    }
+
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for a partial address" in {
+      // Given
+      val controller = new PartialAddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, partialAddressValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs","test failure"))
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "",
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          startDate = "",
+          endDate = "",
+          verbose = true
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      // When - retry param must be true
+      val result = controller.partialAddressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe TOO_MANY_REQUESTS
+      actual mustBe expected
+    }
+
     "reply with a 429 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
       val controller = new UPRNController(components, failingRepositoryMock, parser, config, versions, overloadProtection, uprnValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs","test failure"))
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
@@ -2140,7 +2398,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true
         ),
         TooManyRequestsResponseStatus,
-        errors = Seq(FailedRequestToEsError)
+        errors = Seq(enhancedError)
       ))
 
       // When

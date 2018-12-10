@@ -746,7 +746,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "phrase",
                     "slop":4
            				}
@@ -823,7 +823,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "best_fields"
            				}
            			}],
@@ -899,7 +899,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "phrase",
                     "slop":4
            				}
@@ -1020,7 +1020,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
            					"type": "best_fields"
            				}
            			}],
@@ -2794,10 +2794,184 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   }],
                   "filter": [
                     {
-                      "term": {
-                        "classificationCode": {
-                          "value": "RD06"
+                      "terms": {
+                        "classificationCode": ["RD06"]
+                      }
+                    }
+                  ],
+                  "boost":0.075
+                }
+              },
+              "sort":[{
+                "_score":{
+                  "order":"desc"
+                }
+              },{
+                "uprn":{"order":"asc"}
+            }],
+            "track_scores":true
+          }
+        """.stripMargin)
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "return terms filter for 'RD06,RD' when passed filter 'RD06,RD' " in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val tokens: Map[String, String] = Map.empty
+
+      val filters: String = "RD06,RD"
+
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool":{
+                "must":[{
+                  "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
+                      "paf.pafAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  }]
+                }
+              }],
+              "should":[{
+                "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackLpiBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
                         }
+                      }
+                    },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      }]
+                    }
+                  }],
+                  "filter": [
+                    {
+                      "terms": {
+                        "classificationCode": ["RD06","RD"]
+                      }
+                    }
+                  ],
+                  "boost":0.075
+                }
+              },
+              "sort":[{
+                "_score":{
+                  "order":"desc"
+                }
+              },{
+                "uprn":{"order":"asc"}
+            }],
+            "track_scores":true
+          }
+        """.stripMargin)
+
+      // When
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "")).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "return error for terms filter for 'RD*,RD02' when passed filter 'RD*,RD02' " in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+
+      val tokens: Map[String, String] = Map.empty
+
+      val filters: String = "RD*,RD02"
+
+      val expected = Json.parse(
+        s"""
+          {
+            "version":true,
+            "query":{
+              "bool":{
+                "must":[{
+                  "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
+                      "paf.pafAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  }]
+                }
+              }],
+              "should":[{
+                "dis_max":{
+                  "tie_breaker":0,
+                  "queries":[{
+                    "match":{
+                      "lpi.nagAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackLpiBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      }]
+                    }
+                  }],
+                  "filter": [
+                    {
+                      "terms": {
+                        "classificationCode": ["RD*","RD02"]
                       }
                     }
                   ],
@@ -2835,7 +3009,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -2905,7 +3079,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -2974,7 +3148,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3016,7 +3190,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3059,7 +3233,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3093,10 +3267,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                      }
                    }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode": ["RD"]
                 }
               },{
                 "bool":{
@@ -3137,7 +3309,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3170,10 +3342,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                      }
                    }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode": ["RD"]
                 }
               },{
                 "bool":{
@@ -3213,7 +3383,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3290,7 +3460,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3366,16 +3536,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
               }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode":["RD"]
                 }
               },{
                 "bool":{
@@ -3415,15 +3583,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
               "filter":[{
-                "term":{
-                  "classificationCode":{
-                    "value":"RD"
-                  }
+                "terms":{
+                  "classificationCode": ["RD"]
                 }
               },{
                 "bool":{
@@ -3463,7 +3629,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3512,7 +3678,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -4252,10 +4418,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					}],
                     "filter": [
                       {
-                        "term": {
-                          "classificationCode": {
-                            "value": "RD06"
-                          }
+                        "terms": {
+                          "classificationCode": ["RD06"]
                         }
                       }
                     ],
@@ -4311,10 +4475,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					}],
                     "filter": [
                       {
-                        "term": {
-                          "classificationCode": {
-                            "value": "RD06"
-                          }
+                        "terms": {
+                          "classificationCode": ["RD06"]
                         }
                       }
                     ],

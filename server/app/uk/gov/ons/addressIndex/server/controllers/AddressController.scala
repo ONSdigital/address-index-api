@@ -67,7 +67,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val offval = offset.getOrElse(defOffset.toString)
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
 
-    val filterString = classificationfilter.getOrElse("")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "address"
 
     val hist = historical match {
@@ -211,17 +211,18 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             overloadProtection.currentStatus match {
               case ThrottlerStatus.HalfOpen => {
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+               TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
               }
               case ThrottlerStatus.Open => {
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+
               }
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
                 logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-                InternalServerError(Json.toJson(FailedRequestToEs))
+                InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage)))
             }
         }
     }

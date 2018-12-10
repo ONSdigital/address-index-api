@@ -10,7 +10,7 @@ class AddressAPILogger(log: String) extends APILogger {
   private val splunk = Logger("SPLUNK")
 
   def systemLog(ip: String = "", url: String = "", responseTimeMillis: String = "",
-    uprn: String = "", postcode: String = "", partialAddress: String = "", input: String = "",
+    uprn: String = "", postcode: String = "", random: String = "", partialAddress: String = "", input: String = "",
     offset: String = "", limit: String = "", filter: String = "", verbose: Boolean = false,
     startDate: String = "", endDate: String = "", historical: Boolean = true,
     rangekm: String = "", lat: String = "", lon: String = "", bulkSize: String = "",
@@ -24,7 +24,7 @@ class AddressAPILogger(log: String) extends APILogger {
       super.logMessage(splunk.info, AddressLoggerMessage(
         s" IP=$ip url=$url millis=${System.currentTimeMillis()} " +
           s"response_time_millis=$responseTimeMillis is_uprn=${!uprn.isEmpty} " +
-          s"is_postcode=${!postcode.isEmpty} is_input=${!input.isEmpty} " +
+          s"is_postcode=${!postcode.isEmpty} is_input=${!input.isEmpty} is_random=${!random.isEmpty} " +
           s"is_bulk=${!bulkSize.isEmpty} is_partial=${!partialAddress.isEmpty} " +
           s"uprn=$uprn postcode=$postcode input=$input " +
           s"offset=$offset limit=$limit filter=$filter " + s"verbose=$verbose " +

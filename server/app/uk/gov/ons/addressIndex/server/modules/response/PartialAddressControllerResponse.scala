@@ -43,13 +43,25 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(OffsetTooLargeAddressResponseError)
   }
 
-  def FailedRequestToEsPartialAddress: AddressByPartialAddressResponseContainer = {
+  def FailedRequestToEsPartialAddress(detail: String): AddressByPartialAddressResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs",detail))
     AddressByPartialAddressResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = ErrorPartialAddress,
       status = InternalServerErrorAddressResponseStatus,
-      errors = Seq(FailedRequestToEsPartialAddressError)
+      errors = Seq(enhancedError)
+    )
+  }
+
+  def FailedRequestToEsTooBusyPartialAddress(detail: String): AddressByPartialAddressResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs",detail))
+    AddressByPartialAddressResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorPartialAddress,
+      status = TooManyRequestsResponseStatus,
+      errors = Seq(enhancedError)
     )
   }
 
