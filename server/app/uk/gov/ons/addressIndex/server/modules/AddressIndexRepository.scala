@@ -453,21 +453,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     if (historical) {
       if (verbose) {
-        logger.warn(hybridIndexHistoricalPostcode + "hist, verb")
         search(hybridIndexHistoricalPostcode).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
-        logger.warn(hybridIndexHistoricalSkinnyPostcode + "hist, not verb")
         search(hybridIndexHistoricalSkinnyPostcode).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     } else {
       if (verbose) {
-        logger.warn(hybridIndexPostcode + "not hist, verb")
         search(hybridIndexPostcode).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
-        logger.warn(hybridIndexSkinnyPostcode + "not hist, not verb")
         search(hybridIndexSkinnyPostcode).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
