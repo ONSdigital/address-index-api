@@ -116,6 +116,28 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                 )
               )
 
+          }.recover {
+            case NonFatal(exception) =>
+
+              overloadProtection.currentStatus match {
+                case ThrottlerStatus.HalfOpen =>
+                  logger.warn(
+                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
+                  )
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                case ThrottlerStatus.Open =>
+                  logger.warn(
+                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
+                  )
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                case _ =>
+                  // Circuit Breaker is closed. Some other problem
+                  writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
+                  logger.warn(
+                    s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
+                  )
+                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage)))
+              }
           }
         }else{
           val request: Future[HybridAddresses] =
@@ -147,34 +169,34 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                 )
               )
 
+          }.recover {
+            case NonFatal(exception) =>
+
+              overloadProtection.currentStatus match {
+                case ThrottlerStatus.HalfOpen =>
+                  logger.warn(
+                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
+                  )
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                case ThrottlerStatus.Open =>
+                  logger.warn(
+                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
+                  )
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                case _ =>
+                  // Circuit Breaker is closed. Some other problem
+                  writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
+                  logger.warn(
+                    s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
+                  )
+                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage)))
+              }
           }
         }
 
 
 
-          .recover {
-          case NonFatal(exception) =>
 
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
-              case ThrottlerStatus.Open =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
-              case _ =>
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
-                logger.warn(
-                  s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
-                )
-                InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage)))
-            }
-        }
     }
   }
 }

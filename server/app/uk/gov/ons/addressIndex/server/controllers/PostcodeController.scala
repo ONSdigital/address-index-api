@@ -138,6 +138,28 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                 )
               )
 
+          }.recover {
+            case NonFatal(exception) =>
+
+              overloadProtection.currentStatus match {
+                case ThrottlerStatus.HalfOpen =>
+                  logger.warn(
+                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
+                  )
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                case ThrottlerStatus.Open =>
+                  logger.warn(
+                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
+                  )
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                case _ =>
+                  // Circuit Breaker is closed. Some other problem
+                  writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+                  logger.warn(
+                    s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
+                  )
+                  InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage)))
+              }
           }
 
         }else {
@@ -175,32 +197,31 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                 )
               )
 
-          }
+          }.recover {
+              case NonFatal(exception) =>
 
-        }
-          .recover {
-          case NonFatal(exception) =>
-
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
-              case ThrottlerStatus.Open =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
-              case _ =>
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
-                logger.warn(
-                  s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
-                )
-                InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage)))
+                overloadProtection.currentStatus match {
+                  case ThrottlerStatus.HalfOpen =>
+                    logger.warn(
+                      s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
+                    )
+                    TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                  case ThrottlerStatus.Open =>
+                    logger.warn(
+                      s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
+                    )
+                    TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                  case _ =>
+                    // Circuit Breaker is closed. Some other problem
+                    writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+                    logger.warn(
+                      s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
+                    )
+                    InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage)))
+                }
             }
         }
+
     }
   }
 }
