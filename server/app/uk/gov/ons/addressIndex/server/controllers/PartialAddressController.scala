@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.ons.addressIndex.model.db.index.HybridAddressesPartial
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
@@ -126,50 +126,85 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
       case _ =>
 
-        val request: Future[HybridAddressesPartial] =
-          overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
-          )
-
-        request.map {
-          case HybridAddressesPartial(hybridAddressesPartial, maxScore, total) =>
-            val addresses: Seq[AddressResponseAddress] = hybridAddressesPartial.map(
-              AddressResponseAddress.fromHybridAddressPartial(_,verb)
+        if (verb==false) {
+          val request: Future[HybridAddressesSkinny] =
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
             )
 
-            val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
-
-//            addresses.foreach { address =>
-//            writeLog(
-//              formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
-//              score = address.underlyingScore.toString, activity = "address_response"
-//            )
-//          }
-
-            writeLog(activity = "address_request")
-
-            jsonOk(
-              AddressByPartialAddressResponseContainer(
-                apiVersion = apiVersion,
-                dataVersion = dataVersion,
-                response = AddressByPartialAddressResponse(
-                  input = input,
-                  addresses = sortAddresses,
-                  filter = filterString,
-                  historical = hist,
-                  limit = limitInt,
-                  offset = offsetInt,
-                  total = total,
-                  maxScore = maxScore,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
-                  verbose  = verb
-                ),
-                status = OkAddressResponseStatus
+          request.map {
+            case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
+              val addresses: Seq[AddressResponseAddress] = hybridAddressesSkinny.map(
+                AddressResponseAddress.fromHybridAddressSkinny(_,verb)
               )
+
+              val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
+
+              writeLog(activity = "partial_request")
+
+              jsonOk(
+                AddressByPartialAddressResponseContainer(
+                  apiVersion = apiVersion,
+                  dataVersion = dataVersion,
+                  response = AddressByPartialAddressResponse(
+                    input = input,
+                    addresses = sortAddresses,
+                    filter = filterString,
+                    historical = hist,
+                    limit = limitInt,
+                    offset = offsetInt,
+                    total = total,
+                    maxScore = maxScore,
+                    startDate = startDateVal,
+                    endDate = endDateVal,
+                    verbose  = verb
+                  ),
+                  status = OkAddressResponseStatus
+                )
+              )
+
+          }
+        }else {
+          val request: Future[HybridAddresses] =
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
             )
 
-        }.recover {
+          request.map {
+            case HybridAddresses(hybridAddresses, maxScore, total) =>
+              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+                AddressResponseAddress.fromHybridAddress(_,verb)
+              )
+
+              val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
+
+              writeLog(activity = "partial_request")
+
+              jsonOk(
+                AddressByPartialAddressResponseContainer(
+                  apiVersion = apiVersion,
+                  dataVersion = dataVersion,
+                  response = AddressByPartialAddressResponse(
+                    input = input,
+                    addresses = sortAddresses,
+                    filter = filterString,
+                    historical = hist,
+                    limit = limitInt,
+                    offset = offsetInt,
+                    total = total,
+                    maxScore = maxScore,
+                    startDate = startDateVal,
+                    endDate = endDateVal,
+                    verbose  = verb
+                  ),
+                  status = OkAddressResponseStatus
+                )
+              )
+
+          }
+        }
+
+          .recover {
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {

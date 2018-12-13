@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressPartial, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 
 /**
   * Contains address information retrieved in ES (PAF or NAG)
@@ -79,7 +79,7 @@ object AddressResponseAddress {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddressPartial(other: HybridAddressPartial, verbose: Boolean): AddressResponseAddress = {
+  def fromHybridAddressSkinny(other: HybridAddressSkinny, verbose: Boolean): AddressResponseAddress = {
 
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag

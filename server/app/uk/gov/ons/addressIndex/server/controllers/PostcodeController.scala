@@ -2,8 +2,8 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
-import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.HybridAddresses
+import play.api.mvc.{request, _}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
@@ -103,49 +103,82 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
       case _ =>
 
-        val request: Future[HybridAddresses] =
-          overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist)
-          )
-
-        request.map {
-          case HybridAddresses(hybridAddresses, maxScore, total) =>
-
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_,verb)
+        if (verb==false) {
+          val request: Future[HybridAddressesSkinny] =
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
             )
+          request.map {
+            case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
 
-//            addresses.foreach { address =>
-//              writeLog(
-//                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
-//                score = address.underlyingScore.toString, activity = "address_response"
-//              )
-//            }
-
-            writeLog(activity = "address_request")
-
-            jsonOk(
-              AddressByPostcodeResponseContainer(
-                apiVersion = apiVersion,
-                dataVersion = dataVersion,
-                response = AddressByPostcodeResponse(
-                  postcode = postcode,
-                  addresses = addresses,
-                  filter = filterString,
-                  historical = hist,
-                  limit = limitInt,
-                  offset = offsetInt,
-                  total = total,
-                  maxScore = maxScore,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
-                  verbose = verb
-                ),
-                status = OkAddressResponseStatus
+              val addresses: Seq[AddressResponseAddress] = hybridAddressesSkinny.map(
+                AddressResponseAddress.fromHybridAddressSkinny(_,verb)
               )
-            )
 
-        }.recover {
+              writeLog(activity = "postcode_request")
+
+              jsonOk(
+                AddressByPostcodeResponseContainer(
+                  apiVersion = apiVersion,
+                  dataVersion = dataVersion,
+                  response = AddressByPostcodeResponse(
+                    postcode = postcode,
+                    addresses = addresses,
+                    filter = filterString,
+                    historical = hist,
+                    limit = limitInt,
+                    offset = offsetInt,
+                    total = total,
+                    maxScore = maxScore,
+                    startDate = startDateVal,
+                    endDate = endDateVal,
+                    verbose = verb
+                  ),
+                  status = OkAddressResponseStatus
+                )
+              )
+
+          }
+
+        }else {
+          val request: Future[HybridAddresses] =
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
+            )
+          request.map {
+            case HybridAddresses(hybridAddresses, maxScore, total) =>
+
+              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+                AddressResponseAddress.fromHybridAddress(_,verb)
+              )
+
+              writeLog(activity = "postcode_request")
+
+              jsonOk(
+                AddressByPostcodeResponseContainer(
+                  apiVersion = apiVersion,
+                  dataVersion = dataVersion,
+                  response = AddressByPostcodeResponse(
+                    postcode = postcode,
+                    addresses = addresses,
+                    filter = filterString,
+                    historical = hist,
+                    limit = limitInt,
+                    offset = offsetInt,
+                    total = total,
+                    maxScore = maxScore,
+                    startDate = startDateVal,
+                    endDate = endDateVal,
+                    verbose = verb
+                  ),
+                  status = OkAddressResponseStatus
+                )
+              )
+
+          }
+
+        }
+          .recover {
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
