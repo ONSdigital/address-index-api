@@ -13,7 +13,7 @@ import scala.util.Try
   * @param paf list of corresponding paf addresses
   * @param score score of the address in the returned ES result
   */
-case class HybridAddressPartial(
+case class HybridAddressSkinny(
                           uprn: String,
                           parentUprn: String,
                           lpi: Seq[NationalAddressGazetteerAddress],
@@ -22,12 +22,12 @@ case class HybridAddressPartial(
                           classificationCode: String
                         )
 
-object HybridAddressPartial {
+object HybridAddressSkinny {
 
-  val name = "HybridAddressPartial"
+  val name = "HybridAddressSkinny"
 
   // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitReader extends HitReader[HybridAddressPartial] {
+  implicit object HybridAddressHitReader extends HitReader[HybridAddressSkinny] {
 
 
     /**
@@ -36,7 +36,7 @@ object HybridAddressPartial {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def read(hit: Hit): Either[Throwable, HybridAddressPartial] = {
+    override def read(hit: Hit): Either[Throwable, HybridAddressSkinny] = {
 
       val lpis: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("lpi").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
@@ -46,7 +46,7 @@ object HybridAddressPartial {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-      Right(HybridAddressPartial(
+      Right(HybridAddressSkinny(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
@@ -66,15 +66,15 @@ object HybridAddressPartial {
   *                 (even those that are not in the list because of the limit)
   * @param total total number of all of the addresses regardless of the limit
   */
-case class HybridAddressesPartial(
-                            addresses: Seq[HybridAddressPartial],
+case class HybridAddressesSkinny(
+                            addresses: Seq[HybridAddressSkinny],
                             maxScore: Double,
                             total: Long
                           )
 
-object HybridAddressesPartial {
+object HybridAddressesSkinny {
 
-  def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddressesPartial = {
+  def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddressesSkinny = {
     resp match {
       case Left(l) => throw new Exception("search failed - " + l.error.reason)
       case Right(r) => fromSearchResponse(r.result)
@@ -90,7 +90,7 @@ object HybridAddressesPartial {
     * @param response Response
     * @return
     */
-  def fromSearchResponse(response: SearchResponse): HybridAddressesPartial = {
+  def fromSearchResponse(response: SearchResponse): HybridAddressesSkinny = {
 
     if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
@@ -99,8 +99,8 @@ object HybridAddressesPartial {
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
     val maxScore = if (total == 0) 0 else response.maxScore
 
-    HybridAddressesPartial(
-      addresses = response.to[HybridAddressPartial],
+    HybridAddressesSkinny(
+      addresses = response.to[HybridAddressSkinny],
       maxScore = maxScore,
       total = total
     )
