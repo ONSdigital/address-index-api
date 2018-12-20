@@ -14,6 +14,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
   val baseUrl: String = ConfigLoader("baseUrl").replace("partial/","")
   val apiKey: String = ConfigLoader("apiKey")
   val duration: Int = ConfigLoader("duration") toInt
+  val limit: String = ConfigLoader("limit") 
   val requestRelPath = ConfigLoader("request_rel_path")
   val requestType = ConfigLoader("request_type")
   val requestName: String = ConfigLoader("request_name_prefix").stripSuffix(" ") + ": " + baseUrl + requestRelPath
@@ -107,7 +108,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
     .exec(
       pause(300 millis)
         .exec(http("Typeahead")
-          .get(typeaheadPath + "${part1}" + "&limit=4")
+          .get(typeaheadPath + "${part1}" + "&limit=" + limit)
           .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
         .foreach("${uprns2}", "uprn2") {
           exec(newsession => {
@@ -126,7 +127,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part2}" + "&limit=4")
+            .get(typeaheadPath + "${part2}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -145,7 +146,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part3}" + "&limit=4")
+            .get(typeaheadPath + "${part3}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -164,7 +165,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part4}" + "&limit=4")
+            .get(typeaheadPath + "${part4}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -183,7 +184,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part5}" + "&limit=4")
+            .get(typeaheadPath + "${part5}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -202,7 +203,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part6}" + "&limit=4")
+            .get(typeaheadPath + "${part6}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -221,7 +222,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part7}" + "&limit=4")
+            .get(typeaheadPath + "${part7}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -240,7 +241,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part8}" + "&limit=4")
+            .get(typeaheadPath + "${part8}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -259,7 +260,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part9}" + "&limit=4")
+            .get(typeaheadPath + "${part9}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -278,7 +279,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part10}" + "&limit=4")
+            .get(typeaheadPath + "${part10}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -297,7 +298,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part11}" + "&limit=4")
+            .get(typeaheadPath + "${part11}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -316,7 +317,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part12}" + "&limit=4")
+            .get(typeaheadPath + "${part12}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -335,7 +336,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part13}" + "&limit=4")
+            .get(typeaheadPath + "${part13}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -354,7 +355,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part14}" + "&limit=4")
+            .get(typeaheadPath + "${part14}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -373,7 +374,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part15}" + "&limit=4")
+            .get(typeaheadPath + "${part15}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
@@ -392,7 +393,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
       exec(
         pause(300 millis)
           .exec(http("Typeahead")
-            .get(typeaheadPath + "${part16}" + "&limit=4")
+            .get(typeaheadPath + "${part16}" + "&limit=" + limit)
             .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
           .foreach("${uprns2}", "uprn2") {
             exec(newsession => {
