@@ -31,6 +31,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
   private val hybridIndexUprn = esConf.indexes.hybridIndex + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexSkinnyUprn = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalSkinnyUprn = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
   private val hybridIndexPartial = esConf.indexes.hybridIndex + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
   private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
@@ -95,6 +97,49 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       search(hybridIndexHistoricalUprn).query(query)
     } else {
       search(hybridIndexUprn).query(query)
+    }
+  }
+
+  def queryUprnSkinny(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true): Future[Option[HybridAddressSkinny]] = {
+
+    val request = generateQueryUprnSkinnyRequest(uprn, startDate, endDate, historical)
+
+    logger.trace(request.toString)
+
+    client.execute(request)
+      .map(HybridAddressesSkinny.fromEither)
+      .map(_.addresses.headOption)
+  }
+
+  /**
+    * Generates request to get address from ES by UPRN
+    * Public for tests
+    *
+    * @param uprn the uprn of the fetched address
+    * @return Seqrch definition containing query to the ES
+    */
+  def generateQueryUprnSkinnyRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true): SearchDefinition = {
+
+    val query = {
+      if(!startDate.isEmpty && !endDate.isEmpty) {
+        must(termQuery("uprn", uprn))
+          .filter(
+            should(
+              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
+                rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
+              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
+                rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+
+      } else {
+        termQuery("uprn", uprn)
+      }
+    }
+
+
+    if (historical) {
+      search(hybridIndexHistoricalSkinnyUprn).query(query)
+    } else {
+      search(hybridIndexSkinnyUprn).query(query)
     }
   }
 
