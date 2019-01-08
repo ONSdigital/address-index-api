@@ -4,7 +4,7 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.searches.SearchDefinition
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 import scala.concurrent.Future
@@ -24,6 +24,14 @@ trait ElasticsearchRepository {
     * @return Future containing a address or `None` if not in the index
     */
   def queryUprn(uprn: String, startDate: String, endDate:String, historical: Boolean = true): Future[Option[HybridAddress]]
+
+  /**
+    * Query the address index by UPRN.
+    *
+    * @param uprn the identificator of the address
+    * @return Future containing a address or `None` if not in the index
+    */
+  def queryUprnSkinny(uprn: String, startDate: String, endDate:String, historical: Boolean = true): Future[Option[HybridAddressSkinny]]
 
   /**
     * Query the address index by partial address.
