@@ -28,11 +28,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val defaultLat = "50.705948"
   val defaultLon = "-3.5091076"
 
+  val defaultEpoch = "_current"
+
   val config = new AddressIndexConfigModule
   val queryParams: QueryParamsConfig = config.config.elasticSearch.queryParams
 
-  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex
-  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical
+  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + defaultEpoch
+  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + defaultEpoch
   val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
