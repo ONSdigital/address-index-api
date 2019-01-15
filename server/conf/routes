@@ -32,6 +32,8 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -47,7 +49,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String])
 
 
 ###
@@ -234,6 +236,8 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -250,7 +254,7 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String])
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 
 ###
@@ -275,6 +279,8 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #    - name: startboost
 #      description: Boost results where the input string appears at the start of the address (0 = no boost).
 #      default: 2
@@ -292,7 +298,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String])
+GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String], epoch: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead).
@@ -316,6 +322,8 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #    - name: startboost
 #      description: Boost results where the input string appears at the start of the address (0 = no boost).
 #      default: 2
@@ -333,7 +341,7 @@ GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String], epoch: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -357,6 +365,8 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -371,7 +381,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 ###
 #  summary: Get version information.
@@ -468,6 +478,8 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -482,7 +494,7 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String])
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 ### NoDocs ###
 ###
@@ -511,6 +523,8 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
 #  responses:
 #    200:
 #      description: Success. A json return of the elasticsearch query.
@@ -523,7 +537,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], epoch: Option[String])
 
 ### NoDocs ###
 ###
