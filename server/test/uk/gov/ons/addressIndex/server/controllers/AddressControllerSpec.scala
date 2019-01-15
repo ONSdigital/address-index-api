@@ -158,34 +158,34 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate:String, endDate:String, historical: Boolean = true): Future[Option[HybridAddress]] =
+    override def queryUprn(uprn: String, startDate:String, endDate:String, historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryUprnSkinny(uprn: String, startDate:String, endDate:String, historical: Boolean = true): Future[Option[HybridAddressSkinny]] =
+    override def queryUprnSkinny(uprn: String, startDate:String, endDate:String, historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] =
       Future.successful(Some(validHybridAddressSkinny))
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPartialAddressSkinny(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryPartialAddressSkinny(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch:String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
 
         Future.successful {
           requestsData.map(requestData => {
@@ -200,40 +200,40 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   // mock that won't return any addresses
   val emptyElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate:String, endDate:String, historical: Boolean = true): Future[Option[HybridAddress]] =
+    override def queryUprn(uprn: String, startDate:String, endDate:String, historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] =
       Future.successful(None)
 
-    override def queryUprnSkinny(uprn: String, startDate:String, endDate:String, historical: Boolean = true): Future[Option[HybridAddressSkinny]] =
+    override def queryUprnSkinny(uprn: String, startDate:String, endDate:String, historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] =
       Future.successful(None)
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
 
-    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryPartialAddressSkinny(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryPartialAddressSkinny(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch:String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful{
         requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
@@ -247,36 +247,36 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val sometimesFailingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String,
       startDate:String, endDate:String,
-      historical: Boolean = true): Future[Option[HybridAddress]] = Future.successful(None)
+      historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] = Future.successful(None)
 
     override def queryUprnSkinny(uprn: String,
                            startDate:String, endDate:String,
-                           historical: Boolean = true): Future[Option[HybridAddressSkinny]] = Future.successful(None)
+                           historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] = Future.successful(None)
 
-    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPartialAddressSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
+    override def queryPartialAddressSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
+    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
+    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): Future[HybridAddresses] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
       else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddres: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch:String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         requestsData.map {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
@@ -293,46 +293,46 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String,
-      startDate:String, endDate:String, historical: Boolean = true): Future[Option[HybridAddress]] =
+      startDate:String, endDate:String, historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] =
       Future.failed(new Exception("test failure"))
 
     override def queryUprnSkinny(uprn: String,
-                           startDate:String, endDate:String, historical: Boolean = true): Future[Option[HybridAddressSkinny]] =
+                           startDate:String, endDate:String, historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryPostcodeSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.failed(new Exception("test failure"))
 
-    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] =
+    override def queryPartialAddress(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPartialAddressSkinny(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] =
+    override def queryPartialAddressSkinny(input: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] =
       Future.failed(new Exception("test failure"))
 
-    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start:Int, limit: Int, filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): Future[HybridAddresses] =
       Future.failed(new Exception("Test exception"))
 
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch:String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.failed(new Exception("Test exception"))
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon:String, startDate:String, endDate:String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch:String): SearchDefinition = SearchDefinition(IndexesAndTypes())
   }
 
   val parser: ParserModule = (_: String) => Map.empty
@@ -380,7 +380,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -406,7 +407,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -432,7 +434,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -459,7 +462,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -492,7 +496,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "",
           endDate = "",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -525,7 +530,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -552,7 +558,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -579,7 +586,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -613,7 +621,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -646,7 +655,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -679,7 +689,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -712,7 +723,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -746,7 +758,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "",
           endDate = "",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -779,7 +792,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -817,7 +831,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -854,7 +869,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -892,7 +908,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -929,7 +946,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -967,7 +985,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = false
+          verbose = false,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -1004,7 +1023,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         OkAddressResponseStatus
       ))
@@ -1042,7 +1062,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -1080,7 +1101,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(MixedFilterError)
@@ -1119,7 +1141,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -1152,7 +1175,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -1190,7 +1214,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1223,7 +1248,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1250,7 +1276,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1288,7 +1315,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1321,7 +1349,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1359,7 +1388,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1392,7 +1422,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1419,7 +1450,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1457,7 +1489,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -1490,7 +1523,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(postcodeValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -1528,7 +1562,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1561,7 +1596,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(postcodeValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1588,7 +1624,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1626,7 +1663,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -1664,7 +1702,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -1702,7 +1741,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -1740,7 +1780,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -1778,7 +1819,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -1816,7 +1858,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -1854,7 +1897,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -1892,7 +1936,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -1930,7 +1975,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -1968,7 +2014,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -2006,7 +2053,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -2044,7 +2092,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -2082,7 +2131,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -2120,7 +2170,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -2153,7 +2204,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -2192,7 +2244,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(StartDateInvalidResponseError)
@@ -2230,7 +2283,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EndDateInvalidResponseError)
@@ -2263,7 +2317,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryPostcodeAddressResponseError)
@@ -2303,7 +2358,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2338,7 +2394,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2367,7 +2424,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2402,7 +2460,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2442,7 +2501,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2469,7 +2529,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(UprnNotNumericAddressResponseError)
@@ -2496,7 +2557,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true
+          verbose = true,
+          epoch = ""
         ),
         NotFoundAddressResponseStatus,
         errors = Seq(NotFoundAddressResponseError)

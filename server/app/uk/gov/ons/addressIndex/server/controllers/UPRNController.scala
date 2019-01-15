@@ -36,7 +36,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     */
   def uprnQuery(uprn: String,
    // startDate: Option[String] = None, endDate: Option[String] = None,
-    historical: Option[String] = None, epoch: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -93,7 +93,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         if (verb==false) {
 
           val request: Future[Option[HybridAddressSkinny]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist)
+            esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist, epochVal)
           )
 
           request.map {
@@ -152,7 +152,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         }else {
 
           val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprn(uprn, startDateVal, endDateVal, hist)
+            esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, epochVal)
           )
 
           request.map {

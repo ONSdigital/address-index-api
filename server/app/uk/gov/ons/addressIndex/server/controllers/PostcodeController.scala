@@ -36,7 +36,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     */
   def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
   //                  startDate: Option[String] = None, endDate: Option[String] = None,
-                    historical: Option[String] = None, epoch: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.postcode
@@ -108,7 +108,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
+              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb, epochVal)
             )
           request.map {
             case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
@@ -168,7 +168,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         }else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
+              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb, epochVal)
             )
           request.map {
             case HybridAddresses(hybridAddresses, maxScore, total) =>

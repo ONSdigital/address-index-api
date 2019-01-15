@@ -43,9 +43,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    classificationfilter: Option[String] = None, rangekm: Option[String] = None,
                    lat: Option[String] = None, lon: Option[String] = None,
   //                 startDate: Option[String] = None, endDate: Option[String] = None,
-                   historical: Option[String] = None, epoch: Option[String] = None,
+                   historical: Option[String] = None,
                    matchthreshold: Option[String] = None,
-                   verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                   verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.address
 

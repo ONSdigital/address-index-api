@@ -33,7 +33,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return Json response with addresses information
     */
-  def randomQuery(classificationfilter: Option[String] = None, limit: Option[String] = None, historical: Option[String] = None, epoch: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def randomQuery(classificationfilter: Option[String] = None, limit: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
@@ -91,7 +91,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandomSkinny(filterString, limitInt, None, hist, verb)
+              esRepo.queryRandomSkinny(filterString, limitInt, None, hist, verb, epochVal)
             )
 
           request.map {
@@ -145,7 +145,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         }else{
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandom(filterString, limitInt, None, hist, verb)
+              esRepo.queryRandom(filterString, limitInt, None, hist, verb, epochVal)
             )
 
           request.map {
