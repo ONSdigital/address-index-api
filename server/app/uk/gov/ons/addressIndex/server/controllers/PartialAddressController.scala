@@ -38,7 +38,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
     classificationfilter: Option[String] = None,
     // startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None, verbose: Option[String] = None,
+    historical: Option[String] = None, epoch: Option[String] = None, verbose: Option[String] = None,
     startboost: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
 
@@ -71,6 +71,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case None => false
     }
 
+    val epochVal = epoch.getOrElse("")
+
     val defStartBoost = conf.config.elasticSearch.defaultStartBoost
     // query string param for testing, will probably be removed
     val sboost = startboost match {
@@ -101,7 +103,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         startDate = startDateVal, endDate = endDateVal,
-        historical = hist, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
+        historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
@@ -151,6 +153,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                     addresses = sortAddresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,
@@ -205,6 +208,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                     addresses = sortAddresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,

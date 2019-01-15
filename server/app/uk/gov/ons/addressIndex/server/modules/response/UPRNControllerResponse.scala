@@ -16,6 +16,7 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = None,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
@@ -32,6 +33,7 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = optAddresses,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
@@ -47,6 +49,7 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = None,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
@@ -63,6 +66,7 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = None,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true

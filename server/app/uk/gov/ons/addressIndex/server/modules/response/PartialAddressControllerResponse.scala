@@ -71,6 +71,7 @@ trait PartialAddressControllerResponse extends AddressResponse {
       addresses = Seq.empty,
       filter = "",
       historical = true,
+      epoch = "",
       limit = 10,
       offset = 0,
       total = 0,

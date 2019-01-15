@@ -84,6 +84,7 @@ trait Response {
       addresses = Seq.empty,
       filter = "",
       historical = true,
+      epoch = "",
       rangekm = "",
       latitude = "",
       longitude = "",
@@ -132,10 +133,10 @@ trait Response {
   /**
     * Helper for creating Future.successful(Status(Json.toJson(toJsonable)))
     *
-    * @param status
-    * @param toJsonable
-    * @param writes
-    * @tparam T
+    * @param status Status
+    * @param toJsonable Able to convert to JSON
+    * @param writes Writes param
+    * @tparam T T param
     * @return
     */
   def futureJson[T](status: Status, toJsonable: T)(implicit writes: Writes[T]): Future[Result] = {
@@ -145,10 +146,10 @@ trait Response {
   /**
     * Helper for creating Status(Json.toJson(toJsonable))
     *
-    * @param status
-    * @param toJsonable
-    * @param writes
-    * @tparam T
+    * @param status Status
+    * @param toJsonable Able to convert to JSON
+    * @param writes Writes param
+    * @tparam T T param
     * @return
     */
   def json[T](status: Status, toJsonable: T)(implicit writes: Writes[T]): Result = {

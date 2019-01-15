@@ -36,7 +36,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     */
   def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
   //                  startDate: Option[String] = None, endDate: Option[String] = None,
-                    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                    historical: Option[String] = None, epoch: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.postcode
@@ -66,6 +66,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case None => false
     }
 
+    val epochVal = epoch.getOrElse("")
+
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
@@ -77,7 +79,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+        startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -126,6 +128,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     addresses = addresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,
@@ -185,6 +188,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     addresses = addresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,

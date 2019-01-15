@@ -36,7 +36,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     */
   def uprnQuery(uprn: String,
    // startDate: Option[String] = None, endDate: Option[String] = None,
-    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    historical: Option[String] = None, epoch: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -51,6 +51,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       case Some(x) => Try(x.toBoolean).getOrElse(false)
       case None => false
     }
+
+    val epochVal = epoch.getOrElse("")
 
     //  val startDateVal = startDate.getOrElse("")
     //  val endDateVal = endDate.getOrElse("")
@@ -68,7 +70,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+        startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -111,6 +113,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   response = AddressByUprnResponse(
                     address = Some(address),
                     historical = hist,
+                    epoch = epochVal,
                     startDate = startDateVal,
                     endDate = endDateVal,
                     verbose = verb
@@ -169,6 +172,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   response = AddressByUprnResponse(
                     address = Some(address),
                     historical = hist,
+                    epoch = epochVal,
                     startDate = startDateVal,
                     endDate = endDateVal,
                     verbose = verb

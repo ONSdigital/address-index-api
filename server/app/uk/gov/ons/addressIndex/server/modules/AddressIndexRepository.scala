@@ -27,28 +27,29 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                                       )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
-  private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexUprn = esConf.indexes.hybridIndex + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexSkinnyUprn = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalSkinnyUprn = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexPartial = esConf.indexes.hybridIndex + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexPostcode = esConf.indexes.hybridIndex + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexAddress = esConf.indexes.hybridIndex + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexBulk = esConf.indexes.hybridIndex + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexRandom = esConf.indexes.hybridIndex + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.random + "/" + esConf.indexes.hybridMapping
+//  private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
+//  private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexUprn = esConf.indexes.hybridIndex + esConf.clusterPolicies.uprn
+  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.uprn
+  private val hybridIndexSkinnyUprn = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.uprn
+  private val hybridIndexHistoricalSkinnyUprn = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.uprn
+  private val hybridIndexPartial = esConf.indexes.hybridIndex + esConf.clusterPolicies.partial
+  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.partial
+  private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.partial
+  private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.partial
+  private val hybridIndexPostcode = esConf.indexes.hybridIndex + esConf.clusterPolicies.postcode
+  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.postcode
+  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.postcode
+  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.postcode
+  private val hybridIndexAddress = esConf.indexes.hybridIndex + esConf.clusterPolicies.address
+  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.address
+  private val hybridIndexBulk = esConf.indexes.hybridIndex + esConf.clusterPolicies.bulk
+  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.bulk
+  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random
+  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random
+  private val hybridIndexRandom = esConf.indexes.hybridIndex + esConf.clusterPolicies.random
+  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.random
+  private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
   private val DATE_FORMAT = "yyyy-MM-dd"
 
@@ -57,7 +58,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true): Future[Option[HybridAddress]] = {
+  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, epoch:String = ""): Future[Option[HybridAddress]] = {
 
     val request = generateQueryUprnRequest(uprn, startDate, endDate, historical)
 
@@ -73,9 +74,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * Public for tests
     *
     * @param uprn the uprn of the fetched address
-    * @return Seqrch definition containing query to the ES
+    * @return Search definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true): SearchDefinition = {
+  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, epoch:String = ""): SearchDefinition = {
 
     val query = {
       if(!startDate.isEmpty && !endDate.isEmpty) {
@@ -92,15 +93,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
     }
 
+    val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
 
-      if (historical) {
-      search(hybridIndexHistoricalUprn).query(query)
+    if (historical) {
+      search(hybridIndexHistoricalUprn + epochParam + hybridMapping).query(query)
     } else {
-      search(hybridIndexUprn).query(query)
+      search(hybridIndexUprn + epochParam + hybridMapping).query(query)
     }
   }
 
-  def queryUprnSkinny(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true): Future[Option[HybridAddressSkinny]] = {
+  def queryUprnSkinny(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, epoch:String = ""): Future[Option[HybridAddressSkinny]] = {
 
     val request = generateQueryUprnSkinnyRequest(uprn, startDate, endDate, historical)
 
@@ -118,7 +120,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnSkinnyRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true): SearchDefinition = {
+  def generateQueryUprnSkinnyRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, epoch:String = ""): SearchDefinition = {
 
     val query = {
       if(!startDate.isEmpty && !endDate.isEmpty) {
@@ -135,11 +137,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
     }
 
+    val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
+
 
     if (historical) {
-      search(hybridIndexHistoricalSkinnyUprn).query(query)
+      search(hybridIndexHistoricalSkinnyUprn + epochParam + hybridMapping).query(query)
     } else {
-      search(hybridIndexSkinnyUprn).query(query)
+      search(hybridIndexSkinnyUprn + epochParam + hybridMapping).query(query)
     }
   }
 
@@ -158,13 +162,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose           verbose flag (use skinny index if false)
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true, epoch:String = ""): Future[HybridAddresses] = {
 
-    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=false, verbose).start(start).limit(limit)
+    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=false, verbose, epoch).start(start).limit(limit)
     val partResult = client.execute(request).map(HybridAddresses.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
-      if (adds.addresses.isEmpty) queryPartialAddressFallback(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,verbose)
+      if (adds.addresses.isEmpty) queryPartialAddressFallback(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,verbose,epoch)
       else partResult
     }
     endResult.flatten
@@ -185,13 +189,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose           verbose flag (use skinny index if false)
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+  def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false, epoch:String = ""): Future[HybridAddressesSkinny] = {
 
-    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=false, verbose).start(start).limit(limit)
+    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=false, verbose, epoch).start(start).limit(limit)
     val partResult = client.execute(request).map(HybridAddressesSkinny.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
-      if (adds.addresses.isEmpty) queryPartialAddressFallbackSkinny(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,verbose)
+      if (adds.addresses.isEmpty) queryPartialAddressFallbackSkinny(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,verbose,epoch)
       else partResult
     }
     endResult.flatten
@@ -212,9 +216,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose verbose flag (use skinny index if false)
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
+  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true, epoch:String = ""): Future[HybridAddresses] = {
     logger.warn("best fields fallback query invoked for input string " + input)
-    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=true, verbose).start(start).limit(limit)
+    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=true, verbose, epoch).start(start).limit(limit)
     client.execute(fallback).map(HybridAddresses.fromEither)
   }
 
@@ -231,11 +235,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param queryParamsConfig config
     * @param historical historical flag
     * @param verbose verbose flag (use skinny index if false)
+    *                @param epoch Epoch param
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddressFallbackSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+  def queryPartialAddressFallbackSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false, epoch:String = ""): Future[HybridAddressesSkinny] = {
     logger.warn("best fields fallback query invoked for input string " + input)
-    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=true, verbose).start(start).limit(limit)
+    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=true, verbose, epoch).start(start).limit(limit)
     client.execute(fallback).map(HybridAddressesSkinny.fromEither)
   }
 
@@ -253,7 +258,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose flag to indicate that skinny index should be used when false
     * @return Search definition containing query to the ES
     */
-  def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, fallback: Boolean = false, verbose:  Boolean = true): SearchDefinition = {
+  def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, fallback: Boolean = false, verbose:  Boolean = true, epoch:String = ""): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -412,28 +417,30 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
+    val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
+
     if (historical) {
       if (verbose) {
-        search(hybridIndexHistoricalPartial).query(query)
+        search(hybridIndexHistoricalPartial + epochParam + hybridMapping).query(query)
       } else {
-        search(hybridIndexHistoricalSkinnyPartial).query(query)
+        search(hybridIndexHistoricalSkinnyPartial + epochParam + hybridMapping).query(query)
       }
     } else {
       if (verbose) {
-        search(hybridIndexPartial).query(query)
+        search(hybridIndexPartial + epochParam + hybridMapping).query(query)
       } else {
-        search(hybridIndexSkinnyPartial).query(query)
+        search(hybridIndexSkinnyPartial + epochParam + hybridMapping).query(query)
       }
     }
   }
 
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true, epoch:String = ""): Future[HybridAddresses] = {
     val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical, verbose).start(start).limit(limit)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false, epoch:String = ""): Future[HybridAddressesSkinny] = {
     val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical, verbose).start(start).limit(limit)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddressesSkinny.fromEither)
@@ -447,7 +454,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose flag to indicate that skinny index should be used when false
     * @return Search definition containing query to the ES
     */
-  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose:  Boolean = true): SearchDefinition = {
+  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose:  Boolean = true, epoch:String = ""): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -496,32 +503,34 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
+    val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
+
     if (historical) {
       if (verbose) {
-        search(hybridIndexHistoricalPostcode).query(query)
+        search(hybridIndexHistoricalPostcode + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
-        search(hybridIndexHistoricalSkinnyPostcode).query(query)
+        search(hybridIndexHistoricalSkinnyPostcode + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     } else {
       if (verbose) {
-        search(hybridIndexPostcode).query(query)
+        search(hybridIndexPostcode + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
-        search(hybridIndexSkinnyPostcode).query(query)
+        search(hybridIndexSkinnyPostcode + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     }
   }
 
-  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
+  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true, epoch:String = ""): Future[HybridAddresses] = {
     val request = generateQueryRandomRequest(filters, queryParamsConfig, historical, verbose).limit(limit)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+  def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false, epoch:String = ""): Future[HybridAddressesSkinny] = {
     val request = generateQueryRandomRequest(filters, queryParamsConfig, historical, verbose).limit(limit)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddressesSkinny.fromEither)
@@ -533,7 +542,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     *
     * @return Search definition containing query to the ES
     */
-  def generateQueryRandomRequest(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): SearchDefinition = {
+  def generateQueryRandomRequest(filters: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false, epoch:String = ""): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -567,31 +576,33 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
+    val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
+
     if (historical) {
       if (verbose) {
-        search(hybridIndexHistoricalRandom).query(query)
+        search(hybridIndexHistoricalRandom + epochParam + hybridMapping).query(query)
       } else {
-        search(hybridIndexHistoricalSkinnyRandom).query(query)
+        search(hybridIndexHistoricalSkinnyRandom + epochParam + hybridMapping).query(query)
       }
     } else {
       if (verbose) {
-        search(hybridIndexRandom).query(query)
+        search(hybridIndexRandom + epochParam + hybridMapping).query(query)
       } else {
-        search(hybridIndexSkinnyRandom).query(query)
+        search(hybridIndexSkinnyRandom + epochParam + hybridMapping).query(query)
       }
     }
   }
 
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false): Future[HybridAddresses] = {
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false, epoch:String): Future[HybridAddresses] = {
 
-    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical, isBulk).start(start).limit(limit)
+    val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical, isBulk, epoch).start(start).limit(limit)
 
     logger.trace(request.toString)
 
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false): SearchDefinition = {
+  def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = false, epoch:String): SearchDefinition = {
 
     val queryParams = queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
@@ -1093,26 +1104,28 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
 
+    val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
+
     if (historical) {
       if (isBulk) {
-        search(hybridIndexHistoricalBulk).query(query)
+        search(hybridIndexHistoricalBulk + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
           .trackScores(true)
           .searchType(SearchType.DfsQueryThenFetch)
       } else {
-      search(hybridIndexHistoricalAddress).query(query)
+      search(hybridIndexHistoricalAddress + epochParam + hybridMapping).query(query)
         .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
       }
     } else {
       if (isBulk) {
-        search(hybridIndexBulk).query(query)
+        search(hybridIndexBulk + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
           .trackScores(true)
           .searchType(SearchType.DfsQueryThenFetch)
       } else {
-        search(hybridIndexAddress).query(query)
+        search(hybridIndexAddress + epochParam + hybridMapping).query(query)
           .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
           .trackScores(true)
           .searchType(SearchType.DfsQueryThenFetch)
@@ -1120,11 +1133,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+  def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical, isBulk=true).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, max(limit*2,minimumSample), "","","50.71","-3.51", startDate, endDate, queryParamsConfig, historical, isBulk=true, epoch = "").map { case HybridAddresses(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

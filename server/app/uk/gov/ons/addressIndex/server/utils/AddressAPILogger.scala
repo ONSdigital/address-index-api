@@ -12,7 +12,7 @@ class AddressAPILogger(log: String) extends APILogger {
   def systemLog(ip: String = "", url: String = "", responseTimeMillis: String = "",
     uprn: String = "", postcode: String = "", random: String = "", partialAddress: String = "", input: String = "",
     offset: String = "", limit: String = "", filter: String = "", verbose: Boolean = false,
-    startDate: String = "", endDate: String = "", historical: Boolean = true,
+    startDate: String = "", endDate: String = "", historical: Boolean = true, epoch: String = "",
     rangekm: String = "", lat: String = "", lon: String = "", bulkSize: String = "",
     batchSize: String = "", badRequestMessage: String = "", isNotFound: Boolean = false,
     formattedOutput: String = "", numOfResults: String = "", score: String = "",
@@ -28,7 +28,7 @@ class AddressAPILogger(log: String) extends APILogger {
           s"is_bulk=${!bulkSize.isEmpty} is_partial=${!partialAddress.isEmpty} " +
           s"uprn=$uprn postcode=$postcode input=$input " +
           s"offset=$offset limit=$limit filter=$filter " + s"verbose=$verbose " +
-          s"partialAddress=$partialAddress " + s"historical=$historical " +
+          s"partialAddress=$partialAddress " + s"historical=$historical " + s"epoch=$epoch " +
           s"rangekm=$rangekm lat=$lat lon=$lon " +
           s"bulk_size=$bulkSize batch_size=$batchSize " +
           s"bad_request_message=$badRequestMessage is_not_found=$isNotFound " +
