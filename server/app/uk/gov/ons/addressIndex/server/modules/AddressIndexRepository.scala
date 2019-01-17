@@ -308,12 +308,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
+                  .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
+                  .flatten)
             }
           }
           else {
