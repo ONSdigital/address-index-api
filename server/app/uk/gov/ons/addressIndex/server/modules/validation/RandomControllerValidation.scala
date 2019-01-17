@@ -56,4 +56,18 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
   }
 
+  def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+
+    val epochVal: String = epoch.getOrElse("")
+    val validEpochs: String = conf.config.elasticSearch.validEpochs
+
+    if (!epochVal.isEmpty){
+      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        Some(futureJsonBadRequest(RandomEpochInvalid))
+      } else None
+    } else None
+
+  }
+
 }

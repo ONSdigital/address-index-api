@@ -76,4 +76,21 @@ trait UPRNControllerResponse extends Response {
     )
   }
 
+  def UprnEpochInvalid: AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByUprnResponse(
+        address = None,
+        historical = true,
+        epoch = "",
+        startDate = "",
+        endDate = "",
+        verbose = true
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(EpochNotAvailableError)
+    )
+  }
+
 }

@@ -41,13 +41,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridRelSibArray = List(6L,7L)
   val hybridRelParArray = List(8L,9L)
 
-  val firstHybridRelEs = Map(
+  val firstHybridRelEs: Map[String,Any] = Map(
     "level" -> hybridRelLevel,
     "siblings" -> hybridRelSibArray,
     "parents" -> hybridRelParArray
   )
 
-  val secondHybridRelEs = Map(
+  val secondHybridRelEs: Map[String,Any] = Map(
     "level" -> hybridRelLevel,
     "siblings" -> hybridRelSibArray,
     "parents" -> hybridRelParArray
@@ -58,12 +58,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridCrossRefReference2 = "acrossref"
   val hybridCrossRefSource2 = "7663TU"
 
-  val firstHybridCrossRefEs = Map(
+  val firstHybridCrossRefEs: Map[String,Any] = Map(
     "crossReference" -> hybridCrossRefReference,
     "source" -> hybridCrossRefSource
   )
 
-  val secondHybridCrossRefEs = Map(
+  val secondHybridCrossRefEs: Map[String,Any] = Map(
     "crossReference" -> hybridCrossRefReference2,
     "source" -> hybridCrossRefSource2
   )
@@ -96,13 +96,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   // Fields that are not in this list are not used for search
   val hybridNagUprn = hybridPafUprn
   val hybridNagPostcodeLocator = hybridPafPostcode
-  val hybridNagPaoStartNumber = 13.toShort
+  val hybridNagPaoStartNumber: Short = 13.toShort
   val hybridNagPaoStartSuffix = "h11"
-  val hybridNagPaoEndNumber = 12.toShort
+  val hybridNagPaoEndNumber: Short = 12.toShort
   val hybridNagPaoEndSuffix = "h14"
-  val hybridNagSaoStartNumber = 15.toShort
+  val hybridNagSaoStartNumber: Short = 15.toShort
   val hybridNagSaoStartSuffix = "h16"
-  val hybridNagSaoEndNumber = 17.toShort
+  val hybridNagSaoEndNumber: Short = 17.toShort
   val hybridNagSaoEndSuffix = "h18"
   val hybridNagLocality = "h20"
   val hybridNagOrganisation = hybridPafOrganisationName
@@ -145,7 +145,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondaryHybridPafDepartmentName = "s3"
   val secondaryHybridPafSubBuildingName = "s4"
   val secondaryHybridPafBuildingName = "s5"
-  val secondaryHybridPafBuildingNumber = 7.toShort
+  val secondaryHybridPafBuildingNumber: Short = 7.toShort
   val secondaryHybridPafThoroughfare = "s7"
   val secondaryHybridPafPostTown = "s8"
   val secondaryHybridPafPostcode = "s10"
@@ -154,13 +154,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   // Fields that are not in this list are not used for search
   val secondaryHybridNagUprn = secondaryHybridPafUprn
   val secondaryHybridNagPostcodeLocator = secondaryHybridPafPostcode
-  val secondaryHybridNagPaoStartNumber = 20.toShort
+  val secondaryHybridNagPaoStartNumber: Short = 20.toShort
   val secondaryHybridNagPaoStartSuffix = "s11"
-  val secondaryHybridNagPaoEndNumber = 21.toShort
+  val secondaryHybridNagPaoEndNumber: Short = 21.toShort
   val secondaryHybridNagPaoEndSuffix = "s14"
-  val secondaryHybridNagSaoStartNumber = 22.toShort
+  val secondaryHybridNagSaoStartNumber: Short = 22.toShort
   val secondaryHybridNagSaoStartSuffix = "s16"
-  val secondaryHybridNagSaoEndNumber = 23.toShort
+  val secondaryHybridNagSaoEndNumber: Short = 23.toShort
   val secondaryHybridNagSaoEndSuffix = "s18"
   val secondaryHybridNagLocality = "s20"
   val secondaryHybridNagOrganisation = secondaryHybridPafOrganisationName

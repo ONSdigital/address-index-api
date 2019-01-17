@@ -96,6 +96,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         .orElse(postcodeValidation.validateKeyStatus)
         .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter))
         .orElse(postcodeValidation.validatePostcode(postcode))
+        .orElse(postcodeValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {

@@ -121,6 +121,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateOffset(offset))
         .orElse(addressValidation.validateInput(input))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm))
+        .orElse(addressValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {

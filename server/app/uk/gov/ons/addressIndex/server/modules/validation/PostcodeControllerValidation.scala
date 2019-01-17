@@ -83,12 +83,24 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     if (postcode.isEmpty) {
       logger.systemLog(badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearchPostcode))
-    } else if (!postcode.matches("^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$")) {
-       logger.systemLog(badRequestMessage = postcode + ": " + FilterInvalidError.message)
-      // log postcode format error only unless we decide we want to return it to uses
-      //  Some(futureJsonBadRequest(InvalidPostcode))
-      None
+    } else if (!postcode.toUpperCase().matches("^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$")) {
+       logger.systemLog(badRequestMessage = postcode + ": " + InvalidPostcodeAddressResponseError.message)
+       Some(futureJsonBadRequest(InvalidPostcode))
     } else None
+  }
+
+  def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+
+    val epochVal: String = epoch.getOrElse("")
+    val validEpochs: String = conf.config.elasticSearch.validEpochs
+
+    if (!epochVal.isEmpty){
+      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        Some(futureJsonBadRequest(PostcodeEpochInvalid))
+      } else None
+    } else None
+
   }
 
 }

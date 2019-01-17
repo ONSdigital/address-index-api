@@ -81,6 +81,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
    //     .orElse(uprnValidation.validateEndDate(endDateVal))
         .orElse(uprnValidation.validateSource)
         .orElse(uprnValidation.validateKeyStatus)
+        .orElse(uprnValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {

@@ -85,4 +85,8 @@ trait RandomControllerResponse extends Response {
     BadRequestRandomTemplate(LimitTooLargeAddressResponseError)
   }
 
+  def RandomEpochInvalid: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(EpochNotAvailableError)
+  }
+
 }

@@ -79,6 +79,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           .orElse(randomValidation.validateRandomLimit(limit))
         .orElse(randomValidation.validateKeyStatus)
         .orElse(randomValidation.validateRandomFilter(classificationfilter))
+        .orElse(randomValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {
