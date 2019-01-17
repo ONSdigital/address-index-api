@@ -295,16 +295,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
-                .flatten)
           }
           else {
             must(multiMatchQuery(input)
               .matchType("phrase")
               .slop(slopVal)
               .fields(fieldsToSearch))
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
-                .flatten)
           }
         } else {
           if (filterType == "prefix") {
@@ -312,16 +308,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
-                  .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
-                  .flatten)
             }
           }
           else {
@@ -329,14 +321,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
           }
@@ -360,16 +352,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("best_fields")
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
-                .flatten)
           }
           else {
             must(multiMatchQuery(input)
               .matchType("phrase").slop(slopVal)
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
-                .flatten)
           }
         } else {
           if (filterType == "prefix") {
@@ -378,7 +366,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
                   .flatten)
             }
             else {
@@ -387,7 +375,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
                   .flatten)
             }
           }
@@ -397,7 +385,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
             else {
@@ -405,7 +393,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
           }

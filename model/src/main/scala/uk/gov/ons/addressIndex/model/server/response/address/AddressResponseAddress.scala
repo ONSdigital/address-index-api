@@ -45,6 +45,7 @@ object AddressResponseAddress {
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
     val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
+    val postalFlag = if (chosenNag.isEmpty) "" else chosenNag.get.addressBasePostal
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
     val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
@@ -69,7 +70,7 @@ object AddressResponseAddress {
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
-      underlyingScore = other.score
+      underlyingScore = if (postalFlag == "N") other.score - 10 else other.score
 
     )
   }
@@ -84,6 +85,7 @@ object AddressResponseAddress {
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
     val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
+    val postalFlag = if (chosenNag.isEmpty) "" else chosenNag.get.addressBasePostal
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
     val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
@@ -108,7 +110,7 @@ object AddressResponseAddress {
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
-      underlyingScore = other.score
+      underlyingScore = if (postalFlag == "N") other.score - 10 else other.score
     )
   }
 
