@@ -486,7 +486,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
-          postcode = "some query",
+          postcode = "ab123cd",
           addresses = Seq(AddressResponseAddress.fromHybridAddressSkinny(validHybridAddressSkinny, verbose=false)),
           filter = "",
           historical = true,
@@ -503,7 +503,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.postcodeQuery("some query",verbose=Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.postcodeQuery("ab123cd",verbose=Some("false")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -520,7 +520,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
-          postcode = "some query",
+          postcode = "ab123cd",
           addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose=true)),
           filter = "",
           historical = true,
@@ -537,7 +537,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.postcodeQuery("some query",verbose=Some("true")).apply(FakeRequest())
+      val result: Future[Result] = controller.postcodeQuery("ab123cd",verbose=Some("true")).apply(FakeRequest())
 
       val actual: JsValue = contentAsJson(result)
 
@@ -2402,7 +2402,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When - retry param must be true
-      val result = controller.postcodeQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val result = controller.postcodeQuery("ab123cd", Some("0"), Some("10")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
