@@ -80,7 +80,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map {add => boostAddress(add)}
-      boostedAddresses.filter(_.underlyingScore > 0).sortBy(_.underlyingScore)(Ordering[Float].reverse)
+   //   boostedAddresses.filter(_.underlyingScore > 0).sortBy(_.underlyingScore)(Ordering[Float].reverse)
+      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress =  {
