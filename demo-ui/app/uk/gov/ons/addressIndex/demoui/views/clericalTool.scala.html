@@ -95,6 +95,7 @@ apiKey: String
                         singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
                         dates.getOrElse("startdate", ""),
                         dates.getOrElse("enddate", ""),
+                        epoch = "",
                         aresponse.maxScore,
                         classification,
                         aresponse.tokens,
@@ -107,7 +108,7 @@ apiKey: String
                         )
 
                         }
-                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""))
+                        @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""), epoch = "")
 
                     </div>
                 </section>

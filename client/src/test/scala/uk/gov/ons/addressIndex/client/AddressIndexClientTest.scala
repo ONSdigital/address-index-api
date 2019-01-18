@@ -36,7 +36,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         apiKey = "",
         startdate = "",
         enddate = "",
-        verbose = true
+        verbose = true,
+        epoch = ""
       )
     ).url
     val expected = s"${apiHost}/addresses/uprn/101010"
@@ -69,7 +70,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         limit = "10",
         offset = "0",
         apiKey = "",
-        verbose = verbose
+        verbose = verbose,
+        epoch = ""
       )
     ).queryString
     val expected = Map(

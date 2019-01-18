@@ -23,10 +23,10 @@ import scala.util.Try
 
 /**
   * Controller class for a single address to be matched
-  * @param conf
-  * @param messagesApi
-  * @param apiClient
-  * @param ec
+  * @param conf conf reference
+  * @param messagesApi messagesApi ref
+  * @param apiClient apiClient ref
+  * @param ec ec ref
   */
 @Singleton
 class SingleMatchController @Inject()(
@@ -99,9 +99,10 @@ class SingleMatchController @Inject()(
     val matchthresholdValue = optmatchthreshold.getOrElse(5)
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
+    val epochVal: Option[String] = Try(request.body.asFormUrlEncoded.get("epoch").mkString).toOption
 
     if (addressText.trim.isEmpty) {
-      logger info ("Single Match with Empty input address")
+      logger info "Single Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         filter = None,
@@ -123,7 +124,7 @@ class SingleMatchController @Inject()(
       )
     } else if (Try(addressText.toLong).isSuccess) {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(filterText), Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(filterText), Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse("")), Some(epochVal.getOrElse(""))))
       )
     } else {
       Future.successful(
@@ -135,16 +136,17 @@ class SingleMatchController @Inject()(
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
     *
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, startdate: Option[String] = None, enddate: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
 
   val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       val matchthresholdValue = matchthreshold.getOrElse(5)
       val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
@@ -156,7 +158,7 @@ class SingleMatchController @Inject()(
       val latString = lat.getOrElse("50.705948")
       val lonString = lon.getOrElse("-3.5091076")
       if (addressText.trim.isEmpty) {
-        logger info ("Single Match with expected input address missing")
+        logger info "Single Match with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = SingleMatchController.form,
           filter = None,
@@ -193,6 +195,7 @@ class SingleMatchController @Inject()(
             lat = latString,
             lon = lonString,
             verbose = true,
+            epoch = epochVal,
             id = UUID.randomUUID,
             apiKey = apiKey
           )
@@ -234,19 +237,20 @@ class SingleMatchController @Inject()(
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
     *
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doGetUprn(input : String, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetUprn(input : String, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       val matchthresholdValue = matchthreshold.getOrElse(5)
       val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
     if (addressText.trim.isEmpty) {
-      logger info("UPRN with expected input address missing")
+      logger info "UPRN with expected input address missing"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
         filter = None,
@@ -277,7 +281,8 @@ class SingleMatchController @Inject()(
           apiKey = apiKey,
           startdate = startDateVal,
           enddate = endDateVal,
-          verbose = true
+          verbose = true,
+          epoch = epochVal
         )
       ) map { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -314,20 +319,21 @@ class SingleMatchController @Inject()(
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
     *
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doGetResult(input : String, historical: Option[Boolean], startdate: Option[String], enddate: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetResult(input : String, historical: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = ""
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       val matchthresholdValue = 5
       val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
-        logger info("Result with expected input address missing")
+        logger info "Result with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = SingleMatchController.form,
           filter = None,
@@ -358,7 +364,8 @@ class SingleMatchController @Inject()(
             apiKey = apiKey,
             startdate = startDateVal,
             enddate = endDateVal,
-            verbose = true
+            verbose = true,
+            epoch = epochVal
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historicalValue,matchthresholdValue, startDateVal, endDateVal))
@@ -372,9 +379,9 @@ class SingleMatchController @Inject()(
 
           val rels = resp.response.address.map(_.relatives)
           val futExpandedRels = relativesExpander.futExpandRelatives(apiKey, rels.get.getOrElse(Seq())).recover {
-              case exception => {
+              case exception =>
                 logger.warn("relatives failed" + exception)
-              Seq()}
+              Seq()
           }
 
           futExpandedRels.map { expandedRels =>
@@ -407,19 +414,20 @@ class SingleMatchController @Inject()(
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
     *
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doGetResultClerical(input : String, historical: Boolean, startdate: Option[String], enddate: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetResultClerical(input : String, historical: Boolean, startdate: Option[String], enddate: Option[String], epoch: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = ""
       val matchthresholdValue = 5
+      val epochVal = epoch.getOrElse("")
       val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
-        logger info("Result with expected input address missing")
+        logger info "Result with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = SingleMatchController.form,
           filter = None,
@@ -450,7 +458,8 @@ class SingleMatchController @Inject()(
             apiKey = apiKey,
             startdate = startDateVal,
             enddate = endDateVal,
-            verbose = true
+            verbose = true,
+            epoch = epochVal
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText,filterText, historical, matchthresholdValue, startDateVal, endDateVal))
