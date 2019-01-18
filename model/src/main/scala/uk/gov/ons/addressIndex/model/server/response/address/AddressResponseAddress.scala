@@ -70,7 +70,7 @@ object AddressResponseAddress {
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
-      underlyingScore = if (postalFlag == "N") other.score - 10 else other.score
+      underlyingScore = other.score
 
     )
   }
@@ -110,7 +110,7 @@ object AddressResponseAddress {
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
-      underlyingScore = if (postalFlag == "N") other.score - 10 else other.score
+      underlyingScore = other.score
     )
   }
 
