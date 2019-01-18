@@ -54,7 +54,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
     val filterString: String = classificationfilter.getOrElse("")
 
-    if (filterString.isEmpty){
+    if (!filterString.isEmpty){
       if (filterString.contains("*") && filterString.contains(",")){
         logger.systemLog(badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(AddressMixedFilter))
