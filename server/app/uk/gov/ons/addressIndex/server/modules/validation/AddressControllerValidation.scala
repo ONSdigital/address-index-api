@@ -94,6 +94,20 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     } else None
   }
 
+  // set minimum string length from config
+  val validEpochs = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+
+  // override error message with named length
+  object EpochNotAvailableErrorCustom extends AddressResponseError(
+    code = 36,
+    message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
+  )
+
+  override def EpochInvalid: AddressBySearchResponseContainer = {
+    BadRequestTemplate(EpochNotAvailableErrorCustom)
+  }
+
   def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
 
     val epochVal: String = epoch.getOrElse("")

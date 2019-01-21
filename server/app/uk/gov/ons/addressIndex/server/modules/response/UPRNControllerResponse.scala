@@ -26,6 +26,27 @@ trait UPRNControllerResponse extends Response {
     )
   }
 
+  def ErrorUprn: AddressByUprnResponse = {
+    AddressByUprnResponse(
+      address = None,
+      historical = true,
+      epoch = "",
+      startDate = "",
+      endDate = "",
+      verbose = true
+    )
+  }
+
+  def BadRequestUprnTemplate(errors: AddressResponseError*): AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorUprn,
+      status = BadRequestAddressResponseStatus,
+      errors = errors
+    )
+  }
+
   def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,

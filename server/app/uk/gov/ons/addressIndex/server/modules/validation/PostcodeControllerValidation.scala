@@ -89,10 +89,23 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     } else None
   }
 
+  // set minimum string length from config
+  val validEpochs = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+
+  // override error message with named length
+  object EpochNotAvailableErrorCustom extends AddressResponseError(
+    code = 36,
+    message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
+  )
+
+  override def PostcodeEpochInvalid: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(EpochNotAvailableErrorCustom)
+  }
+
   def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
 
     val epochVal: String = epoch.getOrElse("")
-    val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){
       if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
