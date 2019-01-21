@@ -43,6 +43,10 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(OffsetTooLargeAddressResponseError)
   }
 
+  def PartialEpochInvalid: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(EpochNotAvailableError)
+  }
+
   def EpochNotAvailable: AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(EpochNotAvailableError)
   }

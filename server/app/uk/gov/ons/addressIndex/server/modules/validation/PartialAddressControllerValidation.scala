@@ -87,5 +87,21 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     } else None
   }
 
+  override def PartialEpochInvalid: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(EpochNotAvailableErrorCustom)
+  }
+
+  override def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+
+    val epochVal: String = epoch.getOrElse("")
+
+    if (!epochVal.isEmpty){
+      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        Some(futureJsonBadRequest(PartialEpochInvalid))
+      } else None
+    } else None
+
+  }
 
 }

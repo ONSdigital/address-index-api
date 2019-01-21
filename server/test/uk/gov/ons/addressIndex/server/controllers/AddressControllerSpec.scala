@@ -1640,6 +1640,34 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if epoch is invalid (random)" in {
+      // Given
+      val controller = randomController
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByRandomResponse(
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = true,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(randomValidation.EpochNotAvailableErrorCustom)
+      ))
+
+      // When
+      val result = controller.randomQuery(epoch=Some("epoch")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply with a 400 error if a non-numeric rangekm parameter is supplied" in {
       // Given
       val controller = addressController
@@ -2030,6 +2058,45 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply on a 400 error if epoch is invalid (by address query)" ignore {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = true,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(addressValidation.EpochNotAvailableErrorCustom)
+      ))
+
+      // When
+      val result = controller.addressQuery("query", epoch=Some("epoch")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply on a 400 error if startDate is not valid (by uprn query)" ignore {
       // Given
       val controller =  uprnController
@@ -2062,6 +2129,45 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.uprnQuery("1234", Some("xyz"), Some("2013-01-01")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply on a 400 error if epoch is invalid (by uprn query)" ignore {
+      // Given
+      val controller =  uprnController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = true,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(uprnValidation.EpochNotAvailableErrorCustom)
+      ))
+
+      // When
+      val result = controller.uprnQuery("1234", epoch=Some("epoch")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -2221,6 +2327,41 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if epoch is invalid (by partial address query)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "",
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          startDate = "",
+          endDate = "",
+          verbose = true,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
+      ))
+
+      // When
+      //    val result = controller.partialAddressQuery("foo", startDate = None, endDate = None).apply(FakeRequest())
+      val result = controller.partialAddressQuery("something", epoch=Some("epoch")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply on a 400 error if startDate is not valid (by partial address query)" ignore {
       // Given
 //      val controller = addressController
@@ -2326,6 +2467,40 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.postcodeQuery("").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if epoch is invalid (postcode)" in {
+      // Given
+      val controller = postcodeController
+
+      val expected = Json.toJson(AddressByPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPostcodeResponse(
+          postcode = "",
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          startDate = "",
+          endDate = "",
+          verbose = true,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(postcodeValidation.EpochNotAvailableErrorCustom)
+      ))
+
+      // When
+      val result = controller.postcodeQuery("ab123cd", epoch = Some("epoch")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
