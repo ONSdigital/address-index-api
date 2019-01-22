@@ -31,12 +31,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
   private val hybridIndexUprn = esConf.indexes.hybridIndex + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexSkinnyUprn = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalSkinnyUprn = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.uprn + "/" + esConf.indexes.hybridMapping
   private val hybridIndexPartial = esConf.indexes.hybridIndex + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
   private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.partial + "/" + esConf.indexes.hybridMapping
   private val hybridIndexPostcode = esConf.indexes.hybridIndex + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
+  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.postcode + "/" + esConf.indexes.hybridMapping
   private val hybridIndexAddress = esConf.indexes.hybridIndex + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
   private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.address + "/" + esConf.indexes.hybridMapping
   private val hybridIndexBulk = esConf.indexes.hybridIndex + esConf.clusterPolicies.bulk + "/" + esConf.indexes.hybridMapping
@@ -96,6 +100,49 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
+  def queryUprnSkinny(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true): Future[Option[HybridAddressSkinny]] = {
+
+    val request = generateQueryUprnSkinnyRequest(uprn, startDate, endDate, historical)
+
+    logger.trace(request.toString)
+
+    client.execute(request)
+      .map(HybridAddressesSkinny.fromEither)
+      .map(_.addresses.headOption)
+  }
+
+  /**
+    * Generates request to get address from ES by UPRN
+    * Public for tests
+    *
+    * @param uprn the uprn of the fetched address
+    * @return Seqrch definition containing query to the ES
+    */
+  def generateQueryUprnSkinnyRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true): SearchDefinition = {
+
+    val query = {
+      if(!startDate.isEmpty && !endDate.isEmpty) {
+        must(termQuery("uprn", uprn))
+          .filter(
+            should(
+              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
+                rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
+              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
+                rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+
+      } else {
+        termQuery("uprn", uprn)
+      }
+    }
+
+
+    if (historical) {
+      search(hybridIndexHistoricalSkinnyUprn).query(query)
+    } else {
+      search(hybridIndexSkinnyUprn).query(query)
+    }
+  }
+
   /**
     * Generates request to get address from partial string (e.g typeahead)
     * Pass on to fallback if needed
@@ -111,13 +158,40 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose           verbose flag (use skinny index if false)
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] = {
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
 
-    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, false, verbose).start(start).limit(limit)
-    val partResult = client.execute(request).map(HybridAddressesPartial.fromEither)
+    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=false, verbose).start(start).limit(limit)
+    val partResult = client.execute(request).map(HybridAddresses.fromEither)
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     val endResult = partResult.map {adds =>
       if (adds.addresses.isEmpty) queryPartialAddressFallback(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,verbose)
+      else partResult
+    }
+    endResult.flatten
+  }
+
+  /**
+    * Generates request to get address from partial string (e.g typeahead)
+    * Pass on to fallback if needed
+    *
+    * @param input             the partial string to be searched
+    * @param start start result
+    * @param limit maximum number of results
+    * @param filters           classification filter
+    * @param startDate         start date
+    * @param endDate           end date
+    * @param queryParamsConfig config
+    * @param historical        historical flag
+    * @param verbose           verbose flag (use skinny index if false)
+    * @return Search definition containing query to the ES
+    */
+  def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+
+    val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=false, verbose).start(start).limit(limit)
+    val partResult = client.execute(request).map(HybridAddressesSkinny.fromEither)
+    // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
+    val endResult = partResult.map {adds =>
+      if (adds.addresses.isEmpty) queryPartialAddressFallbackSkinny(input,start,limit,filters,startDate,endDate,queryParamsConfig,historical,verbose)
       else partResult
     }
     endResult.flatten
@@ -138,10 +212,31 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose verbose flag (use skinny index if false)
     * @return Search definition containing query to the ES
     */
-  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddressesPartial] = {
+  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
     logger.warn("best fields fallback query invoked for input string " + input)
-    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, true, verbose).start(start).limit(limit)
-    client.execute(fallback).map(HybridAddressesPartial.fromEither)
+    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=true, verbose).start(start).limit(limit)
+    client.execute(fallback).map(HybridAddresses.fromEither)
+  }
+
+  /**
+    * Generates request to get address from partial string (e.g typeahead)
+    * Fallback version
+    *
+    * @param input the partial string to be searched
+    * @param start start result
+    * @param limit maximum number of results
+    * @param filters classification filter
+    * @param startDate start date
+    * @param endDate end date
+    * @param queryParamsConfig config
+    * @param historical historical flag
+    * @param verbose verbose flag (use skinny index if false)
+    * @return Search definition containing query to the ES
+    */
+  def queryPartialAddressFallbackSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+    logger.warn("best fields fallback query invoked for input string " + input)
+    val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, queryParamsConfig, historical, fallback=true, verbose).start(start).limit(limit)
+    client.execute(fallback).map(HybridAddressesSkinny.fromEither)
   }
 
   /**
@@ -190,17 +285,24 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       }
       else None
     }
+    
+    val abQuery: Option[QueryDefinition] = {
+      if (verbose){
+        Option(not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else None
+    }
 
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
 
-     val query =
+    val query =
       if (inputNumberList.isEmpty) {
         if (filters.isEmpty) {
           if (fallback) {
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
           else {
@@ -208,7 +310,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase")
               .slop(slopVal)
               .fields(fieldsToSearch))
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
         } else {
@@ -217,7 +319,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
             else {
@@ -225,7 +327,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -234,14 +336,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -251,21 +353,21 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         // if there is only one number, give boost for pao or sao not both.
         // if there are two or more numbers, boost for either matching pao and first matching sao
         val numberQuery =
-          if (inputNumberList.length == 1) {
-            Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-              matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
-          } else {
-            Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+        if (inputNumberList.length == 1) {
+          Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
+        } else {
+          Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.paoStartNumber",inputNumberList(1)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
-          }
-            if (filters.isEmpty) {
+        }
+        if (filters.isEmpty) {
           if (fallback) {
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
           else {
@@ -273,7 +375,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase").slop(slopVal)
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
         } else {
@@ -283,7 +385,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
             else {
@@ -292,7 +394,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -302,7 +404,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
             else {
@@ -310,12 +412,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
           }
         }
       }
+
 
     if (historical) {
       if (verbose) {
@@ -332,13 +435,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): Future[HybridAddresses] = {
-
-    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical).start(start).limit(limit)
-
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
+    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical, verbose).start(start).limit(limit)
     logger.trace(request.toString)
-
     client.execute(request).map(HybridAddresses.fromEither)
+  }
+
+  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, queryParamsConfig, historical, verbose).start(start).limit(limit)
+    logger.trace(request.toString)
+    client.execute(request).map(HybridAddressesSkinny.fromEither)
   }
 
   /**
@@ -346,9 +452,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * Public for tests
     *
     * @param postcode the postcode of the fetched address
+    * @param verbose flag to indicate that skinny index should be used when false
     * @return Search definition containing query to the ES
     */
-  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true): SearchDefinition = {
+  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose:  Boolean = true): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -385,34 +492,54 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
+    val abQuery: Option[QueryDefinition] = {
+      if (verbose){
+        Option(not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else None
+    }
+    
     val query =
       if (filters.isEmpty) {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(abQuery, dateQuery).flatten)
     }else {
         if (filterType == "prefix") {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
         }
         else {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
         }
       }
 
     if (historical) {
-      search(hybridIndexHistoricalPostcode).query(query)
-        .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      if (verbose) {
+        search(hybridIndexHistoricalPostcode).query(query)
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      } else {
+        search(hybridIndexHistoricalSkinnyPostcode).query(query)
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      }
     } else {
-      search(hybridIndexPostcode).query(query)
-        .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      if (verbose) {
+        search(hybridIndexPostcode).query(query)
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      } else {
+        search(hybridIndexSkinnyPostcode).query(query)
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      }
     }
   }
 
-  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesPartial] = {
-
+  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses] = {
     val request = generateQueryRandomRequest(filters, queryParamsConfig, historical, verbose).limit(limit)
-
     logger.trace(request.toString)
+    client.execute(request).map(HybridAddresses.fromEither)
+  }
 
-    client.execute(request).map(HybridAddressesPartial.fromEither)
+  def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny] = {
+    val request = generateQueryRandomRequest(filters, queryParamsConfig, historical, verbose).limit(limit)
+    logger.trace(request.toString)
+    client.execute(request).map(HybridAddressesSkinny.fromEither)
   }
 
   /**
@@ -439,18 +566,25 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val timestamp: Long = System.currentTimeMillis
 
+    val abQuery: Option[QueryDefinition] = {
+      if (verbose){
+        Option(not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else None
+    }
+    
     val query =
 
       if (filters.isEmpty) { functionScoreQuery().functions(randomScore(timestamp.toInt))
-        .query(boolQuery().filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+        .query(boolQuery().filter(Seq(abQuery).flatten))
           .boostMode("replace")
       }else {
         if (filterType == "prefix") { functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery).flatten))
           .boostMode("replace")
         }
         else { functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery).flatten))
           .boostMode("replace")
         }
       }
