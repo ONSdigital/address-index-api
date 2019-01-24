@@ -17,7 +17,6 @@ import uk.gov.ons.addressIndex.model.AddressIndexPostcodeRequest
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 import scala.util.Try
 
 /**

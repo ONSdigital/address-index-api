@@ -18,7 +18,6 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseC
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 import scala.util.Try
 
 /**

@@ -9,8 +9,7 @@ import sbt.Resolver.{file => _, url => _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
-import play.sbt.routes.RoutesKeys
-RoutesKeys.routesImport := Seq.empty
+
 routesImport := Seq.empty
 
 lazy val Versions = new {

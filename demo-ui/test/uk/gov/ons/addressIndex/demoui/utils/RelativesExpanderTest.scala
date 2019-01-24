@@ -2,8 +2,6 @@ package uk.gov.ons.addressIndex.demoui.utils
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FlatSpec, Matchers}
-import play.api.i18n._
-import play.api.mvc.ControllerComponents
 import play.api.test.WithApplication
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
@@ -15,11 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class RelativesExpanderTest extends FlatSpec with Matchers with ScalaFutures {
   "RelativesExpander" should
     "add formattedAddresses to siblings in supplied relatives" in new WithApplication {
-    val messagesApi = app.injector.instanceOf[MessagesApi]
-    val langs = app.injector.instanceOf[Langs]
     val apiClient = app.injector.instanceOf[AddressIndexClientMock]
     val conf = app.injector.instanceOf[DemouiConfigModule]
-    val controllerComponents = app.injector.instanceOf[ControllerComponents]
     val relativesExpander = new RelativesExpander (apiClient, conf)
     val rel1 = new AddressResponseRelative(1,Seq(1L),Seq())
     val rel2 = new AddressResponseRelative(2,Seq(2L,3L),Seq(1L))

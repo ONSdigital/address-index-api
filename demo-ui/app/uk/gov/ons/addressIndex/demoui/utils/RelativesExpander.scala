@@ -11,7 +11,6 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRela
 import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.postfixOps
 
 @Singleton
 class RelativesExpander @Inject ()(
@@ -53,10 +52,10 @@ class RelativesExpander @Inject ()(
   private def toExpandedSibling(uprn: Long)(addressOpt: Option[String]): ExpandedSibling =
     ExpandedSibling(uprn, addressOpt.getOrElse(uprn + "not found"))
 
-  private def toMixedCase(container: AddressByUprnResponseContainer): Option[String] =
-    container.response.address.map { ara =>
-      addressToMixedCase(ara.formattedAddress)
-    }
+//  private def toMixedCase(container: AddressByUprnResponseContainer): Option[String] =
+//    container.response.address.map { ara =>
+//      addressToMixedCase(ara.formattedAddress)
+//    }
 
   private def withUnchangedCase(container: AddressByUprnResponseContainer): Option[String] =
     container.response.address.map { ara =>

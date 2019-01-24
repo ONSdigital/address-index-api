@@ -7,7 +7,6 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVers
 import scala.language.postfixOps
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
-import scala.language.implicitConversions
 import scala.util.Try
 
 @ImplementedBy(classOf[DemoUIAddressIndexVersionModule])
@@ -21,8 +20,8 @@ trait VersionModule {
   * @param apiClient
   */
 @Singleton
-class DemoUIAddressIndexVersionModule @Inject()(conf: DemouiConfigModule,
-  apiClient: AddressIndexClientInstance) (implicit ec : ExecutionContext) extends VersionModule{
+class DemoUIAddressIndexVersionModule @Inject()(apiClient: AddressIndexClientInstance)
+  (implicit ec : ExecutionContext) extends VersionModule{
 
   lazy val apiVersion: String = {
 
