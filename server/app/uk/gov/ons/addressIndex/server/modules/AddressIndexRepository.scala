@@ -29,26 +29,34 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val esConf = conf.config.elasticSearch
 //  private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
 //  private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
-  private val hybridIndexUprn = esConf.indexes.hybridIndex + esConf.clusterPolicies.uprn
-  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.uprn
-  private val hybridIndexSkinnyUprn = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.uprn
-  private val hybridIndexHistoricalSkinnyUprn = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.uprn
-  private val hybridIndexPartial = esConf.indexes.hybridIndex + esConf.clusterPolicies.partial
-  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.partial
-  private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.partial
-  private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.partial
-  private val hybridIndexPostcode = esConf.indexes.hybridIndex + esConf.clusterPolicies.postcode
-  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.postcode
-  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.postcode
-  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.postcode
-  private val hybridIndexAddress = esConf.indexes.hybridIndex + esConf.clusterPolicies.address
-  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.address
-  private val hybridIndexBulk = esConf.indexes.hybridIndex + esConf.clusterPolicies.bulk
-  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.bulk
-  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + esConf.clusterPolicies.random
-  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + esConf.clusterPolicies.random
-  private val hybridIndexRandom = esConf.indexes.hybridIndex + esConf.clusterPolicies.random
-  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + esConf.clusterPolicies.random
+
+  private val clusterPolicyUprn = {if(esConf.clusterPolicies.uprn == "") {esConf.clusterPolicies.uprn} else {"_c" + esConf.clusterPolicies.uprn}}
+  private val clusterPolicyPartial = {if(esConf.clusterPolicies.partial == "") {esConf.clusterPolicies.partial} else {"_c" + esConf.clusterPolicies.partial}}
+  private val clusterPolicyPostcode = {if(esConf.clusterPolicies.postcode == "") {esConf.clusterPolicies.postcode} else {"_c" + esConf.clusterPolicies.postcode}}
+  private val clusterPolicyAddress = {if(esConf.clusterPolicies.address == "") {esConf.clusterPolicies.address} else {"_c" + esConf.clusterPolicies.address}}
+  private val clusterPolicyBulk = {if(esConf.clusterPolicies.bulk == "") {esConf.clusterPolicies.bulk} else {"_c" + esConf.clusterPolicies.bulk}}
+  private val clusterPolicyRandom = {if(esConf.clusterPolicies.random == "") {esConf.clusterPolicies.random} else {"_c" + esConf.clusterPolicies.random}}
+
+  private val hybridIndexUprn = esConf.indexes.hybridIndex + clusterPolicyUprn
+  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + clusterPolicyUprn
+  private val hybridIndexSkinnyUprn = esConf.indexes.hybridIndexSkinny + clusterPolicyUprn
+  private val hybridIndexHistoricalSkinnyUprn = esConf.indexes.hybridIndexHistoricalSkinny + clusterPolicyUprn
+  private val hybridIndexPartial = esConf.indexes.hybridIndex + clusterPolicyPartial
+  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + clusterPolicyPartial
+  private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + clusterPolicyPartial
+  private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny + clusterPolicyPartial
+  private val hybridIndexPostcode = esConf.indexes.hybridIndex + clusterPolicyPostcode
+  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + clusterPolicyPostcode
+  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny + clusterPolicyPostcode
+  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny + clusterPolicyPostcode
+  private val hybridIndexAddress = esConf.indexes.hybridIndex + clusterPolicyAddress
+  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + clusterPolicyAddress
+  private val hybridIndexBulk = esConf.indexes.hybridIndex + clusterPolicyBulk
+  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + clusterPolicyBulk
+  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + clusterPolicyRandom
+  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + clusterPolicyRandom
+  private val hybridIndexRandom = esConf.indexes.hybridIndex + clusterPolicyRandom
+  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + clusterPolicyRandom
   private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
   private val DATE_FORMAT = "yyyy-MM-dd"
