@@ -8,7 +8,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAdd
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,7 +18,6 @@ import scala.util.control.NonFatal
 @Singleton
 class UPRNController @Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
-  parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
@@ -68,7 +67,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+      //  startDate = startDateVal, endDate = endDateVal,
+        historical = hist, verbose = verb, badRequestMessage=badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }

@@ -39,13 +39,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridRelSibArray = List(6L,7L)
   val hybridRelParArray = List(8L,9L)
 
-  val firstHybridRelEs = Map(
+  val firstHybridRelEs = Map[String,Any](
     "level" -> hybridRelLevel,
     "siblings" -> hybridRelSibArray,
     "parents" -> hybridRelParArray
   )
 
-  val secondHybridRelEs = Map(
+  val secondHybridRelEs = Map[String,Any](
     "level" -> hybridRelLevel,
     "siblings" -> hybridRelSibArray,
     "parents" -> hybridRelParArray
@@ -56,12 +56,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridCrossRefReference2 = "acrossref"
   val hybridCrossRefSource2 = "7663TU"
 
-  val firstHybridCrossRefEs = Map(
+  val firstHybridCrossRefEs = Map[String,Any](
     "crossReference" -> hybridCrossRefReference,
     "source" -> hybridCrossRefSource
   )
 
-  val secondHybridCrossRefEs = Map(
+  val secondHybridCrossRefEs = Map[String,Any](
     "crossReference" -> hybridCrossRefReference2,
     "source" -> hybridCrossRefSource2
   )
@@ -174,7 +174,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondardyHybridNagLocalCustodianName = "Exeter"
   val secondardyHybridNagLocalCustodianCode = "1110"
 
-  val firstHybridPafEs = Map(
+  val firstHybridPafEs = Map[String,Any](
     "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
     "proOrder" -> hybridNotUsedNull,
@@ -209,7 +209,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
-  val secondHybridPafEs = Map(
+  val secondHybridPafEs = Map[String,Any](
     "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
     "proOrder" -> hybridNotUsedNull,

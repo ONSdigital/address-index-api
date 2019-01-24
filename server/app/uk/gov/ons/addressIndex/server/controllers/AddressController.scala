@@ -92,7 +92,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offval, limit = limval, filter = filterString,
-        endDate=endDateVal, startDate = startDateVal,
+      //  endDate=endDateVal, startDate = startDateVal,
         historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
@@ -140,7 +140,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           )
 
         request.map {
-          case HybridAddresses(hybridAddresses, maxScore, total) =>
+          case HybridAddresses(hybridAddresses, maxScore, total@_) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_,true)

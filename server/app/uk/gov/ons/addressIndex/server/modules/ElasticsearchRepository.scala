@@ -39,7 +39,7 @@ trait ElasticsearchRepository {
     * @param input the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses]
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index by partial address.
@@ -47,7 +47,7 @@ trait ElasticsearchRepository {
     * @param input the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny]
+  def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny]
 
   /**
     * Query the address index by postcode.
@@ -55,7 +55,7 @@ trait ElasticsearchRepository {
     * @param postcode the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses]
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index by postcode.
@@ -63,21 +63,21 @@ trait ElasticsearchRepository {
     * @param postcode the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny]
+  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny]
 
   /**
     * Query the address index for a random address.
     *
     * @return Future containing an address or `None` if not in the index
     */
-  def queryRandom(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses]
+  def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true): Future[HybridAddresses]
 
   /**
     * Query the address index for a random address.
     *
     * @return Future containing an address or `None` if not in the index
     */
-  def queryRandomSkinny(filters: String, limit: Int, queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny]
+  def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false): Future[HybridAddressesSkinny]
 
   /**
     * Query the address index for addresses.

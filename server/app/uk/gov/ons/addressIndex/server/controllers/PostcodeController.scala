@@ -2,11 +2,11 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
-import play.api.mvc.{request, _}
+import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
-import uk.gov.ons.addressIndex.server.modules._
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
@@ -18,7 +18,6 @@ import scala.util.control.NonFatal
 @Singleton
 class PostcodeController @Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
-  parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
@@ -77,7 +76,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal, historical = hist, verbose = verb,
+      //  startDate = startDateVal, endDate = endDateVal,
+        historical = hist, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -106,7 +106,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
+              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb)
             )
           request.map {
             case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
@@ -165,7 +165,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         }else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb)
+              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb)
             )
           request.map {
             case HybridAddresses(hybridAddresses, maxScore, total) =>
