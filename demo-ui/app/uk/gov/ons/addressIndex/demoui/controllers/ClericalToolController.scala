@@ -339,17 +339,11 @@ class ClericalToolController @Inject()(
 
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
           singleSearchForm = filledForm,
-          filter = None,
-          historical = historicalValue,
-          startdate = Some(startDateVal),
-          enddate = Some(endDateVal),
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
           version = version,
-          isClerical = true,
-          apiUrl = apiUrl,
-          apiKey = apiKey
+          isClerical = true
         )
         Ok(viewToRender)
       }
@@ -404,18 +398,12 @@ class ClericalToolController @Inject()(
           // logger info("expanded rels = " + expandedRels.toString())
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
             singleSearchForm = filledForm,
-            filter = None,
-            historical = false,
             warningMessage = warningMessage,
-            startdate = Some(startDateVal),
-            enddate = Some(endDateVal),
             addressByUprnResponse = Some(resp.response),
             classification = Some(classCodes),
             expandedRels = Some(expandedRels),
             version = version,
-            isClerical = true,
-            apiUrl = apiUrl,
-            apiKey = apiKey
+            isClerical = true
           )
           Ok(viewToRender)
         }

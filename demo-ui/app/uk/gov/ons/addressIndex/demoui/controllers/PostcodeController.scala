@@ -55,16 +55,6 @@ class PostcodeController @Inject()(
     request.session.get("api-key").map { apiKey =>
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeSearch(
         postcodeSearchForm = PostcodeController.form,
-        filter = None,
-        historical = true,
-        startdate = None,
-        enddate = None,
-        warningMessage = None,
-        pageNum = 1,
-        pageSize = pageSize,
-        pageMax = maxPages,
-        addressByPostcodeResponse = None,
-        classification = None,
         version = version)
       Future.successful(
         Ok(viewToRender)
@@ -94,7 +84,6 @@ class PostcodeController @Inject()(
         warningMessage = Some(messagesApi("postcode.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
-        pageMax = maxPages,
         addressByPostcodeResponse = None,
         classification = None,
         version = version)
@@ -134,7 +123,6 @@ class PostcodeController @Inject()(
           warningMessage = Some(messagesApi("postcode.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressByPostcodeResponse = None,
           classification = None,
           version = version)
@@ -173,7 +161,6 @@ class PostcodeController @Inject()(
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
-            pageMax = maxPages,
             addressByPostcodeResponse = Some(resp.response),
             classification = Some(classCodes),
             version = version)

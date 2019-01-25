@@ -56,8 +56,6 @@ class RadiusController @Inject()(
     request.session.get("api-key").map { apiKey =>
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusSearch(
         radiusSearchForm = RadiusController.form,
-        addressBySearchResponse = None,
-        classification = None,
         version = version)
       Future.successful(
         Ok(viewToRender)
@@ -95,7 +93,6 @@ class RadiusController @Inject()(
         warningMessage = Some(messagesApi("radius.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
-        pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None,
         version = version)
@@ -139,7 +136,6 @@ class RadiusController @Inject()(
           warningMessage = Some(messagesApi("single.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressBySearchResponse = None,
           classification = None,
           version = version)
@@ -182,7 +178,6 @@ class RadiusController @Inject()(
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
-            pageMax = maxPages,
             addressBySearchResponse = Some(resp.response),
             classification = Some(classCodes),
             version = version)

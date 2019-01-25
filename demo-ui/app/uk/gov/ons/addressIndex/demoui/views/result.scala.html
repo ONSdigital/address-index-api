@@ -3,18 +3,12 @@
 @import uk.gov.ons.addressIndex.model.db.index.ExpandedRelative
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
-filter: Option[String],
-historical: Boolean,
-startdate: Option[String],
-enddate: Option[String],
 warningMessage : Option[String],
 addressByUprnResponse: Option[uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse],
 classification: Option[Map[String,String]],
 expandedRels: Option[Seq[ExpandedRelative]],
 version: DemoUIAddressIndexVersionModule,
-isClerical: Boolean,
-apiUrl: String = "",
-apiKey: String
+isClerical: Boolean
 )(implicit messages: Messages)
 
 @*

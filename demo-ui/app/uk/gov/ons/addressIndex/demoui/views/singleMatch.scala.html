@@ -5,17 +5,12 @@
 @import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
-    filter: Option[String],
     rangekm: Option[String],
     lat: Option[String],
     lon: Option[String],
-    historical: Boolean,
-    startdate: Option[String],
-    enddate: Option[String],
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
-    pageMax: Int,
     addressBySearchResponse: Option[AddressBySearchResponse],
     classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
