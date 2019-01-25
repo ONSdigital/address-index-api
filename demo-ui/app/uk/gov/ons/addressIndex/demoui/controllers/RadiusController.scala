@@ -56,17 +56,6 @@ class RadiusController @Inject()(
     request.session.get("api-key").map { apiKey =>
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusSearch(
         radiusSearchForm = RadiusController.form,
-        filter = None,
-        historical = false,
-        startdate = None,
-        enddate = None,
-        rangekm = None,
-        lat = None,
-        lon = None,
-        warningMessage = None,
-        pageNum = 1,
-        pageSize = pageSize,
-        pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None,
         version = version)
@@ -103,13 +92,6 @@ class RadiusController @Inject()(
       logger info "Radius Match with Empty search term"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
         radiusSearchForm = RadiusController.form,
-        filter = None,
-        rangekm = None,
-        lat = None,
-        lon = None,
-        historical = historical,
-        startdate = startDateVal,
-        enddate = endDateVal,
         warningMessage = Some(messagesApi("radius.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -154,13 +136,6 @@ class RadiusController @Inject()(
         logger info ("Radius Match with expected search term missing")
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
           radiusSearchForm = RadiusController.form,
-          filter = None,
-          historical = historicalValue,
-          startdate = Some(startDateVal),
-          enddate = Some(endDateVal),
-          rangekm = None,
-          lat = None,
-          lon = None,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
@@ -204,13 +179,6 @@ class RadiusController @Inject()(
 
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
             radiusSearchForm = filledForm,
-            filter = None,
-            rangekm = rangekm,
-            lat = lat,
-            lon = lon,
-            historical = historicalValue,
-            startdate = Some(startDateVal),
-            enddate = Some(endDateVal),
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,

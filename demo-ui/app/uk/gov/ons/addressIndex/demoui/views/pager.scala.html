@@ -1,12 +1,25 @@
-@(pageNum: Int, pageSize: Int, pageMax: Int, address: String, filter: String, numResults: Long, action: String, historical: Boolean, matchthreshold: Int, startdate: String, enddate: String, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, bound:Int = 5)(implicit messages: Messages)
+@(pageNum: Int,
+pageSize: Int,
+address: String,
+filter: String,
+numResults: Long,
+action: String,
+historical: Boolean,
+matchthreshold: Int,
+startdate: String,
+enddate: String,
+rangekm: Option[String] = None,
+lat: Option[String] = None,
+lon: Option[String] = None,
+bound:Int = 5)
 
-@lowbound() = @{((pageNum.toDouble / bound).floor * bound) toInt}
+@lowbound() = @{((pageNum.toDouble / bound).floor * bound).toInt}
 @highbound() = @{(
     if ((lowbound() + bound) * pageSize >= numResults)
         (numResults + pageSize - 1) / pageSize
     else
         lowbound() + bound
-) toInt}
+).toInt}
 
 <div id="pager">
     <div class="pager-container mars">

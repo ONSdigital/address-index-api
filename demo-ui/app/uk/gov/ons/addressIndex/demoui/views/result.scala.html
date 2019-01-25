@@ -44,17 +44,11 @@ apiKey: String
 
                     @addressResult(
                     address,
-                    singleSearchForm("filter").value.getOrElse(""),
                     singleSearchForm("startdate").value.getOrElse(""),
                     singleSearchForm("enddate").value.getOrElse(""),
-                    address.underlyingScore,
                     classification,
                     expandedRels,
                     isClerical = isClerical,
-                    index = -1,
-                    expandRow = -1,
-                    apiUrl = apiUrl,
-                    apiKey = apiKey
                     )
 
                     }

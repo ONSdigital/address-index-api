@@ -65,8 +65,6 @@ class ClericalToolController @Inject()(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
       query = "",
-      filter = "",
-      historical = false,
       dates = Map.empty,
       pageNum = 1,
       pageSize = pageSize,
@@ -75,12 +73,10 @@ class ClericalToolController @Inject()(
       pagerAction = "clerical",
       addressBySearchResponse = None,
       classification = None,
-      apiUrl = apiUrl,
       version = version,
       placeholder = messagesApi("clericalsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
-      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-      apiKey = apiKey
+      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
     )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
@@ -109,8 +105,6 @@ class ClericalToolController @Inject()(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         query = "",
-        filter = "",
-        historical = historical,
         dates = Map.empty,
         pageNum = 1,
         pageSize = pageSize,
@@ -119,12 +113,10 @@ class ClericalToolController @Inject()(
         pagerAction = "clerical",
         addressBySearchResponse = None,
         classification = None,
-        apiUrl = apiUrl,
         version = version,
         placeholder = messagesApi("clericalsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
-        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-        apiKey = ""
+        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
       )
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
@@ -163,8 +155,6 @@ class ClericalToolController @Inject()(
           singleSearchForm = SingleMatchController.form,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           query = "",
-          filter = "",
-          historical = historicalValue,
           dates = Map.empty,
           pageNum = 1,
           pageSize = pageSize,
@@ -173,12 +163,10 @@ class ClericalToolController @Inject()(
           pagerAction = "clerical",
           addressBySearchResponse = None,
           classification = None,
-          apiUrl = apiUrl,
           version = version,
           placeholder = messagesApi("clericalsearchform.placeholder"),
           labelFilter = messagesApi("clericalsearchform.labelfilter"),
-          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-          apiKey = apiKey
+          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
         )
 
         Future.successful(
@@ -220,8 +208,6 @@ class ClericalToolController @Inject()(
             singleSearchForm = filledForm,
             warningMessage = warningMessage,
             query = "",
-            filter = "",
-            historical = historicalValue,
             dates = Map.empty,
             pageNum = pageNum,
             pageSize = pageSize,
@@ -230,12 +216,10 @@ class ClericalToolController @Inject()(
             pagerAction = "clerical",
             addressBySearchResponse = Some(resp.response),
             classification = Some(classCodes),
-            apiUrl = apiUrl,
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-            apiKey = apiKey
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
           ))
         }
       }
@@ -452,8 +436,6 @@ class ClericalToolController @Inject()(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
       query = "",
-      filter = "",
-      historical = false,
       dates = Map.empty,
       pageNum = 1,
       pageSize = pageSize,
@@ -462,12 +444,10 @@ class ClericalToolController @Inject()(
       pagerAction = "debug",
       addressBySearchResponse = None,
       classification = None,
-      apiUrl = apiUrl,
       version = version,
       placeholder = messagesApi("debugsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
       placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-      apiKey = apiKey
     )
       Future.successful(
         Ok(viewToRender)
@@ -514,8 +494,6 @@ class ClericalToolController @Inject()(
             singleSearchForm = SingleMatchController.form,
             warningMessage = Some(messagesApi("single.pleasesupply")),
             query = "",
-            filter = filterText,
-            historical = historicalValue,
             dates = Map("startdate" -> startDateVal, "enddate" -> endDateVal), // Avoids the 22 arg limit
             pageNum = 1,
             pageSize = pageSize,
@@ -524,12 +502,10 @@ class ClericalToolController @Inject()(
             pagerAction = "debug",
             addressBySearchResponse = None,
             classification = None,
-            apiUrl = apiUrl,
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-            apiKey = apiKey
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
           )
 
           Future.successful(
@@ -571,8 +547,6 @@ class ClericalToolController @Inject()(
               singleSearchForm = filledForm,
               warningMessage = warningMessage,
               query = query,
-              filter = filterText,
-              historical = historicalValue,
               dates = Map("startdate" -> startDateVal, "enddate" -> endDateVal),
               pageNum = pageNum,
               pageSize = pageSize,
@@ -581,12 +555,10 @@ class ClericalToolController @Inject()(
               pagerAction = "debug",
               addressBySearchResponse = Some(resp.response),
               classification = Some(classCodes),
-              apiUrl = apiUrl,
               version = version,
               placeholder = messagesApi("debugsearchform.placeholder"),
               labelFilter = messagesApi("clericalsearchform.labelfilter"),
-              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-              apiKey = apiKey
+              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
             ))
           }
         }

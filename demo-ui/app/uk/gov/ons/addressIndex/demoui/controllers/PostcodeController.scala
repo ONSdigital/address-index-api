@@ -91,10 +91,6 @@ class PostcodeController @Inject()(
       logger info "Postcode Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
         postcodeSearchForm = PostcodeController.form,
-        filter = None,
-        historical = historical,
-        startdate = startDateVal,
-        enddate = endDateVal,
         warningMessage = Some(messagesApi("postcode.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
@@ -135,10 +131,6 @@ class PostcodeController @Inject()(
         logger info "Postcode Match with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
           postcodeSearchForm = PostcodeController.form,
-          filter = None,
-          historical = historicalValue,
-          startdate = Some(startDateVal),
-          enddate = Some(endDateVal),
           warningMessage = Some(messagesApi("postcode.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
@@ -178,10 +170,6 @@ class PostcodeController @Inject()(
 
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
             postcodeSearchForm = filledForm,
-            filter = None,
-            historical = historicalValue,
-            startdate = Some(startDateVal),
-            enddate = Some(endDateVal),
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,

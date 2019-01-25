@@ -5,10 +5,6 @@
 @import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponse
 @(
     postcodeSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.PostcodeSearchForm],
-    filter: Option[String],
-    historical: Boolean,
-    startdate: Option[String],
-    enddate: Option[String],
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
@@ -73,11 +69,10 @@ version: DemoUIAddressIndexVersionModule
                                 5,
                                 postcodeSearchForm("startdate").value.getOrElse(""),
                                 postcodeSearchForm("enddate").value.getOrElse(""),
-                                aresponse.maxScore,
                                 classification
                             )
                         }
-                        @pager(pageNum,pageSize,pageMax,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5,postcodeSearchForm("startdate").value.getOrElse(""),postcodeSearchForm("enddate").value.getOrElse(""))
+                        @pager(pageNum,pageSize,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5,postcodeSearchForm("startdate").value.getOrElse(""),postcodeSearchForm("enddate").value.getOrElse(""))
                         }
                     </div>
                 </section>
