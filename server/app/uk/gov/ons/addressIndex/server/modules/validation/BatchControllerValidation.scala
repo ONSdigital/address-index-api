@@ -5,6 +5,7 @@ import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
+import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
@@ -94,6 +95,20 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
       logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
       Some(jsonBadRequest(ThresholdNotInRange))
     } else None
+  }
+
+  def validateBatchEpoch(epoch: Option[String]): Option[Result] = {
+
+    val epochVal: String = epoch.getOrElse("")
+    val validEpochs: String = conf.config.elasticSearch.validEpochs
+
+    if (!epochVal.isEmpty){
+      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        Some(jsonBadRequest(EpochInvalid))
+      } else None
+    } else None
+
   }
 }
 

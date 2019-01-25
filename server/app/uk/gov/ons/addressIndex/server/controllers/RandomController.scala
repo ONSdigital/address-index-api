@@ -33,7 +33,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return Json response with addresses information
     */
-  def randomQuery(classificationfilter: Option[String] = None, limit: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def randomQuery(classificationfilter: Option[String] = None, limit: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
@@ -55,6 +55,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       case None => false
     }
 
+    val epochVal = epoch.getOrElse("")
+
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
@@ -65,7 +67,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         isNotFound = notFound, filter = filterString, badRequestMessage = badRequestErrorMessage,
         limit = limval, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        historical = hist, verbose = verb,
+        historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -77,6 +79,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           .orElse(randomValidation.validateRandomLimit(limit))
         .orElse(randomValidation.validateKeyStatus)
         .orElse(randomValidation.validateRandomFilter(classificationfilter))
+        .orElse(randomValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {
@@ -89,7 +92,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandomSkinny(filterString, limitInt, None, hist, verb)
+              esRepo.queryRandomSkinny(filterString, limitInt, None, hist, verb, epochVal)
             )
 
           request.map {
@@ -109,6 +112,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                     addresses = addresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     verbose = verb
                   ),
@@ -142,7 +146,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         }else{
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandom(filterString, limitInt, None, hist, verb)
+              esRepo.queryRandom(filterString, limitInt, None, hist, verb, epochVal)
             )
 
           request.map {
@@ -162,6 +166,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                     addresses = addresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     verbose = verb
                   ),

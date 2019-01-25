@@ -42,9 +42,9 @@
                     true,
                     expandRow,
                     apiUrl,
-                    apiKey
-                )
+                    apiKey,
+                    )
 
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("startdate").value.getOrElse(""), singleSearchForm("enddate").value.getOrElse(""))
+            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("startdate").value.getOrElse(""), singleSearchForm("enddate").value.getOrElse(""), epoch = "")
             }

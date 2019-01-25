@@ -88,6 +88,7 @@ class PostcodeController @Inject()(
     val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
+    val epochVal: Option[String] = Try(request.body.asFormUrlEncoded.get("epoch").mkString).toOption
     if (addressText.trim.isEmpty) {
       logger info "Postcode Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
@@ -108,7 +109,7 @@ class PostcodeController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(historical), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(historical), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse("")), Some(epochVal.getOrElse(""))))
       )
     }
   }
@@ -119,7 +120,7 @@ class PostcodeController @Inject()(
     * @param postcode the postcode
     * @return result to view
     */
-  def doMatchWithInput(postcode: String, filter: Option[String], page: Option[Int], historical: Option[Boolean], startdate: Option[String], enddate: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(postcode: String, filter: Option[String], page: Option[Int], historical: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String]): Action[AnyContent] = Action.async { implicit request =>
 
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
@@ -132,6 +133,7 @@ class PostcodeController @Inject()(
       val offNum = (pageNum - 1) * pageSize
       val offset = offNum.toString
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       if (addressText.trim.isEmpty) {
         logger info "Postcode Match with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
@@ -164,7 +166,8 @@ class PostcodeController @Inject()(
             offset = offset,
             id = UUID.randomUUID,
             apiKey = apiKey,
-            verbose = true
+            verbose = true,
+            epoch = epochVal
           )
         } map { resp: AddressByPostcodeResponseContainer =>
           val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText, historicalValue, startDateVal, endDateVal))

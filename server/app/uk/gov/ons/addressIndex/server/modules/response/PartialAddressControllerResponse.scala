@@ -43,6 +43,14 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(OffsetTooLargeAddressResponseError)
   }
 
+  def PartialEpochInvalid: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(EpochNotAvailableError)
+  }
+
+  def EpochNotAvailable: AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(EpochNotAvailableError)
+  }
+
   def FailedRequestToEsPartialAddress(detail: String): AddressByPartialAddressResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs",detail))
     AddressByPartialAddressResponseContainer(
@@ -71,6 +79,7 @@ trait PartialAddressControllerResponse extends AddressResponse {
       addresses = Seq.empty,
       filter = "",
       historical = true,
+      epoch = "",
       limit = 10,
       offset = 0,
       total = 0,

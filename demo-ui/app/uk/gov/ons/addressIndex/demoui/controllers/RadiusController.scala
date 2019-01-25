@@ -133,7 +133,7 @@ class RadiusController @Inject()(
     * @param input the term
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String] = None, enddate: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
 
   val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
@@ -147,11 +147,12 @@ class RadiusController @Inject()(
       val latString = lat.getOrElse("")
       val lonString = lon.getOrElse("")
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       val matchthresholdValue = matchthreshold.getOrElse(5)
       val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
-        logger info ("Radius Match with expected search term missing")
+        logger info "Radius Match with expected search term missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
           radiusSearchForm = RadiusController.form,
           filter = None,
@@ -189,7 +190,8 @@ class RadiusController @Inject()(
             lon = lonString,
             id = UUID.randomUUID,
             apiKey = apiKey,
-            verbose = true
+            verbose = true,
+            epoch = epochVal
           )
         ) map { resp: AddressBySearchResponseContainer =>
           val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue, startDateVal, endDateVal))

@@ -16,12 +16,34 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = None,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
+    )
+  }
+
+  def ErrorUprn: AddressByUprnResponse = {
+    AddressByUprnResponse(
+      address = None,
+      historical = true,
+      epoch = "",
+      startDate = "",
+      endDate = "",
+      verbose = true
+    )
+  }
+
+  def BadRequestUprnTemplate(errors: AddressResponseError*): AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorUprn,
+      status = BadRequestAddressResponseStatus,
+      errors = errors
     )
   }
 
@@ -32,6 +54,7 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = optAddresses,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
@@ -47,6 +70,7 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = None,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
@@ -63,12 +87,30 @@ trait UPRNControllerResponse extends Response {
       response = AddressByUprnResponse(
         address = None,
         historical = true,
+        epoch = "",
         startDate = "",
         endDate = "",
         verbose = true
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
+    )
+  }
+
+  def UprnEpochInvalid: AddressByUprnResponseContainer = {
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByUprnResponse(
+        address = None,
+        historical = true,
+        epoch = "",
+        startDate = "",
+        endDate = "",
+        verbose = true
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(EpochNotAvailableError)
     )
   }
 

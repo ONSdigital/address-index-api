@@ -17,6 +17,7 @@ case class AddressByPostcodeResponse(
                                     addresses: Seq[AddressResponseAddress],
                                     filter: String,
                                     historical: Boolean,
+                                    epoch: String,
                                     limit: Int,
                                     offset: Int,
                                     total: Long,

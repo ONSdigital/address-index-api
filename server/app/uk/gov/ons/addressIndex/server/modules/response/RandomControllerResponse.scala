@@ -14,6 +14,7 @@ trait RandomControllerResponse extends Response {
         filter = "",
         limit = 1,
         historical = true,
+        epoch = "",
         verbose = true
       ),
       status = NotFoundAddressResponseStatus,
@@ -57,6 +58,7 @@ trait RandomControllerResponse extends Response {
       filter = "",
       limit = 1,
       historical = true,
+      epoch = "",
       verbose = true
     )
   }
@@ -81,6 +83,10 @@ trait RandomControllerResponse extends Response {
 
   def LimitTooLargeRandom: AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(LimitTooLargeAddressResponseError)
+  }
+
+  def RandomEpochInvalid: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(EpochNotAvailableError)
   }
 
 }

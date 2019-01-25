@@ -45,7 +45,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
   //                 startDate: Option[String] = None, endDate: Option[String] = None,
                    historical: Option[String] = None,
                    matchthreshold: Option[String] = None,
-                   verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                   verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.address
 
@@ -85,6 +85,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val latVal = lat.getOrElse("")
     val lonVal = lon.getOrElse("")
 
+    val epochVal = epoch.getOrElse("")
+
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
@@ -93,7 +95,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offval, limit = limval, filter = filterString,
         endDate=endDateVal, startDate = startDateVal,
-        historical = hist, rangekm = rangeVal, lat = latVal, lon = lonVal,
+        historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid)
@@ -119,6 +121,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateOffset(offset))
         .orElse(addressValidation.validateInput(input))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm))
+        .orElse(addressValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {
@@ -136,14 +139,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(
             tokens, 0, limitExpanded, filterString,
-            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist)
+            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist, isBulk=false, epochVal)
           )
 
         request.map {
           case HybridAddresses(hybridAddresses, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_,true)
+              AddressResponseAddress.fromHybridAddress(_,verbose=true)
             )
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(
@@ -189,6 +192,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   addresses = finalAddresses,
                   filter = filterString,
                   historical = hist,
+                  epoch = epochVal,
                   rangekm = rangeVal,
                   latitude = latVal,
                   longitude = lonVal,

@@ -56,4 +56,8 @@ trait AddressControllerResponse extends AddressResponse {
     BadRequestTemplate(ThresholdNotInRangeAddressResponseError)
   }
 
+  def EpochInvalid: AddressBySearchResponseContainer = {
+    BadRequestTemplate(EpochNotAvailableError)
+  }
+
 }

@@ -41,7 +41,7 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     */
   def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None,
     //startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None): Action[AnyContent] = Action { implicit req =>
+    historical: Option[String] = None, epoch: Option[String]): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.address
@@ -61,7 +61,9 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
       case None => true
     }
 
-    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString, startDateVal, endDateVal, None, hist)
+    val epochVal = epoch.getOrElse("")
+
+    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString, startDateVal, endDateVal, None, hist, isBulk=false, epochVal)
     val showQuery = DebugShow.show(query)
     Ok(Json.parse(showQuery))
   }
