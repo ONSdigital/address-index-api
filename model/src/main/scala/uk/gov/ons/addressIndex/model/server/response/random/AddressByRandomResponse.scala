@@ -14,6 +14,7 @@ case class AddressByRandomResponse(
                                       addresses: Seq[AddressResponseAddress],
                                       filter: String,
                                       historical: Boolean,
+                                      epoch: String,
                                       limit: Int,
                                       verbose: Boolean
                                     )

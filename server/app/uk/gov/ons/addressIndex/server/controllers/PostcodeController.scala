@@ -35,7 +35,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     */
   def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
   //                  startDate: Option[String] = None, endDate: Option[String] = None,
-                    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.postcode
@@ -65,6 +65,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case None => false
     }
 
+    val epochVal = epoch.getOrElse("")
+
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
@@ -77,7 +79,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
       //  startDate = startDateVal, endDate = endDateVal,
-        historical = hist, verbose = verb,
+        historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -94,6 +96,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         .orElse(postcodeValidation.validateKeyStatus)
         .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter))
         .orElse(postcodeValidation.validatePostcode(postcode))
+        .orElse(postcodeValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {
@@ -106,7 +109,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb)
+              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
           request.map {
             case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
@@ -126,6 +129,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     addresses = addresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,
@@ -165,7 +169,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         }else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb)
+              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
           request.map {
             case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -185,6 +189,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     addresses = addresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,

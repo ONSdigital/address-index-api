@@ -35,7 +35,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     */
   def uprnQuery(uprn: String,
    // startDate: Option[String] = None, endDate: Option[String] = None,
-    historical: Option[String] = None, verbose: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -50,6 +50,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       case Some(x) => Try(x.toBoolean).getOrElse(false)
       case None => false
     }
+
+    val epochVal = epoch.getOrElse("")
 
     //  val startDateVal = startDate.getOrElse("")
     //  val endDateVal = endDate.getOrElse("")
@@ -68,7 +70,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
       //  startDate = startDateVal, endDate = endDateVal,
-        historical = hist, verbose = verb, badRequestMessage=badRequestErrorMessage,
+        historical = hist, epoch = epochVal, verbose = verb, badRequestMessage=badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -79,6 +81,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
    //     .orElse(uprnValidation.validateEndDate(endDateVal))
         .orElse(uprnValidation.validateSource)
         .orElse(uprnValidation.validateKeyStatus)
+        .orElse(uprnValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {
@@ -91,7 +94,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         if (verb==false) {
 
           val request: Future[Option[HybridAddressSkinny]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist)
+            esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist, epochVal)
           )
 
           request.map {
@@ -111,6 +114,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   response = AddressByUprnResponse(
                     address = Some(address),
                     historical = hist,
+                    epoch = epochVal,
                     startDate = startDateVal,
                     endDate = endDateVal,
                     verbose = verb
@@ -149,7 +153,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         }else {
 
           val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprn(uprn, startDateVal, endDateVal, hist)
+            esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, epochVal)
           )
 
           request.map {
@@ -169,6 +173,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   response = AddressByUprnResponse(
                     address = Some(address),
                     historical = hist,
+                    epoch = epochVal,
                     startDate = startDateVal,
                     endDate = endDateVal,
                     verbose = verb

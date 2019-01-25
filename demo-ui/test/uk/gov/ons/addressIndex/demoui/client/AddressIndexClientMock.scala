@@ -14,8 +14,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Mock client class for tests - returns precanned results
-  * @param client
-  * @param conf
+  * @param client client
+  * @param conf conf
   */
 @Singleton
 class AddressIndexClientMock @Inject()(override val client : WSClient,
@@ -46,7 +46,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     sampleSize = 20,
     maxScore = 1f,
     matchthreshold = 5f,
-    verbose = true
+    verbose = true,
+    epoch = ""
   )
 
   val mockAddressByPostcodeResponse = AddressByPostcodeResponse (
@@ -60,7 +61,8 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     maxScore = 1f,
     startDate = "",
     endDate = "",
-    verbose = false
+    verbose = false,
+    epoch = ""
   )
 
   val mockSearchResponseContainer = AddressBySearchResponseContainer (
@@ -213,6 +215,7 @@ object AddressIndexClientMock {
     historical = true,
     startDate = "",
     endDate = "",
-    verbose = true
+    verbose = true,
+    epoch = ""
   )
 }

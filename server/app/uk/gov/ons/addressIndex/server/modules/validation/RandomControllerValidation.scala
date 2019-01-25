@@ -56,4 +56,32 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
   }
 
+  // set minimum string length from config
+  val validEpochs = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+
+  // override error message with named length
+  object EpochNotAvailableErrorCustom extends AddressResponseError(
+    code = 36,
+    message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
+  )
+
+  override def RandomEpochInvalid: AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(EpochNotAvailableErrorCustom)
+  }
+
+  def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+
+    val epochVal: String = epoch.getOrElse("")
+    val validEpochs: String = conf.config.elasticSearch.validEpochs
+
+    if (!epochVal.isEmpty){
+      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        Some(futureJsonBadRequest(RandomEpochInvalid))
+      } else None
+    } else None
+
+  }
+
 }

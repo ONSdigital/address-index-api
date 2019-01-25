@@ -14,6 +14,7 @@ trait PostcodeControllerResponse extends Response {
         addresses = Seq.empty,
         filter = "",
         historical = true,
+        epoch = "",
         limit = 10,
         offset = 0,
         total = 0,
@@ -33,6 +34,10 @@ trait PostcodeControllerResponse extends Response {
 
   def PostcodeMixedFilter: AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(MixedFilterError)
+  }
+
+  def PostcodeEpochInvalid: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(EpochNotAvailableError)
   }
 
   def FailedRequestToEsPostcode(detail: String): AddressByPostcodeResponseContainer = {
@@ -63,6 +68,7 @@ trait PostcodeControllerResponse extends Response {
       addresses = Seq.empty,
       filter = "",
       historical = true,
+      epoch = "",
       limit = 10,
       offset = 0,
       total = 0,
@@ -113,6 +119,10 @@ trait PostcodeControllerResponse extends Response {
 
   def InvalidPostcode: AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(InvalidPostcodeAddressResponseError)
+  }
+
+  def EpochNotAvailable: AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(EpochNotAvailableError)
   }
 
 }

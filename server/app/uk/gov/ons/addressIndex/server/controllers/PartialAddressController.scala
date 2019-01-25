@@ -37,8 +37,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
     classificationfilter: Option[String] = None,
     // startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None, verbose: Option[String] = None,
-    startboost: Option[String] = None
+    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None,
+                          startboost: Option[String] = None
   ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -70,6 +70,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case None => false
     }
 
+    val epochVal = epoch.getOrElse("")
+
     val defStartBoost = conf.config.elasticSearch.defaultStartBoost
     // query string param for testing, will probably be removed
     val sboost = startboost match {
@@ -100,7 +102,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
      //   startDate = startDateVal, endDate = endDateVal,
-        historical = hist, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
+        historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
@@ -116,6 +118,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         .orElse(partialAddressValidation.validateKeyStatus)
         .orElse(partialAddressValidation.validateInput(input))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter))
+        .orElse(partialAddressValidation.validateEpoch(epoch))
         .orElse(None)
 
     result match {
@@ -128,7 +131,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb)
+              esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
 
           request.map {
@@ -150,6 +153,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                     addresses = sortAddresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,
@@ -182,7 +186,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         }else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb)
+              esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
 
           request.map {
@@ -204,6 +208,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                     addresses = sortAddresses,
                     filter = filterString,
                     historical = hist,
+                    epoch = epochVal,
                     limit = limitInt,
                     offset = offsetInt,
                     total = total,
