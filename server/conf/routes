@@ -429,7 +429,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchController.bulk(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String], epoch: Option[String])
 
 ###
 #  summary: Post bulk addresses for a full address output.
@@ -459,7 +459,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkFull(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String], epoch: Option[String])
 
 ### NoDocs ###
 ###
@@ -567,7 +567,7 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String])
+POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String], epoch: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)

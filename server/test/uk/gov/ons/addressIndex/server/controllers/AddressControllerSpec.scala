@@ -2760,7 +2760,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When
-      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, "", "", historical=true, 5F), Duration.Inf )
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, "", "", historical=true, epoch="", 5F), Duration.Inf )
 
       // Then
       result.successfulBulkAddresses.size mustBe 2
@@ -2784,7 +2784,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When
-      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, None, None, "", "", historical=true, 5F)
+      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, None, None, "", "", historical=true, epoch="", 5F)
 
       // Then
       result.size mustBe requestsData.size
@@ -2801,7 +2801,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When Then
-      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, "", "", historical=true, 5F)
+      an [Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, "", "", historical=true, epoch="", 5F)
     }
 
     "return list of codelists" in {
