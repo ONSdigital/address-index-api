@@ -123,7 +123,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridEndDate = "2014-01-01"
   val hybridSecondStartDate = "2014-01-02"
   val hybridCurrentEndDate: String = DateTime.now.toString("yyyy-MM-dd")
-//  val hybridCurrentEndDate = "2018-07-18"
+  //  val hybridCurrentEndDate = "2018-07-18"
   val hybridThirdStartDate = "2015-01-01"
 
   // Fields with this value are not used in the search and are, thus, irrelevant
@@ -401,11 +401,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
- testClient.execute{
+  testClient.execute{
     createIndex(hybridIndexName)
       .mappings(MappingDefinition.apply(hybridMappings))
-        .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-          StandardTokenizer("myTokenizer1"))
+      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+        StandardTokenizer("myTokenizer1"))
       ))
   }.await
 
@@ -1323,7 +1323,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       // Then
       result shouldBe expected
     }
-    
+
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)

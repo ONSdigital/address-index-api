@@ -299,16 +299,23 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
+    val abQuery: Option[QueryDefinition] = {
+      if (verbose){
+        Option(not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else None
+    }
+
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
 
-     val query =
+    val query =
       if (inputNumberList.isEmpty) {
         if (filters.isEmpty) {
           if (fallback) {
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
           else {
@@ -316,7 +323,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase")
               .slop(slopVal)
               .fields(fieldsToSearch))
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
         } else {
@@ -325,7 +332,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
             else {
@@ -333,7 +340,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -342,14 +349,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -359,21 +366,21 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         // if there is only one number, give boost for pao or sao not both.
         // if there are two or more numbers, boost for either matching pao and first matching sao
         val numberQuery =
-          if (inputNumberList.length == 1) {
-            Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-              matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
-          } else {
-            Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+        if (inputNumberList.length == 1) {
+          Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
+        } else {
+          Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.paoStartNumber",inputNumberList(1)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
-          }
-            if (filters.isEmpty) {
+        }
+        if (filters.isEmpty) {
           if (fallback) {
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
           else {
@@ -381,7 +388,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase").slop(slopVal)
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+              .filter(Seq(abQuery, dateQuery)
                 .flatten)
           }
         } else {
@@ -391,7 +398,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
             else {
@@ -400,7 +407,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -410,7 +417,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
             else {
@@ -418,7 +425,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
                   .flatten)
             }
           }
@@ -499,15 +506,22 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
+    val abQuery: Option[QueryDefinition] = {
+      if (verbose){
+        Option(not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else None
+    }
+
     val query =
       if (filters.isEmpty) {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(abQuery, dateQuery).flatten)
     }else {
         if (filterType == "prefix") {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
         }
         else {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N"))), dateQuery).flatten)
+          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
         }
       }
 
@@ -568,18 +582,25 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val timestamp: Long = System.currentTimeMillis
 
+    val abQuery: Option[QueryDefinition] = {
+      if (verbose){
+        Option(not(termQuery("lpi.addressBasePostal", "N")))
+      }
+      else None
+    }
+
     val query =
 
       if (filters.isEmpty) { functionScoreQuery().functions(randomScore(timestamp.toInt))
-        .query(boolQuery().filter(Seq(Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+        .query(boolQuery().filter(Seq(abQuery).flatten))
           .boostMode("replace")
       }else {
         if (filterType == "prefix") { functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery).flatten))
           .boostMode("replace")
         }
         else { functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), Option(not(termQuery("lpi.addressBasePostal", "N")))).flatten))
+          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery).flatten))
           .boostMode("replace")
         }
       }
