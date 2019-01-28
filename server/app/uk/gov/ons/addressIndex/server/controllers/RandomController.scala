@@ -18,11 +18,10 @@ import scala.util.control.NonFatal
 @Singleton
 class RandomController @Inject()(val controllerComponents: ControllerComponents,
                                    esRepo: ElasticsearchRepository,
-                                   parser: ParserModule,
                                    conf: ConfigModule,
                                    versionProvider: VersionModule,
                                    overloadProtection: APIThrottler,
-                                 randomValidation: RandomControllerValidation
+                                   randomValidation: RandomControllerValidation
                                   )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with RandomControllerResponse {
 
@@ -92,11 +91,11 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandomSkinny(filterString, limitInt, None, hist, verb, epochVal)
+              esRepo.queryRandomSkinny(filterString, limitInt, hist, verb, epochVal)
             )
 
           request.map {
-            case HybridAddressesSkinny(hybridAddresses, maxScore, total) =>
+            case HybridAddressesSkinny(hybridAddresses, maxScore@_, total@_) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
                 AddressResponseAddress.fromHybridAddressSkinny(_,verb)
@@ -146,11 +145,11 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         }else{
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandom(filterString, limitInt, None, hist, verb, epochVal)
+              esRepo.queryRandom(filterString, limitInt, hist, verb, epochVal)
             )
 
           request.map {
-            case HybridAddresses(hybridAddresses, maxScore, total) =>
+            case HybridAddresses(hybridAddresses, maxScore@_, total@_) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
                 AddressResponseAddress.fromHybridAddress(_,verb)

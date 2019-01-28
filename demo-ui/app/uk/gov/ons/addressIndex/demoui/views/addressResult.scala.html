@@ -6,19 +6,12 @@
 
 @(
 address: AddressResponseAddress,
-filter: String,
 startdate: String,
 enddate: String,
-maxScore: Double,
 classification: Option[Map[String, String]],
 expandedRels: Option[Seq[ExpandedRelative]],
 tokens: Map[String, String] = Map.empty[String, String],
-pageNum: Int = 0,
-index: Int = 0,
-isClerical: Boolean = false,
-expandRow: Int = 0,
-apiUrl: String = "",
-apiKey: String = ""
+isClerical: Boolean = false
 )(implicit messages: Messages)
 
     <div class="result-content">

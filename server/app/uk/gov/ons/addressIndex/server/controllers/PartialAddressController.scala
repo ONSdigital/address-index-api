@@ -8,7 +8,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAdd
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,7 +18,6 @@ import scala.util.control.NonFatal
 @Singleton
 class PartialAddressController @Inject()(val controllerComponents: ControllerComponents,
   esRepo: ElasticsearchRepository,
-  parser: ParserModule,
   conf: ConfigModule,
   versionProvider: VersionModule,
   overloadProtection: APIThrottler,
@@ -102,7 +101,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        startDate = startDateVal, endDate = endDateVal,
+     //   startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -132,7 +131,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb, epochVal)
+              esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
 
           request.map {
@@ -187,7 +186,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         }else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, None, hist, verb, epochVal)
+              esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
 
           request.map {

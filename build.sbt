@@ -10,6 +10,8 @@ import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
+routesImport := Seq.empty
+
 lazy val Versions = new {
   val elastic4s = "6.1.3"
   val scala = "2.12.4"

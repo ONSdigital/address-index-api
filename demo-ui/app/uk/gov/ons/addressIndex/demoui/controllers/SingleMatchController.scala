@@ -18,7 +18,6 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseC
 import uk.gov.ons.addressIndex.model.{AddressIndexSearchRequest, AddressIndexUPRNRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 import scala.util.Try
 
 /**
@@ -59,19 +58,6 @@ class SingleMatchController @Inject()(
     request.session.get("api-key").map { apiKey =>
     val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleSearch(
       singleSearchForm = SingleMatchController.form,
-      filter = None,
-      historical = false,
-      startdate = None,
-      enddate = None,
-      rangekm = None,
-      lat = None,
-      lon = None,
-      warningMessage = None,
-      pageNum = 1,
-      pageSize = pageSize,
-      pageMax = maxPages,
-      addressBySearchResponse = None,
-      classification = None,
       version = version)
     Future.successful(
       Ok(viewToRender)
@@ -105,17 +91,12 @@ class SingleMatchController @Inject()(
       logger info "Single Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
-        filter = None,
         rangekm = None,
         lat = None,
         lon = None,
-        historical = historical,
-        startdate = None,
-        enddate = None,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
-        pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None,
         version = version)
@@ -161,17 +142,12 @@ class SingleMatchController @Inject()(
         logger info "Single Match with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = SingleMatchController.form,
-          filter = None,
           rangekm = None,
           lat = None,
           lon = None,
-          historical = historicalValue,
-          startdate = None,
-          enddate = None,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressBySearchResponse = None,
           classification = None,
         version = version)
@@ -212,17 +188,12 @@ class SingleMatchController @Inject()(
 
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = filledForm,
-          filter = None,
           rangekm = rangekm,
           lat = lat,
           lon = lon,
-          historical = historicalValue,
-          startdate = None,
-          enddate = None,
           warningMessage = warningMessage,
           pageNum = pageNum,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressBySearchResponse = Some(resp.response),
           classification = Some(classCodes),
         version = version)
@@ -253,17 +224,12 @@ class SingleMatchController @Inject()(
       logger info "UPRN with expected input address missing"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
         singleSearchForm = SingleMatchController.form,
-        filter = None,
         rangekm = None,
         lat = None,
         lon = None,
-        historical = historicalValue,
-        startdate = None,
-        enddate = None,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
-        pageMax = maxPages,
         addressBySearchResponse = None,
         classification = None,
       version = version)
@@ -297,17 +263,11 @@ class SingleMatchController @Inject()(
 
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
           singleSearchForm = filledForm,
-          filter = None,
-          historical = historicalValue,
-          startdate = None,
-          enddate = None,
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
           version = version,
-          isClerical = false,
-          apiUrl = apiUrl,
-          apiKey = apiKey
+          isClerical = false
         )
         Ok(viewToRender)}
       }
@@ -336,17 +296,12 @@ class SingleMatchController @Inject()(
         logger info "Result with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = SingleMatchController.form,
-          filter = None,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           pageNum = 1,
           rangekm = None,
           lat = None,
           lon = None,
-          historical = historicalValue,
-          startdate = None,
-          enddate = None,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressBySearchResponse = None,
           classification = None,
           version = version)
@@ -388,18 +343,12 @@ class SingleMatchController @Inject()(
             //     logger info("expanded rels = " + expandedRels.toString())
             val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
               singleSearchForm = filledForm,
-              filter = None,
-              historical = historicalValue,
-              startdate = None,
-              enddate = None,
               warningMessage = warningMessage,
               addressByUprnResponse = Some(resp.response),
               classification = Some(classCodes),
               expandedRels = Some(expandedRels),
               version = version,
-              isClerical = false,
-              apiUrl = apiUrl,
-              apiKey = apiKey
+              isClerical = false
             )
             Ok(viewToRender)
           }
@@ -430,17 +379,12 @@ class SingleMatchController @Inject()(
         logger info "Result with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
           singleSearchForm = SingleMatchController.form,
-          filter = None,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           pageNum = 1,
           rangekm = None,
           lat = None,
           lon = None,
-          historical = historical,
-          startdate = None,
-          enddate = None,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressBySearchResponse = None,
           classification = None,
           version = version)
@@ -480,18 +424,12 @@ class SingleMatchController @Inject()(
             //logger info("expanded rels = " + expandedRels.toString())
             val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
               singleSearchForm = filledForm,
-              filter = None,
-              historical = historical,
-              startdate = None,
-              enddate = None,
               warningMessage = warningMessage,
               addressByUprnResponse = Some(resp.response),
               classification = Some(classCodes),
               expandedRels = Some(expandedRels),
               version = version,
-              isClerical = true,
-              apiUrl = apiUrl,
-              apiKey = apiKey
+              isClerical = true
             )
             Ok(viewToRender)
           }

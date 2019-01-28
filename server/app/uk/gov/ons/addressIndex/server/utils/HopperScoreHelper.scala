@@ -126,13 +126,7 @@ object HopperScoreHelper  {
       organisationName)
 
     val unitScore = Try(scoreMatrix(unitScoreDebug).toDouble).getOrElse(0d)
-
     val structuralScore = calculateStructuralScore(buildingScore, localityScore)
-    val objectScore = calculateObjectScore(buildingScore,localityScore,unitScore)
-    val respBuildingScoreDebug = Try(buildingScoreDebug.substring(buildingScoreDebug.indexOf(".") + 1)).getOrElse("99")
-    val respLocalityScoreDebug = Try(localityScoreDebug.substring(localityScoreDebug.indexOf(".") + 1)).getOrElse("9999")
-    val respUnitScoreDebug = Try(unitScoreDebug.substring(unitScoreDebug.indexOf(".") + 1)).getOrElse("9999")
-
     val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
     val elasticRatio = if (elasticDenominator == -1D) 1.2D else Try(address.underlyingScore).getOrElse(1F) / safeDenominator
     val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)

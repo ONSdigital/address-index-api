@@ -5,17 +5,9 @@
 @import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
 radiusSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm],
-filter: Option[String],
-rangekm: Option[String],
-lat: Option[String],
-lon: Option[String],
-historical: Boolean,
-startdate: Option[String],
-enddate: Option[String],
 warningMessage : Option[String],
 pageNum: Int,
 pageSize: Int,
-pageMax: Int,
 addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
@@ -78,11 +70,10 @@ version: DemoUIAddressIndexVersionModule
                     radiusSearchForm("startdate").value.getOrElse(""),
                     radiusSearchForm("enddate").value.getOrElse(""),
                     epoch = "",
-                    aresponse.maxScore,
                     classification
                     )
                     }
-                    @pager(pageNum,pageSize,pageMax,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5, radiusSearchForm("startdate").value.getOrElse(""), radiusSearchForm("enddate").value.getOrElse(""), epoch = "")
+                    @pager(pageNum,pageSize,radiusSearchForm("address").value.getOrElse(""),radiusSearchForm("filter").value.getOrElse(""),aresponse.total, "radius", radiusSearchForm("historical").value.getOrElse("true").toBoolean, 5, radiusSearchForm("startdate").value.getOrElse(""), radiusSearchForm("enddate").value.getOrElse(""), epoch = "")
                     }
                 </div>
             </section>

@@ -176,7 +176,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondardyHybridNagLocalCustodianName = "Exeter"
   val secondardyHybridNagLocalCustodianCode = "1110"
 
-  val firstHybridPafEs = Map(
+  val firstHybridPafEs = Map[String,Any](
     "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
     "proOrder" -> hybridNotUsedNull,
@@ -211,7 +211,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
-  val secondHybridPafEs = Map(
+  val secondHybridPafEs = Map[String,Any](
     "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
     "proOrder" -> hybridNotUsedNull,

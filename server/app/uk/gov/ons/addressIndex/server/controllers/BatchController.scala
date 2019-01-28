@@ -252,7 +252,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val addressesPerAddress = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
 
     val result: BulkAddresses = Await.result(queryBulkAddresses(
-      miniBatch, addressesPerAddress, configOverwrite, startDate, endDate, historical, epoch, matchThreshold, includeFullAddress, clusterid
+      miniBatch, addressesPerAddress, configOverwrite, startDate, endDate, historical, epoch, matchThreshold, includeFullAddress
     ), Duration.Inf)
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
@@ -301,7 +301,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     epoch: String,
     matchThreshold: Float,
     includeFullAddress: Boolean = false,
-    clusterid: String = ""
   ): Future[BulkAddresses] = {
 
     val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(
@@ -329,7 +328,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     requestData: Stream[BulkAddressRequestData],
     configOverwrite: Option[QueryParamsConfig],
     limitperaddress: Option[Int],
-    includeFullAddress: Boolean = false,
+    includeFullAddress: Boolean,
     startDate: String, endDate: String,
     historical: Boolean,
     epoch: String,

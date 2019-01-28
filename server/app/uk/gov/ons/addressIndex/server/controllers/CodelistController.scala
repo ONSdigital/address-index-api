@@ -7,20 +7,13 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.codelists.{AddressResponseCodelist, AddressResponseCodelistListContainer}
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.modules.response.Response
-import uk.gov.ons.addressIndex.server.modules.validation.CodelistControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.APIThrottler
+import uk.gov.ons.addressIndex.server.modules.VersionModule
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CodelistController @Inject()(val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  parser: ParserModule,
-  conf: ConfigModule,
   versionProvider: VersionModule,
-  overloadProtection: APIThrottler,
-  codelistValidation: CodelistControllerValidation
 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with Response {
 

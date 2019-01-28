@@ -17,7 +17,6 @@ import uk.gov.ons.addressIndex.model.AddressIndexPostcodeRequest
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 import scala.util.Try
 
 /**
@@ -56,16 +55,6 @@ class PostcodeController @Inject()(
     request.session.get("api-key").map { apiKey =>
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeSearch(
         postcodeSearchForm = PostcodeController.form,
-        filter = None,
-        historical = true,
-        startdate = None,
-        enddate = None,
-        warningMessage = None,
-        pageNum = 1,
-        pageSize = pageSize,
-        pageMax = maxPages,
-        addressByPostcodeResponse = None,
-        classification = None,
         version = version)
       Future.successful(
         Ok(viewToRender)
@@ -93,14 +82,9 @@ class PostcodeController @Inject()(
       logger info "Postcode Match with Empty input address"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
         postcodeSearchForm = PostcodeController.form,
-        filter = None,
-        historical = historical,
-        startdate = startDateVal,
-        enddate = endDateVal,
         warningMessage = Some(messagesApi("postcode.pleasesupply")),
         pageNum = 1,
         pageSize = pageSize,
-        pageMax = maxPages,
         addressByPostcodeResponse = None,
         classification = None,
         version = version)
@@ -138,14 +122,9 @@ class PostcodeController @Inject()(
         logger info "Postcode Match with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
           postcodeSearchForm = PostcodeController.form,
-          filter = None,
-          historical = historicalValue,
-          startdate = Some(startDateVal),
-          enddate = Some(endDateVal),
           warningMessage = Some(messagesApi("postcode.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
-          pageMax = maxPages,
           addressByPostcodeResponse = None,
           classification = None,
           version = version)
@@ -182,14 +161,9 @@ class PostcodeController @Inject()(
 
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.postcodeMatch(
             postcodeSearchForm = filledForm,
-            filter = None,
-            historical = historicalValue,
-            startdate = Some(startDateVal),
-            enddate = Some(endDateVal),
             warningMessage = warningMessage,
             pageNum = pageNum,
             pageSize = pageSize,
-            pageMax = maxPages,
             addressByPostcodeResponse = Some(resp.response),
             classification = Some(classCodes),
             version = version)

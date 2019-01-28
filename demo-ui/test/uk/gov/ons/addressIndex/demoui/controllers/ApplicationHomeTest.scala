@@ -12,8 +12,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WsTestClient}
 import play.api.Environment
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 /**
   * Tests for home page
   */

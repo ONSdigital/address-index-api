@@ -2,17 +2,11 @@
 @import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
 @(
 singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
-filter: Option[String],
-historical: Boolean,
-startdate: Option[String],
-enddate: Option[String],
 warningMessage : Option[String],
 addressByUprnResponse: Option[uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule,
-isClerical: Boolean,
-apiUrl: String = "",
-apiKey: String = ""
+isClerical: Boolean
 )(implicit messages: Messages)
 
 @*
@@ -75,13 +69,10 @@ apiKey: String = ""
                     singleSearchForm("startdate").value.getOrElse(""),
                     singleSearchForm("enddate").value.getOrElse(""),
                     epoch = "",
-                    address.underlyingScore,
                     classification,
                     isClerical = isClerical,
                     index = -1,
-                    expandRow = -1,
-                    apiUrl = apiUrl,
-                    apiKey = apiKey
+                    expandRow = -1
                     )
                     }
                     }
