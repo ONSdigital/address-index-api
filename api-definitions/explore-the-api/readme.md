@@ -42,3 +42,57 @@
 
    </tbody>
 </table>
+
+<h2>Supplementary Endpoints</h2>
+
+<table class="table">
+    <thead class="table--head">
+    <th scope="col" class="table--header--cell">Method</th>
+    <th scope="col" class="table--header--cell">Endpoint</th>
+    <th scope="col" class="table--header--cell">Description</th>
+    </thead>
+    <tbody>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/classifications</td>
+        <td class="table--cell">
+            Return a list of available classification codes
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/codelists</td>
+        <td class="table--cell">
+            Return a list of codelists supported by the API
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/custodians</td>
+        <td class="table--cell">
+            Return a list of available local custodian codes
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/logicalstatuses</td>
+        <td class="table--cell">
+            Return a list of available logical status values
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/sources</td>
+        <td class="table--cell">
+            Return a list of available external source codes
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/version</td>
+        <td class="table--cell">
+            Get version information.
+        </td>
+    </tr>
+    </tbody>
+</table>
