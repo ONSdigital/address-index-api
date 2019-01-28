@@ -69,6 +69,12 @@
 
 <pre><code>curl -uYOUR_APIKEY_FOLLOWED_BY_A_COLON: #API_URL#/addresses/uprn/{uprn}</code></pre>
 
+<h2>Sample Queries</h2>
+
+<p><pre>10013049457</pre></p>
+<p><pre>10023123829</pre></p>
+<p><pre>10023122457</pre></p>
+
 <h2>Sample Output</h2>
 
 <pre><code>{

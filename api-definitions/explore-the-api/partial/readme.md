@@ -119,6 +119,10 @@
 
    <pre><code>curl -uYOUR_APIKEY_FOLLOWED_BY_A_COLON: #API_URL#/addresses/partial</code></pre>
 
+<h2>Sample Queries</h2>
+
+<p><pre>7 Gate Re</pre></p>
+<p><pre>4 EX26GA</pre></p>
 
    <h2>Sample Output</h2>
 

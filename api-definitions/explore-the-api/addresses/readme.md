@@ -139,6 +139,11 @@
 
    <pre><code>curl -uYOUR_APIKEY_FOLLOWED_BY_A_COLON: #API_URL#/addresses</code></pre>
 
+<h2>Sample Queries</h2>
+
+<p><pre>7 Gate Reach, Exeter</pre></p>
+<p><pre>University Of Exeter</pre></p>
+<p><pre>coffee</pre></p>
 
    <h2 class="saturn">Sample Output</h2>
 

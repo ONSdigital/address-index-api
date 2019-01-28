@@ -13,28 +13,28 @@
     <tbody>
     <tr class="table--row">
         <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="address.md">/addresses</a></td>
+        <td class="table--cell"><a href="addresses/readme.md">/addresses</a></td>
         <td class="table--cell">
             Search for an address.
         </td>
     </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="partial.md">/addresses/partial</a></td>
+        <td class="table--cell"><a href="partial/readme.md">/addresses/partial</a></td>
         <td class="table--cell">
             Search by partial address (for type ahead).
         </td>
     </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="postcode.md">/addresses/postcode/{postcode}</a></td>
+        <td class="table--cell"><a href="postcode/readme.md">/addresses/postcode/{postcode}</a></td>
         <td class="table--cell">
             Search for an address by postcode.
         </td>
     </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="uprn.md">/addresses/uprn/{uprn}</a></td>
+        <td class="table--cell"><a href="uprn/readme.md">/addresses/uprn/{uprn}</a></td>
         <td class="table--cell">
             Gets an address by UPRN.
         </td>

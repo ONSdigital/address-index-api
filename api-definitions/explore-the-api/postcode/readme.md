@@ -98,6 +98,11 @@
 
    <pre><code>curl -uYOUR_APIKEY_FOLLOWED_BY_A_COLON: #API_URL#/addresses/postcode/{postcode}</code></pre>
 
+<h2>Sample Queries</h2>
+
+<p><pre>EX2 6GA</pre></p>
+<p><pre>ex26ga</pre></p>
+<p><pre>EX1 1LL</pre></p>
 
    <h2>Sample Output</h2>
 
