@@ -5,7 +5,6 @@ import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
-import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton

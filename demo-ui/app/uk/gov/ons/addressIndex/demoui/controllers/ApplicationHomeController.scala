@@ -15,7 +15,6 @@ import uk.gov.ons.addressIndex.demoui.utils.GatewaySimulator
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-//import scala.language.implicitConversions
 
 /**
   * Simple controller for home page

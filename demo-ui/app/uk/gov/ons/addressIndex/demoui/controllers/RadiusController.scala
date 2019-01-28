@@ -17,7 +17,6 @@ import uk.gov.ons.addressIndex.model.AddressIndexSearchRequest
 import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
-//import scala.language.implicitConversions
 import scala.util.Try
 
 /**
