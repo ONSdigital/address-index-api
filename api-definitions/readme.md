@@ -22,3 +22,6 @@
 
 The <a href="simple-tester/readme.md">Address Index Simple Tester</a> allows users to use the various functions available via the API, providing an input request and receiving a response from the API.
 
+<h2>Code Samples</h2>
+
+A number of <a href="code-samples/readme.md">code samples</a> are provided as a starting point for using the API
