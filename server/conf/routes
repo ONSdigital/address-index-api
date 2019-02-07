@@ -51,7 +51,6 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 ###
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String])
 
-
 ###
 #  summary: Return a list of codelists supported by the API
 #  description: Discovery call which names the available codelists for further calls
@@ -73,25 +72,6 @@ GET     /codelists             uk.gov.ons.addressIndex.server.controllers.Codeli
 
 
 ###
-#  summary: Deprecated. Return a list of available external source codes
-#  description: Deprecated. List of valid source codes and names (e.g. council tax)
-#  responses:
-#    200:
-#      description: Success. A json return of external source codes.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSourceListContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListSource()
-
-###
 #  summary: Return a list of available external source codes
 #  description: List of valid source codes and names (e.g. council tax)
 #  responses:
@@ -109,25 +89,6 @@ GET     /codelists/source             uk.gov.ons.addressIndex.server.controllers
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /sources             uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListSource()
-
-###
-#  summary: Deprecated. Return a list of available classification codes
-#  description: Deprecated. List of classifications e.g. RD01=Detached House
-#  responses:
-#    200:
-#      description: Success. A json return of available classification codes.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListClassification()
 
 ###
 #  summary: Return a list of available classification codes
@@ -149,25 +110,6 @@ GET     /codelists/classification     uk.gov.ons.addressIndex.server.controllers
 GET     /classifications     uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListClassification()
 
 ###
-#  summary: Deprecated. Return a list of available local custodian codes
-#  description: Deprecated. List of addressbase custodian codes to LA matches
-#  responses:
-#    200:
-#      description: Success. A json return of address base custodian codes to local authority matches.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodianListContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListCustodian()
-
-###
 #  summary: Return a list of available local custodian codes
 #  description: List of addressbase custodian codes to LA matches
 #  responses:
@@ -185,25 +127,6 @@ GET     /codelists/custodian          uk.gov.ons.addressIndex.server.controllers
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /custodians          uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListCustodian()
-
-###
-#  summary: Deprecated. Return a list of available logical status values
-#  description: Deprecated. List of valid statuses e.g. 8=historical
-#  responses:
-#    200:
-#      description: Success. A json return of valid statuses for the lpiLogicalStatus.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /codelists/logicalstatus      uk.gov.ons.addressIndex.server.controllers.CodelistController.codeListLogicalStatus()
 
 ###
 #  summary: Return a list of available logical status values
@@ -255,50 +178,6 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String])
-
-
-###
-#  summary: Deprecated. Search by partial address (for type ahead).
-#  description: Deprecated. Returns a list addresses, from a partial match on the input string
-#  parameters:
-#    - name: input
-#      description: Specifies the address input.
-#    - name: offset
-#      description: Specifies the offset from zero, used for pagination.
-#      default: 0
-#      maximum: 250
-#    - name: limit
-#      description: Specifies the number of addresses to return.
-#      default: 10
-#      maximum: 100
-#    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
-#    - name: epoch
-#      description: Select a specific AddressBase Epoch to search.
-#    - name: startboost
-#      description: Boost results where the input string appears at the start of the address (0 = no boost).
-#      default: 2
-#  responses:
-#    200:
-#      description: Success. A json return of matched addresses.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /addresses/partial/:input    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], startboost: Option[String], epoch: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead).

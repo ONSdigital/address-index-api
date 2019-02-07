@@ -19,8 +19,9 @@ class ErrorHandler @Inject() (
   // initially override client only - may add onProdServerError and/or onForbidden later
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
+    val newMessage = if (message == "" && statusCode == 404) "Path not found" else message
     Future.successful(
-      Status(statusCode)(Json.toJson(ClientErrorContainer(response="Error calling API", status=ClientResponseStatus(statusCode, message))))
+      Status(statusCode)(Json.toJson(ClientErrorContainer(response="Error calling API", status=ClientResponseStatus(statusCode, newMessage))))
     )
   }
 
