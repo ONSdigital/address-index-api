@@ -5,23 +5,23 @@ import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcode
 
 trait PostcodeControllerResponse extends Response {
 
-  def NoAddressFoundPostcode: AddressByPostcodeResponseContainer = {
+  def NoAddressFoundPostcode(queryValues: Map[String,Any]): AddressByPostcodeResponseContainer = {
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByPostcodeResponse(
-        postcode = "",
+        postcode = queryValues("postcode").toString,
         addresses = Seq.empty,
-        filter = "",
-        historical = true,
-        epoch = "",
-        limit = 10,
-        offset = 0,
+        filter = queryValues("filter").toString,
+        historical = queryValues("historical").asInstanceOf[Boolean],
+        epoch = queryValues("epoch").toString,
+        limit = queryValues("limit").asInstanceOf[Int],
+        offset = queryValues("offset").asInstanceOf[Int],
         total = 0,
         maxScore = 0f,
-        startDate = "",
-        endDate = "",
-        verbose = true
+        startDate = queryValues("startDate").toString,
+        endDate = queryValues("endDate").toString,
+        verbose = queryValues("verbose").asInstanceOf[Boolean]
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
