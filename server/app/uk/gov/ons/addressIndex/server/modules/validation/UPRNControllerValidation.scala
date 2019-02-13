@@ -14,11 +14,11 @@ import scala.util.Try
 class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Validation with UPRNControllerResponse {
 
-  def validateUprn(uprn: String): Option[Future[Result]] = {
+  def validateUprn(uprn: String, queryValues: Map[String,Any]): Option[Future[Result]] = {
     val uprnInvalid = Try(uprn.toLong).isFailure
     if (uprnInvalid) {
       logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(UprnNotNumeric))
+      Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
     } else None
   }
 
@@ -32,19 +32,19 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
     message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
   )
 
-  override def UprnEpochInvalid: AddressByUprnResponseContainer = {
-    BadRequestUprnTemplate(EpochNotAvailableErrorCustom)
+  override def UprnEpochInvalid(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+    BadRequestUprnTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+  def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
 
-    val epochVal: String = epoch.getOrElse("")
+    val epochVal: String = queryValues("epoch").toString
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){
       if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
-        Some(futureJsonBadRequest(UprnEpochInvalid))
+        Some(futureJsonBadRequest(UprnEpochInvalid(queryValues)))
       } else None
     } else None
 

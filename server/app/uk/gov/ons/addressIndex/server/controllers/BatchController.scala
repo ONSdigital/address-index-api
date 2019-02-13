@@ -58,15 +58,23 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val epochVal = epoch.getOrElse("")
 
+    val queryValues = Map[String,Any](
+      "epoch" -> epochVal,
+      "limit" -> limitInt,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "matchthreshold" -> thresholdFloat
+    )
+
     val result: Option[Result] =
-      batchValidation.validateBatchSource
+      batchValidation.validateBatchSource(queryValues)
    //     .orElse(batchValidation.validateBatchStartDate(startDateVal))
    //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
-        .orElse(batchValidation.validateBatchKeyStatus)
-        .orElse(batchValidation.validateBatchKeyStatus)
-        .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold))
-        .orElse(batchValidation.validateBatchEpoch(epoch))
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
+        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
+        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
         .orElse(None)
 
     result match {
@@ -120,16 +128,24 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val epochVal = epoch.getOrElse("")
 
+    val queryValues = Map[String,Any](
+      "epoch" -> epochVal,
+      "limit" -> limitInt,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "matchthreshold" -> thresholdFloat
+    )
+
     logger.info("threshold = " + thresholdFloat)
 
     val result: Option[Result] =
-      batchValidation.validateBatchSource
+      batchValidation.validateBatchSource(queryValues)
  //       .orElse(batchValidation.validateBatchStartDate(startDateVal))
   //      .orElse(batchValidation.validateBatchEndDate(endDateVal))
-        .orElse(batchValidation.validateBatchKeyStatus)
-        .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold))
-        .orElse(batchValidation.validateBatchEpoch(epoch))
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
+        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
+        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
         .orElse(None)
 
     result match {
@@ -178,14 +194,22 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     logger.info("threshold = " + thresholdFloat)
 
+    val queryValues = Map[String,Any](
+      "epoch" -> epochVal,
+      "limit" -> limitInt,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "matchthreshold" -> thresholdFloat
+    )
+
     val result: Option[Result] =
-      batchValidation.validateBatchSource
+      batchValidation.validateBatchSource(queryValues)
    //     .orElse(batchValidation.validateBatchStartDate(startDateVal))
    //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
-        .orElse(batchValidation.validateBatchKeyStatus)
-        .orElse(batchValidation.validateBatchAddressLimit(Some(limval)))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold))
-        .orElse(batchValidation.validateBatchEpoch(epoch))
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
+        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
+        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
         .orElse(None)
 
     result match {

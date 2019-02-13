@@ -41,17 +41,17 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
 //    } else None
 //  }
 
-  def validateKeyStatus(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateKeyStatus(queryValues: Map[String,Any])(implicit request: RequestHeader): Option[Future[Result]] = {
 
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
       case `missing` =>
         logger.systemLog(badRequestMessage = ApiKeyMissingError.message)
-        Some(futureJsonUnauthorized(KeyMissing))
+        Some(futureJsonUnauthorized(KeyMissing(queryValues)))
       case `invalid` =>
         logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
-        Some(futureJsonUnauthorized(KeyInvalid))
+        Some(futureJsonUnauthorized(KeyInvalid(queryValues)))
       case _ =>
         None
     }
@@ -81,17 +81,17 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
     }
   }
 
-  def validateSource(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateSource(queryValues: Map[String,Any])(implicit request: RequestHeader): Option[Future[Result]] = {
 
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {
       case `missing` =>
         logger.systemLog(badRequestMessage = SourceMissingError.message)
-        Some(futureJsonUnauthorized(SourceMissing))
+        Some(futureJsonUnauthorized(SourceMissing(queryValues)))
       case `invalid` =>
         logger.systemLog(badRequestMessage = SourceInvalidError.message)
-        Some(futureJsonUnauthorized(SourceInvalid))
+        Some(futureJsonUnauthorized(SourceInvalid(queryValues)))
       case _ =>
         None
     }

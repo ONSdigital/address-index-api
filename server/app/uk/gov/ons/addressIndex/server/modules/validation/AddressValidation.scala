@@ -26,15 +26,15 @@ abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: 
     message = OffsetTooLargeAddressResponseError.message.replace("*",maximumOffset.toString)
   )
 
-  override def LimitTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooLargeAddressResponseErrorCustom)
+  override def LimitTooLarge(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitTooLargeAddressResponseErrorCustom)
   }
 
-  override def OffsetTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooLargeAddressResponseErrorCustom)
+  override def OffsetTooLarge(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetTooLargeAddressResponseErrorCustom)
   }
 
-  def validateLimit(limit: Option[String]): Option[Future[Result]] = {
+  def validateLimit(limit: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -44,17 +44,17 @@ abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: 
 
     if (limitInvalid) {
       logger.systemLog(badRequestMessage =LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumeric))
+      Some(futureJsonBadRequest(LimitNotNumeric(queryValues)))
     } else if (limitInt < 1) {
       logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmall))
+      Some(futureJsonBadRequest(LimitTooSmall(queryValues)))
     } else if (limitInt > maxLimit) {
       logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(LimitTooLarge))
+      Some(futureJsonBadRequest(LimitTooLarge(queryValues)))
     } else None
   }
 
-  def validateOffset(offset: Option[String]): Option[Future[Result]] = {
+  def validateOffset(offset: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
     val maxOffset: Int = conf.config.elasticSearch.maximumOffset
     val defOffset: Int = conf.config.elasticSearch.defaultOffset
     val offval = offset.getOrElse(defOffset.toString)
@@ -63,20 +63,20 @@ abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: 
 
     if (offsetInvalid) {
       logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetNotNumeric))
+      Some(futureJsonBadRequest(OffsetNotNumeric(queryValues)))
     } else if (offsetInt < 0) {
       logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetTooSmall))
+      Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
     } else if (offsetInt > maxOffset) {
       logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(OffsetTooLarge))
+      Some(futureJsonBadRequest(OffsetTooLarge(queryValues)))
     } else None
   }
 
-  def validateInput(input: String): Option[Future[Result]] = {
+  def validateInput(input: String, queryValues: Map[String,Any]): Option[Future[Result]] = {
     if (input.isEmpty) {
       logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
-      Some(futureJsonBadRequest(EmptySearch))
+      Some(futureJsonBadRequest(EmptySearch(queryValues)))
     } else None
   }
 }

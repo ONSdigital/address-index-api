@@ -12,73 +12,73 @@ trait Response {
   val dataVersion: String
   val apiVersion: String
 
-  def StartDateInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(StartDateInvalidResponseError)
+  def StartDateInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,StartDateInvalidResponseError)
   }
 
-  def EndDateInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(EndDateInvalidResponseError)
+  def EndDateInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EndDateInvalidResponseError)
   }
 
-  def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
+  def BadRequestTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def FailedRequestToEs(detail: String): AddressBySearchResponseContainer = {
+  def FailedRequestToEs(detail: String, queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = InternalServerErrorAddressResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def FailedRequestToEsTooBusy (detail: String): AddressBySearchResponseContainer = {
+  def FailedRequestToEsTooBusy (detail: String, queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = TooManyRequestsResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def SourceMissing: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(SourceMissingError)
+  def SourceMissing(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,SourceMissingError)
   }
 
-  def SourceInvalid: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(SourceInvalidError)
+  def SourceInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,SourceInvalidError)
   }
 
-  def KeyMissing: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(ApiKeyMissingError)
+  def KeyMissing(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,ApiKeyMissingError)
   }
 
-  def KeyInvalid: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(ApiKeyInvalidError)
+  def KeyInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,ApiKeyInvalidError)
   }
 
-  private def UnauthorizedRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
+  private def UnauthorizedRequestTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = UnauthorizedRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def Error: AddressBySearchResponse = {
+  def Error(queryValues: Map[String,Any]): AddressBySearchResponse = {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,

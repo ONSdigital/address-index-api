@@ -82,9 +82,9 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     )
 
     val result: Option[Future[Result]] =
-      randomValidation.validateSource
+      randomValidation.validateSource(queryValues)
           .orElse(randomValidation.validateRandomLimit(limit,queryValues))
-        .orElse(randomValidation.validateKeyStatus)
+        .orElse(randomValidation.validateKeyStatus(queryValues))
         .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
         .orElse(randomValidation.validateEpoch(queryValues))
         .orElse(None)

@@ -2300,17 +2300,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPartialAddressResponse(
-          input = "",
+          input = "foo",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 20,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2335,18 +2335,18 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPartialAddressResponse(
-          input = "",
+          input = "something",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 20,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
-          epoch = ""
+          verbose = false,
+          epoch = "epoch"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -2625,7 +2625,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPartialAddressResponse(
-          input = "",
+          input = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
@@ -2635,7 +2635,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,
@@ -2704,7 +2704,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2732,7 +2732,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         NotFoundAddressResponseStatus,

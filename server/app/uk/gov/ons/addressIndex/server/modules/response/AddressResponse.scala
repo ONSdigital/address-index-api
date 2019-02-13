@@ -4,32 +4,32 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 
 trait AddressResponse extends Response {
 
-  def OffsetTooSmall: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  def OffsetTooSmall(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetTooSmallAddressResponseError)
   }
 
-  def OffsetNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  def OffsetNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetNotNumericAddressResponseError)
   }
 
-  def OffsetTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  def OffsetTooLarge(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetTooLargeAddressResponseError)
   }
 
-  def LimitNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitNotNumericAddressResponseError)
+  def LimitNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitNotNumericAddressResponseError)
   }
 
-  def LimitTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooLargeAddressResponseError)
+  def LimitTooLarge(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitTooLargeAddressResponseError)
   }
 
-  def LimitTooSmall: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooSmallAddressResponseError)
+  def LimitTooSmall(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitTooSmallAddressResponseError)
   }
 
-  def EmptySearch: AddressBySearchResponseContainer = {
-    BadRequestTemplate(EmptyQueryAddressResponseError)
+  def EmptySearch(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EmptyQueryAddressResponseError)
   }
 
 }

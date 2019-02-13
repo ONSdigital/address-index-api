@@ -4,60 +4,60 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 
 trait AddressControllerResponse extends AddressResponse {
 
-  def AddressFilterInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(FilterInvalidError)
+  def AddressFilterInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,FilterInvalidError)
   }
 
-  def AddressMixedFilter: AddressBySearchResponseContainer = {
-    BadRequestTemplate(MixedFilterError)
+  def AddressMixedFilter(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,MixedFilterError)
   }
 
-  def PostcodeFilterInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(FilterInvalidError)
+  def PostcodeFilterInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,FilterInvalidError)
   }
 
-  def RangeNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(RangeNotNumericAddressResponseError)
+  def RangeNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,RangeNotNumericAddressResponseError)
   }
 
-  def LatitiudeNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LatitudeNotNumericAddressResponseError)
+  def LatitiudeNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LatitudeNotNumericAddressResponseError)
   }
 
-  def LongitudeNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LongitudeNotNumericAddressResponseError)
+  def LongitudeNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LongitudeNotNumericAddressResponseError)
   }
 
-  def LatitudeTooFarNorth: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LatitudeTooFarNorthAddressResponseError)
+  def LatitudeTooFarNorth(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LatitudeTooFarNorthAddressResponseError)
   }
 
-  def LongitudeTooFarEast: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LongitudeTooFarEastAddressResponseError)
+  def LongitudeTooFarEast(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LongitudeTooFarEastAddressResponseError)
   }
 
-  def LatitudeTooFarSouth: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LatitudeTooFarSouthAddressResponseError)
+  def LatitudeTooFarSouth(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LatitudeTooFarSouthAddressResponseError)
   }
 
-  def LongitudeTooFarWest: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LongitudeTooFarWestAddressResponseError)
+  def LongitudeTooFarWest(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LongitudeTooFarWestAddressResponseError)
   }
 
-  def UnsupportedFormat: AddressBySearchResponseContainer = {
-    BadRequestTemplate(FormatNotSupportedAddressResponseError)
+  def UnsupportedFormat(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,FormatNotSupportedAddressResponseError)
   }
 
-  def ThresholdNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(ThresholdNotNumericAddressResponseError)
+  def ThresholdNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,ThresholdNotNumericAddressResponseError)
   }
 
-  def ThresholdNotInRange: AddressBySearchResponseContainer = {
-    BadRequestTemplate(ThresholdNotInRangeAddressResponseError)
+  def ThresholdNotInRange(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,ThresholdNotInRangeAddressResponseError)
   }
 
-  def EpochInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(EpochNotAvailableError)
+  def EpochInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EpochNotAvailableError)
   }
 
 }

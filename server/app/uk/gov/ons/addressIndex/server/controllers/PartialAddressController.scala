@@ -109,16 +109,28 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
+    val queryValues = Map[String,Any](
+      "input" -> input,
+      "epoch" -> epochVal,
+      "filter" -> filterString,
+      "historical" -> hist,
+      "limit" -> limitInt,
+      "offset" -> offsetInt,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "verbose" -> verb
+    )
+
     val result: Option[Future[Result]] =
-      partialAddressValidation.validatePartialLimit(limit)
-        .orElse(partialAddressValidation.validatePartialOffset(offset))
+      partialAddressValidation.validatePartialLimit(limit, queryValues)
+        .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
   //      .orElse(partialAddressValidation.validateStartDate(startDateVal))
   //      .orElse(partialAddressValidation.validateEndDate(endDateVal))
-        .orElse(partialAddressValidation.validateSource)
-        .orElse(partialAddressValidation.validateKeyStatus)
-        .orElse(partialAddressValidation.validateInput(input))
-        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter))
-        .orElse(partialAddressValidation.validateEpoch(epoch))
+        .orElse(partialAddressValidation.validateSource(queryValues))
+        .orElse(partialAddressValidation.validateKeyStatus(queryValues))
+        .orElse(partialAddressValidation.validateInput(input, queryValues))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
+        .orElse(partialAddressValidation.validateEpoch(queryValues))
         .orElse(None)
 
     result match {
@@ -172,15 +184,15 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               overloadProtection.currentStatus match {
                 case ThrottlerStatus.HalfOpen =>
                   logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
                   logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                  InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
               }
           }
         }else {
@@ -227,15 +239,15 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               overloadProtection.currentStatus match {
                 case ThrottlerStatus.HalfOpen =>
                   logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
                   logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                  InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
               }
           }
         }
