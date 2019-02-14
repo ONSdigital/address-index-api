@@ -82,21 +82,21 @@ trait Response {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
-      filter = "",
-      historical = true,
-      epoch = "",
-      rangekm = "",
-      latitude = "",
-      longitude = "",
-      startDate = "",
-      endDate = "",
-      limit = 10,
-      offset = 0,
+      filter = queryValues("filter").toString,
+      historical = queryValues("historical").asInstanceOf[Boolean],
+      epoch = queryValues("epoch").toString,
+      rangekm = queryValues("rangekm").toString,
+      latitude = queryValues("latitude").toString,
+      longitude = queryValues("longitude").toString,
+      startDate = queryValues("startDate").toString,
+      endDate = queryValues("endDate").toString,
+      limit = queryValues("limit").asInstanceOf[Int],
+      offset = queryValues("offset").asInstanceOf[Int],
       total = 0,
       sampleSize = 20,
       maxScore = 0f,
       matchthreshold = 5f,
-      verbose = true
+      verbose = queryValues("verbose").asInstanceOf[Boolean]
     )
   }
 
