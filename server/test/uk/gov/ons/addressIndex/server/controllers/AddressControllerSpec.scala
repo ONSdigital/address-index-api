@@ -2655,28 +2655,17 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new UPRNController(components, failingRepositoryMock, config, versions, overloadProtection, uprnValidation)
 
-      val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs","test failure"))
+      val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs","test failure"))
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
+      val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
+        response = AddressByUprnResponse(
+          address = None,
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,

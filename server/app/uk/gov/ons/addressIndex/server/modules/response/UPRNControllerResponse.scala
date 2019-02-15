@@ -114,4 +114,26 @@ trait UPRNControllerResponse extends Response {
     )
   }
 
+  def FailedRequestToEsUprn(detail: String, queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs",detail))
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorUprn(queryValues),
+      status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(enhancedError)
+    )
+  }
+
+  def FailedRequestToEsTooBusyUprn(detail: String, queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs",detail))
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorUprn(queryValues),
+      status = TooManyRequestsResponseStatus,
+      errors = Seq(enhancedError)
+    )
+  }
+
 }
