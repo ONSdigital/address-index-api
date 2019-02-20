@@ -5,88 +5,88 @@ import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPa
 
 trait PartialAddressControllerResponse extends AddressResponse {
 
-  def BadRequestPartialTemplate(errors: AddressResponseError*): AddressByPartialAddressResponseContainer = {
+  def BadRequestPartialTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressByPartialAddressResponseContainer = {
     AddressByPartialAddressResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorPartialAddress,
+      response = ErrorPartialAddress(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def ShortSearch: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(ShortQueryAddressResponseError)
+  def ShortSearch(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,ShortQueryAddressResponseError)
   }
 
-  def LimitNotNumericPartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(LimitNotNumericAddressResponseError)
+  def LimitNotNumericPartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,LimitNotNumericAddressResponseError)
   }
 
-  def OffsetNotNumericPartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(OffsetNotNumericAddressResponseError)
+  def OffsetNotNumericPartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,OffsetNotNumericAddressResponseError)
   }
 
-  def LimitTooSmallPartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(LimitTooSmallAddressResponseError)
+  def LimitTooSmallPartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,LimitTooSmallAddressResponseError)
   }
 
-  def OffsetTooSmallPartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(OffsetTooSmallAddressResponseError)
+  def OffsetTooSmallPartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,OffsetTooSmallAddressResponseError)
   }
 
-  def LimitTooLargePartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(LimitTooLargeAddressResponseError)
+  def LimitTooLargePartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,LimitTooLargeAddressResponseError)
   }
 
-  def OffsetTooLargePartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(OffsetTooLargeAddressResponseError)
+  def OffsetTooLargePartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,OffsetTooLargeAddressResponseError)
   }
 
-  def PartialEpochInvalid: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(EpochNotAvailableError)
+  def PartialEpochInvalid(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,EpochNotAvailableError)
   }
 
-  def EpochNotAvailable: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(EpochNotAvailableError)
+  def EpochNotAvailable(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,EpochNotAvailableError)
   }
 
-  def FailedRequestToEsPartialAddress(detail: String): AddressByPartialAddressResponseContainer = {
+  def FailedRequestToEsPartialAddress(detail: String, queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs",detail))
     AddressByPartialAddressResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorPartialAddress,
+      response = ErrorPartialAddress(queryValues),
       status = InternalServerErrorAddressResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def FailedRequestToEsTooBusyPartialAddress(detail: String): AddressByPartialAddressResponseContainer = {
+  def FailedRequestToEsTooBusyPartialAddress(detail: String, queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code,FailedRequestToEsPartialAddressError.message.replace("see logs",detail))
     AddressByPartialAddressResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorPartialAddress,
+      response = ErrorPartialAddress(queryValues),
       status = TooManyRequestsResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def ErrorPartialAddress: AddressByPartialAddressResponse = {
+  def ErrorPartialAddress(queryValues: Map[String,Any]): AddressByPartialAddressResponse = {
     AddressByPartialAddressResponse(
-      input = "",
+      input = queryValues("input").toString,
       addresses = Seq.empty,
-      filter = "",
-      historical = true,
-      epoch = "",
-      limit = 10,
-      offset = 0,
+      filter = queryValues("filter").toString,
+      historical = queryValues("historical").asInstanceOf[Boolean],
+      epoch = queryValues("epoch").toString,
+      limit = queryValues("limit").asInstanceOf[Int],
+      offset = queryValues("offset").asInstanceOf[Int],
       total = 0,
       maxScore = 0f,
-      startDate = "",
-      endDate = "",
-      verbose = true
+      startDate = queryValues("startDate").toString,
+      endDate = queryValues("endDate").toString,
+      verbose = queryValues("verbose").asInstanceOf[Boolean]
     )
   }
 

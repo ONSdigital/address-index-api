@@ -109,19 +109,34 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
+    val queryValues = Map[String,Any](
+      "epoch" -> epochVal,
+      "filter" -> filterString,
+      "historical" -> hist,
+      "limit" -> limitInt,
+      "offset" -> offsetInt,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "verbose" -> verb,
+      "rangekm" -> rangeVal,
+      "latitude" -> latVal,
+      "longitude" -> lonVal,
+      "matchthreshold" -> thresholdFloat
+    )
+
     val result: Option[Future[Result]] =
-      addressValidation.validateAddressFilter(classificationfilter)
+      addressValidation.validateAddressFilter(classificationfilter, queryValues)
    //     .orElse(addressValidation.validateStartDate(startDateVal))
     //    .orElse(addressValidation.validateEndDate(endDateVal))
-        .orElse(addressValidation.validateThreshold(matchthreshold))
-        .orElse(addressValidation.validateRange(rangekm))
-        .orElse(addressValidation.validateSource)
-        .orElse(addressValidation.validateKeyStatus)
-        .orElse(addressValidation.validateLimit(limit))
-        .orElse(addressValidation.validateOffset(offset))
-        .orElse(addressValidation.validateInput(input))
-        .orElse(addressValidation.validateLocation(lat, lon, rangekm))
-        .orElse(addressValidation.validateEpoch(epoch))
+        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues))
+        .orElse(addressValidation.validateRange(rangekm, queryValues))
+        .orElse(addressValidation.validateSource(queryValues))
+        .orElse(addressValidation.validateKeyStatus(queryValues))
+        .orElse(addressValidation.validateLimit(limit, queryValues))
+        .orElse(addressValidation.validateOffset(offset, queryValues))
+        .orElse(addressValidation.validateInput(input, queryValues))
+        .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
+        .orElse(addressValidation.validateEpoch(queryValues))
         .orElse(None)
 
     result match {
@@ -215,18 +230,18 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             overloadProtection.currentStatus match {
               case ThrottlerStatus.HalfOpen => {
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-               TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+               TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
               }
               case ThrottlerStatus.Open => {
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
 
               }
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
                 logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-                InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage)))
+                InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage, queryValues)))
             }
         }
     }

@@ -24,30 +24,30 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     message = ShortQueryAddressResponseError.message.replace("*",minimumTermLength.toString)
   )
 
-  override def ShortSearch: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(ShortQueryAddressResponseErrorCustom)
+  override def ShortSearch(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, ShortQueryAddressResponseErrorCustom)
   }
 
   // minimum length only for partial so override
-  override def validateInput(input: String): Option[Future[Result]] = {
+  override def validateInput(input: String, queryValues: Map[String,Any]): Option[Future[Result]] = {
     if (input.isEmpty) {
       logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
-      Some(futureJsonBadRequest(EmptySearch))
+      Some(futureJsonBadRequest(EmptySearch(queryValues)))
     } else if (input.length < minimumTermLength) {
       logger.systemLog(badRequestMessage = ShortQueryAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(ShortSearch))
+      Some(futureJsonBadRequest(ShortSearch(queryValues)))
     } else None
   }
 
-  override def LimitTooLargePartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(LimitTooLargeAddressResponseErrorCustom)
+  override def LimitTooLargePartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
   }
 
-  override def OffsetTooLargePartial: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(OffsetTooLargeAddressResponseErrorCustom)
+  override def OffsetTooLargePartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
-  def validatePartialLimit(limit: Option[String]): Option[Future[Result]] = {
+  def validatePartialLimit(limit: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -57,18 +57,18 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
 
     if (limitInvalid) {
       logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumericPartial))
+      Some(futureJsonBadRequest(LimitNotNumericPartial(queryValues)))
     } else if (limitInt < 1) {
       logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmallPartial))
+      Some(futureJsonBadRequest(LimitTooSmallPartial(queryValues)))
     } else if (limitInt > maxLimit) {
       logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(LimitTooLargePartial))
+      Some(futureJsonBadRequest(LimitTooLargePartial(queryValues)))
     } else None
 
   }
 
-  def validatePartialOffset(offset: Option[String]): Option[Future[Result]] = {
+  def validatePartialOffset(offset: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
     val maxOffset: Int = conf.config.elasticSearch.maximumOffset
     val defOffset: Int = conf.config.elasticSearch.defaultOffset
     val offval = offset.getOrElse(defOffset.toString)
@@ -77,28 +77,28 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
 
     if (offsetInvalid) {
       logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetNotNumericPartial))
+      Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
     } else if (offsetInt < 0) {
       logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetTooSmallPartial))
+      Some(futureJsonBadRequest(OffsetTooSmallPartial(queryValues)))
     } else if (offsetInt > maxOffset) {
       logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(OffsetTooLargePartial))
+      Some(futureJsonBadRequest(OffsetTooLargePartial(queryValues)))
     } else None
   }
 
-  override def PartialEpochInvalid: AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(EpochNotAvailableErrorCustom)
+  override def PartialEpochInvalid(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues,EpochNotAvailableErrorCustom)
   }
 
-  override def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+  override def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
 
-    val epochVal: String = epoch.getOrElse("")
+    val epochVal: String = queryValues("epoch").toString
 
     if (!epochVal.isEmpty){
       if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
-        Some(futureJsonBadRequest(PartialEpochInvalid))
+        Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
       } else None
     } else None
 

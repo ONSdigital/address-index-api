@@ -5,112 +5,134 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse
 
 trait UPRNControllerResponse extends Response {
 
-  def UprnNotNumeric: AddressByUprnResponseContainer = {
-    BadRequestNonNumericUprn
+  def UprnNotNumeric(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+    BadRequestNonNumericUprn(queryValues)
   }
 
-  def BadRequestNonNumericUprn: AddressByUprnResponseContainer = {
+  def BadRequestNonNumericUprn(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = true,
-        epoch = "",
-        startDate = "",
-        endDate = "",
-        verbose = true
+        historical = queryValues("historical").asInstanceOf[Boolean],
+        epoch = queryValues("epoch").toString,
+        startDate = queryValues("startDate").toString,
+        endDate = queryValues("endDate").toString,
+        verbose = queryValues("verbose").asInstanceOf[Boolean]
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
     )
   }
 
-  def ErrorUprn: AddressByUprnResponse = {
+  def ErrorUprn(queryValues: Map[String,Any]): AddressByUprnResponse = {
     AddressByUprnResponse(
       address = None,
-      historical = true,
-      epoch = "",
-      startDate = "",
-      endDate = "",
-      verbose = true
+      historical = queryValues("historical").asInstanceOf[Boolean],
+      epoch = queryValues("epoch").toString,
+      startDate = queryValues("startDate").toString,
+      endDate = queryValues("endDate").toString,
+      verbose = queryValues("verbose").asInstanceOf[Boolean]
     )
   }
 
-  def BadRequestUprnTemplate(errors: AddressResponseError*): AddressByUprnResponseContainer = {
+  def BadRequestUprnTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorUprn,
+      response = ErrorUprn(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def searchUprnContainerTemplate(optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
+  def searchUprnContainerTemplate(queryValues: Map[String,Any], optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = optAddresses,
-        historical = true,
-        epoch = "",
-        startDate = "",
-        endDate = "",
-        verbose = true
+        historical = queryValues("historical").asInstanceOf[Boolean],
+        epoch = queryValues("epoch").toString,
+        startDate = queryValues("startDate").toString,
+        endDate = queryValues("endDate").toString,
+        verbose = queryValues("verbose").asInstanceOf[Boolean]
       ),
       status = OkAddressResponseStatus
     )
   }
 
-  def NoAddressFoundUprn: AddressByUprnResponseContainer = {
+  def NoAddressFoundUprn(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = true,
-        epoch = "",
-        startDate = "",
-        endDate = "",
-        verbose = true
+        historical = queryValues("historical").asInstanceOf[Boolean],
+        epoch = queryValues("epoch").toString,
+        startDate = queryValues("startDate").toString,
+        endDate = queryValues("endDate").toString,
+        verbose = queryValues("verbose").asInstanceOf[Boolean]
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
     )
   }
 
-  def UnsupportedFormatUprn: AddressByUprnResponseContainer = {
+  def UnsupportedFormatUprn(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = true,
-        epoch = "",
-        startDate = "",
-        endDate = "",
-        verbose = true
+        historical = queryValues("historical").asInstanceOf[Boolean],
+        epoch = queryValues("epoch").toString,
+        startDate = queryValues("startDate").toString,
+        endDate = queryValues("endDate").toString,
+        verbose = queryValues("verbose").asInstanceOf[Boolean]
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
     )
   }
 
-  def UprnEpochInvalid: AddressByUprnResponseContainer = {
+  def UprnEpochInvalid(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = true,
-        epoch = "",
-        startDate = "",
-        endDate = "",
-        verbose = true
+        historical = queryValues("historical").asInstanceOf[Boolean],
+        epoch = queryValues("epoch").toString,
+        startDate = queryValues("startDate").toString,
+        endDate = queryValues("endDate").toString,
+        verbose = queryValues("verbose").asInstanceOf[Boolean]
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(EpochNotAvailableError)
+    )
+  }
+
+  def FailedRequestToEsUprn(detail: String, queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs",detail))
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorUprn(queryValues),
+      status = InternalServerErrorAddressResponseStatus,
+      errors = Seq(enhancedError)
+    )
+  }
+
+  def FailedRequestToEsTooBusyUprn(detail: String, queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs",detail))
+    AddressByUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorUprn(queryValues),
+      status = TooManyRequestsResponseStatus,
+      errors = Seq(enhancedError)
     )
   }
 

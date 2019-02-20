@@ -87,16 +87,28 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
+    val queryValues = Map[String,Any](
+      "postcode" -> postcode,
+      "epoch" -> epochVal,
+      "filter" -> filterString,
+      "historical" -> hist,
+      "limit" -> limitInt,
+      "offset" -> offsetInt,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "verbose" -> verb
+    )
+
     val result: Option[Future[Result]] =
-      postcodeValidation.validatePostcodeLimit(limit)
+      postcodeValidation.validatePostcodeLimit(limit, queryValues)
   //      .orElse(postcodeValidation.validateStartDate(startDateVal))
   //      .orElse(postcodeValidation.validateEndDate(endDateVal))
-        .orElse(postcodeValidation.validatePostcodeOffset(offset))
-        .orElse(postcodeValidation.validateSource)
-        .orElse(postcodeValidation.validateKeyStatus)
-        .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter))
-        .orElse(postcodeValidation.validatePostcode(postcode))
-        .orElse(postcodeValidation.validateEpoch(epoch))
+        .orElse(postcodeValidation.validatePostcodeOffset(offset, queryValues))
+        .orElse(postcodeValidation.validateSource(queryValues))
+        .orElse(postcodeValidation.validateKeyStatus(queryValues))
+        .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues))
+        .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
+        .orElse(postcodeValidation.validateEpoch(queryValues))
         .orElse(None)
 
     result match {
@@ -150,19 +162,19 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
                   logger.warn(
                     s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
                   )
-                  InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
               }
           }
 
@@ -210,19 +222,19 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     logger.warn(
                       s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                     )
-                    TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                    TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
                   case ThrottlerStatus.Open =>
                     logger.warn(
                       s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                     )
-                    TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage)))
+                    TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
                   case _ =>
                     // Circuit Breaker is closed. Some other problem
                     writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
                     logger.warn(
                       s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
                     )
-                    InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage)))
+                    InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
                 }
             }
         }

@@ -75,13 +75,21 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       )
     }
 
+    val queryValues = Map[String,Any](
+      "epoch" -> epochVal,
+      "historical" -> hist,
+      "startDate" -> startDateVal,
+      "endDate" -> endDateVal,
+      "verbose" -> verb
+    )
+
     val result: Option[Future[Result]] =
-      uprnValidation.validateUprn(uprn)
+      uprnValidation.validateUprn(uprn, queryValues)
   //      .orElse(uprnValidation.validateStartDate(startDateVal))
    //     .orElse(uprnValidation.validateEndDate(endDateVal))
-        .orElse(uprnValidation.validateSource)
-        .orElse(uprnValidation.validateKeyStatus)
-        .orElse(uprnValidation.validateEpoch(epoch))
+        .orElse(uprnValidation.validateSource(queryValues))
+        .orElse(uprnValidation.validateKeyStatus(queryValues))
+        .orElse(uprnValidation.validateEpoch(queryValues))
         .orElse(None)
 
     result match {
@@ -125,7 +133,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
             case None =>
               writeLog(notFound = true)
-              jsonNotFound(NoAddressFoundUprn)
+              jsonNotFound(NoAddressFoundUprn(queryValues))
 
           }.recover {
             case NonFatal(exception) =>
@@ -135,19 +143,19 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
                   logger.warn(
                     s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
                   )
-                  InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
               }
           }
         }else {
@@ -184,7 +192,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
             case None =>
               writeLog(notFound = true)
-              jsonNotFound(NoAddressFoundUprn)
+              jsonNotFound(NoAddressFoundUprn(queryValues))
 
           }.recover {
             case NonFatal(exception) =>
@@ -194,19 +202,19 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
                   logger.warn(
                     s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
                   )
-                  InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
               }
           }
 

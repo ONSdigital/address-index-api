@@ -1049,20 +1049,20 @@ class AddressControllerSpec extends PlaySpec with Results {
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
-          filter = "",
+          filter = "BR12",
           historical = true,
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
-          offset = 0,
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1088,20 +1088,20 @@ class AddressControllerSpec extends PlaySpec with Results {
         AddressBySearchResponse(
           tokens = Map.empty,
           addresses = Seq.empty,
-          filter = "",
+          filter = "RD*,RD02",
           historical = true,
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
-          offset = 0,
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1133,7 +1133,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
+          limit = 1,
           offset = 0,
           total = 0,
           sampleSize = 20,
@@ -1141,7 +1141,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1165,17 +1165,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 1,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1183,7 +1183,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("thing"), Some("1")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="some query", offset=Some("thing"), limit=Some("1")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1207,14 +1207,14 @@ class AddressControllerSpec extends PlaySpec with Results {
           latitude = "",
           longitude = "",
           limit = 10,
-          offset = 0,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1238,17 +1238,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 100,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1256,7 +1256,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("1"), Some("thing")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="some query", limit=Some("thing")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1276,7 +1276,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1284,7 +1284,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.randomQuery(Some("1"), Some("thing")).apply(FakeRequest())
+      val result = controller.randomQuery(limit=Some("thing")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1307,15 +1307,15 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
-          offset = 0,
+          limit = 1,
+          offset = -1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1339,17 +1339,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
-          offset = 0,
+          limit = 100,
+          offset = -1,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1357,7 +1357,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("-1"), Some("1")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="some query", offset=Some("-1")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1380,7 +1380,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
+          limit = 0,
           offset = 0,
           total = 0,
           sampleSize = 20,
@@ -1388,7 +1388,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1412,17 +1412,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 0,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1430,7 +1430,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("0"), Some("0")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="some query", limit=Some("0")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1449,8 +1449,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 1,
-          verbose = true,
+          limit = 0,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1458,7 +1458,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.randomQuery(Some("some query"), Some("0"), Some("0")).apply(FakeRequest())
+      val result = controller.randomQuery(limit=Some("0")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1481,15 +1481,15 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
-          offset = 0,
+          limit = 1,
+          offset = 9999999,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1513,17 +1513,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
-          offset = 0,
+          limit = 100,
+          offset = 9999999,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1531,7 +1531,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("9999999"), Some("1")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="some query", offset=Some("9999999")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1554,7 +1554,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
+          limit = 999999,
           offset = 0,
           total = 0,
           sampleSize = 20,
@@ -1562,7 +1562,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1586,17 +1586,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 999999,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1604,7 +1604,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.postcodeQuery("some query", Some("0"), Some("999999")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="some query", limit=Some("999999")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1623,8 +1623,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 1,
-          verbose = true,
+          limit = 999999,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1632,7 +1632,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result = controller.randomQuery(Some(""), Some("999999")).apply(FakeRequest())
+      val result = controller.randomQuery(limit=Some("999999")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1652,8 +1652,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true,
-          epoch = ""
+          verbose = false,
+          epoch = "epoch"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.EpochNotAvailableErrorCustom)
@@ -1680,18 +1680,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
+          rangekm = "alongway",
           latitude = "",
           longitude = "",
-          limit = 10,
-          offset = 0,
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1719,18 +1719,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
+          rangekm = "1",
+          latitude = "oopnorth",
+          longitude = "0",
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1758,18 +1758,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
+          rangekm = "1",
+          latitude = "50",
+          longitude = "eastofthechipshop",
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1797,18 +1797,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
+          rangekm = "1",
+          latitude = "66.6",
+          longitude = "0",
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1836,18 +1836,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
+          rangekm = "1",
+          latitude = "50",
+          longitude = "2.8",
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1875,18 +1875,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
+          rangekm = "1",
+          latitude = "44.4",
+          longitude = "0",
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1914,18 +1914,18 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
+          rangekm = "1",
+          latitude = "50",
+          longitude = "-8.8",
+          limit = 1,
+          offset = 1,
           total = 0,
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -1964,7 +1964,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2042,7 +2042,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2081,7 +2081,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2300,17 +2300,17 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPartialAddressResponse(
-          input = "",
+          input = "foo",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 20,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2335,18 +2335,18 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPartialAddressResponse(
-          input = "",
+          input = "something",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 20,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
-          epoch = ""
+          verbose = false,
+          epoch = "epoch"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -2452,13 +2452,13 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 100,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2482,18 +2482,18 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "ab123cd",
           addresses = Seq.empty,
           filter = "",
           historical = true,
-          limit = 10,
+          limit = 100,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
-          epoch = ""
+          verbose = false,
+          epoch = "epoch"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(postcodeValidation.EpochNotAvailableErrorCustom)
@@ -2533,7 +2533,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,
@@ -2559,7 +2559,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPostcodeResponse(
-          postcode = "",
+          postcode = "ab123cd",
           addresses = Seq.empty,
           filter = "",
           historical = true,
@@ -2569,7 +2569,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,
@@ -2577,7 +2577,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When - retry param must be true
-      val result = controller.postcodeQuery("ab123cd", Some("0"), Some("10")).apply(FakeRequest())
+      val result = controller.postcodeQuery(postcode="ab123cd", offset=Some("0"), limit=Some("10")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -2599,7 +2599,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           filter = "",
           historical = true,
           limit = 1,
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,
@@ -2607,7 +2607,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When - retry param must be true
-      val result = controller.randomQuery(limit=Some("10")).apply(FakeRequest())
+      val result = controller.randomQuery(limit=Some("1")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -2625,7 +2625,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressByPartialAddressResponse(
-          input = "",
+          input = "some query",
           addresses = Seq.empty,
           filter = "",
           historical = true,
@@ -2635,7 +2635,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,
@@ -2655,28 +2655,17 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new UPRNController(components, failingRepositoryMock, config, versions, overloadProtection, uprnValidation)
 
-      val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs","test failure"))
+      val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs","test failure"))
 
-      val expected = Json.toJson(AddressBySearchResponseContainer(
+      val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
+        response = AddressByUprnResponse(
+          address = None,
           historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         TooManyRequestsResponseStatus,
@@ -2704,7 +2693,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         BadRequestAddressResponseStatus,
@@ -2732,7 +2721,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           startDate = "",
           endDate = "",
-          verbose = true,
+          verbose = false,
           epoch = ""
         ),
         NotFoundAddressResponseStatus,

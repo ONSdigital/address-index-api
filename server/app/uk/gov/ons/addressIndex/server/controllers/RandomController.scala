@@ -73,12 +73,20 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
+    val queryValues = Map[String,Any](
+      "epoch" -> epochVal,
+      "filter" -> filterString,
+      "historical" -> hist,
+      "limit" -> limitInt,
+      "verbose" -> verb
+    )
+
     val result: Option[Future[Result]] =
-      randomValidation.validateSource
-          .orElse(randomValidation.validateRandomLimit(limit))
-        .orElse(randomValidation.validateKeyStatus)
-        .orElse(randomValidation.validateRandomFilter(classificationfilter))
-        .orElse(randomValidation.validateEpoch(epoch))
+      randomValidation.validateSource(queryValues)
+          .orElse(randomValidation.validateRandomLimit(limit,queryValues))
+        .orElse(randomValidation.validateKeyStatus(queryValues))
+        .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
+        .orElse(randomValidation.validateEpoch(queryValues))
         .orElse(None)
 
     result match {
@@ -127,19 +135,19 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
                   logger.warn(
                     s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
                   )
-                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
               }
           }
         }else{
@@ -181,19 +189,19 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
                 case _ =>
                   // Circuit Breaker is closed. Some other problem
                   writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
                   logger.warn(
                     s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
                   )
-                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage)))
+                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
               }
           }
         }

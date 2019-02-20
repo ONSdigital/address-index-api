@@ -14,11 +14,11 @@ import scala.util.Try
 class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
   extends AddressValidation with RandomControllerResponse {
 
-  override def LimitTooLargeRandom: AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(LimitTooLargeAddressResponseErrorCustom)
+  override def LimitTooLargeRandom(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(queryValues,LimitTooLargeAddressResponseErrorCustom)
   }
 
-  def validateRandomLimit(limit: Option[String]): Option[Future[Result]] = {
+  def validateRandomLimit(limit: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -28,29 +28,29 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
     if (limitInvalid) {
       logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumericRandom))
+      Some(futureJsonBadRequest(LimitNotNumericRandom(queryValues)))
     } else if (limitInt < 1) {
       logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmallRandom))
+      Some(futureJsonBadRequest(LimitTooSmallRandom(queryValues)))
     } else if (limitInt > maxLimit) {
       logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(LimitTooLargeRandom))
+      Some(futureJsonBadRequest(LimitTooLargeRandom(queryValues)))
     } else None
 
   }
 
-  def validateRandomFilter(classificationfilter: Option[String]): Option[Future[Result]] = {
+  def validateRandomFilter(classificationfilter: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
 
     val filterString: String = classificationfilter.getOrElse("")
 
     if (!filterString.isEmpty){
       if (filterString.contains("*") && filterString.contains(",")){
         logger.systemLog(badRequestMessage = MixedFilterError.message)
-        Some(futureJsonBadRequest(RandomMixedFilter))
+        Some(futureJsonBadRequest(RandomMixedFilter(queryValues)))
       }
       else if (!filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
         logger.systemLog(badRequestMessage = FilterInvalidError.message)
-        Some(futureJsonBadRequest(RandomFilterInvalid))
+        Some(futureJsonBadRequest(RandomFilterInvalid(queryValues)))
       } else None
     } else None
 
@@ -66,19 +66,19 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
   )
 
-  override def RandomEpochInvalid: AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(EpochNotAvailableErrorCustom)
+  override def RandomEpochInvalid(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  def validateEpoch(epoch: Option[String]): Option[Future[Result]] = {
+  def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
 
-    val epochVal: String = epoch.getOrElse("")
+    val epochVal: String = queryValues("epoch").toString
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){
       if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
-        Some(futureJsonBadRequest(RandomEpochInvalid))
+        Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
       } else None
     } else None
 
