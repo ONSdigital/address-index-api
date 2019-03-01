@@ -74,9 +74,15 @@ abstract class AddressValidation (implicit conf: ConfigModule, versionProvider: 
   }
 
   def validateInput(input: String, queryValues: Map[String,Any]): Option[Future[Result]] = {
-    if (input.isEmpty) {
+    val inputEmpty: Boolean = input.isEmpty
+    val withRange: Boolean = queryValues("rangekm") != "" && queryValues("latitude") != "" && queryValues("longitude") != "" && queryValues("filter") != ""
+    val withEmptyRange: Boolean = queryValues("rangekm") == "" && queryValues("latitude") == "" && queryValues("longitude") == "" && queryValues("filter") == ""
+    if (inputEmpty && withEmptyRange) {
       logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearch(queryValues)))
-    } else None
+    } else if (inputEmpty && !withEmptyRange && !withRange) {
+      logger.systemLog(badRequestMessage = EmptyRadiusQueryAddressResponseError.message)
+      Some(futureJsonBadRequest(EmptyRadiusSearch(queryValues)))
+    }else None
   }
 }

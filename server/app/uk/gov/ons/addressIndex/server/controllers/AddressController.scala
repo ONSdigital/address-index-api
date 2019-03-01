@@ -145,7 +145,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         res // a validation error
 
       case _ =>
-        val tokens = parser.parse(input)
+//        val tokens = parser.parse(input)
+
+        val tokens = if(input.isEmpty() && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "") {
+          parser.parse("*")
+        } else {
+          parser.parse(input)
+        }
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
         val minimumSample = conf.config.elasticSearch.minimumSample

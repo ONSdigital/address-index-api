@@ -32,4 +32,8 @@ trait AddressResponse extends Response {
     BadRequestTemplate(queryValues,EmptyQueryAddressResponseError)
   }
 
+  def EmptyRadiusSearch(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EmptyRadiusQueryAddressResponseError)
+  }
+
 }

@@ -205,3 +205,8 @@ object FailedRequestToEsUprnError extends AddressResponseError(
   code = 37,
   message = "Request to Elasticsearch failed (uprn)(see logs)"
 )
+
+object EmptyRadiusQueryAddressResponseError extends AddressResponseError(
+  code = 38,
+  message = "Latitude, longitude, rangekm and filter must all be provided. "
+)
