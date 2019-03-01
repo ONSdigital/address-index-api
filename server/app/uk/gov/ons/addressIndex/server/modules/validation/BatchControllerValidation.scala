@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.util.Try
@@ -28,7 +29,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
 //    } else None
 //  }
 
-  def validateBatchSource(queryValues: Map[String,Any])(implicit request: RequestHeader): Option[Result] = {
+  def validateBatchSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
 
     val source = request.headers.get("Source").getOrElse(missing)
 
@@ -44,7 +45,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     }
   }
 
-  def validateBatchKeyStatus(queryValues: Map[String,Any])(implicit request: RequestHeader): Option[Result] = {
+  def validateBatchKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
@@ -59,7 +60,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     }
   }
 
-  def validateBatchAddressLimit(limit: Option[String], queryValues: Map[String,Any]): Option[Result] = {
+  def validateBatchAddressLimit(limit: Option[String], queryValues: QueryValues): Option[Result] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -79,7 +80,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     } else None
   }
 
-  def validateBatchThreshold(matchthreshold: Option[String], queryValues: Map[String,Any]): Option[Result] = {
+  def validateBatchThreshold(matchthreshold: Option[String], queryValues: QueryValues): Option[Result] = {
 
     val defThreshold: Float = conf.config.elasticSearch.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
@@ -96,7 +97,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     } else None
   }
 
-  def validateBatchEpoch(epoch: Option[String], queryValues: Map[String,Any]): Option[Result] = {
+  def validateBatchEpoch(epoch: Option[String], queryValues: QueryValues): Option[Result] = {
 
     val epochVal: String = epoch.getOrElse("")
     val validEpochs: String = conf.config.elasticSearch.validEpochs

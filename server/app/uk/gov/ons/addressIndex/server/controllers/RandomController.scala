@@ -6,6 +6,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.RandomControllerValidation
@@ -17,12 +18,12 @@ import scala.util.control.NonFatal
 
 @Singleton
 class RandomController @Inject()(val controllerComponents: ControllerComponents,
-                                   esRepo: ElasticsearchRepository,
-                                   conf: ConfigModule,
-                                   versionProvider: VersionModule,
-                                   overloadProtection: APIThrottler,
-                                   randomValidation: RandomControllerValidation
-                                  )(implicit ec: ExecutionContext)
+                                 esRepo: ElasticsearchRepository,
+                                 conf: ConfigModule,
+                                 versionProvider: VersionModule,
+                                 overloadProtection: APIThrottler,
+                                 randomValidation: RandomControllerValidation
+                                )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with RandomControllerResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:RandomController")
@@ -41,7 +42,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
     val limval = limit.getOrElse(defLimit.toString)
 
-    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "random"
 
     val hist = historical match {
@@ -59,7 +60,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation =  if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
 
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
@@ -73,17 +74,17 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
-    val queryValues = Map[String,Any](
-      "epoch" -> epochVal,
-      "filter" -> filterString,
-      "historical" -> hist,
-      "limit" -> limitInt,
-      "verbose" -> verb
+    val queryValues = QueryValues(
+      epoch = Some(epochVal),
+      filter = Some(filterString),
+      historical = Some(hist),
+      limit = Some(limitInt),
+      verbose = Some(verb),
     )
 
     val result: Option[Future[Result]] =
       randomValidation.validateSource(queryValues)
-          .orElse(randomValidation.validateRandomLimit(limit,queryValues))
+        .orElse(randomValidation.validateRandomLimit(limit, queryValues))
         .orElse(randomValidation.validateKeyStatus(queryValues))
         .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
         .orElse(randomValidation.validateEpoch(queryValues))
@@ -96,7 +97,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
       case _ =>
 
-        if (verb==false) {
+        if (verb == false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryRandomSkinny(filterString, limitInt, hist, verb, epochVal)
@@ -106,7 +107,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
             case HybridAddressesSkinny(hybridAddresses, maxScore@_, total@_) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddressSkinny(_,verb)
+                AddressResponseAddress.fromHybridAddressSkinny(_, verb)
               )
 
               writeLog(activity = "random_address_request")
@@ -150,7 +151,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
               }
           }
-        }else{
+        } else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryRandom(filterString, limitInt, hist, verb, epochVal)
@@ -160,7 +161,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
             case HybridAddresses(hybridAddresses, maxScore@_, total@_) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddress(_,verb)
+                AddressResponseAddress.fromHybridAddress(_, verb)
               )
 
               writeLog(activity = "random_address_request")
@@ -205,8 +206,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
               }
           }
         }
-
-
 
 
     }

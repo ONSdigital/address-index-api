@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -21,15 +22,15 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   // override error message with named length
   object ShortQueryAddressResponseErrorCustom extends AddressResponseError(
     code = 33,
-    message = ShortQueryAddressResponseError.message.replace("*",minimumTermLength.toString)
+    message = ShortQueryAddressResponseError.message.replace("*", minimumTermLength.toString)
   )
 
-  override def ShortSearch(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+  override def ShortSearch(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, ShortQueryAddressResponseErrorCustom)
   }
 
   // minimum length only for partial so override
-  override def validateInput(input: String, queryValues: Map[String,Any]): Option[Future[Result]] = {
+  override def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = {
     if (input.isEmpty) {
       logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearch(queryValues)))
@@ -39,15 +40,15 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     } else None
   }
 
-  override def LimitTooLargePartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+  override def LimitTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
   }
 
-  override def OffsetTooLargePartial(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
+  override def OffsetTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
-  def validatePartialLimit(limit: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validatePartialLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -68,7 +69,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
 
   }
 
-  def validatePartialOffset(offset: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validatePartialOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     val maxOffset: Int = conf.config.elasticSearch.maximumOffset
     val defOffset: Int = conf.config.elasticSearch.defaultOffset
     val offval = offset.getOrElse(defOffset.toString)
@@ -87,16 +88,16 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     } else None
   }
 
-  override def PartialEpochInvalid(queryValues: Map[String,Any]): AddressByPartialAddressResponseContainer = {
-    BadRequestPartialTemplate(queryValues,EpochNotAvailableErrorCustom)
+  override def PartialEpochInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  override def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
+  override def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues("epoch").toString
+    val epochVal: String = queryValues.epoch.get
 
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+    if (!epochVal.isEmpty) {
+      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
       } else None

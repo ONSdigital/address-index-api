@@ -2,35 +2,36 @@ package uk.gov.ons.addressIndex.server.modules.response
 
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 trait RandomControllerResponse extends Response {
 
-  def NoAddressFoundRandom(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def NoAddressFoundRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
     AddressByRandomResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByRandomResponse(
         addresses = Seq.empty,
-        filter = queryValues("filter").toString,
-        limit = queryValues("limit").asInstanceOf[Int],
-        historical = queryValues("historical").asInstanceOf[Boolean],
-        epoch = queryValues("epoch").toString,
-        verbose = queryValues("verbose").asInstanceOf[Boolean]
+        filter = queryValues.filter.get,
+        limit = queryValues.limit.get,
+        historical = queryValues.historical.get,
+        epoch = queryValues.epoch.get,
+        verbose = queryValues.verbose.get
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
     )
   }
 
-  def RandomFilterInvalid(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def RandomFilterInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,FilterInvalidError)
   }
 
-  def RandomMixedFilter(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def RandomMixedFilter(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,MixedFilterError)
   }
 
-  def FailedRequestToEsRandom(detail: String, queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def FailedRequestToEsRandom(detail: String, queryValues: QueryValues): AddressByRandomResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code,FailedRequestToEsRandomError.message.replace("see logs",detail))
     AddressByRandomResponseContainer(
       apiVersion = apiVersion,
@@ -41,7 +42,7 @@ trait RandomControllerResponse extends Response {
     )
   }
 
-  def FailedRequestToEsTooBusyRandom(detail: String, queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def FailedRequestToEsTooBusyRandom(detail: String, queryValues: QueryValues): AddressByRandomResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code,FailedRequestToEsRandomError.message.replace("see logs",detail))
     AddressByRandomResponseContainer(
       apiVersion = apiVersion,
@@ -52,18 +53,18 @@ trait RandomControllerResponse extends Response {
     )
   }
 
-  def ErrorRandom(queryValues: Map[String,Any]): AddressByRandomResponse = {
+  def ErrorRandom(queryValues: QueryValues): AddressByRandomResponse = {
     AddressByRandomResponse(
       addresses = Seq.empty,
-      filter = queryValues("filter").toString,
-      limit = queryValues("limit").asInstanceOf[Int],
-      historical = queryValues("historical").asInstanceOf[Boolean],
-      epoch = queryValues("epoch").toString,
-      verbose = queryValues("verbose").asInstanceOf[Boolean]
+      filter = queryValues.filter.get,
+      limit = queryValues.limit.get,
+      historical = queryValues.historical.get,
+      epoch = queryValues.epoch.get,
+      verbose = queryValues.verbose.get
     )
   }
 
-  def BadRequestRandomTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressByRandomResponseContainer = {
+  def BadRequestRandomTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressByRandomResponseContainer = {
     AddressByRandomResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -73,19 +74,19 @@ trait RandomControllerResponse extends Response {
     )
   }
 
-  def LimitNotNumericRandom(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def LimitNotNumericRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,LimitNotNumericAddressResponseError)
   }
 
-  def LimitTooSmallRandom(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def LimitTooSmallRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,LimitTooSmallAddressResponseError)
   }
 
-  def LimitTooLargeRandom(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def LimitTooLargeRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,LimitTooLargeAddressResponseError)
   }
 
-  def RandomEpochInvalid(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  def RandomEpochInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,EpochNotAvailableError)
   }
 

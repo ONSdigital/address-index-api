@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
@@ -41,7 +42,7 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
 //    } else None
 //  }
 
-  def validateKeyStatus(queryValues: Map[String,Any])(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
 
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
@@ -81,7 +82,7 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
     }
   }
 
-  def validateSource(queryValues: Map[String,Any])(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
 
     val source = request.headers.get("Source").getOrElse(missing)
 

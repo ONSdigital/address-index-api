@@ -4,6 +4,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, Ok, Unauthorized, _}
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 import scala.concurrent.Future
 
@@ -12,15 +13,15 @@ trait Response {
   val dataVersion: String
   val apiVersion: String
 
-  def StartDateInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def StartDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,StartDateInvalidResponseError)
   }
 
-  def EndDateInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def EndDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,EndDateInvalidResponseError)
   }
 
-  def BadRequestTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressBySearchResponseContainer = {
+  def BadRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -30,7 +31,7 @@ trait Response {
     )
   }
 
-  def FailedRequestToEs(detail: String, queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def FailedRequestToEs(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -41,7 +42,7 @@ trait Response {
     )
   }
 
-  def FailedRequestToEsTooBusy (detail: String, queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def FailedRequestToEsTooBusy (detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -52,23 +53,23 @@ trait Response {
     )
   }
 
-  def SourceMissing(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def SourceMissing(queryValues: QueryValues): AddressBySearchResponseContainer = {
     UnauthorizedRequestTemplate(queryValues,SourceMissingError)
   }
 
-  def SourceInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def SourceInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     UnauthorizedRequestTemplate(queryValues,SourceInvalidError)
   }
 
-  def KeyMissing(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def KeyMissing(queryValues: QueryValues): AddressBySearchResponseContainer = {
     UnauthorizedRequestTemplate(queryValues,ApiKeyMissingError)
   }
 
-  def KeyInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def KeyInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     UnauthorizedRequestTemplate(queryValues,ApiKeyInvalidError)
   }
 
-  private def UnauthorizedRequestTemplate(queryValues: Map[String,Any], errors: AddressResponseError*): AddressBySearchResponseContainer = {
+  private def UnauthorizedRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -78,25 +79,25 @@ trait Response {
     )
   }
 
-  def Error(queryValues: Map[String,Any]): AddressBySearchResponse = {
+  def Error(queryValues: QueryValues): AddressBySearchResponse = {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
-      filter = queryValues("filter").toString,
-      historical = queryValues("historical").asInstanceOf[Boolean],
-      epoch = queryValues("epoch").toString,
-      rangekm = queryValues("rangekm").toString,
-      latitude = queryValues("latitude").toString,
-      longitude = queryValues("longitude").toString,
-      startDate = queryValues("startDate").toString,
-      endDate = queryValues("endDate").toString,
-      limit = queryValues("limit").asInstanceOf[Int],
-      offset = queryValues("offset").asInstanceOf[Int],
+      filter = queryValues.filter.get,
+      historical = queryValues.historical.get,
+      epoch = queryValues.epoch.get,
+      rangekm = queryValues.rangeKM.get.toString(),
+      latitude = queryValues.latitude.get,
+      longitude = queryValues.longitude.get,
+      startDate = queryValues.startDate.get,
+      endDate = queryValues.endDate.get,
+      limit = queryValues.limit.get,
+      offset = queryValues.offset.get,
       total = 0,
       sampleSize = 20,
       maxScore = 0f,
       matchthreshold = 5f,
-      verbose = queryValues("verbose").asInstanceOf[Boolean]
+      verbose = queryValues.verbose.get
     )
   }
 

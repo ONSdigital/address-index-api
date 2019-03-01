@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -15,7 +16,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
   // get the defaults and maxima for the paging parameters from the config
 
-  def validateLocation(lat: Option[String], lon: Option[String], rangekm: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateLocation(lat: Option[String], lon: Option[String], rangekm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val latVal: String = lat.getOrElse("")
     val lonVal: String = lon.getOrElse("")
@@ -50,7 +51,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     } else None
   }
 
-  def validateAddressFilter(classificationfilter: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateAddressFilter(classificationfilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val filterString: String = classificationfilter.getOrElse("")
 
@@ -67,7 +68,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
   }
 
-  def validateRange(rangekm: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateRange(rangekm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     val rangeVal: String = rangekm.getOrElse("")
     val rangeInvalid: Boolean = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
 
@@ -77,7 +78,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     } else None
   }
 
-  def validateThreshold(matchthreshold: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateThreshold(matchthreshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val defThreshold: Float = conf.config.elasticSearch.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
@@ -104,13 +105,13 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
   )
 
-  override def EpochInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  override def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,EpochNotAvailableErrorCustom)
   }
 
-  def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues("epoch").toString
+    val epochVal: String = queryValues.epoch.get
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){

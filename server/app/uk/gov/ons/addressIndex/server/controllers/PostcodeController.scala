@@ -6,6 +6,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
@@ -87,16 +88,16 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    val queryValues = Map[String,Any](
-      "postcode" -> postcode,
-      "epoch" -> epochVal,
-      "filter" -> filterString,
-      "historical" -> hist,
-      "limit" -> limitInt,
-      "offset" -> offsetInt,
-      "startDate" -> startDateVal,
-      "endDate" -> endDateVal,
-      "verbose" -> verb
+    val queryValues = QueryValues(
+      postcode = Some(postcode),
+      epoch = Some(epochVal),
+      filter = Some(filterString),
+      historical = Some(hist),
+      limit = Some(limitInt),
+      offset = Some(offsetInt),
+      startDate = Some(startDateVal),
+      endDate = Some(endDateVal),
+      verbose = Some(verb),
     )
 
     val result: Option[Future[Result]] =

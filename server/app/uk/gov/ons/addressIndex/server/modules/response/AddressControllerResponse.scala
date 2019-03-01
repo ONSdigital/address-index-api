@@ -1,62 +1,63 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 trait AddressControllerResponse extends AddressResponse {
 
-  def AddressFilterInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def AddressFilterInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,FilterInvalidError)
   }
 
-  def AddressMixedFilter(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def AddressMixedFilter(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,MixedFilterError)
   }
 
-  def PostcodeFilterInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def PostcodeFilterInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,FilterInvalidError)
   }
 
-  def RangeNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def RangeNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,RangeNotNumericAddressResponseError)
   }
 
-  def LatitiudeNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def LatitiudeNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,LatitudeNotNumericAddressResponseError)
   }
 
-  def LongitudeNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def LongitudeNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,LongitudeNotNumericAddressResponseError)
   }
 
-  def LatitudeTooFarNorth(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def LatitudeTooFarNorth(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,LatitudeTooFarNorthAddressResponseError)
   }
 
-  def LongitudeTooFarEast(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def LongitudeTooFarEast(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,LongitudeTooFarEastAddressResponseError)
   }
 
-  def LatitudeTooFarSouth(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def LatitudeTooFarSouth(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,LatitudeTooFarSouthAddressResponseError)
   }
 
-  def LongitudeTooFarWest(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def LongitudeTooFarWest(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,LongitudeTooFarWestAddressResponseError)
   }
 
-  def UnsupportedFormat(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def UnsupportedFormat(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,FormatNotSupportedAddressResponseError)
   }
 
-  def ThresholdNotNumeric(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def ThresholdNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,ThresholdNotNumericAddressResponseError)
   }
 
-  def ThresholdNotInRange(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def ThresholdNotInRange(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,ThresholdNotInRangeAddressResponseError)
   }
 
-  def EpochInvalid(queryValues: Map[String,Any]): AddressBySearchResponseContainer = {
+  def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues,EpochNotAvailableError)
   }
 
