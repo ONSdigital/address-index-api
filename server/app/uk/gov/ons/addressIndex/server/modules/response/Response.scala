@@ -42,8 +42,8 @@ trait Response {
     )
   }
 
-  def FailedRequestToEsTooBusy (detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
-   val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
+  def FailedRequestToEsTooBusy(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -83,21 +83,21 @@ trait Response {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
-      filter = queryValues.filter.get,
-      historical = queryValues.historical.get,
-      epoch = queryValues.epoch.get,
-      rangekm = queryValues.rangeKM.get.toString(),
-      latitude = queryValues.latitude.get,
-      longitude = queryValues.longitude.get,
-      startDate = queryValues.startDate.get,
-      endDate = queryValues.endDate.get,
-      limit = queryValues.limit.get,
-      offset = queryValues.offset.get,
+      filter = queryValues.filterOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      rangekm = queryValues.rangeKMOrDefault.toString,
+      latitude = queryValues.latitudeOrDefault,
+      longitude = queryValues.longitudeOrDefault,
+      startDate = queryValues.startDateOrDefault,
+      endDate = queryValues.endDateOrDefault,
+      limit = queryValues.limitOrDefault,
+      offset = queryValues.offsetOrDefault,
       total = 0,
       sampleSize = 20,
       maxScore = 0f,
       matchthreshold = 5f,
-      verbose = queryValues.verbose.get
+      verbose = queryValues.verboseOrDefault
     )
   }
 

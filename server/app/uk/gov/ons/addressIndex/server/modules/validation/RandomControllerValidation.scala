@@ -73,7 +73,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues.epoch.get.toString
+    val epochVal: String = queryValues.epochOrDefault.toString
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){

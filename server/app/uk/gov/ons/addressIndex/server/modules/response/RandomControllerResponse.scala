@@ -12,11 +12,11 @@ trait RandomControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByRandomResponse(
         addresses = Seq.empty,
-        filter = queryValues.filter.get,
-        limit = queryValues.limit.get,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        verbose = queryValues.verbose.get
+        filter = queryValues.filterOrDefault,
+        limit = queryValues.limitOrDefault,
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -56,11 +56,11 @@ trait RandomControllerResponse extends Response {
   def ErrorRandom(queryValues: QueryValues): AddressByRandomResponse = {
     AddressByRandomResponse(
       addresses = Seq.empty,
-      filter = queryValues.filter.get,
-      limit = queryValues.limit.get,
-      historical = queryValues.historical.get,
-      epoch = queryValues.epoch.get,
-      verbose = queryValues.verbose.get
+      filter = queryValues.filterOrDefault,
+      limit = queryValues.limitOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      verbose = queryValues.verboseOrDefault
     )
   }
 

@@ -39,7 +39,7 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
 
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues.epoch.get
+    val epochVal: String = queryValues.epochOrDefault
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty) {

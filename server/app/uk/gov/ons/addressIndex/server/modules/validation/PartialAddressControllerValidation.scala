@@ -15,7 +15,6 @@ import scala.util.Try
 class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressControllerValidation with PartialAddressControllerResponse {
 
-
   // set minimum string length from config
   val minimumTermLength = conf.config.elasticSearch.minimumPartial
 
@@ -94,7 +93,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
 
   override def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues.epoch.get
+    val epochVal: String = queryValues.epochOrDefault
 
     if (!epochVal.isEmpty) {
       if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {

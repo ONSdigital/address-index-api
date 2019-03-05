@@ -11,18 +11,18 @@ trait PostcodeControllerResponse extends Response {
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByPostcodeResponse(
-        postcode = queryValues.postcode.get,
+        postcode = queryValues.postcodeOrDefault,
         addresses = Seq.empty,
-        filter = queryValues.filter.get,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        limit = queryValues.limit.get,
-        offset = queryValues.offset.get,
+        filter = queryValues.filterOrDefault,
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        limit = queryValues.limitOrDefault,
+        offset = queryValues.offsetOrDefault,
         total = 0,
         maxScore = 0f,
-        startDate = queryValues.startDate.get,
-        endDate = queryValues.endDate.get,
-        verbose = queryValues.verbose.get
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -65,18 +65,18 @@ trait PostcodeControllerResponse extends Response {
 
   def ErrorPostcode(queryValues: QueryValues): AddressByPostcodeResponse = {
     AddressByPostcodeResponse(
-      postcode = queryValues.postcode.get,
+      postcode = queryValues.postcodeOrDefault,
       addresses = Seq.empty,
-      filter = queryValues.filter.get,
-      historical = queryValues.historical.get,
-      epoch = queryValues.epoch.get,
-      limit = queryValues.limit.get,
-      offset = queryValues.offset.get,
+      filter = queryValues.filterOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      limit = queryValues.limitOrDefault,
+      offset = queryValues.offsetOrDefault,
       total = 0,
       maxScore = 0f,
-      startDate = queryValues.startDate.get,
-      endDate = queryValues.endDate.get,
-      verbose = queryValues.verbose.get
+      startDate = queryValues.startDateOrDefault,
+      endDate = queryValues.endDateOrDefault,
+      verbose = queryValues.verboseOrDefault
     )
   }
 

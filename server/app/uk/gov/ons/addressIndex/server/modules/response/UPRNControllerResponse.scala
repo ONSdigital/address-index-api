@@ -16,11 +16,11 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        startDate = queryValues.startDate.get,
-        endDate = queryValues.endDate.get,
-        verbose = queryValues.verbose.get
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
@@ -30,11 +30,11 @@ trait UPRNControllerResponse extends Response {
   def ErrorUprn(queryValues: QueryValues): AddressByUprnResponse = {
     AddressByUprnResponse(
       address = None,
-      historical = queryValues.historical.get,
-      epoch = queryValues.epoch.get,
-      startDate = queryValues.startDate.get,
-      endDate = queryValues.endDate.get,
-      verbose = queryValues.verbose.get
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      startDate = queryValues.startDateOrDefault,
+      endDate = queryValues.endDateOrDefault,
+      verbose = queryValues.verboseOrDefault
     )
   }
 
@@ -54,11 +54,11 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = optAddresses,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        startDate = queryValues.startDate.get,
-        endDate = queryValues.endDate.get,
-        verbose = queryValues.verbose.get
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = OkAddressResponseStatus
     )
@@ -70,11 +70,11 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        startDate = queryValues.startDate.get,
-        endDate = queryValues.endDate.get,
-        verbose = queryValues.verbose.get
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -87,11 +87,11 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        startDate = queryValues.startDate.get,
-        endDate = queryValues.endDate.get,
-        verbose = queryValues.verbose.get
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
@@ -104,11 +104,11 @@ trait UPRNControllerResponse extends Response {
       dataVersion = dataVersion,
       response = AddressByUprnResponse(
         address = None,
-        historical = queryValues.historical.get,
-        epoch = queryValues.epoch.get,
-        startDate = queryValues.startDate.get,
-        endDate = queryValues.endDate.get,
-        verbose = queryValues.verbose.get
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(EpochNotAvailableError)

@@ -111,7 +111,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues.epoch.get
+    val epochVal: String = queryValues.epochOrDefault
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){

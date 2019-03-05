@@ -107,11 +107,11 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
 
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues.epoch.get
+    val epochVal: String = queryValues.epochOrDefault
 
     if (!epochVal.isEmpty){
       if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch=epochVal, postcode=queryValues.postcode.get)
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch=epochVal, postcode=queryValues.postcodeOrDefault)
         Some(futureJsonBadRequest(PostcodeEpochInvalid(queryValues)))
       } else None
     } else None

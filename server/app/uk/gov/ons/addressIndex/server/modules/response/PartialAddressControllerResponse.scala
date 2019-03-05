@@ -76,18 +76,18 @@ trait PartialAddressControllerResponse extends AddressResponse {
 
   def ErrorPartialAddress(queryValues: QueryValues): AddressByPartialAddressResponse = {
     AddressByPartialAddressResponse(
-      input = queryValues.input.get,
+      input = queryValues.inputOrDefault,
       addresses = Seq.empty,
-      filter = queryValues.filter.get,
-      historical = queryValues.historical.get,
-      epoch = queryValues.epoch.get,
-      limit = queryValues.limit.get,
-      offset = queryValues.offset.get,
+      filter = queryValues.filterOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      limit = queryValues.limitOrDefault,
+      offset = queryValues.offsetOrDefault,
       total = 0,
       maxScore = 0f,
-      startDate = queryValues.startDate.get,
-      endDate = queryValues.endDate.get,
-      verbose = queryValues.verbose.get
+      startDate = queryValues.startDateOrDefault,
+      endDate = queryValues.endDateOrDefault,
+      verbose = queryValues.verboseOrDefault
     )
   }
 
