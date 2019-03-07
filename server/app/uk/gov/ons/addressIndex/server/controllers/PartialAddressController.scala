@@ -6,6 +6,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
@@ -17,12 +18,12 @@ import scala.util.control.NonFatal
 
 @Singleton
 class PartialAddressController @Inject()(val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  conf: ConfigModule,
-  versionProvider: VersionModule,
-  overloadProtection: APIThrottler,
-  partialAddressValidation: PartialAddressControllerValidation
-)(implicit ec: ExecutionContext)
+                                         esRepo: ElasticsearchRepository,
+                                         conf: ConfigModule,
+                                         versionProvider: VersionModule,
+                                         overloadProtection: APIThrottler,
+                                         partialAddressValidation: PartialAddressControllerValidation
+                                        )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
   lazy val logger = AddressAPILogger("address-index-server:PartialAddressController")
@@ -35,11 +36,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     */
 
   def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
-    classificationfilter: Option[String] = None,
-    // startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None,
-                          startboost: Option[String] = None
-  ): Action[AnyContent] = Action async { implicit req =>
+                          classificationFilter: Option[String] = None,
+                          // startDate: Option[String], endDate: Option[String],
+                          historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None,
+                          startBoost: Option[String] = None
+                         ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
 
@@ -52,7 +53,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
+    val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
     //  val startDateVal = startDate.getOrElse("")
@@ -74,18 +75,18 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     val defStartBoost = conf.config.elasticSearch.defaultStartBoost
     // query string param for testing, will probably be removed
-    val sboost = startboost match {
+    val sboost = startBoost match {
       case Some(x) => Try(x.toInt).getOrElse(defStartBoost)
       case None => defStartBoost
     }
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map {add => boostAddress(add)}
+      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
       boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
     }
 
-    def boostAddress(add: AddressResponseAddress): AddressResponseAddress =  {
-      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))){
+    def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
+      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(underlyingScore = add.underlyingScore + sboost)
       } else add.copy(underlyingScore = add.underlyingScore)
     }
@@ -93,7 +94,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation =  if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
 
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
@@ -101,7 +102,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-     //   startDate = startDateVal, endDate = endDateVal,
+        //   startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -109,27 +110,27 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    val queryValues = Map[String,Any](
-      "input" -> input,
-      "epoch" -> epochVal,
-      "filter" -> filterString,
-      "historical" -> hist,
-      "limit" -> limitInt,
-      "offset" -> offsetInt,
-      "startDate" -> startDateVal,
-      "endDate" -> endDateVal,
-      "verbose" -> verb
+    val queryValues = QueryValues(
+      input = Some(input),
+      epoch = Some(epochVal),
+      filter = Some(filterString),
+      historical = Some(hist),
+      limit = Some(limitInt),
+      offset = Some(offsetInt),
+      startDate = Some(startDateVal),
+      endDate = Some(endDateVal),
+      verbose = Some(verb)
     )
 
     val result: Option[Future[Result]] =
       partialAddressValidation.validatePartialLimit(limit, queryValues)
         .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
-  //      .orElse(partialAddressValidation.validateStartDate(startDateVal))
-  //      .orElse(partialAddressValidation.validateEndDate(endDateVal))
+        //      .orElse(partialAddressValidation.validateStartDate(startDateVal))
+        //      .orElse(partialAddressValidation.validateEndDate(endDateVal))
         .orElse(partialAddressValidation.validateSource(queryValues))
         .orElse(partialAddressValidation.validateKeyStatus(queryValues))
         .orElse(partialAddressValidation.validateInput(input, queryValues))
-        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationFilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
         .orElse(None)
 
@@ -140,7 +141,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
       case _ =>
 
-        if (verb==false) {
+        if (!verb) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
@@ -149,7 +150,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           request.map {
             case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
               val addresses: Seq[AddressResponseAddress] = hybridAddressesSkinny.map(
-                AddressResponseAddress.fromHybridAddressSkinny(_,verb)
+                AddressResponseAddress.fromHybridAddressSkinny(_, verb)
               )
 
               val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
@@ -172,7 +173,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                     maxScore = maxScore,
                     startDate = startDateVal,
                     endDate = endDateVal,
-                    verbose  = verb
+                    verbose = verb
                   ),
                   status = OkAddressResponseStatus
                 )
@@ -195,7 +196,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
               }
           }
-        }else {
+        } else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
@@ -204,7 +205,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           request.map {
             case HybridAddresses(hybridAddresses, maxScore, total) =>
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddress(_,verb)
+                AddressResponseAddress.fromHybridAddress(_, verb)
               )
 
               val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
@@ -227,7 +228,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                     maxScore = maxScore,
                     startDate = startDateVal,
                     endDate = endDateVal,
-                    verbose  = verb
+                    verbose = verb
                   ),
                   status = OkAddressResponseStatus
                 )

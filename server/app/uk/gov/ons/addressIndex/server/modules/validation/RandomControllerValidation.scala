@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -14,11 +15,11 @@ import scala.util.Try
 class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
   extends AddressValidation with RandomControllerResponse {
 
-  override def LimitTooLargeRandom(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  override def LimitTooLargeRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues,LimitTooLargeAddressResponseErrorCustom)
   }
 
-  def validateRandomLimit(limit: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateRandomLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
     val limval = limit.getOrElse(defLimit.toString)
@@ -39,7 +40,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
   }
 
-  def validateRandomFilter(classificationfilter: Option[String], queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateRandomFilter(classificationfilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val filterString: String = classificationfilter.getOrElse("")
 
@@ -66,13 +67,13 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
   )
 
-  override def RandomEpochInvalid(queryValues: Map[String,Any]): AddressByRandomResponseContainer = {
+  override def RandomEpochInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues("epoch").toString
+    val epochVal: String = queryValues.epochOrDefault.toString
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
     if (!epochVal.isEmpty){

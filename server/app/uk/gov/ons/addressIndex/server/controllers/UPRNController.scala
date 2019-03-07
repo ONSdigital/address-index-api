@@ -6,6 +6,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
@@ -75,12 +76,13 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       )
     }
 
-    val queryValues = Map[String,Any](
-      "epoch" -> epochVal,
-      "historical" -> hist,
-      "startDate" -> startDateVal,
-      "endDate" -> endDateVal,
-      "verbose" -> verb
+    val queryValues = QueryValues(
+      uprn = Some(uprn),
+      epoch = Some(epochVal),
+      historical = Some(hist),
+      startDate = Some(startDateVal),
+      endDate = Some(endDateVal),
+      verbose = Some(verb),
     )
 
     val result: Option[Future[Result]] =

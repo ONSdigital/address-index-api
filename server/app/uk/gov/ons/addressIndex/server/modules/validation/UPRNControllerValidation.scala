@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -14,7 +15,7 @@ import scala.util.Try
 class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Validation with UPRNControllerResponse {
 
-  def validateUprn(uprn: String, queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateUprn(uprn: String, queryValues: QueryValues): Option[Future[Result]] = {
     val uprnInvalid = Try(uprn.toLong).isFailure
     if (uprnInvalid) {
       logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
@@ -23,8 +24,8 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
   }
 
   // set minimum string length from config
-  val validEpochs = conf.config.elasticSearch.validEpochs
-  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+  val validEpochs: String = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -32,17 +33,17 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
     message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
   )
 
-  override def UprnEpochInvalid(queryValues: Map[String,Any]): AddressByUprnResponseContainer = {
+  override def UprnEpochInvalid(queryValues: QueryValues): AddressByUprnResponseContainer = {
     BadRequestUprnTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  def validateEpoch(queryValues: Map[String,Any]): Option[Future[Result]] = {
+  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
-    val epochVal: String = queryValues("epoch").toString
+    val epochVal: String = queryValues.epochOrDefault
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+    if (!epochVal.isEmpty) {
+      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(UprnEpochInvalid(queryValues)))
       } else None

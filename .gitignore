@@ -6,3 +6,5 @@ logs
 .DS_Store
 .history
 RUNNING_PID
+.ensime
+.ensime_cache
