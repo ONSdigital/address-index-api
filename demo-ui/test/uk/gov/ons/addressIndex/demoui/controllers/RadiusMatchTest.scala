@@ -26,7 +26,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Search for an address within a radius"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new RadiusController(
@@ -54,7 +54,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<form action=\"/radius/search\" method=\"POST\" >"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new RadiusController(
@@ -82,7 +82,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a radius and search term</span>"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new RadiusController(
@@ -93,7 +93,7 @@ class RadiusMatchTest extends PlaySpec with Results {
         apiClient,
         classHierarchy,
         version)
-        .doMatch().apply(FakeRequest(POST,"/radius/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+        .doMatch().apply(FakeRequest(POST, "/radius/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -117,7 +117,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val longitude = ""
       val historical = true
       val matchthreshold = 5
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new RadiusController(
@@ -152,7 +152,7 @@ class RadiusMatchTest extends PlaySpec with Results {
       val longitude = ""
       val historical = true
       val matchthreshold = 5
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new RadiusController(

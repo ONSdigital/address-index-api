@@ -13,8 +13,8 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   extends Validation with AddressResponse {
 
   // get maxima length from config
-  val maximumLimit = conf.config.elasticSearch.maximumLimit
-  val maximumOffset = conf.config.elasticSearch.maximumOffset
+  val maximumLimit: Int = conf.config.elasticSearch.maximumLimit
+  val maximumOffset: Int = conf.config.elasticSearch.maximumOffset
 
   // override error messages with maxima
   object LimitTooLargeAddressResponseErrorCustom extends AddressResponseError(

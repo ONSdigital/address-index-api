@@ -12,11 +12,11 @@ import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
-class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
+class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with RandomControllerResponse {
 
   override def LimitTooLargeRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,LimitTooLargeAddressResponseErrorCustom)
+    BadRequestRandomTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
   }
 
   def validateRandomLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
@@ -44,8 +44,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
     val filterString: String = classificationfilter.getOrElse("")
 
-    if (!filterString.isEmpty){
-      if (filterString.contains("*") && filterString.contains(",")){
+    if (!filterString.isEmpty) {
+      if (filterString.contains("*") && filterString.contains(",")) {
         logger.systemLog(badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(RandomMixedFilter(queryValues)))
       }
@@ -58,8 +58,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
   }
 
   // set minimum string length from config
-  val validEpochs = conf.config.elasticSearch.validEpochs
-  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+  val validEpochs: String = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -76,8 +76,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     val epochVal: String = queryValues.epochOrDefault.toString
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+    if (!epochVal.isEmpty) {
+      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
       } else None

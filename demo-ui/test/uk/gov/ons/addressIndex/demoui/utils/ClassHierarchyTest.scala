@@ -51,7 +51,7 @@ class ClassHierarchyTest extends FlatSpec with Matchers {
   }
 
   "ClassHierarchy" should
-  "return the original code and the four classifications in the hierarchy" in new WithApplication {
+    "return the original code and the four classifications in the hierarchy" in new WithApplication {
     val messagesApi = app.injector.instanceOf[MessagesApi]
     val langs = app.injector.instanceOf[Langs]
     val classHierarchy = new ClassHierarchy(messagesApi, langs)

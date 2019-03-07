@@ -7,13 +7,13 @@ import play.api.libs.json._
   */
 
 case class SingleSearchForm(
- address: String,
- filter: String,
- historical: Boolean,
- matchthreshold: Int,
- startdate: String,
- enddate: String
-)
+                             address: String,
+                             filter: String,
+                             historical: Boolean,
+                             matchthreshold: Int,
+                             startdate: String,
+                             enddate: String
+                           )
 
 object SingleSearchForm {
   val jsonFmt = Json.format[SingleSearchForm]

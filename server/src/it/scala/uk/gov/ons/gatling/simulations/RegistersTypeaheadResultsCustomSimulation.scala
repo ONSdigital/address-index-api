@@ -60,25 +60,29 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
 
   // user pause of 300ms between keystrokes, then get next partial from file
   // requestRelpath is addresses/partial/ (no further)
-  val scn: ScenarioBuilder  =
-    scenario(requestName)
-      .pause(300 millis)
-      .feed(feeder)
-      .exec(http("Typeahead")
-        .get(requestRelPath + "${addresspart}" + "?limit=4")
-        .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
-        .check(jsonPath("$..input").findAll.saveAs("inputs"))
-      )
+  val scn: ScenarioBuilder =
+  scenario(requestName)
+    .pause(300 millis)
+    .feed(feeder)
+    .exec(http("Typeahead")
+      .get(requestRelPath + "${addresspart}" + "?limit=4")
+      .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
+      .check(jsonPath("$..input").findAll.saveAs("inputs"))
+    )
 
     .foreach("${inputs}", "input") {
       exec(foundaddress => {
         println(foundaddress("input").as[String])
-        foundaddress}).foreach("${uprns}", "uprn") {
+        foundaddress
+      }).foreach("${uprns}", "uprn") {
         exec(foundaddress => {
           val uprnString = foundaddress("uprn").as[String]
-          val hit = {if (uprns.contains(uprnString)) " => HIT" else " "}
+          val hit = {
+            if (uprns.contains(uprnString)) " => HIT" else " "
+          }
           println(uprnString + hit)
-          foundaddress})
+          foundaddress
+        })
       }
     }
 

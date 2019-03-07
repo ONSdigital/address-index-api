@@ -2,7 +2,6 @@ package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index._
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 
 /**
@@ -54,14 +53,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     mixedNag = "mixedNag"
   )
 
-  val givenWelshNag = givenNag.copy(
+  val givenWelshNag: NationalAddressGazetteerAddress = givenNag.copy(
     townName = "wn20",
     locality = "wn21",
     language = NationalAddressGazetteerAddress.Languages.welsh,
     mixedNag = "welshMixedNag"
   )
 
-  val givenRealisticNag = givenNag.copy(
+  val givenRealisticNag: NationalAddressGazetteerAddress = givenNag.copy(
     postcodeLocator = "EXO 808",
     addressBasePostal = "D",
     organisation = "MAJESTIC",
@@ -118,18 +117,18 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     mixedWelshPaf = "mixedWelshPaf"
   )
 
-  val givenRelative =  Relative (
-    level = 1.toInt,
-    siblings = Array(6L,7L),
-    parents = Array(8L,9L)
+  val givenRelative = Relative(
+    level = 1,
+    siblings = Array(6L, 7L),
+    parents = Array(8L, 9L)
   )
 
-  val givenCrossRef = CrossRef (
+  val givenCrossRef = CrossRef(
     crossReference = "E05011011",
     source = "7666OW"
   )
 
-  val givenBespokeScore = AddressResponseScore (
+  val givenBespokeScore = AddressResponseScore(
     objectScore = 0,
     structuralScore = 0,
     buildingScore = 0,
@@ -140,9 +139,9 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     unitScoreDebug = "0",
     ambiguityPenalty = 1d)
 
-  val givenRelativeResponse = AddressResponseRelative.fromRelative(givenRelative)
+  val givenRelativeResponse: AddressResponseRelative = AddressResponseRelative.fromRelative(givenRelative)
 
-  val givenCrossRefResponse = AddressResponseCrossRef.fromCrossRef(givenCrossRef)
+  val givenCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(givenCrossRef)
 
   "Address response Address model" should {
 
@@ -275,7 +274,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddress.fromHybridAddress(hybrid, true)
+      val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true)
 
       // Then
       result shouldBe expected
@@ -328,7 +327,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     "choose the nag with a legal status equal to 1 if it exists" in {
       // Given
       val expectedNag = givenNag.copy(lpiLogicalStatus = "1")
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "6"))
+      val nagAddresses = Seq(givenNag, expectedNag, givenNag.copy(lpiLogicalStatus = "6"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
@@ -340,7 +339,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     "choose the nag with a legal status equal to 6 if it exists and the one with legal status 1 doesn't exist" in {
       // Given
       val expectedNag = givenNag.copy(lpiLogicalStatus = "6")
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "8"))
+      val nagAddresses = Seq(givenNag, expectedNag, givenNag.copy(lpiLogicalStatus = "8"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
@@ -352,7 +351,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     "choose the nag with a legal status equal to 8 if it exists and the one with legal status 1 or 6 doesn't exist" in {
       // Given
       val expectedNag = givenNag.copy(lpiLogicalStatus = "8")
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "11"))
+      val nagAddresses = Seq(givenNag, expectedNag, givenNag.copy(lpiLogicalStatus = "11"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
@@ -364,7 +363,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     "choose the first nag with if a nag with a legal status 1, 6 or 8 doesn't exist" in {
       // Given
       val expectedNag = givenNag
-      val nagAddresses = Seq(expectedNag, expectedNag.copy(lpiLogicalStatus = "10") , expectedNag.copy(lpiLogicalStatus = "11"))
+      val nagAddresses = Seq(expectedNag, expectedNag.copy(lpiLogicalStatus = "10"), expectedNag.copy(lpiLogicalStatus = "11"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.english)
@@ -376,7 +375,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     "choose the nag with a specified language if it exists" in {
       // Given
       val expectedNag = givenNag.copy(lpiLogicalStatus = "1", language = NationalAddressGazetteerAddress.Languages.welsh)
-      val nagAddresses = Seq(givenNag, expectedNag , givenNag.copy(lpiLogicalStatus = "6"))
+      val nagAddresses = Seq(givenNag, expectedNag, givenNag.copy(lpiLogicalStatus = "6"))
 
       // When
       val result = AddressResponseAddress.chooseMostRecentNag(nagAddresses, NationalAddressGazetteerAddress.Languages.welsh)

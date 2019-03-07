@@ -10,8 +10,8 @@ object AddressResponseCodelistListContainer {
 /**
   * Container for codelists list
   *
-  * @param codelists  sequence of codelists
+  * @param codelists sequence of codelists
   */
 case class AddressResponseCodelistListContainer(
-  codelists: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
-)
+                                                 codelists: Seq[AddressResponseCodelist] = Seq.empty[AddressResponseCodelist]
+                                               )

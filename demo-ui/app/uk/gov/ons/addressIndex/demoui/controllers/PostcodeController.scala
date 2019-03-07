@@ -21,21 +21,22 @@ import scala.util.Try
 
 /**
   * Controller class for a postcode to be matched
-  * @param conf           conf
-  * @param messagesApi    messageApi
-  * @param apiClient      apiClient
-  * @param ec             ec
+  *
+  * @param conf        conf
+  * @param messagesApi messageApi
+  * @param apiClient   apiClient
+  * @param ec          ec
   */
 @Singleton
 class PostcodeController @Inject()(
-                                       val controllerComponents: ControllerComponents,
-                                       conf : DemouiConfigModule,
-                                       override val messagesApi: MessagesApi,
-                                       langs: Langs,
-                                       apiClient: AddressIndexClientInstance,
-                                       classHierarchy: ClassHierarchy,
-                                       version: DemoUIAddressIndexVersionModule
-                                     )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
+                                    val controllerComponents: ControllerComponents,
+                                    conf: DemouiConfigModule,
+                                    override val messagesApi: MessagesApi,
+                                    langs: Langs,
+                                    apiClient: AddressIndexClientInstance,
+                                    classHierarchy: ClassHierarchy,
+                                    version: DemoUIAddressIndexVersionModule
+                                  )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
 
   implicit val lang: Lang = langs.availables.head
 
@@ -74,7 +75,7 @@ class PostcodeController @Inject()(
     val addressText = optAddress.getOrElse("")
     val optFilter: Option[String] = Try(request.body.asFormUrlEncoded.get("filter").mkString).toOption
     val filterText = optFilter.getOrElse("")
-    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
+    val historical: Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     val epochVal: Option[String] = Try(request.body.asFormUrlEncoded.get("epoch").mkString).toOption
@@ -110,8 +111,8 @@ class PostcodeController @Inject()(
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(postcode)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
-      val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
-      val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
+      val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
+      val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
       val limit = pageSize.toString()
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
@@ -149,7 +150,7 @@ class PostcodeController @Inject()(
             epoch = epochVal
           )
         } map { resp: AddressByPostcodeResponseContainer =>
-          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText,filterText, historicalValue, startDateVal, endDateVal))
+          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText, filterText, historicalValue, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.addresses.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap

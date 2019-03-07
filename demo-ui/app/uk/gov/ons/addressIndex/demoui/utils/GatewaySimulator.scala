@@ -26,11 +26,12 @@ object GatewaySimulator {
 
   /**
     * Return an API key unless Mr. Robot is hacking us
+    *
     * @param username
     * @param password
     * @return
     */
-  def getApiKey (username: String, password: String): GatewayResponse = {
+  def getApiKey(username: String, password: String): GatewayResponse = {
 
     logger.info(username + ":" + password)
     if (username == "MrRobot") authFailResponse else successResponse
@@ -38,11 +39,11 @@ object GatewaySimulator {
   }
 
   case class GatewayResponse(
-    status: String,
-    errorCode: String,
-    errorMessage: String,
-    key: String
-  )
+                              status: String,
+                              errorCode: String,
+                              errorMessage: String,
+                              key: String
+                            )
 
   object GatewayResponse {
     implicit lazy val GatewayResponseFormat: Format[GatewayResponse] = Json.format[GatewayResponse]

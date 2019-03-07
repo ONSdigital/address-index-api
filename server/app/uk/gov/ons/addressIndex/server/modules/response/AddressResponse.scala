@@ -6,31 +6,31 @@ import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 trait AddressResponse extends Response {
 
   def OffsetTooSmall(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,OffsetTooSmallAddressResponseError)
+    BadRequestTemplate(queryValues, OffsetTooSmallAddressResponseError)
   }
 
   def OffsetNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,OffsetNotNumericAddressResponseError)
+    BadRequestTemplate(queryValues, OffsetNotNumericAddressResponseError)
   }
 
   def OffsetTooLarge(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,OffsetTooLargeAddressResponseError)
+    BadRequestTemplate(queryValues, OffsetTooLargeAddressResponseError)
   }
 
   def LimitNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LimitNotNumericAddressResponseError)
+    BadRequestTemplate(queryValues, LimitNotNumericAddressResponseError)
   }
 
   def LimitTooLarge(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LimitTooLargeAddressResponseError)
+    BadRequestTemplate(queryValues, LimitTooLargeAddressResponseError)
   }
 
   def LimitTooSmall(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LimitTooSmallAddressResponseError)
+    BadRequestTemplate(queryValues, LimitTooSmallAddressResponseError)
   }
 
   def EmptySearch(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,EmptyQueryAddressResponseError)
+    BadRequestTemplate(queryValues, EmptyQueryAddressResponseError)
   }
 
 }

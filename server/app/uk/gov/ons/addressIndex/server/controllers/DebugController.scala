@@ -11,12 +11,12 @@ import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserMo
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-class DebugController@Inject()(val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  parser: ParserModule
-)(implicit ec: ExecutionContext) extends BaseController {
+class DebugController @Inject()(val controllerComponents: ControllerComponents,
+                                esRepo: ElasticsearchRepository,
+                                parser: ParserModule
+                               )(implicit ec: ExecutionContext) extends BaseController {
 
-  implicit object DebugShow extends Show[SearchDefinition]{
+  implicit object DebugShow extends Show[SearchDefinition] {
     override def show(req: SearchDefinition): String = SearchBodyBuilderFn(req).string()
   }
 
@@ -35,12 +35,13 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
 
   /**
     * Outputs query that should be generated for a particular input
+    *
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
   def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None,
-    //startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None, epoch: Option[String]): Action[AnyContent] = Action { implicit req =>
+                 //startDate: Option[String], endDate: Option[String],
+                 historical: Option[String] = None, epoch: Option[String]): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val filterString = classificationfilter.getOrElse("")
@@ -60,7 +61,7 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
 
     val epochVal = epoch.getOrElse("")
 
-    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString, startDateVal, endDateVal, None, hist, isBulk=false, epochVal)
+    val query = esRepo.generateQueryAddressRequest(tokens, filterString, rangeString, latString, lonString, startDateVal, endDateVal, None, hist, isBulk = false, epochVal)
     val showQuery = DebugShow.show(query)
     Ok(Json.parse(showQuery))
   }

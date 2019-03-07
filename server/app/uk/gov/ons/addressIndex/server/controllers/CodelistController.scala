@@ -6,15 +6,15 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.codelists.{AddressResponseCodelist, AddressResponseCodelistListContainer}
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.VersionModule
+import uk.gov.ons.addressIndex.server.modules.response.Response
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CodelistController @Inject()(val controllerComponents: ControllerComponents,
-  versionProvider: VersionModule,
-)(implicit ec: ExecutionContext)
+                                   versionProvider: VersionModule,
+                                  )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with Response {
 
   /**
@@ -61,14 +61,15 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
     val custList = Tokens.custodianList.map { custval =>
+      val fields = custval.split(",")
 
       new AddressResponseCustodian(
-        custval.split(",").lift(0).getOrElse(""),
-        custval.split(",").lift(1).getOrElse(""),
-        custval.split(",").lift(2).getOrElse(""),
-        custval.split(",").lift(3).getOrElse(""),
-        custval.split(",").lift(4).getOrElse(""),
-        custval.split(",").lift(5).getOrElse("")
+        fields.lift(0).getOrElse(""),
+        fields.lift(1).getOrElse(""),
+        fields.lift(2).getOrElse(""),
+        fields.lift(3).getOrElse(""),
+        fields.lift(4).getOrElse(""),
+        fields.lift(5).getOrElse("")
       )
     }
 

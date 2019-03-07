@@ -1,10 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
+import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
+import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.testkit._
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
@@ -13,6 +12,7 @@ import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.parsers.Tokens
+import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,16 +38,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
-  val hybridRelSibArray = List(6L,7L)
-  val hybridRelParArray = List(8L,9L)
+  val hybridRelSibArray = List(6L, 7L)
+  val hybridRelParArray = List(8L, 9L)
 
-  val firstHybridRelEs: Map[String,Any] = Map(
+  val firstHybridRelEs: Map[String, Any] = Map(
     "level" -> hybridRelLevel,
     "siblings" -> hybridRelSibArray,
     "parents" -> hybridRelParArray
   )
 
-  val secondHybridRelEs: Map[String,Any] = Map(
+  val secondHybridRelEs: Map[String, Any] = Map(
     "level" -> hybridRelLevel,
     "siblings" -> hybridRelSibArray,
     "parents" -> hybridRelParArray
@@ -58,12 +58,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridCrossRefReference2 = "acrossref"
   val hybridCrossRefSource2 = "7663TU"
 
-  val firstHybridCrossRefEs: Map[String,Any] = Map(
+  val firstHybridCrossRefEs: Map[String, Any] = Map(
     "crossReference" -> hybridCrossRefReference,
     "source" -> hybridCrossRefSource
   )
 
-  val secondHybridCrossRefEs: Map[String,Any] = Map(
+  val secondHybridCrossRefEs: Map[String, Any] = Map(
     "crossReference" -> hybridCrossRefReference2,
     "source" -> hybridCrossRefSource2
   )
@@ -94,29 +94,29 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridMixedNag = "mixedNag"
 
   // Fields that are not in this list are not used for search
-  val hybridNagUprn = hybridPafUprn
-  val hybridNagPostcodeLocator = hybridPafPostcode
+  val hybridNagUprn: Long = hybridPafUprn
+  val hybridNagPostcodeLocator: String = hybridPafPostcode
   val hybridNagPaoStartNumber: Short = 13.toShort
-  val hybridNagPaoStartSuffix = "h11"
+  val hybridNagPaoStartSuffix: String = "h11"
   val hybridNagPaoEndNumber: Short = 12.toShort
-  val hybridNagPaoEndSuffix = "h14"
+  val hybridNagPaoEndSuffix: String = "h14"
   val hybridNagSaoStartNumber: Short = 15.toShort
-  val hybridNagSaoStartSuffix = "h16"
+  val hybridNagSaoStartSuffix: String = "h16"
   val hybridNagSaoEndNumber: Short = 17.toShort
-  val hybridNagSaoEndSuffix = "h18"
-  val hybridNagLocality = "h20"
-  val hybridNagOrganisation = hybridPafOrganisationName
-  val hybridNagLegalName = hybridPafOrganisationName
-  val hybridNagSaoText = hybridPafSubBuildingName
-  val hybridNagPaoText = hybridPafBuildingName
-  val hybridNagStreetDescriptor = hybridPafThoroughfare
-  val hybridNagTownName = hybridPafPostTown
-  val hybridNagLatitude = 1.0000000f
-  val hybridNagLongitude = -2.0000000f
-  val hybridNagNorthing = 3f
-  val hybridNagEasting = 4f
-  val hybridNagCustCode = "1110"
-  val hybridNagCustName = "Exeter"
+  val hybridNagSaoEndSuffix: String = "h18"
+  val hybridNagLocality: String = "h20"
+  val hybridNagOrganisation: String = hybridPafOrganisationName
+  val hybridNagLegalName: String = hybridPafOrganisationName
+  val hybridNagSaoText: String = hybridPafSubBuildingName
+  val hybridNagPaoText: String = hybridPafBuildingName
+  val hybridNagStreetDescriptor: String = hybridPafThoroughfare
+  val hybridNagTownName: String = hybridPafPostTown
+  val hybridNagLatitude: Float = 1.0000000f
+  val hybridNagLongitude: Float = -2.0000000f
+  val hybridNagNorthing: Float = 3f
+  val hybridNagEasting: Float = 4f
+  val hybridNagCustCode: String = "1110"
+  val hybridNagCustName: String = "Exeter"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -128,14 +128,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
   // Fields with this value are not used in the search and are, thus, irrelevant
   val hybridNotUsed = ""
-  val hybridNotUsedNull = null
+  val hybridNotUsedNull: Null = null
 
   // Secondary PAF/NAG is used for single search (to have some "concurrence" for the main address)
   // and in the Multi Search
   val hybridSecondaryUprn = 2L
   val hybridSecondaryParentUprn = 4L
-  val hybridSecondaryRelative = secondHybridRelEs
-  val hybridSecondaryCrossref = secondHybridCrossRefEs
+  val hybridSecondaryRelative: Map[String, Any] = secondHybridRelEs
+  val hybridSecondaryCrossref: Map[String, Any] = secondHybridCrossRefEs
   val hybridSecondaryPostcodeIn = "s01p"
   val hybridSecondaryPostcodeOut = "s02p"
 
@@ -152,8 +152,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondaryHybridAll = "s200"
 
   // Fields that are not in this list are not used for search
-  val secondaryHybridNagUprn = secondaryHybridPafUprn
-  val secondaryHybridNagPostcodeLocator = secondaryHybridPafPostcode
+  val secondaryHybridNagUprn: Long = secondaryHybridPafUprn
+  val secondaryHybridNagPostcodeLocator: String = secondaryHybridPafPostcode
   val secondaryHybridNagPaoStartNumber: Short = 20.toShort
   val secondaryHybridNagPaoStartSuffix = "s11"
   val secondaryHybridNagPaoEndNumber: Short = 21.toShort
@@ -163,12 +163,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondaryHybridNagSaoEndNumber: Short = 23.toShort
   val secondaryHybridNagSaoEndSuffix = "s18"
   val secondaryHybridNagLocality = "s20"
-  val secondaryHybridNagOrganisation = secondaryHybridPafOrganisationName
-  val secondaryHybridNagLegalName = secondaryHybridPafOrganisationName
-  val secondaryHybridNagSaoText = secondaryHybridPafSubBuildingName
-  val secondaryHybridNagPaoText = secondaryHybridPafBuildingName
-  val secondaryHybridNagStreetDescriptor = secondaryHybridPafThoroughfare
-  val secondaryHybridNagTownName = secondaryHybridPafPostTown
+  val secondaryHybridNagOrganisation: String = secondaryHybridPafOrganisationName
+  val secondaryHybridNagLegalName: String = secondaryHybridPafOrganisationName
+  val secondaryHybridNagSaoText: String = secondaryHybridPafSubBuildingName
+  val secondaryHybridNagPaoText: String = secondaryHybridPafBuildingName
+  val secondaryHybridNagStreetDescriptor: String = secondaryHybridPafThoroughfare
+  val secondaryHybridNagTownName: String = secondaryHybridPafPostTown
   val secondaryHybridNagLatitude = 7.0000000f
   val secondaryHybridNagLongitude = 8.0000000f
   val secondaryHybridNagNorthing = 10f
@@ -176,7 +176,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val secondardyHybridNagLocalCustodianName = "Exeter"
   val secondardyHybridNagLocalCustodianCode = "1110"
 
-  val firstHybridPafEs = Map[String,Any](
+  val firstHybridPafEs: Map[String, Any] = Map[String, Any](
     "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
     "proOrder" -> hybridNotUsedNull,
@@ -211,7 +211,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
-  val secondHybridPafEs = Map[String,Any](
+  val secondHybridPafEs: Map[String, Any] = Map[String, Any](
     "recordIdentifier" -> hybridNotUsedNull,
     "changeType" -> hybridNotUsed,
     "proOrder" -> hybridNotUsedNull,
@@ -240,7 +240,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "startDate" -> hybridNotUsed,
     "endDate" -> hybridNotUsed,
     "lastUpdateDate" -> hybridNotUsed,
-    "entryDate" ->hybridNotUsed,
+    "entryDate" -> hybridNotUsed,
     "pafAll" -> secondaryHybridAll,
     "mixedPaf" -> hybridMixedPaf,
     "mixedWelshPaf" -> hybridMixedWelshPaf
@@ -291,8 +291,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "multiOccCount" -> hybridNotUsedNull,
     "location" -> List(hybridNagLongitude, hybridNagLatitude),
     "language" -> hybridNotUsed,
-    "localCustodianCode" ->  secondardyHybridNagLocalCustodianCode,
-    "localCustodianName" ->  secondardyHybridNagLocalCustodianName,
+    "localCustodianCode" -> secondardyHybridNagLocalCustodianCode,
+    "localCustodianName" -> secondardyHybridNagLocalCustodianName,
     "localCustodianGeogCode" -> hybridNotUsedNull,
     "rpc" -> hybridNotUsedNull,
     "nagAll" -> hybridAll,
@@ -371,7 +371,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "classificationCode" -> hybridFirstClassificationCode
   )
 
-  val firstHybridHistEs:Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
+  val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
 
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
@@ -401,7 +401,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
-  testClient.execute{
+  testClient.execute {
     createIndex(hybridIndexName)
       .mappings(MappingDefinition.apply(hybridMappings))
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
@@ -409,7 +409,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       ))
   }.await
 
-  testClient.execute{
+  testClient.execute {
     createIndex(hybridIndexHistoricalName)
       .mappings(MappingDefinition.apply(hybridMappings))
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
@@ -554,18 +554,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     lpiEndDate = hybridEndDate
   )
 
-  val expectedRelative = Relative (
+  val expectedRelative = Relative(
     level = hybridRelLevel,
     siblings = hybridRelSibArray,
     parents = hybridRelParArray
   )
 
-  val expectedCrossRef = CrossRef (
+  val expectedCrossRef = CrossRef(
     crossReference = hybridCrossRefReference,
     source = hybridCrossRefSource
   )
 
-  val expectedCrossRef2 = CrossRef (
+  val expectedCrossRef2 = CrossRef(
     crossReference = hybridCrossRefReference2,
     source = hybridCrossRefSource2
   )
@@ -622,7 +622,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedHybridHist:HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
+  val expectedHybridHist: HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
 
   val partialInput = "7 Gate Re"
   val partialInputWithout = "Gate Re"
@@ -652,7 +652,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryUprnRequest(hybridFirstUprn.toString, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryUprnRequest(hybridFirstUprn.toString, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -806,7 +806,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -882,7 +882,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "",fallback = true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -1003,7 +1003,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -1123,7 +1123,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31", fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "2013-01-01", "2013-12-31", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -1206,7 +1206,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPostcodeRequest("h4", "residential", "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPostcodeRequest("h4", "residential", "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -1318,7 +1318,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPostcodeRequest("h4", "residential", "2013-01-01", "2013-12-31", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPostcodeRequest("h4", "residential", "2013-01-01", "2013-12-31", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -1337,7 +1337,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"","",defaultLat,defaultLon,epoch="").await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10, "", "", defaultLat, defaultLon, epoch = "").await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -1573,7 +1573,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, "", "10", defaultLat, defaultLon, hybridStartDate, hybridEndDate, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, "", "10", defaultLat, defaultLon, hybridStartDate, hybridEndDate, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -1587,7 +1587,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10,"","",defaultLat,defaultLon, epoch="").await
+      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10, "", "", defaultLat, defaultLon, epoch = "").await
 
       // Then
       results.length shouldBe 0
@@ -1668,7 +1668,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, "", "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2443,7 +2443,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,"","",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, "", "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2474,7 +2474,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val results = repository.queryBulk(inputs, limit = 1, matchThreshold = 5F).await
-      val addresses = results.collect{
+      val addresses = results.collect {
         case Right(address) => address
       }.flatten
 
@@ -2511,7 +2511,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val results = repository.queryBulk(inputs, limit = 1, "2013-01-01", "2013-12-31", matchThreshold = 5F).await
-      val addresses = results.collect{
+      val addresses = results.collect {
         case Right(address) => address
       }.flatten
 
@@ -2541,7 +2541,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val results = repository.queryBulk(inputs, limit=1, matchThreshold=5F).await
+      val results = repository.queryBulk(inputs, limit = 1, matchThreshold = 5F).await
       val addresses = results.collect {
         case Right(address) => address
       }.flatten
@@ -2638,7 +2638,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, filters, "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2728,7 +2728,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, filters, "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2816,7 +2816,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, filters, "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2904,7 +2904,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, filters, "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2992,7 +2992,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, filters, "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3062,7 +3062,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterNone, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterNone, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3131,7 +3131,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterNone, "", "", fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterNone, "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3173,7 +3173,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterNone, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterNone, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3214,12 +3214,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterNone, "", "",fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterNone, "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
     }
-
 
 
     "generate valid query for search via partial endpoint - term with house number and exact filter" in {
@@ -3291,7 +3290,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterCode, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterCode, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3366,7 +3365,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterCode, "", "", fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterCode, "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3443,7 +3442,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterPrefix, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInput, partialFilterPrefix, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3519,7 +3518,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterPrefix, "", "", fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputFallback, partialFilterPrefix, "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3566,7 +3565,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterCode, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterCode, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3612,7 +3611,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterCode, "", "", fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterCode, "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3661,7 +3660,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterPrefix, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithout, partialFilterPrefix, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -3709,7 +3708,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterPrefix, "", "", fallback=true, epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest(partialInputWithoutFallback, partialFilterPrefix, "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -4501,7 +4500,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       """.stripMargin)
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens,filters,"",defaultLat,defaultLon, "", "", epoch="")).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryAddressRequest(tokens, filters, "", defaultLat, defaultLon, "", "", epoch = "")).string())
 
       // Then
       result shouldBe expected

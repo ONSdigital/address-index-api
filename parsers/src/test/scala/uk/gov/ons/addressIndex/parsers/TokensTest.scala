@@ -7,7 +7,7 @@ class TokensTest extends FlatSpec with Matchers {
   it should "produce `Tokens` for the given string `31 exeter close` splitting on whitespace" in {
     val input = "31 exeter close"
     val expected = Seq("31", "EXETER", "CLOSE")
-    val actual  = Tokens.preTokenize(input)
+    val actual = Tokens.preTokenize(input)
     actual shouldBe expected
   }
 

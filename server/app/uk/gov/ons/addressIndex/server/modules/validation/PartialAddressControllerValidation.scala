@@ -16,7 +16,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   extends AddressControllerValidation with PartialAddressControllerResponse {
 
   // set minimum string length from config
-  val minimumTermLength = conf.config.elasticSearch.minimumPartial
+  val minimumTermLength: Int = conf.config.elasticSearch.minimumPartial
 
   // override error message with named length
   object ShortQueryAddressResponseErrorCustom extends AddressResponseError(

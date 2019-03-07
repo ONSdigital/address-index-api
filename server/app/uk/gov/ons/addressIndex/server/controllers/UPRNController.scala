@@ -18,12 +18,12 @@ import scala.util.control.NonFatal
 
 @Singleton
 class UPRNController @Inject()(val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  conf: ConfigModule,
-  versionProvider: VersionModule,
-  overloadProtection: APIThrottler,
-  uprnValidation: UPRNControllerValidation
-)(implicit ec: ExecutionContext)
+                               esRepo: ElasticsearchRepository,
+                               conf: ConfigModule,
+                               versionProvider: VersionModule,
+                               overloadProtection: APIThrottler,
+                               uprnValidation: UPRNControllerValidation
+                              )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:UPRNController")
@@ -35,8 +35,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @return
     */
   def uprnQuery(uprn: String,
-   // startDate: Option[String] = None, endDate: Option[String] = None,
-    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                // startDate: Option[String] = None, endDate: Option[String] = None,
+                historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -54,8 +54,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val epochVal = epoch.getOrElse("")
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
+    // val startDateVal = startDate.getOrElse("")
+    // val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -64,14 +64,14 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation =  if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
 
 
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-      //  startDate = startDateVal, endDate = endDateVal,
-        historical = hist, epoch = epochVal, verbose = verb, badRequestMessage=badRequestErrorMessage,
+        // startDate = startDateVal, endDate = endDateVal,
+        historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -87,8 +87,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Future[Result]] =
       uprnValidation.validateUprn(uprn, queryValues)
-  //      .orElse(uprnValidation.validateStartDate(startDateVal))
-   //     .orElse(uprnValidation.validateEndDate(endDateVal))
+        // .orElse(uprnValidation.validateStartDate(startDateVal))
+        // .orElse(uprnValidation.validateEndDate(endDateVal))
         .orElse(uprnValidation.validateSource(queryValues))
         .orElse(uprnValidation.validateKeyStatus(queryValues))
         .orElse(uprnValidation.validateEpoch(queryValues))
@@ -101,7 +101,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
       case _ =>
 
-        if (verb==false) {
+        if (!verb) {
 
           val request: Future[Option[HybridAddressSkinny]] = overloadProtection.breaker.withCircuitBreaker(
             esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist, epochVal)
@@ -160,7 +160,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
               }
           }
-        }else {
+        } else {
 
           val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
             esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, epochVal)
@@ -169,7 +169,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           request.map {
             case Some(hybridAddress) =>
 
-              val address = AddressResponseAddress.fromHybridAddress(hybridAddress,verb)
+              val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb)
 
               writeLog(
                 formattedOutput = address.formattedAddressNag, numOfResults = "1",

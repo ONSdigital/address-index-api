@@ -15,19 +15,19 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   // The batch does not use Futures for the validation so we have to override the address ones to return the
   // error without a Future wrapping.
 
-//  def validateBatchStartDate(startDate: String) : Option[Result] = {
-//    if (super.invalidDate(startDate)) {
-//      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
-//      Some(jsonBadRequest(StartDateInvalid))
-//    } else None
-//  }
-//
-//  def validateBatchEndDate(endDate: String) : Option[Result] = {
-//    if (super.invalidDate(endDate)) {
-//      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
-//      Some(jsonBadRequest(EndDateInvalid))
-//    } else None
-//  }
+  //  def validateBatchStartDate(startDate: String) : Option[Result] = {
+  //    if (super.invalidDate(startDate)) {
+  //      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
+  //      Some(jsonBadRequest(StartDateInvalid))
+  //    } else None
+  //  }
+  //
+  //  def validateBatchEndDate(endDate: String) : Option[Result] = {
+  //    if (super.invalidDate(endDate)) {
+  //      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
+  //      Some(jsonBadRequest(EndDateInvalid))
+  //    } else None
+  //  }
 
   def validateBatchSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
 
@@ -69,7 +69,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     val maxLimit: Int = conf.config.elasticSearch.maximumLimit
 
     if (limitInvalid) {
-      logger.systemLog(badRequestMessage =LimitNotNumericAddressResponseError.message)
+      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
       Some(jsonBadRequest(LimitNotNumeric(queryValues)))
     } else if (limitInt < 1) {
       logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
@@ -102,8 +102,8 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     val epochVal: String = epoch.getOrElse("")
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+    if (!epochVal.isEmpty) {
+      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(jsonBadRequest(EpochInvalid(queryValues)))
       } else None

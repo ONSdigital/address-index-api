@@ -8,23 +8,22 @@ import scala.util.Try
 
 /**
   * DTO object containing hybrid address returned from ES
-  * @param uprn address's upn
-  * @param lpi list of corresponding nag addresses
-  * @param paf list of corresponding paf addresses
+  *
+  * @param uprn  address's upn
+  * @param lpi   list of corresponding nag addresses
+  * @param paf   list of corresponding paf addresses
   * @param score score of the address in the returned ES result
   */
-case class HybridAddress(
-  uprn: String,
-  parentUprn: String,
-  relatives: Seq[Relative],
-  crossRefs: Seq[CrossRef],
-  postcodeIn: String,
-  postcodeOut: String,
-  lpi: Seq[NationalAddressGazetteerAddress],
-  paf: Seq[PostcodeAddressFileAddress],
-  score: Float,
-  classificationCode: String
-)
+case class HybridAddress(uprn: String,
+                         parentUprn: String,
+                         relatives: Seq[Relative],
+                         crossRefs: Seq[CrossRef],
+                         postcodeIn: String,
+                         postcodeOut: String,
+                         lpi: Seq[NationalAddressGazetteerAddress],
+                         paf: Seq[PostcodeAddressFileAddress],
+                         score: Float,
+                         classificationCode: String)
 
 object HybridAddress {
 
@@ -53,11 +52,11 @@ object HybridAddress {
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
       * Used for the elastic4s library
+      *
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
     override def read(hit: Hit): Either[Throwable, HybridAddress] = {
-
       val cRefs: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
@@ -93,19 +92,17 @@ object HybridAddress {
 
 /**
   * Contains the result of an ES query
+  *
   * @param addresses returned hybrid addresses
-  * @param maxScore maximum score among all of the found addresses
-  *                 (even those that are not in the list because of the limit)
-  * @param total total number of all of the addresses regardless of the limit
+  * @param maxScore  maximum score among all of the found addresses
+  *                  (even those that are not in the list because of the limit)
+  * @param total     total number of all of the addresses regardless of the limit
   */
-case class HybridAddresses(
-  addresses: Seq[HybridAddress],
-  maxScore: Double,
-  total: Long
-)
+case class HybridAddresses(addresses: Seq[HybridAddress],
+                           maxScore: Double,
+                           total: Long)
 
 object HybridAddresses {
-
   def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddresses = {
     resp match {
       case Left(l) => throw new Exception("search failed - " + l.error.reason)
@@ -124,7 +121,7 @@ object HybridAddresses {
     */
   def fromSearchResponse(response: SearchResponse): HybridAddresses = {
 
-     if (response.shards.failed > 0)
+    if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 
     val total = response.totalHits

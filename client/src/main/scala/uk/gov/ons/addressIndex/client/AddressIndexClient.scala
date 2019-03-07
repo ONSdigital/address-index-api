@@ -3,16 +3,16 @@ package uk.gov.ons.addressIndex.client
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest}
 import uk.gov.ons.addressIndex.client.AddressIndexClientHelper.{AddressIndexServerHost, AddressQuery, Bulk, PartialQuery, PostcodeQuery, ShowQuery, UprnQuery, VersionQuery}
+import uk.gov.ons.addressIndex.model._
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponseContainer, AddressResponseVersion}
-import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
-import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseContainer
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
-import uk.gov.ons.addressIndex.model._
+import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
 
-import scala.language.implicitConversions
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 trait AddressIndexClient {
 
@@ -29,14 +29,14 @@ trait AddressIndexClient {
   protected implicit lazy val iClient: WSClient = client
   protected implicit lazy val iHost: AddressIndexServerHost = host
 
-   /**
+  /**
     * perform an address search query
     *
     * @param request the request
     * @return a list of addresses
     */
   def addressQuery(request: AddressIndexSearchRequest)
-    (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
+                  (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     addressQueryWSRequest(request)
       .get
       .map(_.json.as[AddressBySearchResponseContainer])
@@ -76,10 +76,10 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def postcodeQuery(request: AddressIndexPostcodeRequest)
-    (implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] = {
-      postcodeQueryWSRequest(request)
-        .get
-        .map(_.json.as[AddressByPostcodeResponseContainer])
+                   (implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] = {
+    postcodeQueryWSRequest(request)
+      .get
+      .map(_.json.as[AddressByPostcodeResponseContainer])
   }
 
   /**
@@ -110,7 +110,7 @@ trait AddressIndexClient {
     * @return a list of addresses
     */
   def partialQuery(request: AddressIndexPartialRequest)
-    (implicit ec: ExecutionContext): Future[AddressByPartialAddressResponseContainer] = {
+                  (implicit ec: ExecutionContext): Future[AddressByPartialAddressResponseContainer] = {
     partialQueryWSRequest(request)
       .get
       .map(_.json.as[AddressByPartialAddressResponseContainer])
@@ -160,7 +160,7 @@ trait AddressIndexClient {
     * @return an address
     */
   def uprnQuery(request: AddressIndexUPRNRequest)
-                  (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
+               (implicit ec: ExecutionContext): Future[AddressByUprnResponseContainer] = {
     uprnQueryWSRequest(request)
       .withHttpHeaders("authorization" -> request.apiKey)
       .withQueryStringParameters(
@@ -211,7 +211,7 @@ object AddressIndexClientHelper {
   sealed abstract class AddressIndexPath(val path: String, val method: String)
 
   implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)
-    (implicit client: WSClient, host: AddressIndexServerHost) {
+                                              (implicit client: WSClient, host: AddressIndexServerHost) {
     def toReq(): WSRequest = {
       client url s"${host.value}${p.path}" withMethod p.path
     }
@@ -280,4 +280,5 @@ object AddressIndexClientHelper {
     path = "/query-debug",
     method = "GET"
   )
+
 }

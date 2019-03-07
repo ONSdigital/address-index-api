@@ -14,17 +14,18 @@ import play.api.libs.json.{Format, Json}
   * @param localityScoreDebug
   * @param unitScoreDebug
   */
-case class AddressResponseScore (
-  objectScore: Double,
-  structuralScore: Double,
-  buildingScore: Double,
-  localityScore: Double,
-  unitScore: Double,
-  buildingScoreDebug: String,
-  localityScoreDebug: String,
-  unitScoreDebug: String,
-  ambiguityPenalty: Double
-)
+case class AddressResponseScore(
+                                 objectScore: Double,
+                                 structuralScore: Double,
+                                 buildingScore: Double,
+                                 localityScore: Double,
+                                 unitScore: Double,
+                                 buildingScoreDebug: String,
+                                 localityScoreDebug: String,
+                                 unitScoreDebug: String,
+                                 ambiguityPenalty: Double
+                               )
+
 object AddressResponseScore {
   implicit lazy val addressResponseScoreFormat: Format[AddressResponseScore] = Json.format[AddressResponseScore]
 }

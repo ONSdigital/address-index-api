@@ -15,7 +15,7 @@ object ConfigLoader {
 
   lazy val apiSpecificConfigName: String = System.getProperty("CONFIG_NAME", "generic_get_request")
 
-  def apply(configurationKey: String, defaultValue:String = ""): String = {
+  def apply(configurationKey: String, defaultValue: String = ""): String = {
     val configValue = config.getString(apiSpecificConfigName + "." + configurationKey)
 
     if (!configValue.isEmpty)

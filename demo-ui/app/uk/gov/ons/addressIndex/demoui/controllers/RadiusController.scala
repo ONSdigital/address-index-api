@@ -21,21 +21,22 @@ import scala.util.Try
 
 /**
   * Controller class for a postcode to be matched
-  * @param conf           conf
-  * @param messagesApi    messageApi
-  * @param apiClient      apiClient
-  * @param ec             ec
+  *
+  * @param conf        conf
+  * @param messagesApi messageApi
+  * @param apiClient   apiClient
+  * @param ec          ec
   */
 @Singleton
 class RadiusController @Inject()(
-                                    val controllerComponents: ControllerComponents,
-                                    conf : DemouiConfigModule,
-                                    override val messagesApi: MessagesApi,
-                                    langs: Langs,
-                                    apiClient: AddressIndexClientInstance,
-                                    classHierarchy: ClassHierarchy,
-                                    version: DemoUIAddressIndexVersionModule
-                                  )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
+                                  val controllerComponents: ControllerComponents,
+                                  conf: DemouiConfigModule,
+                                  override val messagesApi: MessagesApi,
+                                  langs: Langs,
+                                  apiClient: AddressIndexClientInstance,
+                                  classHierarchy: ClassHierarchy,
+                                  version: DemoUIAddressIndexVersionModule
+                                )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
 
   implicit val lang: Lang = langs.availables.head
 
@@ -80,7 +81,7 @@ class RadiusController @Inject()(
     val latText = optLat.getOrElse("")
     val optLon: Option[String] = Try(request.body.asFormUrlEncoded.get("lon").mkString).toOption
     val lonText = optLon.getOrElse("")
-    val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
+    val historical: Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     val optmatchthreshold: Option[Int] = Try(request.body.asFormUrlEncoded.get("matchthreshold").mkString.toInt).toOption
     val matchthresholdValue = optmatchthreshold.getOrElse(5)
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
@@ -113,7 +114,7 @@ class RadiusController @Inject()(
     */
   def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
 
-  val refererUrl = request.uri
+    val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
@@ -127,8 +128,8 @@ class RadiusController @Inject()(
       val historicalValue = historical.getOrElse(true)
       val epochVal = epoch.getOrElse("")
       val matchthresholdValue = matchthreshold.getOrElse(5)
-      val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
-      val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
+      val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
+      val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
         logger info "Radius Match with expected search term missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
@@ -164,7 +165,7 @@ class RadiusController @Inject()(
             epoch = epochVal
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText,filterText,rangeString,latString,lonString, historicalValue, startDateVal, endDateVal))
+          val filledForm = RadiusController.form.fill(RadiusSearchForm(addressText, filterText, rangeString, latString, lonString, historicalValue, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.addresses.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap

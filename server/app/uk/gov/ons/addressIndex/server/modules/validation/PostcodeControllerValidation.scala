@@ -12,15 +12,15 @@ import scala.concurrent.Future
 import scala.util.Try
 
 @Singleton
-class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule )
-    extends AddressValidation with PostcodeControllerResponse {
+class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
+  extends AddressValidation with PostcodeControllerResponse {
 
   override def LimitTooLargePostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(queryValues,LimitTooLargeAddressResponseErrorCustom)
+    BadRequestPostcodeTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
   }
 
   override def OffsetTooLargePostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(queryValues,OffsetTooLargeAddressResponseErrorCustom)
+    BadRequestPostcodeTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
   def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
@@ -49,7 +49,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     val filterString: String = classificationfilter.getOrElse("")
 
     if (!filterString.isEmpty) {
-      if (filterString.contains("*") && filterString.contains(",")){
+      if (filterString.contains("*") && filterString.contains(",")) {
         logger.systemLog(badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(PostcodeMixedFilter(queryValues)))
       }
@@ -92,8 +92,8 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   // set minimum string length from config
-  val validEpochs = conf.config.elasticSearch.validEpochs
-  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+  val validEpochs: String = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -102,16 +102,16 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   )
 
   override def PostcodeEpochInvalid(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(queryValues,EpochNotAvailableErrorCustom)
+    BadRequestPostcodeTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
 
     val epochVal: String = queryValues.epochOrDefault
 
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch=epochVal, postcode=queryValues.postcodeOrDefault)
+    if (!epochVal.isEmpty) {
+      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch = epochVal, postcode = queryValues.postcodeOrDefault)
         Some(futureJsonBadRequest(PostcodeEpochInvalid(queryValues)))
       } else None
     } else None

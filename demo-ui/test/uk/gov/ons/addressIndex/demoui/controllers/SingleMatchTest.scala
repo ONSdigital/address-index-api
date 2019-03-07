@@ -26,7 +26,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Search for an address"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
@@ -56,7 +56,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<form action=\"/addresses/search\" method=\"POST\" >"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
@@ -86,7 +86,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter an address</span></div>"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
       // When
       val response = new SingleMatchController(
@@ -98,7 +98,7 @@ class SingleMatchTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-        .doMatch().apply(FakeRequest(POST,"/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+        .doMatch().apply(FakeRequest(POST, "/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -117,7 +117,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
       val inputAddress = "7 EX2 6GA"
       val filter = ""
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
@@ -130,7 +130,7 @@ class SingleMatchTest extends PlaySpec with Results {
         classHierarchy,
         expandedRels,
         version)
-      .doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -149,7 +149,7 @@ class SingleMatchTest extends PlaySpec with Results {
       val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "7 EX2 6GA"
       val filter = "RD"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When

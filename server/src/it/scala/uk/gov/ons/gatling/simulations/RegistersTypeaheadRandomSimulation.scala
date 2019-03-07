@@ -11,10 +11,10 @@ import scala.language.postfixOps
 
 class RegistersTypeaheadRandomSimulation extends Simulation {
 
-  val baseUrl: String = ConfigLoader("baseUrl").replace("partial/","")
+  val baseUrl: String = ConfigLoader("baseUrl").replace("partial/", "")
   val apiKey: String = ConfigLoader("apiKey")
   val duration: Int = ConfigLoader("duration") toInt
-  val limit: String = ConfigLoader("limit") 
+  val limit: String = ConfigLoader("limit")
   val requestRelPath = ConfigLoader("request_rel_path")
   val requestType = ConfigLoader("request_type")
   val requestName: String = ConfigLoader("request_name_prefix").stripSuffix(" ") + ": " + baseUrl + requestRelPath
@@ -40,7 +40,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
   // Get random address from other cluster, split up the address and capture UPRN
   // then user pause of 300ms between keystrokes, then get next partial from file
   // test for UPRN being in top 4, stop when it is
-  val scn: ScenarioBuilder  =
+  val scn: ScenarioBuilder =
   scenario(requestName)
     .exec(
       pause(300 millis)
@@ -96,7 +96,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
                   .set("part15", part15)
                   .set("part16", part16)
                   .set("uprn", uprnString)
-                  .set("match","x")
+                  .set("match", "x")
                 newsession
               })
 
@@ -104,44 +104,45 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
 
         }
     )
-// .foreach can't be used here so each part-address is a separate chain
+    // .foreach can't be used here so each part-address is a separate chain
     .exec(
-      pause(300 millis)
-        .exec(http("Typeahead")
-          .get(typeaheadPath + "${part1}" + "&limit=" + limit)
-          .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
-        .foreach("${uprns2}", "uprn2") {
-          exec(newsession => {
-            println(newsession("part1").as[String])
-            val uprnString1 = newsession("uprn").as[String]
-            val uprnString2 = newsession("uprn2").as[String]
-            val hit = if (uprnString1 == uprnString2) " => HIT (5 chars)" else "x"
-            val newsession2 = if (hit == "x") newsession else newsession.set("match", hit)
-            println(uprnString1 + ":" + uprnString2 + hit)
-            newsession2})
-        }
-    )
+    pause(300 millis)
+      .exec(http("Typeahead")
+        .get(typeaheadPath + "${part1}" + "&limit=" + limit)
+        .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
+      .foreach("${uprns2}", "uprn2") {
+        exec(newsession => {
+          println(newsession("part1").as[String])
+          val uprnString1 = newsession("uprn").as[String]
+          val uprnString2 = newsession("uprn2").as[String]
+          val hit = if (uprnString1 == uprnString2) " => HIT (5 chars)" else "x"
+          val newsession2 = if (hit == "x") newsession else newsession.set("match", hit)
+          println(uprnString1 + ":" + uprnString2 + hit)
+          newsession2
+        })
+      }
+  )
 
     // only execute the chain if no match has been found
     .doIfEquals("${match}", "x") {
-      exec(
-        pause(300 millis)
-          .exec(http("Typeahead")
-            .get(typeaheadPath + "${part2}" + "&limit=" + limit)
-            .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
-          .foreach("${uprns2}", "uprn2") {
-            exec(newsession => {
-              println(newsession("part2").as[String])
-              val uprnString1 = newsession("uprn").as[String]
-              val uprnString2 = newsession("uprn2").as[String]
-              val hit = if (uprnString1 == uprnString2) " => HIT (6 chars)" else "x"
-              val newsession3 = if (hit == "x") newsession else newsession.set("match", hit)
-              println(uprnString1 + ":" + uprnString2 + hit)
-              newsession3
-            })
-          }
-      )
-    }
+    exec(
+      pause(300 millis)
+        .exec(http("Typeahead")
+          .get(typeaheadPath + "${part2}" + "&limit=" + limit)
+          .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
+        .foreach("${uprns2}", "uprn2") {
+          exec(newsession => {
+            println(newsession("part2").as[String])
+            val uprnString1 = newsession("uprn").as[String]
+            val uprnString2 = newsession("uprn2").as[String]
+            val hit = if (uprnString1 == uprnString2) " => HIT (6 chars)" else "x"
+            val newsession3 = if (hit == "x") newsession else newsession.set("match", hit)
+            println(uprnString1 + ":" + uprnString2 + hit)
+            newsession3
+          })
+        }
+    )
+  }
     .doIfEquals("${match}", "x") {
       exec(
         pause(300 millis)
@@ -411,8 +412,8 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
 
   // give up if no match found at 20 characters
 
- // run as a single user with a pause between each address.
- // .repeat does not work around scenario with multiple chains, so this does 20 addresses with a time limit
+  // run as a single user with a pause between each address.
+  // .repeat does not work around scenario with multiple chains, so this does 20 addresses with a time limit
   setUp(scn.inject(
     atOnceUsers(1), nothingFor(10 seconds),
     atOnceUsers(1), nothingFor(10 seconds),

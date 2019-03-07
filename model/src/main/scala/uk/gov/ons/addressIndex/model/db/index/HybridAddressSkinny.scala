@@ -8,19 +8,18 @@ import scala.util.Try
 
 /**
   * DTO object containing hybrid address returned from ES
-  * @param uprn address's upn
-  * @param lpi list of corresponding nag addresses
-  * @param paf list of corresponding paf addresses
+  *
+  * @param uprn  address's upn
+  * @param lpi   list of corresponding nag addresses
+  * @param paf   list of corresponding paf addresses
   * @param score score of the address in the returned ES result
   */
-case class HybridAddressSkinny(
-                          uprn: String,
-                          parentUprn: String,
-                          lpi: Seq[NationalAddressGazetteerAddress],
-                          paf: Seq[PostcodeAddressFileAddress],
-                          score: Float,
-                          classificationCode: String
-                        )
+case class HybridAddressSkinny(uprn: String,
+                               parentUprn: String,
+                               lpi: Seq[NationalAddressGazetteerAddress],
+                               paf: Seq[PostcodeAddressFileAddress],
+                               score: Float,
+                               classificationCode: String)
 
 object HybridAddressSkinny {
 
@@ -33,6 +32,7 @@ object HybridAddressSkinny {
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
       * Used for the elastic4s library
+      *
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
@@ -61,16 +61,15 @@ object HybridAddressSkinny {
 
 /**
   * Contains the result of an ES query
+  *
   * @param addresses returned hybrid addresses
-  * @param maxScore maximum score among all of the found addresses
-  *                 (even those that are not in the list because of the limit)
-  * @param total total number of all of the addresses regardless of the limit
+  * @param maxScore  maximum score among all of the found addresses
+  *                  (even those that are not in the list because of the limit)
+  * @param total     total number of all of the addresses regardless of the limit
   */
-case class HybridAddressesSkinny(
-                            addresses: Seq[HybridAddressSkinny],
-                            maxScore: Double,
-                            total: Long
-                          )
+case class HybridAddressesSkinny(addresses: Seq[HybridAddressSkinny],
+                                 maxScore: Double,
+                                 total: Long)
 
 object HybridAddressesSkinny {
 

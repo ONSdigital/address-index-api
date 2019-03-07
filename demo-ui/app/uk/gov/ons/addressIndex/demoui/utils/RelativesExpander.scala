@@ -13,10 +13,10 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseC
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RelativesExpander @Inject ()(
-  apiClient: AddressIndexClient,
-  conf: DemouiConfigModule,
-)(implicit ec: ExecutionContext) {
+class RelativesExpander @Inject()(
+                                   apiClient: AddressIndexClient,
+                                   conf: DemouiConfigModule,
+                                 )(implicit ec: ExecutionContext) {
 
   def futExpandRelatives(apiKey: String, relatives: Seq[AddressResponseRelative]): Future[Seq[ExpandedRelative]] =
     Future.sequence(relatives.map(futExpandRelative(apiKey)))
@@ -53,17 +53,17 @@ class RelativesExpander @Inject ()(
   private def toExpandedSibling(uprn: Long)(addressOpt: Option[String]): ExpandedSibling =
     ExpandedSibling(uprn, addressOpt.getOrElse(uprn + "not found"))
 
-//  private def toMixedCase(container: AddressByUprnResponseContainer): Option[String] =
-//    container.response.address.map { ara =>
-//      addressToMixedCase(ara.formattedAddress)
-//    }
+  //  private def toMixedCase(container: AddressByUprnResponseContainer): Option[String] =
+  //    container.response.address.map { ara =>
+  //      addressToMixedCase(ara.formattedAddress)
+  //    }
 
   private def withUnchangedCase(container: AddressByUprnResponseContainer): Option[String] =
     container.response.address.map { ara =>
       ara.formattedAddress
     }
 
-  private [utils] def addressToMixedCase(ucAddress: String): String = {
+  private[utils] def addressToMixedCase(ucAddress: String): String = {
     ucAddress.substring(0, ucAddress.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") +
       ucAddress.substring(ucAddress.lastIndexOf(",") + 1, ucAddress.length)
   }

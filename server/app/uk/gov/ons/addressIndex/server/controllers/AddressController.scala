@@ -184,7 +184,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val newTotal = sortedAddresses.length
 
             // trim the result list according to offset and limit paramters
-            val limitedSortedAddresses = sortedAddresses.drop(offsetInt).take(limitInt)
+            val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
             // if verbose is false, strip out full address details (these are needed for score so must be
             // removed retrospectively)
@@ -229,15 +229,12 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen => {
+              case ThrottlerStatus.HalfOpen =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
-              }
-              case ThrottlerStatus.Open => {
+              case ThrottlerStatus.Open =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
-
-              }
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsError.message)

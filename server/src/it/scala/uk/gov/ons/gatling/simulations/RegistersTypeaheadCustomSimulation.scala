@@ -38,13 +38,13 @@ class RegistersTypeaheadCustomSimulation extends Simulation {
 
   // user pause of 300ms between keystrokes, then get next partial from file
   // requestRelpath is addresses/partial/ (no further)
-  val scn: ScenarioBuilder  =
-    scenario(requestName)
-      .pause(300 millis)
-      .feed(feeder)
-      .exec(http("Typeahead")
-        .get(requestRelPath + "${addresspart}")
-      )
+  val scn: ScenarioBuilder =
+  scenario(requestName)
+    .pause(300 millis)
+    .feed(feeder)
+    .exec(http("Typeahead")
+      .get(requestRelPath + "${addresspart}")
+    )
 
   setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
     .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))

@@ -10,10 +10,10 @@ object AddressResponseClassification {
 /**
   * Classification object for list
   *
-  * @param code Classification code
+  * @param code  Classification code
   * @param label Classification name
   */
 case class AddressResponseClassification(
-  code: String,
-  label: String
-)
+                                          code: String,
+                                          label: String
+                                        )

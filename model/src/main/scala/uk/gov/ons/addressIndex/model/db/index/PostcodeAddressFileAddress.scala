@@ -3,40 +3,38 @@ package uk.gov.ons.addressIndex.model.db.index
 /**
   * PAF Address DTO
   */
-case class PostcodeAddressFileAddress(
-  recordIdentifier: String,
-  changeType: String,
-  proOrder: String,
-  uprn: String,
-  udprn: String,
-  organisationName: String,
-  departmentName: String,
-  subBuildingName: String,
-  buildingName: String,
-  buildingNumber: String,
-  dependentThoroughfare: String,
-  thoroughfare: String,
-  doubleDependentLocality: String,
-  dependentLocality: String,
-  postTown: String,
-  postcode: String,
-  postcodeType: String,
-  deliveryPointSuffix: String,
-  welshDependentThoroughfare: String,
-  welshThoroughfare: String,
-  welshDoubleDependentLocality: String,
-  welshDependentLocality: String,
-  welshPostTown: String,
-  poBoxNumber: String,
-  processDate: String,
-  startDate: String,
-  endDate: String,
-  lastUpdateDate: String,
-  entryDate: String,
-  pafAll: String,
-  mixedPaf: String,
-  mixedWelshPaf: String
-)
+case class PostcodeAddressFileAddress(recordIdentifier: String,
+                                      changeType: String,
+                                      proOrder: String,
+                                      uprn: String,
+                                      udprn: String,
+                                      organisationName: String,
+                                      departmentName: String,
+                                      subBuildingName: String,
+                                      buildingName: String,
+                                      buildingNumber: String,
+                                      dependentThoroughfare: String,
+                                      thoroughfare: String,
+                                      doubleDependentLocality: String,
+                                      dependentLocality: String,
+                                      postTown: String,
+                                      postcode: String,
+                                      postcodeType: String,
+                                      deliveryPointSuffix: String,
+                                      welshDependentThoroughfare: String,
+                                      welshThoroughfare: String,
+                                      welshDoubleDependentLocality: String,
+                                      welshDependentLocality: String,
+                                      welshPostTown: String,
+                                      poBoxNumber: String,
+                                      processDate: String,
+                                      startDate: String,
+                                      endDate: String,
+                                      lastUpdateDate: String,
+                                      entryDate: String,
+                                      pafAll: String,
+                                      mixedPaf: String,
+                                      mixedWelshPaf: String)
 
 /**
   * PAF Address DTO companion object that also contains implicits needed for Elastic4s
@@ -82,10 +80,10 @@ object PostcodeAddressFileAddress {
     val mixedWelshPaf: String = "mixedWelshPaf"
   }
 
-  def fromEsMap (paf: Map[String, Any]): PostcodeAddressFileAddress = {
-    val filteredPaf = paf.filter { case (_, value) => value != null && value !="" }
+  def fromEsMap(paf: Map[String, Any]): PostcodeAddressFileAddress = {
+    val filteredPaf = paf.filter { case (_, value) => value != null && value != "" }
 
-    PostcodeAddressFileAddress (
+    PostcodeAddressFileAddress(
       recordIdentifier = filteredPaf.getOrElse(Fields.recordIdentifier, "").toString,
       changeType = filteredPaf.getOrElse(Fields.changeType, "").toString,
       proOrder = filteredPaf.getOrElse(Fields.proOrder, "").toString,
@@ -105,7 +103,7 @@ object PostcodeAddressFileAddress {
       postcodeType = filteredPaf.getOrElse(Fields.postcodeType, "").toString,
       deliveryPointSuffix = filteredPaf.getOrElse(Fields.deliveryPointSuffix, "").toString,
       welshDependentThoroughfare = filteredPaf.getOrElse(Fields.welshDependentThoroughfare, filteredPaf.getOrElse(Fields.dependentThoroughfare, "").toString).toString,
-      welshThoroughfare = filteredPaf.getOrElse(Fields.welshThoroughfare,filteredPaf.getOrElse(Fields.thoroughfare, "").toString ).toString,
+      welshThoroughfare = filteredPaf.getOrElse(Fields.welshThoroughfare, filteredPaf.getOrElse(Fields.thoroughfare, "").toString).toString,
       welshDoubleDependentLocality = filteredPaf.getOrElse(Fields.welshDoubleDependentLocality, filteredPaf.getOrElse(Fields.doubleDependentLocality, "").toString).toString,
       welshDependentLocality = filteredPaf.getOrElse(Fields.welshDependentLocality, filteredPaf.getOrElse(Fields.dependentLocality, "").toString).toString,
       welshPostTown = filteredPaf.getOrElse(Fields.welshPostTown, filteredPaf.getOrElse(Fields.postTown, "").toString).toString,

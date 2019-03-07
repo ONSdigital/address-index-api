@@ -55,8 +55,8 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
     val filterString: String = classificationfilter.getOrElse("")
 
-    if (!filterString.isEmpty){
-      if (filterString.contains("*") && filterString.contains(",")){
+    if (!filterString.isEmpty) {
+      if (filterString.contains("*") && filterString.contains(",")) {
         logger.systemLog(badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(AddressMixedFilter(queryValues)))
       }
@@ -96,8 +96,8 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   }
 
   // set minimum string length from config
-  val validEpochs = conf.config.elasticSearch.validEpochs
-  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+  val validEpochs: String = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -106,7 +106,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   )
 
   override def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,EpochNotAvailableErrorCustom)
+    BadRequestTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
@@ -114,8 +114,8 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     val epochVal: String = queryValues.epochOrDefault
     val validEpochs: String = conf.config.elasticSearch.validEpochs
 
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+    if (!epochVal.isEmpty) {
+      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(EpochInvalid(queryValues)))
       } else None

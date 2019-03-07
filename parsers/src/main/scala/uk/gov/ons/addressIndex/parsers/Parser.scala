@@ -6,12 +6,14 @@ import scala.annotation.tailrec
 
 /**
   * Main entry-point to parse input from user into tokens
+  *
   * @param tagger injected instance of a tagger (main instance should use native code)
   */
 class Parser(val tagger: CrfScalaJni) {
 
   /**
     * Parse user's input into labelised tokens
+    *
     * @param input user's input
     * @return map with label -> tokens relationship, where tokens is one or more tokens
     *         separated by space
@@ -46,6 +48,7 @@ object Parser {
 
   /**
     * Transforms tokens into CRF input (that will be sent to the tagger)
+    *
     * @param tokens tokens to be transformed
     * @return string ready to be sent to the CRF model
     */
@@ -67,9 +70,10 @@ object Parser {
   /**
     * Small data-holding object that could be replaced by a Tuple3, but this way
     * it's more readable
+    *
     * @param previous optional previous token
-    * @param current current token
-    * @param next optional next token
+    * @param current  current token
+    * @param next     optional next token
     */
   private[parsers] case class CrfLineData(previous: Option[String], current: String, next: Option[String])
 
@@ -104,9 +108,9 @@ object Parser {
     * current and the next token
     *
     * @param tokens a list of tokens from the input (including the first one, we need it
-    * to set the `previous` token for the second token)
+    *               to set the `previous` token for the second token)
     * @param result result storage (will be returned in the end). It should already
-    * (on the function call) contain the data structure for the first token
+    *               (on the function call) contain the data structure for the first token
     * @return list of `CrfLineData`s in which each element contains previous, current
     *         and the next token
     */
@@ -151,7 +155,7 @@ object Parser {
   /**
     * Constructs Crf string (string that contains all the features of the token)
     *
-    * @param token token to be analysed
+    * @param token  token to be analysed
     * @param prefix optional prefix for each feature (used for "previous" and "next" features)
     * @return string containing all the features of a token separated by tab, example:
     *         "business:0.0\tcompany:0.0\tdigits\\:all_digits:1.0\tdirectional:0.0\tendsinpunc:0.0
@@ -248,14 +252,14 @@ object Parser {
     * Postcode: 1.000000
     * Postcode: 1.000000
     *
-    * @param taggerResult result from the native code
+    * @param taggerResult  result from the native code
     * @param initialTokens initial tokens that will be mapped to the result labels
     * @return map containing label -> token. If there were more than one token per label,
     *         then the map will contain label -> token1 token2  (tokens are separated by space)
     */
   private[parsers] def parseTaggerResult(taggerResult: String, initialTokens: List[String]): Map[String, String] = {
 
-    val labels: Array[String] = taggerResult.split(linesSeparator).filter(_.nonEmpty).map{ label =>
+    val labels: Array[String] = taggerResult.split(linesSeparator).filter(_.nonEmpty).map { label =>
       label.split(':').headOption.getOrElse("NO LABEL") // the getOrElse part should not happen, but exception would be too restrictive
     }
 

@@ -8,33 +8,33 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   *
   * Container for relevant information on each of the address result in bulk search
   *
-  * @param id address's id provided in the input
-  * @param inputAddress input address
-  * @param uprn found address' uprn
+  * @param id                      address's id provided in the input
+  * @param inputAddress            input address
+  * @param uprn                    found address' uprn
   * @param matchedFormattedAddress formatted found address
-  * @param matchedAddress found address
-  * @param tokens tokens into which the input address was split
-  * @param score resulting address score
+  * @param matchedAddress          found address
+  * @param tokens                  tokens into which the input address was split
+  * @param score                   resulting address score
   */
 case class AddressBulkResponseAddress(
-  id: String,
-  inputAddress: String,
-  uprn: String,
-  matchedFormattedAddress: String,
-  matchedAddress: Option[AddressResponseAddress],
-  tokens: Map[String, String],
-  confidenceScore: Double,
-  underlyingScore: Float
-)
+                                       id: String,
+                                       inputAddress: String,
+                                       uprn: String,
+                                       matchedFormattedAddress: String,
+                                       matchedAddress: Option[AddressResponseAddress],
+                                       tokens: Map[String, String],
+                                       confidenceScore: Double,
+                                       underlyingScore: Float
+                                     )
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
   def fromBulkAddress(
-    bulkAddress: BulkAddress,
-    addressResponseAddress: AddressResponseAddress,
-    includeFullAddress: Boolean
-  ): AddressBulkResponseAddress = AddressBulkResponseAddress(
+                       bulkAddress: BulkAddress,
+                       addressResponseAddress: AddressResponseAddress,
+                       includeFullAddress: Boolean
+                     ): AddressBulkResponseAddress = AddressBulkResponseAddress(
     id = bulkAddress.id,
     inputAddress = bulkAddress.inputAddress,
     uprn = bulkAddress.hybridAddress.uprn,

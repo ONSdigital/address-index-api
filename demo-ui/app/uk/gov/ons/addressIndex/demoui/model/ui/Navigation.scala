@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.demoui.model.ui
 import play.api.i18n.Messages
 
 case class Navigation(links: Seq[Link])
+
 case class Link(href: String, label: String, section: String)
 
 object Links {
@@ -13,6 +14,7 @@ object Links {
       section = "single"
     )
   }
+
   def postcode(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.showPostcodeMatchPage.toString,
@@ -20,6 +22,7 @@ object Links {
       section = "postcode"
     )
   }
+
   def multi(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.bulkMatchPage.toString,
@@ -27,6 +30,7 @@ object Links {
       section = "multi"
     )
   }
+
   def clerical(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showSingleMatchPage.toString,
@@ -34,6 +38,7 @@ object Links {
       section = "clerical"
     )
   }
+
   def query(implicit messages: Messages) = {
     Link(
       href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.toString,
@@ -77,6 +82,7 @@ object Navigation {
       )
     )
   }
+
   def footer(implicit messages: Messages) = {
     Navigation(
       links = Seq(

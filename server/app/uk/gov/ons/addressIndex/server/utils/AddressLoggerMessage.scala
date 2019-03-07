@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 
-class AddressLoggerMessage(messg: String) extends APILoggerMessage {
-  val message: String = messg
+class AddressLoggerMessage(msg: String) extends APILoggerMessage {
+  val message: String = msg
 }
 
 object AddressLoggerMessage {

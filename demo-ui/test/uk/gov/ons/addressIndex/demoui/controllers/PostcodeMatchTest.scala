@@ -26,7 +26,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Search for an address by postcode"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new PostcodeController(
@@ -54,7 +54,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<form action=\"/postcode/search\" method=\"POST\" >"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new PostcodeController(
@@ -82,7 +82,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a postcode</span></div>"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new PostcodeController(
@@ -93,7 +93,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient,
         classHierarchy,
         version)
-        .doMatch().apply(FakeRequest(POST,"/postcode/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+        .doMatch().apply(FakeRequest(POST, "/postcode/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -113,7 +113,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val inputAddress = "EX2 6GA"
       val filter = ""
       val historical = true
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new PostcodeController(
@@ -124,7 +124,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-      .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -144,7 +144,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val inputAddress = "EX2 6GA"
       val filter = "RD"
       val historical = true
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new PostcodeController(
@@ -177,7 +177,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
       val startdate = "2012-01-01"
       val enddate = "2013-01-01"
       val historical = true
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
       val response = new PostcodeController(

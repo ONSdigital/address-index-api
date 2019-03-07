@@ -4,11 +4,9 @@ package uk.gov.ons.addressIndex.model.db.index
   * Relative DTO
   * Relatives response contains a sequence of Relative objects, one per level
   */
-case class Relative(
-  level: Int,
-  siblings: Seq[Long],
-  parents: Seq[Long]
-)
+case class Relative(level: Int,
+                    siblings: Seq[Long],
+                    parents: Seq[Long])
 
 /**
   * Relative DTO companion object includes method to cast from elastic response
@@ -18,7 +16,6 @@ case class Relative(
 object Relative {
 
   object Fields {
-
     /**
       * Document Fields
       */
@@ -27,8 +24,8 @@ object Relative {
     val parents: String = "parents"
   }
 
-  def fromEsMap (rels: Map[String, Any]): Relative = {
-    Relative (
+  def fromEsMap(rels: Map[String, Any]): Relative = {
+    Relative(
       rels.getOrElse(Fields.level, 0).asInstanceOf[Int],
       // uprns sometimes come back as Integers instead of Longs from ES so need to deal with this
       rels.getOrElse(Fields.siblings, Seq.empty).asInstanceOf[Seq[Any]].map(_.toString.toLong),

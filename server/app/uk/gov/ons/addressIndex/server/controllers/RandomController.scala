@@ -97,14 +97,14 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
       case _ =>
 
-        if (verb == false) {
+        if (!verb) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryRandomSkinny(filterString, limitInt, hist, verb, epochVal)
             )
 
           request.map {
-            case HybridAddressesSkinny(hybridAddresses, maxScore@_, total@_) =>
+            case HybridAddressesSkinny(hybridAddresses, _, _) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
                 AddressResponseAddress.fromHybridAddressSkinny(_, verb)
@@ -158,7 +158,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
             )
 
           request.map {
-            case HybridAddresses(hybridAddresses, maxScore@_, total@_) =>
+            case HybridAddresses(hybridAddresses, _, _) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
                 AddressResponseAddress.fromHybridAddress(_, verb)

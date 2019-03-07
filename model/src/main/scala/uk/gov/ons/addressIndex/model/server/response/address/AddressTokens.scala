@@ -10,10 +10,10 @@ import play.api.libs.json.{Format, Json}
   * @param postcode       postcode
   */
 case class AddressTokens(
-  uprn: String,
-  buildingNumber: String,
-  postcode: String
-)
+                          uprn: String,
+                          buildingNumber: String,
+                          postcode: String
+                        )
 
 object AddressTokens {
   implicit lazy val addressTokensFormat: Format[AddressTokens] = Json.format[AddressTokens]

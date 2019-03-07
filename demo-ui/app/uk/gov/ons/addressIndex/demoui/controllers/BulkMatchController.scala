@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import javax.inject.{Inject, Singleton}
 import akka.stream.scaladsl.Source
 import com.github.tototoshi.csv._
+import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
@@ -25,15 +25,15 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class BulkMatchController @Inject()(
-  val controllerComponents: ControllerComponents,
-  override val messagesApi: MessagesApi,
-  apiClient: AddressIndexClientInstance,
-  version: DemoUIAddressIndexVersionModule
- )(
-  implicit
-  ec: ExecutionContext,
-  mat: akka.stream.Materializer
-) extends BaseController with I18nSupport {
+                                     val controllerComponents: ControllerComponents,
+                                     override val messagesApi: MessagesApi,
+                                     apiClient: AddressIndexClientInstance,
+                                     version: DemoUIAddressIndexVersionModule
+                                   )(
+                                     implicit
+                                     ec: ExecutionContext,
+                                     mat: akka.stream.Materializer
+                                   ) extends BaseController with I18nSupport {
 
   private val multiMatchFormName = "file"
   private val logger = Logger("BulkMatchController")
@@ -41,13 +41,13 @@ class BulkMatchController @Inject()(
   def bulkMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
-    Future successful Ok(
-      uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
-        nav = Navigation.default,
-        fileFormName = multiMatchFormName,
-        version = version
+      Future successful Ok(
+        uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
+          nav = Navigation.default,
+          fileFormName = multiMatchFormName,
+          version = version
+        )
       )
-    )
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
@@ -120,6 +120,7 @@ class BulkMatchController @Inject()(
 
   /**
     * Helper function that handles file upload (as we have 2 endpoints with this functionality)
+    *
     * @param apiResponseAction lambda function that actually decides how to transform the response
     *                          from the API into something useful, like html page with a table
     *                          or a csv file

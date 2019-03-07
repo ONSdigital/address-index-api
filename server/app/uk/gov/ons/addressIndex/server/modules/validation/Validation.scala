@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 import scala.concurrent.Future
 import scala.util.Try
 
-abstract class Validation (implicit conf: ConfigModule, versionProvider: VersionModule)
+abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Object with Response {
 
   // lazy to avoid application crash at startup if ES is down
@@ -26,21 +26,21 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
   val valid: String = "valid"
   val notRequired: String = "not required"
 
-  protected def invalidDate(date: String) : Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
+  protected def invalidDate(date: String): Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
 
-//  def validateStartDate(startDate: String) : Option[Future[Result]] = {
-//    if (invalidDate(startDate)) {
-//      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
-//      Some(futureJsonBadRequest(StartDateInvalid))
-//    } else None
-//  }
-//
-//  def validateEndDate(endDate: String) : Option[Future[Result]] = {
-//    if (invalidDate(endDate)) {
-//      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
-//      Some(futureJsonBadRequest(EndDateInvalid))
-//    } else None
-//  }
+  //  def validateStartDate(startDate: String) : Option[Future[Result]] = {
+  //    if (invalidDate(startDate)) {
+  //      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
+  //      Some(futureJsonBadRequest(StartDateInvalid))
+  //    } else None
+  //  }
+  //
+  //  def validateEndDate(endDate: String) : Option[Future[Result]] = {
+  //    if (invalidDate(endDate)) {
+  //      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
+  //      Some(futureJsonBadRequest(EndDateInvalid))
+  //    } else None
+  //  }
 
   def validateKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
 

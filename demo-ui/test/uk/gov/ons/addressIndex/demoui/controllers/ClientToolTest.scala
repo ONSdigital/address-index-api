@@ -4,10 +4,9 @@ import org.scalatestplus.play.PlaySpec
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.mvc.{ControllerComponents, Results}
 import play.api.test.Helpers._
-import play.api.test.WithApplication
-import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
+import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,7 +26,7 @@ class ClientToolTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "GATE REACH"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
@@ -61,7 +60,7 @@ class ClientToolTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "GATE REACH"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
@@ -97,7 +96,7 @@ class ClientToolTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Residential"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When
@@ -131,7 +130,7 @@ class ClientToolTest extends PlaySpec with Results {
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
       val controllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Residential"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
       val expandedRels = app.injector.instanceOf(classOf[RelativesExpander])
 
       // When

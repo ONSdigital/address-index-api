@@ -11,11 +11,11 @@ class SystemBootstrap @Inject()() {
 
   def osSharedObjectName(): String = {
     val x = System.getProperty("os.name").toLowerCase
-    if(x.contains("mac")) {
+    if (x.contains("mac")) {
       "libcrftagger.so"
-    } else if(x.contains("window")) {
+    } else if (x.contains("window")) {
       "libcrftagger.dll"
-    } else if(x.contains("linux")) {
+    } else if (x.contains("linux")) {
       "libcrftagger-linux.so"
     } else {
       "libcrftagger.so"
