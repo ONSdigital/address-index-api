@@ -7,11 +7,10 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 
 @Singleton
-class StaticController @Inject()(
-                                  val controllerComponents: ControllerComponents,
-                                  override val messagesApi: MessagesApi,
-                                  version: DemoUIAddressIndexVersionModule,
-                                  conf: DemouiConfigModule
+class StaticController @Inject()(val controllerComponents: ControllerComponents,
+                                 override val messagesApi: MessagesApi,
+                                 version: DemoUIAddressIndexVersionModule,
+                                 conf: DemouiConfigModule
                                 ) extends BaseController with I18nSupport {
   val logger = Logger("ApplicationHomeController")
 

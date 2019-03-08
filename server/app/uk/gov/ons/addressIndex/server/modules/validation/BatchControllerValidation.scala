@@ -30,7 +30,6 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   //  }
 
   def validateBatchSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
-
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {
@@ -68,16 +67,18 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val maxLimit: Int = conf.config.elasticSearch.maximumLimit
 
-    if (limitInvalid) {
-      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(jsonBadRequest(LimitNotNumeric(queryValues)))
-    } else if (limitInt < 1) {
-      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(jsonBadRequest(LimitTooSmall(queryValues)))
-    } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
-      Some(jsonBadRequest(LimitTooLarge(queryValues)))
-    } else None
+    (limitInvalid, limitInt) match {
+      case (true, _) =>
+        logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+        Some(jsonBadRequest(LimitNotNumeric(queryValues)))
+      case (false, i) if i < 0 =>
+        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        Some(jsonBadRequest(LimitTooSmall(queryValues)))
+      case (false, i) if i > maxLimit =>
+        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
+        Some(jsonBadRequest(LimitTooLarge(queryValues)))
+      case _ => None
+    }
   }
 
   def validateBatchThreshold(matchthreshold: Option[String], queryValues: QueryValues): Option[Result] = {

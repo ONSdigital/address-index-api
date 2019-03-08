@@ -62,16 +62,18 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     val offsetInvalid = Try(offval.toInt).isFailure
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    if (offsetInvalid) {
-      logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetNotNumeric(queryValues)))
-    } else if (offsetInt < 0) {
-      logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
-    } else if (offsetInt > maxOffset) {
-      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(OffsetTooLarge(queryValues)))
-    } else None
+    (offsetInvalid, offsetInt) match {
+      case (true, _) =>
+        logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetNotNumeric(queryValues)))
+      case (false, i) if i < 0 =>
+        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
+      case (false, i) if i > maxOffset =>
+        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(OffsetTooLarge(queryValues)))
+      case _ => None
+    }
   }
 
   def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = {

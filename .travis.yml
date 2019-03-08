@@ -25,5 +25,5 @@ addons:
   hosts:
     - ons-ai
   hostname: ons-ai
-# notifications:
+  # notifications:
   # slack: valtech-ons:nLeAGETA8HsuIi5fMQCaLe2G

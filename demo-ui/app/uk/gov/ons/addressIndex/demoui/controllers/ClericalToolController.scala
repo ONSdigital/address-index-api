@@ -29,17 +29,15 @@ import scala.util.Try
   * @param ec          ec
   */
 @Singleton
-class ClericalToolController @Inject()(
-                                        val controllerComponents: ControllerComponents,
-                                        conf: DemouiConfigModule,
-                                        override val messagesApi: MessagesApi,
-                                        langs: Langs,
-                                        apiClient: AddressIndexClientInstance,
-                                        classHierarchy: ClassHierarchy,
-                                        relativesExpander: RelativesExpander,
-                                        version: DemoUIAddressIndexVersionModule
+class ClericalToolController @Inject()(val controllerComponents: ControllerComponents,
+                                       conf: DemouiConfigModule,
+                                       override val messagesApi: MessagesApi,
+                                       langs: Langs,
+                                       apiClient: AddressIndexClientInstance,
+                                       classHierarchy: ClassHierarchy,
+                                       relativesExpander: RelativesExpander,
+                                       version: DemoUIAddressIndexVersionModule
                                       )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
-
   implicit val lang: Lang = langs.availables.headOption.get
 
   val logger = Logger("ClericalToolController")

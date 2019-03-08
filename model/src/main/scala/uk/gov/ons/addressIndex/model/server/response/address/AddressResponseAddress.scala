@@ -13,24 +13,22 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinn
   * @param underlyingScore  score from elastic search
   *
   */
-case class AddressResponseAddress(
-                                   uprn: String,
-                                   parentUprn: String,
-                                   relatives: Option[Seq[AddressResponseRelative]],
-                                   crossRefs: Option[Seq[AddressResponseCrossRef]],
-                                   formattedAddress: String,
-                                   formattedAddressNag: String,
-                                   formattedAddressPaf: String,
-                                   welshFormattedAddressNag: String,
-                                   welshFormattedAddressPaf: String,
-                                   paf: Option[AddressResponsePaf],
-                                   nag: Option[Seq[AddressResponseNag]],
-                                   geo: Option[AddressResponseGeo],
-                                   classificationCode: String,
-                                   lpiLogicalStatus: String,
-                                   confidenceScore: Double,
-                                   underlyingScore: Float,
-                                 )
+case class AddressResponseAddress(uprn: String,
+                                  parentUprn: String,
+                                  relatives: Option[Seq[AddressResponseRelative]],
+                                  crossRefs: Option[Seq[AddressResponseCrossRef]],
+                                  formattedAddress: String,
+                                  formattedAddressNag: String,
+                                  formattedAddressPaf: String,
+                                  welshFormattedAddressNag: String,
+                                  welshFormattedAddressPaf: String,
+                                  paf: Option[AddressResponsePaf],
+                                  nag: Option[Seq[AddressResponseNag]],
+                                  geo: Option[AddressResponseGeo],
+                                  classificationCode: String,
+                                  lpiLogicalStatus: String,
+                                  confidenceScore: Double,
+                                  underlyingScore: Float)
 
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
@@ -133,19 +131,12 @@ object AddressResponseAddress {
     * @return the NAG address that corresponds to the returned address
     */
   def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress], language: String): Option[NationalAddressGazetteerAddress] = {
-    // "if" is more readable than "getOrElse" in this case
-    if (addresses.exists(address => address.lpiLogicalStatus == "1" && address.language == language))
-      addresses.find(_.lpiLogicalStatus == "1")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "6" && address.language == language))
-      addresses.find(_.lpiLogicalStatus == "6")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "8" && address.language == language))
-      addresses.find(_.lpiLogicalStatus == "8")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "1"))
-      addresses.find(_.lpiLogicalStatus == "1")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "6"))
-      addresses.find(_.lpiLogicalStatus == "6")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "8"))
-      addresses.find(_.lpiLogicalStatus == "8")
-    else addresses.headOption
+    addresses.find(addr => addr.lpiLogicalStatus == "1" && addr.language == language).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6" && addr.language == language)).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8" && addr.language == language)).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "1")).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6")).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8")).
+      orElse(addresses.headOption)
   }
 }

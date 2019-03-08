@@ -22,14 +22,12 @@ import scala.concurrent.{Await, Future}
   * @param ec
   */
 @Singleton
-class ApplicationHomeController @Inject()
-(val controllerComponents: ControllerComponents,
- conf: DemouiConfigModule,
- version: DemoUIAddressIndexVersionModule,
- override val messagesApi: MessagesApi,
- environment: Environment,
- ws: WSClient
-)
+class ApplicationHomeController @Inject()(val controllerComponents: ControllerComponents,
+                                          conf: DemouiConfigModule,
+                                          version: DemoUIAddressIndexVersionModule,
+                                          override val messagesApi: MessagesApi,
+                                          environment: Environment,
+                                          ws: WSClient)
   extends BaseController with I18nSupport {
 
   val logger = Logger("ApplicationHomeController")
@@ -46,9 +44,7 @@ class ApplicationHomeController @Inject()
     *
     * @return result to view
     */
-
   def home(): Action[AnyContent] = Action { implicit req =>
-
     req.session.get("api-key").map { apiKey =>
       //   logger info ("ApplicationHome: Rendering Index page")
       Ok(uk.gov.ons.addressIndex.demoui.views.html.index(version))
@@ -80,7 +76,6 @@ class ApplicationHomeController @Inject()
     * @return
     */
   def doLogin: Action[AnyContent] = Action { implicit req =>
-
     val formValidationResult = loginForm.bindFromRequest.data
     (for {
       userName <- formValidationResult.get("userName") if userName.nonEmpty
@@ -109,14 +104,13 @@ class ApplicationHomeController @Inject()
         // Any response other than a 200 is assumed to be an authentication failure (e.g. 401)
         if (result.status == OK) {
           val key = userName + "_" + (result.json \ "key").as[String]
-          Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
+          Redirect(Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
         } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Invalid username or password", "Please try again", version))
-
       } else {
         val fakeResponse = GatewaySimulator.getApiKey(userName, password)
         if (fakeResponse.errorCode == "") {
           val key = userName + "_" + fakeResponse.key
-          Redirect(new Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
+          Redirect(Call("GET", req.session.get("referer").getOrElse(default = "/addresses"))).withSession("api-key" -> key)
         } else Ok(uk.gov.ons.addressIndex.demoui.views.html.login("Invalid username or password", "Please try again", version))
       }
     }).getOrElse {

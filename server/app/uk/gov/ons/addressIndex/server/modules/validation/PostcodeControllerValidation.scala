@@ -24,71 +24,74 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-
     val defLimit: Int = conf.config.elasticSearch.defaultLimit
-    val limval = limit.getOrElse(defLimit.toString)
-    val limitInvalid = Try(limval.toInt).isFailure
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
+    val limVal = limit.getOrElse(defLimit.toString)
+    val limitInvalid = Try(limVal.toInt).isFailure
+    val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val maxLimit: Int = conf.config.elasticSearch.maximumLimit
 
-    if (limitInvalid) {
-      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumericPostcode(queryValues)))
-    } else if (limitInt < 1) {
-      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmallPostcode(queryValues)))
-    } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(LimitTooLargePostcode(queryValues)))
-    } else None
-
+    (limitInvalid, limitInt) match {
+      case (true, _) =>
+        logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(LimitNotNumericPostcode(queryValues)))
+      case (false, i) if i < 0 =>
+        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(LimitTooSmallPostcode(queryValues)))
+      case (false, i) if i > maxLimit =>
+        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(LimitTooLargePostcode(queryValues)))
+      case _ => None
+    }
   }
 
-  def validatePostcodeFilter(classificationfilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     val postcodeFilterRegex = """\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*"""
-    val filterString: String = classificationfilter.getOrElse("")
+    val filterString: String = classificationFilter.getOrElse("")
 
-    if (!filterString.isEmpty) {
-      if (filterString.contains("*") && filterString.contains(",")) {
+    filterString match {
+      case "" => None
+      case s if s.contains("*") && s.contains(",") =>
         logger.systemLog(badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(PostcodeMixedFilter(queryValues)))
-      }
-      else if (!filterString.matches(postcodeFilterRegex)) {
+      case s if !s.matches(postcodeFilterRegex) =>
         logger.systemLog(badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(PostcodeFilterInvalid(queryValues)))
-      } else None
-    } else None
-
+      case _ => None
+    }
   }
 
   def validatePostcodeOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     val maxOffset: Int = conf.config.elasticSearch.maximumOffset
     val defOffset: Int = conf.config.elasticSearch.defaultOffset
-    val offval = offset.getOrElse(defOffset.toString)
-    val offsetInvalid = Try(offval.toInt).isFailure
-    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+    val offVal = offset.getOrElse(defOffset.toString)
+    val offsetInvalid = Try(offVal.toInt).isFailure
+    val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
 
-    if (offsetInvalid) {
-      logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetNotNumericPostcode(queryValues)))
-    } else if (offsetInt < 0) {
-      logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetTooSmallPostcode(queryValues)))
-    } else if (offsetInt > maxOffset) {
-      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(OffsetTooLargePostcode(queryValues)))
-    } else None
+    (offsetInvalid, offsetInt) match {
+      case (true, _) =>
+        logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetNotNumericPostcode(queryValues)))
+      case (false, i) if i < 0 =>
+        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetTooSmallPostcode(queryValues)))
+      case (false, i) if i > maxOffset =>
+        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(OffsetTooLargePostcode(queryValues)))
+      case _ => None
+    }
   }
 
   def validatePostcode(postcode: String, queryValues: QueryValues): Option[Future[Result]] = {
     val postcodeRegex = "^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$"
-    if (postcode.isEmpty) {
-      logger.systemLog(badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
-      Some(futureJsonBadRequest(EmptySearchPostcode(queryValues)))
-    } else if (!postcode.toUpperCase().matches(postcodeRegex)) {
-      logger.systemLog(badRequestMessage = postcode + ": " + InvalidPostcodeAddressResponseError.message)
-      Some(futureJsonBadRequest(InvalidPostcode(queryValues)))
-    } else None
+    postcode match {
+      case "" =>
+        logger.systemLog(badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
+        Some(futureJsonBadRequest(EmptySearchPostcode(queryValues)))
+      case s if !s.toUpperCase().matches(postcodeRegex) =>
+        logger.systemLog(badRequestMessage = postcode + ": " + InvalidPostcodeAddressResponseError.message)
+        Some(futureJsonBadRequest(InvalidPostcode(queryValues)))
+      case _ => None
+    }
   }
 
   // set minimum string length from config

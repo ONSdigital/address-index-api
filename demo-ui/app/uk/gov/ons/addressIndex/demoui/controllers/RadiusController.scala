@@ -28,22 +28,20 @@ import scala.util.Try
   * @param ec          ec
   */
 @Singleton
-class RadiusController @Inject()(
-                                  val controllerComponents: ControllerComponents,
-                                  conf: DemouiConfigModule,
-                                  override val messagesApi: MessagesApi,
-                                  langs: Langs,
-                                  apiClient: AddressIndexClientInstance,
-                                  classHierarchy: ClassHierarchy,
-                                  version: DemoUIAddressIndexVersionModule
+class RadiusController @Inject()(val controllerComponents: ControllerComponents,
+                                 conf: DemouiConfigModule,
+                                 override val messagesApi: MessagesApi,
+                                 langs: Langs,
+                                 apiClient: AddressIndexClientInstance,
+                                 classHierarchy: ClassHierarchy,
+                                 version: DemoUIAddressIndexVersionModule
                                 )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
-
   implicit val lang: Lang = langs.availables.head
 
   val logger = Logger("PostcodeController")
-  val pageSize = conf.config.limit
-  val maxOff = conf.config.maxOffset
-  val maxPages = (maxOff + pageSize - 1) / pageSize
+  val pageSize: Int = conf.config.limit
+  val maxOff: Int = conf.config.maxOffset
+  val maxPages: Int = (maxOff + pageSize - 1) / pageSize
 
   /**
     * Present empty form for user to input address
@@ -82,8 +80,8 @@ class RadiusController @Inject()(
     val optLon: Option[String] = Try(request.body.asFormUrlEncoded.get("lon").mkString).toOption
     val lonText = optLon.getOrElse("")
     val historical: Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
-    val optmatchthreshold: Option[Int] = Try(request.body.asFormUrlEncoded.get("matchthreshold").mkString.toInt).toOption
-    val matchthresholdValue = optmatchthreshold.getOrElse(5)
+    val optMatchThreshold: Option[Int] = Try(request.body.asFormUrlEncoded.get("matchthreshold").mkString.toInt).toOption
+    val matchThresholdValue = optMatchThreshold.getOrElse(5)
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     if (addressText.trim.isEmpty) {
@@ -101,7 +99,7 @@ class RadiusController @Inject()(
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -113,12 +111,11 @@ class RadiusController @Inject()(
     * @return result to view
     */
   def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
-
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
-      val limit = pageSize.toString()
+      val limit = pageSize.toString
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
       val offset = offNum.toString
@@ -127,7 +124,7 @@ class RadiusController @Inject()(
       val lonString = lon.getOrElse("")
       val historicalValue = historical.getOrElse(true)
       val epochVal = epoch.getOrElse("")
-      val matchthresholdValue = matchthreshold.getOrElse(5)
+      val matchThresholdValue = matchthreshold.getOrElse(5)
       val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
@@ -145,7 +142,6 @@ class RadiusController @Inject()(
         )
       } else {
         //   logger info ("Single Match with supplied input address " + addressText)
-
         apiClient.addressQuery(
           AddressIndexSearchRequest(
             input = addressText,
@@ -155,7 +151,7 @@ class RadiusController @Inject()(
             historical = historicalValue,
             startdate = startDateVal,
             enddate = endDateVal,
-            matchthreshold = matchthresholdValue,
+            matchthreshold = matchThresholdValue,
             rangekm = rangeString,
             lat = latString,
             lon = lonString,
@@ -174,7 +170,6 @@ class RadiusController @Inject()(
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
 
-
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
             radiusSearchForm = filledForm,
             warningMessage = warningMessage,
@@ -190,9 +185,7 @@ class RadiusController @Inject()(
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
-
 }
-
 
 object RadiusController {
   val form = Form(

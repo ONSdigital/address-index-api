@@ -24,17 +24,14 @@ import scala.concurrent.{ExecutionContext, Future}
   * @param ec
   */
 @Singleton
-class BulkMatchController @Inject()(
-                                     val controllerComponents: ControllerComponents,
-                                     override val messagesApi: MessagesApi,
-                                     apiClient: AddressIndexClientInstance,
-                                     version: DemoUIAddressIndexVersionModule
-                                   )(
-                                     implicit
+class BulkMatchController @Inject()(val controllerComponents: ControllerComponents,
+                                    override val messagesApi: MessagesApi,
+                                    apiClient: AddressIndexClientInstance,
+                                    version: DemoUIAddressIndexVersionModule
+                                   )(implicit
                                      ec: ExecutionContext,
                                      mat: akka.stream.Materializer
                                    ) extends BaseController with I18nSupport {
-
   private val multiMatchFormName = "file"
   private val logger = Logger("BulkMatchController")
 
@@ -58,9 +55,8 @@ class BulkMatchController @Inject()(
     */
   def uploadFileVisualise(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = upload {
     (apiResponse: AddressBulkResponseContainer, _, requestParam) =>
-
       // This is required by the `Ok()` class to render the actual html page
-      implicit val request = requestParam
+      implicit val request: Request[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = requestParam
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
@@ -84,9 +80,8 @@ class BulkMatchController @Inject()(
     */
   def uploadFileDownloadCsv(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = upload {
     (apiResponse: AddressBulkResponseContainer, token: String, requestParam) =>
-
       // This is required by the `Ok()` class to render the actual html page
-      implicit val request = requestParam
+      implicit val request: Request[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = requestParam
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
@@ -130,13 +125,11 @@ class BulkMatchController @Inject()(
       parse.maxLength(10 * 1024 * 1024, parse.multipartFormData)
     ) { request =>
       request.session.get("api-key").map { apiKey =>
-
         val result: Option[Future[Result]] = request.body match {
           case Right(file) =>
             val token: String = file.asFormUrlEncoded.get("token").flatMap(_.headOption).getOrElse("")
 
             file.file(multiMatchFormName).map { file =>
-
               val addresses = CSVReader.open(file.ref.path.toFile).all().tail.collect { case List(id, address) if address.nonEmpty =>
                 BulkQuery(id, address)
               }
@@ -144,16 +137,13 @@ class BulkMatchController @Inject()(
               apiClient.bulk(BulkBody(addresses), apiKey).map {
                 apiResponse => apiResponseAction(apiResponse, token, request)
               }
-
             }
 
           case Left(maxSizeExceeded) =>
             logger.info(s"Max size exceeded: $maxSizeExceeded")
             Some(Future.successful(EntityTooLarge))
         }
-
         result.getOrElse(Future.successful(InternalServerError))
-
       }.getOrElse {
         Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
       }

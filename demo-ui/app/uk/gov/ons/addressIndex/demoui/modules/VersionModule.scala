@@ -26,7 +26,6 @@ class DemoUIAddressIndexVersionModule @Inject()(apiClient: AddressIndexClientIns
                                                (implicit ec: ExecutionContext) extends VersionModule {
 
   lazy val apiVersion: String = {
-
     Try(Await.result(
       apiClient.versionQuery()
         .map { resp: AddressResponseVersion =>
@@ -35,7 +34,6 @@ class DemoUIAddressIndexVersionModule @Inject()(apiClient: AddressIndexClientIns
   }
 
   lazy val dataVersion: String = {
-
     Try(Await.result(
       apiClient.versionQuery()
         .map { resp: AddressResponseVersion =>

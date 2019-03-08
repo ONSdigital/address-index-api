@@ -34,7 +34,7 @@ class ErrorHandler @Inject()(
   val logger = Logger("ErrorHandler")
 
   implicit val lang: Lang = langs.availables.head
-  implicit val messages = new MessagesImpl(lang, messagesApi)
+  implicit val messages: MessagesImpl = MessagesImpl(lang, messagesApi)
 
   val mode: Mode = environment.mode
 

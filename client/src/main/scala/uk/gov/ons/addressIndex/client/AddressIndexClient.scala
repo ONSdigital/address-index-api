@@ -198,7 +198,7 @@ trait AddressIndexClient {
 
   def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
     VersionQuery
-      .toReq()
+      .toReq
       .get.map(_.json.as[AddressResponseVersion])
   }
 
@@ -212,7 +212,7 @@ object AddressIndexClientHelper {
 
   implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)
                                               (implicit client: WSClient, host: AddressIndexServerHost) {
-    def toReq(): WSRequest = {
+    def toReq: WSRequest = {
       client url s"${host.value}${p.path}" withMethod p.path
     }
   }
@@ -223,7 +223,7 @@ object AddressIndexClientHelper {
     path = "",
     method = ""
   ) {
-    def apply(uprn: String) = {
+    def apply(uprn: String): AddressIndexPath = {
       val initialRoute = "/addresses/uprn"
       val fullRoute = s"$initialRoute/$uprn"
       new AddressIndexPath(
@@ -242,7 +242,7 @@ object AddressIndexClientHelper {
     path = "",
     method = ""
   ) {
-    def apply(postcode: String) = {
+    def apply(postcode: String): AddressIndexPath = {
       val initialRoute = "/addresses/postcode"
       val fullRoute = s"$initialRoute/$postcode"
       new AddressIndexPath(
@@ -256,7 +256,7 @@ object AddressIndexClientHelper {
     path = "",
     method = ""
   ) {
-    def apply(partial: String) = {
+    def apply(partial: String): AddressIndexPath = {
       val initialRoute = "/addresses/partial"
       val fullRoute = s"$initialRoute/$partial"
       new AddressIndexPath(

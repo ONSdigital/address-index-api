@@ -75,16 +75,18 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     val offsetInvalid = Try(offval.toInt).isFailure
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
-    if (offsetInvalid) {
-      logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
-    } else if (offsetInt < 0) {
-      logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(OffsetTooSmallPartial(queryValues)))
-    } else if (offsetInt > maxOffset) {
-      logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(OffsetTooLargePartial(queryValues)))
-    } else None
+    (offsetInvalid, offsetInt) match {
+      case (true, _) =>
+        logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
+      case (false, i) if i < 0 =>
+        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetTooSmallPartial(queryValues)))
+      case (false, i) if i > maxOffset =>
+        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(OffsetTooLargePartial(queryValues)))
+      case _ => None
+    }
   }
 
   override def PartialEpochInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {

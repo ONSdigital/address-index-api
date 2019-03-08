@@ -13,12 +13,7 @@ import scala.util.Try
   * @param easting   easting
   * @param northing  northing
   */
-case class AddressResponseGeo(
-                               latitude: BigDecimal,
-                               longitude: BigDecimal,
-                               easting: Int,
-                               northing: Int
-                             )
+case class AddressResponseGeo(latitude: BigDecimal, longitude: BigDecimal, easting: Int, northing: Int)
 
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
@@ -32,7 +27,7 @@ object AddressResponseGeo {
   def fromNagAddress(other: NationalAddressGazetteerAddress): Option[AddressResponseGeo] = (for {
     latitude <- Try(BigDecimal(other.latitude))
     longitude <- Try(BigDecimal(other.longitude))
-    easting <- Try(other.easting.split("\\.").head.toInt)
-    northing <- Try(other.northing.split("\\.").head.toInt)
+    easting <- Try(other.easting.split("\\.").headOption.map(_.toInt).get)
+    northing <- Try(other.northing.split("\\.").headOption.map(_.toInt).get)
   } yield AddressResponseGeo(latitude, longitude, easting, northing)).toOption
 }

@@ -217,7 +217,7 @@ pipeline {
 
         stage('Test: acceptance') {
             agent { label 'build.sbt_0-13-13' }
-           steps {
+            steps {
                 dir('.') {
                     git url: "${GITLAB_URL}/AddressIndex/${env.SVC_NAME}.git", credentialsId: 'JenkinsAI__gitlab'
                 }
@@ -225,12 +225,12 @@ pipeline {
                     env.NODE_STAGE = "Integration Tests"
                 }
                 unstash 'compiled'
-               
-               sh "cp -rv gatling/* server/src/it/resources/uk/gov/ons/gatling/conf"
-               sh "ls -la server/src/it/resources/uk/gov/ons/gatling/conf"
-               sh "sbt -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" \"gatling-it:testOnly uk.gov.ons.gatling.simulations.RegistersSimulationClosedModel\""
-               colourText("success", 'Integration Tests - For Release or Dev environment.')
-               gatlingArchive()
+
+                sh "cp -rv gatling/* server/src/it/resources/uk/gov/ons/gatling/conf"
+                sh "ls -la server/src/it/resources/uk/gov/ons/gatling/conf"
+                sh "sbt -DREQUESTS_PER_SECOND=$GATLING_REQUESTS_PER_SECOND -DBASE_URL=$GATLING_GET_ENDPOINT  \"project address-index-server\" \"gatling-it:testOnly uk.gov.ons.gatling.simulations.RegistersSimulationClosedModel\""
+                colourText("success", 'Integration Tests - For Release or Dev environment.')
+                gatlingArchive()
             }
             post {
                 success {

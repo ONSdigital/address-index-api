@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.demoui.client
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.WSClient
+import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response.address._
@@ -18,13 +19,11 @@ import scala.concurrent.{ExecutionContext, Future}
   * @param conf   conf
   */
 @Singleton
-class AddressIndexClientMock @Inject()(override val client: WSClient,
-                                       conf: DemouiConfigModule) extends AddressIndexClientInstance(client, conf) {
+class AddressIndexClientMock @Inject()(override val client: WSClient, conf: DemouiConfigModule)
+  extends AddressIndexClientInstance(client, conf) {
   //  set config entry to "http://localhost:9001" to run locally
   //  set config entry to "https://addressindexapitest.cfapps.io" to run from cloud
   override def host: String = s"${conf.config.apiURL.host}:${conf.config.apiURL.port}"
-
-  import AddressIndexClientMock._
 
   val mockAddressTokens = Map.empty[String, String]
 
@@ -89,7 +88,6 @@ class AddressIndexClientMock @Inject()(override val client: WSClient,
     errors = Seq.empty[AddressResponseError]
   )
 
-
   override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
     Future.successful(mockSearchResponseContainer)
 
@@ -117,8 +115,8 @@ object AddressIndexClientMock {
     source = "7666MT"
   )
 
-  val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
-  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
+  val mockRelativeResponse: AddressResponseRelative = AddressResponseRelative.fromRelative(mockRelative)
+  val mockCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
   val mockPafAddress1 = AddressResponsePaf(
     udprn = "",

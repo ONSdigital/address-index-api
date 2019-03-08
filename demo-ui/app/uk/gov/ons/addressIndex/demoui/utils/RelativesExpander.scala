@@ -13,9 +13,8 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseC
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RelativesExpander @Inject()(
-                                   apiClient: AddressIndexClient,
-                                   conf: DemouiConfigModule,
+class RelativesExpander @Inject()(apiClient: AddressIndexClient,
+                                  conf: DemouiConfigModule,
                                  )(implicit ec: ExecutionContext) {
 
   def futExpandRelatives(apiKey: String, relatives: Seq[AddressResponseRelative]): Future[Seq[ExpandedRelative]] =
@@ -64,7 +63,8 @@ class RelativesExpander @Inject()(
     }
 
   private[utils] def addressToMixedCase(ucAddress: String): String = {
-    ucAddress.substring(0, ucAddress.lastIndexOf(",") + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") +
-      ucAddress.substring(ucAddress.lastIndexOf(",") + 1, ucAddress.length)
+    val lastCommaIndex = ucAddress.lastIndexOf(",")
+    ucAddress.substring(0, lastCommaIndex + 1).toLowerCase.split(" ").map(_.capitalize).mkString(" ") +
+      ucAddress.substring(lastCommaIndex + 1, ucAddress.length)
   }
 }

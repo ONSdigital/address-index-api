@@ -29,25 +29,24 @@ import scala.util.Try
   * @param ec          ec ref
   */
 @Singleton
-class SingleMatchController @Inject()(
-                                       val controllerComponents: ControllerComponents,
-                                       conf: DemouiConfigModule,
-                                       override val messagesApi: MessagesApi,
-                                       langs: Langs,
-                                       apiClient: AddressIndexClientInstance,
-                                       classHierarchy: ClassHierarchy,
-                                       relativesExpander: RelativesExpander,
-                                       version: DemoUIAddressIndexVersionModule
+class SingleMatchController @Inject()(val controllerComponents: ControllerComponents,
+                                      conf: DemouiConfigModule,
+                                      override val messagesApi: MessagesApi,
+                                      langs: Langs,
+                                      apiClient: AddressIndexClientInstance,
+                                      classHierarchy: ClassHierarchy,
+                                      relativesExpander: RelativesExpander,
+                                      version: DemoUIAddressIndexVersionModule
                                      )(implicit ec: ExecutionContext) extends BaseController with I18nSupport {
 
   implicit val lang: Lang = langs.availables.head
 
   val logger = Logger("SingleMatchController")
-  val pageSize = conf.config.limit
-  val maxOff = conf.config.maxOffset
-  val maxPages = (maxOff + pageSize - 1) / pageSize
+  val pageSize: Int = conf.config.limit
+  val maxOff: Int = conf.config.maxOffset
+  val maxPages: Int = (maxOff + pageSize - 1) / pageSize
   // val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
-  val apiUrl = conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath
+  val apiUrl: String = conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath
 
   /**
     * Present empty form for user to input address
@@ -123,7 +122,6 @@ class SingleMatchController @Inject()(
     * @return result to view
     */
   def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
-
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
@@ -133,7 +131,7 @@ class SingleMatchController @Inject()(
       val matchthresholdValue = matchthreshold.getOrElse(5)
       val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
-      val limit = pageSize.toString()
+      val limit = pageSize.toString
       val pageNum = page.getOrElse(1)
       val offNum = (pageNum - 1) * pageSize
       val offset = offNum.toString
@@ -158,7 +156,6 @@ class SingleMatchController @Inject()(
         )
       } else {
         //   logger info ("Single Match with supplied input address " + addressText)
-
         apiClient.addressQuery(
           AddressIndexSearchRequest(
             input = addressText,
@@ -186,7 +183,6 @@ class SingleMatchController @Inject()(
           val warningMessage =
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
-
 
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
             singleSearchForm = filledForm,
@@ -220,7 +216,7 @@ class SingleMatchController @Inject()(
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
       val historicalValue = historical.getOrElse(true)
       val epochVal = epoch.getOrElse("")
-      val matchthresholdValue = matchthreshold.getOrElse(5)
+      val matchThresholdValue = matchthreshold.getOrElse(5)
       val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
       if (addressText.trim.isEmpty) {
@@ -254,7 +250,7 @@ class SingleMatchController @Inject()(
             epoch = epochVal
           )
         ) map { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -262,7 +258,6 @@ class SingleMatchController @Inject()(
           val warningMessage =
             if (resp.status.code == 200) None
             else Some(s"${resp.status.code} ${resp.status.message} : ${resp.errors.headOption.map(_.message).getOrElse("")}")
-
 
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
             singleSearchForm = filledForm,
@@ -362,7 +357,6 @@ class SingleMatchController @Inject()(
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
-
 
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
