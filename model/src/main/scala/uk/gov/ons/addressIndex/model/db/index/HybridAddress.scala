@@ -22,6 +22,7 @@ case class HybridAddress(
   postcodeOut: String,
   lpi: Seq[NationalAddressGazetteerAddress],
   paf: Seq[PostcodeAddressFileAddress],
+  nisra: Seq[NisraAddress],
   score: Float,
   classificationCode: String
 )
@@ -42,6 +43,7 @@ object HybridAddress {
     postcodeOut = "",
     lpi = Seq.empty,
     paf = Seq.empty,
+    nisra = Seq.empty,
     score = 0,
     classificationCode = ""
   )
@@ -74,6 +76,10 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
+      val nisras: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
       Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
@@ -83,8 +89,9 @@ object HybridAddress {
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
+        nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
-        classificationCode = hit.sourceAsMap("classificationCode").toString
+        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse("")
       ))
     }
   }

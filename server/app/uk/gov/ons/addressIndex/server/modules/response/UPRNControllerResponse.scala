@@ -18,8 +18,6 @@ trait UPRNControllerResponse extends Response {
         address = None,
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
-        startDate = queryValues.startDateOrDefault,
-        endDate = queryValues.endDateOrDefault,
         verbose = queryValues.verboseOrDefault
       ),
       status = BadRequestAddressResponseStatus,
@@ -32,8 +30,6 @@ trait UPRNControllerResponse extends Response {
       address = None,
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
-      startDate = queryValues.startDateOrDefault,
-      endDate = queryValues.endDateOrDefault,
       verbose = queryValues.verboseOrDefault
     )
   }
@@ -56,8 +52,6 @@ trait UPRNControllerResponse extends Response {
         address = optAddresses,
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
-        startDate = queryValues.startDateOrDefault,
-        endDate = queryValues.endDateOrDefault,
         verbose = queryValues.verboseOrDefault
       ),
       status = OkAddressResponseStatus
@@ -72,8 +66,6 @@ trait UPRNControllerResponse extends Response {
         address = None,
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
-        startDate = queryValues.startDateOrDefault,
-        endDate = queryValues.endDateOrDefault,
         verbose = queryValues.verboseOrDefault
       ),
       status = NotFoundAddressResponseStatus,
@@ -89,8 +81,6 @@ trait UPRNControllerResponse extends Response {
         address = None,
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
-        startDate = queryValues.startDateOrDefault,
-        endDate = queryValues.endDateOrDefault,
         verbose = queryValues.verboseOrDefault
       ),
       status = BadRequestAddressResponseStatus,
@@ -106,8 +96,6 @@ trait UPRNControllerResponse extends Response {
         address = None,
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
-        startDate = queryValues.startDateOrDefault,
-        endDate = queryValues.endDateOrDefault,
         verbose = queryValues.verboseOrDefault
       ),
       status = BadRequestAddressResponseStatus,

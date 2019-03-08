@@ -65,9 +65,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] = {
+  def queryUprn(uprn: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] = {
 
-    val request = generateQueryUprnRequest(uprn, startDate, endDate, historical, epoch)
+    val request = generateQueryUprnRequest(uprn, historical, epoch)
 
     logger.trace(request.toString)
 
@@ -83,22 +83,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param uprn the uprn of the fetched address
     * @return Search definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, epoch: String): SearchDefinition = {
+  def generateQueryUprnRequest(uprn: String, historical: Boolean = true, epoch: String): SearchDefinition = {
 
-    val query = {
-      if(!startDate.isEmpty && !endDate.isEmpty) {
-        must(termQuery("uprn", uprn))
-          .filter(
-            should(
-              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-                   rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-                   rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-
-      } else {
-        termQuery("uprn", uprn)
-      }
-    }
+    val query = termQuery("uprn", uprn)
 
     val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
 
@@ -109,9 +96,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryUprnSkinny(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] = {
+  def queryUprnSkinny(uprn: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] = {
 
-    val request = generateQueryUprnSkinnyRequest(uprn, startDate, endDate, historical, epoch)
+    val request = generateQueryUprnSkinnyRequest(uprn, historical, epoch)
 
     logger.trace(request.toString)
 
@@ -127,22 +114,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnSkinnyRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, epoch: String): SearchDefinition = {
+  def generateQueryUprnSkinnyRequest(uprn: String, historical: Boolean = true, epoch: String): SearchDefinition = {
 
-    val query = {
-      if(!startDate.isEmpty && !endDate.isEmpty) {
-        must(termQuery("uprn", uprn))
-          .filter(
-            should(
-              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-
-      } else {
-        termQuery("uprn", uprn)
-      }
-    }
+    val query = termQuery("uprn", uprn)
 
     val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
 

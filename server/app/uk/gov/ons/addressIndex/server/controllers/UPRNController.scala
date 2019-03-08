@@ -35,7 +35,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @return
     */
   def uprnQuery(uprn: String,
-   // startDate: Option[String] = None, endDate: Option[String] = None,
     historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
@@ -53,11 +52,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     }
 
     val epochVal = epoch.getOrElse("")
-
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
-    val startDateVal = ""
-    val endDateVal = ""
 
     val startingTime = System.currentTimeMillis()
 
@@ -80,15 +74,11 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       uprn = Some(uprn),
       epoch = Some(epochVal),
       historical = Some(hist),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
       verbose = Some(verb),
     )
 
     val result: Option[Future[Result]] =
       uprnValidation.validateUprn(uprn, queryValues)
-  //      .orElse(uprnValidation.validateStartDate(startDateVal))
-   //     .orElse(uprnValidation.validateEndDate(endDateVal))
         .orElse(uprnValidation.validateSource(queryValues))
         .orElse(uprnValidation.validateKeyStatus(queryValues))
         .orElse(uprnValidation.validateEpoch(queryValues))
@@ -104,7 +94,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         if (verb==false) {
 
           val request: Future[Option[HybridAddressSkinny]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist, epochVal)
+            esRepo.queryUprnSkinny(uprn, hist, epochVal)
           )
 
           request.map {
@@ -125,8 +115,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                     address = Some(address),
                     historical = hist,
                     epoch = epochVal,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
                     verbose = verb
                   ),
                   status = OkAddressResponseStatus
@@ -145,7 +133,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                   )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
+                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(Try(exception.getMessage).getOrElse("No message"), queryValues)))
                 case ThrottlerStatus.Open =>
                   logger.warn(
                     s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
@@ -163,7 +151,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         }else {
 
           val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, epochVal)
+            esRepo.queryUprn(uprn, hist, epochVal)
           )
 
           request.map {
@@ -184,8 +172,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                     address = Some(address),
                     historical = hist,
                     epoch = epochVal,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
                     verbose = verb
                   ),
                   status = OkAddressResponseStatus

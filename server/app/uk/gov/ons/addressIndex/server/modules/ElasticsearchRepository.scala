@@ -23,7 +23,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryUprn(uprn: String, startDate: String, endDate:String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddress]]
+  def queryUprn(uprn: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddress]]
 
   /**
     * Query the address index by UPRN.
@@ -31,7 +31,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryUprnSkinny(uprn: String, startDate: String, endDate:String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddressSkinny]]
+  def queryUprnSkinny(uprn: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddressSkinny]]
 
   /**
     * Query the address index by partial address.
