@@ -13,7 +13,4 @@ object AddressResponseClassification {
   * @param code  Classification code
   * @param label Classification name
   */
-case class AddressResponseClassification(
-                                          code: String,
-                                          label: String
-                                        )
+case class AddressResponseClassification(code: String, label: String)

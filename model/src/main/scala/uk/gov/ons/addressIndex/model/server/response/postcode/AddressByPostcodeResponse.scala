@@ -12,20 +12,18 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param offset    offset of found addresses (for pagination)
   * @param total     total number of found addresses
   */
-case class AddressByPostcodeResponse(
-                                      postcode: String,
-                                      addresses: Seq[AddressResponseAddress],
-                                      filter: String,
-                                      historical: Boolean,
-                                      epoch: String,
-                                      limit: Int,
-                                      offset: Int,
-                                      total: Long,
-                                      maxScore: Double,
-                                      startDate: String,
-                                      endDate: String,
-                                      verbose: Boolean
-                                    )
+case class AddressByPostcodeResponse(postcode: String,
+                                     addresses: Seq[AddressResponseAddress],
+                                     filter: String,
+                                     historical: Boolean,
+                                     epoch: String,
+                                     limit: Int,
+                                     offset: Int,
+                                     total: Long,
+                                     maxScore: Double,
+                                     startDate: String,
+                                     endDate: String,
+                                     verbose: Boolean)
 
 object AddressByPostcodeResponse {
   implicit lazy val addressByPostcodeResponseFormat: Format[AddressByPostcodeResponse] = Json.format[AddressByPostcodeResponse]

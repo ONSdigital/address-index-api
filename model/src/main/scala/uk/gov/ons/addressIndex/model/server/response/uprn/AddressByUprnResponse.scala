@@ -8,14 +8,12 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   *
   * @param address found address
   */
-case class AddressByUprnResponse(
-                                  address: Option[AddressResponseAddress],
-                                  historical: Boolean,
-                                  epoch: String,
-                                  startDate: String,
-                                  endDate: String,
-                                  verbose: Boolean
-                                )
+case class AddressByUprnResponse(address: Option[AddressResponseAddress],
+                                 historical: Boolean,
+                                 epoch: String,
+                                 startDate: String,
+                                 endDate: String,
+                                 verbose: Boolean)
 
 object AddressByUprnResponse {
   implicit lazy val addressByUprnResponseFormat: Format[AddressByUprnResponse] = Json.format[AddressByUprnResponse]

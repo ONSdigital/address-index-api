@@ -4,7 +4,6 @@ import play.api._
 import play.api.http.{DefaultHttpErrorHandler, HttpErrorHandler}
 import play.api.i18n._
 import play.api.mvc._
-//import scala.language.implicitConversions
 import javax.inject.{Inject, Singleton}
 import play.api.Mode
 import play.api.mvc.Results._
@@ -22,13 +21,12 @@ import scala.concurrent._
   * @param defaultHttpErrorHandler
   */
 @Singleton
-class ErrorHandler @Inject()(
-                              langs: Langs,
-                              val messagesApi: MessagesApi,
-                              environment: Environment,
-                              conf: DemouiConfigModule,
-                              defaultHttpErrorHandler: DefaultHttpErrorHandler,
-                              version: DemoUIAddressIndexVersionModule
+class ErrorHandler @Inject()(langs: Langs,
+                             val messagesApi: MessagesApi,
+                             environment: Environment,
+                             conf: DemouiConfigModule,
+                             defaultHttpErrorHandler: DefaultHttpErrorHandler,
+                             version: DemoUIAddressIndexVersionModule
                             ) extends HttpErrorHandler with I18nSupport {
 
   val logger = Logger("ErrorHandler")

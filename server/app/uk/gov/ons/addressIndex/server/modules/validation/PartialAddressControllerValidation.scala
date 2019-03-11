@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerR
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
@@ -29,15 +29,16 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   }
 
   // minimum length only for partial so override
-  override def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = {
-    if (input.isEmpty) {
-      logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
-      Some(futureJsonBadRequest(EmptySearch(queryValues)))
-    } else if (input.length < minimumTermLength) {
-      logger.systemLog(badRequestMessage = ShortQueryAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(ShortSearch(queryValues)))
-    } else None
-  }
+  override def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] =
+    input match {
+      case "" =>
+        logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
+        Some(futureJsonBadRequest(EmptySearch(queryValues)))
+      case i if i.length < minimumTermLength =>
+        logger.systemLog(badRequestMessage = ShortQueryAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(ShortSearch(queryValues)))
+      case _ => None
+    }
 
   override def LimitTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
@@ -47,63 +48,63 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     BadRequestPartialTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
-  def validatePartialLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-
-    val defLimit: Int = conf.config.elasticSearch.defaultLimit
-    val limval = limit.getOrElse(defLimit.toString)
-    val limitInvalid = Try(limval.toInt).isFailure
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
-    val maxLimit: Int = conf.config.elasticSearch.maximumLimit
-
-    if (limitInvalid) {
-      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumericPartial(queryValues)))
-    } else if (limitInt < 1) {
-      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmallPartial(queryValues)))
-    } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(LimitTooLargePartial(queryValues)))
-    } else None
-
-  }
-
-  def validatePartialOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val maxOffset: Int = conf.config.elasticSearch.maximumOffset
-    val defOffset: Int = conf.config.elasticSearch.defaultOffset
-    val offval = offset.getOrElse(defOffset.toString)
-    val offsetInvalid = Try(offval.toInt).isFailure
-    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
-
-    (offsetInvalid, offsetInt) match {
-      case (true, _) =>
-        logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-        Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
-      case (false, i) if i < 0 =>
-        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-        Some(futureJsonBadRequest(OffsetTooSmallPartial(queryValues)))
-      case (false, i) if i > maxOffset =>
-        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-        Some(futureJsonBadRequest(OffsetTooLargePartial(queryValues)))
-      case _ => None
-    }
-  }
-
   override def PartialEpochInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  override def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
+  // defaultLimit and maximumLimit is inherited from AddressValidation
+  def validatePartialLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+    def inner(limit: Int): Option[Future[Result]] = limit match {
+      case l if l < 1 =>
+        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(LimitTooSmallPartial(queryValues)))
+      case l if maximumLimit < l =>
+        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(LimitTooLargePartial(queryValues)))
+      case _ => None
+    }
 
-    val epochVal: String = queryValues.epochOrDefault
+    limit match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(LimitNotNumericPartial(queryValues)))
+      }
+      case None => inner(defaultLimit)
+    }
+  }
 
-    if (!epochVal.isEmpty) {
-      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
+  def validatePartialOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+    def inner(offset: Int): Option[Future[Result]] = offset match {
+      case l if l < 0 =>
+        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetTooSmallPartial(queryValues)))
+      case l if maximumOffset < l =>
+        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(OffsetTooLargePartial(queryValues)))
+      case _ => None
+    }
+
+    offset match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
+      }
+      case None => inner(defaultOffset)
+    }
+  }
+
+  // validEpochsRegex is inherited from AddressControllerValidation
+  override def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+    queryValues.epochOrDefault match {
+      case "" => None
+      case e if e.matches(validEpochsRegex) => None
+      case _ =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
-      } else None
-    } else None
-
-  }
+    }
 
 }

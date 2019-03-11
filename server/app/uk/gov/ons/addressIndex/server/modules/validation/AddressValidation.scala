@@ -7,14 +7,21 @@ import uk.gov.ons.addressIndex.server.modules.response.AddressResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Validation with AddressResponse {
 
+  val defaultLimit: Int = conf.config.elasticSearch.defaultLimit
   // get maxima length from config
   val maximumLimit: Int = conf.config.elasticSearch.maximumLimit
+  val defaultOffset: Int = conf.config.elasticSearch.defaultOffset
   val maximumOffset: Int = conf.config.elasticSearch.maximumOffset
+
+  // set minimum string length from config
+  val validEpochs: String = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
+  val validEpochsRegex: String = """\b(""" + validEpochs + """)\b.*"""
 
   // override error messages with maxima
   object LimitTooLargeAddressResponseErrorCustom extends AddressResponseError(
@@ -36,50 +43,53 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   }
 
   def validateLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-
-    val defLimit: Int = conf.config.elasticSearch.defaultLimit
-    val limval = limit.getOrElse(defLimit.toString)
-    val limitInvalid = Try(limval.toInt).isFailure
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
-    val maxLimit: Int = conf.config.elasticSearch.maximumLimit
-
-    if (limitInvalid) {
-      logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitNotNumeric(queryValues)))
-    } else if (limitInt < 1) {
-      logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-      Some(futureJsonBadRequest(LimitTooSmall(queryValues)))
-    } else if (limitInt > maxLimit) {
-      logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-      Some(futureJsonBadRequest(LimitTooLarge(queryValues)))
-    } else None
-  }
-
-  def validateOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val maxOffset: Int = conf.config.elasticSearch.maximumOffset
-    val defOffset: Int = conf.config.elasticSearch.defaultOffset
-    val offval = offset.getOrElse(defOffset.toString)
-    val offsetInvalid = Try(offval.toInt).isFailure
-    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
-
-    (offsetInvalid, offsetInt) match {
-      case (true, _) =>
-        logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-        Some(futureJsonBadRequest(OffsetNotNumeric(queryValues)))
-      case (false, i) if i < 0 =>
-        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
-        Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
-      case (false, i) if i > maxOffset =>
-        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
-        Some(futureJsonBadRequest(OffsetTooLarge(queryValues)))
+    def inner(limit: Int): Option[Future[Result]] = limit match {
+      case l if l < 1 =>
+        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(LimitTooSmall(queryValues)))
+      case l if maximumLimit < l =>
+        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(LimitTooLarge(queryValues)))
       case _ => None
+    }
+
+    limit match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(LimitNotNumeric(queryValues)))
+      }
+      case None => inner(defaultLimit)
     }
   }
 
-  def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = {
-    if (input.isEmpty) {
+  def validateOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+    def inner(offset: Int): Option[Future[Result]] = offset match {
+      case o if o < 0 =>
+        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
+      case o if maximumOffset < o =>
+        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(LimitTooLarge(queryValues)))
+      case _ => None
+    }
+
+    offset match {
+      case Some(o) => Try(o.toInt) match {
+        case Success(oInt) => inner(oInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(OffsetNotNumeric(queryValues)))
+      }
+      case None => inner(defaultOffset)
+    }
+  }
+
+  def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = input match {
+    case "" =>
       logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearch(queryValues)))
-    } else None
+    case _ => None
   }
 }

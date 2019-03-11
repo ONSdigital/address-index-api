@@ -10,14 +10,12 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param limit     max number of found addresses
   * @param total     total number of found addresses
   */
-case class AddressByRandomResponse(
-                                    addresses: Seq[AddressResponseAddress],
-                                    filter: String,
-                                    historical: Boolean,
-                                    epoch: String,
-                                    limit: Int,
-                                    verbose: Boolean
-                                  )
+case class AddressByRandomResponse(addresses: Seq[AddressResponseAddress],
+                                   filter: String,
+                                   historical: Boolean,
+                                   epoch: String,
+                                   limit: Int,
+                                   verbose: Boolean)
 
 object AddressByRandomResponse {
   implicit lazy val addressByRandomResponseFormat: Format[AddressByRandomResponse] = Json.format[AddressByRandomResponse]

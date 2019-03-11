@@ -54,9 +54,7 @@ case class NationalAddressGazetteerAddress(uprn: String,
   * NAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
 object NationalAddressGazetteerAddress {
-
   object Fields {
-
     /**
       * Document Fields
       */
@@ -108,7 +106,6 @@ object NationalAddressGazetteerAddress {
   }
 
   def fromEsMap(nag: Map[String, Any]): NationalAddressGazetteerAddress = {
-
     val filteredNag = nag.filter { case (_, value) => value != null }
     val matchLocationRegex = """-?\d+(?:\.\d*)?(?:[E][+\-]?\d+)?""".r
     val location = filteredNag.getOrElse(Fields.location, "").toString
@@ -163,7 +160,6 @@ object NationalAddressGazetteerAddress {
 case class LocalCustodian(custodians: Map[String, AddressResponseCustodian])
 
 object LocalCustodian {
-
   def emptyCustodian = new AddressResponseCustodian("", "not found", "not found", "not found", "not found", "not found")
 
   def getCustodian(code: String): AddressResponseCustodian = custodians.getOrElse(code, emptyCustodian)
@@ -193,5 +189,4 @@ object LocalCustodian {
       )
     )
   }.toMap
-
 }

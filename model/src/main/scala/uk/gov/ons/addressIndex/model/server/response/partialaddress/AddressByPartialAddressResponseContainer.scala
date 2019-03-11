@@ -12,13 +12,11 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseErr
   * @param status      status code / message
   * @param errors      encountered errors (or an empty list if there is no errors)
   */
-case class AddressByPartialAddressResponseContainer(
-                                                     apiVersion: String,
-                                                     dataVersion: String,
-                                                     response: AddressByPartialAddressResponse,
-                                                     status: AddressResponseStatus,
-                                                     errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
-                                                   )
+case class AddressByPartialAddressResponseContainer(apiVersion: String,
+                                                    dataVersion: String,
+                                                    response: AddressByPartialAddressResponse,
+                                                    status: AddressResponseStatus,
+                                                    errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])
 
 object AddressByPartialAddressResponseContainer {
   implicit lazy val addressByPartialAddressResponseContainerFormat: Format[AddressByPartialAddressResponseContainer] =

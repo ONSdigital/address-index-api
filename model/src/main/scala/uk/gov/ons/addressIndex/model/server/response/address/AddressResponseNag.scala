@@ -20,28 +20,26 @@ import uk.gov.ons.addressIndex.model.db.index.NationalAddressGazetteerAddress
   * @param organisation      Organisation
   * @param legalName         Legal name
   */
-case class AddressResponseNag(
-                               uprn: String,
-                               postcodeLocator: String,
-                               addressBasePostal: String,
-                               usrn: String,
-                               lpiKey: String,
-                               pao: AddressResponsePao,
-                               sao: AddressResponseSao,
-                               level: String,
-                               officialFlag: String,
-                               logicalStatus: String,
-                               streetDescriptor: String,
-                               townName: String,
-                               locality: String,
-                               organisation: String,
-                               legalName: String,
-                               localCustodianCode: String,
-                               localCustodianName: String,
-                               localCustodianGeogCode: String,
-                               lpiEndDate: String,
-                               lpiStartDate: String
-                             )
+case class AddressResponseNag(uprn: String,
+                              postcodeLocator: String,
+                              addressBasePostal: String,
+                              usrn: String,
+                              lpiKey: String,
+                              pao: AddressResponsePao,
+                              sao: AddressResponseSao,
+                              level: String,
+                              officialFlag: String,
+                              logicalStatus: String,
+                              streetDescriptor: String,
+                              townName: String,
+                              locality: String,
+                              organisation: String,
+                              legalName: String,
+                              localCustodianCode: String,
+                              localCustodianName: String,
+                              localCustodianGeogCode: String,
+                              lpiEndDate: String,
+                              lpiStartDate: String)
 
 object AddressResponseNag {
   implicit lazy val addressResponseNagFormat: Format[AddressResponseNag] = Json.format[AddressResponseNag]

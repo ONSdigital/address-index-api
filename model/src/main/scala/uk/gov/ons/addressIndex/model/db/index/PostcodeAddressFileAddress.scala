@@ -40,9 +40,7 @@ case class PostcodeAddressFileAddress(recordIdentifier: String,
   * PAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
 object PostcodeAddressFileAddress {
-
   object Fields {
-
     /**
       * Document Fields
       */

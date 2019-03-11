@@ -11,13 +11,11 @@ import play.api.libs.json.{Format, Json}
   * @param status      status code / message
   * @param errors      encountred errors (or an empty list if there is no errors)
   */
-case class AddressBySearchResponseContainer(
-                                             apiVersion: String,
-                                             dataVersion: String,
-                                             response: AddressBySearchResponse,
-                                             status: AddressResponseStatus,
-                                             errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
-                                           )
+case class AddressBySearchResponseContainer(apiVersion: String,
+                                            dataVersion: String,
+                                            response: AddressBySearchResponse,
+                                            status: AddressResponseStatus,
+                                            errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])
 
 object AddressBySearchResponseContainer {
   implicit lazy val addressBySearchResponseContainerFormat: Format[AddressBySearchResponseContainer] =

@@ -77,7 +77,6 @@ object AddressResponseAddress {
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 1D,
       underlyingScore = other.score
-
     )
   }
 

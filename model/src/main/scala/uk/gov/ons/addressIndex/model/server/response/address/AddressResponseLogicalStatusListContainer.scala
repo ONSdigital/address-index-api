@@ -7,9 +7,7 @@ import play.api.libs.json.{Format, Json}
   *
   * @param logicalStatuses sequence of logical statuses
   */
-case class AddressResponseLogicalStatusListContainer(
-                                                      logicalStatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus]
-                                                    )
+case class AddressResponseLogicalStatusListContainer(logicalStatuses: Seq[AddressResponseLogicalStatus] = Seq.empty[AddressResponseLogicalStatus])
 
 object AddressResponseLogicalStatusListContainer {
   implicit lazy val addressResponseLogicalStatusListContainerFormat: Format[AddressResponseLogicalStatusListContainer] =

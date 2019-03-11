@@ -11,11 +11,9 @@ import uk.gov.ons.addressIndex.model.db.index.Relative
   * @param parents  uprns of addresses at the level above
   *
   */
-case class AddressResponseRelative(
-                                    level: Int,
-                                    siblings: Seq[Long],
-                                    parents: Seq[Long]
-                                  )
+case class AddressResponseRelative(level: Int,
+                                   siblings: Seq[Long],
+                                   parents: Seq[Long])
 
 /**
   * Compainion object providing Lazy Json formatting

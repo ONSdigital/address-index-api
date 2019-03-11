@@ -10,13 +10,11 @@ import play.api.libs.json.{Format, Json}
   * @param paoEndNumber
   * @param paoEndSuffix
   */
-case class AddressResponsePao(
-                               paoText: String,
-                               paoStartNumber: String,
-                               paoStartSuffix: String,
-                               paoEndNumber: String,
-                               paoEndSuffix: String
-                             )
+case class AddressResponsePao(paoText: String,
+                              paoStartNumber: String,
+                              paoStartSuffix: String,
+                              paoEndNumber: String,
+                              paoEndSuffix: String)
 
 object AddressResponsePao {
   implicit lazy val addressResponsePaoFormat: Format[AddressResponsePao] = Json.format[AddressResponsePao]

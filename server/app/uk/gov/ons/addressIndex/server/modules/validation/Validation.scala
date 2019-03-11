@@ -43,7 +43,6 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
   //  }
 
   def validateKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
-
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
@@ -53,8 +52,7 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
       case `invalid` =>
         logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
         Some(futureJsonUnauthorized(KeyInvalid(queryValues)))
-      case _ =>
-        None
+      case _ => None
     }
   }
 
@@ -65,7 +63,6 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
     * @return not required, valid, invalid or missing
     */
   protected def checkAPIkey(apiKey: String): String = {
-
     val keyRequired = conf.config.apiKeyRequired
 
     if (keyRequired) {
@@ -83,7 +80,6 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
   }
 
   def validateSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
-
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {
@@ -93,8 +89,7 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
       case `invalid` =>
         logger.systemLog(badRequestMessage = SourceInvalidError.message)
         Some(futureJsonUnauthorized(SourceInvalid(queryValues)))
-      case _ =>
-        None
+      case _ => None
     }
   }
 
@@ -105,10 +100,7 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
     * @return not required, valid, invalid or missing
     */
   protected def checkSource(source: String): String = {
-
-    val sourceRequired = conf.config.sourceRequired
-
-    if (sourceRequired) {
+    if (conf.config.sourceRequired) {
       val sourceName = conf.config.sourceKey
       source match {
         case key if key == missing => missing

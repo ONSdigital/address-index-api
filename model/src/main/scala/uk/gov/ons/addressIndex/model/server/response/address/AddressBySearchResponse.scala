@@ -11,25 +11,23 @@ import play.api.libs.json.{Format, Json}
   * @param offset    offset of found addresses (for pagination)
   * @param total     total number of found addresses
   */
-case class AddressBySearchResponse(
-                                    tokens: Map[String, String],
-                                    addresses: Seq[AddressResponseAddress],
-                                    filter: String,
-                                    historical: Boolean,
-                                    epoch: String,
-                                    rangekm: String,
-                                    latitude: String,
-                                    longitude: String,
-                                    startDate: String,
-                                    endDate: String,
-                                    limit: Int,
-                                    offset: Int,
-                                    total: Long,
-                                    sampleSize: Long,
-                                    maxScore: Double,
-                                    matchthreshold: Float,
-                                    verbose: Boolean
-                                  )
+case class AddressBySearchResponse(tokens: Map[String, String],
+                                   addresses: Seq[AddressResponseAddress],
+                                   filter: String,
+                                   historical: Boolean,
+                                   epoch: String,
+                                   rangekm: String,
+                                   latitude: String,
+                                   longitude: String,
+                                   startDate: String,
+                                   endDate: String,
+                                   limit: Int,
+                                   offset: Int,
+                                   total: Long,
+                                   sampleSize: Long,
+                                   maxScore: Double,
+                                   matchthreshold: Float,
+                                   verbose: Boolean)
 
 object AddressBySearchResponse {
   implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]

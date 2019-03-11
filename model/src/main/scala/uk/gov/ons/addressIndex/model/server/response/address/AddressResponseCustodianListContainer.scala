@@ -7,9 +7,7 @@ import play.api.libs.json.{Format, Json}
   *
   * @param classifications sequence of custodians
   */
-case class AddressResponseCustodianListContainer(
-                                                  custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian]
-                                                )
+case class AddressResponseCustodianListContainer(custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian])
 
 object AddressResponseCustodianListContainer {
   implicit lazy val addressResponseCustodianListContainerFormat: Format[AddressResponseCustodianListContainer] =

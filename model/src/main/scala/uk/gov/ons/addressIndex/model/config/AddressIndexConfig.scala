@@ -40,27 +40,25 @@ case class ElasticSearchConfig(local: Boolean,
                                defaultStartBoost: Int,
                                validEpochs: String)
 
-case class QueryParamsConfig(
-                              // the number of cases has to be at most 22
-                              subBuildingName: SubBuildingNameConfig,
-                              subBuildingRange: SubBuildingRangeConfig,
-                              buildingName: BuildingNameConfig,
-                              buildingNumber: BuildingNumberConfig,
-                              buildingRange: BuildingRangeConfig,
-                              streetName: StreetNameConfig,
-                              townName: TownNameConfig,
-                              postcode: PostcodeConfig,
-                              organisationName: OrganisationNameConfig,
-                              departmentName: DepartmentNameConfig,
-                              locality: LocalityConfig,
-                              fallback: FallbackConfig,
-                              excludingDisMaxTieBreaker: Double,
-                              includingDisMaxTieBreaker: Double,
-                              topDisMaxTieBreaker: Double,
-                              paoSaoMinimumShouldMatch: String,
-                              organisationDepartmentMinimumShouldMatch: String,
-                              mainMinimumShouldMatch: String
-                            )
+case class QueryParamsConfig(// the number of cases has to be at most 22
+                             subBuildingName: SubBuildingNameConfig,
+                             subBuildingRange: SubBuildingRangeConfig,
+                             buildingName: BuildingNameConfig,
+                             buildingNumber: BuildingNumberConfig,
+                             buildingRange: BuildingRangeConfig,
+                             streetName: StreetNameConfig,
+                             townName: TownNameConfig,
+                             postcode: PostcodeConfig,
+                             organisationName: OrganisationNameConfig,
+                             departmentName: DepartmentNameConfig,
+                             locality: LocalityConfig,
+                             fallback: FallbackConfig,
+                             excludingDisMaxTieBreaker: Double,
+                             includingDisMaxTieBreaker: Double,
+                             topDisMaxTieBreaker: Double,
+                             paoSaoMinimumShouldMatch: String,
+                             organisationDepartmentMinimumShouldMatch: String,
+                             mainMinimumShouldMatch: String)
 
 // This is required for the bulk request as Data Scientists want to provide query params dynamically
 object QueryParamsConfig {

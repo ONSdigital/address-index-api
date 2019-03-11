@@ -16,24 +16,21 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param tokens                  tokens into which the input address was split
   * @param score                   resulting address score
   */
-case class AddressBulkResponseAddress(
-                                       id: String,
-                                       inputAddress: String,
-                                       uprn: String,
-                                       matchedFormattedAddress: String,
-                                       matchedAddress: Option[AddressResponseAddress],
-                                       tokens: Map[String, String],
-                                       confidenceScore: Double,
-                                       underlyingScore: Float
-                                     )
+case class AddressBulkResponseAddress(id: String,
+                                      inputAddress: String,
+                                      uprn: String,
+                                      matchedFormattedAddress: String,
+                                      matchedAddress: Option[AddressResponseAddress],
+                                      tokens: Map[String, String],
+                                      confidenceScore: Double,
+                                      underlyingScore: Float)
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
-  def fromBulkAddress(
-                       bulkAddress: BulkAddress,
-                       addressResponseAddress: AddressResponseAddress,
-                       includeFullAddress: Boolean
+  def fromBulkAddress(bulkAddress: BulkAddress,
+                      addressResponseAddress: AddressResponseAddress,
+                      includeFullAddress: Boolean
                      ): AddressBulkResponseAddress = AddressBulkResponseAddress(
     id = bulkAddress.id,
     inputAddress = bulkAddress.inputAddress,

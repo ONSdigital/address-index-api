@@ -12,13 +12,11 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseErr
   * @param status        status code / message
   * @param errors        encountred errors (or an empty list if there is no errors)
   */
-case class AddressBulkResponseContainer(
-                                         apiVersion: String,
-                                         dataVersion: String,
-                                         bulkAddresses: Seq[AddressBulkResponseAddress],
-                                         status: AddressResponseStatus,
-                                         errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
-                                       )
+case class AddressBulkResponseContainer(apiVersion: String,
+                                        dataVersion: String,
+                                        bulkAddresses: Seq[AddressBulkResponseAddress],
+                                        status: AddressResponseStatus,
+                                        errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])
 
 object AddressBulkResponseContainer {
   implicit lazy val addressBulkResponseContainer: Format[AddressBulkResponseContainer] = Json.format[AddressBulkResponseContainer]

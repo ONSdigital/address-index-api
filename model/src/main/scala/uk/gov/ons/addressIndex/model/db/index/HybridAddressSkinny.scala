@@ -22,13 +22,8 @@ case class HybridAddressSkinny(uprn: String,
                                classificationCode: String)
 
 object HybridAddressSkinny {
-
-  val name = "HybridAddressSkinny"
-
   // this `implicit` is needed for the library (elastic4s) to work
   implicit object HybridAddressHitReader extends HitReader[HybridAddressSkinny] {
-
-
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
       * Used for the elastic4s library
@@ -37,7 +32,6 @@ object HybridAddressSkinny {
       * @return generated Hybrid Address
       */
     override def read(hit: Hit): Either[Throwable, HybridAddressSkinny] = {
-
       val lpis: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("lpi").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)

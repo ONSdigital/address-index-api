@@ -26,9 +26,6 @@ case class HybridAddress(uprn: String,
                          classificationCode: String)
 
 object HybridAddress {
-
-  val name = "HybridAddress"
-
   /**
     * An empty HybridAddress, used in bulk search to show the address that didn't yield any results
     */
@@ -47,7 +44,6 @@ object HybridAddress {
 
   // this `implicit` is needed for the library (elastic4s) to work
   implicit object HybridAddressHitReader extends HitReader[HybridAddress] {
-
 
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
@@ -120,7 +116,6 @@ object HybridAddresses {
     * @return
     */
   def fromSearchResponse(response: SearchResponse): HybridAddresses = {
-
     if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 

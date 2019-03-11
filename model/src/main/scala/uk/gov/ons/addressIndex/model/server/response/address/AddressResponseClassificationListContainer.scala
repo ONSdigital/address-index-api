@@ -7,9 +7,7 @@ import play.api.libs.json.{Format, Json}
   *
   * @param classifications sequence of classifications
   */
-case class AddressResponseClassificationListContainer(
-                                                       classifications: Seq[AddressResponseClassification] = Seq.empty[AddressResponseClassification]
-                                                     )
+case class AddressResponseClassificationListContainer(classifications: Seq[AddressResponseClassification] = Seq.empty[AddressResponseClassification])
 
 object AddressResponseClassificationListContainer {
   implicit lazy val addressResponseClassificationListContainerFormat: Format[AddressResponseClassificationListContainer] =

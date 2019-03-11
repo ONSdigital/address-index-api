@@ -8,10 +8,8 @@ import play.api.libs.json.{Format, Json}
   * @param code    error code
   * @param message error description
   */
-case class AddressResponseError(
-                                 code: Int,
-                                 message: String
-                               )
+case class AddressResponseError(code: Int,
+                                message: String)
 
 object AddressResponseError {
   implicit lazy val addressResponseErrorFormat: Format[AddressResponseError] = Json.format[AddressResponseError]

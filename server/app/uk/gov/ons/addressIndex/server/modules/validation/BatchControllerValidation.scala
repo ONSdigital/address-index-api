@@ -6,11 +6,15 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressControllerValidation {
+
+  // validEpochs is inherited from AddressControllerValidation
+  val epochRegex: String =
+    """\b(""" + validEpochs + """)\b.*"""
 
   // The batch does not use Futures for the validation so we have to override the address ones to return the
   // error without a Future wrapping.
@@ -39,8 +43,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
       case `invalid` =>
         logger.systemLog(badRequestMessage = SourceInvalidError.message)
         Some(jsonUnauthorized(SourceInvalid(queryValues)))
-      case _ =>
-        None
+      case _ => None
     }
   }
 
@@ -54,62 +57,61 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
       case `invalid` =>
         logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
         Some(jsonUnauthorized(KeyInvalid(queryValues)))
-      case _ =>
-        None
-    }
-  }
-
-  def validateBatchAddressLimit(limit: Option[String], queryValues: QueryValues): Option[Result] = {
-
-    val defLimit: Int = conf.config.elasticSearch.defaultLimit
-    val limval = limit.getOrElse(defLimit.toString)
-    val limitInvalid = Try(limval.toInt).isFailure
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
-    val maxLimit: Int = conf.config.elasticSearch.maximumLimit
-
-    (limitInvalid, limitInt) match {
-      case (true, _) =>
-        logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-        Some(jsonBadRequest(LimitNotNumeric(queryValues)))
-      case (false, i) if i < 0 =>
-        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
-        Some(jsonBadRequest(LimitTooSmall(queryValues)))
-      case (false, i) if i > maxLimit =>
-        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
-        Some(jsonBadRequest(LimitTooLarge(queryValues)))
       case _ => None
     }
   }
 
-  def validateBatchThreshold(matchthreshold: Option[String], queryValues: QueryValues): Option[Result] = {
+  // maximumLimit and defaultLimit are inherited from AddressValidation
+  def validateBatchAddressLimit(limit: Option[String], queryValues: QueryValues): Option[Result] = {
+    def inner(limit: Int): Option[Result] = limit match {
+      case i if i < 0 =>
+        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        Some(jsonBadRequest(LimitTooSmall(queryValues)))
+      case i if maximumLimit < i =>
+        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseError.message)
+        Some(jsonBadRequest(LimitTooLarge(queryValues)))
+      case _ => None
+    }
 
-    val defThreshold: Float = conf.config.elasticSearch.matchThreshold
-    val threshval = matchthreshold.getOrElse(defThreshold.toString)
-    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
-    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
-    val thresholdInvalid = Try(threshval.toFloat).isFailure
+    limit match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          Some(jsonBadRequest(LimitNotNumeric(queryValues)))
+      }
+      case None => inner(defaultLimit)
+    }
+  }
 
-    if (thresholdInvalid) {
-      logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
-      Some(jsonBadRequest(ThresholdNotNumeric(queryValues)))
-    } else if (thresholdNotInRange) {
-      logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
-      Some(jsonBadRequest(ThresholdNotInRange(queryValues)))
-    } else None
+  // matchThreshold is inherited from AddressControllerValidation
+  def validateBatchThreshold(threshold: Option[String], queryValues: QueryValues): Option[Result] = {
+    def inner(threshold: Float): Option[Result] = threshold match {
+      case t if !(0 <= t && t <= 100) =>
+        logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+        Some(jsonBadRequest(ThresholdNotInRange(queryValues)))
+      case _ => None
+    }
+
+    threshold match {
+      case Some(t) => Try(t.toFloat) match {
+        case Success(tFloat) => inner(tFloat)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+          Some(jsonBadRequest(ThresholdNotNumeric(queryValues)))
+      }
+      case None => inner(matchThreshold)
+    }
   }
 
   def validateBatchEpoch(epoch: Option[String], queryValues: QueryValues): Option[Result] = {
-
-    val epochVal: String = epoch.getOrElse("")
-    val validEpochs: String = conf.config.elasticSearch.validEpochs
-
-    if (!epochVal.isEmpty) {
-      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
+    epoch match {
+      case None => None
+      case Some(epochStr) if epochStr.matches(epochRegex) => None
+      case Some(_) =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(jsonBadRequest(EpochInvalid(queryValues)))
-      } else None
-    } else None
-
+    }
   }
 }
 

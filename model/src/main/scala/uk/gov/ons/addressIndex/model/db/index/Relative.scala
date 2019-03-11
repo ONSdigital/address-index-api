@@ -14,7 +14,6 @@ case class Relative(level: Int,
   * If there is only one sibling it is the same as the main uprn
   */
 object Relative {
-
   object Fields {
     /**
       * Document Fields

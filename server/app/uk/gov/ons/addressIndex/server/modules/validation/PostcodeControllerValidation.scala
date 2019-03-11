@@ -9,11 +9,21 @@ import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerRespons
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with PostcodeControllerResponse {
+
+  // override error message with named length
+  object EpochNotAvailableErrorCustom extends AddressResponseError(
+    code = 36,
+    message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
+  )
+
+  override def PostcodeEpochInvalid(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues, EpochNotAvailableErrorCustom)
+  }
 
   override def LimitTooLargePostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
@@ -24,28 +34,31 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val defLimit: Int = conf.config.elasticSearch.defaultLimit
-    val limVal = limit.getOrElse(defLimit.toString)
-    val limitInvalid = Try(limVal.toInt).isFailure
-    val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
-    val maxLimit: Int = conf.config.elasticSearch.maximumLimit
-
-    (limitInvalid, limitInt) match {
-      case (true, _) =>
-        logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
-        Some(futureJsonBadRequest(LimitNotNumericPostcode(queryValues)))
-      case (false, i) if i < 0 =>
+    def inner(limit: Int): Option[Future[Result]] = limit match {
+      case l if l < 0 =>
         logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmallPostcode(queryValues)))
-      case (false, i) if i > maxLimit =>
+      case l if maximumLimit < l =>
         logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(LimitTooLargePostcode(queryValues)))
       case _ => None
     }
+
+    limit match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(LimitNotNumericPostcode(queryValues)))
+      }
+      case None => inner(defaultLimit)
+    }
   }
 
   def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val postcodeFilterRegex = """\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*"""
+    //    val postcodeFilterRegex = """\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*"""
+    val postcodeFilterRegex: String =
+      """\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
     val filterString: String = classificationFilter.getOrElse("")
 
     filterString match {
@@ -61,23 +74,24 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   def validatePostcodeOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val maxOffset: Int = conf.config.elasticSearch.maximumOffset
-    val defOffset: Int = conf.config.elasticSearch.defaultOffset
-    val offVal = offset.getOrElse(defOffset.toString)
-    val offsetInvalid = Try(offVal.toInt).isFailure
-    val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
-
-    (offsetInvalid, offsetInt) match {
-      case (true, _) =>
-        logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
-        Some(futureJsonBadRequest(OffsetNotNumericPostcode(queryValues)))
-      case (false, i) if i < 0 =>
+    def inner(offset: Int): Option[Future[Result]] = offset match {
+      case l if l < 0 =>
         logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(OffsetTooSmallPostcode(queryValues)))
-      case (false, i) if i > maxOffset =>
+      case l if maximumOffset < l =>
         logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(OffsetTooLargePostcode(queryValues)))
       case _ => None
+    }
+
+    offset match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(OffsetNotNumericPostcode(queryValues)))
+      }
+      case None => inner(defaultOffset)
     }
   }
 
@@ -94,31 +108,13 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
-  // set minimum string length from config
-  val validEpochs: String = conf.config.elasticSearch.validEpochs
-  val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
-
-  // override error message with named length
-  object EpochNotAvailableErrorCustom extends AddressResponseError(
-    code = 36,
-    message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
-  )
-
-  override def PostcodeEpochInvalid(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(queryValues, EpochNotAvailableErrorCustom)
-  }
-
-  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
-
-    val epochVal: String = queryValues.epochOrDefault
-
-    if (!epochVal.isEmpty) {
-      if (!epochVal.matches("""\b(""" + validEpochs + """)\b.*""")) {
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch = epochVal, postcode = queryValues.postcodeOrDefault)
+  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+    queryValues.epochOrDefault match {
+      case "" => None
+      case e if e.matches(validEpochsRegex) => None
+      case e =>
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch = e, postcode = queryValues.postcodeOrDefault)
         Some(futureJsonBadRequest(PostcodeEpochInvalid(queryValues)))
-      } else None
-    } else None
-
-  }
+    }
 
 }

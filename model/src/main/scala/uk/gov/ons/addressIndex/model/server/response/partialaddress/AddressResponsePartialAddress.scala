@@ -13,16 +13,15 @@ object AddressResponsePartialAddress {
     * @return
     */
   def fromHybridAddress(other: HybridAddress): AddressResponsePartialAddress = {
-
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
+    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse("")
 
     val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
+    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedNag).getOrElse("")
 
     val chosenPaf: Option[PostcodeAddressFileAddress] = other.paf.headOption
-    val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
-    val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
+    val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
+    val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
     AddressResponsePartialAddress(
       uprn = other.uprn,
@@ -42,20 +41,13 @@ object AddressResponsePartialAddress {
     * @return the NAG address that corresponds to the returned address
     */
   def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress], language: String): Option[NationalAddressGazetteerAddress] = {
-    // "if" is more readable than "getOrElse" in this case
-    if (addresses.exists(address => address.lpiLogicalStatus == "1" && address.language == language))
-      addresses.find(_.lpiLogicalStatus == "1")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "6" && address.language == language))
-      addresses.find(_.lpiLogicalStatus == "6")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "8" && address.language == language))
-      addresses.find(_.lpiLogicalStatus == "8")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "1"))
-      addresses.find(_.lpiLogicalStatus == "1")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "6"))
-      addresses.find(_.lpiLogicalStatus == "6")
-    else if (addresses.exists(address => address.lpiLogicalStatus == "8"))
-      addresses.find(_.lpiLogicalStatus == "8")
-    else addresses.headOption
+    addresses.find(addr => addr.lpiLogicalStatus == "1" && addr.language == language).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6" && addr.language == language)).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8" && addr.language == language)).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "1")).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6")).
+      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8")).
+      orElse(addresses.headOption)
   }
 }
 
@@ -69,12 +61,10 @@ object AddressResponsePartialAddress {
   * @param underlyingScore  score from elastic search
   *
   */
-case class AddressResponsePartialAddress(
-                                          uprn: String,
-                                          formattedAddress: String,
-                                          formattedAddressNag: String,
-                                          formattedAddressPaf: String,
-                                          welshFormattedAddressNag: String,
-                                          welshFormattedAddressPaf: String,
-                                          underlyingScore: Float
-                                        )
+case class AddressResponsePartialAddress(uprn: String,
+                                         formattedAddress: String,
+                                         formattedAddressNag: String,
+                                         formattedAddressPaf: String,
+                                         welshFormattedAddressNag: String,
+                                         welshFormattedAddressPaf: String,
+                                         underlyingScore: Float)

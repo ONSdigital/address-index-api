@@ -8,10 +8,8 @@ import play.api.libs.json.{Format, Json}
   * @param code  Source code
   * @param label Source name
   */
-case class AddressResponseSource(
-                                  code: String,
-                                  label: String
-                                )
+case class AddressResponseSource(code: String,
+                                 label: String)
 
 object AddressResponseSource {
   implicit lazy val addressResponseSourceFormat: Format[AddressResponseSource] = Json.format[AddressResponseSource]
