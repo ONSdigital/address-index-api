@@ -3,10 +3,12 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
+//import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
+//import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -422,14 +424,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = {
-    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, historical, verbose, epoch).start(start).limit(limit)
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = {
+    val request = generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch).limit(limit)
+//    val result = SearchBodyBuilderFn(generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch)).string()
+//    logger.warn(result)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = {
-    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, historical, verbose, epoch).start(start).limit(limit)
+  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = {
+    val request = generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch).limit(limit)
+//    val result = SearchBodyBuilderFn(generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch)).string()
+//    logger.warn(result)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddressesSkinny.fromEither)
   }
@@ -442,7 +448,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose flag to indicate that skinny index should be used when false
     * @return Search definition containing query to the ES
     */
-  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose:  Boolean = true, epoch: String): SearchDefinition = {
+  def generateQueryPostcodeRequest(postcode: String, filters: String, historical: Boolean = true, verbose:  Boolean = true, epoch: String): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -467,34 +473,15 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else postcode.toUpperCase
     }
 
-    val dateQuery: Option[QueryDefinition] = {
-      if (!startDate.isEmpty && !endDate.isEmpty) {
-        Some(
-          should(
-            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-      }
-      else None
-    }
-
-    val abQuery: Option[QueryDefinition] = {
-      if (verbose){
-        Option(not(termQuery("lpi.addressBasePostal", "N")))
-      }
-      else None
-    }
-
     val query =
       if (filters.isEmpty) {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(abQuery, dateQuery).flatten)
+        must(termQuery("postcode", postcodeFormatted))
     }else {
         if (filterType == "prefix") {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
+          must(termQuery("postcode", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix))).flatten)
         }
         else {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
+          must(termQuery("postcode", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm))).flatten)
         }
       }
 
@@ -503,18 +490,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     if (historical) {
       if (verbose) {
         search(hybridIndexHistoricalPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
         search(hybridIndexHistoricalSkinnyPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     } else {
       if (verbose) {
         search(hybridIndexPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
         search(hybridIndexSkinnyPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     }
   }
