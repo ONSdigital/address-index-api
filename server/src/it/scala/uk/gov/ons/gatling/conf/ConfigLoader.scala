@@ -24,7 +24,7 @@ object ConfigLoader {
       defaultValue
   }
 
-  def getPOSTRequestBodyJSONPath(): String = {
+  def getPOSTRequestBodyJSONPath: String = {
     // Take payload name from System Property. If not defined, use config file and,
     // finally fallback on deriving it from config key passed in as CONFIG_NAME
     val payloadFileName = ConfigLoader("payload_name", apiSpecificConfigName)

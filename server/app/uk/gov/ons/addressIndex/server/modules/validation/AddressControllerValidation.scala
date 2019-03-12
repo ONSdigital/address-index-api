@@ -46,14 +46,14 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
             logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
             Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
           case (Success(latDbl), Success(_)) if latDbl < 49.8 =>
-            logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
-            Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
+            logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
+            Some(futureJsonBadRequest(LatitudeTooFarSouth(queryValues)))
           case (Success(_), Success(lonDbl)) if lonDbl > 1.8 =>
-            logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
-            Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
+            logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
+            Some(futureJsonBadRequest(LongitudeTooFarEast(queryValues)))
           case (Success(_), Success(lonDbl)) if lonDbl < -8.6 =>
-            logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
-            Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
+            logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
+            Some(futureJsonBadRequest(LongitudeTooFarWest(queryValues)))
           case (Success(_), Success(_)) => None
         }
     }

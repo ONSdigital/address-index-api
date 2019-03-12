@@ -34,7 +34,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
     .shareConnections
     .authorizationHeader(apiKey)
 
-  val headers = Map("Upgrade-Insecure-Requests" -> "1")
+  val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
 
 
   // Get random address from other cluster, split up the address and capture UPRN

@@ -3,7 +3,8 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.searches.queries.QueryDefinition
+import com.sksamuel.elastic4s.searches.queries.geo.GeoDistanceQueryDefinition
+import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, DisMaxQueryDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
@@ -94,10 +95,41 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + clusterPolicyRandom
   private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
-  private val DATE_FORMAT = "yyyy-MM-dd"
+  private val dateFormat = "yyyy-MM-dd"
 
   val client: HttpClient = elasticClientProvider.client
   lazy val logger = GenericLogger("AddressIndexRepository")
+
+  private def getFilterType(filters: String): String = filters match {
+    case "residential" | "commercial" => "prefix"
+    case f if f.endsWith("*") => "prefix"
+    case _ => "term"
+  }
+
+  private def getFilterValuePrefix(filters: String): String = filters match {
+    case "residential" => "R"
+    case "commercial" => "C"
+    case f if f.endsWith("*") => filters.substring(0, filters.length - 1).toUpperCase
+    case f => f.toUpperCase()
+  }
+
+  private def getFilterValueTerm(filters: String): Seq[String] = filters.toUpperCase.split(",")
+
+  private def getEpochParam(epoch: String): String = epoch match {
+    case "" => "_current"
+    case _ => "_" + epoch
+  }
+
+  private def makeDateQuery(startDate: String, endDate: String): Option[QueryDefinition] = (startDate, endDate) match {
+    case ("", "") => None
+    case _ =>
+      Some(
+        should(
+          must(rangeQuery("paf.startDate").gte(startDate).format(dateFormat),
+            rangeQuery("paf.endDate").lte(endDate).format(dateFormat)),
+          must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(dateFormat),
+            rangeQuery("lpi.lpiEndDate").lte(endDate).format(dateFormat))))
+  }
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
@@ -126,23 +158,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         must(termQuery("uprn", uprn))
           .filter(
             should(
-              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+              must(rangeQuery("paf.startDate").gte(startDate).format(dateFormat),
+                rangeQuery("paf.endDate").lte(endDate).format(dateFormat)),
+              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(dateFormat),
+                rangeQuery("lpi.lpiEndDate").lte(endDate).format(dateFormat))))
 
       } else {
         termQuery("uprn", uprn)
       }
     }
 
-    val epochParam = {
-      if (epoch != "") {
-        "_" + epoch
-      } else {
-        "_current"
-      }
-    }
+    val epochParam = getEpochParam(epoch)
 
     if (historical) {
       search(hybridIndexHistoricalUprn + epochParam + hybridMapping).query(query)
@@ -176,24 +202,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         must(termQuery("uprn", uprn))
           .filter(
             should(
-              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
+              must(rangeQuery("paf.startDate").gte(startDate).format(dateFormat),
+                rangeQuery("paf.endDate").lte(endDate).format(dateFormat)),
+              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(dateFormat),
+                rangeQuery("lpi.lpiEndDate").lte(endDate).format(dateFormat))))
 
       } else {
         termQuery("uprn", uprn)
       }
     }
 
-    val epochParam = {
-      if (epoch != "") {
-        "_" + epoch
-      } else {
-        "_current"
-      }
-    }
-
+    val epochParam = getEpochParam(epoch)
 
     if (historical) {
       search(hybridIndexHistoricalSkinnyUprn + epochParam + hybridMapping).query(query)
@@ -310,42 +329,21 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     */
   def generateQueryPartialAddressRequest(input: String, filters: String, startDate: String, endDate: String, historical: Boolean = true, fallback: Boolean = false, verbose: Boolean = true, epoch: String): SearchDefinition = {
 
-    val filterType: String = {
-      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
-      else "term"
-    }
-
-    val filterValuePrefix: String = {
-      if (filters == "residential") "R"
-      else if (filters == "commercial") "C"
-      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
-      else filters.toUpperCase
-    }
-
-    val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
+    val filterType = getFilterType(filters)
+    val filterValuePrefix = getFilterValuePrefix(filters)
+    val filterValueTerm = getFilterValueTerm(filters)
 
     // collect all numbers in input as separate tokens
     val inputNumberList: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
 
     val slopVal = 4
 
-    val dateQuery: Option[QueryDefinition] = {
-      if (!startDate.isEmpty && !endDate.isEmpty) {
-        Some(
-          should(
-            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-      }
-      else None
-    }
+    val dateQuery = makeDateQuery(startDate, endDate)
 
     val abQuery: Option[QueryDefinition] = {
       if (verbose) {
         Option(not(termQuery("lpi.addressBasePostal", "N")))
-      }
-      else None
+      } else None
     }
 
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
@@ -357,16 +355,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
-              .filter(Seq(abQuery, dateQuery)
-                .flatten)
+              .filter(Seq(abQuery, dateQuery).flatten)
           }
           else {
             must(multiMatchQuery(input)
               .matchType("phrase")
               .slop(slopVal)
               .fields(fieldsToSearch))
-              .filter(Seq(abQuery, dateQuery)
-                .flatten)
+              .filter(Seq(abQuery, dateQuery).flatten)
           }
         } else {
           if (filterType == "prefix") {
@@ -374,16 +370,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
-                  .flatten)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
-                  .flatten)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
             }
           }
           else {
@@ -391,30 +385,27 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
-                  .flatten)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
-                  .flatten)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
             }
           }
         }
-      }
-      else {
+      } else {
         // if there is only one number, give boost for pao or sao not both.
         // if there are two or more numbers, boost for either matching pao and first matching sao
         val numberQuery =
         if (inputNumberList.length == 1) {
-          Seq(dismax(Seq(matchQuery("lpi.paoStartNumber", inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-            matchQuery("lpi.saoStartNumber", inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
+          Seq(dismax(Seq(matchQuery("lpi.paoStartNumber", inputNumberList.head).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("lpi.saoStartNumber", inputNumberList.head).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
         } else {
-          Seq(matchQuery("lpi.paoStartNumber", inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+          Seq(matchQuery("lpi.paoStartNumber", inputNumberList.head).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.paoStartNumber", inputNumberList(1)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-            matchQuery("lpi.saoStartNumber", inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
+            matchQuery("lpi.saoStartNumber", inputNumberList.head).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
         }
         if (filters.isEmpty) {
           if (fallback) {
@@ -422,16 +413,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("best_fields")
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(abQuery, dateQuery)
-                .flatten)
-          }
-          else {
+              .filter(Seq(abQuery, dateQuery).flatten)
+          } else {
             must(multiMatchQuery(input)
               .matchType("phrase").slop(slopVal)
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(abQuery, dateQuery)
-                .flatten)
+              .filter(Seq(abQuery, dateQuery).flatten)
           }
         } else {
           if (filterType == "prefix") {
@@ -440,47 +428,34 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
-                  .flatten)
-            }
-            else {
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
+            } else {
               must(multiMatchQuery(input)
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
-                  .flatten)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
             }
-          }
-          else {
+          } else {
             if (fallback) {
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
-                  .flatten)
-            }
-            else {
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
+            } else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
-                  .flatten)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
             }
           }
         }
       }
 
-    val epochParam = {
-      if (epoch != "") {
-        "_" + epoch
-      } else {
-        "_current"
-      }
-    }
+    val epochParam = getEpochParam(epoch)
 
     if (historical) {
       if (verbose) {
@@ -519,19 +494,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     */
   def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): SearchDefinition = {
 
-    val filterType: String = {
-      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
-      else "term"
-    }
-
-    val filterValuePrefix: String = {
-      if (filters == "residential") "R"
-      else if (filters == "commercial") "C"
-      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
-      else filters.toUpperCase
-    }
-
-    val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
+    val filterType = getFilterType(filters)
+    val filterValuePrefix = getFilterValuePrefix(filters)
+    val filterValueTerm = getFilterValueTerm(filters)
 
     val postcodeFormatted: String = {
       if (!postcode.contains(" ")) {
@@ -542,17 +507,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else postcode.toUpperCase
     }
 
-    val dateQuery: Option[QueryDefinition] = {
-      if (!startDate.isEmpty && !endDate.isEmpty) {
-        Some(
-          should(
-            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-      }
-      else None
-    }
+    val dateQuery = makeDateQuery(startDate, endDate)
 
     val abQuery: Option[QueryDefinition] = {
       if (verbose) {
@@ -573,11 +528,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }
       }
 
-    val epochParam = if (epoch.isEmpty) {
-      "_current"
-    } else {
-      "_" + epoch
-    }
+    val epochParam = getEpochParam(epoch)
 
     if (historical) {
       if (verbose) {
@@ -618,19 +569,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     */
   def generateQueryRandomRequest(filters: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): SearchDefinition = {
 
-    val filterType: String = {
-      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
-      else "term"
-    }
-
-    val filterValuePrefix: String = {
-      if (filters == "residential") "R"
-      else if (filters == "commercial") "C"
-      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
-      else filters.toUpperCase
-    }
-
-    val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
+    val filterType = getFilterType(filters)
+    val filterValuePrefix = getFilterValuePrefix(filters)
+    val filterValueTerm = getFilterValueTerm(filters)
 
     val timestamp: Long = System.currentTimeMillis
 
@@ -641,32 +582,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
-    val query =
-
-      if (filters.isEmpty) {
-        functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(abQuery).flatten))
-          .boostMode("replace")
-      } else {
-        if (filterType == "prefix") {
-          functionScoreQuery().functions(randomScore(timestamp.toInt))
-            .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery).flatten))
-            .boostMode("replace")
-        }
-        else {
-          functionScoreQuery().functions(randomScore(timestamp.toInt))
-            .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery).flatten))
-            .boostMode("replace")
-        }
-      }
-
-    val epochParam = {
-      if (epoch != "") {
-        "_" + epoch
-      } else {
-        "_current"
+    val queryInner = filters match {
+      case "" => boolQuery().filter(Seq(abQuery).flatten)
+      case _ => filterType match {
+        case "prefix" => boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery).flatten)
+        case _ => boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery).flatten)
       }
     }
+
+    val query = functionScoreQuery()
+      .functions(randomScore(timestamp.toInt))
+      .query(queryInner)
+      .boostMode("replace")
+
+    val epochParam = getEpochParam(epoch)
 
     if (historical) {
       if (verbose) {
@@ -702,17 +631,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val saoEndSuffix = tokens.getOrElse(Tokens.saoEndSuffix, "")
     val skipSao = saoEndNumber == "" && saoEndSuffix == ""
 
-    val dateQuery: Option[QueryDefinition] = {
-      if (!startDate.isEmpty && !endDate.isEmpty) {
-        Some(
-          should(
-            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-      }
-      else None
-    }
+    val dateQuery = makeDateQuery(startDate, endDate)
 
     val saoQuery = if (skipSao) Seq() else
       Seq(
@@ -841,9 +760,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           field = "lpi.paoText",
           value = token
         ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost)),
-
       paoBuildingNameMust
-
     ).flatten
 
     val buildingNumberQuery = if (skipPao) Seq(
@@ -960,9 +877,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           field = "lpi.postcodeLocator",
           value = token
         )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
-
       postcodeInOutMust
-
     ).flatten
 
     val organisationNameQuery = Seq(
@@ -1051,109 +966,54 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val normalizedInput = Tokens.concatenate(tokens)
 
-    val filterType: String = {
-      if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
-      else "term"
+    val filterType = getFilterType(filters)
+    val filterValuePrefix = getFilterValuePrefix(filters)
+    val filterValueTerm = getFilterValueTerm(filters)
+
+    val radiusQuery: Seq[GeoDistanceQueryDefinition] = range match {
+      case "" => Seq()
+      case _ => Seq(geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km"))
     }
 
-    val filterValuePrefix: String = {
-      if (filters == "residential") "R"
-      else if (filters == "commercial") "C"
-      else if (filters.endsWith("*")) filters.substring(0, filters.length - 1).toUpperCase
-      else filters.toUpperCase
+    // appended to other queries if found
+    val geoDistanceQueryInner: Option[GeoDistanceQueryDefinition] = range match {
+      case "" => None
+      case _ => Some(geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km"))
     }
 
-    val filterValueTerm: Seq[String] = filters.toUpperCase.split(",")
+    val prefixWithGeo: Seq[QueryDefinition] = Seq(prefixQuery("classificationCode", filterValuePrefix)) ++ geoDistanceQueryInner
 
-    val radiusQuery = {
-      if (range.equals(""))
-        Seq()
-      else
-        Seq(
-          geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km")
-        )
-    }
+    val termWithGeo: Seq[QueryDefinition] = Seq(termsQuery("classificationCode", filterValueTerm)) ++ geoDistanceQueryInner
 
-    val prefixWithGeo = if (range.equals(""))
-      Seq(prefixQuery("classificationCode", filterValuePrefix))
-    else
-      Seq(prefixQuery("classificationCode", filterValuePrefix), geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km"))
+    lazy val fallbackQueryStart: BoolQueryDefinition = bool(
+      Seq(dismax(
+        matchQuery("lpi.nagAll", normalizedInput)
+          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+          .boost(queryParams.fallback.fallbackLpiBoost),
+        matchQuery("paf.pafAll", normalizedInput)
+          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+          .boost(queryParams.fallback.fallbackPafBoost))
+        .tieBreaker(0.0)),
+      Seq(dismax(
+        matchQuery("lpi.nagAll.bigram", normalizedInput)
+          .fuzziness(queryParams.fallback.bigramFuzziness)
+          .boost(queryParams.fallback.fallbackLpiBigramBoost),
+        matchQuery("paf.pafAll.bigram", normalizedInput)
+          .fuzziness(queryParams.fallback.bigramFuzziness)
+          .boost(queryParams.fallback.fallbackPafBigramBoost))
+        .tieBreaker(0.0)),
+      Seq()).boost(queryParams.fallback.fallbackQueryBoost)
 
-    val termWithGeo = if (range.equals(""))
-      Seq(termsQuery("classificationCode", filterValueTerm))
-    else
-      Seq(termsQuery("classificationCode", filterValueTerm), geoDistanceQuery("lpi.location").point(lat.toDouble, lon.toDouble).distance(s"${range}km"))
-
-    val fallbackQuery =
-      if (filters.isEmpty) {
-        bool(
-          Seq(dismax(
-            matchQuery("lpi.nagAll", normalizedInput)
-              .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-              .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-              .boost(queryParams.fallback.fallbackLpiBoost),
-            matchQuery("paf.pafAll", normalizedInput)
-              .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-              .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-              .boost(queryParams.fallback.fallbackPafBoost))
-            .tieBreaker(0.0)),
-          Seq(dismax(
-            matchQuery("lpi.nagAll.bigram", normalizedInput)
-              .fuzziness(queryParams.fallback.bigramFuzziness)
-              .boost(queryParams.fallback.fallbackLpiBigramBoost),
-            matchQuery("paf.pafAll.bigram", normalizedInput)
-              .fuzziness(queryParams.fallback.bigramFuzziness)
-              .boost(queryParams.fallback.fallbackPafBigramBoost))
-            .tieBreaker(0.0)),
-          Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(radiusQuery ++ Seq(dateQuery).flatten)
+    lazy val fallbackQuery = filters match {
+      case "" => fallbackQueryStart.filter(radiusQuery ++ Seq(dateQuery).flatten)
+      case _ => filterType match {
+        case "prefix" => fallbackQueryStart.filter(prefixWithGeo ++ Seq(dateQuery).flatten)
+        case _ => fallbackQueryStart.filter(termWithGeo ++ Seq(dateQuery).flatten)
       }
-      else {
-        if (filterType == "prefix") {
-          bool(
-            Seq(dismax(
-              matchQuery("lpi.nagAll", normalizedInput)
-                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-                .boost(queryParams.fallback.fallbackLpiBoost),
-              matchQuery("paf.pafAll", normalizedInput)
-                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-                .boost(queryParams.fallback.fallbackPafBoost))
-              .tieBreaker(0.0)),
-            Seq(dismax(
-              matchQuery("lpi.nagAll.bigram", normalizedInput)
-                .fuzziness(queryParams.fallback.bigramFuzziness)
-                .boost(queryParams.fallback.fallbackLpiBigramBoost),
-              matchQuery("paf.pafAll.bigram", normalizedInput)
-                .fuzziness(queryParams.fallback.bigramFuzziness)
-                .boost(queryParams.fallback.fallbackPafBigramBoost))
-              .tieBreaker(0.0)),
-            Seq()).boost(queryParams.fallback.fallbackQueryBoost)
-            .filter(prefixWithGeo ++ Seq(dateQuery).flatten)
-        }
-        else {
-          bool(
-            Seq(dismax(
-              matchQuery("lpi.nagAll", normalizedInput)
-                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-                .boost(queryParams.fallback.fallbackLpiBoost),
-              matchQuery("paf.pafAll", normalizedInput)
-                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-                .boost(queryParams.fallback.fallbackPafBoost))
-              .tieBreaker(0.0)),
-            Seq(dismax(
-              matchQuery("lpi.nagAll.bigram", normalizedInput)
-                .fuzziness(queryParams.fallback.bigramFuzziness)
-                .boost(queryParams.fallback.fallbackLpiBigramBoost),
-              matchQuery("paf.pafAll.bigram", normalizedInput)
-                .fuzziness(queryParams.fallback.bigramFuzziness)
-                .boost(queryParams.fallback.fallbackPafBigramBoost))
-              .tieBreaker(0.0)),
-            Seq()).boost(queryParams.fallback.fallbackQueryBoost).filter(termWithGeo ++ Seq(dateQuery).flatten)
-        }
-      }
+    }
+
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
       buildingNameQuery,
@@ -1165,68 +1025,48 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
-    val townLocalityQueries = Seq(
+    val townLocalityQueries: Seq[DisMaxQueryDefinition] = Seq(
       townNameQuery,
       localityQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
-    val everythingMattersQueries = Seq(
+    val everythingMattersQueries: Seq[DisMaxQueryDefinition] = Seq(
       townLocalityQueries,
       paoQuery,
       saoQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
-    val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
+    val shouldQuery: Seq[DisMaxQueryDefinition] = bestOfTheLotQueries ++ everythingMattersQueries
     val shouldQueryItr = shouldQuery.asInstanceOf[Iterable[QueryDefinition]]
 
-    val query =
-      if (shouldQuery.isEmpty) fallbackQuery
-      else if (filters.isEmpty)
-        dismax(
-          should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(radiusQuery ++ Seq(dateQuery).flatten), fallbackQuery)
-          .tieBreaker(queryParams.topDisMaxTieBreaker)
-      else if (filterType == "prefix") dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(prefixWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
-        .tieBreaker(queryParams.topDisMaxTieBreaker)
-      else dismax(
-        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(termWithGeo ++ Seq(dateQuery).flatten), fallbackQuery)
-        .tieBreaker(queryParams.topDisMaxTieBreaker)
+    lazy val queryFilter = if (filters.isEmpty)
+      radiusQuery
+    else if (filterType == "prefix")
+      prefixWithGeo
+    else
+      termWithGeo
 
-    val epochParam = {
-      if (epoch != "") {
-        "_" + epoch
-      } else {
-        "_current"
-      }
+    val query = shouldQuery match {
+      case Seq() => fallbackQuery
+      case _ => dismax(
+        should(shouldQueryItr).minimumShouldMatch(queryParams.mainMinimumShouldMatch).filter(queryFilter ++ Seq(dateQuery).flatten), fallbackQuery)
+        .tieBreaker(queryParams.topDisMaxTieBreaker)
     }
 
-    if (historical) {
-      if (isBulk) {
-        search(hybridIndexHistoricalBulk + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-          .trackScores(true)
-          .searchType(SearchType.DfsQueryThenFetch)
-      } else {
-        search(hybridIndexHistoricalAddress + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-          .trackScores(true)
-          .searchType(SearchType.DfsQueryThenFetch)
-      }
+    val epochParam = getEpochParam(epoch)
+
+    val source = if (historical) {
+      if (isBulk) hybridIndexHistoricalBulk else hybridIndexHistoricalAddress
     } else {
-      if (isBulk) {
-        search(hybridIndexBulk + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-          .trackScores(true)
-          .searchType(SearchType.DfsQueryThenFetch)
-      } else {
-        search(hybridIndexAddress + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-          .trackScores(true)
-          .searchType(SearchType.DfsQueryThenFetch)
-      }
+      if (isBulk) hybridIndexBulk else hybridIndexAddress
     }
+
+    search(source + epochParam + hybridMapping).query(query)
+      .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+      .trackScores(true)
+      .searchType(SearchType.DfsQueryThenFetch)
   }
 
   def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {

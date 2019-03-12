@@ -88,30 +88,31 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     val epochVal: Option[String] = Try(request.body.asFormUrlEncoded.get("epoch").mkString).toOption
 
-    if (addressText.trim.isEmpty) {
-      logger info "Single Match with Empty input address"
-      val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
-        singleSearchForm = SingleMatchController.form,
-        rangekm = None,
-        lat = None,
-        lon = None,
-        warningMessage = Some(messagesApi("single.pleasesupply")),
-        pageNum = 1,
-        pageSize = pageSize,
-        addressBySearchResponse = None,
-        classification = None,
-        version = version)
-      Future.successful(
-        Ok(viewToRender)
-      )
-    } else if (Try(addressText.toLong).isSuccess) {
-      Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(filterText), Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse("")), Some(epochVal.getOrElse(""))))
-      )
-    } else {
-      Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
-      )
+    addressText.trim match {
+      case "" =>
+        logger info "Single Match with Empty input address"
+        val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.singleMatch(
+          singleSearchForm = SingleMatchController.form,
+          rangekm = None,
+          lat = None,
+          lon = None,
+          warningMessage = Some(messagesApi("single.pleasesupply")),
+          pageNum = 1,
+          pageSize = pageSize,
+          addressBySearchResponse = None,
+          classification = None,
+          version = version)
+        Future.successful(
+          Ok(viewToRender)
+        )
+      case s if Try(addressText.toLong).isSuccess =>
+        Future.successful(
+          Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetUprn(addressText, Some(filterText), Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse("")), Some(epochVal.getOrElse(""))))
+        )
+      case _ =>
+        Future.successful(
+          Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchthresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+        )
     }
   }
 

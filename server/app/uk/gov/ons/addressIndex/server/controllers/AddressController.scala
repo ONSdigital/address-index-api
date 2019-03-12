@@ -41,14 +41,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     * @return Json response with addresses information
     */
   def addressQuery(implicit input: String, offset: Option[String] = None, limit: Option[String] = None,
-                   classificationfilter: Option[String] = None, rangekm: Option[String] = None,
+                   classificationFilter: Option[String] = None, rangekm: Option[String] = None,
                    lat: Option[String] = None, lon: Option[String] = None,
-                   //                 startDate: Option[String] = None, endDate: Option[String] = None,
+                   // startDate: Option[String] = None, endDate: Option[String] = None,
                    historical: Option[String] = None,
-                   matchthreshold: Option[String] = None,
+                   matchThreshold: Option[String] = None,
                    verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
-    val clusterid = conf.config.elasticSearch.clusterPolicies.address
+    val clusterId = conf.config.elasticSearch.clusterPolicies.address
 
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
@@ -64,11 +64,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val defOffset = conf.config.elasticSearch.defaultOffset
     val defThreshold = conf.config.elasticSearch.matchThreshold
 
-    val limval = limit.getOrElse(defLimit.toString)
-    val offval = offset.getOrElse(defOffset.toString)
-    val threshval = matchthreshold.getOrElse(defThreshold.toString)
+    val limVal = limit.getOrElse(defLimit.toString)
+    val offVal = offset.getOrElse(defOffset.toString)
+    val threshVal = matchThreshold.getOrElse(defThreshold.toString)
 
-    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
+    val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "address"
 
     val hist = historical match {
@@ -89,26 +89,25 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val epochVal = epoch.getOrElse("")
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
-
-      val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
+      val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
-        input = input, offset = offval, limit = limval, filter = filterString,
+        input = input, offset = offVal, limit = limVal, filter = filterString,
         //  endDate=endDateVal, startDate = startDateVal,
         historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid)
+        numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
+        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterId)
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
     }
 
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
-    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
-    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
+    val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
+    val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
+    val thresholdFloat = Try(threshVal.toFloat).toOption.getOrElse(defThreshold)
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
@@ -126,10 +125,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     )
 
     val result: Option[Future[Result]] =
-      addressValidation.validateAddressFilter(classificationfilter, queryValues)
+      addressValidation.validateAddressFilter(classificationFilter, queryValues)
         //     .orElse(addressValidation.validateStartDate(startDateVal))
         //    .orElse(addressValidation.validateEndDate(endDateVal))
-        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues))
+        .orElse(addressValidation.validateThreshold(matchThreshold, queryValues))
         .orElse(addressValidation.validateRange(rangekm, queryValues))
         .orElse(addressValidation.validateSource(queryValues))
         .orElse(addressValidation.validateKeyStatus(queryValues))
@@ -141,7 +140,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(None)
 
     result match {
-
       case Some(res) =>
         res // a validation error
 
@@ -160,16 +158,16 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
         request.map {
           case HybridAddresses(hybridAddresses, maxScore, total@_) =>
-
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
+
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator = Try(
               ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))
             ).getOrElse(1D)
-            // calculate the Hopper and hybrid scores for each  address
 
+            // calculate the Hopper and hybrid scores for each  address
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(
               addresses, tokens, elasticDenominator)
 
@@ -179,8 +177,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(
               _.confidenceScore)(Ordering[Double].reverse)
-            // capture the number of matches before applying offset and limit
 
+            // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
 
             // trim the result list according to offset and limit paramters
@@ -227,7 +225,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             )
         }.recover {
           case NonFatal(exception) =>
-
             overloadProtection.currentStatus match {
               case ThrottlerStatus.HalfOpen =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")

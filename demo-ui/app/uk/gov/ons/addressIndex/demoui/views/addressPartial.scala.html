@@ -29,7 +29,7 @@
                             <span class="formatted-nag-button active">LA</span>
                             <span class="formatted-paf-button">PAF</span>
                         </div>
-                       <div  class="eng-wyc-switch-buttons address-switch-buttons @if(address.welshFormattedAddressNag.isEmpty && address.welshFormattedAddressPaf) { disabled " title="No welsh address found"} else {"}>
+                        <div class="eng-wyc-switch-buttons address-switch-buttons @if(address.welshFormattedAddressNag.isEmpty && address.welshFormattedAddressPaf) { disabled " title="No welsh address found"} else {"}>
                             <span class="formatted-language-button-eng active">ENG</span>
                             <span class="formatted-language-button-cym">CYM</span>
                         </div>
@@ -41,6 +41,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="resultRow formatted-address">
                     <div>
                         <strong>@messages("single.address"): </strong>
@@ -54,6 +55,7 @@
                         </span>
                     </div>
                 </div>
+
                 <div class="resultRow">
                     <div class="uprn-txt"><strong>@messages("single.uprn"): </strong>&nbsp;@address.uprn</div>
                     @if(address.geo.isEmpty) {
@@ -72,6 +74,7 @@
                         </div>
                     }
                 </div>
+
                 <div class="resultRow">
                     <strong>@messages("single.classification"): </strong>
                     @if(address.nag.isEmpty) {
@@ -82,6 +85,7 @@
                         }
                     }
                 </div>
+
                 <div class="resultRow">
                     <strong>@messages("clerical.la"):</strong>
                     <span class="formatted-nag"> @address.nag.map{ nag => @nag(0).localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}  |  @address.nag.map{ nag => @nag(0).localCustodianGeogCode}</span>
@@ -112,20 +116,24 @@
                             }&expand=-1#@index">Hide</a>
                         </div>
                         }
+
                         <div class="clerical2">
                             <strong>@messages("clerical.logicalstatus"): </strong>
                             <span class="clericalgrey"> @address.nag.map { nag => @messages("logical." + nag(0).logicalStatus) }</span>
                         </div>
+
                         @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
                             <div class="clerical2">
                                 <strong>@messages("single.enddate"): </strong>
                                 <span class="clericalgrey">&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }</span>
                             </div>
                         }
+
                         <div class="clerical2">
                             <strong>@messages("clerical.elasticscore"): </strong>
                             <span class="clericalgrey"> @address.underlyingScore</span>
                         </div>
+
                         <div class="clerical2">
                             <strong>@messages("clerical.parentuprn"): </strong>
                             <span class="clericalgrey">
@@ -136,13 +144,16 @@
                             }
                             </span>
                         </div>
+
                         <div class="clerical2">
                             <strong>@messages("clerical.la"):</strong>
                             <span class="clericalgrey"> @address.nag.map { nag => @nag(0).localCustodianName } | @address.nag.map { nag => @nag(0).localCustodianGeogCode }</span>
                         </div>
+
                         <div class="clerical2">
                             <strong>@messages("clerical.ta"):</strong>
                         </div>
+
                         <div class="taTable">
                             @*PAF TABLE*@
                             <div class="taRowH">
@@ -790,6 +801,7 @@
                                 @address.nag.map { nag => @nag(0).postcodeLocator }
                                 </div>
                             </div>
+
                             @*NAG TABLE*@
                             <div class="taRowH">
                                 <div class="taColumn1H">
@@ -805,6 +817,7 @@
                                 @messages("clerical.outputdata")
                                 </div>
                             </div>
+
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.postcode")
@@ -823,6 +836,7 @@
                                 }
                                 </div>
                             </div>
+
                             <div class="taRow">
                                 <div class="taColumn1bottom">
                                 @messages("clerical.token.postcode")
@@ -841,6 +855,7 @@
                                 }
                                 </div>
                             </div>
+
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.all")
@@ -855,6 +870,7 @@
                                 @address.formattedAddressPaf.replaceAll(",", "")
                                 </div>
                             </div>
+
                             <div class="taRow">
                                 <div class="taColumn1bottom">
                                 @messages("clerical.token.all")
@@ -869,8 +885,8 @@
                                 @address.formattedAddressNag.replaceAll(",", "")
                                 </div>
                             </div>
-
                         </div>
+
                         <div class="clerical2">
                             <details>
                                 <summary><strong>See Hierarchy Information</strong></summary>
@@ -885,6 +901,7 @@
                                 }
                             </details>
                         </div>
+
                         @if(index >= 0) {
                             <div class="clericalInfo">
                                 <a href="?filter=@{filter}&page=@{

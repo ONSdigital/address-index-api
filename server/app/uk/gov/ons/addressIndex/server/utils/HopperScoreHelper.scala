@@ -35,7 +35,7 @@ object HopperScoreHelper {
     val localityParams = addresses.map(address => getLocalityParams(address, tokens))
     val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, address, tokens, localityParams, elasticDenominator) }
     val endingTime = System.currentTimeMillis()
-    logger.trace("Hopper Score calucation time = " + (endingTime - startingTime) + " milliseconds")
+    logger.trace("Hopper Score calculation time = " + (endingTime - startingTime) + " milliseconds")
     scoredAddresses
   }
 
@@ -44,7 +44,7 @@ object HopperScoreHelper {
     val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens))
     val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens, localityParams, elasticDenominator) }
     val endingTime = System.currentTimeMillis()
-    logger.trace("Hopper Score calucation time = " + (endingTime - startingTime) + " milliseconds")
+    logger.trace("Hopper Score calculation time = " + (endingTime - startingTime) + " milliseconds")
     scoredAddresses
   }
 
@@ -271,10 +271,8 @@ object HopperScoreHelper {
     if (buildingName == pafBuildingName || organisationName == pafOrganisationName || buildingName == pafOrganisationName || organisationName == pafBuildingName) 1
     else if (pafOrganisationMatchScore < 2 || pafBuildingMatchScore < 2 || pafXrefMatchScore < 2) 2
     else if (pafOrganisationMatchScore < 3 || pafBuildingMatchScore < 3 || pafXrefMatchScore < 3) 3
-    else if (buildingName == empty && organisationName == empty &&
-      pafOrganisationName == "" && pafBuildingName == "") 9
-    else if (!((buildingName != empty && pafBuildingName != "") ||
-      (organisationName != empty && pafOrganisationName != ""))) 7
+    else if (buildingName == empty && organisationName == empty && pafOrganisationName == "" && pafBuildingName == "") 9
+    else if (!((buildingName != empty && pafBuildingName != "") || (organisationName != empty && pafOrganisationName != ""))) 7
     else 6
   }
 

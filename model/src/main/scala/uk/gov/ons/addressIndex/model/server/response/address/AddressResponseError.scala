@@ -63,7 +63,7 @@ object OffsetTooLargeAddressResponseError extends AddressResponseError(
 
 object FailedRequestToEsError extends AddressResponseError(
   code = 10,
-  message = "Request to Elasticsearch failed (see logs)"
+  message = "Request to ElasticSearch failed (see logs)"
 )
 
 object ApiKeyMissingError extends AddressResponseError(
@@ -105,7 +105,7 @@ object EmptyQueryPostcodeAddressResponseError extends AddressResponseError(
 
 object FailedRequestToEsPostcodeError extends AddressResponseError(
   code = 18,
-  message = "Request to Elasticsearch failed (postcode)(see logs)"
+  message = "Request to ElasticSearch failed (postcode)(see logs)"
 )
 
 // This error is currently not used, a 200 with no addresses found is returned instead
@@ -126,7 +126,7 @@ object RangeNotNumericAddressResponseError extends AddressResponseError(
 
 object LatitudeNotNumericAddressResponseError extends AddressResponseError(
   code = 22,
-  message = "Latitiude parameter is not numeric. The API expects decimal degrees."
+  message = "Latitude parameter is not numeric. The API expects decimal degrees."
 )
 
 object LongitudeNotNumericAddressResponseError extends AddressResponseError(
@@ -136,7 +136,7 @@ object LongitudeNotNumericAddressResponseError extends AddressResponseError(
 
 object LatitudeTooFarNorthAddressResponseError extends AddressResponseError(
   code = 24,
-  message = "Latitiude parameter must be less than 60.9"
+  message = "Latitude parameter must be less than 60.9"
 )
 
 object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
@@ -146,7 +146,7 @@ object LatitudeTooFarSouthAddressResponseError extends AddressResponseError(
 
 object LongitudeTooFarEastAddressResponseError extends AddressResponseError(
   code = 26,
-  message = "Latitiude parameter must be less than 1.8"
+  message = "Longitude parameter must be less than 1.8"
 )
 
 object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
@@ -156,17 +156,17 @@ object LongitudeTooFarWestAddressResponseError extends AddressResponseError(
 
 object ThresholdNotNumericAddressResponseError extends AddressResponseError(
   code = 28,
-  message = "Matchthreshold parameter is not numeric"
+  message = "MatchThreshold parameter is not numeric"
 )
 
 object ThresholdNotInRangeAddressResponseError extends AddressResponseError(
   code = 29,
-  message = "Matchthreshold parameter must be greater than 0 and less than or equal to 100"
+  message = "MatchThreshold parameter must be greater than 0 and less than or equal to 100"
 )
 
 object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 30,
-  message = "Request to Elasticsearch failed (partial address)(see logs)"
+  message = "Request to ElasticSearch failed (partial address)(see logs)"
 )
 
 object StartDateInvalidResponseError extends AddressResponseError(
@@ -191,7 +191,7 @@ object MixedFilterError extends AddressResponseError(
 
 object FailedRequestToEsRandomError extends AddressResponseError(
   code = 35,
-  message = "Request to Elasticsearch failed (random)(see logs)"
+  message = "Request to ElasticSearch failed (random)(see logs)"
 )
 
 object EpochNotAvailableError extends AddressResponseError(
@@ -201,5 +201,5 @@ object EpochNotAvailableError extends AddressResponseError(
 
 object FailedRequestToEsUprnError extends AddressResponseError(
   code = 37,
-  message = "Request to Elasticsearch failed (uprn)(see logs)"
+  message = "Request to ElasticSearch failed (uprn)(see logs)"
 )

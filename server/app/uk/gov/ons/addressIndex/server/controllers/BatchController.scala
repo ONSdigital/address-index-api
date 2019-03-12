@@ -92,7 +92,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
         bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = false,
-          startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, thresholdFloat, clusterid = clusterID)
+          startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, thresholdFloat, clusterId = clusterID)
     }
   }
 
@@ -166,9 +166,12 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitperaddress: Option[String],
-                //   startDate: Option[String] = None, endDate: Option[String] = None,
-                historical: Option[String] = None, matchthreshold: Option[String] = None, epoch: Option[String]): Action[BulkBodyDebug] = Action(
+  def bulkDebug(limitPerAddress: Option[String],
+                // startDate: Option[String] = None,
+                // endDate: Option[String] = None,
+                historical: Option[String] = None,
+                matchThreshold: Option[String] = None,
+                epoch: Option[String]): Action[BulkBodyDebug] = Action(
     parse.json[BulkBodyDebug]) { implicit request =>
 
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
@@ -184,11 +187,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val endDateVal = ""
 
     val defLimit = conf.config.bulk.limitperaddress
-    val limval = limitperaddress.getOrElse(defLimit.toString)
+    val limval = limitPerAddress.getOrElse(defLimit.toString)
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
     val defThreshold = conf.config.bulk.matchThreshold
-    val threshval = matchthreshold.getOrElse(defThreshold.toString)
+    val threshval = matchThreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
     val epochVal = epoch.getOrElse("")
@@ -209,7 +212,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus(queryValues))
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
+        .orElse(batchValidation.validateBatchThreshold(matchThreshold, queryValues))
         .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
         .orElse(None)
 
@@ -257,7 +260,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                                                 epoch: String,
                                                 matchThreshold: Float,
                                                 includeFullAddress: Boolean = false,
-                                                clusterid: String = "",
+                                                clusterId: String = "",
                                                 canUpScale: Boolean = true,
                                                 successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty): Stream[Seq[AddressBulkResponseAddress]] = {
 
@@ -281,16 +284,16 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
-    if (requestsLeft.isEmpty)
+    if (requestsLeft.isEmpty) {
       successfulResults ++ result.successfulBulkAddresses
-    else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
+    } else if (miniBatchSize == 1 && result.failedRequests.nonEmpty) {
       throw new Exception(
         s"""
            Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.
            Last request failure message: ${result.failedRequests.head.lastFailExceptionMessage}
         """
       )
-    else {
+    } else {
       val miniBatchUpscale = conf.config.bulk.batch.upscale
       val miniBatchDownscale = conf.config.bulk.batch.downscale
       val newMiniBatchSize =
@@ -302,7 +305,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
       iterateOverRequestsWithBackPressure(
         requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, startDate, endDate, historical, epoch, matchThreshold,
-        includeFullAddress, clusterid, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses
+        includeFullAddress, clusterId, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses
       )
     }
   }
@@ -316,19 +319,17 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(
-                          inputs: Stream[BulkAddressRequestData],
-                          limitperaddress: Int,
-                          configOverwrite: Option[QueryParamsConfig] = None,
-                          startDate: String, endDate: String,
-                          historical: Boolean,
-                          epoch: String,
-                          matchThreshold: Float,
-                          includeFullAddress: Boolean = false,
-                        ): Future[BulkAddresses] = {
+  def queryBulkAddresses(inputs: Stream[BulkAddressRequestData],
+                         limitPerAddress: Int,
+                         configOverwrite: Option[QueryParamsConfig] = None,
+                         startDate: String, endDate: String,
+                         historical: Boolean,
+                         epoch: String,
+                         matchThreshold: Float,
+                         includeFullAddress: Boolean = false): Future[BulkAddresses] = {
 
     val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(
-      inputs, limitperaddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress, epoch
+      inputs, limitPerAddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress, epoch
     )
 
     val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(
@@ -348,25 +349,24 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     row => BulkAddressRequestData(row.id, row.address, parser.parse(row.address))
   }
 
-  private def bulkQuery(
-                         requestData: Stream[BulkAddressRequestData],
-                         configOverwrite: Option[QueryParamsConfig],
-                         limitperaddress: Option[Int],
-                         includeFullAddress: Boolean,
-                         startDate: String, endDate: String,
-                         historical: Boolean,
-                         epoch: String,
-                         matchThreshold: Float,
-                         clusterid: String = ""
+  private def bulkQuery(requestData: Stream[BulkAddressRequestData],
+                        configOverwrite: Option[QueryParamsConfig],
+                        limitPerAddress: Option[Int],
+                        includeFullAddress: Boolean,
+                        startDate: String, endDate: String,
+                        historical: Boolean,
+                        epoch: String,
+                        matchThreshold: Float,
+                        clusterId: String = ""
                        )(implicit request: Request[_]): Result = {
 
     val startingTime = System.currentTimeMillis()
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
-    val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
+    val resultLimit = limitPerAddress.getOrElse(conf.config.bulk.limitperaddress)
     val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(
       requestData, defaultBatchSize, Some(resultLimit), configOverwrite, startDate, endDate,
-      historical, epoch, matchThreshold, includeFullAddress, clusterid
+      historical, epoch, matchThreshold, includeFullAddress, clusterId
     )
 
     logger.info("#bulkQuery processed")
@@ -393,7 +393,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
       bulkSize = requestData.size.toString, networkid = networkid, organisation = organisation,
-      clusterid = clusterid
+      clusterid = clusterId
     )
 
     response

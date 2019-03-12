@@ -70,8 +70,8 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
         logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
       case o if maximumOffset < o =>
-        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
-        Some(futureJsonBadRequest(LimitTooLarge(queryValues)))
+        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(OffsetTooLarge(queryValues)))
       case _ => None
     }
 

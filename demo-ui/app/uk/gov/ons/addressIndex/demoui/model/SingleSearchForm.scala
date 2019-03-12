@@ -14,6 +14,6 @@ case class SingleSearchForm(address: String,
                             enddate: String)
 
 object SingleSearchForm {
-  val jsonFmt = Json.format[SingleSearchForm]
+  val jsonFmt: OFormat[SingleSearchForm] = Json.format[SingleSearchForm]
 }
 

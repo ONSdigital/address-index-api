@@ -1,6 +1,7 @@
 package uk.gov.ons.gatling.simulations
 
 import io.gatling.core.Predef._
+import io.gatling.core.feeder.RecordSeqFeederBuilder
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
@@ -31,10 +32,10 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
     .shareConnections
     .authorizationHeader(apiKey)
 
-  val headers = Map("Upgrade-Insecure-Requests" -> "1")
+  val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
 
   // partial addresses from the Random Address Generator
-  val feeder = csv("typeahead2.csv").circular
+  val feeder: RecordSeqFeederBuilder[String] = csv("typeahead2.csv").circular
 
   val uprns: List[String] = List(
     "100021379998",

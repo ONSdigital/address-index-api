@@ -35,7 +35,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
 
   def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
-      case l if l < 0 =>
+      case l if l < 1 =>
         logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmallPostcode(queryValues)))
       case l if maximumLimit < l =>

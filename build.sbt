@@ -44,11 +44,11 @@ lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
   // The following will cause parsers/.../resources directory to be added to the list of mappings recursively
   // excluding .md and .conf files
   mappings in Universal ++= {
-    val rootDir = (baseDirectory.value).getParentFile
+    val rootDir = baseDirectory.value.getParentFile
 
-    def directoryToAdd = (rootDir / "parsers/src/main/resources")
+    def directoryToAdd = rootDir / "parsers/src/main/resources"
 
-    ((directoryToAdd.***) * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
+    (directoryToAdd.*** * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
   }
 )
 
@@ -192,8 +192,8 @@ lazy val `address-index-server` = project.in(file("server"))
 
       // Move any files in "parsers" directory to root
       val mappings: Set[(File, String)] = extractedFiles.map(f => {
-        val relativePathWithoutRootDir = f.getAbsolutePath.substring(originalFileName.getParent.size + base.size + 2)
-        val relativePathWithRootDir = f.getAbsolutePath.substring(originalFileName.getParent.size + 1)
+        val relativePathWithoutRootDir = f.getAbsolutePath.substring(originalFileName.getParent.length + base.length + 2)
+        val relativePathWithRootDir = f.getAbsolutePath.substring(originalFileName.getParent.length + 1)
 
         val justFileName = f.getName
 

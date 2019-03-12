@@ -279,14 +279,12 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         requestsData.map {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
-          case requestData => {
+          case requestData =>
             val emptyBulk = BulkAddress.empty(requestData)
             val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
             val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
 
             Right(Seq(emptyBulkAddress))
-          }
-
         }
       }
 

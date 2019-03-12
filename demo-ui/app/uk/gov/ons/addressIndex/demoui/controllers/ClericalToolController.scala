@@ -474,7 +474,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
         val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
         val expandr = expand.getOrElse(-1)
-        val limit = pageSize.toString()
+        val limit = pageSize.toString
         val pageNum = page.getOrElse(1)
         val offNum = (pageNum - 1) * pageSize
         val offset = offNum.toString
