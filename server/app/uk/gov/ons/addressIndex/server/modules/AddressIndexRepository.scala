@@ -81,14 +81,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private def getEpochParam(epoch: String): String = if (epoch.isEmpty) "_current" else "_" + epoch
 
   private def makeDateQuery(startDate: String, endDate: String): Option[QueryDefinition] = {
-    if (startDate.isEmpty && endDate.isEmpty)
-      None
-    else
-      Some(should(
-        must(rangeQuery("paf.startDate").gte(startDate).format(dateFormat),
-          rangeQuery("paf.endDate").lte(endDate).format(dateFormat)),
-        must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(dateFormat),
-          rangeQuery("lpi.lpiEndDate").lte(endDate).format(dateFormat))))
+    if (startDate.isEmpty && endDate.isEmpty) None
+    else Some(should(
+      must(rangeQuery("paf.startDate").gte(startDate).format(dateFormat),
+        rangeQuery("paf.endDate").lte(endDate).format(dateFormat)),
+      must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(dateFormat),
+        rangeQuery("lpi.lpiEndDate").lte(endDate).format(dateFormat))))
   }
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
@@ -195,6 +193,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, historical, fallback = false, verbose, epoch).start(start).limit(limit)
     val partResult = client.execute(request).map(HybridAddresses.fromEither)
+
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     partResult.map { adds =>
       if (adds.addresses.isEmpty) queryPartialAddressFallback(input, start, limit, filters, startDate, endDate, historical, verbose, epoch)
