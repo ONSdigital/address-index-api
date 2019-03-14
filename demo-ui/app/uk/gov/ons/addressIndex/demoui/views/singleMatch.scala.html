@@ -5,17 +5,12 @@
 @import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
-    filter: Option[String],
     rangekm: Option[String],
     lat: Option[String],
     lon: Option[String],
-    historical: Boolean,
-    startdate: Option[String],
-    enddate: Option[String],
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
-    pageMax: Int,
     addressBySearchResponse: Option[AddressBySearchResponse],
     classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
@@ -80,11 +75,11 @@ version: DemoUIAddressIndexVersionModule
                         singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
                         singleSearchForm("startdate").value.getOrElse(""),
                         singleSearchForm("enddate").value.getOrElse(""),
-                        aresponse.maxScore,
+                        epoch = "",
                         classification
                         )
                         }
-                        @pager(pageNum,pageSize,pageMax,address = singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, "single", rangekm = rangekm, lat = lat, lon = lon, historical = singleSearchForm("historical").value.getOrElse("true").toBoolean, matchthreshold = singleSearchForm("matchthreshold").value.getOrElse("5").toInt, startdate = singleSearchForm("startdate").value.getOrElse(""), enddate = singleSearchForm("enddate").value.getOrElse(""))
+                        @pager(pageNum,pageSize,address = singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, "single", rangekm = rangekm, lat = lat, lon = lon, historical = singleSearchForm("historical").value.getOrElse("true").toBoolean, matchthreshold = singleSearchForm("matchthreshold").value.getOrElse("5").toInt, startdate = singleSearchForm("startdate").value.getOrElse(""), enddate = singleSearchForm("enddate").value.getOrElse(""), epoch = "")
                         }
                     </div>
                 </section>

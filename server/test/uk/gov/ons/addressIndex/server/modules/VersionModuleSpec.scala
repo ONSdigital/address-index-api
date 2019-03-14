@@ -30,7 +30,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNode
   val hybridIndex1 = "hybrid_33_202020"
   val hybridIndex2 = "hybrid_34_202020"
   val hybridIndex3 = "hybrid_35_202020"
-  val hybridAlias = testConfig.config.elasticSearch.indexes.hybridIndex
+  val hybridAlias = testConfig.config.elasticSearch.indexes.hybridIndex + "_current"
 
   testClient.execute(
     bulk(

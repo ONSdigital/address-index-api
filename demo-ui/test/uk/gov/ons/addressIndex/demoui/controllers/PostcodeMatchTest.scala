@@ -124,7 +124,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-      .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None).apply(FakeRequest().withSession("api-key" -> ""))
+      .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -155,7 +155,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then
@@ -188,7 +188,7 @@ class PostcodeMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), Some(startdate), Some(enddate)).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), Some(startdate), Some(enddate), Some("")).apply(FakeRequest().withSession("api-key" -> ""))
       val content = contentAsString(response)
 
       // Then

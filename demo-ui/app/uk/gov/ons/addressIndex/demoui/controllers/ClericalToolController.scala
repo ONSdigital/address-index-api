@@ -19,15 +19,14 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResp
 import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 import scala.util.Try
 
 /**
   * Controller class for a single address to be matched
-  * @param conf
-  * @param messagesApi
-  * @param apiClient
-  * @param ec
+  * @param conf conf
+  * @param messagesApi messagesApi
+  * @param apiClient apiClient
+  * @param ec ec
   */
 @Singleton
 class ClericalToolController @Inject()(
@@ -65,8 +64,6 @@ class ClericalToolController @Inject()(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
       query = "",
-      filter = "",
-      historical = false,
       dates = Map.empty,
       pageNum = 1,
       pageSize = pageSize,
@@ -75,12 +72,10 @@ class ClericalToolController @Inject()(
       pagerAction = "clerical",
       addressBySearchResponse = None,
       classification = None,
-      apiUrl = apiUrl,
       version = version,
       placeholder = messagesApi("clericalsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
-      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-      apiKey = apiKey
+      placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
     )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
@@ -99,6 +94,7 @@ class ClericalToolController @Inject()(
     val historical  : Boolean = Try(request.body.asFormUrlEncoded.get("historical").mkString.toBoolean).getOrElse(true)
     val startDateVal = Try(request.body.asFormUrlEncoded.get("startdate").mkString).getOrElse("")
     val endDateVal = Try(request.body.asFormUrlEncoded.get("enddate").mkString).getOrElse("")
+    val epochVal = Try(request.body.asFormUrlEncoded.get("epoch").mkString).getOrElse("")
     val optmatchthreshold: Option[Int] = Try(request.body.asFormUrlEncoded.get("matchthreshold").mkString.toInt).toOption
     val matchthresholdValue = optmatchthreshold.getOrElse(5)
     if (addressText.trim.isEmpty) {
@@ -109,8 +105,6 @@ class ClericalToolController @Inject()(
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         query = "",
-        filter = "",
-        historical = historical,
         dates = Map.empty,
         pageNum = 1,
         pageSize = pageSize,
@@ -119,28 +113,26 @@ class ClericalToolController @Inject()(
         pagerAction = "clerical",
         addressBySearchResponse = None,
         classification = None,
-        apiUrl = apiUrl,
         version = version,
         placeholder = messagesApi("clericalsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
-        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-        apiKey = ""
+        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
       )
         Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doUprnWithInput(addressText.toLong, Some(filterText), Some(historical), Some(matchthresholdValue), Some(startDateVal), Some(endDateVal)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doUprnWithInput(addressText.toLong, Some(filterText), Some(historical), Some(matchthresholdValue), Some(startDateVal), Some(endDateVal), Some(epochVal)))
     } else {
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(-1), Some(historical), Some(matchthresholdValue), Some(startDateVal), Some(endDateVal)))
+        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatchWithInput(addressText, Some(filterText), Some(1), Some(-1), Some(historical), Some(matchthresholdValue), Some(startDateVal), Some(endDateVal), Some(epochVal)))
     }
   }
 
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
     *
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String], page: Option[Int], expand: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String], page: Option[Int], expand: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
  //     generateClericalView(input, page, expand, messagesApi("clerical.sfatext"), uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch, "clerical", messagesApi("clericalsearchform.placeholder"), apiKey)
@@ -149,6 +141,7 @@ class ClericalToolController @Inject()(
       val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       val matchthresholdValue = matchthreshold.getOrElse(5)
       val expandr = expand.getOrElse(-1)
       val limit = pageSize.toString()
@@ -156,15 +149,13 @@ class ClericalToolController @Inject()(
       val offNum = (pageNum - 1) * pageSize
       val offset = offNum.toString
       if (addressText.trim.isEmpty) {
-        logger info ("Clerical Tool with expected input address missing")
+        logger info "Clerical Tool with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
           title = messagesApi("clerical.sfatext"),
           action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch,
           singleSearchForm = SingleMatchController.form,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           query = "",
-          filter = "",
-          historical = historicalValue,
           dates = Map.empty,
           pageNum = 1,
           pageSize = pageSize,
@@ -173,12 +164,10 @@ class ClericalToolController @Inject()(
           pagerAction = "clerical",
           addressBySearchResponse = None,
           classification = None,
-          apiUrl = apiUrl,
           version = version,
           placeholder = messagesApi("clericalsearchform.placeholder"),
           labelFilter = messagesApi("clericalsearchform.labelfilter"),
-          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-          apiKey = apiKey
+          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
         )
 
         Future.successful(
@@ -201,7 +190,8 @@ class ClericalToolController @Inject()(
             offset = offset,
             id = UUID.randomUUID,
             apiKey = apiKey,
-            verbose = true
+            verbose = true,
+            epoch = epochVal
           )
         ) map { resp: AddressBySearchResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -220,8 +210,6 @@ class ClericalToolController @Inject()(
             singleSearchForm = filledForm,
             warningMessage = warningMessage,
             query = "",
-            filter = "",
-            historical = historicalValue,
             dates = Map.empty,
             pageNum = pageNum,
             pageSize = pageSize,
@@ -230,12 +218,10 @@ class ClericalToolController @Inject()(
             pagerAction = "clerical",
             addressBySearchResponse = Some(resp.response),
             classification = Some(classCodes),
-            apiUrl = apiUrl,
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-            apiKey = apiKey
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
           ))
         }
       }
@@ -321,12 +307,13 @@ class ClericalToolController @Inject()(
 */
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doUprnWithInput(input : Long, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
+  def doUprnWithInput(input : Long, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     val historicalValue = historical.getOrElse(true)
+    val epochVal = epoch.getOrElse("")
     val matchthresholdValue = matchthreshold.getOrElse(5)
     val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
     val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
@@ -340,7 +327,8 @@ class ClericalToolController @Inject()(
           historical = historicalValue,
           startdate = startDateVal,
           enddate = endDateVal,
-          verbose = true
+          verbose = true,
+          epoch = epochVal
         )
       ) map { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.getOrElse(""), historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -355,17 +343,11 @@ class ClericalToolController @Inject()(
 
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.uprnResult(
           singleSearchForm = filledForm,
-          filter = None,
-          historical = historicalValue,
-          startdate = Some(startDateVal),
-          enddate = Some(endDateVal),
           warningMessage = warningMessage,
           addressByUprnResponse = Some(resp.response),
           classification = Some(classCodes),
           version = version,
-          isClerical = true,
-          apiUrl = apiUrl,
-          apiKey = apiKey
+          isClerical = true
         )
         Ok(viewToRender)
       }
@@ -377,16 +359,17 @@ class ClericalToolController @Inject()(
 
   /**
     * Perform match by calling API with address string. Can be called directly via get or redirect from form
-    * @param input
+    * @param input Input value
     * @return result to view
     */
-  def doGetResultClerical(input : String, historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
+  def doGetResultClerical(input : String, historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String]) : Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       //   logger info("UPRN with supplied input address " + input)
       val addressText = StringUtils.stripAccents(input)
       val numericUPRN = BigInt(addressText)
       val historicalValue = historical.getOrElse(true)
+      val epochVal = epoch.getOrElse("")
       val matchthresholdValue = matchthreshold.getOrElse(5)
       val startDateVal =  StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal =  StringUtils.stripAccents(enddate.getOrElse(""))
@@ -399,7 +382,8 @@ class ClericalToolController @Inject()(
           historical = historicalValue,
           startdate = startDateVal,
           enddate = endDateVal,
-          verbose = true
+          verbose = true,
+          epoch = epochVal,
         )
       ) flatMap { resp: AddressByUprnResponseContainer =>
         val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString,"", historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -420,18 +404,12 @@ class ClericalToolController @Inject()(
           // logger info("expanded rels = " + expandedRels.toString())
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.result(
             singleSearchForm = filledForm,
-            filter = None,
-            historical = false,
             warningMessage = warningMessage,
-            startdate = Some(startDateVal),
-            enddate = Some(endDateVal),
             addressByUprnResponse = Some(resp.response),
             classification = Some(classCodes),
             expandedRels = Some(expandedRels),
             version = version,
-            isClerical = true,
-            apiUrl = apiUrl,
-            apiKey = apiKey
+            isClerical = true
           )
           Ok(viewToRender)
         }
@@ -452,8 +430,6 @@ class ClericalToolController @Inject()(
       singleSearchForm = SingleMatchController.form,
       warningMessage = None,
       query = "",
-      filter = "",
-      historical = false,
       dates = Map.empty,
       pageNum = 1,
       pageSize = pageSize,
@@ -462,12 +438,10 @@ class ClericalToolController @Inject()(
       pagerAction = "debug",
       addressBySearchResponse = None,
       classification = None,
-      apiUrl = apiUrl,
       version = version,
       placeholder = messagesApi("debugsearchform.placeholder"),
       labelFilter = messagesApi("clericalsearchform.labelfilter"),
       placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-      apiKey = apiKey
     )
       Future.successful(
         Ok(viewToRender)
@@ -486,11 +460,12 @@ class ClericalToolController @Inject()(
     val matchthreshold = optmatchthreshold.getOrElse(5)
     val startDateVal: String = Try(request.body.asFormUrlEncoded.get("startdate").mkString).getOrElse("")
     val endDateVal: String = Try(request.body.asFormUrlEncoded.get("enddate").mkString).getOrElse("")
-    Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(input, Some(filter), Some(1), Some(-1), Some(historical), Some(matchthreshold), Some(startDateVal), Some(endDateVal)))
+    val epochVal: String = Try(request.body.asFormUrlEncoded.get("epoch").mkString).getOrElse("")
+    Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQueryWithInput(input, Some(filter), Some(1), Some(-1), Some(historical), Some(matchthreshold), Some(startDateVal), Some(endDateVal), Some(epochVal)))
 
   }
 
-  def showQueryWithInput(input: String, filter: Option[String], page: Option[Int], expand: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def showQueryWithInput(input: String, filter: Option[String], page: Option[Int], expand: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
       apiClient.showQuery(input, filter.getOrElse(""), startdate.getOrElse(""), enddate.getOrElse(""), apiKey).flatMap{ query =>
@@ -505,17 +480,16 @@ class ClericalToolController @Inject()(
         val offNum = (pageNum - 1) * pageSize
         val offset = offNum.toString
         val historicalValue = historical.getOrElse(true)
+        val epochVal = epoch.getOrElse("")
         val matchthresholdValue = matchthreshold.getOrElse(5)
         if (addressText.trim.isEmpty) {
-          logger info ("Clerical Tool with expected input address missing")
+          logger info "Clerical Tool with expected input address missing"
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
             title = messagesApi("debug.sfatext"),
             action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery,
             singleSearchForm = SingleMatchController.form,
             warningMessage = Some(messagesApi("single.pleasesupply")),
             query = "",
-            filter = filterText,
-            historical = historicalValue,
             dates = Map("startdate" -> startDateVal, "enddate" -> endDateVal), // Avoids the 22 arg limit
             pageNum = 1,
             pageSize = pageSize,
@@ -524,12 +498,10 @@ class ClericalToolController @Inject()(
             pagerAction = "debug",
             addressBySearchResponse = None,
             classification = None,
-            apiUrl = apiUrl,
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-            apiKey = apiKey
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
           )
 
           Future.successful(
@@ -552,7 +524,8 @@ class ClericalToolController @Inject()(
               offset = offset,
               id = UUID.randomUUID,
               apiKey = apiKey,
-              verbose = true
+              verbose = true,
+              epoch = epochVal
             )
           ) map { resp: AddressBySearchResponseContainer =>
             val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -571,8 +544,6 @@ class ClericalToolController @Inject()(
               singleSearchForm = filledForm,
               warningMessage = warningMessage,
               query = query,
-              filter = filterText,
-              historical = historicalValue,
               dates = Map("startdate" -> startDateVal, "enddate" -> endDateVal),
               pageNum = pageNum,
               pageSize = pageSize,
@@ -581,12 +552,10 @@ class ClericalToolController @Inject()(
               pagerAction = "debug",
               addressBySearchResponse = Some(resp.response),
               classification = Some(classCodes),
-              apiUrl = apiUrl,
               version = version,
               placeholder = messagesApi("debugsearchform.placeholder"),
               labelFilter = messagesApi("clericalsearchform.labelfilter"),
-              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
-              apiKey = apiKey
+              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
             ))
           }
         }

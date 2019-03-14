@@ -3,14 +3,8 @@
 @import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
     singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm],
-    filter: String,
-    historical: Boolean,
-    startdate: String,
-    enddate: String,
-    matchthreshold: String,
     pageNum: Int,
     pageSize: Int,
-    pageMax: Int,
     expandRow: Int,
     pagerAction: String,
     addressBySearchResponse: Option[AddressBySearchResponse],
@@ -30,11 +24,6 @@
                 @addressPartial(
                     address,
                     singleSearchForm("filter").value.getOrElse(""),
-                    singleSearchForm("historical").value,
-                    singleSearchForm("matchthreshold").value.getOrElse(""),
-                    singleSearchForm("startdate").value.getOrElse(""),
-                    singleSearchForm("enddate").value.getOrElse(""),
-                    aresponse.maxScore,
                     classification,
                     aresponse.tokens,
                     pageNum,
@@ -42,9 +31,9 @@
                     true,
                     expandRow,
                     apiUrl,
-                    apiKey
-                )
+                    apiKey,
+                    )
 
             }
-            @pager(pageNum,pageSize,pageMax,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("startdate").value.getOrElse(""), singleSearchForm("enddate").value.getOrElse(""))
+            @pager(pageNum,pageSize,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("startdate").value.getOrElse(""), singleSearchForm("enddate").value.getOrElse(""), epoch = "")
             }

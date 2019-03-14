@@ -32,6 +32,7 @@ object GatewaySimulator {
     */
   def getApiKey (username: String, password: String): GatewayResponse = {
 
+    logger.info(username + ":" + password)
     if (username == "MrRobot") authFailResponse else successResponse
 
   }

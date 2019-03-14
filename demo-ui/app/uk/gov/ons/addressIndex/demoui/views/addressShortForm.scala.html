@@ -10,15 +10,13 @@ historical: Boolean,
 matchthreshold: Int,
 startdate: String,
 enddate: String,
-maxScore: Double,
+epoch: String,
 classification: Option[Map[String, String]],
 tokens: Map[String, String] = Map.empty[String, String],
 pageNum: Int = 0,
 index: Int = 0,
 isClerical: Boolean = false,
-expandRow: Int = 0,
-apiUrl: String = "",
-apiKey: String = ""
+expandRow: Int = 0
 )(implicit messages: Messages)
 
 
@@ -29,9 +27,9 @@ apiKey: String = ""
 <article class="result-short-form">
 
     @if(isClerical == true){
-    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn, Some(historical), Some(matchthreshold), Some(startdate), Some(enddate))}">@address.formattedAddressNag</a></h2>
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn, Some(historical), Some(matchthreshold), Some(startdate), Some(enddate), Some(epoch))}">@address.formattedAddressNag</a></h2>
     }else{
-    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn, Some(historical), Some(startdate), Some(enddate))}">@address.formattedAddressNag</a></h2>
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn, Some(historical), Some(startdate), Some(enddate), Some(epoch))}">@address.formattedAddressNag</a></h2>
     }
 
     <table>

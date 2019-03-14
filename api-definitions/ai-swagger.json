@@ -85,6 +85,13 @@
 						"required": false,
 						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
 					}
 				],
 				"responses": {
@@ -139,7 +146,7 @@
 				}
 			}
 		},
-		"/codelists/source": {
+		"/sources": {
 			"get": {
 				"operationId": "codeListSource",
 				"tags": [
@@ -169,7 +176,7 @@
 				}
 			}
 		},
-		"/codelists/classification": {
+		"/classifications": {
 			"get": {
 				"operationId": "codeListClassification",
 				"tags": [
@@ -199,7 +206,7 @@
 				}
 			}
 		},
-		"/codelists/custodian": {
+		"/custodians": {
 			"get": {
 				"operationId": "codeListCustodian",
 				"tags": [
@@ -229,7 +236,7 @@
 				}
 			}
 		},
-		"/codelists/logicalstatus": {
+		"/logicalstatuses": {
 			"get": {
 				"operationId": "codeListLogicalStatus",
 				"tags": [
@@ -290,6 +297,13 @@
 						"required": false,
 						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
 					}
 				],
 				"responses": {
@@ -317,7 +331,7 @@
 				}
 			}
 		},
-		"/addresses/partial/{input}": {
+		"/addresses/partial": {
 			"get": {
 				"operationId": "partialAddressQuery",
 				"tags": [
@@ -327,7 +341,7 @@
 				"description": "Returns a list addresses, from a partial match on the input string",
 				"parameters": [
 					{
-						"in": "path",
+						"in": "query",
 						"name": "input",
 						"type": "string",
 						"required": true,
@@ -373,6 +387,21 @@
 						"required": false,
 						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
+					},
+					{
+						"in": "query",
+						"name": "startboost",
+						"type": "string",
+						"required": false,
+						"description": "Boost results where the input string appears at the start of the address (0 = no boost).",
+						"default": 2
 					}
 				],
 				"responses": {
@@ -453,6 +482,13 @@
 						"required": false,
 						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
 					}
 				],
 				"responses": {
@@ -539,6 +575,12 @@
 						"required": false,
 						"description": "Minimum confidence score (percentage) for match to be included in results.",
 						"default": 5
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false
 					}
 				],
 				"responses": {
@@ -595,6 +637,12 @@
 						"required": false,
 						"description": "Minimum confidence score (percentage) for match to be included in results.",
 						"default": 5
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false
 					}
 				],
 				"responses": {
@@ -656,6 +704,9 @@
 				"historical": {
 					"type": "boolean"
 				},
+				"epoch": {
+					"type": "string"
+				},
 				"startDate": {
 					"type": "string"
 				},
@@ -668,6 +719,7 @@
 			},
 			"required": [
 				"historical",
+				"epoch",
 				"startDate",
 				"endDate",
 				"verbose"
@@ -702,6 +754,33 @@
 				"errors"
 			]
 		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatus": {
+			"properties": {
+				"code": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"code",
+				"label"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer": {
+			"properties": {
+				"logicalStatuses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatus"
+					}
+				}
+			},
+			"required": [
+				"logicalStatuses"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse": {
 			"properties": {
 				"input": {
@@ -718,6 +797,9 @@
 				},
 				"historical": {
 					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
 				},
 				"limit": {
 					"type": "integer",
@@ -750,6 +832,7 @@
 				"addresses",
 				"filter",
 				"historical",
+				"epoch",
 				"limit",
 				"offset",
 				"total",
@@ -882,6 +965,9 @@
 				"historical": {
 					"type": "boolean"
 				},
+				"epoch": {
+					"type": "string"
+				},
 				"rangekm": {
 					"type": "string"
 				},
@@ -930,6 +1016,7 @@
 				"addresses",
 				"filter",
 				"historical",
+				"epoch",
 				"rangekm",
 				"latitude",
 				"longitude",
@@ -1436,6 +1523,9 @@
 				"historical": {
 					"type": "boolean"
 				},
+				"epoch": {
+					"type": "string"
+				},
 				"limit": {
 					"type": "integer",
 					"format": "int32"
@@ -1467,6 +1557,7 @@
 				"addresses",
 				"filter",
 				"historical",
+				"epoch",
 				"limit",
 				"offset",
 				"total",
@@ -1503,6 +1594,33 @@
 				"response",
 				"status",
 				"errors"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassification": {
+			"properties": {
+				"code": {
+					"type": "string"
+				},
+				"label": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"code",
+				"label"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer": {
+			"properties": {
+				"classifications": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassification"
+					}
+				}
+			},
+			"required": [
+				"classifications"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian": {
@@ -1546,60 +1664,6 @@
 			},
 			"required": [
 				"custodians"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassification": {
-			"properties": {
-				"code": {
-					"type": "string"
-				},
-				"label": {
-					"type": "string"
-				}
-			},
-			"required": [
-				"code",
-				"label"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassificationListContainer": {
-			"properties": {
-				"classifications": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseClassification"
-					}
-				}
-			},
-			"required": [
-				"classifications"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatus": {
-			"properties": {
-				"code": {
-					"type": "string"
-				},
-				"label": {
-					"type": "string"
-				}
-			},
-			"required": [
-				"code",
-				"label"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatusListContainer": {
-			"properties": {
-				"logicalStatuses": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatus"
-					}
-				}
-			},
-			"required": [
-				"logicalStatuses"
 			]
 		},
 		"Token": {

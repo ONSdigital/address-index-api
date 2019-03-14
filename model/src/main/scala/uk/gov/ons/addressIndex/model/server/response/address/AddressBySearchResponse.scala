@@ -16,6 +16,7 @@ case class AddressBySearchResponse(
   addresses: Seq[AddressResponseAddress],
   filter: String,
   historical: Boolean,
+  epoch: String,
   rangekm: String,
   latitude: String,
   longitude: String,

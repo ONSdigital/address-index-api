@@ -15,7 +15,6 @@ import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseCon
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.postfixOps
 
 /**
   * Controller class for a multiple addresses to be matched

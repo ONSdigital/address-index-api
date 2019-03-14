@@ -2,117 +2,128 @@ package uk.gov.ons.addressIndex.server.modules.response
 
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 trait PostcodeControllerResponse extends Response {
 
-  def NoAddressFoundPostcode: AddressByPostcodeResponseContainer = {
+  def NoAddressFoundPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = AddressByPostcodeResponse(
-        postcode = "",
+        postcode = queryValues.postcodeOrDefault,
         addresses = Seq.empty,
-        filter = "",
-        historical = true,
-        limit = 10,
-        offset = 0,
+        filter = queryValues.filterOrDefault,
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault,
+        limit = queryValues.limitOrDefault,
+        offset = queryValues.offsetOrDefault,
         total = 0,
         maxScore = 0f,
-        startDate = "",
-        endDate = "",
-        verbose = true
+        startDate = queryValues.startDateOrDefault,
+        endDate = queryValues.endDateOrDefault,
+        verbose = queryValues.verboseOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
     )
   }
 
-  def PostcodeFilterInvalid: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(FilterInvalidError)
+  def PostcodeFilterInvalid(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,FilterInvalidError)
   }
 
-  def PostcodeMixedFilter: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(MixedFilterError)
+  def PostcodeMixedFilter(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,MixedFilterError)
   }
 
-  def FailedRequestToEsPostcode(detail: String): AddressByPostcodeResponseContainer = {
+  def PostcodeEpochInvalid(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,EpochNotAvailableError)
+  }
+
+  def FailedRequestToEsPostcode(detail: String, queryValues: QueryValues): AddressByPostcodeResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs",detail))
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorPostcode,
+      response = ErrorPostcode(queryValues),
       status = InternalServerErrorAddressResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def FailedRequestToEsTooBusyPostCode(detail: String): AddressByPostcodeResponseContainer = {
+  def FailedRequestToEsTooBusyPostCode(detail: String, queryValues: QueryValues): AddressByPostcodeResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code,FailedRequestToEsPostcodeError.message.replace("see logs",detail))
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorPostcode,
+      response = ErrorPostcode(queryValues),
       status = TooManyRequestsResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def ErrorPostcode: AddressByPostcodeResponse = {
+  def ErrorPostcode(queryValues: QueryValues): AddressByPostcodeResponse = {
     AddressByPostcodeResponse(
-      postcode = "",
+      postcode = queryValues.postcodeOrDefault,
       addresses = Seq.empty,
-      filter = "",
-      historical = true,
-      limit = 10,
-      offset = 0,
+      filter = queryValues.filterOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      limit = queryValues.limitOrDefault,
+      offset = queryValues.offsetOrDefault,
       total = 0,
       maxScore = 0f,
-      startDate = "",
-      endDate = "",
-      verbose = true
+      startDate = queryValues.startDateOrDefault,
+      endDate = queryValues.endDateOrDefault,
+      verbose = queryValues.verboseOrDefault
     )
   }
 
-  def OffsetNotNumericPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(OffsetNotNumericAddressResponseError)
+  def OffsetNotNumericPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,OffsetNotNumericAddressResponseError)
   }
 
-  def BadRequestPostcodeTemplate(errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
+  def BadRequestPostcodeTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressByPostcodeResponseContainer = {
     AddressByPostcodeResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = ErrorPostcode,
+      response = ErrorPostcode(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def LimitNotNumericPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(LimitNotNumericAddressResponseError)
+  def LimitNotNumericPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,LimitNotNumericAddressResponseError)
   }
 
-  def LimitTooSmallPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(LimitTooSmallAddressResponseError)
+  def LimitTooSmallPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,LimitTooSmallAddressResponseError)
   }
 
-  def OffsetTooSmallPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(OffsetTooSmallAddressResponseError)
+  def OffsetTooSmallPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,OffsetTooSmallAddressResponseError)
   }
 
-  def LimitTooLargePostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(LimitTooLargeAddressResponseError)
+  def LimitTooLargePostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,LimitTooLargeAddressResponseError)
   }
 
-  def OffsetTooLargePostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(OffsetTooLargeAddressResponseError)
+  def OffsetTooLargePostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,OffsetTooLargeAddressResponseError)
   }
 
-  def EmptySearchPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(EmptyQueryPostcodeAddressResponseError)
+  def EmptySearchPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,EmptyQueryPostcodeAddressResponseError)
   }
 
-  def InvalidPostcode: AddressByPostcodeResponseContainer = {
-    BadRequestPostcodeTemplate(InvalidPostcodeAddressResponseError)
+  def InvalidPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,InvalidPostcodeAddressResponseError)
+  }
+
+  def EpochNotAvailable(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
+    BadRequestPostcodeTemplate(queryValues,EpochNotAvailableError)
   }
 
 }

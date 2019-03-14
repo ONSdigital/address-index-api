@@ -6,19 +6,12 @@
 
 @(
 address: AddressResponseAddress,
-filter: String,
 startdate: String,
 enddate: String,
-maxScore: Double,
 classification: Option[Map[String, String]],
 expandedRels: Option[Seq[ExpandedRelative]],
 tokens: Map[String, String] = Map.empty[String, String],
-pageNum: Int = 0,
-index: Int = 0,
-isClerical: Boolean = false,
-expandRow: Int = 0,
-apiUrl: String = "",
-apiKey: String = ""
+isClerical: Boolean = false
 )(implicit messages: Messages)
 
     <div class="result-content">
@@ -441,7 +434,7 @@ apiKey: String = ""
 
             <section class="address-result-hierarchy">
                 <h2 class="saturn">@messages("addressresult.address_hierarchy")</h2>
-                @expandedRels.getOrElse(Seq()).zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary", "Quinary"), "", "").filter(element => element._1 != "").map { case (expandedRelative: uk.gov.ons.addressIndex.model.db.index.ExpandedRelative, position: String) =>
+                @expandedRels.getOrElse(Seq()).zipAll(List("Primary", "Secondary", "Tertiary", "Quaternary", "Quinary"), "", "").filter(element => element._1 != "").map { case (expandedRelative: ExpandedRelative, position: String) =>
                 <article class="address-result-hierarchy-single">
                     @if(position == "Primary") {<h3 class="neptune">@messages("addressresult.position_primary")</h3>}
                     @if(position == "Secondary") {<h3 class="neptune">@messages("addressresult.position_secondary")</h3>}

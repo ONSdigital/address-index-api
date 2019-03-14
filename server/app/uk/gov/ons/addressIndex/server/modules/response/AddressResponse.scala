@@ -1,35 +1,36 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 trait AddressResponse extends Response {
 
-  def OffsetTooSmall: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooSmallAddressResponseError)
+  def OffsetTooSmall(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetTooSmallAddressResponseError)
   }
 
-  def OffsetNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetNotNumericAddressResponseError)
+  def OffsetNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetNotNumericAddressResponseError)
   }
 
-  def OffsetTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(OffsetTooLargeAddressResponseError)
+  def OffsetTooLarge(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,OffsetTooLargeAddressResponseError)
   }
 
-  def LimitNotNumeric: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitNotNumericAddressResponseError)
+  def LimitNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitNotNumericAddressResponseError)
   }
 
-  def LimitTooLarge: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooLargeAddressResponseError)
+  def LimitTooLarge(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitTooLargeAddressResponseError)
   }
 
-  def LimitTooSmall: AddressBySearchResponseContainer = {
-    BadRequestTemplate(LimitTooSmallAddressResponseError)
+  def LimitTooSmall(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,LimitTooSmallAddressResponseError)
   }
 
-  def EmptySearch: AddressBySearchResponseContainer = {
-    BadRequestTemplate(EmptyQueryAddressResponseError)
+  def EmptySearch(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EmptyQueryAddressResponseError)
   }
 
 }

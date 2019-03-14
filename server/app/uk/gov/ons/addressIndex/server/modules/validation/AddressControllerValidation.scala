@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -15,7 +16,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
   // get the defaults and maxima for the paging parameters from the config
 
-  def validateLocation(lat: Option[String], lon: Option[String], rangekm: Option[String]): Option[Future[Result]] = {
+  def validateLocation(lat: Option[String], lon: Option[String], rangekm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val latVal: String = lat.getOrElse("")
     val lonVal: String = lon.getOrElse("")
@@ -31,53 +32,53 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
     if (latInvalid) {
       logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LatitiudeNotNumeric))
+      Some(futureJsonBadRequest(LatitiudeNotNumeric(queryValues)))
     } else if (lonInvalid) {
       logger.systemLog(badRequestMessage = LongitudeNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LongitudeNotNumeric))
+      Some(futureJsonBadRequest(LongitudeNotNumeric(queryValues)))
     } else if (latTooFarNorth) {
       logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
-      Some(futureJsonBadRequest(LatitudeTooFarNorth))
+      Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
     } else if (latTooFarSouth) {
       logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
-      Some(futureJsonBadRequest(LatitudeTooFarSouth))
+      Some(futureJsonBadRequest(LatitudeTooFarSouth(queryValues)))
     } else if (lonTooFarEast) {
       logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
-      Some(futureJsonBadRequest(LongitudeTooFarEast))
+      Some(futureJsonBadRequest(LongitudeTooFarEast(queryValues)))
     } else if (lonTooFarWest) {
       logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
-      Some(futureJsonBadRequest(LongitudeTooFarWest))
+      Some(futureJsonBadRequest(LongitudeTooFarWest(queryValues)))
     } else None
   }
 
-  def validateAddressFilter(classificationfilter: Option[String]): Option[Future[Result]] = {
+  def validateAddressFilter(classificationfilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val filterString: String = classificationfilter.getOrElse("")
 
     if (!filterString.isEmpty){
       if (filterString.contains("*") && filterString.contains(",")){
         logger.systemLog(badRequestMessage = MixedFilterError.message)
-        Some(futureJsonBadRequest(AddressMixedFilter))
+        Some(futureJsonBadRequest(AddressMixedFilter(queryValues)))
       }
       else if (!filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
         logger.systemLog(badRequestMessage = FilterInvalidError.message)
-        Some(futureJsonBadRequest(PostcodeFilterInvalid))
+        Some(futureJsonBadRequest(AddressFilterInvalid(queryValues)))
       } else None
     } else None
 
   }
 
-  def validateRange(rangekm: Option[String]): Option[Future[Result]] = {
+  def validateRange(rangekm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     val rangeVal: String = rangekm.getOrElse("")
     val rangeInvalid: Boolean = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
 
     if (rangeInvalid) {
       logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(RangeNotNumeric))
+      Some(futureJsonBadRequest(RangeNotNumeric(queryValues)))
     } else None
   }
 
-  def validateThreshold(matchthreshold: Option[String]): Option[Future[Result]] = {
+  def validateThreshold(matchthreshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
 
     val defThreshold: Float = conf.config.elasticSearch.matchThreshold
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
@@ -87,11 +88,39 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
     if (thresholdInvalid) {
       logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(ThresholdNotNumeric))
+      Some(futureJsonBadRequest(ThresholdNotNumeric(queryValues)))
     } else if (thresholdNotInRange) {
       logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
-      Some(futureJsonBadRequest(ThresholdNotInRange))
+      Some(futureJsonBadRequest(ThresholdNotInRange(queryValues)))
     } else None
+  }
+
+  // set minimum string length from config
+  val validEpochs = conf.config.elasticSearch.validEpochs
+  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+
+  // override error message with named length
+  object EpochNotAvailableErrorCustom extends AddressResponseError(
+    code = 36,
+    message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
+  )
+
+  override def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EpochNotAvailableErrorCustom)
+  }
+
+  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
+
+    val epochVal: String = queryValues.epochOrDefault
+    val validEpochs: String = conf.config.elasticSearch.validEpochs
+
+    if (!epochVal.isEmpty){
+      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        Some(futureJsonBadRequest(EpochInvalid(queryValues)))
+      } else None
+    } else None
+
   }
 
 }

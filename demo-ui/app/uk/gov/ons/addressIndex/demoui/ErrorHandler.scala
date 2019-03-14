@@ -5,7 +5,7 @@ import play.api.http.DefaultHttpErrorHandler
 import play.api.mvc._
 import play.api._
 import play.api.i18n.{I18nSupport, MessagesApi, Lang, Langs, MessagesImpl}
-import scala.language.implicitConversions
+//import scala.language.implicitConversions
 import scala.concurrent._
 import javax.inject.{Inject, Singleton}
 
@@ -56,6 +56,7 @@ class ErrorHandler @Inject() (
     * @return
     */
   def onBadRequest(request: RequestHeader, error: String): Result = {
+    logger info("request header = " + request.toString())
     logger error s"bad request: 400 $error"
     BadRequest(uk.gov.ons.addressIndex.demoui.views.html.error(400, error, version))
   }

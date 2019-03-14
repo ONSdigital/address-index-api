@@ -5,19 +5,6 @@
 @import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse
 @(
 radiusSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.RadiusSearchForm],
-filter: Option[String],
-rangekm: Option[String],
-lat: Option[String],
-lon: Option[String],
-historical: Boolean,
-startdate: Option[String],
-enddate: Option[String],
-warningMessage : Option[String],
-pageNum: Int,
-pageSize: Int,
-pageMax: Int,
-addressBySearchResponse: Option[AddressBySearchResponse],
-classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
 )(implicit messages: Messages)
 

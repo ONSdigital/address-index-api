@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
@@ -41,17 +42,17 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
 //    } else None
 //  }
 
-  def validateKeyStatus(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
 
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
       case `missing` =>
         logger.systemLog(badRequestMessage = ApiKeyMissingError.message)
-        Some(futureJsonUnauthorized(KeyMissing))
+        Some(futureJsonUnauthorized(KeyMissing(queryValues)))
       case `invalid` =>
         logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
-        Some(futureJsonUnauthorized(KeyInvalid))
+        Some(futureJsonUnauthorized(KeyInvalid(queryValues)))
       case _ =>
         None
     }
@@ -81,17 +82,17 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
     }
   }
 
-  def validateSource(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
 
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {
       case `missing` =>
         logger.systemLog(badRequestMessage = SourceMissingError.message)
-        Some(futureJsonUnauthorized(SourceMissing))
+        Some(futureJsonUnauthorized(SourceMissing(queryValues)))
       case `invalid` =>
         logger.systemLog(badRequestMessage = SourceInvalidError.message)
-        Some(futureJsonUnauthorized(SourceInvalid))
+        Some(futureJsonUnauthorized(SourceInvalid(queryValues)))
       case _ =>
         None
     }

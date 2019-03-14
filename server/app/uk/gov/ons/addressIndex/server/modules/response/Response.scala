@@ -4,6 +4,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, Ok, Unauthorized, _}
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 import scala.concurrent.Future
 
@@ -12,90 +13,91 @@ trait Response {
   val dataVersion: String
   val apiVersion: String
 
-  def StartDateInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(StartDateInvalidResponseError)
+  def StartDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,StartDateInvalidResponseError)
   }
 
-  def EndDateInvalid: AddressBySearchResponseContainer = {
-    BadRequestTemplate(EndDateInvalidResponseError)
+  def EndDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues,EndDateInvalidResponseError)
   }
 
-  def BadRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
+  def BadRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def FailedRequestToEs(detail: String): AddressBySearchResponseContainer = {
+  def FailedRequestToEs(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = InternalServerErrorAddressResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def FailedRequestToEsTooBusy (detail: String): AddressBySearchResponseContainer = {
-   val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
+  def FailedRequestToEsTooBusy(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = TooManyRequestsResponseStatus,
       errors = Seq(enhancedError)
     )
   }
 
-  def SourceMissing: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(SourceMissingError)
+  def SourceMissing(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,SourceMissingError)
   }
 
-  def SourceInvalid: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(SourceInvalidError)
+  def SourceInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,SourceInvalidError)
   }
 
-  def KeyMissing: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(ApiKeyMissingError)
+  def KeyMissing(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,ApiKeyMissingError)
   }
 
-  def KeyInvalid: AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(ApiKeyInvalidError)
+  def KeyInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    UnauthorizedRequestTemplate(queryValues,ApiKeyInvalidError)
   }
 
-  private def UnauthorizedRequestTemplate(errors: AddressResponseError*): AddressBySearchResponseContainer = {
+  private def UnauthorizedRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
-      response = Error,
+      response = Error(queryValues),
       status = UnauthorizedRequestAddressResponseStatus,
       errors = errors
     )
   }
 
-  def Error: AddressBySearchResponse = {
+  def Error(queryValues: QueryValues): AddressBySearchResponse = {
     AddressBySearchResponse(
       Map.empty,
       addresses = Seq.empty,
-      filter = "",
-      historical = true,
-      rangekm = "",
-      latitude = "",
-      longitude = "",
-      startDate = "",
-      endDate = "",
-      limit = 10,
-      offset = 0,
+      filter = queryValues.filterOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      rangekm = queryValues.rangeKMOrDefault.toString,
+      latitude = queryValues.latitudeOrDefault,
+      longitude = queryValues.longitudeOrDefault,
+      startDate = queryValues.startDateOrDefault,
+      endDate = queryValues.endDateOrDefault,
+      limit = queryValues.limitOrDefault,
+      offset = queryValues.offsetOrDefault,
       total = 0,
       sampleSize = 20,
       maxScore = 0f,
       matchthreshold = 5f,
-      verbose = true
+      verbose = queryValues.verboseOrDefault
     )
   }
 
@@ -132,10 +134,10 @@ trait Response {
   /**
     * Helper for creating Future.successful(Status(Json.toJson(toJsonable)))
     *
-    * @param status
-    * @param toJsonable
-    * @param writes
-    * @tparam T
+    * @param status Status
+    * @param toJsonable Able to convert to JSON
+    * @param writes Writes param
+    * @tparam T T param
     * @return
     */
   def futureJson[T](status: Status, toJsonable: T)(implicit writes: Writes[T]): Future[Result] = {
@@ -145,10 +147,10 @@ trait Response {
   /**
     * Helper for creating Status(Json.toJson(toJsonable))
     *
-    * @param status
-    * @param toJsonable
-    * @param writes
-    * @tparam T
+    * @param status Status
+    * @param toJsonable Able to convert to JSON
+    * @param writes Writes param
+    * @tparam T T param
     * @return
     */
   def json[T](status: Status, toJsonable: T)(implicit writes: Writes[T]): Result = {

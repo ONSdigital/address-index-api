@@ -14,8 +14,7 @@ import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, 
 import uk.gov.ons.addressIndex.demoui.utils.GatewaySimulator
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.language.implicitConversions
+import scala.concurrent.{Await, Future}
 
 /**
   * Simple controller for home page
@@ -33,7 +32,7 @@ class ApplicationHomeController @Inject()
   environment: Environment,
   ws: WSClient
 )
-  (implicit ec: ExecutionContext) extends BaseController with I18nSupport {
+  extends BaseController with I18nSupport {
 
   val logger = Logger("ApplicationHomeController")
 

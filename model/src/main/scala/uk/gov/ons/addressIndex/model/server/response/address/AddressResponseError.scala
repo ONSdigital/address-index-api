@@ -195,3 +195,13 @@ object FailedRequestToEsRandomError extends AddressResponseError(
   code = 35,
   message = "Request to Elasticsearch failed (random)(see logs)"
 )
+
+object EpochNotAvailableError extends AddressResponseError(
+  code = 36,
+  message = "Requested Epoch is not available"
+)
+
+object FailedRequestToEsUprnError extends AddressResponseError(
+  code = 37,
+  message = "Request to Elasticsearch failed (uprn)(see logs)"
+)
