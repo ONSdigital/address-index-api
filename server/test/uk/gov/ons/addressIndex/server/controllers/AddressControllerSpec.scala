@@ -116,7 +116,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
-  val validHybridAddress = HybridAddress(
+  val validHybridAddress = HybridAddressFull(
     uprn = "1",
     parentUprn = "4",
     relatives = Seq(validRelative),
@@ -157,7 +157,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] =
+    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] =
       Future.successful(Some(validHybridAddress))
 
     override def queryUprnSkinny(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
@@ -205,7 +205,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that won't return any addresses
   val emptyElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] =
+    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] =
       Future.successful(None)
 
     override def queryUprnSkinny(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
@@ -253,7 +253,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryUprn(uprn: String,
                            startDate: String, endDate: String,
-                           historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] = Future.successful(None)
+                           historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] = Future.successful(None)
 
     override def queryUprnSkinny(uprn: String,
                                  startDate: String, endDate: String,
@@ -296,7 +296,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String,
-                           startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] =
+                           startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] =
       Future.failed(new Exception("test failure"))
 
     override def queryUprnSkinny(uprn: String,

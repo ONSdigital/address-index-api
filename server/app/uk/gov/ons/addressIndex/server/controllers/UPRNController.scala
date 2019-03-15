@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddressFull, HybridAddressSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -162,7 +162,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           }
         } else {
 
-          val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
+          val request: Future[Option[HybridAddressFull]] = overloadProtection.breaker.withCircuitBreaker(
             esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, epochVal)
           )
 

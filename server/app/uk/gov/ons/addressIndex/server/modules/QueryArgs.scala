@@ -21,20 +21,20 @@ trait StartAtOffset {
 trait Filterable {
   val filters: String
 
-  def getFiltersType: String = filters match {
+  def filtersType: String = filters match {
     case "residential" | "commercial" => "prefix"
     case f if f.endsWith("*") => "prefix"
     case _ => "term"
   }
 
-  def getFiltersValuePrefix: String = filters match {
+  def filtersValuePrefix: String = filters match {
     case "residential" => "R"
     case "commercial" => "C"
     case f if f.endsWith("*") => filters.substring(0, filters.length - 1).toUpperCase
     case f => f.toUpperCase()
   }
 
-  def getFiltersValueTerm: Seq[String] = filters.toUpperCase.split(",")
+  def filtersValueTerm: Seq[String] = filters.toUpperCase.split(",")
 }
 
 // the query can be filtered by date
@@ -60,7 +60,7 @@ trait Configurable {
 sealed abstract class QueryArgs {
   def epoch: String
 
-  def getEpochParam(epoch: String): String = if (epoch.isEmpty) "_current" else "_" + epoch
+  def epochParam: String = if (epoch.isEmpty) "_current" else "_" + epoch
 
   def historical: Boolean
 }
@@ -68,8 +68,9 @@ sealed abstract class QueryArgs {
 final case class UPRNArgs(uprn: String,
                           historical: Boolean = true,
                           epoch: String = "",
+                          filterDateRange: DateRange = DateRange(),
                           skinny: Boolean,
-                         ) extends QueryArgs with Skinnyable
+                         ) extends QueryArgs with DateFilterable with Skinnyable
 
 // TODO find a better name for this
 sealed abstract class NonUPRNArgs extends QueryArgs with Limitable with Filterable with Verboseable with Skinnyable {
@@ -85,7 +86,9 @@ final case class PartialArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean = false,
                              skinny: Boolean = false,
-                            ) extends NonUPRNArgs with DateFilterable with StartAtOffset
+                            ) extends NonUPRNArgs with DateFilterable with StartAtOffset {
+  def inputNumbers: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
+}
 
 final case class PostcodeArgs(postcode: String,
                               epoch: String = "",
@@ -111,7 +114,7 @@ sealed abstract class StandardArgs extends QueryArgs with Limitable with DateFil
 }
 
 final case class AddressArgs(tokens: Map[String, String],
-                             region: Region,
+                             region: Option[Region],
                              isBulk: Boolean = true,
                              epoch: String = "",
                              historical: Boolean = true,

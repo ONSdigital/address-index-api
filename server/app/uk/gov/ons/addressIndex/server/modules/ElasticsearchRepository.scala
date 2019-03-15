@@ -4,7 +4,7 @@ import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.searches.SearchDefinition
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 import scala.concurrent.Future
@@ -23,7 +23,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddress]]
+  def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddressFull]]
 
   /**
     * Query the address index by UPRN.
@@ -107,4 +107,10 @@ trait ElasticsearchRepository {
     *         `Left` will contain request data that is to be re-send
     */
   def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
+
+  def generateQuery(queryArgs: QueryArgs): SearchDefinition
+
+  def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection]
+
+  def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }

@@ -14,22 +14,23 @@ import scala.util.Try
   * @param paf   list of corresponding paf addresses
   * @param score score of the address in the returned ES result
   */
-case class HybridAddress(uprn: String,
-                         parentUprn: String,
-                         relatives: Seq[Relative],
-                         crossRefs: Seq[CrossRef],
-                         postcodeIn: String,
-                         postcodeOut: String,
-                         lpi: Seq[NationalAddressGazetteerAddress],
-                         paf: Seq[PostcodeAddressFileAddress],
-                         score: Float,
-                         classificationCode: String)
+case class HybridAddressFull(uprn: String,
+                             parentUprn: String,
+                             relatives: Seq[Relative],
+                             crossRefs: Seq[CrossRef],
+                             postcodeIn: String,
+                             postcodeOut: String,
+                             lpi: Seq[NationalAddressGazetteerAddress],
+                             paf: Seq[PostcodeAddressFileAddress],
+                             score: Float,
+                             classificationCode: String) extends HybridAddress
 
-object HybridAddress {
+object HybridAddressFull {
+
   /**
     * An empty HybridAddress, used in bulk search to show the address that didn't yield any results
     */
-  val empty = HybridAddress(
+  val empty = HybridAddressFull(
     uprn = "",
     parentUprn = "",
     relatives = Seq.empty,
@@ -43,7 +44,7 @@ object HybridAddress {
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitReader extends HitReader[HybridAddress] {
+  implicit object HybridAddressHitReader extends HitReader[HybridAddressFull] {
 
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
@@ -52,7 +53,7 @@ object HybridAddress {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def read(hit: Hit): Either[Throwable, HybridAddress] = {
+    override def read(hit: Hit): Either[Throwable, HybridAddressFull] = {
       val cRefs: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
@@ -69,7 +70,7 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-      Right(HybridAddress(
+      Right(HybridAddressFull(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = rels.map(Relative.fromEsMap).sortBy(_.level),
@@ -83,7 +84,6 @@ object HybridAddress {
       ))
     }
   }
-
 }
 
 /**
@@ -94,10 +94,12 @@ object HybridAddress {
   *                  (even those that are not in the list because of the limit)
   * @param total     total number of all of the addresses regardless of the limit
   */
-case class HybridAddresses(addresses: Seq[HybridAddress],
+@deprecated
+case class HybridAddresses(addresses: Seq[HybridAddressFull],
                            maxScore: Double,
                            total: Long)
 
+@deprecated
 object HybridAddresses {
   def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddresses = {
     resp match {
@@ -124,7 +126,7 @@ object HybridAddresses {
     val maxScore = if (total == 0) 0 else response.maxScore
 
     HybridAddresses(
-      addresses = response.to[HybridAddress],
+      addresses = response.to[HybridAddressFull],
       maxScore = maxScore,
       total = total
     )

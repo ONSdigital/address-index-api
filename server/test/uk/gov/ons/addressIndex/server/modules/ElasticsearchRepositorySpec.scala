@@ -570,7 +570,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     source = hybridCrossRefSource2
   )
 
-  val expectedHybrid = HybridAddress(
+  val expectedHybrid = HybridAddressFull(
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Seq(expectedRelative),
@@ -583,7 +583,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedDateHybrid = HybridAddress(
+  val expectedDateHybrid = HybridAddressFull(
     uprn = hybridFirstDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Seq(expectedRelative),
@@ -596,7 +596,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedSecondDateHybrid = HybridAddress(
+  val expectedSecondDateHybrid = HybridAddressFull(
     uprn = hybridSecondDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Seq(expectedRelative),
@@ -609,7 +609,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedThirdDateHybrid = HybridAddress(
+  val expectedThirdDateHybrid = HybridAddressFull(
     uprn = hybridThirdDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Seq(expectedRelative),
@@ -622,7 +622,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedHybridHist: HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
+  val expectedHybridHist: HybridAddressFull = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
 
   val partialInput = "7 Gate Re"
   val partialInputWithout = "Gate Re"
@@ -2520,7 +2520,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       addresses.length shouldBe 2
 
       addresses.head.uprn shouldBe hybridSecondDateUprn.toString
-      addresses.last.uprn shouldBe HybridAddress.empty.uprn
+      addresses.last.uprn shouldBe HybridAddressFull.empty.uprn
     }
 
     "return empty BulkAddress if there were no results for an address" in {
@@ -2550,8 +2550,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       results.length shouldBe 2
       addresses.length shouldBe 2
 
-      addresses.head.uprn shouldBe HybridAddress.empty.uprn
-      addresses(1).uprn shouldBe HybridAddress.empty.uprn
+      addresses.head.uprn shouldBe HybridAddressFull.empty.uprn
+      addresses(1).uprn shouldBe HybridAddressFull.empty.uprn
     }
 
     "return prefix filter for 'R' when passed filter 'residential' " in {

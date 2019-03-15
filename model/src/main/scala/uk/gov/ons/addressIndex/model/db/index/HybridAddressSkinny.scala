@@ -19,11 +19,12 @@ case class HybridAddressSkinny(uprn: String,
                                lpi: Seq[NationalAddressGazetteerAddress],
                                paf: Seq[PostcodeAddressFileAddress],
                                score: Float,
-                               classificationCode: String)
+                               classificationCode: String) extends HybridAddress
 
 object HybridAddressSkinny {
   // this `implicit` is needed for the library (elastic4s) to work
   implicit object HybridAddressHitReader extends HitReader[HybridAddressSkinny] {
+
     /**
       * Transforms hit from Elastic Search into a Hybrid Address
       * Used for the elastic4s library
@@ -50,7 +51,6 @@ object HybridAddressSkinny {
       ))
     }
   }
-
 }
 
 /**
@@ -61,12 +61,13 @@ object HybridAddressSkinny {
   *                  (even those that are not in the list because of the limit)
   * @param total     total number of all of the addresses regardless of the limit
   */
+@deprecated
 case class HybridAddressesSkinny(addresses: Seq[HybridAddressSkinny],
                                  maxScore: Double,
                                  total: Long)
 
+@deprecated
 object HybridAddressesSkinny {
-
   def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddressesSkinny = {
     resp match {
       case Left(l) => throw new Exception("search failed - " + l.error.reason)
@@ -84,7 +85,6 @@ object HybridAddressesSkinny {
     * @return
     */
   def fromSearchResponse(response: SearchResponse): HybridAddressesSkinny = {
-
     if (response.shards.failed > 0)
       throw new Exception(s"${response.shards.failed} failed shards out of ${response.shards.total}, the returned result would be partial and not reliable")
 
@@ -100,5 +100,4 @@ object HybridAddressesSkinny {
   }
 
 }
-
 
