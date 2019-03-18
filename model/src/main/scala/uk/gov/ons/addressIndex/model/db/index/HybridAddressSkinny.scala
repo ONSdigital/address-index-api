@@ -20,7 +20,8 @@ case class HybridAddressSkinny(
                           paf: Seq[PostcodeAddressFileAddress],
                           nisra: Seq[NisraAddress],
                           score: Float,
-                          classificationCode: String
+                          classificationCode: String,
+                          fromSource: String
                         )
 
 object HybridAddressSkinny {
@@ -58,7 +59,8 @@ object HybridAddressSkinny {
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
-        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse("")
+        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
+        fromSource = hit.sourceAsMap("fromSource").toString
       ))
     }
   }

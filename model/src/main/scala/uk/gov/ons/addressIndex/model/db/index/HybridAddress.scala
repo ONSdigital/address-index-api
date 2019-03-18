@@ -24,7 +24,8 @@ case class HybridAddress(
   paf: Seq[PostcodeAddressFileAddress],
   nisra: Seq[NisraAddress],
   score: Float,
-  classificationCode: String
+  classificationCode: String,
+  fromSource: String
 )
 
 object HybridAddress {
@@ -45,7 +46,8 @@ object HybridAddress {
     paf = Seq.empty,
     nisra = Seq.empty,
     score = 0,
-    classificationCode = ""
+    classificationCode = "",
+    fromSource = ""
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -91,7 +93,8 @@ object HybridAddress {
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
-        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse("")
+        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
+        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("")
       ))
     }
   }

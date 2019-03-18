@@ -31,8 +31,9 @@ case class AddressResponseAddress(
   geo: Option[AddressResponseGeo],
   classificationCode: String,
   lpiLogicalStatus: String,
+  fromSource: String,
   confidenceScore: Double,
-  underlyingScore: Float,
+  underlyingScore: Float
 )
 
 object AddressResponseAddress {
@@ -59,6 +60,8 @@ object AddressResponseAddress {
     val chosenNisra: Option[NisraAddress] = other.nisra.headOption
     val formattedAddressNisra = if (chosenNisra.isEmpty) "" else chosenNisra.get.mixedNisra
 
+    val fromSource = other.fromSource
+
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
@@ -73,10 +76,10 @@ object AddressResponseAddress {
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
       nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
       nisra = {if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None},
-//      geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       geo = {if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)},
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
+      fromSource = fromSource,
       confidenceScore = 1D,
       underlyingScore = other.score
 
@@ -104,6 +107,8 @@ object AddressResponseAddress {
     val chosenNisra: Option[NisraAddress] = other.nisra.headOption
     val formattedAddressNisra = if (chosenNisra.isEmpty) "" else chosenNisra.get.mixedNisra
 
+    val fromSource = other.fromSource
+
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
@@ -122,6 +127,7 @@ object AddressResponseAddress {
       geo = {if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)},
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
+      fromSource = fromSource,
       confidenceScore = 1D,
       underlyingScore = other.score
     )
