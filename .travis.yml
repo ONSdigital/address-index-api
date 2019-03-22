@@ -1,8 +1,10 @@
 sudo: required
 dist: trusty
 language: scala
+services:
+  - docker
 script:
-  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION test; else travis_retry sbt ++$TRAVIS_SCALA_VERSION test; fi
+  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION test docker:publishLocal; else travis_retry sbt ++$TRAVIS_SCALA_VERSION test docker:publishLocal; fi
 scala:
   - 2.12.4
 jdk:
