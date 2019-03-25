@@ -96,7 +96,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
   resolvers ++= Resolvers,
   dockerUpdateLatest := true,
-  dockerRepository in Docker := Some("richardsmithons/airepo"),
+  dockerRepository in Docker := Some("richardsmithons"),
   coverageExcludedPackages := ".*Routes.*;.*ReverseRoutes.*;.*javascript.*"
 )
 

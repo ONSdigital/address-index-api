@@ -5,7 +5,7 @@ services:
   - docker
 script:
   - docker login -u "richardsmithons" -p "CoolGleeTram"
-  - sbt ++$TRAVIS_SCALA_VERSION docker:publish
+  - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" docker:publish
 scala:
   - 2.12.4
 jdk:
