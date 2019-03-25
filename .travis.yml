@@ -5,7 +5,7 @@ services:
   - docker
 script:
   - docker login -u "richardsmithons" -p "CoolGleeTram"
-  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION set dockerRepository in ThisBuild := Some("richardsmithons/airepo") docker:publish; else travis_retry sbt ++$TRAVIS_SCALA_VERSION set dockerRepository in ThisBuild := Some("richardsmithons/airepo") docker:publish; fi
+  - sbt ++$TRAVIS_SCALA_VERSION docker:publish; else travis_retry sbt ++$TRAVIS_SCALA_VERSION docker:publish; fi
 scala:
   - 2.12.4
 jdk:

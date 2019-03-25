@@ -1,6 +1,7 @@
 import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import com.typesafe.sbt.SbtNativePackager.autoImport.NativePackagerHelper._
 import com.typesafe.sbt.packager.docker
+import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.dockerRepository
 //import com.typesafe.sbt.packager.docker.DockerAlias
 //import com.typesafe.sbt.packager.docker.DockerAlias
 //import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{DockerAlias, dockerAlias}
@@ -18,11 +19,11 @@ routesImport := Seq.empty
  
 //dockerAlias := DockerAlias(Some("a"), Some("b"), "thingy", Some("latest"))
 
-dockerUpdateLatest := true
+//dockerUpdateLatest := true
 
 //dockerAliases ++= Seq(dockerAlias.value.withTag(Option("stable")))
 
-dockerRepository in Docker := Some("richardsmithons/airepo")
+//dockerRepository in Docker := Some("richardsmithons/airepo")
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
@@ -94,6 +95,8 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalacOptions in Scapegoat += "-P:scapegoat:overrideLevels:TraversableHead=Warning:OptionSize=Warning:ComparingFloatingPointTypes=Warning",
   ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
   resolvers ++= Resolvers,
+  dockerUpdateLatest := true,
+  dockerRepository in Docker := Some("richardsmithons/airepo"),
   coverageExcludedPackages := ".*Routes.*;.*ReverseRoutes.*;.*javascript.*"
 )
 
