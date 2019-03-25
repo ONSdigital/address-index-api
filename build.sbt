@@ -22,6 +22,7 @@ dockerUpdateLatest := true
 
 //dockerAliases ++= Seq(dockerAlias.value.withTag(Option("stable")))
 
+dockerRepository in ThisBuild := Some("richardsmithons/airepo")
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
