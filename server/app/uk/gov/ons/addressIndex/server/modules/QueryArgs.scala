@@ -73,9 +73,7 @@ final case class UPRNArgs(uprn: String,
                          ) extends QueryArgs with DateFilterable with Skinnyable
 
 // TODO find a better name for this
-sealed abstract class NonUPRNArgs extends QueryArgs with Limitable with Filterable with Verboseable with Skinnyable {
-
-}
+sealed abstract class NonUPRNArgs extends QueryArgs with Limitable with Filterable with Verboseable with Skinnyable {}
 
 final case class PartialArgs(input: String,
                              epoch: String = "",

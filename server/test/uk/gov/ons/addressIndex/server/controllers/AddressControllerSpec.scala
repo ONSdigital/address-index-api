@@ -193,13 +193,27 @@ class AddressControllerSpec extends PlaySpec with Results {
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
-        }
-        )
+        })
       }
 
     override def queryHealth(): Future[String] = Future.successful("")
 
     override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddress), 1.0f, 1))
+
+    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+      Future.successful {
+        queryArgs.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+
+          Right(Seq(filledBulkAddress))
+        })
+      }
   }
 
   // mock that won't return any addresses
@@ -240,13 +254,27 @@ class AddressControllerSpec extends PlaySpec with Results {
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
-        }
-        )
+        })
       }
 
     override def queryHealth(): Future[String] = Future.successful("")
 
     override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
+
+    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+      Future.successful {
+        queryArgs.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+
+          Right(Seq(filledBulkAddress))
+        })
+      }
   }
 
   val sometimesFailingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
@@ -291,6 +319,21 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryHealth(): Future[String] = Future.successful("")
 
     override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
+
+    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+      Future.successful {
+        queryArgs.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+
+          Right(Seq(filledBulkAddress))
+        })
+      }
   }
 
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
@@ -330,6 +373,12 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryHealth(): Future[String] = Future.successful("")
 
     override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+
+    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.failed(new Exception("Test exception"))
+
+    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("Test exception"))
   }
 
   val parser: ParserModule = (_: String) => Map.empty

@@ -108,7 +108,7 @@ trait ElasticsearchRepository {
     */
   def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 
-  def generateQuery(queryArgs: QueryArgs): SearchDefinition
+  def makeQuery(queryArgs: QueryArgs): SearchDefinition
 
   def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection]
 
