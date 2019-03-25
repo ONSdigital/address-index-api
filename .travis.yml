@@ -5,7 +5,7 @@ services:
   - docker
 script:
   - docker login -u "richardsmithons" -p "CoolGleeTram"
-  - sbt ++$TRAVIS_SCALA_VERSION docker:publish; else travis_retry sbt ++$TRAVIS_SCALA_VERSION docker:publish; fi
+  - sbt ++$TRAVIS_SCALA_VERSION docker:publish
 scala:
   - 2.12.4
 jdk:
