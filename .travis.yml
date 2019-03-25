@@ -4,7 +4,8 @@ language: scala
 services:
   - docker
 script:
-  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION test docker:publishLocal; else travis_retry sbt ++$TRAVIS_SCALA_VERSION test docker:publishLocal; fi
+  - docker login -u "richardsmithons" -p "CoolGleeTram"
+  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION test docker:publish; else travis_retry sbt ++$TRAVIS_SCALA_VERSION test docker:publish; fi
 scala:
   - 2.12.4
 jdk:

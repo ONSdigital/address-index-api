@@ -1,5 +1,9 @@
 import com.iheart.sbtPlaySwagger.SwaggerPlugin.autoImport.swaggerDomainNameSpaces
 import com.typesafe.sbt.SbtNativePackager.autoImport.NativePackagerHelper._
+import com.typesafe.sbt.packager.docker
+//import com.typesafe.sbt.packager.docker.DockerAlias
+//import com.typesafe.sbt.packager.docker.DockerAlias
+//import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{DockerAlias, dockerAlias}
 import com.typesafe.sbt.packager.universal.ZipHelper
 import com.typesafe.sbt.web.SbtWeb
 import play.sbt.PlayScala
@@ -11,6 +15,13 @@ import sbtassembly.AssemblyPlugin.autoImport._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 routesImport := Seq.empty
+ 
+//dockerAlias := DockerAlias(Some("a"), Some("b"), "thingy", Some("latest"))
+
+dockerUpdateLatest := true
+
+//dockerAliases ++= Seq(dockerAlias.value.withTag(Option("stable")))
+
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
