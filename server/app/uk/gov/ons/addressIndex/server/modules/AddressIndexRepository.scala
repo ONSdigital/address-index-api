@@ -3,10 +3,12 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
+//import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
+//import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -65,9 +67,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  def queryUprn(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] = {
+  def queryUprn(uprn: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddress]] = {
 
-    val request = generateQueryUprnRequest(uprn, startDate, endDate, historical, epoch)
+    val request = generateQueryUprnRequest(uprn, historical, epoch)
 
     logger.trace(request.toString)
 
@@ -83,22 +85,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param uprn the uprn of the fetched address
     * @return Search definition containing query to the ES
     */
-  def generateQueryUprnRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, epoch: String): SearchDefinition = {
+  def generateQueryUprnRequest(uprn: String, historical: Boolean = true, epoch: String): SearchDefinition = {
 
-    val query = {
-      if(!startDate.isEmpty && !endDate.isEmpty) {
-        must(termQuery("uprn", uprn))
-          .filter(
-            should(
-              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-                   rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-                   rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-
-      } else {
-        termQuery("uprn", uprn)
-      }
-    }
+    val query = termQuery("uprn", uprn)
 
     val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
 
@@ -109,9 +98,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryUprnSkinny(uprn: String, startDate:String = "", endDate:String = "", historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] = {
+  def queryUprnSkinny(uprn: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] = {
 
-    val request = generateQueryUprnSkinnyRequest(uprn, startDate, endDate, historical, epoch)
+    val request = generateQueryUprnSkinnyRequest(uprn, historical, epoch)
 
     logger.trace(request.toString)
 
@@ -127,22 +116,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param uprn the uprn of the fetched address
     * @return Seqrch definition containing query to the ES
     */
-  def generateQueryUprnSkinnyRequest(uprn: String, startDate: String = "", endDate: String = "", historical: Boolean = true, epoch: String): SearchDefinition = {
+  def generateQueryUprnSkinnyRequest(uprn: String, historical: Boolean = true, epoch: String): SearchDefinition = {
 
-    val query = {
-      if(!startDate.isEmpty && !endDate.isEmpty) {
-        must(termQuery("uprn", uprn))
-          .filter(
-            should(
-              must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-              must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-                rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-
-      } else {
-        termQuery("uprn", uprn)
-      }
-    }
+    val query = termQuery("uprn", uprn)
 
     val epochParam = {if(epoch != "") {"_" + epoch} else {"_current"}}
 
@@ -298,14 +274,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else None
     }
 
-    val abQuery: Option[QueryDefinition] = {
-      if (verbose){
-        Option(not(termQuery("lpi.addressBasePostal", "N")))
-      }
-      else None
-    }
-
-    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
+    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
 
     val query =
       if (inputNumberList.isEmpty) {
@@ -314,7 +283,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             must(multiMatchQuery(input)
               .matchType("best_fields")
               .fields(fieldsToSearch))
-              .filter(Seq(abQuery, dateQuery)
+              .filter(Seq(dateQuery)
                 .flatten)
           }
           else {
@@ -322,7 +291,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase")
               .slop(slopVal)
               .fields(fieldsToSearch))
-              .filter(Seq(abQuery, dateQuery)
+              .filter(Seq(dateQuery)
                 .flatten)
           }
         } else {
@@ -331,7 +300,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
                   .flatten)
             }
             else {
@@ -339,7 +308,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase")
                 .slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
                   .flatten)
             }
           }
@@ -348,14 +317,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               must(multiMatchQuery(input)
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
             else {
               must(multiMatchQuery(input)
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
           }
@@ -367,10 +336,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         val numberQuery =
         if (inputNumberList.length == 1) {
           Seq(dismax(Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
-            matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))))
+            matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false),
+            matchQuery("nisra.buildingNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false))))
         } else {
           Seq(matchQuery("lpi.paoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.paoStartNumber",inputNumberList(1)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("nisra.buildingNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
+            matchQuery("nisra.buildingNumber",inputNumberList(1)).prefixLength(1).maxExpansions(10).boost(0.5D).fuzzyTranspositions(false),
             matchQuery("lpi.saoStartNumber",inputNumberList(0)).prefixLength(1).maxExpansions(10).boost(0.2D).fuzzyTranspositions(false))
         }
         if (filters.isEmpty) {
@@ -379,7 +351,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("best_fields")
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(abQuery, dateQuery)
+              .filter(Seq(dateQuery)
                 .flatten)
           }
           else {
@@ -387,7 +359,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .matchType("phrase").slop(slopVal)
               .fields(fieldsToSearch))
               .should(numberQuery)
-              .filter(Seq(abQuery, dateQuery)
+              .filter(Seq(dateQuery)
                 .flatten)
           }
         } else {
@@ -397,7 +369,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
                   .flatten)
             }
             else {
@@ -406,7 +378,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery)
+                .filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), dateQuery)
                   .flatten)
             }
           }
@@ -416,7 +388,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("best_fields")
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
             else {
@@ -424,7 +396,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .matchType("phrase").slop(slopVal)
                 .fields(fieldsToSearch))
                 .should(numberQuery)
-                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery)
+                .filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), dateQuery)
                   .flatten)
             }
           }
@@ -448,14 +420,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
   }
 
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = {
-    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, historical, verbose, epoch).start(start).limit(limit)
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = {
+    val request = generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch).start(start).limit(limit)
+//    val result = SearchBodyBuilderFn(generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch)).string()
+//    logger.warn(result)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddresses.fromEither)
   }
 
-  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = {
-    val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, historical, verbose, epoch).start(start).limit(limit)
+  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = {
+    val request = generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch).start(start).limit(limit)
+//    val result = SearchBodyBuilderFn(generateQueryPostcodeRequest(postcode, filters, historical, verbose, epoch)).string()
+//    logger.warn(result)
     logger.trace(request.toString)
     client.execute(request).map(HybridAddressesSkinny.fromEither)
   }
@@ -468,7 +444,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose flag to indicate that skinny index should be used when false
     * @return Search definition containing query to the ES
     */
-  def generateQueryPostcodeRequest(postcode: String, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose:  Boolean = true, epoch: String): SearchDefinition = {
+  def generateQueryPostcodeRequest(postcode: String, filters: String, historical: Boolean = true, verbose:  Boolean = true, epoch: String): SearchDefinition = {
 
     val filterType: String = {
       if (filters == "residential" || filters == "commercial" || filters.endsWith("*")) "prefix"
@@ -493,34 +469,15 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else postcode.toUpperCase
     }
 
-    val dateQuery: Option[QueryDefinition] = {
-      if (!startDate.isEmpty && !endDate.isEmpty) {
-        Some(
-          should(
-            must(rangeQuery("paf.startDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("paf.endDate").lte(endDate).format(DATE_FORMAT)),
-            must(rangeQuery("lpi.lpiStartDate").gte(startDate).format(DATE_FORMAT),
-              rangeQuery("lpi.lpiEndDate").lte(endDate).format(DATE_FORMAT))))
-      }
-      else None
-    }
-
-    val abQuery: Option[QueryDefinition] = {
-      if (verbose){
-        Option(not(termQuery("lpi.addressBasePostal", "N")))
-      }
-      else None
-    }
-
     val query =
       if (filters.isEmpty) {
-        must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(abQuery, dateQuery).flatten)
+        must(termQuery("postcode", postcodeFormatted))
     }else {
         if (filterType == "prefix") {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery, dateQuery).flatten)
+          must(termQuery("postcode", postcodeFormatted)).filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix))).flatten)
         }
         else {
-          must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery, dateQuery).flatten)
+          must(termQuery("postcode", postcodeFormatted)).filter(Seq(Option(termsQuery("classificationCode", filterValueTerm))).flatten)
         }
       }
 
@@ -529,18 +486,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     if (historical) {
       if (verbose) {
         search(hybridIndexHistoricalPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
         search(hybridIndexHistoricalSkinnyPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     } else {
       if (verbose) {
         search(hybridIndexPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       } else {
         search(hybridIndexSkinnyPostcode + epochParam + hybridMapping).query(query)
-          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
+          .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartNumber").order(SortOrder.ASC), FieldSortDefinition("lpi.paoStartSuffix.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.thoroughfare.keyword").order(SortOrder.ASC), FieldSortDefinition("nisra.buildingNumber.keyword").order(SortOrder.ASC), FieldSortDefinition("uprn").order(SortOrder.ASC))
       }
     }
   }
@@ -581,25 +538,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val timestamp: Long = System.currentTimeMillis
 
-    val abQuery: Option[QueryDefinition] = {
-      if (verbose){
-        Option(not(termQuery("lpi.addressBasePostal", "N")))
-      }
-      else None
-    }
-
     val query =
 
       if (filters.isEmpty) { functionScoreQuery().functions(randomScore(timestamp.toInt))
-        .query(boolQuery().filter(Seq(abQuery).flatten))
+        .query(boolQuery())
           .boostMode("replace")
       }else {
         if (filterType == "prefix") { functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix)), abQuery).flatten))
+          .query(boolQuery().filter(Seq(Option(prefixQuery("classificationCode", filterValuePrefix))).flatten))
           .boostMode("replace")
         }
         else { functionScoreQuery().functions(randomScore(timestamp.toInt))
-          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm)), abQuery).flatten))
+          .query(boolQuery().filter(Seq(Option(termsQuery("classificationCode", filterValueTerm))).flatten))
           .boostMode("replace")
         }
       }
@@ -689,6 +639,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
       tokens.get(Tokens.subBuildingName).map(token =>
         constantScoreQuery(matchQuery(
+          field = "nisra.subBuildingName",
+          value = token
+        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
+      tokens.get(Tokens.subBuildingName).map(token =>
+        constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
@@ -751,6 +706,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           constantScoreQuery(matchQuery(
             field = "paf.buildingNumber",
             value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
+        tokens.get(Tokens.paoEndNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "nisra.buildingNumber",
+            value = token
+          )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
+        tokens.get(Tokens.paoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "nisra.buildingNumber",
+            value = token
           )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
       ).flatten
 
@@ -776,6 +741,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost)),
       tokens.get(Tokens.buildingName).map(token =>
         constantScoreQuery(matchQuery(
+          field = "nisra.buildingName",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost)),
+      tokens.get(Tokens.buildingName).map(token =>
+        constantScoreQuery(matchQuery(
           field = "lpi.paoText",
           value = token
         ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost)),
@@ -788,6 +758,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
+          value = token
+        )).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
+      tokens.get(Tokens.paoStartNumber).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "nisra.buildingNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost)),
       tokens.get(Tokens.paoStartNumber).map(token =>
@@ -810,6 +785,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafThoroughfareBoost)),
       tokens.get(Tokens.streetName).map(token =>
         constantScoreQuery(matchQuery(
+          field = "nisra.thoroughfare",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafThoroughfareBoost)),
+      tokens.get(Tokens.streetName).map(token =>
+        constantScoreQuery(matchQuery(
           field = "paf.welshThoroughfare",
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshThoroughfareBoost)),
@@ -821,6 +801,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       tokens.get(Tokens.streetName).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.welshDependentThoroughfare",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost)),
+      tokens.get(Tokens.streetName).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "nisra.dependentThoroughfare",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost)),
+      tokens.get(Tokens.streetName).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "nisra.altThoroughfare",
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost)),
       tokens.get(Tokens.streetName).map(token =>
@@ -841,6 +831,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           field = "paf.welshPostTown",
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshPostTownBoost)),
+      tokens.get(Tokens.townName).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "nisra.townName",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafPostTownBoost)),
       tokens.get(Tokens.townName).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.townName",
@@ -895,6 +890,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         )).boost(queryParams.postcode.pafPostcodeBoost)),
       tokens.get(Tokens.postcode).map(token =>
         constantScoreQuery(matchQuery(
+          field = "nisra.postcode",
+          value = token
+        )).boost(queryParams.postcode.pafPostcodeBoost)),
+      tokens.get(Tokens.postcode).map(token =>
+        constantScoreQuery(matchQuery(
           field = "lpi.postcodeLocator",
           value = token
         )).boost(queryParams.postcode.lpiPostcodeLocatorBoost)),
@@ -907,6 +907,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       tokens.get(Tokens.organisationName).map(token =>
         constantScoreQuery(matchQuery(
           field = "paf.organisationName",
+          value = token
+        ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.pafOrganisationNameBoost)),
+      tokens.get(Tokens.organisationName).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "nisra.organisationName",
           value = token
         ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.pafOrganisationNameBoost)),
       tokens.get(Tokens.organisationName).map(token =>
@@ -952,6 +957,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost)),
       tokens.get(Tokens.locality).map(token =>
         constantScoreQuery(matchQuery(
+          field = "nisra.townland",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost)),
+      tokens.get(Tokens.locality).map(token =>
+        constantScoreQuery(matchQuery(
           field = "paf.welshPostTown",
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshPostTownBoost)),
@@ -970,6 +980,11 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           field = "paf.welshDependentLocality",
           value = token
         ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDependentLocalityBoost)),
+      tokens.get(Tokens.locality).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "nisra.locality",
+          value = token
+        ).fuzziness(defaultFuzziness)).boost(queryParams.locality.lpiLocalityBoost)),
       tokens.get(Tokens.locality).map(token =>
         constantScoreQuery(matchQuery(
           field = "lpi.locality",
@@ -1030,6 +1045,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
               .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
               .boost(queryParams.fallback.fallbackLpiBoost),
+            matchQuery("nisra.nisraAll", normalizedInput)
+              .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+              .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+              .boost(queryParams.fallback.fallbackLpiBoost),
             matchQuery("paf.pafAll", normalizedInput)
               .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
               .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -1037,6 +1056,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             .tieBreaker(0.0)),
           Seq(dismax(
             matchQuery("lpi.nagAll.bigram", normalizedInput)
+              .fuzziness(queryParams.fallback.bigramFuzziness)
+              .boost(queryParams.fallback.fallbackLpiBigramBoost),
+            matchQuery("nisra.nisraAll.bigram", normalizedInput)
               .fuzziness(queryParams.fallback.bigramFuzziness)
               .boost(queryParams.fallback.fallbackLpiBigramBoost),
             matchQuery("paf.pafAll.bigram", normalizedInput)
@@ -1053,6 +1075,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
                 .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
                 .boost(queryParams.fallback.fallbackLpiBoost),
+              matchQuery("nisra.nisraAll", normalizedInput)
+                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+                .boost(queryParams.fallback.fallbackLpiBoost),
               matchQuery("paf.pafAll", normalizedInput)
                 .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
                 .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -1060,6 +1086,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .tieBreaker(0.0)),
             Seq(dismax(
               matchQuery("lpi.nagAll.bigram", normalizedInput)
+                .fuzziness(queryParams.fallback.bigramFuzziness)
+                .boost(queryParams.fallback.fallbackLpiBigramBoost),
+              matchQuery("nisra.nisraAll.bigram", normalizedInput)
                 .fuzziness(queryParams.fallback.bigramFuzziness)
                 .boost(queryParams.fallback.fallbackLpiBigramBoost),
               matchQuery("paf.pafAll.bigram", normalizedInput)
@@ -1076,6 +1105,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
                 .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
                 .boost(queryParams.fallback.fallbackLpiBoost),
+              matchQuery("nisra.nisraAll", normalizedInput)
+                .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+                .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+                .boost(queryParams.fallback.fallbackLpiBoost),
               matchQuery("paf.pafAll", normalizedInput)
                 .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
                 .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -1083,6 +1116,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
               .tieBreaker(0.0)),
             Seq(dismax(
               matchQuery("lpi.nagAll.bigram", normalizedInput)
+                .fuzziness(queryParams.fallback.bigramFuzziness)
+                .boost(queryParams.fallback.fallbackLpiBigramBoost),
+              matchQuery("nisra.nisraAll.bigram", normalizedInput)
                 .fuzziness(queryParams.fallback.bigramFuzziness)
                 .boost(queryParams.fallback.fallbackLpiBigramBoost),
               matchQuery("paf.pafAll.bigram", normalizedInput)
