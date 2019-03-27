@@ -14,6 +14,7 @@ import scala.util.Try
   * @param paf   list of corresponding paf addresses
   * @param score score of the address in the returned ES result
   */
+@deprecated
 case class HybridAddressFull(uprn: String,
                              parentUprn: String,
                              relatives: Seq[Relative],

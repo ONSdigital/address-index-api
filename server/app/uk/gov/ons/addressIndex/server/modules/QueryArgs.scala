@@ -72,8 +72,7 @@ final case class UPRNArgs(uprn: String,
                           skinny: Boolean,
                          ) extends QueryArgs with DateFilterable with Skinnyable
 
-// TODO find a better name for this
-sealed abstract class NonUPRNArgs extends QueryArgs with Limitable with Filterable with Verboseable with Skinnyable {}
+sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable {}
 
 final case class PartialArgs(input: String,
                              epoch: String = "",
@@ -84,7 +83,7 @@ final case class PartialArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean = false,
                              skinny: Boolean = false,
-                            ) extends NonUPRNArgs with DateFilterable with StartAtOffset {
+                            ) extends MultiResultArgs with DateFilterable with StartAtOffset with Verboseable with Skinnyable {
   def inputNumbers: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
 }
 
@@ -97,7 +96,7 @@ final case class PostcodeArgs(postcode: String,
                               filterDateRange: DateRange = DateRange(),
                               verbose: Boolean = false,
                               skinny: Boolean = false,
-                             ) extends NonUPRNArgs with DateFilterable with StartAtOffset
+                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Verboseable with Skinnyable
 
 final case class RandomArgs(epoch: String = "",
                             historical: Boolean = true,
@@ -105,15 +104,11 @@ final case class RandomArgs(epoch: String = "",
                             limit: Int,
                             verbose: Boolean = false,
                             skinny: Boolean = false,
-                           ) extends NonUPRNArgs
-
-sealed abstract class StandardArgs extends QueryArgs with Limitable with DateFilterable with Configurable {
-
-}
+                           ) extends MultiResultArgs with Verboseable with Skinnyable
 
 final case class AddressArgs(tokens: Map[String, String],
                              region: Option[Region],
-                             isBulk: Boolean = true,
+                             isBulk: Boolean = false,
                              epoch: String = "",
                              historical: Boolean = true,
                              filters: String,
@@ -121,7 +116,7 @@ final case class AddressArgs(tokens: Map[String, String],
                              start: Int,
                              limit: Int,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                            ) extends StandardArgs with Filterable with StartAtOffset
+                            ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable
 
 final case class BulkArgs(requestsData: Stream[BulkAddressRequestData],
                           matchThreshold: Float,
@@ -131,4 +126,4 @@ final case class BulkArgs(requestsData: Stream[BulkAddressRequestData],
                           limit: Int,
                           filterDateRange: DateRange = DateRange(),
                           queryParamsConfig: Option[QueryParamsConfig] = None,
-                         ) extends StandardArgs
+                         ) extends QueryArgs with Limitable with DateFilterable with Configurable

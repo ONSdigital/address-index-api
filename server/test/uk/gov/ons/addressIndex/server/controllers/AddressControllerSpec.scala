@@ -116,6 +116,19 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
+  val validHybridAddressOptFull = HybridAddressOpt(
+    uprn = "1",
+    parentUprn = "4",
+    relatives = Some(Seq(validRelative)),
+    crossRefs = Some(Seq(validCrossRef)),
+    postcodeIn = Some("2"),
+    postcodeOut = Some("3"),
+    paf = Seq(validPafAddress),
+    lpi = Seq(validNagAddress),
+    score = 1f,
+    classificationCode = "29"
+  )
+
   val validHybridAddress = HybridAddressFull(
     uprn = "1",
     parentUprn = "4",
@@ -157,38 +170,38 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] =
-      Future.successful(Some(validHybridAddress))
+    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] =
+      Future.successful(Some(validHybridAddressOptFull))
 
     override def queryUprnSkinny(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
       Future.successful(Some(validHybridAddressSkinny))
 
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
 
       Future.successful {
         requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -202,12 +215,14 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddress), 1.0f, 1))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(Some(validHybridAddressOptFull))
 
-    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
+
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
-        queryArgs.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+        args.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -219,37 +234,37 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that won't return any addresses
   val emptyElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] =
+    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] =
       Future.successful(None)
 
     override def queryUprnSkinny(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
       Future.successful(None)
 
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
 
     override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
 
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
 
     override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
 
-    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
 
     override def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
 
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddresses] =
-      Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
+    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
+      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -263,12 +278,14 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(None)
 
-    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
+
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
-        queryArgs.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+        args.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -281,27 +298,27 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryUprn(uprn: String,
                            startDate: String, endDate: String,
-                           historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] = Future.successful(None)
+                           historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] = Future.successful(None)
 
     override def queryUprnSkinny(uprn: String,
                                  startDate: String, endDate: String,
                                  historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] = Future.successful(None)
 
-    override def queryPartialAddress(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPartialAddress(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryPartialAddressSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
 
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
       if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
-      else Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
+      else Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
@@ -322,12 +339,14 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(None)
 
-    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
+
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
-        queryArgs.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddress, requestData)
+        args.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -339,32 +358,32 @@ class AddressControllerSpec extends PlaySpec with Results {
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
     override def queryUprn(uprn: String,
-                           startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressFull]] =
+                           startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] =
       Future.failed(new Exception("test failure"))
 
     override def queryUprnSkinny(uprn: String,
                                  startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
+    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
       Future.failed(new Exception("test failure"))
 
     override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.failed(new Exception("test failure"))
 
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
+    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
       Future.failed(new Exception("test failure"))
 
     override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.failed(new Exception("test failure"))
 
-    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] =
+    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
       Future.failed(new Exception("test failure"))
 
     override def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
       Future.failed(new Exception("test failure"))
 
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddresses] =
+    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
       Future.failed(new Exception("Test exception"))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
@@ -376,9 +395,11 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = Future.failed(new Exception("Test exception"))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.failed(new Exception("test failure"))
 
-    override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("Test exception"))
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("Test exception"))
+
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("Test exception"))
   }
 
   val parser: ParserModule = (_: String) => Map.empty
@@ -422,7 +443,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)),
           historical = true,
           startDate = "",
           endDate = "",
@@ -433,7 +454,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOptFull.uprn, verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -449,7 +470,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           historical = true,
           startDate = "",
           endDate = "",
@@ -460,7 +481,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose = Some("true")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOptFull.uprn, verbose = Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -476,7 +497,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)),
           historical = true,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
@@ -488,7 +509,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       //      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("false")).apply(FakeRequest())
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOptFull.uprn, verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -504,7 +525,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           historical = true,
           startDate = "2013-01-01",
           endDate = "2014-01-01",
@@ -516,7 +537,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       //     val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, Some("2013-01-01"), Some("2014-01-01"), verbose=Some("true")).apply(FakeRequest())
-      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose = Some("true")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOptFull.uprn, verbose = Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -567,7 +588,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           filter = "",
           historical = true,
           limit = 100,
@@ -628,7 +649,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           filter = "",
           historical = true,
           limit = 1,
@@ -658,7 +679,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)),
           filter = "",
           historical = true,
           limit = 100,
@@ -692,7 +713,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           filter = "",
           historical = true,
           limit = 100,
@@ -760,7 +781,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           filter = "",
           historical = true,
           limit = 20,
@@ -829,7 +850,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
           filter = "",
           historical = true,
           limit = 20,
@@ -863,7 +884,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -901,7 +922,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -940,7 +961,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -978,7 +999,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1017,7 +1038,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1055,7 +1076,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",

@@ -155,14 +155,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 startDate: String = "",
                 endDate: String = "",
                 historical: Boolean = true,
-                epoch: String): Future[Option[HybridAddressFull]] = {
+                epoch: String): Future[Option[HybridAddressOpt]] = {
 
     val request = generateQueryUprnRequest(uprn, startDate, endDate, historical, epoch)
 
     logger.trace(request.toString)
 
     client.execute(request)
-      .map(HybridAddresses.fromEither)
+      .map(HybridAddressCollection.fromEither)
       .map(_.addresses.headOption)
   }
 
@@ -197,10 +197,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @return Search definition containing query to the ES
     */
   @deprecated
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses] = {
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddressCollection] = {
 
     val request = generateQueryPartialAddressRequest(input, filters, startDate, endDate, historical, fallback = false, verbose, epoch).start(start).limit(limit)
-    val partResult = client.execute(request).map(HybridAddresses.fromEither)
+    val partResult = client.execute(request).map(HybridAddressCollection.fromEither)
 
     // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
     partResult.map { adds =>
@@ -251,10 +251,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @return Search definition containing query to the ES
     */
   @deprecated
-  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses] = {
+  def queryPartialAddressFallback(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddressCollection] = {
     logger.warn("best fields fallback query invoked for input string " + input)
     val fallback = generateQueryPartialAddressRequest(input, filters, startDate, endDate, historical, fallback = true, verbose, epoch).start(start).limit(limit)
-    client.execute(fallback).map(HybridAddresses.fromEither)
+    client.execute(fallback).map(HybridAddressCollection.fromEither)
   }
 
   /**
@@ -376,10 +376,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   }
 
   @deprecated
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = {
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = {
     val request = generateQueryPostcodeRequest(postcode, filters, startDate, endDate, historical, verbose, epoch).start(start).limit(limit)
     logger.trace(request.toString)
-    client.execute(request).map(HybridAddresses.fromEither)
+    client.execute(request).map(HybridAddressCollection.fromEither)
   }
 
   @deprecated
@@ -447,10 +447,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   }
 
   @deprecated
-  def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddresses] = {
+  def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = {
     val request = generateQueryRandomRequest(filters, historical, verbose, epoch).limit(limit)
     logger.trace(request.toString)
-    client.execute(request).map(HybridAddresses.fromEither)
+    client.execute(request).map(HybridAddressCollection.fromEither)
   }
 
   @deprecated
@@ -519,13 +519,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                      queryParamsConfig: Option[QueryParamsConfig] = None,
                      historical: Boolean = true,
                      isBulk: Boolean = false,
-                     epoch: String): Future[HybridAddresses] = {
+                     epoch: String): Future[HybridAddressCollection] = {
 
     val request = generateQueryAddressRequest(tokens, filters, range, lat, lon, startDate, endDate, queryParamsConfig, historical, isBulk, epoch).start(start).limit(limit)
 
     logger.trace(request.toString)
 
-    client.execute(request).map(HybridAddresses.fromEither)
+    client.execute(request).map(HybridAddressCollection.fromEither)
   }
 
   @deprecated
@@ -958,7 +958,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, max(limit * 2, minimumSample), "", "", "50.71", "-3.51", startDate, endDate, queryParamsConfig, historical, isBulk = true, epoch).map { case HybridAddresses(hybridAddresses, _, _) =>
+        queryAddresses(requestData.tokens, 0, max(limit * 2, minimumSample), "", "", "50.71", "-3.51", startDate, endDate, queryParamsConfig, historical, isBulk = true, epoch).map { case HybridAddressCollection(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
@@ -1584,7 +1584,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   override def makeQuery(queryArgs: QueryArgs): SearchDefinition = queryArgs match {
     case uprnArgs: UPRNArgs =>
       makeUprnQuery(uprnArgs)
-      // uprn normally runs .map(_.addresses.headOption)
+    // uprn normally runs .map(_.addresses.headOption)
     case partialArgs: PartialArgs =>
       makePartialSearch(partialArgs, fallback = false)
     case postcodeArgs: PostcodeArgs =>
@@ -1597,9 +1597,15 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       null
   }
 
-  override def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection] = {
-    val query = makeQuery(queryArgs)
-    queryArgs match {
+  override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = {
+    val query = makeQuery(args)
+    logger.trace(query.toString)
+    client.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption)
+  }
+
+  override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
+    val query = makeQuery(args)
+    args match {
       case partialArgs: PartialArgs =>
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
         val partResult = client.execute(query).map(HybridAddressCollection.fromEither)
@@ -1608,15 +1614,72 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           if (adds.addresses.isEmpty) client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)
           else partResult
         }.flatten
-      case _: BulkArgs =>
-        null
       case _ =>
-        // activates for uprn, postcode, random, address
-        // uprn normally runs .map(_.addresses.headOption)
+        // activates for postcode, random, address
         logger.trace(query.toString)
         client.execute(query).map(HybridAddressCollection.fromEither)
     }
   }
 
-  override def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = ???
+  override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+    val minimumSample = conf.config.bulk.minimumSample
+    val addressRequests = args.requestsData.map { requestData =>
+      // queryAddresses(requestData.tokens, 0, max(args.limit * 2, minimumSample), "", "", "50.71", "-3.51", args.filterDateRange.start, args.filterDateRange.end, args.queryParamsConfig, args.historical, isBulk = true, args.epoch)
+      val newArgs = AddressArgs(
+        tokens = requestData.tokens,
+        region = Some(Region(range = 0, lat = 50.71, lon = -3.51)),
+        isBulk = true,
+        epoch = args.epoch,
+        historical = args.historical,
+        filters = "",
+        filterDateRange = args.filterDateRange,
+        start = 0,
+        limit = max(args.limit * 2, minimumSample),
+        queryParamsConfig = args.queryParamsConfig
+      )
+      val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
+        runMultiResultQuery(newArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>
+
+          // If we didn't find any results for an input, we still need to return
+          // something that will indicate an empty result
+          val tokens = requestData.tokens
+          val emptyBulk = BulkAddress.empty(requestData)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), tokens, 1D)
+          val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
+          if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
+          else {
+            val bulkAddresses = hybridAddresses.map { hybridAddress =>
+              BulkAddress.fromHybridAddress(hybridAddress, requestData)
+            }
+
+            val addressResponseAddresses = hybridAddresses.map { hybridAddress =>
+              AddressResponseAddress.fromHybridAddress(hybridAddress, verbose = true)
+            }
+
+            //  calculate the elastic denominator value which will be used when scoring each address
+            val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
+            // add the Hopper and hybrid scores to the address
+            // val matchThreshold = 5
+            val threshold = Try((args.matchThreshold / 100).toDouble).getOrElse(0.05D)
+            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
+            val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map { case (b, s) =>
+              AddressBulkResponseAddress.fromBulkAddress(b, s, args.includeFullAddress)
+            }
+            val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(args.limit)
+
+            if (thresholdedAddresses.isEmpty) Seq(emptyBulkAddress) else thresholdedAddresses
+          }
+        }
+
+      // Successful requests are stored in the `Right`
+      // Failed requests will be stored in the `Left`
+      bulkAddressRequest.map(Right(_)).recover {
+        case exception: Exception =>
+          logger.info(s"#bulk query: rejected request to ES (this might be an indicator of low resource) : ${exception.getMessage}")
+          Left(requestData.copy(lastFailExceptionMessage = exception.getMessage))
+      }
+    }
+
+    Future.sequence(addressRequests)
+  }
 }

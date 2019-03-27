@@ -1337,7 +1337,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = expectedHybrid
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10, "", "", defaultLat, defaultLon, epoch = "").await
+      val HybridAddressCollection(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10, "", "", defaultLat, defaultLon, epoch = "").await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -1587,7 +1587,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val HybridAddresses(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10, "", "", defaultLat, defaultLon, epoch = "").await
+      val HybridAddressCollection(results, maxScore, total) = repository.queryAddresses(tokens, 0, 10, "", "", defaultLat, defaultLon, epoch = "").await
 
       // Then
       results.length shouldBe 0
@@ -2473,7 +2473,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val results = repository.queryBulk(inputs, limit = 1, matchThreshold = 5F).await
+      val args = BulkArgs(
+        requestsData = inputs,
+        limit = 1,
+        matchThreshold = 5F,
+      )
+      val results = repository.runBulkQuery(args).await
       val addresses = results.collect {
         case Right(address) => address
       }.flatten

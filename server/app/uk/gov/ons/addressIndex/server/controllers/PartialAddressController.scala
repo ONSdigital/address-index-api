@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddressCollection, HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -197,13 +197,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               }
           }
         } else {
-          val request: Future[HybridAddresses] =
+          val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
             )
 
           request.map {
-            case HybridAddresses(hybridAddresses, maxScore, total) =>
+            case HybridAddressCollection(hybridAddresses, maxScore, total) =>
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
                 AddressResponseAddress.fromHybridAddress(_, verb)
               )

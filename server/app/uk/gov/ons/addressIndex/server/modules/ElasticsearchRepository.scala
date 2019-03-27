@@ -23,7 +23,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddressFull]]
+  def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddressOpt]]
 
   /**
     * Query the address index by UPRN.
@@ -39,7 +39,7 @@ trait ElasticsearchRepository {
     * @param input the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses]
+  def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddressCollection]
 
   /**
     * Query the address index by partial address.
@@ -55,7 +55,7 @@ trait ElasticsearchRepository {
     * @param postcode the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses]
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String = "", endDate: String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddressCollection]
 
   /**
     * Query the address index by postcode.
@@ -70,7 +70,7 @@ trait ElasticsearchRepository {
     *
     * @return Future containing an address or `None` if not in the index
     */
-  def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses]
+  def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddressCollection]
 
   /**
     * Query the address index for a random address.
@@ -87,7 +87,7 @@ trait ElasticsearchRepository {
     * @param tokens address tokens
     * @return Future with found addresses and the maximum score
     */
-  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = true, epoch: String): Future[HybridAddresses]
+  def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, isBulk: Boolean = true, epoch: String): Future[HybridAddressCollection]
 
   /**
     * Generates request to get address from ES by UPRN
@@ -108,9 +108,11 @@ trait ElasticsearchRepository {
     */
   def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 
-  def makeQuery(queryArgs: QueryArgs): SearchDefinition
+  def makeQuery(args: QueryArgs): SearchDefinition
 
-  def runQuery(queryArgs: QueryArgs): Future[HybridAddressCollection]
+  def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]]
 
-  def runQueryBulk(queryArgs: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
+  def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection]
+
+  def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 }

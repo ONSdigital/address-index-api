@@ -90,7 +90,7 @@ object HybridAddressOpt {
   *                  (even those that are not in the list because of the limit)
   * @param total     total number of all of the addresses regardless of the limit
   */
-case class HybridAddressCollection(addresses: Seq[HybridAddressFull],
+case class HybridAddressCollection(addresses: Seq[HybridAddressOpt],
                                    maxScore: Double,
                                    total: Long)
 
@@ -120,7 +120,7 @@ object HybridAddressCollection {
     val maxScore = if (total == 0) 0 else response.maxScore
 
     HybridAddressCollection(
-      addresses = response.to[HybridAddressFull],
+      addresses = response.to[HybridAddressOpt],
       maxScore = maxScore,
       total = total
     )

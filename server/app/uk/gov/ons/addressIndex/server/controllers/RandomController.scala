@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddressCollection, HybridAddresses, HybridAddressesSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -152,13 +152,13 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
               }
           }
         } else {
-          val request: Future[HybridAddresses] =
+          val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.queryRandom(filterString, limitInt, hist, verb, epochVal)
             )
 
           request.map {
-            case HybridAddresses(hybridAddresses, _, _) =>
+            case HybridAddressCollection(hybridAddresses, _, _) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
                 AddressResponseAddress.fromHybridAddress(_, verb)
