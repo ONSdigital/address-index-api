@@ -513,6 +513,77 @@
 				}
 			}
 		},
+		"/addresses/random": {
+			"get": {
+				"operationId": "randomQuery",
+				"tags": [
+					"routes"
+				],
+				"summary": "Search for a random address.",
+				"description": "Returns a random address.",
+				"parameters": [
+					{
+						"in": "query",
+						"name": "classificationfilter",
+						"type": "string",
+						"required": false,
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the number of addresses to return.",
+						"default": 10,
+						"maximum": 100
+					},
+					{
+						"in": "query",
+						"name": "historical",
+						"type": "string",
+						"required": false,
+						"description": "Include historical addresses",
+						"default": true
+					},
+					{
+						"in": "query",
+						"name": "verbose",
+						"type": "string",
+						"required": false,
+						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
+						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success. A json return of matched addresses.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
 		"/version": {
 			"get": {
 				"operationId": "versionQuery",
@@ -669,6 +740,69 @@
 		}
 	},
 	"definitions": {
+		"uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponse": {
+			"properties": {
+				"addresses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+					}
+				},
+				"filter": {
+					"type": "string"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"limit": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"verbose": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"addresses",
+				"filter",
+				"historical",
+				"epoch",
+				"limit",
+				"verbose"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.codelists.AddressResponseCodelist": {
 			"properties": {
 				"name": {
@@ -707,12 +841,6 @@
 				"epoch": {
 					"type": "string"
 				},
-				"startDate": {
-					"type": "string"
-				},
-				"endDate": {
-					"type": "string"
-				},
 				"verbose": {
 					"type": "boolean"
 				}
@@ -720,8 +848,6 @@
 			"required": [
 				"historical",
 				"epoch",
-				"startDate",
-				"endDate",
 				"verbose"
 			]
 		},
@@ -1157,6 +1283,88 @@
 				"northing"
 			]
 		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNisra": {
+			"properties": {
+				"organisationName": {
+					"type": "string"
+				},
+				"subBuildingName": {
+					"type": "string"
+				},
+				"buildingName": {
+					"type": "string"
+				},
+				"buildingNumber": {
+					"type": "string"
+				},
+				"thoroughfare": {
+					"type": "string"
+				},
+				"altThoroughfare": {
+					"type": "string"
+				},
+				"dependentThoroughfare": {
+					"type": "string"
+				},
+				"locality": {
+					"type": "string"
+				},
+				"townland": {
+					"type": "string"
+				},
+				"townName": {
+					"type": "string"
+				},
+				"postcode": {
+					"type": "string"
+				},
+				"uprn": {
+					"type": "string"
+				},
+				"classificationCode": {
+					"type": "string"
+				},
+				"udprn": {
+					"type": "string"
+				},
+				"creationDate": {
+					"type": "string"
+				},
+				"commencementDate": {
+					"type": "string"
+				},
+				"archivedDate": {
+					"type": "string"
+				},
+				"nisraAll": {
+					"type": "string"
+				},
+				"mixedNisra": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"organisationName",
+				"subBuildingName",
+				"buildingName",
+				"buildingNumber",
+				"thoroughfare",
+				"altThoroughfare",
+				"dependentThoroughfare",
+				"locality",
+				"townland",
+				"townName",
+				"postcode",
+				"uprn",
+				"classificationCode",
+				"udprn",
+				"creationDate",
+				"commencementDate",
+				"archivedDate",
+				"nisraAll",
+				"mixedNisra"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSao": {
 			"properties": {
 				"saoText": {
@@ -1459,6 +1667,9 @@
 				"formattedAddressPaf": {
 					"type": "string"
 				},
+				"formattedAddressNisra": {
+					"type": "string"
+				},
 				"welshFormattedAddressNag": {
 					"type": "string"
 				},
@@ -1474,6 +1685,9 @@
 						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNag"
 					}
 				},
+				"nisra": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNisra"
+				},
 				"geo": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseGeo"
 				},
@@ -1481,6 +1695,9 @@
 					"type": "string"
 				},
 				"lpiLogicalStatus": {
+					"type": "string"
+				},
+				"fromSource": {
 					"type": "string"
 				},
 				"confidenceScore": {
@@ -1498,10 +1715,12 @@
 				"formattedAddress",
 				"formattedAddressNag",
 				"formattedAddressPaf",
+				"formattedAddressNisra",
 				"welshFormattedAddressNag",
 				"welshFormattedAddressPaf",
 				"classificationCode",
 				"lpiLogicalStatus",
+				"fromSource",
 				"confidenceScore",
 				"underlyingScore"
 			]
@@ -1542,12 +1761,6 @@
 					"type": "number",
 					"format": "double"
 				},
-				"startDate": {
-					"type": "string"
-				},
-				"endDate": {
-					"type": "string"
-				},
 				"verbose": {
 					"type": "boolean"
 				}
@@ -1562,8 +1775,6 @@
 				"offset",
 				"total",
 				"maxScore",
-				"startDate",
-				"endDate",
 				"verbose"
 			]
 		},
