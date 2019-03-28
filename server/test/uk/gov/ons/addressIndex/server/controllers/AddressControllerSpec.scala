@@ -192,9 +192,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryUprn(uprn: String, historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] =
       Future.successful(Some(validHybridAddress))
 
-    override def queryUprnSkinny(uprn: String, historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] =
-      Future.successful(Some(validHybridAddressSkinny))
-
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
@@ -240,9 +237,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryUprn(uprn: String, historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] =
       Future.successful(None)
 
-    override def queryUprnSkinny(uprn: String, historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] =
-      Future.successful(None)
-
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
       Future.successful(HybridAddresses(Seq.empty, 1.0f, 0))
 
@@ -286,9 +280,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def queryUprn(uprn: String,
       historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] = Future.successful(None)
 
-    override def queryUprnSkinny(uprn: String,
-                           historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] = Future.successful(None)
-
     override def queryPartialAddress(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] = Future.successful(HybridAddresses(Seq(validHybridAddress), 1.0f, 1))
 
     override def queryPartialAddressSkinny(postcode: String, start:Int, limit: Int, filters: String, startDate:String, endDate:String, historical: Boolean = true, verbose: Boolean = false, epoch:String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
@@ -329,10 +320,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryUprn(uprn: String,
       historical: Boolean = true, epoch:String): Future[Option[HybridAddress]] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryUprnSkinny(uprn: String,
-                           historical: Boolean = true, epoch:String): Future[Option[HybridAddressSkinny]] =
       Future.failed(new Exception("test failure"))
 
     override def queryPostcode(postcode: String, start:Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = true, epoch:String): Future[HybridAddresses] =
@@ -405,7 +392,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddressSkinny(validHybridAddressSkinny, verbose=false)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose=false)),
           historical = true,
           verbose = false,
           epoch = ""
@@ -414,7 +401,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddressSkinny.uprn, verbose=Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose=Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
