@@ -60,7 +60,7 @@ object HybridAddressSkinny {
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
-        fromSource = hit.sourceAsMap("fromSource").toString
+        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW")
       ))
     }
   }
