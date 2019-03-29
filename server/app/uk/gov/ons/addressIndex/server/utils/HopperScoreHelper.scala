@@ -58,9 +58,9 @@ object HopperScoreHelper  {
     val postcodeIn = tokens.getOrElse(Tokens.postcodeIn, empty)
     val postcodeOut = tokens.getOrElse(Tokens.postcodeOut, empty)
 
-    val pafPostcode = address.paf.map(_.postcode).getOrElse("")
-    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("")
-    val nisraPostcode = address.nisra.map(_.postcode).getOrElse("")
+    val pafPostcode = address.paf.map(_.postcode).getOrElse("").toUpperCase
+    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("").toUpperCase
+    val nisraPostcode = address.nisra.map(_.postcode).getOrElse("").toUpperCase
     val postcodeToUse = if (nisraPostcode != "") nisraPostcode else if (pafPostcode != "") pafPostcode else nagPostcode
 
     (calculateLocalityScore(
@@ -184,23 +184,23 @@ object HopperScoreHelper  {
     val fromSource = address.fromSource
 
     // get paf values
-    val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
-    val pafBuildingNumber = address.paf.map(_.buildingNumber).getOrElse("")
-    val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
+    val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
+    val pafBuildingNumber = address.paf.map(_.buildingNumber).getOrElse("").toUpperCase
+    val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("").toUpperCase
 
     // get nisra values
-    val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("")
-    val nisraBuildingNumber = address.nisra.map(_.buildingNumber).getOrElse("")
-    val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("")
+    val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("").toUpperCase
+    val nisraBuildingNumber = address.nisra.map(_.buildingNumber).getOrElse("").toUpperCase
+    val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("").toUpperCase
 
     //get nag values
-    val nagPaoStartNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartNumber).getOrElse("")
-    val nagPaoEndNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndNumber).getOrElse("")
-    val nagPaoStartSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartSuffix).getOrElse("")
-    val nagPaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndSuffix).getOrElse("")
-    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
-    val nagSaoText = address.nag.getOrElse(Nil).headOption.map(_.sao.saoText).getOrElse("")
-    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
+    val nagPaoStartNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartNumber).getOrElse("").toUpperCase
+    val nagPaoEndNumber = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndNumber).getOrElse("").toUpperCase
+    val nagPaoStartSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoStartSuffix).getOrElse("").toUpperCase
+    val nagPaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.pao.paoEndSuffix).getOrElse("").toUpperCase
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("").toUpperCase
+    val nagSaoText = address.nag.getOrElse(Nil).headOption.map(_.sao.saoText).getOrElse("").toUpperCase
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("").toUpperCase
 
     // each element score is the better match of paf and nag
 
@@ -508,38 +508,38 @@ object HopperScoreHelper  {
     val fromSource = address.fromSource
 
     // get paf values
-    val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
-    val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("")
-    val pafThoroughfare = address.paf.map(_.thoroughfare).getOrElse("")
-    val pafDependentThoroughfare = address.paf.map(_.dependentThoroughfare).getOrElse("")
-    val pafWelshThoroughfare = address.paf.map(_.welshThoroughfare).getOrElse("")
-    val pafWelshDependentThoroughfare = address.paf.map(_.welshDependentThoroughfare).getOrElse("")
-    val pafPostTown = address.paf.map(_.postTown).getOrElse("")
-    val pafWelshPostTown = address.paf.map(_.welshPostTown).getOrElse("")
-    val pafDependentLocality = address.paf.map(_.dependentLocality).getOrElse("")
-    val pafWelshDependentLocality = address.paf.map(_.welshDependentLocality).getOrElse("")
-    val pafDoubleDependentLocality = address.paf.map(_.doubleDependentLocality).getOrElse("")
-    val pafWelshDoubleDependentLocality = address.paf.map(_.welshDoubleDependentLocality).getOrElse("")
-    val pafPostcode = address.paf.map(_.postcode).getOrElse("")
+    val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
+    val pafOrganisationName = address.paf.map(_.organisationName).getOrElse("").toUpperCase
+    val pafThoroughfare = address.paf.map(_.thoroughfare).getOrElse("").toUpperCase
+    val pafDependentThoroughfare = address.paf.map(_.dependentThoroughfare).getOrElse("").toUpperCase
+    val pafWelshThoroughfare = address.paf.map(_.welshThoroughfare).getOrElse("").toUpperCase
+    val pafWelshDependentThoroughfare = address.paf.map(_.welshDependentThoroughfare).getOrElse("").toUpperCase
+    val pafPostTown = address.paf.map(_.postTown).getOrElse("").toUpperCase
+    val pafWelshPostTown = address.paf.map(_.welshPostTown).getOrElse("").toUpperCase
+    val pafDependentLocality = address.paf.map(_.dependentLocality).getOrElse("").toUpperCase
+    val pafWelshDependentLocality = address.paf.map(_.welshDependentLocality).getOrElse("").toUpperCase
+    val pafDoubleDependentLocality = address.paf.map(_.doubleDependentLocality).getOrElse("").toUpperCase
+    val pafWelshDoubleDependentLocality = address.paf.map(_.welshDoubleDependentLocality).getOrElse("").toUpperCase
+    val pafPostcode = address.paf.map(_.postcode).getOrElse("").toUpperCase
 
     //get nag values
-    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("")
-    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("")
-    val nagStreetDescriptor = address.nag.getOrElse(Nil).headOption.map(_.streetDescriptor).getOrElse("")
-    val nagTownName = address.nag.getOrElse(Nil).headOption.map(_.townName).getOrElse("")
-    val nagLocality = address.nag.getOrElse(Nil).headOption.map(_.locality).getOrElse("")
-    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("")
+    val nagPaoText = address.nag.getOrElse(Nil).headOption.map(_.pao.paoText).getOrElse("").toUpperCase
+    val nagOrganisationName = address.nag.getOrElse(Nil).headOption.map(_.organisation).getOrElse("").toUpperCase
+    val nagStreetDescriptor = address.nag.getOrElse(Nil).headOption.map(_.streetDescriptor).getOrElse("").toUpperCase
+    val nagTownName = address.nag.getOrElse(Nil).headOption.map(_.townName).getOrElse("").toUpperCase
+    val nagLocality = address.nag.getOrElse(Nil).headOption.map(_.locality).getOrElse("").toUpperCase
+    val nagPostcode = address.nag.getOrElse(Nil).headOption.map(_.postcodeLocator).getOrElse("").toUpperCase
 
     // get nisra values
-    val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("")
-    val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("")
-    val nisraThoroughfare = address.nisra.map(_.thoroughfare).getOrElse("")
-    val nisraDependentThoroughfare = address.nisra.map(_.dependentThoroughfare).getOrElse("")
-    val nisraAltThoroughfare = address.nisra.map(_.altThoroughfare).getOrElse("")
-    val nisraTownland = address.nisra.map(_.townland).getOrElse("")
-    val nisraPostTown = address.nisra.map(_.townName).getOrElse("")
-    val nisraLocality = address.nisra.map(_.locality).getOrElse("")
-    val nisraPostcode = address.nisra.map(_.postcode).getOrElse("")
+    val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("").toUpperCase
+    val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("").toUpperCase
+    val nisraThoroughfare = address.nisra.map(_.thoroughfare).getOrElse("").toUpperCase
+    val nisraDependentThoroughfare = address.nisra.map(_.dependentThoroughfare).getOrElse("").toUpperCase
+    val nisraAltThoroughfare = address.nisra.map(_.altThoroughfare).getOrElse("").toUpperCase
+    val nisraTownland = address.nisra.map(_.townland).getOrElse("").toUpperCase
+    val nisraPostTown = address.nisra.map(_.townName).getOrElse("").toUpperCase
+    val nisraLocality = address.nisra.map(_.locality).getOrElse("").toUpperCase
+    val nisraPostcode = address.nisra.map(_.postcode).getOrElse("").toUpperCase
 
     // create test fields for postcode match
     val postcodeWithInvertedIncode = if (postcodeIn.length < 3) empty else swap(postcodeIn,1,2)

@@ -94,7 +94,7 @@ object HybridAddress {
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
-        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("")
+        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW")
       ))
     }
   }
