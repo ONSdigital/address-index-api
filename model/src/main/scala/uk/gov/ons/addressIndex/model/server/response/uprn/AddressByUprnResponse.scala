@@ -12,8 +12,6 @@ case class AddressByUprnResponse(
   address: Option[AddressResponseAddress],
   historical: Boolean,
   epoch: String,
-  startDate: String,
-  endDate: String,
   verbose: Boolean
 )
 

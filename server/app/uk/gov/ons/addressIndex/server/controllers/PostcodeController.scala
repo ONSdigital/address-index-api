@@ -51,11 +51,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+","")
     val endpointType = "postcode"
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
-    val startDateVal = ""
-    val endDateVal = ""
-
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
       case None => true
@@ -79,7 +74,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-      //  startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
@@ -95,15 +89,11 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       historical = Some(hist),
       limit = Some(limitInt),
       offset = Some(offsetInt),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
       verbose = Some(verb),
     )
 
     val result: Option[Future[Result]] =
       postcodeValidation.validatePostcodeLimit(limit, queryValues)
-  //      .orElse(postcodeValidation.validateStartDate(startDateVal))
-  //      .orElse(postcodeValidation.validateEndDate(endDateVal))
         .orElse(postcodeValidation.validatePostcodeOffset(offset, queryValues))
         .orElse(postcodeValidation.validateSource(queryValues))
         .orElse(postcodeValidation.validateKeyStatus(queryValues))
@@ -122,7 +112,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         if (verb==false) {
           val request: Future[HybridAddressesSkinny] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
+              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, hist, verb, epochVal)
             )
           request.map {
             case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
@@ -147,8 +137,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     offset = offsetInt,
                     total = total,
                     maxScore = maxScore,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
                     verbose = verb
                   ),
                   status = OkAddressResponseStatus
@@ -182,7 +170,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         }else {
           val request: Future[HybridAddresses] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
+              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, hist, verb, epochVal)
             )
           request.map {
             case HybridAddresses(hybridAddresses, maxScore, total) =>
@@ -207,8 +195,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     offset = offsetInt,
                     total = total,
                     maxScore = maxScore,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
                     verbose = verb
                   ),
                   status = OkAddressResponseStatus

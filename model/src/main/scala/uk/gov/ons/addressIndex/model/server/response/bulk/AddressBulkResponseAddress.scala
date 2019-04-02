@@ -38,7 +38,7 @@ object AddressBulkResponseAddress {
     id = bulkAddress.id,
     inputAddress = bulkAddress.inputAddress,
     uprn = bulkAddress.hybridAddress.uprn,
-    matchedFormattedAddress = addressResponseAddress.formattedAddressNag,
+    matchedFormattedAddress = addressResponseAddress.formattedAddress,
     matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,

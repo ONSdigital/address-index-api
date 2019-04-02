@@ -23,15 +23,7 @@ trait ElasticsearchRepository {
     * @param uprn the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryUprn(uprn: String, startDate: String, endDate:String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddress]]
-
-  /**
-    * Query the address index by UPRN.
-    *
-    * @param uprn the identificator of the address
-    * @return Future containing a address or `None` if not in the index
-    */
-  def queryUprnSkinny(uprn: String, startDate: String, endDate:String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddressSkinny]]
+  def queryUprn(uprn: String, historical: Boolean = true, epoch: String = ""): Future[Option[HybridAddress]]
 
   /**
     * Query the address index by partial address.
@@ -55,7 +47,7 @@ trait ElasticsearchRepository {
     * @param postcode the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses]
+  def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = true, epoch: String = ""): Future[HybridAddresses]
 
   /**
     * Query the address index by postcode.
@@ -63,7 +55,7 @@ trait ElasticsearchRepository {
     * @param postcode the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate:String = "", endDate:String = "", historical: Boolean = true, verbose: Boolean = false, epoch: String = ""): Future[HybridAddressesSkinny]
+  def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, historical: Boolean = true, verbose: Boolean = false, epoch: String = ""): Future[HybridAddressesSkinny]
 
   /**
     * Query the address index for a random address.

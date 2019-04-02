@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, NisraAddress}
 
 /**
   * Contains address information retrieved in ES (PAF or NAG)
@@ -10,6 +10,7 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinn
   * @param formattedAddress   cannonical address form
   * @param paf                optional, information from Paf index
   * @param nag                optional, information from Nag index
+  * @param nisra              optional, information from Nisra index
   * @param underlyingScore    score from elastic search
   *
   */
@@ -21,15 +22,18 @@ case class AddressResponseAddress(
   formattedAddress: String,
   formattedAddressNag: String,
   formattedAddressPaf: String,
+  formattedAddressNisra: String,
   welshFormattedAddressNag: String,
   welshFormattedAddressPaf: String,
   paf: Option[AddressResponsePaf],
   nag: Option[Seq[AddressResponseNag]],
+  nisra: Option[AddressResponseNisra],
   geo: Option[AddressResponseGeo],
   classificationCode: String,
   lpiLogicalStatus: String,
+  fromSource: String,
   confidenceScore: Double,
-  underlyingScore: Float,
+  underlyingScore: Float
 )
 
 object AddressResponseAddress {
@@ -53,21 +57,29 @@ object AddressResponseAddress {
     val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
     val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
 
+    val chosenNisra: Option[NisraAddress] = other.nisra.headOption
+    val formattedAddressNisra = if (chosenNisra.isEmpty) "" else chosenNisra.get.mixedNisra
+
+    val fromSource = other.fromSource
+
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = {if (verbose) Some(other.relatives.map(AddressResponseRelative.fromRelative)) else None},
       crossRefs = {if (verbose) Some(other.crossRefs.map(AddressResponseCrossRef.fromCrossRef)) else None},
-      formattedAddress = formattedAddressNag,
+      formattedAddress = {if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra},
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
+      formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
       nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
-      geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      nisra = {if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None},
+      geo = {if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)},
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
+      fromSource = fromSource,
       confidenceScore = 1D,
       underlyingScore = other.score
 
@@ -92,21 +104,30 @@ object AddressResponseAddress {
     val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
     val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
 
+    val chosenNisra: Option[NisraAddress] = other.nisra.headOption
+    val formattedAddressNisra = if (chosenNisra.isEmpty) "" else chosenNisra.get.mixedNisra
+
+    val fromSource = other.fromSource
+
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = None,
       crossRefs = None,
-      formattedAddress = formattedAddressNag,
+      formattedAddress = {if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra},
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
+      formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = {if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None},
       nag = {if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None},
-      geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      nisra = {if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None},
+//      geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
+      geo = {if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)},
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
+      fromSource = fromSource,
       confidenceScore = 1D,
       underlyingScore = other.score
     )
