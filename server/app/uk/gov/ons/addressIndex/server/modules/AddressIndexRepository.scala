@@ -1044,14 +1044,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * @param verbose    flag to indicate that skinny index should be used when false
     * @return Search definition containing query to the ES
     */
-  private def makePartialSearch(args: PartialArgs, fallback: Boolean): SearchDefinition = {
+  def makePartialSearch(args: PartialArgs, fallback: Boolean): SearchDefinition = {
     if (fallback) {
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
     val slopVal = 4
     val dateQuery = makeDateQuery(args.filterDateRange)
-    val abQuery: Option[QueryDefinition] = if (args.verbose) Option(not(termQuery("lpi.addressBasePostal", "N"))) else None
+    val abQuery = if (args.verbose) Option(not(termQuery("lpi.addressBasePostal", "N"))) else None
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
@@ -1114,12 +1114,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       args.postcode.toUpperCase
     }
 
-    val dateQuery = makeDateQuery(args.filterDateRange.start, args.filterDateRange.end)
-
-    val abQuery: Option[QueryDefinition] = if (args.verbose)
-      Option(not(termQuery("lpi.addressBasePostal", "N")))
-    else
-      None
+    val dateQuery = makeDateQuery(args.filterDateRange)
+    val abQuery = if (args.verbose) Option(not(termQuery("lpi.addressBasePostal", "N"))) else None
 
     val queryFilter = if (args.filters.isEmpty) {
       Seq(abQuery, dateQuery)
@@ -1153,11 +1149,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val timestamp: Long = System.currentTimeMillis
 
-    val abQuery: Option[QueryDefinition] = if (args.verbose)
-      Option(not(termQuery("lpi.addressBasePostal", "N")))
-    else
-      None
-
+    val abQuery = if (args.verbose) Option(not(termQuery("lpi.addressBasePostal", "N"))) else None
 
     val queryInner = if (args.filters.isEmpty)
       None
@@ -1627,7 +1619,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       // queryAddresses(requestData.tokens, 0, max(args.limit * 2, minimumSample), "", "", "50.71", "-3.51", args.filterDateRange.start, args.filterDateRange.end, args.queryParamsConfig, args.historical, isBulk = true, args.epoch)
       val newArgs = AddressArgs(
         tokens = requestData.tokens,
-        region = Some(Region(range = 0, lat = 50.71, lon = -3.51)),
+        region = None,
         isBulk = true,
         epoch = args.epoch,
         historical = args.historical,

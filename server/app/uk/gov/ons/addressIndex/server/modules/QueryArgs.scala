@@ -69,7 +69,7 @@ final case class UPRNArgs(uprn: String,
                           historical: Boolean = true,
                           epoch: String = "",
                           filterDateRange: DateRange = DateRange(),
-                          skinny: Boolean,
+                          skinny: Boolean = false,
                          ) extends QueryArgs with DateFilterable with Skinnyable
 
 sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable {}
@@ -81,7 +81,7 @@ final case class PartialArgs(input: String,
                              start: Int,
                              filters: String,
                              filterDateRange: DateRange = DateRange(),
-                             verbose: Boolean = false,
+                             verbose: Boolean = true,
                              skinny: Boolean = false,
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Verboseable with Skinnyable {
   def inputNumbers: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
@@ -94,7 +94,7 @@ final case class PostcodeArgs(postcode: String,
                               start: Int,
                               filters: String,
                               filterDateRange: DateRange = DateRange(),
-                              verbose: Boolean = false,
+                              verbose: Boolean = true,
                               skinny: Boolean = false,
                              ) extends MultiResultArgs with DateFilterable with StartAtOffset with Verboseable with Skinnyable
 
@@ -102,7 +102,7 @@ final case class RandomArgs(epoch: String = "",
                             historical: Boolean = true,
                             filters: String,
                             limit: Int,
-                            verbose: Boolean = false,
+                            verbose: Boolean = true,
                             skinny: Boolean = false,
                            ) extends MultiResultArgs with Verboseable with Skinnyable
 

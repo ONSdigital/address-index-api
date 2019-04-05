@@ -570,59 +570,59 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     source = hybridCrossRefSource2
   )
 
-  val expectedHybrid = HybridAddressFull(
+  val expectedHybrid = HybridAddressOpt(
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
-    relatives = Seq(expectedRelative),
-    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
-    postcodeIn = hybridFirstPostcodeIn,
-    postcodeOut = hybridFirstPostcodeOut,
+    relatives = Some(Seq(expectedRelative)),
+    crossRefs = Some(Seq(expectedCrossRef, expectedCrossRef2)),
+    postcodeIn = Some(hybridFirstPostcodeIn),
+    postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(expectedNag),
     paf = Seq(expectedPaf),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedDateHybrid = HybridAddressFull(
+  val expectedDateHybrid = HybridAddressOpt(
     uprn = hybridFirstDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
-    relatives = Seq(expectedRelative),
-    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
-    postcodeIn = hybridFirstPostcodeIn,
-    postcodeOut = hybridFirstPostcodeOut,
+    relatives = Some(Seq(expectedRelative)),
+    crossRefs = Some(Seq(expectedCrossRef, expectedCrossRef2)),
+    postcodeIn = Some(hybridFirstPostcodeIn),
+    postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(expectedDateNag),
     paf = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedSecondDateHybrid = HybridAddressFull(
+  val expectedSecondDateHybrid = HybridAddressOpt(
     uprn = hybridSecondDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
-    relatives = Seq(expectedRelative),
-    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
-    postcodeIn = hybridFirstPostcodeIn,
-    postcodeOut = hybridFirstPostcodeOut,
+    relatives = Some(Seq(expectedRelative)),
+    crossRefs = Some(Seq(expectedCrossRef, expectedCrossRef2)),
+    postcodeIn = Some(hybridFirstPostcodeIn),
+    postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
     paf = Seq(expectedDatePaf),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedThirdDateHybrid = HybridAddressFull(
+  val expectedThirdDateHybrid = HybridAddressOpt(
     uprn = hybridThirdDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
-    relatives = Seq(expectedRelative),
-    crossRefs = Seq(expectedCrossRef, expectedCrossRef2),
-    postcodeIn = hybridFirstPostcodeIn,
-    postcodeOut = hybridFirstPostcodeOut,
+    relatives = Some(Seq(expectedRelative)),
+    crossRefs = Some(Seq(expectedCrossRef, expectedCrossRef2)),
+    postcodeIn = Some(hybridFirstPostcodeIn),
+    postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(),
     paf = Seq(expectedSecondDatePaf),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode
   )
 
-  val expectedHybridHist: HybridAddressFull = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
+  val expectedHybridHist: HybridAddressOpt = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
 
   val partialInput = "7 Gate Re"
   val partialInputWithout = "Gate Re"
@@ -652,20 +652,27 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryUprnRequest(hybridFirstUprn.toString, epoch = "")).string())
+      val args = UPRNArgs(
+        uprn = hybridFirstUprn.toString,
+//        epoch = "",
+      )
+      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
       // Then
       result shouldBe expected
     }
 
     "find HYBRID address by UPRN between date range" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(expectedDateHybrid)
 
       // When
-      val result = repository.queryUprn(hybridFirstDateUprn.toString, "2013-01-01", "2014-01-01").await
+      val args = UPRNArgs(
+        uprn = hybridFirstDateUprn.toString,
+        filterDateRange = DateRange(start = "2013-01-01", end = "2014-01-01")
+      )
+      val result = repository.runUPRNQuery(args).await
 
       // Then
       result.get.lpi.head shouldBe expectedDateNag
@@ -674,27 +681,33 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     }
 
     "find no HYBRID address by UPRN when not between date range" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = None
 
       // When
-      val result = repository.queryUprn(hybridFirstDateUprn.toString, "2013-01-01", "2013-12-31").await
+      val args = UPRNArgs(
+        uprn = hybridFirstDateUprn.toString,
+        filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31")
+      )
+      val result = repository.runUPRNQuery(args).await
 
       // Then
       result shouldBe expected
     }
 
     "find HYBRID address by UPRN between date range with PAF and multiple NAG" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       // A fuller Address with a PAF and multiple NAG's one of which is historical
       val expected = Some(expectedSecondDateHybrid)
 
       // When
-      val result = repository.queryUprn(hybridSecondDateUprn.toString, "2014-01-02", hybridCurrentEndDate).await
+      val args = UPRNArgs(
+        uprn = hybridSecondDateUprn.toString,
+        filterDateRange = DateRange(start = "2014-01-02", end = hybridCurrentEndDate)
+      )
+      val result = repository.runUPRNQuery(args).await
 
       // Then
       result.get.lpi.head shouldBe expectedSecondDateNag
@@ -703,7 +716,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     }
 
     "find HYBRID address by UPRN between date range with PAF and no NAG" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
@@ -712,7 +724,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       // Using 2015-01-01 start date should be found since the query uses 'gte' but it isn't. Elastic4s issue?
-      val result = repository.queryUprn(hybridThirdDateUprn.toString, "2014-12-31", hybridCurrentEndDate).await
+      val args = UPRNArgs(
+        uprn = hybridThirdDateUprn.toString,
+        filterDateRange = DateRange(start = "2014-12-31", end = hybridCurrentEndDate)
+      )
+      val result = repository.runUPRNQuery(args).await
 
       // Then
       result.get.lpi shouldBe Seq()
@@ -721,13 +737,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     }
 
     "find HYBRID address by UPRN" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(expectedHybrid)
 
       // When
-      val result = repository.queryUprn(hybridFirstUprn.toString).await
+      val args = UPRNArgs(
+        uprn = hybridFirstUprn.toString,
+      )
+      val result = repository.runUPRNQuery(args).await
 
       // Then
       result.get.lpi.head shouldBe expectedNag
@@ -736,7 +754,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     }
 
     "generate valid query from partial address" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
@@ -800,13 +817,22 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            				}
            			}]
            		}
-           	}
+           	},
+            "from": 0,
+            "size": 1
           }
          """.stripMargin
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "", epoch = "")).string())
+      val args = PartialArgs(
+        input = "h4",
+        filters = "residential",
+        start = 0,
+        limit = 1
+      )
+      val query = repository.makeQuery(args)
+      val result = Json.parse(SearchBodyBuilderFn(query).string())
 
       // Then
       result shouldBe expected
@@ -876,13 +902,23 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            				}
            			}]
            		}
-           	}
+           	},
+            "from": 0,
+            "size": 1
           }
          """.stripMargin
       )
 
       // When
-      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "", fallback = true, epoch = "")).string())
+      val args = PartialArgs(
+        input = "h4",
+        filters = "residential",
+        start = 0,
+        limit = 1
+      )
+      val query = repository.makePartialSearch(args, fallback = true)
+      val result = Json.parse(SearchBodyBuilderFn(query).string())
+//      val result = Json.parse(SearchBodyBuilderFn(repository.generateQueryPartialAddressRequest("h4", "residential", "", "", fallback = true, epoch = "")).string())
 
       // Then
       result shouldBe expected
@@ -2515,7 +2551,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val results = repository.queryBulk(inputs, limit = 1, "2013-01-01", "2013-12-31", matchThreshold = 5F).await
+      val args = BulkArgs(
+        requestsData = inputs,
+        limit = 1,
+        filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31"),
+        matchThreshold = 5F,
+      )
+      val results = repository.runBulkQuery(args).await
       val addresses = results.collect {
         case Right(address) => address
       }.flatten
@@ -2546,7 +2588,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       )
 
       // When
-      val results = repository.queryBulk(inputs, limit = 1, matchThreshold = 5F).await
+      val args = BulkArgs(
+        requestsData = inputs,
+        limit = 1,
+        matchThreshold = 5F,
+      )
+      val results = repository.runBulkQuery(args).await
       val addresses = results.collect {
         case Right(address) => address
       }.flatten
