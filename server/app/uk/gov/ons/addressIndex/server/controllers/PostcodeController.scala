@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcode
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, DateRange, ElasticsearchRepository, PostcodeArgs, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -180,10 +180,22 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           }
 
         } else {
+          val args = PostcodeArgs(
+            postcode = postcode,
+            start = offsetInt,
+            limit = limitInt,
+            filters = filterString,
+            filterDateRange = DateRange(startDateVal, endDateVal),
+            historical = hist,
+            verbose = verb,
+            epoch = epochVal,
+          )
+
           val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcode(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
+              esRepo.runMultiResultQuery(args)
             )
+
           request.map {
             case HybridAddressCollection(hybridAddresses, maxScore, total) =>
 

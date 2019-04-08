@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPa
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, DateRange, ElasticsearchRepository, PartialArgs, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -142,15 +142,27 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case _ =>
 
         if (!verb) {
-          val request: Future[HybridAddressesSkinny] =
+          val args = PartialArgs(
+            input = input,
+            start = offsetInt,
+            limit = limitInt,
+            filters = filterString,
+            filterDateRange = DateRange(startDateVal, endDateVal),
+            historical = hist,
+            verbose = verb,
+            epoch = epochVal,
+            skinny = true,
+          )
+
+          val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPartialAddressSkinny(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
+              esRepo.runMultiResultQuery(args)
             )
 
           request.map {
-            case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
-              val addresses: Seq[AddressResponseAddress] = hybridAddressesSkinny.map(
-                AddressResponseAddress.fromHybridAddressSkinny(_, verb)
+            case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+                AddressResponseAddress.fromHybridAddress(_, verb)
               )
 
               val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
@@ -197,9 +209,20 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               }
           }
         } else {
+          val args = PartialArgs(
+            input = input,
+            start = offsetInt,
+            limit = limitInt,
+            filters = filterString,
+            filterDateRange = DateRange(startDateVal, endDateVal),
+            historical = hist,
+            verbose = verb,
+            epoch = epochVal,
+          )
+
           val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPartialAddress(input, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
+              esRepo.runMultiResultQuery(args)
             )
 
           request.map {

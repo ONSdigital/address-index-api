@@ -108,8 +108,6 @@ trait ElasticsearchRepository {
     */
   def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String = "", endDate: String = "", queryParamsConfig: Option[QueryParamsConfig] = None, historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]]
 
-  def makePartialSearch(args: PartialArgs, fallback: Boolean): SearchDefinition
-
   def makeQuery(args: QueryArgs): SearchDefinition
 
   def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]]

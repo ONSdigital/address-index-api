@@ -8,9 +8,9 @@ import uk.gov.ons.addressIndex.model.server.response.address.OkAddressResponseSt
 import uk.gov.ons.addressIndex.model.server.response.bulk.{AddressBulkResponseAddress, AddressBulkResponseContainer}
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.BatchControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
 import scala.annotation.tailrec
@@ -322,20 +322,34 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
   def queryBulkAddresses(inputs: Stream[BulkAddressRequestData],
                          limitPerAddress: Int,
                          configOverwrite: Option[QueryParamsConfig] = None,
-                         startDate: String, endDate: String,
+                         startDate: String,
+                         endDate: String,
                          historical: Boolean,
                          epoch: String,
                          matchThreshold: Float,
                          includeFullAddress: Boolean = false): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(
+    val bulkAddressesOld: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(
       inputs, limitPerAddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress, epoch
     )
 
-    val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(
-      collectSuccessfulAddresses
+    val successfulAddressesOld: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddressesOld.map(collectSuccessfulAddresses)
+    val failedAddressesOld: Future[Stream[BulkAddressRequestData]] = bulkAddressesOld.map(collectFailedAddresses)
+
+    val bulkArgs = BulkArgs(
+      requestsData = inputs,
+      matchThreshold = matchThreshold,
+      includeFullAddress = includeFullAddress,
+      epoch = epoch,
+      historical = historical,
+      limit = limitPerAddress,
+      filterDateRange = DateRange(startDate, endDate),
+      queryParamsConfig = configOverwrite,
     )
 
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.runBulkQuery(bulkArgs)
+
+    val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
     val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
 
     // transform (Future[X], Future[Y]) into Future[Z[X, Y]]
@@ -387,12 +401,19 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
-    val networkid = if (request.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) request.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else request.headers.get("authorization").getOrElse("Anon").split("_")(0)
-    val organisation = if (request.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) request.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+
+    val authVal = request.headers.get("authorization").getOrElse("Anon")
+
+    // TODO this quantity needs to be explained and given a better name
+    val authHasPlus = authVal.indexOf("+") > 0
+
+    val networkId = if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)
+
+    val organisation = if (authHasPlus) networkId.split("_")(1) else "not set"
 
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
-      bulkSize = requestData.size.toString, networkid = networkid, organisation = organisation,
+      bulkSize = requestData.size.toString, networkid = networkId, organisation = organisation,
       clusterid = clusterId
     )
 

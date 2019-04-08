@@ -3,13 +3,13 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressFull, HybridAddressOpt, HybridAddressSkinny}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddressOpt, HybridAddressSkinny}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -103,18 +103,26 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
         if (!verb) {
 
-          val request: Future[Option[HybridAddressSkinny]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprnSkinny(uprn, startDateVal, endDateVal, hist, epochVal)
+          val args = UPRNArgs(
+            uprn = uprn,
+            filterDateRange = DateRange(startDateVal, endDateVal),
+            historical = hist,
+            epoch = epochVal,
+            skinny = true,
+          )
+
+          val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(
+            esRepo.runUPRNQuery(args)
           )
 
           request.map {
-            case Some(hybridAddressSkinny) =>
+            case Some(hybridAddressOpt) =>
 
-              val address = AddressResponseAddress.fromHybridAddressSkinny(hybridAddressSkinny, verb)
+              val address = AddressResponseAddress.fromHybridAddress(hybridAddressOpt, verb)
 
               writeLog(
                 formattedOutput = address.formattedAddressNag, numOfResults = "1",
-                score = hybridAddressSkinny.score.toString, activity = "address_request"
+                score = hybridAddressOpt.score.toString, activity = "address_request"
               )
 
               jsonOk(
@@ -162,8 +170,15 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           }
         } else {
 
+          val args = UPRNArgs(
+            uprn = uprn,
+            filterDateRange = DateRange(startDateVal, endDateVal),
+            historical = hist,
+            epoch = epochVal,
+          )
+
           val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.queryUprn(uprn, startDateVal, endDateVal, hist, epochVal)
+            esRepo.runUPRNQuery(args)
           )
 
           request.map {

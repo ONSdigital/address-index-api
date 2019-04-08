@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
+import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, DisMaxQueryDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
@@ -957,8 +957,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                 epoch: String = ""): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = requestsData.map { requestData =>
+      val args = AddressArgs(
+        tokens = requestData.tokens,
+        start = 0,
+        limit = max(limit * 2, minimumSample),
+        filters = "",
+        region = None,
+        filterDateRange = DateRange(startDate, endDate),
+        queryParamsConfig = queryParamsConfig,
+        historical = historical,
+        isBulk = true,
+        epoch = epoch,
+      )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        queryAddresses(requestData.tokens, 0, max(limit * 2, minimumSample), "", "", "50.71", "-3.51", startDate, endDate, queryParamsConfig, historical, isBulk = true, epoch).map { case HybridAddressCollection(hybridAddresses, _, _) =>
+        runMultiResultQuery(args).map { case HybridAddressCollection(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
@@ -1035,17 +1047,18 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * Generates request to get address from partial string (e.g typeahead)
     * Public for tests
     *
-    * @param input      partial string
-    * @param filters    classification filter
-    * @param startDate  start date
-    * @param endDate    end date
-    * @param historical historical flag
-    * @param fallback   flag to indicate if fallback query is required
-    * @param verbose    flag to indicate that skinny index should be used when false
+    * old param input      partial string
+    * old param filters    classification filter
+    * old param startDate  start date
+    * old param endDate    end date
+    * old param historical historical flag
+    * old param fallback   flag to indicate if fallback query is required
+    * old param verbose    flag to indicate that skinny index should be used when false
+    * @param args partial query arguments (including fallback state)
     * @return Search definition containing query to the ES
     */
-  def makePartialSearch(args: PartialArgs, fallback: Boolean): SearchDefinition = {
-    if (fallback) {
+  def makePartialSearch(args: PartialArgs): SearchDefinition = {
+    if (args.fallback) {
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
@@ -1054,7 +1067,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val abQuery = if (args.verbose) Option(not(termQuery("lpi.addressBasePostal", "N"))) else None
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
-    val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
+    val queryWithMatchType = if (args.fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
     val filterSeq = Seq(
       if (args.filters.isEmpty) None
@@ -1214,6 +1227,35 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
       ).flatten
 
+    val subBuildingNameQueryOld: Seq[QueryDefinition] = Seq(Seq(
+      args.tokens.get(Tokens.subBuildingName).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "paf.subBuildingName",
+          value = token
+        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
+      args.tokens.get(Tokens.subBuildingName).map(token =>
+        constantScoreQuery(matchQuery(
+          field = "lpi.saoText",
+          value = token
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
+          .boost(queryParams.subBuildingName.lpiSaoTextBoost))
+    ).flatten,
+      Seq(Seq(
+        args.tokens.get(Tokens.saoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
+        args.tokens.get(Tokens.saoStartSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartSuffix",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
+      ).flatten
+      ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition])
+        .tieBreaker(queryParams.includingDisMaxTieBreaker))
+    ).flatten
+
     val subBuildingNameQuery: Seq[QueryDefinition] = Seq(
       args.tokens.get(Tokens.subBuildingName).map(token => Seq(
         constantScoreQuery(matchQuery(
@@ -1226,16 +1268,21 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
           .boost(queryParams.subBuildingName.lpiSaoTextBoost)
       )),
-      args.tokens.get(Tokens.saoStartNumber).map(token => Seq(Seq(
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoStartNumber",
-          value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoStartSuffix",
-          value = token
-        )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)
-      )).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker)))
+      Seq(
+        args.tokens.get(Tokens.saoStartNumber).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
+        args.tokens.get(Tokens.saoStartSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartSuffix",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
+      ).flatten match {
+        case Seq() => None
+        case s => Some(Seq(dismax(s: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker)))
+      }
     ).flatten.flatten
 
     // this part of query should be blank unless there is an end number or end suffix
@@ -1578,7 +1625,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       makeUprnQuery(uprnArgs)
     // uprn normally runs .map(_.addresses.headOption)
     case partialArgs: PartialArgs =>
-      makePartialSearch(partialArgs, fallback = false)
+      makePartialSearch(partialArgs)
     case postcodeArgs: PostcodeArgs =>
       makePostcodeQuery(postcodeArgs)
     case randomArgs: RandomArgs =>
@@ -1597,9 +1644,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
+
     args match {
       case partialArgs: PartialArgs =>
-        lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
+        lazy val fallbackQuery = makePartialSearch(partialArgs.copy(fallback = true))
         val partResult = client.execute(query).map(HybridAddressCollection.fromEither)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
@@ -1616,21 +1664,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = args.requestsData.map { requestData =>
-      // queryAddresses(requestData.tokens, 0, max(args.limit * 2, minimumSample), "", "", "50.71", "-3.51", args.filterDateRange.start, args.filterDateRange.end, args.queryParamsConfig, args.historical, isBulk = true, args.epoch)
-      val newArgs = AddressArgs(
+      val addressArgs = AddressArgs(
         tokens = requestData.tokens,
-        region = None,
-        isBulk = true,
-        epoch = args.epoch,
-        historical = args.historical,
-        filters = "",
-        filterDateRange = args.filterDateRange,
         start = 0,
         limit = max(args.limit * 2, minimumSample),
-        queryParamsConfig = args.queryParamsConfig
+        filters = "",
+        region = None,
+        filterDateRange = DateRange(args.filterDateRange.start, args.filterDateRange.end),
+        queryParamsConfig = args.queryParamsConfig,
+        historical = args.historical,
+        isBulk = true,
+        epoch = args.epoch,
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        runMultiResultQuery(newArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>
+        runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

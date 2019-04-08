@@ -345,13 +345,15 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
-        args.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
-          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+        args.requestsData.map {
+          case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
+          case requestData =>
+            val emptyBulk = BulkAddress.empty(requestData)
+            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+            val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
 
-          Right(Seq(filledBulkAddress))
-        })
+            Right(Seq(emptyBulkAddress))
+        }
       }
   }
 
@@ -2803,7 +2805,6 @@ class AddressControllerSpec extends PlaySpec with Results {
       status(result) mustBe NOT_FOUND
       actual mustBe expected
     }
-
 
     "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
       // Given

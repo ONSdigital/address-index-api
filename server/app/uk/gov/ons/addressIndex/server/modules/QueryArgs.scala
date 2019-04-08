@@ -75,6 +75,7 @@ final case class UPRNArgs(uprn: String,
 sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable {}
 
 final case class PartialArgs(input: String,
+                             fallback: Boolean = false,
                              epoch: String = "",
                              historical: Boolean = true,
                              limit: Int,
