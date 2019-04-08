@@ -300,13 +300,13 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         requestsData.map {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
-          case requestData => {
+          case requestData =>
               val emptyBulk = BulkAddress.empty(requestData)
               val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose=true)),requestData.tokens, 1D)
               val emptyBulkAddress =  AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress=false)
 
               Right(Seq(emptyBulkAddress))
-            }
+
 
         }
       }
@@ -767,6 +767,43 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a list of addresses when given a range/lat/lon/filter but with no input (by address query)" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose=false)),Map.empty,-1D),
+          filter = "commercial",
+          historical = true,
+          rangekm = "20",
+          latitude = "50.7",
+          longitude = "-3.5",
+          limit = 10,
+          offset = 0,
+          total = 1,
+          sampleSize = 20,
+          maxScore = 1.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result = controller.addressQuery("*", rangekm = Some("20"), lat = Some("50.7"), lon = Some("-3.5"), classificationfilter = Some("commercial"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
 
     "reply with a found address in concise format (by address query with radius)" in {
       // Given
@@ -1164,6 +1201,45 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.randomQuery(limit=Some("thing")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if invalid range/lat/lon/filter is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "commercial",
+          historical = true,
+          rangekm = "",
+          latitude = "50.7",
+          longitude = "-3.5",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          startDate = "",
+          endDate = "",
+          verbose = false,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(EmptyRadiusQueryAddressResponseError)
+      ))
+
+      // When
+      val result = controller.addressQuery("", classificationfilter = Some("commercial"), lat = Some("50.7"), lon = Some("-3.5")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
