@@ -170,48 +170,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] =
-      Future.successful(Some(validHybridAddressOptFull))
-
-    override def queryUprnSkinny(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
-      Future.successful(Some(validHybridAddressSkinny))
-
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
-
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
-
-    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
-
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
-
-      Future.successful {
-        requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
-          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
-
-          Right(Seq(filledBulkAddress))
-        })
-      }
-
     override def queryHealth(): Future[String] = Future.successful("")
-
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
@@ -234,47 +193,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   // mock that won't return any addresses
   val emptyElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] =
-      Future.successful(None)
-
-    override def queryUprnSkinny(uprn: String, startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
-      Future.successful(None)
-
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
-
-    override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
-
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
-
-    override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
-
-    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
-
-    override def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.successful(HybridAddressesSkinny(Seq.empty, 1.0f, 0))
-
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
-      Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
-
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
-      Future.successful {
-        requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
-          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
-
-          Right(Seq(filledBulkAddress))
-        })
-      }
-
     override def queryHealth(): Future[String] = Future.successful("")
-
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
@@ -296,46 +215,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val sometimesFailingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String,
-                           startDate: String, endDate: String,
-                           historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] = Future.successful(None)
-
-    override def queryUprnSkinny(uprn: String,
-                                 startDate: String, endDate: String,
-                                 historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] = Future.successful(None)
-
-    override def queryPartialAddress(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryPartialAddressSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
-
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
-
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] = Future.successful(HybridAddressesSkinny(Seq(validHybridAddressSkinny), 1.0f, 1))
-
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
-      if (tokens.values.exists(_ == "failed")) Future.failed(new Exception("test failure"))
-      else Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
-
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
-      Future.successful {
-        requestsData.map {
-          case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
-          case requestData =>
-            val emptyBulk = BulkAddress.empty(requestData)
-            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
-            val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
-
-            Right(Seq(emptyBulkAddress))
-        }
-      }
-
     override def queryHealth(): Future[String] = Future.successful("")
-
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
@@ -359,41 +239,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
 
-    override def queryUprn(uprn: String,
-                           startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressOpt]] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryUprnSkinny(uprn: String,
-                                 startDate: String, endDate: String, historical: Boolean = true, epoch: String): Future[Option[HybridAddressSkinny]] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryPostcode(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryPostcodeSkinny(postcode: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryRandom(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryRandomSkinny(filters: String, limit: Int, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryPartialAddress(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = true, epoch: String): Future[HybridAddressCollection] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryPartialAddressSkinny(input: String, start: Int, limit: Int, filters: String, startDate: String, endDate: String, historical: Boolean = true, verbose: Boolean = false, epoch: String): Future[HybridAddressesSkinny] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
-      Future.failed(new Exception("test failure"))
-
-    override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
-      Future.failed(new Exception("test exception"))
-
     override def queryHealth(): Future[String] = Future.successful("")
-
-    override def generateQueryAddressRequest(tokens: Map[String, String], filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 

@@ -120,15 +120,28 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case _ =>
 
         if (!verb) {
-          val request: Future[HybridAddressesSkinny] =
-            overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryPostcodeSkinny(postcode, offsetInt, limitInt, filterString, startDateVal, endDateVal, hist, verb, epochVal)
-            )
-          request.map {
-            case HybridAddressesSkinny(hybridAddressesSkinny, maxScore, total) =>
+          val args = PostcodeArgs(
+            postcode = postcode,
+            start = offsetInt,
+            limit = limitInt,
+            filters = filterString,
+            filterDateRange = DateRange(startDateVal, endDateVal),
+            historical = hist,
+            verbose = verb,
+            epoch = epochVal,
+            skinny = true,
+          )
 
-              val addresses: Seq[AddressResponseAddress] = hybridAddressesSkinny.map(
-                AddressResponseAddress.fromHybridAddressSkinny(_, verb)
+          val request: Future[HybridAddressCollection] =
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.runMultiResultQuery(args)
+            )
+
+          request.map {
+            case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+
+              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+                AddressResponseAddress.fromHybridAddress(_, verb)
               )
 
               writeLog(activity = "postcode_request")
