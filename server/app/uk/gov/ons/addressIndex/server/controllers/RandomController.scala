@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressCollection, HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -98,16 +98,25 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       case _ =>
 
         if (!verb) {
-          val request: Future[HybridAddressesSkinny] =
+          val args = RandomArgs(
+            filters = filterString,
+            limit = limitInt,
+            historical = hist,
+            verbose = verb,
+            epoch = epochVal,
+            skinny = true,
+          )
+
+          val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandomSkinny(filterString, limitInt, hist, verb, epochVal)
+              esRepo.runMultiResultQuery(args)
             )
 
           request.map {
-            case HybridAddressesSkinny(hybridAddresses, _, _) =>
+            case HybridAddressCollection(hybridAddresses, _, _) =>
 
               val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddressSkinny(_, verb)
+                AddressResponseAddress.fromHybridAddress(_, verb)
               )
 
               writeLog(activity = "random_address_request")
@@ -152,9 +161,18 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
               }
           }
         } else {
+
+          val args = RandomArgs(
+            filters = filterString,
+            limit = limitInt,
+            historical = hist,
+            verbose = verb,
+            epoch = epochVal,
+          )
+
           val request: Future[HybridAddressCollection] =
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandom(filterString, limitInt, hist, verb, epochVal)
+              esRepo.runMultiResultQuery(args)
             )
 
           request.map {

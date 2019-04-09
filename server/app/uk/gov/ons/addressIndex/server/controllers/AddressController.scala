@@ -3,12 +3,12 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressCollection, HybridAddresses}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, DateRange, ElasticsearchRepository, ParserModule, Region, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -150,10 +150,21 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val minimumSample = conf.config.elasticSearch.minimumSample
         val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
 
+        val args = AddressArgs(
+          tokens = tokens,
+          region = Region.fromStrings(rangeVal, latVal, lonVal),
+          epoch = epochVal,
+          historical = hist,
+          filters = filterString,
+          filterDateRange = DateRange(startDateVal, endDateVal),
+          start = 0,
+          limit = limitExpanded,
+          queryParamsConfig = None,
+        )
+
         val request: Future[HybridAddressCollection] =
-          overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(
-            tokens, 0, limitExpanded, filterString,
-            rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist, isBulk = false, epochVal)
+          overloadProtection.breaker.withCircuitBreaker(
+            esRepo.runMultiResultQuery(args)
           )
 
         request.map {

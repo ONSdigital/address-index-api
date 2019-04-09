@@ -386,10 +386,10 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.failed(new Exception("test failure"))
 
     override def queryAddresses(tokens: Map[String, String], start: Int, limit: Int, filters: String, range: String, lat: String, lon: String, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, isBulk: Boolean = false, epoch: String): Future[HybridAddressCollection] =
-      Future.failed(new Exception("Test exception"))
+      Future.failed(new Exception("test failure"))
 
     override def queryBulk(requestsData: Stream[BulkAddressRequestData], limit: Int, startDate: String, endDate: String, queryParamsConfig: Option[QueryParamsConfig], historical: Boolean = true, matchThreshold: Float, includeFullAddress: Boolean = false, epoch: String): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
-      Future.failed(new Exception("Test exception"))
+      Future.failed(new Exception("test exception"))
 
     override def queryHealth(): Future[String] = Future.successful("")
 
@@ -399,9 +399,9 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.failed(new Exception("test failure"))
 
-    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("Test exception"))
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("Test exception"))
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("test exception"))
   }
 
   val parser: ParserModule = (_: String) => Map.empty
@@ -2581,7 +2581,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
 
-      val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "Test exception"))
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
 
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,

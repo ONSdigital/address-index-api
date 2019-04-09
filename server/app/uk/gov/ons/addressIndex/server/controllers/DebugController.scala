@@ -6,7 +6,7 @@ import com.sksamuel.elastic4s.searches.SearchDefinition
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserModule}
+import uk.gov.ons.addressIndex.server.modules.{AddressArgs, DateRange, ElasticsearchRepository, ParserModule, Region}
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
@@ -61,7 +61,19 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
 
     val epochVal = epoch.getOrElse("")
 
-    val query = esRepo.generateQueryAddressRequest(tokens, filterString, rangeString, latString, lonString, startDateVal, endDateVal, None, hist, isBulk = false, epochVal)
+    val args = AddressArgs(
+      tokens = tokens,
+      region = Some(Region(rangeString.toInt, latString.toInt, lonString.toInt)),
+      epoch = epochVal,
+      historical = hist,
+      filters = filterString,
+      filterDateRange = DateRange(startDateVal, endDateVal),
+      start = 0,
+      limit = 0,
+      queryParamsConfig = None,
+    )
+
+    val query = esRepo.makeQuery(args)
     val showQuery = DebugShow.show(query)
     Ok(Json.parse(showQuery))
   }

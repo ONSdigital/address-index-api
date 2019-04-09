@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db
 
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressFull, HybridAddressOpt}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressOpt
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 /**
