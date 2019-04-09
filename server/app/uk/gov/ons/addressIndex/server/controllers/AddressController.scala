@@ -146,7 +146,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         res // a validation error
 
       case _ =>
-        val tokens = parser.parse(input)
+        val tokens = if(input.isEmpty() && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "") {
+          parser.parse("*")
+        } else {
+          parser.parse(input)
+        }
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
         val minimumSample = conf.config.elasticSearch.minimumSample
@@ -229,15 +233,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           case NonFatal(exception) =>
 
             overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen => {
+              case ThrottlerStatus.HalfOpen =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
-              }
-              case ThrottlerStatus.Open => {
+
+              case ThrottlerStatus.Open =>
                 logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
                 TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
 
-              }
               case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
