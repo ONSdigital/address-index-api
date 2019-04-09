@@ -6,7 +6,7 @@ import com.sksamuel.elastic4s.searches.SearchDefinition
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.server.modules.{AddressArgs, DateRange, ElasticsearchRepository, ParserModule, Region}
+import uk.gov.ons.addressIndex.server.modules._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try

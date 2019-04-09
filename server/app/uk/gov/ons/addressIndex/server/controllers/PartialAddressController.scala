@@ -3,13 +3,13 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressCollection, HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, DateRange, ElasticsearchRepository, PartialArgs, VersionModule}
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -140,142 +140,72 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         res // a validation error
 
       case _ =>
+        val args = PartialArgs(
+          input = input,
+          start = offsetInt,
+          limit = limitInt,
+          filters = filterString,
+          filterDateRange = DateRange(startDateVal, endDateVal),
+          historical = hist,
+          verbose = verb,
+          epoch = epochVal,
+          skinny = !verb,
+        )
 
-        if (!verb) {
-          val args = PartialArgs(
-            input = input,
-            start = offsetInt,
-            limit = limitInt,
-            filters = filterString,
-            filterDateRange = DateRange(startDateVal, endDateVal),
-            historical = hist,
-            verbose = verb,
-            epoch = epochVal,
-            skinny = true,
+        val request: Future[HybridAddressCollection] =
+          overloadProtection.breaker.withCircuitBreaker(
+            esRepo.runMultiResultQuery(args)
           )
 
-          val request: Future[HybridAddressCollection] =
-            overloadProtection.breaker.withCircuitBreaker(
-              esRepo.runMultiResultQuery(args)
+        request.map {
+          case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+              AddressResponseAddress.fromHybridAddress(_, verb)
             )
 
-          request.map {
-            case HybridAddressCollection(hybridAddresses, maxScore, total) =>
-              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddress(_, verb)
+            val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
+
+            writeLog(activity = "partial_request")
+
+            jsonOk(
+              AddressByPartialAddressResponseContainer(
+                apiVersion = apiVersion,
+                dataVersion = dataVersion,
+                response = AddressByPartialAddressResponse(
+                  input = input,
+                  addresses = sortAddresses,
+                  filter = filterString,
+                  historical = hist,
+                  epoch = epochVal,
+                  limit = limitInt,
+                  offset = offsetInt,
+                  total = total,
+                  maxScore = maxScore,
+                  startDate = startDateVal,
+                  endDate = endDateVal,
+                  verbose = verb
+                ),
+                status = OkAddressResponseStatus
               )
-
-              val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
-
-              writeLog(activity = "partial_request")
-
-              jsonOk(
-                AddressByPartialAddressResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByPartialAddressResponse(
-                    input = input,
-                    addresses = sortAddresses,
-                    filter = filterString,
-                    historical = hist,
-                    epoch = epochVal,
-                    limit = limitInt,
-                    offset = offsetInt,
-                    total = total,
-                    maxScore = maxScore,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
-                )
-              )
-
-          }.recover {
-            case NonFatal(exception) =>
-
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
-                  logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                  InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
-              }
-          }
-        } else {
-          val args = PartialArgs(
-            input = input,
-            start = offsetInt,
-            limit = limitInt,
-            filters = filterString,
-            filterDateRange = DateRange(startDateVal, endDateVal),
-            historical = hist,
-            verbose = verb,
-            epoch = epochVal,
-          )
-
-          val request: Future[HybridAddressCollection] =
-            overloadProtection.breaker.withCircuitBreaker(
-              esRepo.runMultiResultQuery(args)
             )
 
-          request.map {
-            case HybridAddressCollection(hybridAddresses, maxScore, total) =>
-              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddress(_, verb)
-              )
+        }.recover {
+          case NonFatal(exception) =>
 
-              val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
-
-              writeLog(activity = "partial_request")
-
-              jsonOk(
-                AddressByPartialAddressResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByPartialAddressResponse(
-                    input = input,
-                    addresses = sortAddresses,
-                    filter = filterString,
-                    historical = hist,
-                    epoch = epochVal,
-                    limit = limitInt,
-                    offset = offsetInt,
-                    total = total,
-                    maxScore = maxScore,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
-                )
-              )
-
-          }.recover {
-            case NonFatal(exception) =>
-
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
-                  logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                  InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
-              }
-          }
+            overloadProtection.currentStatus match {
+              case ThrottlerStatus.HalfOpen =>
+                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
+              case ThrottlerStatus.Open =>
+                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
+              case _ =>
+                // Circuit Breaker is closed. Some other problem
+                writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+                logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
+                InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
+            }
         }
-
 
     }
   }

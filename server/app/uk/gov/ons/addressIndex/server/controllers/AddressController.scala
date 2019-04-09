@@ -8,7 +8,7 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, DateRange, ElasticsearchRepository, ParserModule, Region, VersionModule}
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}

@@ -3,13 +3,13 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressOpt, HybridAddressSkinny}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressOpt
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -100,142 +100,72 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         res // a validation error
 
       case _ =>
+        val args = UPRNArgs(
+          uprn = uprn,
+          filterDateRange = DateRange(startDateVal, endDateVal),
+          historical = hist,
+          epoch = epochVal,
+          skinny = !verb,
+        )
 
-        if (!verb) {
+        val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(
+          esRepo.runUPRNQuery(args)
+        )
 
-          val args = UPRNArgs(
-            uprn = uprn,
-            filterDateRange = DateRange(startDateVal, endDateVal),
-            historical = hist,
-            epoch = epochVal,
-            skinny = true,
-          )
+        request.map {
+          case Some(hybridAddressOpt) =>
 
-          val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.runUPRNQuery(args)
-          )
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddressOpt, verb)
 
-          request.map {
-            case Some(hybridAddressOpt) =>
+            writeLog(
+              formattedOutput = address.formattedAddressNag, numOfResults = "1",
+              score = hybridAddressOpt.score.toString, activity = "address_request"
+            )
 
-              val address = AddressResponseAddress.fromHybridAddress(hybridAddressOpt, verb)
-
-              writeLog(
-                formattedOutput = address.formattedAddressNag, numOfResults = "1",
-                score = hybridAddressOpt.score.toString, activity = "address_request"
+            jsonOk(
+              AddressByUprnResponseContainer(
+                apiVersion = apiVersion,
+                dataVersion = dataVersion,
+                response = AddressByUprnResponse(
+                  address = Some(address),
+                  historical = hist,
+                  epoch = epochVal,
+                  startDate = startDateVal,
+                  endDate = endDateVal,
+                  verbose = verb
+                ),
+                status = OkAddressResponseStatus
               )
+            )
 
-              jsonOk(
-                AddressByUprnResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByUprnResponse(
-                    address = Some(address),
-                    historical = hist,
-                    epoch = epochVal,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
+          case None =>
+            writeLog(notFound = true)
+            jsonNotFound(NoAddressFoundUprn(queryValues))
+
+        }.recover {
+          case NonFatal(exception) =>
+
+            overloadProtection.currentStatus match {
+              case ThrottlerStatus.HalfOpen =>
+                logger.warn(
+                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
-              )
-
-            case None =>
-              writeLog(notFound = true)
-              jsonNotFound(NoAddressFoundUprn(queryValues))
-
-          }.recover {
-            case NonFatal(exception) =>
-
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
-                  logger.warn(
-                    s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
-                  )
-                  InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
-              }
-          }
-        } else {
-
-          val args = UPRNArgs(
-            uprn = uprn,
-            filterDateRange = DateRange(startDateVal, endDateVal),
-            historical = hist,
-            epoch = epochVal,
-          )
-
-          val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(
-            esRepo.runUPRNQuery(args)
-          )
-
-          request.map {
-            case Some(hybridAddress) =>
-
-              val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb)
-
-              writeLog(
-                formattedOutput = address.formattedAddressNag, numOfResults = "1",
-                score = hybridAddress.score.toString, activity = "address_request"
-              )
-
-              jsonOk(
-                AddressByUprnResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByUprnResponse(
-                    address = Some(address),
-                    historical = hist,
-                    epoch = epochVal,
-                    startDate = startDateVal,
-                    endDate = endDateVal,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
+              case ThrottlerStatus.Open =>
+                logger.warn(
+                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
                 )
-              )
-
-            case None =>
-              writeLog(notFound = true)
-              jsonNotFound(NoAddressFoundUprn(queryValues))
-
-          }.recover {
-            case NonFatal(exception) =>
-
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
-                  logger.warn(
-                    s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
-                  )
-                  InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
-              }
-          }
-
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
+              case _ =>
+                // Circuit Breaker is closed. Some other problem
+                writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
+                logger.warn(
+                  s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
+                )
+                InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
+            }
         }
+
     }
   }
 }
