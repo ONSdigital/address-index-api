@@ -319,19 +319,13 @@
         }
 		
 		function getAddresses() {
-			if (document.getElementById("term").value == "") {
-			    alert("search term required")
-			}
-			else
-			{
-                // first URL is for off-network testing (Exeter only)
-                //     getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses?input=" + document.getElementById("term").value +
-                getJSONResponseWithKey("https://apigw-in-d-01:9443/ai/develop/addresses?input=" + document.getElementById("term").value +
+            // first URL is for off-network testing (Exeter only)
+            //     getJSONResponseWithKey("http://addressindex-api-dev.apps.devtest.onsclofo.uk/addresses?input=" + document.getElementById("term").value +
+            getJSONResponseWithKey("https://apigw-in-d-01:9443/ai/develop/addresses?input=" + document.getElementById("term").value +
 
-				"&lat=" + document.getElementById("lat").value + "&lon=" + document.getElementById("lon").value + 
-			    "&rangekm=" + document.getElementById("range").value + "&filter=" + document.getElementById("filter").value +
-				"&limit=" + document.getElementById("max").value)
-             }			
+            "&lat=" + document.getElementById("lat").value + "&lon=" + document.getElementById("lon").value +
+            "&rangekm=" + document.getElementById("range").value + "&filter=" + document.getElementById("filter").value +
+            "&limit=" + document.getElementById("max").value)
         }
 		
 		    function getJSONResponseWithKey(durl) {
