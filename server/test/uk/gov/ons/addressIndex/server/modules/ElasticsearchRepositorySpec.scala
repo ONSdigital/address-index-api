@@ -1,8 +1,5 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
@@ -728,7 +725,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Some(expectedDateHybrid)
 
       // When
-      val result = repository.queryUprn(hybridFirstDateUprn.toString).await
       val args = UPRNArgs(
         uprn = hybridFirstDateUprn.toString,
       )
@@ -762,7 +758,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Some(expectedSecondDateHybrid)
 
       // When
-      val result = repository.queryUprn(hybridSecondDateUprn.toString).await
       val args = UPRNArgs(
         uprn = hybridSecondDateUprn.toString,
       )
@@ -783,7 +778,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       // Using 2015-01-01 start date should be found since the query uses 'gte' but it isn't. Elastic4s issue?
-      val result = repository.queryUprn(hybridThirdDateUprn.toString).await
       val args = UPRNArgs(
         uprn = hybridThirdDateUprn.toString,
       )

@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.{Hit, HitReader}
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
+import com.sksamuel.elastic4s.{Hit, HitReader}
 
 import scala.util.Try
 
@@ -11,15 +11,17 @@ trait HybridAddress {
 }
 
 case class HybridAddressOpt(uprn: String,
-                             parentUprn: String,
-                             relatives: Option[Seq[Relative]],
-                             crossRefs: Option[Seq[CrossRef]],
-                             postcodeIn: Option[String],
-                             postcodeOut: Option[String],
-                             lpi: Seq[NationalAddressGazetteerAddress],
-                             paf: Seq[PostcodeAddressFileAddress],
-                             score: Float,
-                             classificationCode: String)
+                            parentUprn: String,
+                            relatives: Option[Seq[Relative]],
+                            crossRefs: Option[Seq[CrossRef]],
+                            postcodeIn: Option[String],
+                            postcodeOut: Option[String],
+                            lpi: Seq[NationalAddressGazetteerAddress],
+                            paf: Seq[PostcodeAddressFileAddress],
+                            nisra: Seq[NisraAddress],
+                            score: Float,
+                            classificationCode: String,
+                            fromSource: String)
 
 object HybridAddressOpt {
 
@@ -35,8 +37,10 @@ object HybridAddressOpt {
     postcodeOut = Some(""),
     lpi = Seq.empty,
     paf = Seq.empty,
+    nisra = Seq.empty,
     score = 0,
-    classificationCode = ""
+    classificationCode = "",
+    fromSource = "",
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -66,6 +70,10 @@ object HybridAddressOpt {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
+      val nisras: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
       Right(HybridAddressOpt(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
@@ -75,11 +83,14 @@ object HybridAddressOpt {
         postcodeOut = Some(hit.sourceAsMap("postcodeOut").toString),
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
+        nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
-        classificationCode = hit.sourceAsMap("classificationCode").toString
+        classificationCode = hit.sourceAsMap("classificationCode").toString,
+        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
       ))
     }
   }
+
 }
 
 /**

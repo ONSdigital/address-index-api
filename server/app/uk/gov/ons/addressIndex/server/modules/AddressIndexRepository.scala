@@ -3,12 +3,11 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-//import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
+import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition}
 import com.sksamuel.elastic4s.searches.queries.QueryDefinition
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
-import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
@@ -196,7 +195,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
 
     val queryFilter = if (args.filters.isEmpty) {
-      Seq.empty()
+      Seq.empty
     } else {
       if (args.filtersType == "prefix")
         Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
@@ -291,35 +290,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
       ).flatten
 
-    val subBuildingNameQueryOld: Seq[QueryDefinition] = Seq(Seq(
-      args.tokens.get(Tokens.subBuildingName).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "paf.subBuildingName",
-          value = token
-        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost)),
-      args.tokens.get(Tokens.subBuildingName).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "lpi.saoText",
-          value = token
-        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
-          .boost(queryParams.subBuildingName.lpiSaoTextBoost))
-    ).flatten,
-      Seq(Seq(
-        args.tokens.get(Tokens.saoStartNumber).map(token =>
-          constantScoreQuery(matchQuery(
-            field = "lpi.saoStartNumber",
-            value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
-        args.tokens.get(Tokens.saoStartSuffix).map(token =>
-          constantScoreQuery(matchQuery(
-            field = "lpi.saoStartSuffix",
-            value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
-      ).flatten
-      ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition])
-        .tieBreaker(queryParams.includingDisMaxTieBreaker))
-    ).flatten
-
+    // TODO check this one
     val subBuildingNameQuery: Seq[QueryDefinition] = Seq(
       args.tokens.get(Tokens.subBuildingName).map(token => Seq(
         constantScoreQuery(matchQuery(

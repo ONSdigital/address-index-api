@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, NationalAddressGazetteerAddress, PostcodeAddressFileAddress, NisraAddress}
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddressFull, HybridAddressOpt, HybridAddressSkinny, NationalAddressGazetteerAddress, NisraAddress, PostcodeAddressFileAddress}
 
 /**
   * Contains address information retrieved in ES (PAF or NAG)
@@ -154,7 +154,6 @@ object AddressResponseAddress {
     * @return
     */
   def fromHybridAddress(other: HybridAddressOpt, verbose: Boolean): AddressResponseAddress = {
-
     val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
     val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
@@ -165,6 +164,11 @@ object AddressResponseAddress {
     val chosenPaf: Option[PostcodeAddressFileAddress] = other.paf.headOption
     val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
     val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
+
+    val chosenNisra: Option[NisraAddress] = other.nisra.headOption
+    val formattedAddressNisra = if (chosenNisra.isEmpty) "" else chosenNisra.get.mixedNisra
+
+    val fromSource = other.fromSource
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -178,6 +182,7 @@ object AddressResponseAddress {
       formattedAddress = formattedAddressNag,
       formattedAddressNag = formattedAddressNag,
       formattedAddressPaf = formattedAddressPaf,
+      formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
       paf = {
@@ -186,9 +191,11 @@ object AddressResponseAddress {
       nag = {
         if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None
       },
+      nisra = {if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None},
       geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress),
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
+      fromSource = fromSource,
       confidenceScore = 1D,
       underlyingScore = other.score
     )
