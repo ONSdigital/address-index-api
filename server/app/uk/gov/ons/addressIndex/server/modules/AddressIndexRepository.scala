@@ -130,7 +130,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val slopVal = 4
     val dateQuery = makeDateQuery(args.filterDateRange)
-    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
+    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (args.fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
@@ -190,17 +190,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val postcodeFormatted: String = if (!args.postcode.contains(" ")) {
       val (postcodeStart, postcodeEnd) = args.postcode.splitAt(args.postcode.length() - 3)
       (postcodeStart + " " + postcodeEnd).toUpperCase
-    } else {
-      args.postcode.toUpperCase
-    }
+    } else args.postcode.toUpperCase
 
     val queryFilter = if (args.filters.isEmpty) {
       Seq.empty
     } else {
-      if (args.filtersType == "prefix")
-        Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
-      else
-        Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
+      if (args.filtersType == "prefix") Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
+      else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
     }
 
     val query = must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(queryFilter.flatten)
