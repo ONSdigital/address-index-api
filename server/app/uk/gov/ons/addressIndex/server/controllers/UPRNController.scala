@@ -3,13 +3,14 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.HybridAddressOpt
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressSkinny, HybridAddressOpt}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,9 +35,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String,
-                // startDate: Option[String] = None, endDate: Option[String] = None,
-                historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String, historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -53,11 +52,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     }
 
     val epochVal = epoch.getOrElse("")
-
-    // val startDateVal = startDate.getOrElse("")
-    // val endDateVal = endDate.getOrElse("")
-    val startDateVal = ""
-    val endDateVal = ""
 
     val startingTime = System.currentTimeMillis()
 
@@ -80,15 +74,11 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       uprn = Some(uprn),
       epoch = Some(epochVal),
       historical = Some(hist),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
       verbose = Some(verb),
     )
 
     val result: Option[Future[Result]] =
       uprnValidation.validateUprn(uprn, queryValues)
-        // .orElse(uprnValidation.validateStartDate(startDateVal))
-        // .orElse(uprnValidation.validateEndDate(endDateVal))
         .orElse(uprnValidation.validateSource(queryValues))
         .orElse(uprnValidation.validateKeyStatus(queryValues))
         .orElse(uprnValidation.validateEpoch(queryValues))
@@ -102,7 +92,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       case _ =>
         val args = UPRNArgs(
           uprn = uprn,
-          filterDateRange = DateRange(startDateVal, endDateVal),
           historical = hist,
           epoch = epochVal,
           skinny = !verb,
@@ -113,13 +102,13 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         )
 
         request.map {
-          case Some(hybridAddressOpt) =>
+          case Some(hybridAddress) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddressOpt, verb)
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddress,verb)
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",
-              score = hybridAddressOpt.score.toString, activity = "address_request"
+              score = hybridAddress.score.toString, activity = "address_request"
             )
 
             jsonOk(
@@ -130,8 +119,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   address = Some(address),
                   historical = hist,
                   epoch = epochVal,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
                   verbose = verb
                 ),
                 status = OkAddressResponseStatus
@@ -165,6 +152,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                 InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
             }
         }
+
 
     }
   }

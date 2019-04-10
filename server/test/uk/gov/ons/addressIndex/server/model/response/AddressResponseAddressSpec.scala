@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index._
+import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 
 /**
@@ -117,8 +118,35 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     mixedWelshPaf = "mixedWelshPaf"
   )
 
-  val givenRelative = Relative(
-    level = 1,
+  val givenNisra = NisraAddress(
+    organisationName = "1",
+    subBuildingName = "2",
+    buildingName = "3",
+    buildingNumber = "4",
+    thoroughfare = "5",
+    altThoroughfare = "6",
+    dependentThoroughfare = "7",
+    locality = "8",
+    townland = "9",
+    townName = "10",
+    postcode = "BT36 5SN",
+    uprn = "11",
+    classificationCode = "12",
+    udprn = "13",
+    postTown = "14",
+    easting = "291398",
+    northing = "93861",
+    creationDate = "17",
+    commencementDate = "18",
+    archivedDate = "19",
+    latitude = "50.7341677",
+    nisraAll = "nisraAll",
+    mixedNisra = "mixedNisra",
+    longitude = "-3.540302"
+  )
+
+  val givenRelative = Relative (
+    level = 1.toInt,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
@@ -246,21 +274,24 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddressFull(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), Seq(givenCrossRef), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), 1, "classificationCode")
+      val hybrid = HybridAddressFull(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), Seq(givenCrossRef), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "47")
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
+      val expectedNisra = AddressResponseNisra.fromNisraAddress(givenNisra)
       val expected = AddressResponseAddress(
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
         relatives = Some(Seq(givenRelativeResponse)),
         crossRefs = Some(Seq(givenCrossRefResponse)),
-        formattedAddress = "mixedNag",
+        formattedAddress = "mixedNisra",
         formattedAddressNag = "mixedNag",
         formattedAddressPaf = "mixedPaf",
+        formattedAddressNisra = "mixedNisra",
         welshFormattedAddressNag = "mixedNag",
         welshFormattedAddressPaf = "mixedWelshPaf",
         paf = Some(expectedPaf),
         nag = Some(Seq(expectedNag)),
+        nisra = Some(expectedNisra),
         geo = Some(AddressResponseGeo(
           latitude = 50.7341677,
           longitude = -3.540302,
@@ -269,6 +300,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         )),
         classificationCode = "classificationCode",
         lpiLogicalStatus = givenNag.lpiLogicalStatus,
+        fromSource = "47",
         confidenceScore = 1,
         underlyingScore = 1
       )

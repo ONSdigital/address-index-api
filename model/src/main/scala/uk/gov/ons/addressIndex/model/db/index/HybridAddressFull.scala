@@ -23,8 +23,10 @@ case class HybridAddressFull(uprn: String,
                              postcodeOut: String,
                              lpi: Seq[NationalAddressGazetteerAddress],
                              paf: Seq[PostcodeAddressFileAddress],
+                             nisra: Seq[NisraAddress],
                              score: Float,
-                             classificationCode: String) extends HybridAddress
+                             classificationCode: String,
+                             fromSource: String) extends HybridAddress
 
 object HybridAddressFull {
 
@@ -40,8 +42,10 @@ object HybridAddressFull {
     postcodeOut = "",
     lpi = Seq.empty,
     paf = Seq.empty,
+    nisra = Seq.empty,
     score = 0,
-    classificationCode = ""
+    classificationCode = "",
+    fromSource = ""
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -55,6 +59,7 @@ object HybridAddressFull {
       * @return generated Hybrid Address
       */
     override def read(hit: Hit): Either[Throwable, HybridAddressFull] = {
+
       val cRefs: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
@@ -71,6 +76,10 @@ object HybridAddressFull {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
+      val nisras: Seq[Map[String, AnyRef]] = Try {
+        hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
+      }.getOrElse(Seq.empty)
+
       Right(HybridAddressFull(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
@@ -80,8 +89,10 @@ object HybridAddressFull {
         postcodeOut = hit.sourceAsMap("postcodeOut").toString,
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
+        nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
-        classificationCode = hit.sourceAsMap("classificationCode").toString
+        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
+        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW")
       ))
     }
   }

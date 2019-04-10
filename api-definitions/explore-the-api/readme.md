@@ -34,6 +34,13 @@
     </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="random/readme.md">/addresses/random</a></td>
+        <td class="table--cell">
+            Search for a random address.
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
         <td class="table--cell"><a href="uprn/readme.md">/addresses/uprn/{uprn}</a></td>
         <td class="table--cell">
             Gets an address by UPRN.

@@ -20,8 +20,6 @@ trait PostcodeControllerResponse extends Response {
         offset = queryValues.offsetOrDefault,
         total = 0,
         maxScore = 0f,
-        startDate = queryValues.startDateOrDefault,
-        endDate = queryValues.endDateOrDefault,
         verbose = queryValues.verboseOrDefault
       ),
       status = NotFoundAddressResponseStatus,
@@ -74,8 +72,6 @@ trait PostcodeControllerResponse extends Response {
       offset = queryValues.offsetOrDefault,
       total = 0,
       maxScore = 0f,
-      startDate = queryValues.startDateOrDefault,
-      endDate = queryValues.endDateOrDefault,
       verbose = queryValues.verboseOrDefault
     )
   }

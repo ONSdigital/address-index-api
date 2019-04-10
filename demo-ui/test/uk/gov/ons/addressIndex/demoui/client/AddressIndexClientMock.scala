@@ -58,8 +58,6 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     historical = true,
     total = 1,
     maxScore = 1f,
-    startDate = "",
-    endDate = "",
     verbose = false,
     epoch = ""
   )
@@ -178,6 +176,28 @@ object AddressIndexClientMock {
     lpiStartDate = ""
   )
 
+  val mockNisraAddress1 = AddressResponseNisra(
+    organisationName = "",
+    subBuildingName = "",
+    buildingName = "",
+    buildingNumber = "7",
+    thoroughfare = "",
+    altThoroughfare = "",
+    dependentThoroughfare = "GATE REACH",
+    locality = "",
+    townland = "",
+    townName = "EXETER",
+    postcode = "PO7 6GA",
+    uprn = "",
+    classificationCode = "",
+    udprn = "",
+    creationDate = "",
+    commencementDate = "",
+    archivedDate = "",
+    nisraAll = "",
+    mixedNisra = ""
+  )
+
   val mockBespokeScore = AddressResponseScore(
     objectScore = 0d,
     structuralScore = 0d,
@@ -197,11 +217,14 @@ object AddressIndexClientMock {
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
+    nisra = Some(mockNisraAddress1),
     geo = None,
+    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 1.0f,
@@ -211,8 +234,6 @@ object AddressIndexClientMock {
   val mockAddressByUprnResponse = AddressByUprnResponse(
     address = Some(mockAddressResponseAddress: AddressResponseAddress),
     historical = true,
-    startDate = "",
-    endDate = "",
     verbose = true,
     epoch = ""
   )

@@ -1,5 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
+import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.mappings.MappingDefinition
 import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
@@ -93,6 +96,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridMixedWelshPaf = "MixedWelshPaf"
   val hybridMixedNag = "mixedNag"
 
+  val hybridFromSource = "EW"
+
   // Fields that are not in this list are not used for search
   val hybridNagUprn: Long = hybridPafUprn
   val hybridNagPostcodeLocator: String = hybridPafPostcode
@@ -117,6 +122,25 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridNagEasting: Float = 4f
   val hybridNagCustCode: String = "1110"
   val hybridNagCustName: String = "Exeter"
+
+  val hybridMixedNisra = "mixedNisra"
+  val hybridNisraOrganisationName = hybridPafOrganisationName
+  val hybridNisraSubBuildingName = hybridPafSubBuildingName
+  val hybridNisraBuildingName = hybridPafBuildingName
+  val hybridNisraBuildingNumber = "h26"
+  val hybridNisraThoroughfare = hybridPafThoroughfare
+  val hybridNisraAltThoroughfare = "h27"
+  val hybridNisraDependentThoroughfare = "h28"
+  val hybridNisraLocality = "h29"
+  val hybridNisraTownland = "h30"
+  val hybridNisraTownName = "h31"
+  val hybridNisraPostcode = "h32"
+  val hybridNisraUprn = "h25"
+  val hybridNisraPostTown = "h33"
+  val hybridNisraEasting = "h21"
+  val hybridNisraNorthing = "h22"
+  val hybridNisraLatitude = "h23"
+  val hybridNisraLongitude = "h24"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -368,7 +392,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "postcodeOut" -> hybridFirstPostcodeOut,
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs),
-    "classificationCode" -> hybridFirstClassificationCode
+    "classificationCode" -> hybridFirstClassificationCode,
+    "fromSource" -> hybridFromSource
   )
 
   val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
@@ -383,7 +408,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "postcodeOut" -> hybridSecondaryPostcodeOut,
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs),
-    "classificationCode" -> hybridFirstClassificationCode
+    "classificationCode" -> hybridFirstClassificationCode,
+    "fromSource" -> hybridFromSource
   )
 
   val thirdHybridEs: Map[String, Any] = firstHybridEs + (
@@ -536,6 +562,33 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridMixedNag
   )
 
+  val expectedNisra = NisraAddress(
+    hybridNisraOrganisationName,
+    hybridNisraSubBuildingName,
+    hybridNisraBuildingName,
+    hybridNisraBuildingNumber,
+    hybridNisraThoroughfare,
+    hybridNisraAltThoroughfare,
+    hybridNisraDependentThoroughfare,
+    hybridNisraLocality,
+    hybridNisraTownland,
+    hybridNisraTownName,
+    hybridNisraPostcode,
+    hybridNisraUprn,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNisraPostTown,
+    hybridNisraEasting,
+    hybridNisraNorthing,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNisraLatitude,
+    hybridNisraLongitude,
+    hybridNotUsed,
+    hybridMixedNisra
+  )
+
   val expectedDateNag: NationalAddressGazetteerAddress = expectedNag.copy(
     uprn = hybridFirstDateUprn.toString,
     lpiStartDate = hybridStartDate,
@@ -579,8 +632,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(expectedNag),
     paf = Seq(expectedPaf),
+    nisra = Seq(),
     score = 1.0f,
-    classificationCode = hybridFirstClassificationCode
+    classificationCode = hybridFirstClassificationCode,
+    fromSource = "EW"
   )
 
   val expectedDateHybrid = HybridAddressOpt(
@@ -592,8 +647,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(expectedDateNag),
     paf = Seq(),
+    nisra = Seq(),
     score = 1.0f,
-    classificationCode = hybridFirstClassificationCode
+    classificationCode = hybridFirstClassificationCode,
+    fromSource = "EW"
   )
 
   val expectedSecondDateHybrid = HybridAddressOpt(
@@ -605,8 +662,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
     paf = Seq(expectedDatePaf),
+    nisra = Seq(),
     score = 1.0f,
-    classificationCode = hybridFirstClassificationCode
+    classificationCode = hybridFirstClassificationCode,
+    fromSource = "EW"
   )
 
   val expectedThirdDateHybrid = HybridAddressOpt(
@@ -618,8 +677,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     postcodeOut = Some(hybridFirstPostcodeOut),
     lpi = Seq(),
     paf = Seq(expectedSecondDatePaf),
+    nisra = Seq(),
     score = 1.0f,
-    classificationCode = hybridFirstClassificationCode
+    classificationCode = hybridFirstClassificationCode,
+    fromSource = "EW"
   )
 
   val expectedHybridHist: HybridAddressOpt = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
@@ -667,9 +728,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Some(expectedDateHybrid)
 
       // When
+      val result = repository.queryUprn(hybridFirstDateUprn.toString).await
       val args = UPRNArgs(
         uprn = hybridFirstDateUprn.toString,
-        filterDateRange = DateRange(start = "2013-01-01", end = "2014-01-01")
       )
       val result = repository.runUPRNQuery(args).await
 
@@ -687,7 +748,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       // When
       val args = UPRNArgs(
         uprn = hybridFirstDateUprn.toString,
-        filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31")
       )
       val result = repository.runUPRNQuery(args).await
 
@@ -702,9 +762,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Some(expectedSecondDateHybrid)
 
       // When
+      val result = repository.queryUprn(hybridSecondDateUprn.toString).await
       val args = UPRNArgs(
         uprn = hybridSecondDateUprn.toString,
-        filterDateRange = DateRange(start = "2014-01-02", end = hybridCurrentEndDate)
       )
       val result = repository.runUPRNQuery(args).await
 
@@ -723,9 +783,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       // Using 2015-01-01 start date should be found since the query uses 'gte' but it isn't. Elastic4s issue?
+      val result = repository.queryUprn(hybridThirdDateUprn.toString).await
       val args = UPRNArgs(
         uprn = hybridThirdDateUprn.toString,
-        filterDateRange = DateRange(start = "2014-12-31", end = hybridCurrentEndDate)
       )
       val result = repository.runUPRNQuery(args).await
 
@@ -764,7 +824,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial"],
            					"type": "phrase",
                     "slop":4
            				}
@@ -793,7 +853,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
-                         }
+                         },
+                         {
+                          "match": {
+                            "nisra.buildingNumber": {
+                              "query": "4",
+                              "boost": 0.5,
+                              "fuzzy_transpositions": false,
+                              "max_expansions": 10,
+                              "prefix_length": "1"
+                            }
+                          }
+                        }
                        ]
                      }
                    }],
@@ -802,17 +873,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"classificationCode": {
            						"value": "R"
            					}
-           				}
-           			},
-           			{
-           				"bool": {
-           					"must_not": [{
-           						"term": {
-           							"lpi.addressBasePostal": {
-           								"value": "N"
-           							}
-           						}
-           					}]
            				}
            			}]
            		}
@@ -849,7 +909,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial"],
            					"type": "best_fields"
            				}
            			}],
@@ -877,6 +937,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                           "prefix_length": "1"
                                         }
                                       }
+                                    },
+                                    {
+                                      "match": {
+                                        "nisra.buildingNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
                                     }
                                   ]
                                 }
@@ -886,17 +957,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"classificationCode": {
            						"value": "R"
            					}
-           				}
-           			},
-           			{
-           				"bool": {
-           					"must_not": [{
-           						"term": {
-           							"lpi.addressBasePostal": {
-           								"value": "N"
-           							}
-           						}
-           					}]
            				}
            			}]
            		}
@@ -934,7 +994,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial"],
            					"type": "phrase",
                     "slop":4
            				}
@@ -963,6 +1023,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                           "prefix_length": "1"
                                         }
                                       }
+                                    },
+                                    {
+                                      "match": {
+                                        "nisra.buildingNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
                                     }
                                   ]
                                 }
@@ -972,17 +1043,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"classificationCode": {
            						"value": "R"
            					}
-           				}
-           			},
-           			{
-           				"bool": {
-           					"must_not": [{
-           						"term": {
-           							"lpi.addressBasePostal": {
-           								"value": "N"
-           							}
-           						}
-           					}]
            				}
            			},
            			{
@@ -1063,7 +1123,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"must": [{
            				"multi_match": {
            					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial"],
            					"type": "best_fields"
            				}
            			}],
@@ -1091,6 +1151,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                           "prefix_length": "1"
                                         }
                                       }
+                                    },
+                                    {
+                                      "match": {
+                                        "nisra.buildingNumber": {
+                                          "query": "4",
+                                          "boost": 0.5,
+                                          "fuzzy_transpositions": false,
+                                          "max_expansions": 10,
+                                          "prefix_length": "1"
+                                        }
+                                      }
                                     }
                                   ]
                                 }
@@ -1100,17 +1171,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"classificationCode": {
            						"value": "R"
            					}
-           				}
-           			},
-           			{
-           				"bool": {
-           					"must_not": [{
-           						"term": {
-           							"lpi.addressBasePostal": {
-           								"value": "N"
-           							}
-           						}
-           					}]
            				}
            			},
            			{
@@ -1209,7 +1269,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            		"bool": {
            			"must": [{
            				"term": {
-           					"lpi.postcodeLocator": {
+           					"postcode": {
            						"value": " H4"
            					}
            				}
@@ -1219,17 +1279,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            					"classificationCode": {
            						"value": "R"
            					}
-           				}
-           			},
-           			{
-           				"bool": {
-           					"must_not": [{
-           						"term": {
-           							"lpi.addressBasePostal": {
-           								"value": "N"
-           							}
-           						}
-           					}]
            				}
            			}]
            		}
@@ -1360,16 +1409,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            			"order": "asc"
            		}
            	},
-           	{
-           		"lpi.paoStartNumber": {
-           			"order": "asc"
-           		}
-           	},
-           	{
-           		"lpi.paoStartSuffix.keyword": {
-           			"order": "asc"
-           		}
-           	},
+            {
+              "nisra.thoroughfare.keyword": {
+                "order": "asc"
+              }
+            },
+            {
+              "nisra.buildingNumber.keyword": {
+                "order": "asc"
+              }
+            },
            	{
            		"uprn": {
            			"order": "asc"
@@ -1385,7 +1434,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         limit = 1,
         start = 0,
         filters = "residential",
-        filterDateRange = DateRange("2013-01-01", "2013-12-31"),
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -1456,8 +1504,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            										}
            									},
            									"boost": 1
-           								}
-           							},
+                    }
+           								}, {
+                        "constant_score": {
+                          "filter": {
+                            "match": {
+                              "nisra.postcode": {
+                                "query": "h10"
+                              }
+                            }
+                          },
+                          "boost": 1
+                          }
+                      },
            							{
            								"constant_score": {
            									"filter": {
@@ -1543,6 +1602,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            							},
            							{
            								"match": {
+           									"nisra.nisraAll": {
+           										"query": "13 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+           										"boost": 1,
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							},
+           							{
+           								"match": {
            									"paf.pafAll": {
            										"query": "13 h10",
            										"analyzer": "welsh_split_synonyms_analyzer",
@@ -1559,6 +1628,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            							"queries": [{
            								"match": {
            									"lpi.nagAll.bigram": {
+           										"query": "13 h10",
+           										"boost": 0.2,
+           										"fuzziness": "0"
+           									}
+           								}
+           							},
+           							{
+           								"match": {
+           									"nisra.nisraAll.bigram": {
            										"query": "13 h10",
            										"boost": 0.2,
            										"fuzziness": "0"
@@ -1714,6 +1792,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     }
                   },{
                     "match":{
+                      "nisra.nisraAll":{
+                      "query":"",
+                      "analyzer":"welsh_split_synonyms_analyzer",
+                      "boost":${queryParams.fallback.fallbackPafBoost},
+                      "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                    }
+                  }
+                  },{
+                    "match":{
                       "paf.pafAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -1737,10 +1824,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     },{
                       "match":{
-                        "paf.pafAll.bigram":{
+                        "nisra.nisraAll.bigram":{
                           "query":"",
                            "boost":${queryParams.fallback.fallbackPafBigramBoost},
                            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                            "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
                           }
                         }
                       }]
@@ -1830,6 +1925,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								"constant_score": {
            									"filter": {
            										"match": {
+           											"nisra.buildingName": {
+           												"query": "h5",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingName.pafBuildingNameBoost}
+           								}
+           							}, {
+          								"constant_score": {
+           									"filter": {
+           										"match": {
            											"lpi.paoText": {
            												"query": "h5",
            												"fuzziness": "1",
@@ -1870,6 +1977,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"filter": {
            										"match": {
            											"paf.subBuildingName": {
+           												"query": "h4"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingName.pafSubBuildingNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.subBuildingName": {
            												"query": "h4"
            											}
            										}
@@ -1936,6 +2054,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								"constant_score": {
            									"filter": {
            										"match": {
+           											"nisra.thoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
            											"paf.welshThoroughfare": {
            												"query": "h7",
            												"fuzziness": "1"
@@ -1972,6 +2102,30 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								"constant_score": {
            									"filter": {
            										"match": {
+           											"nisra.dependentThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafWelshDependentThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.altThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafWelshDependentThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
            											"lpi.streetDescriptor": {
            												"query": "h7",
            												"fuzziness": "1"
@@ -1990,6 +2144,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"filter": {
            										"match": {
            											"paf.postcode": {
+           												"query": "h10"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.postcode.pafPostcodeBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.postcode": {
            												"query": "h10"
            											}
            										}
@@ -2040,6 +2205,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"filter": {
            										"match": {
            											"paf.organisationName": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.pafOrganisationNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.organisationName": {
            												"query": "h2",
            												"minimum_should_match": "30%"
            											}
@@ -2160,6 +2337,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            										"constant_score": {
            											"filter": {
            												"match": {
+           													"nisra.townName": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.pafPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
            													"lpi.townName": {
            														"query": "h8",
            														"fuzziness": "1"
@@ -2249,6 +2438,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            										"constant_score": {
            											"filter": {
            												"match": {
+           													"nisra.townland": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
            													"paf.welshPostTown": {
            														"query": "h20",
            														"fuzziness": "1"
@@ -2292,6 +2493,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            												}
            											},
            											"boost": ${queryParams.locality.pafWelshDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"nisra.locality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafDependentLocalityBoost}
            										}
            									}, {
            										"constant_score": {
@@ -2413,6 +2626,28 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									},
            									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
            								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.buildingNumber": {
+           												"query": "12"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.buildingNumber": {
+           												"query": "13"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
+           								}
            							}]
            						}
            					}, {
@@ -2494,10 +2729,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								}
            							}, {
            								"match": {
-           									"paf.pafAll": {
+           									"nisra.nisraAll": {
            										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
            										"analyzer": "welsh_split_synonyms_analyzer",
            										"boost": ${queryParams.fallback.fallbackPafBoost},
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							}, {
+           								"match": {
+           									"paf.pafAll": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+          										"boost": ${queryParams.fallback.fallbackPafBoost},
            										"minimum_should_match": "-40%"
            									}
            								}
@@ -2512,6 +2756,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"lpi.nagAll.bigram": {
            										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
            										"boost": ${queryParams.fallback.fallbackLpiBigramBoost},
+           										"fuzziness": "0"
+           									}
+           								}
+           							}, {
+           								"match": {
+           									"nisra.nisraAll.bigram": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"boost": ${queryParams.fallback.fallbackPafBigramBoost},
            										"fuzziness": "0"
            									}
            								}
@@ -2709,14 +2961,23 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     }
                   },{
                     "match":{
-                      "paf.pafAll":{
+                      "nisra.nisraAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
                         "boost":${queryParams.fallback.fallbackPafBoost},
                         "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
                       }
                     }
-                  }]
+                  },{
+                 "match":{
+                   "paf.pafAll":{
+                     "query":"",
+                     "analyzer":"welsh_split_synonyms_analyzer",
+                     "boost":${queryParams.fallback.fallbackPafBoost},
+                     "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                     }
+                   }
+                 }]
                 }
               }],
               "should":[{
@@ -2731,6 +2992,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                         }
                       }
                     },{
+                      "match":{
+                        "nisra.nisraAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      },{
                       "match":{
                         "paf.pafAll.bigram":{
                           "query":"",
@@ -2808,6 +3077,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     }
                   },{
                     "match":{
+                      "nisra.nisraAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "paf.pafAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2831,8 +3109,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     },{
                       "match":{
-                        "paf.pafAll.bigram":{
+                        "nisra.nisraAll.bigram":{
                           "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                         "query":"",
                            "boost":${queryParams.fallback.fallbackPafBigramBoost},
                            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
                           }
@@ -2907,6 +3193,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     }
                   },{
                     "match":{
+                      "nisra.nisraAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "paf.pafAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2930,12 +3225,20 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     },{
                       "match":{
-                        "paf.pafAll.bigram":{
+                        "nisra.nisraAll.bigram":{
                           "query":"",
                            "boost":${queryParams.fallback.fallbackPafBigramBoost},
                            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
                           }
                         }
+                      },{
+                      "match":{
+                        "paf.pafAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                       }
                       }]
                     }
                   }],
@@ -3004,6 +3307,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     }
                   },{
                     "match":{
+                      "nisra.nisraAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "paf.pafAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -3026,6 +3338,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                         }
                       }
                     },{
+                      "match":{
+                        "nisra.nisraAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      },{
                       "match":{
                         "paf.pafAll.bigram":{
                           "query":"",
@@ -3101,6 +3421,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                     }
                   },{
                     "match":{
+                      "nisra.nisraAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackPafBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "paf.pafAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -3123,6 +3452,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                         }
                       }
                     },{
+                      "match":{
+                        "nisra.nisraAll.bigram":{
+                          "query":"",
+                           "boost":${queryParams.fallback.fallbackPafBigramBoost},
+                           "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                          }
+                        }
+                      },{
                       "match":{
                         "paf.pafAll.bigram":{
                           "query":"",
@@ -3183,7 +3520,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3212,21 +3549,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
+                         },
+                         {
+                           "match": {
+                             "nisra.buildingNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
                          }
                        ]
                      }
-                   }],
-              "filter":[{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
-                }
-              }]
+                   }]
             }
           },
           "from": 0,
@@ -3261,7 +3598,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3289,21 +3626,21 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
+                         },
+                         {
+                           "match": {
+                             "nisra.buildingNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
                          }
                        ]
                      }
-                   }],
-              "filter":[{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
-                }
-              }]
+                   }]
             }
           },
           "from": 0,
@@ -3339,20 +3676,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"phrase",
                   "slop":4
-                }
-              }],
-              "filter":[{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3389,19 +3715,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"best_fields"
-                }
-              }],
-              "filter":[{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3440,7 +3755,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3469,6 +3784,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
+                         },
+                         {
+                           "match": {
+                             "nisra.buildingNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
                          }
                        ]
                      }
@@ -3476,16 +3802,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "filter":[{
                 "terms":{
                   "classificationCode": ["RD"]
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3523,7 +3839,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3551,6 +3867,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
+                         },
+                         {
+                           "match": {
+                             "nisra.buildingNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
                          }
                        ]
                      }
@@ -3558,16 +3885,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "filter":[{
                 "terms":{
                   "classificationCode": ["RD"]
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3605,7 +3922,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3634,6 +3951,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
+                         },
+                         {
+                           "match": {
+                             "nisra.buildingNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
                          }
                        ]
                      }
@@ -3643,16 +3971,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "classificationCode":{
                     "value":"R"
                   }
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3689,7 +4007,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3717,6 +4035,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                "prefix_length": "1"
                              }
                            }
+                         },
+                         {
+                           "match": {
+                             "nisra.buildingNumber": {
+                               "query": "7",
+                               "boost": 0.5,
+                               "fuzzy_transpositions": false,
+                               "max_expansions": 10,
+                               "prefix_length": "1"
+                             }
+                           }
                          }
                        ]
                      }
@@ -3726,16 +4055,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "classificationCode":{
                     "value":"R"
                   }
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3773,7 +4092,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3781,16 +4100,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "filter":[{
                 "terms":{
                   "classificationCode":["RD"]
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3827,23 +4136,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"best_fields"
                 }
               }],
               "filter":[{
                 "terms":{
                   "classificationCode": ["RD"]
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3881,7 +4180,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3891,16 +4190,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "classificationCode":{
                     "value":"R"
                   }
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -3937,7 +4226,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial"],
+                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
                   "type":"best_fields"
                 }
               }],
@@ -3946,16 +4235,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                   "classificationCode":{
                     "value":"R"
                   }
-                }
-              },{
-                "bool":{
-                  "must_not":[{
-                    "term":{
-                      "lpi.addressBasePostal":{
-                        "value":"N"
-                      }
-                    }
-                  }]
                 }
               }]
             }
@@ -4037,6 +4316,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								"constant_score": {
            									"filter": {
            										"match": {
+           											"nisra.buildingName": {
+           												"query": "h5",
+           												"fuzziness": "1"
+           											}
+          										}
+          									},
+           									"boost": ${queryParams.buildingName.pafBuildingNameBoost}
+           								}
+           							},{
+           								"constant_score": {
+           									"filter": {
+           										"match": {
            											"lpi.paoText": {
            												"query": "h5",
            												"fuzziness": "1",
@@ -4077,6 +4368,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"filter": {
            										"match": {
            											"paf.subBuildingName": {
+           												"query": "h4"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.subBuildingName.pafSubBuildingNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.subBuildingName": {
            												"query": "h4"
            											}
            										}
@@ -4143,6 +4445,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								"constant_score": {
            									"filter": {
            										"match": {
+           											"nisra.thoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
            											"paf.welshThoroughfare": {
            												"query": "h7",
            												"fuzziness": "1"
@@ -4179,6 +4493,30 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								"constant_score": {
            									"filter": {
            										"match": {
+           											"nisra.dependentThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafDependentThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.altThoroughfare": {
+           												"query": "h7",
+           												"fuzziness": "1"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.streetName.pafDependentThoroughfareBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
            											"lpi.streetDescriptor": {
            												"query": "h7",
            												"fuzziness": "1"
@@ -4200,6 +4538,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            												"query": "h10"
            											}
            										}
+           									},
+           									"boost": ${queryParams.postcode.pafPostcodeBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.postcode": {
+           												"query": "h10"
+           											}
+          										}
            									},
            									"boost": ${queryParams.postcode.pafPostcodeBoost}
            								}
@@ -4247,6 +4596,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"filter": {
            										"match": {
            											"paf.organisationName": {
+           												"query": "h2",
+           												"minimum_should_match": "30%"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.organisationName.pafOrganisationNameBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.organisationName": {
            												"query": "h2",
            												"minimum_should_match": "30%"
            											}
@@ -4367,6 +4728,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            										"constant_score": {
            											"filter": {
            												"match": {
+           													"nisra.townName": {
+           														"query": "h8",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.townName.lpiTownNameBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
            													"lpi.townName": {
            														"query": "h8",
            														"fuzziness": "1"
@@ -4456,6 +4829,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            										"constant_score": {
            											"filter": {
            												"match": {
+           													"nisra.townland": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.pafPostTownBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
            													"paf.welshPostTown": {
            														"query": "h20",
            														"fuzziness": "1"
@@ -4499,6 +4884,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            												}
            											},
            											"boost": ${queryParams.locality.pafWelshDependentLocalityBoost}
+           										}
+           									}, {
+           										"constant_score": {
+           											"filter": {
+           												"match": {
+           													"nisra.locality": {
+           														"query": "h20",
+           														"fuzziness": "1"
+           													}
+           												}
+           											},
+           											"boost": ${queryParams.locality.lpiLocalityBoost}
            										}
            									}, {
            										"constant_score": {
@@ -4620,6 +5017,28 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									},
            									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
            								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.buildingNumber": {
+           												"query": "12"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
+           								}
+           							}, {
+           								"constant_score": {
+           									"filter": {
+           										"match": {
+           											"nisra.buildingNumber": {
+           												"query": "13"
+           											}
+           										}
+           									},
+           									"boost": ${queryParams.buildingRange.pafBuildingNumberBoost}
+           								}
            							}]
            						}
            					}, {
@@ -4708,6 +5127,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            								}
            							}, {
            								"match": {
+           									"nisra.nisraAll": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"analyzer": "welsh_split_synonyms_analyzer",
+           										"boost": ${queryParams.fallback.fallbackPafBoost},
+           										"minimum_should_match": "-40%"
+           									}
+           								}
+           							}, {
+           								"match": {
            									"paf.pafAll": {
            										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
            										"analyzer": "welsh_split_synonyms_analyzer",
@@ -4726,6 +5154,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            									"lpi.nagAll.bigram": {
            										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
            										"boost": ${queryParams.fallback.fallbackLpiBigramBoost},
+           										"fuzziness": "0"
+           									}
+           								}
+           							}, {
+           								"match": {
+           									"nisra.nisraAll.bigram": {
+           										"query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
+           										"boost": ${queryParams.fallback.fallbackPafBigramBoost},
            										"fuzziness": "0"
            									}
            								}
