@@ -144,7 +144,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
-  val validHybridAddressOptFull = HybridAddressOpt(
+  val validHybridAddressOpt = HybridAddressOpt(
     uprn = "1",
     parentUprn = "4",
     relatives = Some(Seq(validRelative)),
@@ -154,6 +154,21 @@ class AddressControllerSpec extends PlaySpec with Results {
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
     nisra = Seq(),
+    score = 1f,
+    classificationCode = "29",
+    fromSource = "47"
+  )
+
+  val validHybridAddressOptSkinny = HybridAddressOpt(
+    uprn = "1",
+    parentUprn = "4",
+    relatives = None,
+    crossRefs = None,
+    postcodeIn = None,
+    postcodeOut = None,
+    paf = Seq(validPafAddress),
+    lpi = Seq(validNagAddress),
+    nisra = Seq(validNisraAddress),
     score = 1f,
     classificationCode = "29",
     fromSource = "47"
@@ -207,14 +222,14 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(Some(validHybridAddressOptFull))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(Some(validHybridAddressOpt))
 
-    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOptFull), 1.0f, 1))
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOpt), 1.0f, 1))
 
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         args.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOpt, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -236,7 +251,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         args.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOptFull, requestData)
+          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOpt, requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -321,7 +336,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = false)),
           historical = true,
           verbose = false,
           epoch = ""
@@ -330,7 +345,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddressOptFull.uprn, verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOpt.uprn, verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -346,7 +361,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)),
           historical = true,
           verbose = true,
           epoch = ""
@@ -355,7 +370,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddressOptFull.uprn, verbose=Some("true")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOpt.uprn, verbose=Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -372,7 +387,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddressSkinny(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptSkinny, verbose = false)),
           filter = "",
           historical = true,
           limit = 100,
@@ -404,7 +419,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)),
           filter = "",
           historical = true,
           limit = 100,
@@ -435,7 +450,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddressSkinny(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptSkinny, verbose = false)),
           filter = "",
           historical = true,
           limit = 1,
@@ -463,7 +478,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)),
           filter = "",
           historical = true,
           limit = 1,
@@ -490,7 +505,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddressSkinny(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptSkinny, verbose = false)),
           filter = "",
           historical = true,
           limit = 20,
@@ -521,7 +536,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)),
           filter = "",
           historical = true,
           limit = 20,
@@ -553,7 +568,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddressSkinny(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptSkinny, verbose = false)),
           filter = "",
           historical = true,
           limit = 20,
@@ -584,7 +599,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)),
           filter = "",
           historical = true,
           limit = 20,
@@ -617,7 +632,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = false)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -655,7 +670,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -694,7 +709,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = false)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -732,7 +747,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -771,7 +786,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = false)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",
@@ -809,7 +824,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOptFull, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressOpt, verbose = true)), Map.empty, -1D),
           filter = "",
           historical = true,
           rangekm = "",

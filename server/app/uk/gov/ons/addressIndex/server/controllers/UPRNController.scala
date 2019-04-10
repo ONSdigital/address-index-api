@@ -90,11 +90,11 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         res // a validation error
 
       case _ =>
+        // TODO do we even need verbose any more? Is it still used?
         val args = UPRNArgs(
           uprn = uprn,
           historical = hist,
           epoch = epochVal,
-          skinny = !verb,
         )
 
         val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(

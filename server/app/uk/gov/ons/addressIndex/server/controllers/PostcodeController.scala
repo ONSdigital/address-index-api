@@ -3,14 +3,13 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressCollection, HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
-import uk.gov.ons.addressIndex.server.modules._
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,14 +39,14 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
-    val clusterid = conf.config.elasticSearch.clusterPolicies.postcode
+    val clusterId = conf.config.elasticSearch.clusterPolicies.postcode
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPostcode
     val defOffset = conf.config.elasticSearch.defaultOffset
 
-    val limval = limit.getOrElse(defLimit.toString)
-    val offval = offset.getOrElse(defOffset.toString)
+    val limVal = limit.getOrElse(defLimit.toString)
+    val offVal = offset.getOrElse(defOffset.toString)
 
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "postcode"
@@ -71,17 +70,17 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
-        postcode = postcode, isNotFound = notFound, offset = offval,
-        limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
+        postcode = postcode, isNotFound = notFound, offset = offVal,
+        limit = limVal, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
-        endpoint = endpointType, activity = activity, clusterid = clusterid
+        endpoint = endpointType, activity = activity, clusterid = clusterId
       )
     }
 
-    val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
-    val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+    val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
+    val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
 
     val queryValues = QueryValues(
       postcode = Some(postcode),
@@ -108,72 +107,72 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         res // a validation error
 
       case _ =>
-          val args = PostcodeArgs(
-            postcode = postcode,
-            start = offsetInt,
-            limit = limitInt,
-            filters = filterString,
-            historical = hist,
-            verbose = verb,
-            epoch = epochVal,
-            skinny = !verb,
+        val args = PostcodeArgs(
+          postcode = postcode,
+          start = offsetInt,
+          limit = limitInt,
+          filters = filterString,
+          historical = hist,
+          verbose = verb,
+          epoch = epochVal,
+          skinny = !verb,
+        )
+
+        val request: Future[HybridAddressCollection] =
+          overloadProtection.breaker.withCircuitBreaker(
+            esRepo.runMultiResultQuery(args)
           )
 
-          val request: Future[HybridAddressCollection] =
-            overloadProtection.breaker.withCircuitBreaker(
-              esRepo.runMultiResultQuery(args)
+        request.map {
+          case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+
+            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+              AddressResponseAddress.fromHybridAddress(_, verb)
             )
 
-          request.map {
-            case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+            writeLog(activity = "postcode_request")
 
-              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddress(_,verb)
+            jsonOk(
+              AddressByPostcodeResponseContainer(
+                apiVersion = apiVersion,
+                dataVersion = dataVersion,
+                response = AddressByPostcodeResponse(
+                  postcode = postcode,
+                  addresses = addresses,
+                  filter = filterString,
+                  historical = hist,
+                  epoch = epochVal,
+                  limit = limitInt,
+                  offset = offsetInt,
+                  total = total,
+                  maxScore = maxScore,
+                  verbose = verb
+                ),
+                status = OkAddressResponseStatus
               )
-
-              writeLog(activity = "postcode_request")
-
-              jsonOk(
-                AddressByPostcodeResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByPostcodeResponse(
-                    postcode = postcode,
-                    addresses = addresses,
-                    filter = filterString,
-                    historical = hist,
-                    epoch = epochVal,
-                    limit = limitInt,
-                    offset = offsetInt,
-                    total = total,
-                    maxScore = maxScore,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
+            )
+        }.recover {
+          case NonFatal(exception) =>
+            overloadProtection.currentStatus match {
+              case ThrottlerStatus.HalfOpen =>
+                logger.warn(
+                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
-              )
-          }.recover {
-            case NonFatal(exception) =>
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
-                  logger.warn(
-                    s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
-                  )
-                  InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
-              }
-          }
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
+              case ThrottlerStatus.Open =>
+                logger.warn(
+                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
+                )
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
+              case _ =>
+                // Circuit Breaker is closed. Some other problem
+                writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+                logger.warn(
+                  s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
+                )
+                InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
+            }
+        }
     }
   }
 }

@@ -121,11 +121,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   val hybridNagCustName: String = "Exeter"
 
   val hybridMixedNisra = "mixedNisra"
-  val hybridNisraOrganisationName = hybridPafOrganisationName
-  val hybridNisraSubBuildingName = hybridPafSubBuildingName
-  val hybridNisraBuildingName = hybridPafBuildingName
+  val hybridNisraOrganisationName: String = hybridPafOrganisationName
+  val hybridNisraSubBuildingName: String = hybridPafSubBuildingName
+  val hybridNisraBuildingName: String = hybridPafBuildingName
   val hybridNisraBuildingNumber = "h26"
-  val hybridNisraThoroughfare = hybridPafThoroughfare
+  val hybridNisraThoroughfare: String = hybridPafThoroughfare
   val hybridNisraAltThoroughfare = "h27"
   val hybridNisraDependentThoroughfare = "h28"
   val hybridNisraLocality = "h29"
@@ -736,21 +736,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "find no HYBRID address by UPRN when not between date range" in {
-      // Given
-      val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = None
-
-      // When
-      val args = UPRNArgs(
-        uprn = hybridFirstDateUprn.toString,
-      )
-      val result = repository.runUPRNQuery(args).await
-
-      // Then
-      result shouldBe expected
-    }
-
     "find HYBRID address by UPRN between date range with PAF and multiple NAG" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
@@ -1253,6 +1238,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     }
 
     "find HYBRID address by postcode" in {
+
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
@@ -1291,115 +1277,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            	},
            	{
            		"lpi.paoStartSuffix.keyword": {
-           			"order": "asc"
-           		}
-           	},
-           	{
-           		"uprn": {
-           			"order": "asc"
-           		}
-           	}]
-          }
-         """.stripMargin
-      )
-
-      // When
-      val args = PostcodeArgs(
-        postcode = "h4",
-        limit = 1,
-        start = 0,
-        filters = "residential",
-      )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
-
-      // Then
-      result shouldBe expected
-    }
-
-    "find HYBRID address by postcode with date" in {
-      // Given
-      val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = Json.parse(
-        s"""
-          {
-           	"version": true,
-           	"query": {
-           		"bool": {
-           			"must": [{
-           				"term": {
-           					"lpi.postcodeLocator": {
-           						"value": " H4"
-           					}
-           				}
-           			}],
-           			"filter": [{
-           				"prefix": {
-           					"classificationCode": {
-           						"value": "R"
-           					}
-           				}
-           			},
-                {
-                 "bool": {
-                   "must_not": [{
-                     "term": {
-                       "lpi.addressBasePostal": {
-                         "value": "N"
-                       }
-                     }
-                   }]
-                 }
-                },
-                {
-                 "bool": {
-                   "should": [{
-                     "bool": {
-                       "must": [{
-                         "range": {
-                           "paf.startDate": {
-                             "gte": "2013-01-01",
-                             "format": "yyyy-MM-dd"
-                           }
-                         }
-                       },
-                       {
-                         "range": {
-                           "paf.endDate": {
-                             "lte": "2013-12-31",
-                             "format": "yyyy-MM-dd"
-                           }
-                         }
-                       }]
-                     }
-                   },
-                   {
-                     "bool": {
-                       "must": [{
-                         "range": {
-                           "lpi.lpiStartDate": {
-                             "gte": "2013-01-01",
-                             "format": "yyyy-MM-dd"
-                           }
-                         }
-                       },
-                       {
-                         "range": {
-                           "lpi.lpiEndDate": {
-                             "lte": "2013-12-31",
-                             "format": "yyyy-MM-dd"
-                           }
-                         }
-                       }]
-                     }
-                   }]
-                 }
-                }]
-           		}
-           	},
-            "from": 0,
-            "size": 1,
-           	"sort": [{
-           		"lpi.streetDescriptor.keyword": {
            			"order": "asc"
            		}
            	},

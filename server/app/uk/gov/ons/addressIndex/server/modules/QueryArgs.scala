@@ -91,9 +91,7 @@ sealed abstract class QueryArgs {
 final case class UPRNArgs(uprn: String,
                           historical: Boolean = true,
                           epoch: String = "",
-                          filterDateRange: DateRange = DateRange(),
-                          skinny: Boolean = false,
-                         ) extends QueryArgs with DateFilterable with Skinnyable
+                         ) extends QueryArgs
 
 sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable {}
 
@@ -128,10 +126,9 @@ final case class PostcodeArgs(postcode: String,
                               limit: Int,
                               start: Int,
                               filters: String,
-                              filterDateRange: DateRange = DateRange(),
                               verbose: Boolean = true,
                               skinny: Boolean = false,
-                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Verboseable with Skinnyable
+                             ) extends MultiResultArgs with StartAtOffset with Verboseable with Skinnyable
 
 /**
   * Search at random

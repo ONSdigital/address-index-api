@@ -199,7 +199,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
     }
 
-    val query = must(termQuery("lpi.postcodeLocator", postcodeFormatted)).filter(queryFilter.flatten)
+    val query = must(termQuery("postcode", postcodeFormatted)).filter(queryFilter.flatten)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -286,11 +286,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
       ).flatten
 
-    // TODO check this one
     val subBuildingNameQuery: Seq[QueryDefinition] = Seq(
       args.tokens.get(Tokens.subBuildingName).map(token => Seq(
         constantScoreQuery(matchQuery(
           field = "paf.subBuildingName",
+          value = token
+        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
+        constantScoreQuery(matchQuery(
+          field = "nisra.subBuildingName",
           value = token
         )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
         constantScoreQuery(matchQuery(
