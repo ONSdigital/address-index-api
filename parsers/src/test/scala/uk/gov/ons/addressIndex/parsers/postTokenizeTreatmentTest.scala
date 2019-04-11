@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
+class postTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName into paoStartNumber and paoStartSuffix" in {
     // Given
@@ -13,7 +13,8 @@ class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
     val expected = Map(
       Tokens.buildingName -> "65B",
       Tokens.paoStartNumber -> "65",
-      Tokens.paoStartSuffix -> "B"
+      Tokens.paoStartSuffix -> "B",
+      Tokens.saoStartSuffix -> "B"
     )
 
     // When
@@ -268,6 +269,48 @@ class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
       Tokens.saoStartSuffix -> "B",
       Tokens.saoEndNumber -> "8",
       Tokens.saoEndSuffix -> "C"
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "transform building name with a suffix to both pao and sao suffixing" in {
+    // Given
+    val input = Map(
+      Tokens.buildingName -> "15A"
+    )
+
+    val expected = Map(
+      Tokens.buildingName -> "15A",
+      Tokens.paoStartNumber -> "15",
+      Tokens.paoStartSuffix -> "A",
+      Tokens.saoStartSuffix -> "A",
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "transform building name with a suffix and pre-suffix as is" in {
+    // Given
+    val input = Map(
+      Tokens.subBuildingName -> "Flat B",
+      Tokens.buildingName -> "15A"
+    )
+
+    val expected = Map(
+      Tokens.subBuildingName -> "Flat B",
+      Tokens.buildingName -> "15A",
+      Tokens.paoStartNumber -> "15",
+      Tokens.paoStartSuffix -> "A",
+      Tokens.saoStartSuffix -> "B",
     )
 
     // When
