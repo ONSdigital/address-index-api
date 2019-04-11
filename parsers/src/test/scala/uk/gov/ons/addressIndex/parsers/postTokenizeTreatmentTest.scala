@@ -14,7 +14,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
       Tokens.buildingName -> "65B",
       Tokens.paoStartNumber -> "65",
       Tokens.paoStartSuffix -> "B",
-      Tokens.saoStartSuffix -> "B"
+      Tokens.subBuildingName -> "B"
     )
 
     // When
@@ -288,7 +288,7 @@ class postTokenizeTreatmentTest extends FlatSpec with Matchers {
       Tokens.buildingName -> "15A",
       Tokens.paoStartNumber -> "15",
       Tokens.paoStartSuffix -> "A",
-      Tokens.saoStartSuffix -> "A",
+      Tokens.subBuildingName -> "A"
     )
 
     // When
