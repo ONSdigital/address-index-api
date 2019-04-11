@@ -7,10 +7,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, RequestHeader, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
@@ -133,7 +131,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     longitude = "21"
   )
 
-   val validRelative = Relative (
+  val validRelative = Relative(
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
@@ -218,18 +216,23 @@ class AddressControllerSpec extends PlaySpec with Results {
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
+    def getHybridAddress(args: QueryArgs) = args match {
+      case s: Skinnyable => if (s.skinny) validHybridAddressOptSkinny else validHybridAddressOpt
+      case _ => validHybridAddressOpt
+    }
+
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(args: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(Some(validHybridAddressOpt))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(Some(getHybridAddress(args)))
 
-    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(validHybridAddressOpt), 1.0f, 1))
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), 1.0f, 1))
 
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         args.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOpt, requestData)
+          val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -240,6 +243,11 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   // mock that won't return any addresses
   val emptyElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
+    def getHybridAddress(args: QueryArgs) = args match {
+      case s: Skinnyable => if (s.skinny) validHybridAddressOptSkinny else validHybridAddressOpt
+      case _ => validHybridAddressOpt
+    }
+
     override def queryHealth(): Future[String] = Future.successful("")
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
@@ -251,7 +259,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
         args.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(validHybridAddressOpt, requestData)
+          val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
@@ -370,7 +378,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.uprnQuery(validHybridAddressOpt.uprn, verbose=Some("true")).apply(FakeRequest())
+      val result: Future[Result] = controller.uprnQuery(validHybridAddressOpt.uprn, verbose = Some("true")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

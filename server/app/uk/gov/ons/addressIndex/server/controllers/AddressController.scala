@@ -71,15 +71,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "address"
 
-    val hist = historical match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
-    }
-
-    val verb = verbose match {
-      case Some(x) => Try(x.toBoolean).getOrElse(false)
-      case None => false
-    }
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     // validate radius parameters
     val rangeVal = rangeKm.getOrElse("")
