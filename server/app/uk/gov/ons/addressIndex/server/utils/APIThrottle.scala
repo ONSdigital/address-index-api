@@ -21,10 +21,20 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
   private val circuitBreakerCallTimeout: Int = esConf.circuitBreakerCallTimeout
   private val circuitBreakerResetTimeout: Int = esConf.circuitBreakerResetTimeout
 
-  override def currentStatus: ThrottleStatus = {
-    if (breaker.isOpen) ThrottlerStatus.Open
-    if (breaker.isClosed) ThrottlerStatus.Closed
-    ThrottlerStatus.HalfOpen
+  var currentStatus: ThrottleStatus = {
+    if (breaker.isOpen) {
+      ThrottlerStatus.Open
+    } else {
+      if (breaker.isClosed) {
+        ThrottlerStatus.Closed
+      } else {
+        ThrottlerStatus.HalfOpen
+      }
+    }
+  }
+
+  def setStatus(status:ThrottleStatus) = {
+    currentStatus = status
   }
 
   override def breaker: CircuitBreaker = {
@@ -35,12 +45,15 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
       resetTimeout = circuitBreakerResetTimeout milliseconds)
       .onOpen({
         logger.warn("Circuit breaker is now open")
+        currentStatus = ThrottlerStatus.Open
       })
       .onClose({
         logger.warn("circuit breaker is now closed")
+        currentStatus = ThrottlerStatus.Closed
       })
       .onHalfOpen({
         logger.warn("Circuit breaker is now half-open")
+        currentStatus = ThrottlerStatus.HalfOpen
       })
   }
 }

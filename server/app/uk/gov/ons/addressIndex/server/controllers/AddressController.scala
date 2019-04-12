@@ -156,7 +156,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val minimumSample = conf.config.elasticSearch.minimumSample
         val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
 
-        val request: Future[HybridAddresses] =
+        def request: Future[HybridAddresses] =
           overloadProtection.breaker.withCircuitBreaker(esRepo.queryAddresses(
             tokens, 0, limitExpanded, filterString,
             rangeVal, latVal, lonVal, startDateVal, endDateVal, None, hist, isBulk = false, epochVal)
@@ -202,6 +202,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             //            }
 
             writeLog(activity = "address_request")
+            overloadProtection.breaker.succeed()
+            overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressBySearchResponseContainer(
