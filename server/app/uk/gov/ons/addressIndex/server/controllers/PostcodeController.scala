@@ -34,9 +34,14 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQuery(postcode: String, offset: Option[String] = None, limit: Option[String] = None, classificationfilter: Option[String] = None,
-                    //                  startDate: Option[String] = None, endDate: Option[String] = None,
-                    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def postcodeQuery(postcode: String,
+                    offset: Option[String] = None,
+                    limit: Option[String] = None,
+                    classificationfilter: Option[String] = None,
+                    historical: Option[String] = None,
+                    verbose: Option[String] = None,
+                    epoch: Option[String] = None
+                   ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.postcode

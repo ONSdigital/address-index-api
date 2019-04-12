@@ -8,7 +8,6 @@ import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
   */
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
-
   def index(): Action[AnyContent] = Action { implicit req =>
     Ok("hello world")
   }

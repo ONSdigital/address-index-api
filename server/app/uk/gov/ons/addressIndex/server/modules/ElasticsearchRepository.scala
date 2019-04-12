@@ -33,7 +33,7 @@ trait ElasticsearchRepository {
     * @param args the query arguments, including the identificator of the address
     * @return Future containing a address or `None` if not in the index
     */
-  def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]]
+  def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]]
 
   /**
     * Query the address index by partial address, randomness, postcode, or full address.

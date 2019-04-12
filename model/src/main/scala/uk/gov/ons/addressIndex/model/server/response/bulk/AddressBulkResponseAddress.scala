@@ -14,7 +14,8 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param matchedFormattedAddress formatted found address
   * @param matchedAddress          found address
   * @param tokens                  tokens into which the input address was split
-  * @param score                   resulting address score
+  * @param confidenceScore         resulting address score
+  * @param underlyingScore
   */
 case class AddressBulkResponseAddress(id: String,
                                       inputAddress: String,

@@ -3,14 +3,13 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.HybridAddressOpt
+import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +34,11 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String, historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def uprnQuery(uprn: String,
+                historical: Option[String] = None,
+                verbose: Option[String] = None,
+                epoch: Option[String] = None
+               ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -83,21 +86,21 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         res // a validation error
 
       case _ =>
-        // TODO do we even need verbose any more? Is it still used?
+        // TODO do we even need `verbose` any more? Is it still used?
         val args = UPRNArgs(
           uprn = uprn,
           historical = hist,
           epoch = epochVal,
         )
 
-        val request: Future[Option[HybridAddressOpt]] = overloadProtection.breaker.withCircuitBreaker(
+        val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
           esRepo.runUPRNQuery(args)
         )
 
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddress,verb)
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb)
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",

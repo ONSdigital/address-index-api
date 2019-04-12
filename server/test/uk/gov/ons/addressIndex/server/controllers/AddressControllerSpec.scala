@@ -142,7 +142,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
-  val validHybridAddressOpt = HybridAddressOpt(
+  val validHybridAddressOpt = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = Some(Seq(validRelative)),
@@ -157,39 +157,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     fromSource = "47"
   )
 
-  val validHybridAddressOptSkinny = HybridAddressOpt(
+  val validHybridAddressOptSkinny = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = None,
     crossRefs = None,
     postcodeIn = None,
     postcodeOut = None,
-    paf = Seq(validPafAddress),
-    lpi = Seq(validNagAddress),
-    nisra = Seq(validNisraAddress),
-    score = 1f,
-    classificationCode = "29",
-    fromSource = "47"
-  )
-
-  val validHybridAddress = HybridAddressFull(
-    uprn = "1",
-    parentUprn = "4",
-    relatives = Seq(validRelative),
-    crossRefs = Seq(validCrossRef),
-    postcodeIn = "2",
-    postcodeOut = "3",
-    paf = Seq(validPafAddress),
-    lpi = Seq(validNagAddress),
-    nisra = Seq(),
-    score = 1f,
-    classificationCode = "29",
-    fromSource = "47"
-  )
-
-  val validHybridAddressSkinny = HybridAddressSkinny(
-    uprn = "1",
-    parentUprn = "4",
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
     nisra = Seq(validNisraAddress),
@@ -216,7 +190,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
-    def getHybridAddress(args: QueryArgs) = args match {
+    def getHybridAddress(args: QueryArgs): HybridAddress = args match {
       case s: Skinnyable => if (s.skinny) validHybridAddressOptSkinny else validHybridAddressOpt
       case _ => validHybridAddressOpt
     }
@@ -225,7 +199,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(args: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(Some(getHybridAddress(args)))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), 1.0f, 1))
 
@@ -243,7 +217,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   // mock that won't return any addresses
   val emptyElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
-    def getHybridAddress(args: QueryArgs) = args match {
+    def getHybridAddress(args: QueryArgs): HybridAddress = args match {
       case s: Skinnyable => if (s.skinny) validHybridAddressOptSkinny else validHybridAddressOpt
       case _ => validHybridAddressOpt
     }
@@ -252,7 +226,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(None)
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
 
@@ -273,7 +247,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.successful(None)
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, 1.0f, 0))
 
@@ -296,7 +270,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
 
-    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = Future.failed(new Exception("test failure"))
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.failed(new Exception("test failure"))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 

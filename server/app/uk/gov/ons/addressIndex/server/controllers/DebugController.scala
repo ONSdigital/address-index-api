@@ -39,9 +39,14 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
-  def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None,
-                 //startDate: Option[String], endDate: Option[String],
-                 historical: Option[String] = None, epoch: Option[String]): Action[AnyContent] = Action { implicit req =>
+  def queryDebug(input: String,
+                 classificationfilter: Option[String] = None,
+                 rangekm: Option[String] = None,
+                 lat: Option[String] = None,
+                 lon: Option[String] = None,
+                 historical: Option[String] = None,
+                 epoch: Option[String]
+                ): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val filterString = classificationfilter.getOrElse("")
@@ -49,8 +54,6 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     val latString = lat.getOrElse("50.705948")
     val lonString = lon.getOrElse("-3.5091076")
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -59,13 +62,14 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     val epochVal = epoch.getOrElse("")
 
     val args = AddressArgs(
+      input = "",
       tokens = tokens,
       region = Some(Region(rangeString.toInt, latString.toInt, lonString.toInt)),
       epoch = epochVal,
+      verbose = false,
       historical = hist,
       filters = filterString,
       filterDateRange = DateRange(startDateVal, endDateVal),
-      start = 0,
       limit = 0,
       queryParamsConfig = None,
     )

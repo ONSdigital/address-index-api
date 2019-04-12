@@ -5,7 +5,7 @@ import play.api.libs.json.{Format, Json}
 /**
   * Container for custodians list
   *
-  * @param classifications sequence of custodians
+  * @param custodians sequence of custodians
   */
 case class AddressResponseCustodianListContainer(custodians: Seq[AddressResponseCustodian] = Seq.empty[AddressResponseCustodian])
 

@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.model.db
 
-import uk.gov.ons.addressIndex.model.db.index.HybridAddressOpt
+import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 /**
@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAdd
 case class BulkAddress(id: String,
                        inputAddress: String,
                        tokens: Map[String, String],
-                       hybridAddress: HybridAddressOpt)
+                       hybridAddress: HybridAddress)
 
 object BulkAddress {
   /**
@@ -26,7 +26,7 @@ object BulkAddress {
     * @return BulkAddress indicating that there is no associated addresses found
     */
   def empty(requestData: BulkAddressRequestData) =
-    BulkAddress(requestData.id, requestData.inputAddress, requestData.tokens, HybridAddressOpt.empty)
+    BulkAddress(requestData.id, requestData.inputAddress, requestData.tokens, HybridAddress.empty)
 
   /**
     * Transforms HybridAddress (with request data) into a BulkAddress
@@ -35,7 +35,7 @@ object BulkAddress {
     * @param requestData   request data used to find this hybrid address
     * @return bulk address DTO
     */
-  def fromHybridAddress(hybridAddress: HybridAddressOpt, requestData: BulkAddressRequestData): BulkAddress =
+  def fromHybridAddress(hybridAddress: HybridAddress, requestData: BulkAddressRequestData): BulkAddress =
     BulkAddress(requestData.id, requestData.inputAddress, requestData.tokens, hybridAddress)
 }
 

@@ -725,7 +725,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       null
   }
 
-  override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddressOpt]] = {
+  override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
     client.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption)
@@ -754,14 +754,15 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val minimumSample = conf.config.bulk.minimumSample
     val addressRequests = args.requestsData.map { requestData =>
       val addressArgs = AddressArgs(
+        input = "",
         tokens = requestData.tokens,
-        start = 0,
         limit = max(args.limit * 2, minimumSample),
         filters = "",
         region = None,
         filterDateRange = DateRange(args.filterDateRange.start, args.filterDateRange.end),
         queryParamsConfig = args.queryParamsConfig,
         historical = args.historical,
+        verbose = false,
         isBulk = true,
         epoch = args.epoch,
       )

@@ -274,7 +274,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddressFull(givenPaf.uprn, givenPaf.uprn, Seq(givenRelative), Seq(givenCrossRef), "postcodeIn", "postcodeOut", Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "47")
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "47")
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expectedNisra = AddressResponseNisra.fromNisraAddress(givenNisra)

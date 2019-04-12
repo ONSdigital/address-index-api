@@ -33,7 +33,7 @@ trait APILogger {
     * @param message the message to log
     * @return Unit
     */
-  protected def logMessage: ((=> String) => Unit, APILoggerMessage) => Unit = (logType, message) => {
+  protected def logMessage(logType: (=> String) => Unit, message: APILoggerMessage): Unit = {
     logType(message.message)
   }
 

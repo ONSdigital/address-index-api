@@ -7,9 +7,9 @@ import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,10 +35,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     * @return Json response with addresses information
     */
 
-  def partialAddressQuery(input: String, offset: Option[String] = None, limit: Option[String] = None,
+  def partialAddressQuery(input: String,
+                          offset: Option[String] = None,
+                          limit: Option[String] = None,
                           classificationFilter: Option[String] = None,
-                          // startDate: Option[String], endDate: Option[String],
-                          historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None,
+                          historical: Option[String] = None,
+                          verbose: Option[String] = None,
+                          epoch: Option[String] = None,
                           startBoost: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
@@ -92,7 +95,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
-        //   startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }

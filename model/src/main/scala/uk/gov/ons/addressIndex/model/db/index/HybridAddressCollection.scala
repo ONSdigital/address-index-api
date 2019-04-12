@@ -6,93 +6,6 @@ import com.sksamuel.elastic4s.{Hit, HitReader}
 
 import scala.util.Try
 
-trait HybridAddress {
-
-}
-
-case class HybridAddressOpt(uprn: String,
-                            parentUprn: String,
-                            relatives: Option[Seq[Relative]],
-                            crossRefs: Option[Seq[CrossRef]],
-                            postcodeIn: Option[String],
-                            postcodeOut: Option[String],
-                            lpi: Seq[NationalAddressGazetteerAddress],
-                            paf: Seq[PostcodeAddressFileAddress],
-                            nisra: Seq[NisraAddress],
-                            score: Float,
-                            classificationCode: String,
-                            fromSource: String)
-
-object HybridAddressOpt {
-
-  /**
-    * An empty HybridAddress, used in bulk search to show the address that didn't yield any results
-    */
-  val empty = HybridAddressOpt(
-    uprn = "",
-    parentUprn = "",
-    relatives = Some(Seq.empty),
-    crossRefs = Some(Seq.empty),
-    postcodeIn = Some(""),
-    postcodeOut = Some(""),
-    lpi = Seq.empty,
-    paf = Seq.empty,
-    nisra = Seq.empty,
-    score = 0,
-    classificationCode = "",
-    fromSource = "",
-  )
-
-  // this `implicit` is needed for the library (elastic4s) to work
-  implicit object HybridAddressHitReader extends HitReader[HybridAddressOpt] {
-
-    /**
-      * Transforms hit from Elastic Search into a Hybrid Address
-      * Used for the elastic4s library
-      *
-      * @param hit Elastic's response
-      * @return generated Hybrid Address
-      */
-    override def read(hit: Hit): Either[Throwable, HybridAddressOpt] = {
-      val cRefs: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
-      val rels: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("relatives").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
-      val lpis: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("lpi").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
-      val pafs: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
-      val nisras: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
-      Right(HybridAddressOpt(
-        uprn = hit.sourceAsMap("uprn").toString,
-        parentUprn = hit.sourceAsMap("parentUprn").toString,
-        relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),
-        crossRefs = Some(cRefs.map(CrossRef.fromEsMap)),
-        postcodeIn = Some(hit.sourceAsMap("postcodeIn").toString),
-        postcodeOut = Some(hit.sourceAsMap("postcodeOut").toString),
-        lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
-        paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
-        nisra = nisras.map(NisraAddress.fromEsMap),
-        score = hit.score,
-        classificationCode = hit.sourceAsMap("classificationCode").toString,
-        fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
-      ))
-    }
-  }
-
-}
-
 /**
   * Contains the result of an ES query
   *
@@ -101,7 +14,7 @@ object HybridAddressOpt {
   *                  (even those that are not in the list because of the limit)
   * @param total     total number of all of the addresses regardless of the limit
   */
-case class HybridAddressCollection(addresses: Seq[HybridAddressOpt],
+case class HybridAddressCollection(addresses: Seq[HybridAddress],
                                    maxScore: Double,
                                    total: Long)
 
@@ -131,11 +44,10 @@ object HybridAddressCollection {
     val maxScore = if (total == 0) 0 else response.maxScore
 
     HybridAddressCollection(
-      addresses = response.to[HybridAddressOpt],
+      addresses = response.to[HybridAddress],
       maxScore = maxScore,
       total = total
     )
   }
-
 }
 

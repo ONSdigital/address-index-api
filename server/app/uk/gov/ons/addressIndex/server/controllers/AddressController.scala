@@ -6,9 +6,9 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,13 +40,18 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(implicit input: String, offset: Option[String] = None, limit: Option[String] = None,
-                   classificationFilter: Option[String] = None, rangeKm: Option[String] = None,
-                   lat: Option[String] = None, lon: Option[String] = None,
-                   // startDate: Option[String] = None, endDate: Option[String] = None,
+  def addressQuery(implicit input: String,
+                   offset: Option[String] = None,
+                   limit: Option[String] = None,
+                   classificationFilter: Option[String] = None,
+                   rangeKm: Option[String] = None,
+                   lat: Option[String] = None,
+                   lon: Option[String] = None,
                    historical: Option[String] = None,
                    matchThreshold: Option[String] = None,
-                   verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                   verbose: Option[String] = None,
+                   epoch: Option[String] = None
+                  ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
 
@@ -54,8 +59,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val ip: String = req.remoteAddress
     val url: String = req.uri
 
-    //   val startDateVal = startDate.getOrElse("")
-    //   val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -82,12 +85,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val epochVal = epoch.getOrElse("")
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
-      val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+      val authVal = req.headers.get("authorization").getOrElse("Anon")
+      val authHasPlus = authVal.indexOf("+") > 0
+      val networkId = if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)
+      val organisation = if (authHasPlus) networkId.split("_")(1) else "not set"
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offVal, limit = limVal, filter = filterString,
-        //  endDate=endDateVal, startDate = startDateVal,
         historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
@@ -117,10 +121,24 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       matchThreshold = Some(thresholdFloat)
     )
 
+    val args = AddressArgs(
+      input = input,
+      tokens = Map.empty, // temporary, filled later
+      region = Region.fromStrings(rangeVal, latVal, lonVal),
+      epoch = epochVal,
+      historical = hist,
+      verbose = verb,
+      filters = filterString,
+      filterDateRange = DateRange(startDateVal, endDateVal),
+      start = offsetInt, // temporary, but zeroed later?
+      limit = limitInt, // temporary, expanded later
+      queryParamsConfig = None,
+    )
+
     val result: Option[Future[Result]] =
       addressValidation.validateAddressFilter(classificationFilter, queryValues)
-        //     .orElse(addressValidation.validateStartDate(startDateVal))
-        //    .orElse(addressValidation.validateEndDate(endDateVal))
+        // .orElse(addressValidation.validateStartDate(startDateVal))
+        // .orElse(addressValidation.validateEndDate(endDateVal))
         .orElse(addressValidation.validateThreshold(matchThreshold, queryValues))
         .orElse(addressValidation.validateRange(rangeKm, queryValues))
         .orElse(addressValidation.validateSource(queryValues))
@@ -143,22 +161,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val minimumSample = conf.config.elasticSearch.minimumSample
         val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
 
-        val args = AddressArgs(
+        val finalArgs = args.copy(
           tokens = tokens,
-          region = Region.fromStrings(rangeVal, latVal, lonVal),
-          epoch = epochVal,
-          historical = hist,
-          filters = filterString,
-          filterDateRange = DateRange(startDateVal, endDateVal),
           start = 0,
           limit = limitExpanded,
-          queryParamsConfig = None,
         )
 
         val request: Future[HybridAddressCollection] =
-          overloadProtection.breaker.withCircuitBreaker(
-            esRepo.runMultiResultQuery(args)
-          )
+          overloadProtection.breaker.withCircuitBreaker(esRepo.runMultiResultQuery(finalArgs))
 
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total@_) =>
@@ -167,9 +177,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             )
 
             //  calculate the elastic denominator value which will be used when scoring each address
-            val elasticDenominator = Try(
-              ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))
-            ).getOrElse(1D)
+            val elasticDenominator =
+              Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
 
             // calculate the Hopper and hybrid scores for each  address
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(
@@ -179,8 +188,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
 
             // filter out scores below threshold, sort the resultant collection, highest score first
-            val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(
-              _.confidenceScore)(Ordering[Double].reverse)
+            val sortedAddresses =
+              scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
             // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
@@ -191,13 +200,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // if verbose is false, strip out full address details (these are needed for score so must be
             // removed retrospectively)
             val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
-
-            //            addresses.foreach { address =>
-            //              writeLog(
-            //                formattedOutput = address.formattedAddressNag, numOfResults = total.toString,
-            //                score = address.underlyingScore.toString, activity = "address_response"
-            //              )
-            //            }
 
             writeLog(activity = "address_request")
 

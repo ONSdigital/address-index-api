@@ -1,38 +1,10 @@
 package uk.gov.ons.addressIndex.model.server.response.partialaddress
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddressFull, NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
+import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, PostcodeAddressFileAddress}
 
 object AddressResponsePartialAddress {
   implicit lazy val addressResponsePartialAddressFormat: Format[AddressResponsePartialAddress] = Json.format[AddressResponsePartialAddress]
-
-  /**
-    * Transforms hybrid object returned by ES into an Address that will be in the json response
-    *
-    * @param other HybridAddress from ES
-    * @return
-    */
-  def fromHybridAddress(other: HybridAddressFull): AddressResponsePartialAddress = {
-    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse("")
-
-    val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedNag).getOrElse("")
-
-    val chosenPaf: Option[PostcodeAddressFileAddress] = other.paf.headOption
-    val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
-    val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
-
-    AddressResponsePartialAddress(
-      uprn = other.uprn,
-      formattedAddress = formattedAddressNag,
-      formattedAddressNag = formattedAddressNag,
-      formattedAddressPaf = formattedAddressPaf,
-      welshFormattedAddressNag = welshFormattedAddressNag,
-      welshFormattedAddressPaf = welshFormattedAddressPaf,
-      underlyingScore = other.score
-    )
-  }
 
   /**
     * Gets the right (most often - the most recent) address from an array of NAG addresses
@@ -56,8 +28,10 @@ object AddressResponsePartialAddress {
   *
   * @param uprn             uprn
   * @param formattedAddress cannonical address form
-  * @param paf              optional, information from Paf index
-  * @param nag              optional, information from Nag index
+  * @param formattedAddressNag optional, information from Nag index
+  * @param formattedAddressPaf optional, information from Paf index
+  * @param welshFormattedAddressNag optional, information from Nag index
+  * @param welshFormattedAddressPaf optional, information from Paf index
   * @param underlyingScore  score from elastic search
   *
   */

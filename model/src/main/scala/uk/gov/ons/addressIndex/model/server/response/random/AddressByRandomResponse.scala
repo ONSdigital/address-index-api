@@ -8,7 +8,6 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   *
   * @param addresses found addresses
   * @param limit     max number of found addresses
-  * @param total     total number of found addresses
   */
 case class AddressByRandomResponse(addresses: Seq[AddressResponseAddress],
                                    filter: String,

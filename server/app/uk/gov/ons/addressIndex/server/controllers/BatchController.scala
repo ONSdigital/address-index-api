@@ -36,15 +36,15 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return reduced information on found addresses (uprn, formatted address)
     */
   def bulk(limitperaddress: Option[String],
-           //   startDate: Option[String] = None, endDate: Option[String] = None,
-           historical: Option[String] = None, matchthreshold: Option[String] = None, epoch: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+           historical: Option[String] = None,
+           matchthreshold: Option[String] = None,
+           epoch: Option[String] = None
+          ): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
 
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
 
     val clusterID = conf.config.elasticSearch.clusterPolicies.bulk
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -396,9 +396,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     // TODO this quantity needs to be explained and given a better name
     val authHasPlus = authVal.indexOf("+") > 0
-
     val networkId = if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)
-
     val organisation = if (authHasPlus) networkId.split("_")(1) else "not set"
 
     logger.systemLog(
