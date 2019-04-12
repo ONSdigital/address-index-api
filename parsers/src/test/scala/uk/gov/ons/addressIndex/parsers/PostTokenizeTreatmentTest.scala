@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.parsers
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class postTokenizeTreatmentTest extends FlatSpec with Matchers {
+class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
 
   it should "transform buildingName into paoStartNumber and paoStartSuffix" in {
     // Given

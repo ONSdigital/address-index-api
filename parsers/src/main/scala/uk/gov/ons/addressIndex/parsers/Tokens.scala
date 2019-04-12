@@ -212,7 +212,6 @@ object Tokens {
       buildingNameSplit.endNumber.map(token => paoEndNumber -> token),
       buildingNameSplit.endSuffix.map(token => paoEndSuffix -> token),
       subBuildingNameSplit.startNumber.map(token => saoStartNumber -> token),
-//      subBuildingNameSplit.startSuffix.map(token => saoStartSuffix -> token),
       floatingSuffix.map(token => saoStartSuffix -> token),
       subBuildingNameSplit.endNumber.map(token => saoEndNumber -> token),
       subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token),
