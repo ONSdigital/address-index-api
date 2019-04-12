@@ -146,7 +146,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         res // a validation error
 
       case _ =>
-        val tokens = if(input.isEmpty() && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "") {
+        val tokens = if(input.isEmpty && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "") {
           parser.parse("*")
         } else {
           parser.parse(input)
@@ -181,7 +181,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
 
             // filter out scores below threshold, sort the resultant collection, highest score first
-            val sortedAddresses = scoredAddresses.filter(_.confidenceScore > threshold).sortBy(
+            val sortedAddresses = scoredAddresses.filter(_.confidenceScore >= threshold).sortBy(
               _.confidenceScore)(Ordering[Double].reverse)
             // capture the number of matches before applying offset and limit
 
