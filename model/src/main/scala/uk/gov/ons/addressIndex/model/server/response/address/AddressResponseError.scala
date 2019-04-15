@@ -8,8 +8,7 @@ import play.api.libs.json.{Format, Json}
   * @param code    error code
   * @param message error description
   */
-case class AddressResponseError(code: Int,
-                                message: String)
+case class AddressResponseError(code: Int, message: String)
 
 object AddressResponseError {
   implicit lazy val addressResponseErrorFormat: Format[AddressResponseError] = Json.format[AddressResponseError]
@@ -202,4 +201,9 @@ object EpochNotAvailableError extends AddressResponseError(
 object FailedRequestToEsUprnError extends AddressResponseError(
   code = 37,
   message = "Request to ElasticSearch failed (uprn)(see logs)"
+)
+
+object EmptyRadiusQueryAddressResponseError extends AddressResponseError(
+  code = 38,
+  message = "Latitude, longitude, rangekm and filter must all be provided."
 )

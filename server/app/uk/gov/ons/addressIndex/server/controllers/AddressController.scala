@@ -3,18 +3,18 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
+import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, DateRange, ElasticsearchRepository, ParserModule, Region, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
 import scala.util.Try
 import scala.util.control.NonFatal
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 
 @Singleton
 class AddressController @Inject()(val controllerComponents: ControllerComponents,
@@ -43,12 +43,12 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
   def addressQuery(implicit input: String,
                    offset: Option[String] = None,
                    limit: Option[String] = None,
-                   classificationFilter: Option[String] = None,
-                   rangeKm: Option[String] = None,
+                   classificationfilter: Option[String] = None,
+                   rangekm: Option[String] = None,
                    lat: Option[String] = None,
                    lon: Option[String] = None,
                    historical: Option[String] = None,
-                   matchThreshold: Option[String] = None,
+                   matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
                    epoch: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
@@ -69,16 +69,16 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val limVal = limit.getOrElse(defLimit.toString)
     val offVal = offset.getOrElse(defOffset.toString)
-    val threshVal = matchThreshold.getOrElse(defThreshold.toString)
+    val threshVal = matchthreshold.getOrElse(defThreshold.toString)
 
-    val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "address"
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     // validate radius parameters
-    val rangeVal = rangeKm.getOrElse("")
+    val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("")
     val lonVal = lon.getOrElse("")
 
@@ -136,17 +136,15 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     )
 
     val result: Option[Future[Result]] =
-      addressValidation.validateAddressFilter(classificationFilter, queryValues)
-        // .orElse(addressValidation.validateStartDate(startDateVal))
-        // .orElse(addressValidation.validateEndDate(endDateVal))
-        .orElse(addressValidation.validateThreshold(matchThreshold, queryValues))
-        .orElse(addressValidation.validateRange(rangeKm, queryValues))
+      addressValidation.validateAddressFilter(classificationfilter, queryValues)
+        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues))
+        .orElse(addressValidation.validateRange(rangekm, queryValues))
         .orElse(addressValidation.validateSource(queryValues))
         .orElse(addressValidation.validateKeyStatus(queryValues))
         .orElse(addressValidation.validateLimit(limit, queryValues))
         .orElse(addressValidation.validateOffset(offset, queryValues))
         .orElse(addressValidation.validateInput(input, queryValues))
-        .orElse(addressValidation.validateLocation(lat, lon, rangeKm, queryValues))
+        .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
         .orElse(None)
 
@@ -155,7 +153,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         res // a validation error
 
       case _ =>
-        val tokens = parser.parse(input)
+        val tokens = if (input.isEmpty && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "") {
+          parser.parse("*")
+        } else {
+          parser.parse(input)
+        }
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
         val minimumSample = conf.config.elasticSearch.minimumSample

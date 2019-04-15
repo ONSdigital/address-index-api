@@ -61,6 +61,8 @@ object Tokens {
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
+      .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
+      .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
       .replace(" IN ", " ")
       .replace(" - ", " ")
       .replace(",", " ")
@@ -199,6 +201,18 @@ object Tokens {
     val buildingNameSplit: BuildingNameSplit = splitBuildingName(buildingNameToken)
     val subBuildingNameSplit: BuildingNameSplit = splitBuildingName(subBuildingNameToken)
 
+    val floatingSuffix: Option[String] = if (subBuildingNameSplit.startSuffix.isEmpty) {
+      buildingNameSplit.startSuffix
+    } else {
+      subBuildingNameSplit.startSuffix
+    }
+
+    val subBuildingNameAdditional: Option[String] = if (subBuildingNameToken.isEmpty) {
+      buildingNameSplit.startSuffix
+    } else {
+      None
+    }
+
     // It is now safe to fill pao/sao fields because paoStartNumber filtered out buildingName in the steps before
     // but first of all we need to remove empty parsed tokens
     // What remains will be transformed into tuple and inserted into `tokens` map
@@ -208,9 +222,10 @@ object Tokens {
       buildingNameSplit.endNumber.map(token => paoEndNumber -> token),
       buildingNameSplit.endSuffix.map(token => paoEndSuffix -> token),
       subBuildingNameSplit.startNumber.map(token => saoStartNumber -> token),
-      subBuildingNameSplit.startSuffix.map(token => saoStartSuffix -> token),
+      floatingSuffix.map(token => saoStartSuffix -> token),
       subBuildingNameSplit.endNumber.map(token => saoEndNumber -> token),
-      subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token)
+      subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token),
+      subBuildingNameAdditional.map(token => subBuildingName -> token)
     ).flatten
 
     tokens ++ newTokens
@@ -261,12 +276,10 @@ object Tokens {
     * @param endNumber   pao/sao end number
     * @param endSuffix   pao/sao end suffix
     */
-  private case class BuildingNameSplit(
-                                        startNumber: Option[String] = None,
-                                        startSuffix: Option[String] = None,
-                                        endNumber: Option[String] = None,
-                                        endSuffix: Option[String] = None
-                                      )
+  private case class BuildingNameSplit(startNumber: Option[String] = None,
+                                       startSuffix: Option[String] = None,
+                                       endNumber: Option[String] = None,
+                                       endSuffix: Option[String] = None)
 
   /**
     * Parses buildingName and extracts its parts
@@ -278,6 +291,7 @@ object Tokens {
   private def splitBuildingName(buildingName: Option[String]): BuildingNameSplit = {
 
     val buildingNameNumber = """.*?(\d+).*?""".r
+    val buildingNameSingleLetter = """.*?(\b[^-][a-zA-Z]\b).*?""".r
     val buildingNameLetter = """.*?(\d+)([A-Z]).*?""".r
     val buildingNameRange = """.*?(\d+)-(\d+).*?""".r
     val buildingNameRangeStartSuffix = """.*?(\d+)([A-Z])-(\d+).*?""".r
@@ -320,6 +334,11 @@ object Tokens {
           startSuffix = Some(startSuffix)
         )
 
+      case Some(buildingNameSingleLetter(startSuffix)) =>
+        BuildingNameSplit(
+          startSuffix = Some(startSuffix.replaceAll(" ",""))
+        )
+
       case Some(buildingNameNumber(number)) =>
         BuildingNameSplit(startNumber = Try(number.toShort.toString).toOption)
 
@@ -329,6 +348,7 @@ object Tokens {
 
   /**
     * Concatenates post-processed tokens so that we could use it against special xAll fields
+    *
     *
     * @param tokens post-processed tokens
     * @return concatenated resulting string
@@ -410,8 +430,9 @@ object Tokens {
   /**
     * Convert external file into list
     *
-    * @param folder
-    * @param fileName
+    *
+    * @param folder Folder
+    * @param fileName Filename
     * @return
     */
   private def fileToList(fileName: String, folder: String = defaultPreProcessFolder): Seq[String] = {
@@ -422,8 +443,8 @@ object Tokens {
   /**
     * Convert external file into array
     *
-    * @param folder
-    * @param fileName
+    * @param folder Folder
+    * @param fileName Filename
     * @return
     */
   private def fileToArray(fileName: String, folder: String = defaultCodelistFolder): Seq[String] = {
@@ -453,8 +474,8 @@ object Tokens {
   /**
     * Fetch file stream as buffered source
     *
-    * @param folder
-    * @param fileName
+    * @param folder Folder
+    * @param fileName Filename
     * @return
     */
   def getResource(fileName: String, folder: String): BufferedSource = {

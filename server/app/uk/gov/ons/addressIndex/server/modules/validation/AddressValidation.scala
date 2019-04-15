@@ -86,10 +86,16 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     }
   }
 
-  def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = input match {
-    case "" =>
+  def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = {
+    val inputEmpty: Boolean = input.isEmpty
+    val withRange: Boolean = queryValues.rangeKMOrDefault != "" && queryValues.latitudeOrDefault != "" && queryValues.longitudeOrDefault != "" && queryValues.filterOrDefault != ""
+    val withEmptyRange: Boolean = queryValues.rangeKMOrDefault == "" && queryValues.latitudeOrDefault == "" && queryValues.longitudeOrDefault == "" && queryValues.filterOrDefault == ""
+    if (inputEmpty && withEmptyRange) {
       logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearch(queryValues)))
-    case _ => None
+    } else if (inputEmpty && !withEmptyRange && !withRange) {
+      logger.systemLog(badRequestMessage = EmptyRadiusQueryAddressResponseError.message)
+      Some(futureJsonBadRequest(EmptyRadiusSearch(queryValues)))
+    }else None
   }
 }
