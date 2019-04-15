@@ -35,6 +35,9 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
 
   def setStatus(status:ThrottleStatus) = {
     currentStatus = status
+    if (status == ThrottlerStatus.Closed) {
+      logger.warn("Circuit breaker is now closed")
+    }
   }
 
   override def breaker: CircuitBreaker = {
@@ -47,13 +50,13 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
         logger.warn("Circuit breaker is now open")
         currentStatus = ThrottlerStatus.Open
       })
-      .onClose({
-        logger.warn("circuit breaker is now closed")
-        currentStatus = ThrottlerStatus.Closed
-      })
       .onHalfOpen({
         logger.warn("Circuit breaker is now half-open")
         currentStatus = ThrottlerStatus.HalfOpen
+      })
+      .onClose({
+        logger.warn("circuit breaker is now closed")
+        currentStatus = ThrottlerStatus.Closed
       })
   }
 }
