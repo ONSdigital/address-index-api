@@ -56,9 +56,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    //    val postcodeFilterRegex = """\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*"""
-    val postcodeFilterRegex: String =
-      """\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
+    val postcodeFilterRegex: String = """\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
     val filterString: String = classificationFilter.getOrElse("")
 
     filterString match {
@@ -108,10 +106,11 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
+  // validEpochsRegex is inherited from AddressControllerValidation
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
-      case e if e.matches(validEpochsRegex) => None
+      case validEpochsRegex(_*) => None
       case e =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message, epoch = e, postcode = queryValues.postcodeOrDefault)
         Some(futureJsonBadRequest(PostcodeEpochInvalid(queryValues)))

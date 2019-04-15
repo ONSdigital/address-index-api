@@ -183,8 +183,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
 
             // calculate the Hopper and hybrid scores for each  address
-            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(
-              addresses, tokens, elasticDenominator)
+            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
             // work out the threshold for accepting matches (default 5% -> 0.05)
             val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)

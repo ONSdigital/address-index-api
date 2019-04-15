@@ -24,23 +24,19 @@ trait VersionModule {
 @Singleton
 class DemoUIAddressIndexVersionModule @Inject()(apiClient: AddressIndexClientInstance)
                                                (implicit ec: ExecutionContext) extends VersionModule {
-
   lazy val apiVersion: String = {
     Try(Await.result(
-      apiClient.versionQuery()
-        .map { resp: AddressResponseVersion =>
-          resp.apiVersion
-        }, 6 seconds)).getOrElse(dummyVersion)
+      apiClient.versionQuery().map { resp: AddressResponseVersion =>
+        resp.apiVersion
+      }, 6 seconds)).getOrElse(dummyVersion)
   }
 
   lazy val dataVersion: String = {
     Try(Await.result(
-      apiClient.versionQuery()
-        .map { resp: AddressResponseVersion =>
-          resp.dataVersion
-        }, 6 seconds)).getOrElse(dummyVersion)
+      apiClient.versionQuery().map { resp: AddressResponseVersion =>
+        resp.dataVersion
+      }, 6 seconds)).getOrElse(dummyVersion)
   }
 
   val dummyVersion = "not found"
-
 }

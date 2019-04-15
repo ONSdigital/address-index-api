@@ -866,7 +866,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = "h4",
         filters = "residential",
-        start = 0,
         limit = 1
       )
       val query = repository.makeQuery(args)
@@ -951,7 +950,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = "h4",
         fallback = true,
         filters = "residential",
-        start = 0,
         limit = 1
       )
       val query = repository.makePartialSearch(args)
@@ -1080,7 +1078,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = "h4",
         limit = 1,
-        start = 0,
         filters = "residential",
         filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31"),
       )
@@ -1208,7 +1205,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = "h4",
         limit = 1,
-        start = 0,
         filters = "residential",
         filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31"),
         fallback = true,
@@ -1238,7 +1234,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     }
 
     "find HYBRID address by postcode" in {
-
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
@@ -1303,7 +1298,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PostcodeArgs(
         postcode = "h4",
         limit = 1,
-        start = 0,
         filters = "residential",
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -1326,11 +1320,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         region = None,
         filters = "",
-        start = 0,
         limit = 10,
+        verbose = false,
       )
       val HybridAddressCollection(results, maxScore, total) = repository.runMultiResultQuery(args).await
 
@@ -1600,12 +1595,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         region = Some(Region(range = 10, lat = defaultLat.toDouble, lon = defaultLon.toDouble)),
         filters = "",
         filterDateRange = DateRange(hybridStartDate, hybridEndDate),
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -1622,12 +1618,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         region = None,
         filters = "",
         filterDateRange = DateRange(hybridStartDate, hybridEndDate),
-        start = 0,
         limit = 10,
+        verbose = false,
       )
       val HybridAddressCollection(results, maxScore, total) = repository.runMultiResultQuery(args).await
 
@@ -1730,11 +1727,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         region = None,
         filters = "",
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -2671,11 +2669,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = "",
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -2908,11 +2907,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = filters,
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -3024,11 +3024,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = filters,
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -3138,11 +3139,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = filters,
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -3252,11 +3254,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = filters,
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -3366,11 +3369,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = filters,
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -3447,7 +3451,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = partialInput,
         filters = partialFilterNone,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3525,7 +3528,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputFallback,
         fallback = true,
         filters = partialFilterNone,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3564,7 +3566,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = partialInputWithout,
         filters = partialFilterNone,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3603,7 +3604,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputWithoutFallback,
         fallback = true,
         filters = partialFilterNone,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3687,7 +3687,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = partialInput,
         filters = partialFilterCode,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3771,7 +3770,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputFallback,
         fallback = true,
         filters = partialFilterCode,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3856,7 +3854,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = partialInput,
         filters = partialFilterPrefix,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3941,7 +3938,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputFallback,
         fallback = true,
         filters = partialFilterPrefix,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -3985,7 +3981,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = partialInputWithout,
         filters = partialFilterCode,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -4029,7 +4024,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputWithoutFallback,
         fallback = true,
         filters = partialFilterCode,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -4075,7 +4069,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = partialInputWithout,
         filters = partialFilterPrefix,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -4121,7 +4114,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputWithoutFallback,
         fallback = true,
         filters = partialFilterPrefix,
-        start = 0,
         limit = 1,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
@@ -5076,11 +5068,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // When
       val args = AddressArgs(
+        input = "",
         tokens = tokens,
         filters = filters,
         region = None,
-        start = 0,
         limit = 1,
+        verbose = false,
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 

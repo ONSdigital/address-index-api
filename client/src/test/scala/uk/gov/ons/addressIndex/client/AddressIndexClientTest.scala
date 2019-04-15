@@ -11,8 +11,7 @@ import uk.gov.ons.addressIndex.model._
 
 object Resources {
   val apiHost = "http://localhost"
-  val apiClient: AddressIndexClient = new AddressIndexClient {
-
+  val apiClient = new AddressIndexClient {
     /**
       * @return a standard web service client
       */

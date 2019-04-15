@@ -89,7 +89,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
         bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = false,
-          startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, thresholdFloat, clusterId = clusterID)
+          startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, thresholdFloat, clusterid = clusterID)
     }
   }
 
@@ -163,11 +163,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return reduced info on found addresses
     */
-  def bulkDebug(limitPerAddress: Option[String],
+  def bulkDebug(limitperaddress: Option[String],
                 // startDate: Option[String] = None,
                 // endDate: Option[String] = None,
                 historical: Option[String] = None,
-                matchThreshold: Option[String] = None,
+                matchthreshold: Option[String] = None,
                 epoch: Option[String]): Action[BulkBodyDebug] = Action(
     parse.json[BulkBodyDebug]) { implicit request =>
 
@@ -184,11 +184,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val endDateVal = ""
 
     val defLimit = conf.config.bulk.limitperaddress
-    val limval = limitPerAddress.getOrElse(defLimit.toString)
+    val limval = limitperaddress.getOrElse(defLimit.toString)
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
     val defThreshold = conf.config.bulk.matchThreshold
-    val threshval = matchThreshold.getOrElse(defThreshold.toString)
+    val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
     val epochVal = epoch.getOrElse("")
@@ -209,7 +209,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus(queryValues))
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
-        .orElse(batchValidation.validateBatchThreshold(matchThreshold, queryValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
         .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
         .orElse(None)
 
@@ -257,7 +257,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                                                 epoch: String,
                                                 matchThreshold: Float,
                                                 includeFullAddress: Boolean = false,
-                                                clusterId: String = "",
+                                                clusterid: String = "",
                                                 canUpScale: Boolean = true,
                                                 successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty): Stream[Seq[AddressBulkResponseAddress]] = {
 
@@ -302,7 +302,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
       iterateOverRequestsWithBackPressure(
         requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, startDate, endDate, historical, epoch, matchThreshold,
-        includeFullAddress, clusterId, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses
+        includeFullAddress, clusterid, nextCanUpScale, successfulResults ++ result.successfulBulkAddresses
       )
     }
   }
@@ -317,7 +317,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return BulkAddresses containing successful addresses and other information
     */
   def queryBulkAddresses(inputs: Stream[BulkAddressRequestData],
-                         limitPerAddress: Int,
+                         limitperaddress: Int,
                          configOverwrite: Option[QueryParamsConfig] = None,
                          startDate: String,
                          endDate: String,
@@ -332,7 +332,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       includeFullAddress = includeFullAddress,
       epoch = epoch,
       historical = historical,
-      limit = limitPerAddress,
+      limit = limitperaddress,
       filterDateRange = DateRange(startDate, endDate),
       queryParamsConfig = configOverwrite,
     )
@@ -355,22 +355,22 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
   private def bulkQuery(requestData: Stream[BulkAddressRequestData],
                         configOverwrite: Option[QueryParamsConfig],
-                        limitPerAddress: Option[Int],
+                        limitperaddress: Option[Int],
                         includeFullAddress: Boolean,
                         startDate: String, endDate: String,
                         historical: Boolean,
                         epoch: String,
                         matchThreshold: Float,
-                        clusterId: String = ""
+                        clusterid: String = ""
                        )(implicit request: Request[_]): Result = {
 
     val startingTime = System.currentTimeMillis()
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
-    val resultLimit = limitPerAddress.getOrElse(conf.config.bulk.limitperaddress)
+    val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
     val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(
       requestData, defaultBatchSize, Some(resultLimit), configOverwrite, startDate, endDate,
-      historical, epoch, matchThreshold, includeFullAddress, clusterId
+      historical, epoch, matchThreshold, includeFullAddress, clusterid
     )
 
     logger.info("#bulkQuery processed")
@@ -402,7 +402,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
       bulkSize = requestData.size.toString, networkid = networkId, organisation = organisation,
-      clusterid = clusterId
+      clusterid = clusterid
     )
 
     response

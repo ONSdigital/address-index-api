@@ -127,7 +127,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         .orElse(None)
 
     result match {
-
       case Some(res) =>
         res // a validation error
 

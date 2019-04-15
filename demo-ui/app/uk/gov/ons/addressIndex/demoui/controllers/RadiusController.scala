@@ -10,6 +10,7 @@ import play.api.data._
 import play.api.i18n.{I18nSupport, Lang, Langs, MessagesApi}
 import play.api.mvc._
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientInstance
+import uk.gov.ons.addressIndex.demoui.controllers
 import uk.gov.ons.addressIndex.demoui.model._
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, DemouiConfigModule}
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
@@ -49,17 +50,18 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
     * @return result to view
     */
   def showRadiusMatchPage(): Action[AnyContent] = Action.async { implicit request =>
-    //  logger info ("SingleMatch: Rendering Single Match Page")
-    val refererUrl = request.uri
-    request.session.get("api-key").map { apiKey =>
+    // logger info ("SingleMatch: Rendering Single Match Page")
+    request.session.get("api-key").map { _ =>
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusSearch(
         radiusSearchForm = RadiusController.form,
-        version = version)
-      Future.successful(
-        Ok(viewToRender)
+        version = version
       )
+      Future.successful(Ok(viewToRender))
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+      Future.successful(
+        Redirect(controllers.routes.ApplicationHomeController.login())
+          .withSession("referer" -> request.uri)
+      )
     }
   }
 
@@ -99,7 +101,7 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
       )
     } else {
       Future.successful(
-        Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+        Redirect(controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -182,7 +184,8 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
+        .withSession("referer" -> refererUrl))
     }
   }
 }

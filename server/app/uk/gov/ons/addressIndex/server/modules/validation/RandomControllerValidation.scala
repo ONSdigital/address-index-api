@@ -9,11 +9,13 @@ import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 @Singleton
 class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with RandomControllerResponse {
+  val randomFilterRegex: Regex = raw"""\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -51,26 +53,24 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     }
   }
 
-  def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val regexString: String = """\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
-    //    val regexString: String = """\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*"""
-
-    classificationFilter.getOrElse("") match {
-      case "" => None
-      case s if s.contains("*") && s.contains(",") =>
+  def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
+    case None => None
+    case Some(filter) => filter match {
+      case f if f.contains("*") && f.contains(",") =>
         logger.systemLog(badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(RandomMixedFilter(queryValues)))
-      case s if !s.matches(regexString) =>
+      case randomFilterRegex(_*) => None
+      case _ =>
         logger.systemLog(badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(RandomFilterInvalid(queryValues)))
-      case _ => None
     }
   }
 
+  // validEpochsRegex is inherited from AddressControllerValidation
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
-      case e if e.matches(validEpochsRegex) => None
+      case validEpochsRegex(_*) => None
       case _ =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))

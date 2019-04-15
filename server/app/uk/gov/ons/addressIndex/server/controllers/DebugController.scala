@@ -64,7 +64,7 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     val args = AddressArgs(
       input = "",
       tokens = tokens,
-      region = Some(Region(rangeString.toInt, latString.toInt, lonString.toInt)),
+      region = Region.fromStrings(rangeString, latString, lonString),
       epoch = epochVal,
       verbose = false,
       historical = hist,

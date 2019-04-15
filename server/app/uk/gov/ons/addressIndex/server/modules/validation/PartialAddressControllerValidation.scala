@@ -101,7 +101,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   override def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
-      case e if e.matches(validEpochsRegex) => None
+      case validEpochsRegex(_*) => None
       case _ =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))

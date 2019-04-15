@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.utils
 
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 import scala.util.Try
@@ -49,6 +49,7 @@ object HopperScoreHelper {
   }
 
   def getLocalityParams(address: AddressResponseAddress, tokens: Map[String, String]): (String, String) = {
+
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
     val buildingName = tokens.getOrElse(Tokens.buildingName, empty)
     val streetName = tokens.getOrElse(Tokens.streetName, empty)
@@ -79,14 +80,16 @@ object HopperScoreHelper {
   /**
     * Calculates the Hopper scores for a single address
     *
-    *
     * @param address single address response object
     * @param tokens  list of tokens handed down
     * @return new address response oobject with scores
     */
-  def addScoresToAddress(addNo: Int, address: AddressResponseAddress,
+  def addScoresToAddress(addNo: Int,
+                         address: AddressResponseAddress,
                          tokens: Map[String, String],
-                         localityParams: Seq[(String, String)], elasticDenominator: Double): AddressResponseAddress = {
+                         localityParams: Seq[(String, String)],
+                         elasticDenominator: Double
+                        ): AddressResponseAddress = {
 
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
     val subBuildingName = tokens.getOrElse(Tokens.subBuildingName, empty)
@@ -141,7 +144,6 @@ object HopperScoreHelper {
     * The object cscore is the product of the structural score and the unit score
     * except where the building unambiguously identifies the object when it is set to missing (?)
     *
-    *
     * @param buildingScore building score
     * @param localityScore locality score
     * @param unitScore     unit score
@@ -154,7 +156,6 @@ object HopperScoreHelper {
 
   /**
     * The structural score is the product of the locality score and the building score
-    *
     *
     * @param buildingScore building score
     * @param localityScore locality score
@@ -271,7 +272,6 @@ object HopperScoreHelper {
   /**
     * Detailed match of organisation and building name using PAF
     *
-    *
     * @param buildingName        building name
     * @param pafBuildingName     paf building name
     * @param organisationName    organisation name
@@ -307,17 +307,16 @@ object HopperScoreHelper {
   /**
     * Detailed match of organisation and building name using NISRA
     *
-    * @param buildingName        building name
-    * @param pafBuildingName     nisra building name
-    * @param organisationName    organisation name
-    * @param pafOrganisationName nisra organisation name
+    * @param buildingName          building name
+    * @param nisraBuildingName     nisra building name
+    * @param organisationName      organisation name
+    * @param nisraOrganisationName nisra organisation name
     * @return
     */
-  def calculateDetailedOrganisationBuildingNameNisraScore(
-                                                           buildingName: String,
-                                                           nisraBuildingName: String,
-                                                           organisationName: String,
-                                                           nisraOrganisationName: String): Int = {
+  def calculateDetailedOrganisationBuildingNameNisraScore(buildingName: String,
+                                                          nisraBuildingName: String,
+                                                          organisationName: String,
+                                                          nisraOrganisationName: String): Int = {
 
     // match building name
     val nisraBuildingMatchScore = if (buildingName == empty) 4
@@ -344,7 +343,6 @@ object HopperScoreHelper {
 
   /**
     * Detailed match of origaisation and building name using NAG
-    *
     *
     * @param buildingName        building name
     * @param nagPaoText          nag pao text
@@ -430,11 +428,10 @@ object HopperScoreHelper {
     else 9
   }
 
-  def calculateBuildingNumNisraScore (
-                                       buildingName: String,
-                                       nisraBuildingName: String,
-                                       nisraBuildingNumber: String,
-                                       buildingNumber: String) : Int = {
+  def calculateBuildingNumNisraScore(buildingName: String,
+                                     nisraBuildingName: String,
+                                     nisraBuildingNumber: String,
+                                     buildingNumber: String): Int = {
 
     // match building numbers, ranges and suffixes
     val tokenBuildingLowNum = getRangeBottom(buildingName)
@@ -443,8 +440,8 @@ object HopperScoreHelper {
     val nisraTestBN = Try(nisraBuildingNumber.toInt).getOrElse(-1)
 
     if (buildingNumber == nisraBuildingNumber || (buildingNumber == empty && buildingName == nisraBuildingName)) 1
-    else if ((tokenBuildingLowNum != -1 || buildingNumber != empty ) &&
-      (nisraBuildingLowNum != -1 || nisraBuildingNumber != "" )) 6
+    else if ((tokenBuildingLowNum != -1 || buildingNumber != empty) &&
+      (nisraBuildingLowNum != -1 || nisraBuildingNumber != "")) 6
     else 9
   }
 
@@ -728,17 +725,16 @@ object HopperScoreHelper {
   /**
     * Match building and organisation using nisra
     *
-    * @param buildingName        building name
-    * @param pafBuildingName     paf building name
-    * @param organisationName    organisation name
-    * @param pafOrganisationName paf organisation name
+    * @param buildingName          building name
+    * @param nisraBuildingName     nisra building name
+    * @param organisationName      organisation name
+    * @param nisraOrganisationName nisra organisation name
     * @return
     */
-  def calculateOrganisationBuildingNameNisraScore(
-                                                   buildingName: String,
-                                                   nisraBuildingName: String,
-                                                   organisationName: String,
-                                                   nisraOrganisationName: String): Int = {
+  def calculateOrganisationBuildingNameNisraScore(buildingName: String,
+                                                  nisraBuildingName: String,
+                                                  organisationName: String,
+                                                  nisraOrganisationName: String): Int = {
 
     // building with paf building only
     val nisraBuildingMatchScore = if (buildingName == empty) 4
@@ -824,11 +820,10 @@ object HopperScoreHelper {
     * @param nisraAltThoroughfare       nisra alt thoroughfare
     * @return
     */
-  def calculateStreetNisraScore(
-                                 streetName: String,
-                                 nisraThoroughfare: String,
-                                 nisraDependentThoroughfare: String,
-                                 nisraAltThoroughfare: String): Int = {
+  def calculateStreetNisraScore(streetName: String,
+                                nisraThoroughfare: String,
+                                nisraDependentThoroughfare: String,
+                                nisraAltThoroughfare: String): Int = {
 
     val nisraThoroStreetMatchScore = matchStreets(streetName, nisraThoroughfare).min(matchStreets(nisraThoroughfare, streetName))
     val nisraDepThoroStreetMatchScore = matchStreets(streetName, nisraDependentThoroughfare)
@@ -959,13 +954,12 @@ object HopperScoreHelper {
     * @param streetName    street name
     * @return
     */
-  def calculateTownLocalityNisraScore(
-                                       townName: String,
-                                       locality: String,
-                                       nisraTownland: String,
-                                       nisraTownName: String,
-                                       nisraLocality: String,
-                                       streetName: String): Int = {
+  def calculateTownLocalityNisraScore(townName: String,
+                                      locality: String,
+                                      nisraTownland: String,
+                                      nisraTownName: String,
+                                      nisraLocality: String,
+                                      streetName: String): Int = {
 
     // town name
     val nisraTownNameTownNameMatchScore = matchNames(townName, nisraTownName).min(matchNames(nisraTownName, townName))
@@ -1057,13 +1051,12 @@ object HopperScoreHelper {
     * @param postcodeArea               postcode area
     * @return
     */
-  def calculatePostcodeNisraScore(
-                                   postcode: String,
-                                   nisraPostcode: String,
-                                   postcodeOut: String,
-                                   postcodeWithInvertedIncode: String,
-                                   postcodeSector: String,
-                                   postcodeArea: String): Int = {
+  def calculatePostcodeNisraScore(postcode: String,
+                                  nisraPostcode: String,
+                                  postcodeOut: String,
+                                  postcodeWithInvertedIncode: String,
+                                  postcodeSector: String,
+                                  postcodeArea: String): Int = {
 
     if (postcode == nisraPostcode) 1
     else if ((postcodeOut + " " + postcodeWithInvertedIncode) == nisraPostcode) 2

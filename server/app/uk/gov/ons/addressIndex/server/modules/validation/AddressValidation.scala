@@ -7,6 +7,7 @@ import uk.gov.ons.addressIndex.server.modules.response.AddressResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: VersionModule)
@@ -21,7 +22,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   // set minimum string length from config
   val validEpochs: String = conf.config.elasticSearch.validEpochs
   val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
-  val validEpochsRegex: String = """\b(""" + validEpochs + """)\b.*"""
+  val validEpochsRegex: Regex = ("""\b(""" + validEpochs + """)\b.*""").r
 
   // override error messages with maxima
   object LimitTooLargeAddressResponseErrorCustom extends AddressResponseError(

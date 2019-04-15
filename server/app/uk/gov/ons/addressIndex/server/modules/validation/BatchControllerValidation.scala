@@ -13,8 +13,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   extends AddressControllerValidation {
 
   // validEpochs is inherited from AddressControllerValidation
-  val epochRegex: String =
-    """\b(""" + validEpochs + """)\b.*"""
+  val epochRegex: String = """\b(""" + validEpochs + """)\b.*"""
 
   // The batch does not use Futures for the validation so we have to override the address ones to return the
   // error without a Future wrapping.

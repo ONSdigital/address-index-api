@@ -30,7 +30,7 @@ trait AddressIndexClient {
   protected implicit lazy val iHost: AddressIndexServerHost = host
 
   /**
-    * perform an address search query
+    * Perform an address search query
     *
     * @param request the request
     * @return a list of addresses
@@ -145,11 +145,7 @@ trait AddressIndexClient {
         "Content-Type" -> "application/json",
         "authorization" -> apiKey
       )
-      .post(
-        Json.toJson(
-          request
-        )
-      )
+      .post(Json.toJson(request))
       .map(_.json.as[AddressBulkResponseContainer])
   }
 
@@ -184,7 +180,8 @@ trait AddressIndexClient {
       .toReq
   }
 
-  def showQuery(input: String, filter: String, startdate: String, enddate: String, apiKey: String)(implicit ec: ExecutionContext): Future[String] = {
+  def showQuery(input: String, filter: String, startdate: String, enddate: String, apiKey: String)
+               (implicit ec: ExecutionContext): Future[String] = {
     ShowQuery
       .toReq
       .withHttpHeaders("authorization" -> apiKey)
@@ -197,9 +194,7 @@ trait AddressIndexClient {
   }
 
   def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
-    VersionQuery
-      .toReq
-      .get.map(_.json.as[AddressResponseVersion])
+    VersionQuery.toReq.get.map(_.json.as[AddressResponseVersion])
   }
 
 }
@@ -212,9 +207,7 @@ object AddressIndexClientHelper {
 
   implicit class AddressIndexPathToWsAugmenter(p: AddressIndexPath)
                                               (implicit client: WSClient, host: AddressIndexServerHost) {
-    def toReq: WSRequest = {
-      client url s"${host.value}${p.path}" withMethod p.path
-    }
+    def toReq: WSRequest = client url s"${host.value}${p.path}" withMethod p.path
   }
 
   case class AddressIndexServerHost(value: String)

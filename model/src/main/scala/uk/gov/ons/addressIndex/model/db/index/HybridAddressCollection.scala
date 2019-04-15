@@ -2,9 +2,6 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.http.search.SearchResponse
 import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
-import com.sksamuel.elastic4s.{Hit, HitReader}
-
-import scala.util.Try
 
 /**
   * Contains the result of an ES query

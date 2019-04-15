@@ -131,7 +131,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           Ok(viewToRender)
         )
       } else {
-        //   logger info ("Postcode Match with supplied input address " + addressText)
+        // logger info ("Postcode Match with supplied input address " + addressText)
         apiClient.postcodeQuery {
           AddressIndexPostcodeRequest(
             postcode = addressText,
@@ -172,7 +172,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     }
   }
 }
-
 
 object PostcodeController {
   val form = Form(

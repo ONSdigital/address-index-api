@@ -158,12 +158,12 @@ pipeline {
 
 def deploy() {
     deploymentName = "${env.DEPLOY_NAME}"
-    credentialsId = "${TEAM}-${deploymentName}-cf"                // ai-dev-cf
-    CF_ORG = "${TEAM}".toUpperCase()                                // AI
-    CF_SPACE = "${deploymentName}".capitalize()                    // eg Dev
-    appName = "${CF_MODULE_NAME}-${deploymentName}"                // addressindex-api-dev
+    credentialsId = "${TEAM}-${deploymentName}-cf"  // ai-dev-cf
+    CF_ORG = "${TEAM}".toUpperCase()                // AI
+    CF_SPACE = "${deploymentName}".capitalize()     // eg Dev
+    appName = "${CF_MODULE_NAME}-${deploymentName}" // addressindex-api-dev
     appPath = "server/target/universal/address-index-server.zip"
-    manifestPath = "conf/${deploymentName}/manifest.yml"            // conf/dev/manifest.yml
+    manifestPath = "conf/${deploymentName}/manifest.yml" // conf/dev/manifest.yml
 
     echo "Deploying Api app to ${deploymentName}"
     echo "Deployment params : \n" +
