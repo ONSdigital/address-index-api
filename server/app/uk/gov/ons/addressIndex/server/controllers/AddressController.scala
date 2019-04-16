@@ -190,7 +190,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses =
-              scoredAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+              scoredAddresses.filter(_.confidenceScore >= threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
             // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
