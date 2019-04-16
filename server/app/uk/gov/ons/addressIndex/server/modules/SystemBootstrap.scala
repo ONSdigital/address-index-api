@@ -8,23 +8,19 @@ import play.api.Logger
 
 @Singleton
 class SystemBootstrap @Inject()() {
-
   def osSharedObjectName(): String = {
     val x = System.getProperty("os.name").toLowerCase
-    if(x.contains("mac")) {
-      "libcrftagger.so"
-    } else if(x.contains("window")) {
-      "libcrftagger.dll"
-    } else if(x.contains("linux")) {
-      "libcrftagger-linux.so"
-    } else {
-      "libcrftagger.so"
+    x match {
+      case s if s.contains("mac") => "libcrftagger.so"
+      case s if s.contains("window") => "libcrftagger.dll"
+      case s if s.contains("linux") => "libcrftagger-linux.so"
+      case _ => "libcrftagger.so"
     }
   }
 
   System.load(
     new File(
-      s"${new java.io.File(".").getCanonicalPath}/${ConfigFactory.load().getString("addressIndex.parserLibPath")}/$osSharedObjectName"
+      s"${new java.io.File(".").getCanonicalPath}/${ConfigFactory.load().getString("addressIndex.parserLibPath")}/$osSharedObjectName()"
     ).getAbsolutePath
   )
   Logger("address-index") info "`SystemBootstrap` complete"

@@ -12,8 +12,8 @@ import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
   */
 @Singleton
 class VersionController @Inject()(val controllerComponents: ControllerComponents,
-  versionProvider: VersionModule
-) extends PlayHelperController(versionProvider) with AddressControllerResponse {
+                                  versionProvider: VersionModule
+                                 ) extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
   // lazy to avoid application crash at startup if ES is down
   lazy val versionResults = new AddressResponseVersion(apiVersion, dataVersion)

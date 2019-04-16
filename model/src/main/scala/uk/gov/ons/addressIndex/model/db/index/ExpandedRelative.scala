@@ -5,12 +5,6 @@ package uk.gov.ons.addressIndex.model.db.index
   * Relatives response contains a sequence of Relative objects, one per level
   * Expanded vesion has siblings with formattedAdresses for the UI
   */
-case class ExpandedRelative(
-  level: Int,
-  siblings: Seq[ExpandedSibling]
-)
+case class ExpandedRelative(level: Int, siblings: Seq[ExpandedSibling])
 
-case class ExpandedSibling(
-  uprn: Long,
-  formattedAddress: String
-)
+case class ExpandedSibling(uprn: Long, formattedAddress: String)

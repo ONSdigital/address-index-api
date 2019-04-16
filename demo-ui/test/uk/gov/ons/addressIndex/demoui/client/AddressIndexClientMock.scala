@@ -2,35 +2,34 @@ package uk.gov.ons.addressIndex.demoui.client
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.WSClient
+import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.model.{AddressIndexPostcodeRequest, AddressIndexSearchRequest, AddressIndexUPRNRequest}
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.{AddressIndexPostcodeRequest, AddressIndexSearchRequest, AddressIndexUPRNRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Mock client class for tests - returns precanned results
+  *
   * @param client client
-  * @param conf conf
+  * @param conf   conf
   */
 @Singleton
-class AddressIndexClientMock @Inject()(override val client : WSClient,
-                                           conf : DemouiConfigModule) extends AddressIndexClientInstance(client,conf) {
+class AddressIndexClientMock @Inject()(override val client: WSClient, conf: DemouiConfigModule)
+  extends AddressIndexClientInstance(client, conf) {
   //  set config entry to "http://localhost:9001" to run locally
   //  set config entry to "https://addressindexapitest.cfapps.io" to run from cloud
   override def host: String = s"${conf.config.apiURL.host}:${conf.config.apiURL.port}"
-
-  import AddressIndexClientMock._
 
   val mockAddressTokens = Map.empty[String, String]
 
   val mockPostcode = ""
 
-  val mockAddressBySearchResponse = AddressBySearchResponse (
+  val mockAddressBySearchResponse = AddressBySearchResponse(
     tokens = mockAddressTokens,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,
@@ -50,7 +49,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     epoch = ""
   )
 
-  val mockAddressByPostcodeResponse = AddressByPostcodeResponse (
+  val mockAddressByPostcodeResponse = AddressByPostcodeResponse(
     postcode = mockPostcode,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,
@@ -63,7 +62,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     epoch = ""
   )
 
-  val mockSearchResponseContainer = AddressBySearchResponseContainer (
+  val mockSearchResponseContainer = AddressBySearchResponseContainer(
     apiVersion = "mockApi",
     dataVersion = "mockData",
     response = mockAddressBySearchResponse,
@@ -71,7 +70,7 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     errors = Seq.empty[AddressResponseError]
   )
 
-  val mockPostcodeResponseContainer = AddressByPostcodeResponseContainer (
+  val mockPostcodeResponseContainer = AddressByPostcodeResponseContainer(
     apiVersion = "mockApi",
     dataVersion = "mockData",
     response = mockAddressByPostcodeResponse,
@@ -79,14 +78,13 @@ class AddressIndexClientMock @Inject()(override val client : WSClient,
     errors = Seq.empty[AddressResponseError]
   )
 
-  val mockUprnResponseContainer = AddressByUprnResponseContainer (
+  val mockUprnResponseContainer = AddressByUprnResponseContainer(
     apiVersion = "mockApi",
     dataVersion = "mockData",
     response = mockAddressByUprnResponse,
     status = mockAddressResponseStatus,
     errors = Seq.empty[AddressResponseError]
   )
-
 
   override def addressQuery(request: AddressIndexSearchRequest)(implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] =
     Future.successful(mockSearchResponseContainer)
@@ -104,10 +102,10 @@ object AddressIndexClientMock {
     message = "OK"
   )
 
-  val mockRelative = Relative (
+  val mockRelative = Relative(
     level = 1,
-    siblings = Array(6L,7L),
-    parents = Array(8L,9L)
+    siblings = Array(6L, 7L),
+    parents = Array(8L, 9L)
   )
 
   val mockCrossRef = CrossRef(
@@ -115,8 +113,8 @@ object AddressIndexClientMock {
     source = "7666MT"
   )
 
-  val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
-  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
+  val mockRelativeResponse: AddressResponseRelative = AddressResponseRelative.fromRelative(mockRelative)
+  val mockCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
   val mockPafAddress1 = AddressResponsePaf(
     udprn = "",
@@ -146,7 +144,7 @@ object AddressIndexClientMock {
   val mockNagAddress1 = AddressResponseNag(
     uprn = "",
     postcodeLocator = "PO7 6GA",
-    addressBasePostal=  "",
+    addressBasePostal = "",
     usrn = "",
     lpiKey = "",
     pao = AddressResponsePao(
@@ -158,19 +156,19 @@ object AddressIndexClientMock {
     ),
     sao = AddressResponseSao(
       saoText = "",
-      saoStartNumber= "",
-      saoStartSuffix= "",
-      saoEndNumber= "",
+      saoStartNumber = "",
+      saoStartSuffix = "",
+      saoEndNumber = "",
       saoEndSuffix = ""
     ),
-    level= "",
-    officialFlag= "",
-    logicalStatus= "1",
-    streetDescriptor= "",
-    townName= "EXETER",
-    locality= "",
-    organisation= "",
-    legalName= "",
+    level = "",
+    officialFlag = "",
+    logicalStatus = "1",
+    streetDescriptor = "",
+    townName = "EXETER",
+    locality = "",
+    organisation = "",
+    legalName = "",
     localCustodianCode = "435",
     localCustodianName = "MILTON KEYNES",
     localCustodianGeogCode = "E06000042",
@@ -233,7 +231,7 @@ object AddressIndexClientMock {
     underlyingScore = 1.0f
   )
 
-  val mockAddressByUprnResponse = AddressByUprnResponse (
+  val mockAddressByUprnResponse = AddressByUprnResponse(
     address = Some(mockAddressResponseAddress: AddressResponseAddress),
     historical = true,
     verbose = true,

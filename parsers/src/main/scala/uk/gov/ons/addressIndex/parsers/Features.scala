@@ -13,6 +13,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "business" list
+    *
     * @param token token to be analysed
     * @return "business:1.0" if the token is present in the "business" list, "business:0.0" otherwise
     */
@@ -20,6 +21,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "company" list
+    *
     * @param token token to be analysed
     * @return "company:1.0" if the token is present in the "company" list, "company:0.0" otherwise
     */
@@ -27,6 +29,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "directional" list
+    *
     * @param token token to be analysed
     * @return "directional:1.0" if the token is present in the "directional" list, "directional:0.0" otherwise
     */
@@ -34,6 +37,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "flat" list
+    *
     * @param token token to be analysed
     * @return "flat:1.0" if the token is present in the "flat" list, "flat:0.0" otherwise
     */
@@ -41,6 +45,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "locational" list
+    *
     * @param token token to be analysed
     * @return "locational:1.0" if the token is present in the "locational" list, "locational:0.0" otherwise
     */
@@ -48,6 +53,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "ordinal" list
+    *
     * @param token token to be analysed
     * @return "ordinal:1.0" if the token is present in the "ordinal" list, "ordinal:0.0" otherwise
     */
@@ -55,6 +61,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "outcode" list
+    *
     * @param token token to be analysed
     * @return "outcode:1.0" if the token is present in the "outcode" list, "outcode:0.0" otherwise
     */
@@ -62,6 +69,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "posttown" list
+    *
     * @param token token to be analysed
     * @return "posttown:1.0" if the token is present in the "posttown" list, "posttown:0.0" otherwise
     */
@@ -69,6 +77,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "residential" list
+    *
     * @param token token to be analysed
     * @return "residential:1.0" if the token is present in the "residential" list, "residential:0.0" otherwise
     */
@@ -76,6 +85,7 @@ object Features {
 
   /**
     * Features whether or not the feature is present in the "road" list
+    *
     * @param token token to be analysed
     * @return "road:1.0" if the token is present in the "road" list, "road:0.0" otherwise
     */
@@ -83,6 +93,7 @@ object Features {
 
   /**
     * Features the presence of digits in a token
+    *
     * @param token token to be analysed
     * @return different digits features depending on whether the token is a digit, contains a digit or has no digits in it
     */
@@ -94,6 +105,7 @@ object Features {
 
   /**
     * Features the presence of a dot at the end of a token
+    *
     * @param token token to be analysed
     * @return "endsinpunc:1.0" if the token ends with a dot, "endsinpunc:0.0" otherwise
     */
@@ -101,6 +113,7 @@ object Features {
 
   /**
     * Features the presence of vowels in a token
+    *
     * @param token token to be analysed
     * @return "has.vowels:1.0" if the token has vowels, "has.vowels:0.0" otherwise
     */
@@ -108,6 +121,7 @@ object Features {
 
   /**
     * Features the presence of hyphens in a token
+    *
     * @param token token to be analysed
     * @return "hyphenations:x.0" where x is the number of hyphens
     */
@@ -115,6 +129,7 @@ object Features {
 
   /**
     * Features the length of the token (also whether it's a digit or not)
+    *
     * @param token token to be analysed
     * @return "length\\:x\\:y:1.0" where x is 'd' if it's a digit, 'w' otherwise and y is token's length
     */
@@ -123,9 +138,10 @@ object Features {
 
   /**
     * Features the word itself (if it's not a digit)
+    *
     * @param token token to be analysed
     * @return "word\\:x:1.0" if x is not a digit, "word:0.0" otherwise
     */
-  private[parsers] def wordFeature(token: String): String = s"word${if (isAllDigits(token)) ":0.0" else s"\\:$token:1.0" }"
+  private[parsers] def wordFeature(token: String): String = s"word${if (isAllDigits(token)) ":0.0" else s"\\:$token:1.0"}"
 }
 

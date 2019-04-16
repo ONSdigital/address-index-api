@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 import scala.concurrent.Future
 import scala.util.Try
 
-abstract class Validation (implicit conf: ConfigModule, versionProvider: VersionModule)
+abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends Object with Response {
 
   // lazy to avoid application crash at startup if ES is down
@@ -26,24 +26,23 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
   val valid: String = "valid"
   val notRequired: String = "not required"
 
-  protected def invalidDate(date: String) : Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
+  protected def invalidDate(date: String): Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
 
-//  def validateStartDate(startDate: String) : Option[Future[Result]] = {
-//    if (invalidDate(startDate)) {
-//      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
-//      Some(futureJsonBadRequest(StartDateInvalid))
-//    } else None
-//  }
-//
-//  def validateEndDate(endDate: String) : Option[Future[Result]] = {
-//    if (invalidDate(endDate)) {
-//      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
-//      Some(futureJsonBadRequest(EndDateInvalid))
-//    } else None
-//  }
+  //  def validateStartDate(startDate: String) : Option[Future[Result]] = {
+  //    if (invalidDate(startDate)) {
+  //      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
+  //      Some(futureJsonBadRequest(StartDateInvalid))
+  //    } else None
+  //  }
+  //
+  //  def validateEndDate(endDate: String) : Option[Future[Result]] = {
+  //    if (invalidDate(endDate)) {
+  //      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
+  //      Some(futureJsonBadRequest(EndDateInvalid))
+  //    } else None
+  //  }
 
   def validateKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
-
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
@@ -53,8 +52,7 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
       case `invalid` =>
         logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
         Some(futureJsonUnauthorized(KeyInvalid(queryValues)))
-      case _ =>
-        None
+      case _ => None
     }
   }
 
@@ -65,7 +63,6 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
     * @return not required, valid, invalid or missing
     */
   protected def checkAPIkey(apiKey: String): String = {
-
     val keyRequired = conf.config.apiKeyRequired
 
     if (keyRequired) {
@@ -83,7 +80,6 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
   }
 
   def validateSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
-
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {
@@ -93,8 +89,7 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
       case `invalid` =>
         logger.systemLog(badRequestMessage = SourceInvalidError.message)
         Some(futureJsonUnauthorized(SourceInvalid(queryValues)))
-      case _ =>
-        None
+      case _ => None
     }
   }
 
@@ -105,10 +100,7 @@ abstract class Validation (implicit conf: ConfigModule, versionProvider: Version
     * @return not required, valid, invalid or missing
     */
   protected def checkSource(source: String): String = {
-
-    val sourceRequired = conf.config.sourceRequired
-
-    if (sourceRequired) {
+    if (conf.config.sourceRequired) {
       val sourceName = conf.config.sourceKey
       source match {
         case key if key == missing => missing

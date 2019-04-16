@@ -1,66 +1,72 @@
 package uk.gov.ons.addressIndex.demoui.model.ui
 
 import play.api.i18n.Messages
+import uk.gov.ons.addressIndex.demoui.controllers
 
 case class Navigation(links: Seq[Link])
+
 case class Link(href: String, label: String, section: String)
 
 object Links {
-  def single(implicit messages: Messages) = {
+  def single(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage.toString,
+      href = controllers.routes.SingleMatchController.showSingleMatchPage().toString,
       label = messages("navbar.singlematch"),
       section = "single"
     )
   }
-  def postcode(implicit messages: Messages) = {
+
+  def postcode(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.PostcodeController.showPostcodeMatchPage.toString,
+      href = controllers.routes.PostcodeController.showPostcodeMatchPage().toString,
       label = messages("navbar.postcode"),
       section = "postcode"
     )
   }
-  def multi(implicit messages: Messages) = {
+
+  def multi(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.BulkMatchController.bulkMatchPage.toString,
+      href = controllers.routes.BulkMatchController.bulkMatchPage().toString,
       label = messages("navbar.multimatch"),
       section = "multi"
     )
   }
-  def clerical(implicit messages: Messages) = {
+
+  def clerical(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showSingleMatchPage.toString,
+      href = controllers.routes.ClericalToolController.showSingleMatchPage().toString,
       label = messages("navbar.clerical"),
       section = "clerical"
     )
   }
-  def query(implicit messages: Messages) = {
+
+  def query(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.showQuery.toString,
+      href = controllers.routes.ClericalToolController.showQuery().toString,
       label = messages("navbar.query"),
       section = "debug"
     )
   }
 
-  def help(implicit messages: Messages) = {
+  def help(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.StaticController.help.toString,
+      href = controllers.routes.StaticController.help().toString,
       label = messages("navbar.help"),
       section = "help"
     )
   }
 
-  def radius(implicit messages: Messages) = {
+  def radius(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.showRadiusMatchPage.toString,
+      href = controllers.routes.RadiusController.showRadiusMatchPage().toString,
       label = messages("navbar.radius"),
       section = "radius"
     )
   }
 
-  def developers(implicit messages: Messages) = {
+  def developers(implicit messages: Messages): Link = {
     Link(
-      href = uk.gov.ons.addressIndex.demoui.controllers.routes.StaticController.devLanding.toString,
+      href = controllers.routes.StaticController.devLanding().toString,
       label = messages("navbar.developers"),
       section = "developers"
     )
@@ -68,7 +74,7 @@ object Links {
 }
 
 object Navigation {
-  def default(implicit messages: Messages) = {
+  def default(implicit messages: Messages): Navigation = {
     Navigation(
       links = Seq(
         Links.single,
@@ -77,7 +83,8 @@ object Navigation {
       )
     )
   }
-  def footer(implicit messages: Messages) = {
+
+  def footer(implicit messages: Messages): Navigation = {
     Navigation(
       links = Seq(
         Links.radius,

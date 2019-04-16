@@ -1,11 +1,10 @@
 package uk.gov.ons.addressIndex.demoui.utils
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.i18n._
 
 @Singleton
-class ClassHierarchy @Inject()(val messagesApi: MessagesApi, langs: Langs)  {
+class ClassHierarchy @Inject()(val messagesApi: MessagesApi, langs: Langs) {
 
   implicit val lang: Lang = langs.availables.head
 

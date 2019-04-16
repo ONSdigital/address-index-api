@@ -14,11 +14,11 @@ trait Response {
   val apiVersion: String
 
   def StartDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,StartDateInvalidResponseError)
+    BadRequestTemplate(queryValues, StartDateInvalidResponseError)
   }
 
   def EndDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,EndDateInvalidResponseError)
+    BadRequestTemplate(queryValues, EndDateInvalidResponseError)
   }
 
   def BadRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
@@ -32,7 +32,7 @@ trait Response {
   }
 
   def FailedRequestToEs(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -43,7 +43,7 @@ trait Response {
   }
 
   def FailedRequestToEsTooBusy(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsError.code,FailedRequestToEsError.message.replace("see logs",detail))
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", detail))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -54,19 +54,19 @@ trait Response {
   }
 
   def SourceMissing(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(queryValues,SourceMissingError)
+    UnauthorizedRequestTemplate(queryValues, SourceMissingError)
   }
 
   def SourceInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(queryValues,SourceInvalidError)
+    UnauthorizedRequestTemplate(queryValues, SourceInvalidError)
   }
 
   def KeyMissing(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(queryValues,ApiKeyMissingError)
+    UnauthorizedRequestTemplate(queryValues, ApiKeyMissingError)
   }
 
   def KeyInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    UnauthorizedRequestTemplate(queryValues,ApiKeyInvalidError)
+    UnauthorizedRequestTemplate(queryValues, ApiKeyInvalidError)
   }
 
   private def UnauthorizedRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
@@ -134,9 +134,9 @@ trait Response {
   /**
     * Helper for creating Future.successful(Status(Json.toJson(toJsonable)))
     *
-    * @param status Status
+    * @param status     Status
     * @param toJsonable Able to convert to JSON
-    * @param writes Writes param
+    * @param writes     Writes param
     * @tparam T T param
     * @return
     */
@@ -147,9 +147,9 @@ trait Response {
   /**
     * Helper for creating Status(Json.toJson(toJsonable))
     *
-    * @param status Status
+    * @param status     Status
     * @param toJsonable Able to convert to JSON
-    * @param writes Writes param
+    * @param writes     Writes param
     * @tparam T T param
     * @return
     */

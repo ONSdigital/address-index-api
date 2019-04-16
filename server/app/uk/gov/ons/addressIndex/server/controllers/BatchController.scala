@@ -8,9 +8,9 @@ import uk.gov.ons.addressIndex.model.server.response.address.OkAddressResponseSt
 import uk.gov.ons.addressIndex.model.server.response.bulk.{AddressBulkResponseAddress, AddressBulkResponseContainer}
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.BatchControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, ParserModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
 import scala.annotation.tailrec
@@ -36,15 +36,15 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return reduced information on found addresses (uprn, formatted address)
     */
   def bulk(limitperaddress: Option[String],
-           //   startDate: Option[String] = None, endDate: Option[String] = None,
-           historical: Option[String] = None, matchthreshold: Option[String] = None, epoch: Option[String] = None): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
+           historical: Option[String] = None,
+           matchthreshold: Option[String] = None,
+           epoch: Option[String] = None
+          ): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
 
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
 
     val clusterID = conf.config.elasticSearch.clusterPolicies.bulk
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -84,10 +84,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         res
 
       case _ =>
-        val hist = historical match {
-          case Some(x) => Try(x.toBoolean).getOrElse(true)
-          case None => true
-        }
+        val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
         val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
         val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
@@ -167,8 +164,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return reduced info on found addresses
     */
   def bulkDebug(limitperaddress: Option[String],
-                //   startDate: Option[String] = None, endDate: Option[String] = None,
-                historical: Option[String] = None, matchthreshold: Option[String] = None, epoch: Option[String]): Action[BulkBodyDebug] = Action(
+                // startDate: Option[String] = None,
+                // endDate: Option[String] = None,
+                historical: Option[String] = None,
+                matchthreshold: Option[String] = None,
+                epoch: Option[String]): Action[BulkBodyDebug] = Action(
     parse.json[BulkBodyDebug]) { implicit request =>
 
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
@@ -281,16 +281,16 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val requestsLeft = requestsAfterMiniBatch ++ result.failedRequests
 
-    if (requestsLeft.isEmpty)
+    if (requestsLeft.isEmpty) {
       successfulResults ++ result.successfulBulkAddresses
-    else if (miniBatchSize == 1 && result.failedRequests.nonEmpty)
+    } else if (miniBatchSize == 1 && result.failedRequests.nonEmpty) {
       throw new Exception(
         s"""
            Bulk query request: mini-bulk was scaled down to the size of 1 and it still fails, something's wrong with ES.
            Last request failure message: ${result.failedRequests.head.lastFailExceptionMessage}
         """
       )
-    else {
+    } else {
       val miniBatchUpscale = conf.config.bulk.batch.upscale
       val miniBatchDownscale = conf.config.bulk.batch.downscale
       val newMiniBatchSize =
@@ -316,25 +316,30 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(
-                          inputs: Stream[BulkAddressRequestData],
-                          limitperaddress: Int,
-                          configOverwrite: Option[QueryParamsConfig] = None,
-                          startDate: String, endDate: String,
-                          historical: Boolean,
-                          epoch: String,
-                          matchThreshold: Float,
-                          includeFullAddress: Boolean = false,
-                        ): Future[BulkAddresses] = {
+  def queryBulkAddresses(inputs: Stream[BulkAddressRequestData],
+                         limitperaddress: Int,
+                         configOverwrite: Option[QueryParamsConfig] = None,
+                         startDate: String,
+                         endDate: String,
+                         historical: Boolean,
+                         epoch: String,
+                         matchThreshold: Float,
+                         includeFullAddress: Boolean = false): Future[BulkAddresses] = {
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.queryBulk(
-      inputs, limitperaddress, startDate, endDate, configOverwrite, historical, matchThreshold, includeFullAddress, epoch
+    val bulkArgs = BulkArgs(
+      requestsData = inputs,
+      matchThreshold = matchThreshold,
+      includeFullAddress = includeFullAddress,
+      epoch = epoch,
+      historical = historical,
+      limit = limitperaddress,
+      filterDateRange = DateRange(startDate, endDate),
+      queryParamsConfig = configOverwrite,
     )
 
-    val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(
-      collectSuccessfulAddresses
-    )
+    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.runBulkQuery(bulkArgs)
 
+    val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
     val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
 
     // transform (Future[X], Future[Y]) into Future[Z[X, Y]]
@@ -348,16 +353,15 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     row => BulkAddressRequestData(row.id, row.address, parser.parse(row.address))
   }
 
-  private def bulkQuery(
-                         requestData: Stream[BulkAddressRequestData],
-                         configOverwrite: Option[QueryParamsConfig],
-                         limitperaddress: Option[Int],
-                         includeFullAddress: Boolean,
-                         startDate: String, endDate: String,
-                         historical: Boolean,
-                         epoch: String,
-                         matchThreshold: Float,
-                         clusterid: String = ""
+  private def bulkQuery(requestData: Stream[BulkAddressRequestData],
+                        configOverwrite: Option[QueryParamsConfig],
+                        limitperaddress: Option[Int],
+                        includeFullAddress: Boolean,
+                        startDate: String, endDate: String,
+                        historical: Boolean,
+                        epoch: String,
+                        matchThreshold: Float,
+                        clusterid: String = ""
                        )(implicit request: Request[_]): Result = {
 
     val startingTime = System.currentTimeMillis()
@@ -387,12 +391,17 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       )
 
     val responseTime = System.currentTimeMillis() - startingTime
-    val networkid = if (request.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) request.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else request.headers.get("authorization").getOrElse("Anon").split("_")(0)
-    val organisation = if (request.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) request.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+
+    val authVal = request.headers.get("authorization").getOrElse("Anon")
+
+    // TODO this quantity needs to be explained and given a better name
+    val authHasPlus = authVal.indexOf("+") > 0
+    val networkId = if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)
+    val organisation = if (authHasPlus) networkId.split("_")(1) else "not set"
 
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
-      bulkSize = requestData.size.toString, networkid = networkid, organisation = organisation,
+      bulkSize = requestData.size.toString, networkid = networkId, organisation = organisation,
       clusterid = clusterid
     )
 

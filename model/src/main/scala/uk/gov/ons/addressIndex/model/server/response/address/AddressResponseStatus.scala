@@ -9,10 +9,8 @@ import play.api.libs.json.{Format, Json}
   * @param code    http code
   * @param message response description
   */
-case class AddressResponseStatus (
-  code: Int,
-  message: String
-)
+case class AddressResponseStatus(code: Int,
+                                 message: String)
 
 object AddressResponseStatus {
   implicit lazy val addressResponseStatusFormat: Format[AddressResponseStatus] = Json.format[AddressResponseStatus]

@@ -11,6 +11,7 @@ trait CrfScalaJni {
     * @return model results
     */
   def tag(items: String): String
+
   /**
     * Load the .crfsuite model
     *

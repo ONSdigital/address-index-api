@@ -6,15 +6,15 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.codelists.{AddressResponseCodelist, AddressResponseCodelistListContainer}
 import uk.gov.ons.addressIndex.parsers.Tokens
-import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.VersionModule
+import uk.gov.ons.addressIndex.server.modules.response.Response
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CodelistController @Inject()(val controllerComponents: ControllerComponents,
-  versionProvider: VersionModule,
-)(implicit ec: ExecutionContext)
+                                   versionProvider: VersionModule,
+                                  )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with Response {
 
   /**
@@ -23,11 +23,12 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     * @return Json response with codelist
     */
   def codeList(): Action[AnyContent] = Action async { implicit req =>
-    val codList = Tokens.codeList.map { clval =>
+    val codList = Tokens.codeList.map { clVal =>
+      val fields = clVal.split("=")
 
       new AddressResponseCodelist(
-        name = clval.split("=").headOption.getOrElse(""),
-        description = clval.split("=").lastOption.getOrElse("")
+        name = fields.headOption.getOrElse(""),
+        description = fields.lastOption.getOrElse("")
       )
     }
 
@@ -42,11 +43,12 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     * @return Json response with codelist
     */
   def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
-    val classList = Tokens.classList.map { classval =>
+    val classList = Tokens.classList.map { classVal =>
+      val fields = classVal.split("=")
 
       new AddressResponseClassification(
-        code = classval.split("=").headOption.getOrElse(""),
-        label = classval.split("=").lastOption.getOrElse("")
+        code = fields.headOption.getOrElse(""),
+        label = fields.lastOption.getOrElse("")
       )
     }
 
@@ -60,15 +62,16 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     * @return Json response with codelist
     */
   def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
-    val custList = Tokens.custodianList.map { custval =>
+    val custList = Tokens.custodianList.map { custVal =>
+      val fields = custVal.split(",")
 
       new AddressResponseCustodian(
-        custval.split(",").lift(0).getOrElse(""),
-        custval.split(",").lift(1).getOrElse(""),
-        custval.split(",").lift(2).getOrElse(""),
-        custval.split(",").lift(3).getOrElse(""),
-        custval.split(",").lift(4).getOrElse(""),
-        custval.split(",").lift(5).getOrElse("")
+        fields.lift(0).getOrElse(""),
+        fields.lift(1).getOrElse(""),
+        fields.lift(2).getOrElse(""),
+        fields.lift(3).getOrElse(""),
+        fields.lift(4).getOrElse(""),
+        fields.lift(5).getOrElse("")
       )
     }
 
@@ -83,10 +86,12 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     */
   def codeListSource(): Action[AnyContent] = Action async { implicit req =>
 
-    val sourceList = Tokens.sourceList.map { sourceval =>
+    val sourceList = Tokens.sourceList.map { sourceVal =>
+      val fields = sourceVal.split("=")
+
       new AddressResponseSource(
-        sourceval.split("=").headOption.getOrElse(""),
-        sourceval.split("=").lastOption.getOrElse("")
+        fields.headOption.getOrElse(""),
+        fields.lastOption.getOrElse("")
       )
     }
 
@@ -101,10 +106,12 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     */
   def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
 
-    val logicalList = Tokens.logicalStatusList.map { logstatval =>
+    val logicalList = Tokens.logicalStatusList.map { logStatVal =>
+      val fields = logStatVal.split("=")
+
       new AddressResponseLogicalStatus(
-        logstatval.split("=").headOption.getOrElse(""),
-        logstatval.split("=").lastOption.getOrElse("")
+        fields.headOption.getOrElse(""),
+        fields.lastOption.getOrElse("")
       )
     }
 

@@ -31,12 +31,12 @@ class RegistersSimulationClosedModel extends Simulation {
     .shareConnections
     .authorizationHeader(apiKey)
 
-  private val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath()
+  private val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath
   println(s"payload name $postRequestBody")
 
-  val headers = Map("Upgrade-Insecure-Requests" -> "1")
+  val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
   private val httpRequestBuilder = if (requestType == "POST") {
-    val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath()
+    val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath
     http(requestName)
       .post(requestRelPath)
       .headers(headers)

@@ -202,7 +202,7 @@ class PostCodeValidationTest extends FlatSpec with Matchers {
     )
 
     // When
-    val actual = Tokens. postTokenizeTreatmentPostCode(input)
+    val actual = Tokens.postTokenizeTreatmentPostCode(input)
 
     // Then
     actual shouldBe expected

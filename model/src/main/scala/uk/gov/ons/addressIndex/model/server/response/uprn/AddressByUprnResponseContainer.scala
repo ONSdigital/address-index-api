@@ -6,19 +6,17 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseErr
 /**
   * Contains the reply for address by uprn request
   *
-  * @param apiVersion version of the API used for the response
+  * @param apiVersion  version of the API used for the response
   * @param dataVersion version of the address data used for the response
-  * @param response found content
-  * @param status   response status / message
-  * @param errors   encountered errors (or an empty list if there is no errors)
+  * @param response    found content
+  * @param status      response status / message
+  * @param errors      encountered errors (or an empty list if there is no errors)
   */
-case class AddressByUprnResponseContainer(
-  apiVersion: String,
-  dataVersion: String,
-  response: AddressByUprnResponse,
-  status: AddressResponseStatus,
-  errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError]
-)
+case class AddressByUprnResponseContainer(apiVersion: String,
+                                          dataVersion: String,
+                                          response: AddressByUprnResponse,
+                                          status: AddressResponseStatus,
+                                          errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])
 
 object AddressByUprnResponseContainer {
   implicit val addressByUprnResponseContainerFormat: Format[AddressByUprnResponseContainer] =

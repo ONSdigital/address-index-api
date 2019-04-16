@@ -40,6 +40,7 @@ object Tokens {
 
   /**
     * Does pre-tokenization treatment to the input (normalization + splitting)
+    *
     * @param input input from user
     * @return tokensm ready to be sent to the parser
     */
@@ -47,6 +48,7 @@ object Tokens {
 
   /**
     * Normalizes input: removes counties, replaces synonyms, uppercase
+    *
     * @param input input to be normalized
     * @return normalized input
     */
@@ -112,6 +114,7 @@ object Tokens {
 
   /**
     * Normalizes postcode address
+    *
     * @param tokens tokens grouped by label
     * @return Map with tokens that will contain normalized postcode address
     */
@@ -123,7 +126,7 @@ object Tokens {
     postcodeToken match {
       case Some(concatenatedPostcode) if concatenatedPostcode.length >= 5 =>
         val postcodeInToken = concatenatedPostcode.substring(concatenatedPostcode.length - 3, concatenatedPostcode.length)
-      // use lastindexOf instead of indexOf to cater for duplicate postcode parts
+        // use lastindexOf instead of indexOf to cater for duplicate postcode parts
         val postcodeOutToken = concatenatedPostcode.substring(0, concatenatedPostcode.lastIndexOf(postcodeInToken))
 
         val tokensWithPostcodeUpdated = tokens.updated(postcode, s"$postcodeOutToken $postcodeInToken")
@@ -142,10 +145,11 @@ object Tokens {
   /**
     * Some London street names contain boroughs that are not useful for search inside street name
     * We should extract them into locality
+    *
     * @param tokens current tokens
     * @return tokens with extracted borough
     */
-  def postTokenizeTreatmentBorough(tokens: Map[String, String]): Map[String, String] ={
+  def postTokenizeTreatmentBorough(tokens: Map[String, String]): Map[String, String] = {
     val streetNameToken = tokens.get(streetName)
     val townNameToken = tokens.get(townName)
 
@@ -167,10 +171,11 @@ object Tokens {
   /**
     * Adds paoStartNumber token if buildingNumber token is present
     * so that we can query LPI addresses
+    *
     * @param tokens tokens grouped by label
     * @return map with tokens that will also contain paoStartNumberToken if buildingNumber is present
     */
-  def postTokenizeTreatmentBuildingNumber(tokens: Map[String, String]): Map[String, String]= {
+  def postTokenizeTreatmentBuildingNumber(tokens: Map[String, String]): Map[String, String] = {
     // This is a failsafe in case building number is not a number
     val buildingNumberToken: Option[String] = tokens.get(buildingNumber).flatMap(token => Try(token.toShort.toString).toOption)
 
@@ -185,10 +190,11 @@ object Tokens {
   /**
     * Parses buildingName / subBuildingName and fills pao/sao depending on the contents
     * (and depending if buildingNumber is present)
+    *
     * @param tokens tokens grouped by label
     * @return map with tokens that will also contain paoStartNumber and paoStartSuffix tokens if buildingName is present
     */
-  def postTokenizeTreatmentBuildingName(tokens: Map[String, String]): Map[String, String]= {
+  def postTokenizeTreatmentBuildingName(tokens: Map[String, String]): Map[String, String] = {
 
     val (buildingNameToken: Option[String], subBuildingNameToken: Option[String]) = assignBuildingNames(tokens)
 
@@ -201,7 +207,11 @@ object Tokens {
       subBuildingNameSplit.startSuffix
     }
 
-    val subBuildingNameAdditional: Option[String] = if (subBuildingNameToken.isEmpty) { buildingNameSplit.startSuffix } else { None }
+    val subBuildingNameAdditional: Option[String] = if (subBuildingNameToken.isEmpty) {
+      buildingNameSplit.startSuffix
+    } else {
+      None
+    }
 
     // It is now safe to fill pao/sao fields because paoStartNumber filtered out buildingName in the steps before
     // but first of all we need to remove empty parsed tokens
@@ -224,6 +234,7 @@ object Tokens {
   /**
     * Similar to a table (present/not present) for three values: BuildingNumber, BuildingName, SubBuildingName,
     * analyses every possible permutation
+    *
     * @param tokens parsed tokens
     * @return Tuple with BuildingName and SubBuildingName
     */
@@ -237,7 +248,7 @@ object Tokens {
         val buildingNameToken = tokens.getOrElse(buildingName, "")
         val buildingNameNumbers = buildingNameToken.split(" ").filter(isLikeBuildingName)
 
-        if (buildingNameNumbers.length == 2) (Some(buildingNameNumbers(1)),Some(buildingNameNumbers(0)))
+        if (buildingNameNumbers.length == 2) (Some(buildingNameNumbers(1)), Some(buildingNameNumbers(0)))
         else (tokens.get(buildingName), None)
 
       case (None, None, Some(_)) =>
@@ -259,21 +270,21 @@ object Tokens {
 
   /**
     * Small case class that is mainly used to replace a Tuple4 and to improve readability
+    *
     * @param startNumber pao/sao start number
     * @param startSuffix pao/sao start suffix
-    * @param endNumber pao/sao end number
-    * @param endSuffix pao/sao end suffix
+    * @param endNumber   pao/sao end number
+    * @param endSuffix   pao/sao end suffix
     */
-  private case class BuildingNameSplit(
-    startNumber: Option[String] = None,
-    startSuffix: Option[String] = None,
-    endNumber: Option[String] = None,
-    endSuffix: Option[String] = None
-  )
+  private case class BuildingNameSplit(startNumber: Option[String] = None,
+                                       startSuffix: Option[String] = None,
+                                       endNumber: Option[String] = None,
+                                       endSuffix: Option[String] = None)
 
   /**
     * Parses buildingName and extracts its parts
     * All numbers should be `Short`
+    *
     * @param buildingName building name to be parsed
     * @return extracted parts in a form of a `BuildingNameSplit` class
     */
@@ -337,6 +348,8 @@ object Tokens {
 
   /**
     * Concatenates post-processed tokens so that we could use it against special xAll fields
+    *
+    *
     * @param tokens post-processed tokens
     * @return concatenated resulting string
     */
@@ -371,7 +384,7 @@ object Tokens {
   lazy val nonCounty: Seq[String] = fileToList(s"nonCounty")
 
   // score matrix is used by server but held in parsers for convenience
-  lazy val scoreMatrix: Map[String,String] = fileToMap(s"scorematrix.txt")
+  lazy val scoreMatrix: Map[String, String] = fileToMap(s"scorematrix.txt")
 
   /**
     * Contains key-value map of synonyms (replace key by value)
@@ -416,6 +429,8 @@ object Tokens {
 
   /**
     * Convert external file into list
+    *
+    *
     * @param folder Folder
     * @param fileName Filename
     * @return
@@ -427,6 +442,7 @@ object Tokens {
 
   /**
     * Convert external file into array
+    *
     * @param folder Folder
     * @param fileName Filename
     * @return
@@ -442,21 +458,22 @@ object Tokens {
   /**
     * Make external file such as score matrix file into Map
     *
-    * @param fileName name of the file
-    * @param folder optional, config field that holds path to the folder
+    * @param fileName  name of the file
+    * @param folder    optional, config field that holds path to the folder
     * @param delimiter optional, delimiter of values in the file, defaults to "="
     * @return Map containing key -> value from the file
     */
-  def fileToMap(fileName: String, folder: String = defaultMapFolder, delimiter: String = defaultDelimiter): Map[String,String] = {
+  def fileToMap(fileName: String, folder: String = defaultMapFolder, delimiter: String = defaultDelimiter): Map[String, String] = {
     val resource = getResource(fileName, folder)
     resource.getLines().map { l =>
-      val Array(k,v1,_*) = l.split(delimiter)
+      val Array(k, v1, _*) = l.split(delimiter)
       k -> v1
     }.toMap
   }
 
   /**
     * Fetch file stream as buffered source
+    *
     * @param folder Folder
     * @param fileName Filename
     * @return
