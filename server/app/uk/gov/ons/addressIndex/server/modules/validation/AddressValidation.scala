@@ -55,6 +55,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     }
 
     limit match {
+      case Some("") => None
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
@@ -77,6 +78,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     }
 
     offset match {
+      case Some("") => None
       case Some(o) => Try(o.toInt) match {
         case Success(oInt) => inner(oInt)
         case Failure(_) =>

@@ -72,23 +72,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   val client: HttpClient = elasticClientProvider.client
   lazy val logger = GenericLogger("AddressIndexRepository")
 
-  private def getFilterType(filters: String): String = filters match {
-    case "residential" | "commercial" => "prefix"
-    case f if f.endsWith("*") => "prefix"
-    case _ => "term"
-  }
-
-  private def getFilterValuePrefix(filters: String): String = filters match {
-    case "residential" => "R"
-    case "commercial" => "C"
-    case f if f.endsWith("*") => filters.substring(0, filters.length - 1).toUpperCase
-    case f => f.toUpperCase()
-  }
-
-  private def getFilterValueTerm(filters: String): Seq[String] = filters.toUpperCase.split(",")
-
-  private def getEpochParam(epoch: String): String = if (epoch.isEmpty) "_current" else "_" + epoch
-
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   private def makeDateQuery(dateRange: DateRange): Option[QueryDefinition] = {

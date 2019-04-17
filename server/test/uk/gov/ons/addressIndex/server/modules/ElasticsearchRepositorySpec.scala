@@ -719,7 +719,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "find HYBRID address by UPRN between date range" in {
+    "find HYBRID address by UPRN between date range" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Some(expectedDateHybrid)
@@ -736,7 +736,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "find HYBRID address by UPRN between date range with PAF and multiple NAG" in {
+    "find HYBRID address by UPRN between date range with PAF and multiple NAG" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       // A fuller Address with a PAF and multiple NAG's one of which is historical
@@ -754,7 +754,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "find HYBRID address by UPRN between date range with PAF and no NAG" in {
+    "find HYBRID address by UPRN between date range with PAF and no NAG" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 

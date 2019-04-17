@@ -30,6 +30,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   def validateLocation(lat: Option[String], lon: Option[String], rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     (rangeKm, Try(lat.get.toDouble), Try(lon.get.toDouble)) match {
       case (None, _, _) => None
+      case (Some(""), _, _) => None
       case (_, Failure(_), _) =>
         logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(LatitiudeNotNumeric(queryValues)))
@@ -54,6 +55,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
   def validateAddressFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
     case None => None
+    case Some("") => None
     case Some(filter) => filter match {
       case f if f.contains("*") && f.contains(",") =>
         logger.systemLog(badRequestMessage = MixedFilterError.message)
@@ -68,6 +70,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
 
   def validateRange(rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = rangeKm match {
     case None => None
+    case Some("") => None
     case Some(r) => Try(r.toDouble) match {
       case Failure(_) =>
         logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
@@ -85,6 +88,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     }
 
     threshold match {
+      case Some("") => None
       case Some(t) => Try(t.toFloat) match {
         case Failure(_) =>
           logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
