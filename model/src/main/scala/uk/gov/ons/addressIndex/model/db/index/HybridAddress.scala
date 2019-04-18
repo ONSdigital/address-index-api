@@ -71,13 +71,13 @@ object HybridAddress {
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),
         crossRefs = Some(cRefs.map(CrossRef.fromEsMap)),
-        postcodeIn = Some(hit.sourceAsMap("postcodeIn").toString),
-        postcodeOut = Some(hit.sourceAsMap("postcodeOut").toString),
+        postcodeIn = if (Try(hit.sourceAsMap("postcodeIn").toString).isFailure) None else Some(hit.sourceAsMap("postcodeIn").toString),
+        postcodeOut = if (Try(hit.sourceAsMap("postcodeOut").toString).isFailure) None else Some(hit.sourceAsMap("postcodeOut").toString),
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
-        classificationCode = hit.sourceAsMap("classificationCode").toString,
+        classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
       ))
     }

@@ -11,7 +11,7 @@ case class Region(range: Int, lat: Double, lon: Double)
 
 object Region {
   def fromStrings(range: String, lat: String, lon: String): Option[Region] = {
-    Try(Region(range.toInt, lat.toDouble, lat.toDouble)).toOption
+    Try(Region(range.toInt, lat.toDouble, lon.toDouble)).toOption
   }
 }
 

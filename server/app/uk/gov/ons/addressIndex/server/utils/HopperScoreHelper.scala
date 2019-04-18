@@ -435,9 +435,7 @@ object HopperScoreHelper {
 
     // match building numbers, ranges and suffixes
     val tokenBuildingLowNum = getRangeBottom(buildingName)
-    val tokenBuildingHighNum = tokenBuildingLowNum.max(getRangeTop(buildingName))
     val nisraBuildingLowNum = getRangeBottom(nisraBuildingName)
-    val nisraTestBN = Try(nisraBuildingNumber.toInt).getOrElse(-1)
 
     if (buildingNumber == nisraBuildingNumber || (buildingNumber == empty && buildingName == nisraBuildingName)) 1
     else if ((tokenBuildingLowNum != -1 || buildingNumber != empty) &&
@@ -1108,10 +1106,7 @@ object HopperScoreHelper {
     val nagSaoEndSuffix = address.nag.getOrElse(Nil).headOption.map(_.sao.saoEndSuffix).getOrElse("")
 
     // get nisra values
-    val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("")
-    val nisraBuildingNumber = address.nisra.map(_.buildingNumber).getOrElse("")
     val nisraSubBuildingName = address.nisra.map(_.subBuildingName).getOrElse("")
-    val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("")
 
     // test for more than 1 layer - may need to expand this into separate method with more logic
     val parentUPRN = address.parentUprn
