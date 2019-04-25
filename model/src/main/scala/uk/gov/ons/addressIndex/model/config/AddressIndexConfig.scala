@@ -83,7 +83,8 @@ case class IndexesConfig(hybridIndexHistorical: String,
 case class SubBuildingNameConfig(pafSubBuildingNameBoost: Double,
                                  lpiSaoTextBoost: Double,
                                  lpiSaoStartNumberBoost: Double,
-                                 lpiSaoStartSuffixBoost: Double)
+                                 lpiSaoStartSuffixBoost: Double,
+                                 lpiSaoPaoStartSuffixBoost: Double)
 
 object SubBuildingNameConfig {
   implicit val subBuildingNameConfigFormat: Format[SubBuildingNameConfig] = Json.format[SubBuildingNameConfig]

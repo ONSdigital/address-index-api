@@ -63,6 +63,8 @@ object Tokens {
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
+      .replaceAll("(?i)(FLAT|FLT|APARTMENT|APPTS|APPT|APTS|APT|ROOM|ANNEX|ANNEXE|UNIT|BLOCK|BLK)([a-zA-Z]{1,2})", "$1 $2")
+      .replaceAll("([a-zA-Z]*)[\\.]([a-zA-Z]*)", "$1 $2")
       .replace(" IN ", " ")
       .replace(" - ", " ")
       .replace(",", " ")
@@ -201,12 +203,6 @@ object Tokens {
     val buildingNameSplit: BuildingNameSplit = splitBuildingName(buildingNameToken)
     val subBuildingNameSplit: BuildingNameSplit = splitBuildingName(subBuildingNameToken)
 
-    val floatingSuffix: Option[String] = if (subBuildingNameSplit.startSuffix.isEmpty) {
-      buildingNameSplit.startSuffix
-    } else {
-      subBuildingNameSplit.startSuffix
-    }
-
     val subBuildingNameAdditional: Option[String] = if (subBuildingNameToken.isEmpty) {
       buildingNameSplit.startSuffix
     } else {
@@ -222,7 +218,7 @@ object Tokens {
       buildingNameSplit.endNumber.map(token => paoEndNumber -> token),
       buildingNameSplit.endSuffix.map(token => paoEndSuffix -> token),
       subBuildingNameSplit.startNumber.map(token => saoStartNumber -> token),
-      floatingSuffix.map(token => saoStartSuffix -> token),
+      subBuildingNameSplit.startSuffix.map(token => saoStartSuffix -> token),
       subBuildingNameSplit.endNumber.map(token => saoEndNumber -> token),
       subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token),
       subBuildingNameAdditional.map(token => subBuildingName -> token)
