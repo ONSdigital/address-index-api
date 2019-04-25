@@ -57,13 +57,15 @@ object Tokens {
 
     val inputWithoutAccents = StringUtils.stripAccents(upperInput)
 
+    val flatLabels = List(flat).flatten.mkString("|")
+
     val tokens = inputWithoutAccents
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
-      .replaceAll("(?i)(FLAT|FLT|APARTMENT|APPTS|APPT|APTS|APT|ROOM|ANNEX|ANNEXE|UNIT|BLOCK|BLK)([a-zA-Z]{1,2})", "$1 $2")
+      .replaceAll("(?i)($flatLabels)", "$1 $2")
       .replaceAll("([a-zA-Z]*)[\\.]([a-zA-Z]*)", "$1 $2")
       .replace(" IN ", " ")
       .replace(" - ", " ")
