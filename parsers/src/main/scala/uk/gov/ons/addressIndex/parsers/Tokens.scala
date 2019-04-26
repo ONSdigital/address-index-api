@@ -65,7 +65,7 @@ object Tokens {
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
-      .replaceAll("(?i)($flatLabels)", "$1 $2")
+      .replaceAll("(?i)($flatLabels)([a-zA-Z]{1,2})", "$1 $2")
       .replaceAll("([a-zA-Z]*)[\\.]([a-zA-Z]*)", "$1 $2")
       .replace(" IN ", " ")
       .replace(" - ", " ")
