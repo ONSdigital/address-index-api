@@ -205,12 +205,6 @@ object Tokens {
     val buildingNameSplit: BuildingNameSplit = splitBuildingName(buildingNameToken)
     val subBuildingNameSplit: BuildingNameSplit = splitBuildingName(subBuildingNameToken)
 
-    val subBuildingNameAdditional: Option[String] = if (subBuildingNameToken.isEmpty) {
-      buildingNameSplit.startSuffix
-    } else {
-      None
-    }
-
     // It is now safe to fill pao/sao fields because paoStartNumber filtered out buildingName in the steps before
     // but first of all we need to remove empty parsed tokens
     // What remains will be transformed into tuple and inserted into `tokens` map
@@ -223,7 +217,6 @@ object Tokens {
       subBuildingNameSplit.startSuffix.map(token => saoStartSuffix -> token),
       subBuildingNameSplit.endNumber.map(token => saoEndNumber -> token),
       subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token),
-      subBuildingNameAdditional.map(token => subBuildingName -> token)
     ).flatten
 
     tokens ++ newTokens
