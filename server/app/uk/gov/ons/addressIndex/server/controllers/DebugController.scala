@@ -6,17 +6,17 @@ import com.sksamuel.elastic4s.searches.SearchDefinition
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.server.modules.{ElasticsearchRepository, ParserModule}
+import uk.gov.ons.addressIndex.server.modules._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-class DebugController@Inject()(val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  parser: ParserModule
-)(implicit ec: ExecutionContext) extends BaseController {
+class DebugController @Inject()(val controllerComponents: ControllerComponents,
+                                esRepo: ElasticsearchRepository,
+                                parser: ParserModule
+                               )(implicit ec: ExecutionContext) extends BaseController {
 
-  implicit object DebugShow extends Show[SearchDefinition]{
+  implicit object DebugShow extends Show[SearchDefinition] {
     override def show(req: SearchDefinition): String = SearchBodyBuilderFn(req).string()
   }
 
@@ -35,12 +35,18 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
 
   /**
     * Outputs query that should be generated for a particular input
+    *
     * @param input input for which the query should be generated
     * @return query that is ought to be sent to Elastic (for debug purposes)
     */
-  def queryDebug(input: String, classificationfilter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None,
-    //startDate: Option[String], endDate: Option[String],
-    historical: Option[String] = None, epoch: Option[String]): Action[AnyContent] = Action { implicit req =>
+  def queryDebug(input: String,
+                 classificationfilter: Option[String] = None,
+                 rangekm: Option[String] = None,
+                 lat: Option[String] = None,
+                 lon: Option[String] = None,
+                 historical: Option[String] = None,
+                 epoch: Option[String]
+                ): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
     val filterString = classificationfilter.getOrElse("")
@@ -48,19 +54,27 @@ class DebugController@Inject()(val controllerComponents: ControllerComponents,
     val latString = lat.getOrElse("50.705948")
     val lonString = lon.getOrElse("-3.5091076")
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
-    val hist = historical match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
-    }
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
 
-    val query = esRepo.generateQueryAddressRequest(tokens,filterString,rangeString,latString,lonString, startDateVal, endDateVal, None, hist, isBulk=false, epochVal)
+    val args = AddressArgs(
+      input = "",
+      tokens = tokens,
+      region = Region.fromStrings(rangeString, latString, lonString),
+      epoch = epochVal,
+      verbose = false,
+      historical = hist,
+      filters = filterString,
+      filterDateRange = DateRange(startDateVal, endDateVal),
+      limit = 0,
+      queryParamsConfig = None,
+    )
+
+    val query = esRepo.makeQuery(args)
     val showQuery = DebugShow.show(query)
     Ok(Json.parse(showQuery))
   }

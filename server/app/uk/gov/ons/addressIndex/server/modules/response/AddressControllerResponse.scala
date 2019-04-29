@@ -6,59 +6,59 @@ import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 trait AddressControllerResponse extends AddressResponse {
 
   def AddressFilterInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,FilterInvalidError)
+    BadRequestTemplate(queryValues, FilterInvalidError)
   }
 
   def AddressMixedFilter(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,MixedFilterError)
+    BadRequestTemplate(queryValues, MixedFilterError)
   }
 
   def PostcodeFilterInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,FilterInvalidError)
+    BadRequestTemplate(queryValues, FilterInvalidError)
   }
 
   def RangeNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,RangeNotNumericAddressResponseError)
+    BadRequestTemplate(queryValues, RangeNotNumericAddressResponseError)
   }
 
   def LatitiudeNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LatitudeNotNumericAddressResponseError)
+    BadRequestTemplate(queryValues, LatitudeNotNumericAddressResponseError)
   }
 
   def LongitudeNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LongitudeNotNumericAddressResponseError)
+    BadRequestTemplate(queryValues, LongitudeNotNumericAddressResponseError)
   }
 
   def LatitudeTooFarNorth(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LatitudeTooFarNorthAddressResponseError)
+    BadRequestTemplate(queryValues, LatitudeTooFarNorthAddressResponseError)
   }
 
   def LongitudeTooFarEast(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LongitudeTooFarEastAddressResponseError)
+    BadRequestTemplate(queryValues, LongitudeTooFarEastAddressResponseError)
   }
 
   def LatitudeTooFarSouth(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LatitudeTooFarSouthAddressResponseError)
+    BadRequestTemplate(queryValues, LatitudeTooFarSouthAddressResponseError)
   }
 
   def LongitudeTooFarWest(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,LongitudeTooFarWestAddressResponseError)
+    BadRequestTemplate(queryValues, LongitudeTooFarWestAddressResponseError)
   }
 
   def UnsupportedFormat(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,FormatNotSupportedAddressResponseError)
+    BadRequestTemplate(queryValues, FormatNotSupportedAddressResponseError)
   }
 
   def ThresholdNotNumeric(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,ThresholdNotNumericAddressResponseError)
+    BadRequestTemplate(queryValues, ThresholdNotNumericAddressResponseError)
   }
 
   def ThresholdNotInRange(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,ThresholdNotInRangeAddressResponseError)
+    BadRequestTemplate(queryValues, ThresholdNotInRangeAddressResponseError)
   }
 
   def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,EpochNotAvailableError)
+    BadRequestTemplate(queryValues, EpochNotAvailableError)
   }
 
 }

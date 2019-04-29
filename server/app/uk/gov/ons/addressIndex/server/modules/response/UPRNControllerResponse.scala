@@ -104,7 +104,7 @@ trait UPRNControllerResponse extends Response {
   }
 
   def FailedRequestToEsUprn(detail: String, queryValues: QueryValues): AddressByUprnResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs",detail))
+    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code, FailedRequestToEsUprnError.message.replace("see logs", detail))
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -115,7 +115,7 @@ trait UPRNControllerResponse extends Response {
   }
 
   def FailedRequestToEsTooBusyUprn(detail: String, queryValues: QueryValues): AddressByUprnResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code,FailedRequestToEsUprnError.message.replace("see logs",detail))
+    val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code, FailedRequestToEsUprnError.message.replace("see logs", detail))
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,

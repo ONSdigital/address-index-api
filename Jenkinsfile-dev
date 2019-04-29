@@ -62,14 +62,14 @@ pipeline {
                             colourText("info", "Running unit tests and coverage")
                             sh "$SBT \"project address-index-server\" coverage test coverageReport"
                         },
-                        "Style" : {
-                            colourText("info","Running style tests")
+                        "Style": {
+                            colourText("info", "Running style tests")
                             sh """
                             $SBT  \"project address-index-server\" scalastyle
                         """
                         },
-                        "Additional" : {
-                            colourText("info","Running additional tests")
+                        "Additional": {
+                            colourText("info", "Running additional tests")
                             sh "$SBT  \"project address-index-server\" scapegoat"
                         }
                 )
@@ -81,14 +81,14 @@ pipeline {
                     }
                 }
                 success {
-                    colourText("info","Generating reports for tests")
+                    colourText("info", "Generating reports for tests")
                     //   junit '**/target/test-reports/*.xml'
 
                     step([$class: 'CoberturaPublisher', coberturaReportFile: '**/server/target/scala-2.12/coverage-report/*.xml'])
                     step([$class: 'CheckStylePublisher', pattern: 'server/target/scalastyle-result.xml, server/target/scala-2.12/scapegoat-report/scapegoat-scalastyle.xml'])
                 }
                 failure {
-                    colourText("warn","Failed to retrieve reports.")
+                    colourText("warn", "Failed to retrieve reports.")
                 }
             }
         }
@@ -158,12 +158,12 @@ pipeline {
 
 def deploy() {
     deploymentName = "${env.DEPLOY_NAME}"
-    credentialsId = "${TEAM}-${deploymentName}-cf"  			    // ai-dev-cf
-    CF_ORG = "${TEAM}".toUpperCase()             					// AI
-    CF_SPACE = "${deploymentName}".capitalize() 					// eg Dev
-    appName = "${CF_MODULE_NAME}-${deploymentName}"  				// addressindex-api-dev
+    credentialsId = "${TEAM}-${deploymentName}-cf"  // ai-dev-cf
+    CF_ORG = "${TEAM}".toUpperCase()                // AI
+    CF_SPACE = "${deploymentName}".capitalize()     // eg Dev
+    appName = "${CF_MODULE_NAME}-${deploymentName}" // addressindex-api-dev
     appPath = "server/target/universal/address-index-server.zip"
-    manifestPath = "conf/${deploymentName}/manifest.yml" 			// conf/dev/manifest.yml
+    manifestPath = "conf/${deploymentName}/manifest.yml" // conf/dev/manifest.yml
 
     echo "Deploying Api app to ${deploymentName}"
     echo "Deployment params : \n" +

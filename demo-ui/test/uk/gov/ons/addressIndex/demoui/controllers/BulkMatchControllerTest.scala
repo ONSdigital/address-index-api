@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
+import akka.stream.Materializer
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.i18n.MessagesApi
@@ -15,7 +16,7 @@ class BulkMatchControllerTest extends PlaySpec with Results with GuiceOneAppPerT
   "Bulk Match controller" should {
     "include a form to submit data" in {
       // Given
-      implicit val mtzr = app.injector.instanceOf[akka.stream.Materializer]
+      implicit val mtzr: Materializer = app.injector.instanceOf[akka.stream.Materializer]
       val messagesApi = app.injector.instanceOf[MessagesApi]
       val api = app.injector.instanceOf[AddressIndexClientMock]
       val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]

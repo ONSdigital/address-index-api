@@ -34,7 +34,6 @@ class AddressIndexVersionModule @Inject()
 
   // lazy to avoid application crash at startup if ES is down
   lazy val dataVersion: String = {
-
     val alias: String = configProvider.config.elasticSearch.indexes.hybridIndex + "_current"
     logger.warn("alias) = " + alias)
     val aliaseq: Seq[String] = Seq {

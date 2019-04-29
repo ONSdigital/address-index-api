@@ -7,6 +7,41 @@ class TokensTest extends FlatSpec with Matchers {
   it should "produce `Tokens` for the given string `31 exeter close` splitting on whitespace" in {
     val input = "31 exeter close"
     val expected = Seq("31", "EXETER", "CLOSE")
+    val actual = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "produce `Tokens` for the given string `7high street` splitting on whitespace and number/letter border" in {
+    val input = "7high street"
+    val expected = Seq("7", "HIGH", "STREET")
+    val actual  = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "produce `Tokens` for the given string `7high street ex2 6ga` splitting on whitespace and number/letter border, but not on postcode" in {
+    val input = "7high street ex2 6ga"
+    val expected = Seq("7", "HIGH", "STREET", "EX2", "6GA")
+    val actual  = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "produce `Tokens` for the given string `7h igh street` splitting on whitespace but not on number/letter border" in {
+    val input = "7h igh street"
+    val expected = Seq("7H", "IGH", "STREET")
+    val actual  = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "produce `Tokens` for the given string `flat4 7 high street ex2 6ga` splitting on whitespace and number/letter border, but not on postcode" in {
+    val input = "Flat4 7 high street ex2 6ga"
+    val expected = Seq("FLAT", "4", "7", "HIGH", "STREET", "EX2", "6GA")
+    val actual  = Tokens.preTokenize(input)
+    actual shouldBe expected
+  }
+
+  it should "produce `Tokens` for the given string `flat4 7high street ex2 6ga` splitting on whitespace and number/letter border, but not on postcode" in {
+    val input = "flat4 7high street ex2 6ga"
+    val expected = Seq("FLAT", "4", "7", "HIGH", "STREET", "EX2", "6GA")
     val actual  = Tokens.preTokenize(input)
     actual shouldBe expected
   }

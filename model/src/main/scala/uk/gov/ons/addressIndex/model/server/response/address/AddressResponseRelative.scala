@@ -6,16 +6,14 @@ import uk.gov.ons.addressIndex.model.db.index.Relative
 /**
   * Wrapper response object for Relative (Relatives response comprises one Relative object per level)
   *
-  * @param level                level number 1,2 etc. - 1 is top level
-  * @param siblings             uprns of addresses at the current level
-  * @param parents              uprns of addresses at the level above
+  * @param level    level number 1,2 etc. - 1 is top level
+  * @param siblings uprns of addresses at the current level
+  * @param parents  uprns of addresses at the level above
   *
   */
-case class AddressResponseRelative(
-  level: Int,
-  siblings: Seq[Long],
-  parents: Seq[Long]
-)
+case class AddressResponseRelative(level: Int,
+                                   siblings: Seq[Long],
+                                   parents: Seq[Long])
 
 /**
   * Compainion object providing Lazy Json formatting

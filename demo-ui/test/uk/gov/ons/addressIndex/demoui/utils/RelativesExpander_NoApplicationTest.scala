@@ -16,29 +16,28 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse
 import scala.concurrent.{ExecutionContext, Future}
 
 class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with MockFactory with ScalaFutures {
-
   private trait Fixture {
-    val SomeApiKey = "api-key"
-    val SomeLevel = 0
-    val SomeParents = Seq.empty[Long]
-    val UprnOne = 123L
-    val UprnTwo = 456L
-    val UprnThree = 789L
-    val Address1 = "1, Gate Reach, Exeter, EX1 1GA"
-    val Address2 = "2, Gate Reach, Exeter, EX2 2GA"
-    val Address3 = "3, Gate Reach, Exeter, EX3 3GA"
+    val someApiKey = "api-key"
+    val someLevel = 0
+    val someParents = Seq.empty[Long]
+    val uprnOne = 123L
+    val uprnTwo = 456L
+    val uprnThree = 789L
+    val address1 = "1, Gate Reach, Exeter, EX1 1GA"
+    val address2 = "2, Gate Reach, Exeter, EX2 2GA"
+    val address3 = "3, Gate Reach, Exeter, EX3 3GA"
 
-    implicit val executionContext = scala.concurrent.ExecutionContext.Implicits.global
-    val addressIndexClient = mock[AddressIndexClient]
-    val conf = mock[DemouiConfigModule]
-    val relativesExpander = new RelativesExpander(addressIndexClient,conf)
+    implicit val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+    val addressIndexClient: AddressIndexClient = mock[AddressIndexClient]
+    val conf: DemouiConfigModule = mock[DemouiConfigModule]
+    val relativesExpander = new RelativesExpander(addressIndexClient, conf)
 
     def anAddressByUprnResponseContainer(uprn: Long, formattedAddress: Option[String]): AddressByUprnResponseContainer = {
       val addressResponseAddressOpt = formattedAddress.map(anAddressResponseFor(uprn))
       AddressByUprnResponseContainer(
         "api-version",
         "data-version",
-        response = AddressByUprnResponse(addressResponseAddressOpt,true, "",true),
+        response = AddressByUprnResponse(addressResponseAddressOpt, historical = true, "", verbose = true),
         status = mockAddressResponseStatus,
         errors = Seq.empty)
     }
@@ -62,79 +61,79 @@ class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with Mo
   }
 
   "A RelativesExpander" should "expand the sibling when a relative has a sole sibling" in new Fixture {
-    val relativeWithSoleSibling = AddressResponseRelative(SomeLevel, siblings = Seq(UprnOne), SomeParents)
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnOne), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnOne, Some(Address1))))
+    val relativeWithSoleSibling = AddressResponseRelative(someLevel, siblings = Seq(uprnOne), someParents)
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnOne), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnOne, Some(address1))))
 
-    whenReady(relativesExpander.futExpandRelatives(SomeApiKey, Seq(relativeWithSoleSibling))) { expandedRelatives =>
+    whenReady(relativesExpander.futExpandRelatives(someApiKey, Seq(relativeWithSoleSibling))) { expandedRelatives =>
       expandedRelatives should contain theSameElementsAs Seq(
-        ExpandedRelative(SomeLevel, Seq(ExpandedSibling(UprnOne, mixedCaseAddressFor(Address1))))
+        ExpandedRelative(someLevel, Seq(ExpandedSibling(uprnOne, mixedCaseAddressFor(address1))))
       )
     }
   }
 
   it should "expand all siblings when a relative has multiple siblings" in new Fixture {
-    val relativeWithMultipleSiblings = AddressResponseRelative(SomeLevel, siblings = Seq(UprnOne, UprnTwo), SomeParents)
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnOne), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnOne, Some(Address1))))
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnTwo), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnTwo, Some(Address2))))
+    val relativeWithMultipleSiblings = AddressResponseRelative(someLevel, siblings = Seq(uprnOne, uprnTwo), someParents)
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnOne), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnOne, Some(address1))))
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnTwo), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnTwo, Some(address2))))
 
-    whenReady(relativesExpander.futExpandRelatives(SomeApiKey, Seq(relativeWithMultipleSiblings))) { expandedRelatives =>
+    whenReady(relativesExpander.futExpandRelatives(someApiKey, Seq(relativeWithMultipleSiblings))) { expandedRelatives =>
       expandedRelatives should contain theSameElementsAs Seq(
-        ExpandedRelative(SomeLevel, Seq(
-          ExpandedSibling(UprnOne, mixedCaseAddressFor(Address1)),
-          ExpandedSibling(UprnTwo, mixedCaseAddressFor(Address2))))
+        ExpandedRelative(someLevel, Seq(
+          ExpandedSibling(uprnOne, mixedCaseAddressFor(address1)),
+          ExpandedSibling(uprnTwo, mixedCaseAddressFor(address2))))
       )
     }
   }
 
   it should "expand the relative without address retrievals when there are no siblings" in new Fixture {
-    val relativeWithNoSiblings = AddressResponseRelative(SomeLevel, siblings = Seq.empty, SomeParents)
+    val relativeWithNoSiblings = AddressResponseRelative(someLevel, siblings = Seq.empty, someParents)
 
-    whenReady(relativesExpander.futExpandRelatives(SomeApiKey, Seq(relativeWithNoSiblings))) { expandedRelatives =>
+    whenReady(relativesExpander.futExpandRelatives(someApiKey, Seq(relativeWithNoSiblings))) { expandedRelatives =>
       expandedRelatives should contain theSameElementsAs Seq(
-        ExpandedRelative(SomeLevel, Seq.empty)
+        ExpandedRelative(someLevel, Seq.empty)
       )
     }
   }
 
   it should "return a 'not found' address when a sibling address is not found" in new Fixture {
-    val relativeWithSoleSibling = AddressResponseRelative(SomeLevel, siblings = Seq(UprnOne), SomeParents)
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnOne), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnOne, None)))
+    val relativeWithSoleSibling = AddressResponseRelative(someLevel, siblings = Seq(uprnOne), someParents)
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnOne), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnOne, None)))
 
-    whenReady(relativesExpander.futExpandRelatives(SomeApiKey, Seq(relativeWithSoleSibling))) { expandedRelatives =>
+    whenReady(relativesExpander.futExpandRelatives(someApiKey, Seq(relativeWithSoleSibling))) { expandedRelatives =>
       expandedRelatives should contain theSameElementsAs Seq(
-        ExpandedRelative(SomeLevel, Seq(ExpandedSibling(UprnOne, s"${UprnOne}not found")))
+        ExpandedRelative(someLevel, Seq(ExpandedSibling(uprnOne, s"${uprnOne}not found")))
       )
     }
   }
 
   it should "expand the siblings of all relatives when there are multiple relatives" in new Fixture {
-    val relativeWithSoleSibling = AddressResponseRelative(SomeLevel, siblings = Seq(UprnOne), SomeParents)
-    val relativeWithMultipleSiblings = AddressResponseRelative(SomeLevel, siblings = Seq(UprnTwo, UprnThree), SomeParents)
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnOne), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnOne, Some(Address1))))
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnTwo), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnTwo, Some(Address2))))
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnThree), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnThree, Some(Address3))))
+    val relativeWithSoleSibling = AddressResponseRelative(someLevel, siblings = Seq(uprnOne), someParents)
+    val relativeWithMultipleSiblings = AddressResponseRelative(someLevel, siblings = Seq(uprnTwo, uprnThree), someParents)
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnOne), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnOne, Some(address1))))
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnTwo), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnTwo, Some(address2))))
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnThree), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnThree, Some(address3))))
 
-    whenReady(relativesExpander.futExpandRelatives(SomeApiKey, Seq(relativeWithSoleSibling, relativeWithMultipleSiblings))) { expandedRelatives =>
+    whenReady(relativesExpander.futExpandRelatives(someApiKey, Seq(relativeWithSoleSibling, relativeWithMultipleSiblings))) { expandedRelatives =>
       expandedRelatives should contain theSameElementsAs Seq(
-        ExpandedRelative(SomeLevel, Seq(
-          ExpandedSibling(UprnOne, mixedCaseAddressFor(Address1)))),
-        ExpandedRelative(SomeLevel, Seq(
-          ExpandedSibling(UprnTwo, mixedCaseAddressFor(Address2)),
-          ExpandedSibling(UprnThree, mixedCaseAddressFor(Address3))))
+        ExpandedRelative(someLevel, Seq(
+          ExpandedSibling(uprnOne, mixedCaseAddressFor(address1)))),
+        ExpandedRelative(someLevel, Seq(
+          ExpandedSibling(uprnTwo, mixedCaseAddressFor(address2)),
+          ExpandedSibling(uprnThree, mixedCaseAddressFor(address3))))
       )
     }
   }
@@ -145,16 +144,16 @@ class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with Mo
    */
   it should "return a Failure if any of the sibling address lookups fail" in new Fixture {
     val cause = new Exception("something went wrong")
-    val relativeOne = AddressResponseRelative(SomeLevel, siblings = Seq(UprnOne), SomeParents)
-    val relativeTwo = AddressResponseRelative(SomeLevel, siblings = Seq(UprnTwo), SomeParents)
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnOne), withApiKey = SomeApiKey, withHistorical = true)).returning(
-      Future.successful(anAddressByUprnResponseContainer(UprnOne, Some(Address1))))
-    (addressIndexClient.uprnQuery (_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
-      aUprnRequest(withUprn = BigInt(UprnTwo), withApiKey = SomeApiKey, withHistorical = true)).returning(
-        Future.failed(cause))
+    val relativeOne = AddressResponseRelative(someLevel, siblings = Seq(uprnOne), someParents)
+    val relativeTwo = AddressResponseRelative(someLevel, siblings = Seq(uprnTwo), someParents)
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnOne), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.successful(anAddressByUprnResponseContainer(uprnOne, Some(address1))))
+    (addressIndexClient.uprnQuery(_: AddressIndexUPRNRequest)(_: ExecutionContext)).expects(
+      aUprnRequest(withUprn = BigInt(uprnTwo), withApiKey = someApiKey, withHistorical = true)).returning(
+      Future.failed(cause))
 
-    val result = relativesExpander.futExpandRelatives(SomeApiKey, Seq(relativeOne, relativeTwo))
+    val result: Future[Seq[ExpandedRelative]] = relativesExpander.futExpandRelatives(someApiKey, Seq(relativeOne, relativeTwo))
 
     result.failed.futureValue shouldBe cause
   }

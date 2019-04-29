@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.demoui.controllers
 
 import org.scalatestplus.play.PlaySpec
 import play.api.i18n.{Langs, MessagesApi}
-import play.api.mvc.{ControllerComponents, Results}
+import play.api.mvc.{ControllerComponents, Result, Results}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplication}
 import uk.gov.ons.addressIndex.demoui.client.{AddressIndexClientInstance, AddressIndexClientMock}
@@ -10,6 +10,7 @@ import uk.gov.ons.addressIndex.demoui.modules.{DemoUIAddressIndexVersionModule, 
 import uk.gov.ons.addressIndex.demoui.utils.ClassHierarchy
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   * Tests for single match controller
@@ -19,17 +20,17 @@ class RadiusMatchTest extends PlaySpec with Results {
   "Radius controller" should {
     "return a page containing a heading" in new WithApplication {
       // Given
-      val messagesApi = app.injector.instanceOf[MessagesApi]
-      val langs = app.injector.instanceOf[Langs]
-      val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
-      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
-      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+      val langs: Langs = app.injector.instanceOf[Langs]
+      val configuration: DemouiConfigModule = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient: AddressIndexClientMock = app.injector.instanceOf[AddressIndexClientMock]
+      val version: DemoUIAddressIndexVersionModule = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "Search for an address within a radius"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy: ClassHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new RadiusController(
+      val response: Future[Result] = new RadiusController(
         controllerComponents,
         configuration,
         messagesApi,
@@ -38,7 +39,7 @@ class RadiusMatchTest extends PlaySpec with Results {
         classHierarchy,
         version)
         .showRadiusMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe OK
@@ -47,17 +48,17 @@ class RadiusMatchTest extends PlaySpec with Results {
 
     "return a page including a single match form" in new WithApplication {
       // Given
-      val messagesApi = app.injector.instanceOf[MessagesApi]
-      val langs = app.injector.instanceOf[Langs]
-      val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
-      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
-      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+      val langs: Langs = app.injector.instanceOf[Langs]
+      val configuration: DemouiConfigModule = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient: AddressIndexClientMock = app.injector.instanceOf[AddressIndexClientMock]
+      val version: DemoUIAddressIndexVersionModule = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<form action=\"/radius/search\" method=\"POST\" >"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy: ClassHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new RadiusController(
+      val response: Future[Result] = new RadiusController(
         controllerComponents,
         configuration,
         messagesApi,
@@ -66,7 +67,7 @@ class RadiusMatchTest extends PlaySpec with Results {
         classHierarchy,
         version)
         .showRadiusMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe OK
@@ -75,17 +76,17 @@ class RadiusMatchTest extends PlaySpec with Results {
 
     "return a page including an appropriate error message when empty address posted" in new WithApplication {
       // Given
-      val messagesApi = app.injector.instanceOf[MessagesApi]
-      val langs = app.injector.instanceOf[Langs]
-      val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
-      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
-      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+      val langs: Langs = app.injector.instanceOf[Langs]
+      val configuration: DemouiConfigModule = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient: AddressIndexClientMock = app.injector.instanceOf[AddressIndexClientMock]
+      val version: DemoUIAddressIndexVersionModule = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a radius and search term</span>"
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val classHierarchy: ClassHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new RadiusController(
+      val response: Future[Result] = new RadiusController(
         controllerComponents,
         configuration,
         messagesApi,
@@ -93,8 +94,8 @@ class RadiusMatchTest extends PlaySpec with Results {
         apiClient,
         classHierarchy,
         version)
-        .doMatch().apply(FakeRequest(POST,"/radius/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
-      val content = contentAsString(response)
+        .doMatch().apply(FakeRequest(POST, "/radius/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe OK
@@ -103,12 +104,12 @@ class RadiusMatchTest extends PlaySpec with Results {
 
     "return a page including some search results" in new WithApplication {
       // Given
-      val messagesApi = app.injector.instanceOf[MessagesApi]
-      val langs = app.injector.instanceOf[Langs]
-      val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
-      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
-      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+      val langs: Langs = app.injector.instanceOf[Langs]
+      val configuration: DemouiConfigModule = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient: AddressIndexClientMock = app.injector.instanceOf[AddressIndexClientMock]
+      val version: DemoUIAddressIndexVersionModule = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
       val inputAddress = "recycling"
       val filter = ""
@@ -116,11 +117,11 @@ class RadiusMatchTest extends PlaySpec with Results {
       val latitude = ""
       val longitude = ""
       val historical = true
-      val matchthreshold = 5
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val matchThreshold = 5
+      val classHierarchy: ClassHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new RadiusController(
+      val response: Future[Result] = new RadiusController(
         controllerComponents,
         configuration,
         messagesApi,
@@ -128,8 +129,8 @@ class RadiusMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
-      val content = contentAsString(response)
+        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchThreshold)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe OK
@@ -138,12 +139,12 @@ class RadiusMatchTest extends PlaySpec with Results {
 
     "return a page including some search results with a filter" in new WithApplication {
       // Given
-      val messagesApi = app.injector.instanceOf[MessagesApi]
-      val langs = app.injector.instanceOf[Langs]
-      val configuration = app.injector.instanceOf[DemouiConfigModule]
-      val apiClient = app.injector.instanceOf[AddressIndexClientMock]
-      val version = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
-      val controllerComponents = app.injector.instanceOf[ControllerComponents]
+      val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+      val langs: Langs = app.injector.instanceOf[Langs]
+      val configuration: DemouiConfigModule = app.injector.instanceOf[DemouiConfigModule]
+      val apiClient: AddressIndexClientMock = app.injector.instanceOf[AddressIndexClientMock]
+      val version: DemoUIAddressIndexVersionModule = app.injector.instanceOf[DemoUIAddressIndexVersionModule]
+      val controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
       val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "gate reach"
       val filter = "RD"
@@ -151,11 +152,11 @@ class RadiusMatchTest extends PlaySpec with Results {
       val latitude = ""
       val longitude = ""
       val historical = true
-      val matchthreshold = 5
-      val classHierarchy  = app.injector.instanceOf(classOf[ClassHierarchy])
+      val matchThreshold = 5
+      val classHierarchy: ClassHierarchy = app.injector.instanceOf(classOf[ClassHierarchy])
 
       // When
-      val response = new RadiusController(
+      val response: Future[Result] = new RadiusController(
         controllerComponents,
         configuration,
         messagesApi,
@@ -163,8 +164,8 @@ class RadiusMatchTest extends PlaySpec with Results {
         apiClient.asInstanceOf[AddressIndexClientInstance],
         classHierarchy,
         version)
-        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchthreshold)).apply(FakeRequest().withSession("api-key" -> ""))
-      val content = contentAsString(response)
+        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchThreshold)).apply(FakeRequest().withSession("api-key" -> ""))
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe OK

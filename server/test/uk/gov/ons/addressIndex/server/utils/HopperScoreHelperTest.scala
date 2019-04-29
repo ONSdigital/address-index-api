@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.server.utils
+
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -13,7 +13,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   val logger = Logger("HopperScoreHelperTest")
 
-  val mockAddressTokens = Map (
+  val mockAddressTokens: Map[String, String] = Map(
     Tokens.buildingNumber -> "7",
     Tokens.paoStartNumber -> "7",
     Tokens.streetName -> "GATE REACH",
@@ -154,9 +154,9 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     source = "7666MT"
   )
 
-  val mockRelativeResponse = AddressResponseRelative.fromRelative(mockRelative)
+  val mockRelativeResponse: AddressResponseRelative = AddressResponseRelative.fromRelative(mockRelative)
 
-  val mockCrossRefResponse = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
+  val mockCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
   val mockBespokeScoreEmpty = AddressResponseScore(
     objectScore = 0d,
@@ -502,7 +502,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 0.2250d
 
     // When
-    val actual = HopperScoreHelper.calculateStructuralScore(buildingScore,localityScore)
+    val actual = HopperScoreHelper.calculateStructuralScore(buildingScore, localityScore)
 
     // Then
     actual shouldBe expected
@@ -516,7 +516,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 0.1125d
 
     // When
-    val actual = HopperScoreHelper.calculateObjectScore(buildingScore,localityScore,unitScore)
+    val actual = HopperScoreHelper.calculateObjectScore(buildingScore, localityScore, unitScore)
 
     // Then
     actual shouldBe expected
@@ -524,10 +524,10 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   it should "create a locality param List of Tuples from an address and tokens " in {
     // Given
-    val expected = ("locality.9111","PO7 6")
+    val expected = ("locality.9111", "PO7 6")
 
     // When
-    val actual = HopperScoreHelper.getLocalityParams(mockAddressResponseAddress,mockAddressTokens)
+    val actual = HopperScoreHelper.getLocalityParams(mockAddressResponseAddress, mockAddressTokens)
 
     // Then
     actual shouldBe expected
@@ -538,7 +538,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = Seq(mockAddressResponseAddressWithScores)
 
     // When
-    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress),mockAddressTokens,1D)
+    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress), mockAddressTokens, 1D)
 
     // Then
     actual shouldBe expected
@@ -549,7 +549,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = mockAddressResponseAddressWithScores
 
     // When
-    val actual = HopperScoreHelper.addScoresToAddress(0,mockAddressResponseAddress,mockAddressTokens,mockLocalityParams,1D)
+    val actual = HopperScoreHelper.addScoresToAddress(0, mockAddressResponseAddress, mockAddressTokens, mockLocalityParams, 1D)
 
     // Then
     actual shouldBe expected
@@ -564,7 +564,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 2
 
     // When
-    val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNamePafScore (
+    val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNamePafScore(
       buildingName,
       pafBuildingName,
       organisationName,
@@ -584,7 +584,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 2
 
     // When
-    val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNameNagScore (
+    val actual = HopperScoreHelper.calculateDetailedOrganisationBuildingNameNagScore(
       buildingName,
       nagPaoText,
       nagSaoText,
@@ -600,7 +600,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Given
     val buildingName = "@"
     val pafBuildingName = "16A"
-    val pafBuildingNumber =""
+    val pafBuildingNumber = ""
     val paoStartSuffix = "@"
     val paoEndSuffix = "@"
     val buildingNumber = "16"
@@ -609,7 +609,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 4
 
     // When
-    val actual = HopperScoreHelper.calculateBuildingNumPafScore (
+    val actual = HopperScoreHelper.calculateBuildingNumPafScore(
       buildingName,
       pafBuildingName,
       pafBuildingNumber,
@@ -627,7 +627,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Given
     val buildingName = "121A"
     val pafBuildingName = ""
-    val pafBuildingNumber ="121"
+    val pafBuildingNumber = "121"
     val paoStartSuffix = "A"
     val paoEndSuffix = "@"
     val buildingNumber = "@"
@@ -636,7 +636,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 4
 
     // When
-    val actual = HopperScoreHelper.calculateBuildingNumPafScore (
+    val actual = HopperScoreHelper.calculateBuildingNumPafScore(
       buildingName,
       pafBuildingName,
       pafBuildingNumber,
@@ -655,7 +655,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Given
     val buildingName = "1 LORDS COURT"
     val pafBuildingName = "10 LORDS COURT"
-    val pafBuildingNumber =""
+    val pafBuildingNumber = ""
     val paoStartSuffix = "@"
     val paoEndSuffix = "@"
     val buildingNumber = "@"
@@ -664,7 +664,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 6
 
     // When
-    val actual = HopperScoreHelper.calculateBuildingNumPafScore (
+    val actual = HopperScoreHelper.calculateBuildingNumPafScore(
       buildingName,
       pafBuildingName,
       pafBuildingNumber,
@@ -693,7 +693,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 4
 
     // When
-    val actual = HopperScoreHelper.calculateBuildingNumNagScore (
+    val actual = HopperScoreHelper.calculateBuildingNumNagScore(
       buildingName,
       nagPaoStartNumber,
       nagPaoEndNumber,
@@ -724,7 +724,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 4
 
     // When
-    val actual = HopperScoreHelper.calculateBuildingNumNagScore (
+    val actual = HopperScoreHelper.calculateBuildingNumNagScore(
       buildingName,
       nagPaoStartNumber,
       nagPaoEndNumber,
@@ -745,11 +745,11 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val buildingName = "THE PRIORY"
     val pafBuildingName = "THE OLD PRIORY"
     val organisationName = "BOBS BANANA RIPENERS"
-    val pafOrganisationName =  "BIBS AND BANDANAS"
+    val pafOrganisationName = "BIBS AND BANDANAS"
     val expected = 1
 
     // When
-    val actual = HopperScoreHelper.calculateOrganisationBuildingNamePafScore (
+    val actual = HopperScoreHelper.calculateOrganisationBuildingNamePafScore(
       buildingName,
       pafBuildingName,
       organisationName,
@@ -764,11 +764,11 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val buildingName = "THE PRIORY"
     val nagPaoText = "THE OLD PRIORY"
     val organisationName = "BOBS BANANA RIPENERS"
-    val nagOrganisationName =  "BIBS AND BANDANAS"
+    val nagOrganisationName = "BIBS AND BANDANAS"
     val expected = 1
 
     // When
-    val actual = HopperScoreHelper.calculateOrganisationBuildingNamePafScore (
+    val actual = HopperScoreHelper.calculateOrganisationBuildingNamePafScore(
       buildingName,
       nagPaoText,
       organisationName,
@@ -783,12 +783,12 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val streetName = "WOMBAT STREET"
     val pafThoroughfare = "AARDVARK AVENUE"
     val pafDependentThoroughfare = "WOMBAT STREET"
-    val pafWelshThoroughfare= ""
+    val pafWelshThoroughfare = ""
     val pafWelshDependentThoroughfare = ""
     val expected = 1
 
     // When
-    val actual = HopperScoreHelper.calculateStreetPafScore (
+    val actual = HopperScoreHelper.calculateStreetPafScore(
       streetName,
       pafThoroughfare,
       pafDependentThoroughfare,
@@ -826,7 +826,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 1
 
     // When
-    val actual = HopperScoreHelper.calculateTownLocalityPafScore (
+    val actual = HopperScoreHelper.calculateTownLocalityPafScore(
       townName,
       locality,
       pafPostTown,
@@ -851,12 +851,12 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 6
 
     // When
-    val actual = HopperScoreHelper.calculateTownLocalityNagScore (
-        townName,
-        nagTownName,
-        locality,
-        nagLocality,
-        streetName)
+    val actual = HopperScoreHelper.calculateTownLocalityNagScore(
+      townName,
+      nagTownName,
+      locality,
+      nagLocality,
+      streetName)
 
     // Then
     actual shouldBe expected
@@ -873,7 +873,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 1
 
     // When
-    val actual = HopperScoreHelper.calculatePostcodePafScore (
+    val actual = HopperScoreHelper.calculatePostcodePafScore(
       postcode,
       pafPostcode,
       postcodeOut,
@@ -896,7 +896,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 3
 
     // When
-    val actual = HopperScoreHelper.calculatePostcodeNagScore (
+    val actual = HopperScoreHelper.calculatePostcodeNagScore(
       postcode: String,
       nagPostcode: String,
       postcodeOut: String,
@@ -1020,7 +1020,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val subBuildingName = "FLAT 1B"
     val pafSubBuildingName = "FLAT 1A"
     val pafBuildingName = "SHEFFIELD HOUSE"
-    val pafBuildingNumber =""
+    val pafBuildingNumber = ""
     val saoStartSuffix = "B"
     val saoEndSuffix = ""
     val saoStartNumber = "1"
@@ -1028,7 +1028,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 6
 
     // When
-    val actual = HopperScoreHelper.calculateSubBuildingNumberPafScore (
+    val actual = HopperScoreHelper.calculateSubBuildingNumberPafScore(
       subBuildingName,
       pafSubBuildingName,
       pafBuildingName,
@@ -1057,7 +1057,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 1
 
     // When
-    val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore (
+    val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore(
       subBuildingName,
       nagSaoText,
       nagSaoStartNumber,
@@ -1088,7 +1088,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     val expected = 6
 
     // When
-    val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore (
+    val actual = HopperScoreHelper.calculateSubBuildingNumberNagScore(
       subBuildingName,
       nagSaoText,
       nagSaoStartNumber,
@@ -1103,7 +1103,6 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     // Then
     actual shouldBe expected
   }
-
 
 
   it should "determine that a string contains a number when it does " in {

@@ -86,13 +86,11 @@
                     <strong>@messages("clerical.la"):</strong>
                     <span class="formatted-nag"> @address.nag.map{ nag => @nag(0).localCustodianName.toLowerCase.split(" ").map(_.capitalize).mkString(" ")}  |  @address.nag.map{ nag => @nag(0).localCustodianGeogCode}</span>
                 </div>
-
                 @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
                     <div class="resultRow">
                         <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }
                     </div>
                 }
-
                 @if(isClerical) {
                 <div class="resultRow">
                     @if(index != expandRow) {
@@ -102,8 +100,6 @@
                             }&expand=@index#@index">@messages("clerical.addinfo")</a>
                         </div>
                     }
-
-
                     <div class='@{ if(index == expandRow) "showrow"  else  "hiderow"  }'>
                         @if(index >= 0) {
                         <div class="clericalInfo">
@@ -159,7 +155,6 @@
                                 @messages("clerical.outputdata")
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.organisation_name")
@@ -286,7 +281,6 @@
                                 @address.paf.map { paf => @paf.welshDependentThoroughfare }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.locality")
@@ -371,7 +365,6 @@
                                 @address.paf.map { paf => @paf.welshDoubleDependentLocality }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.town_name")
@@ -456,7 +449,6 @@
                                 @address.paf.map { paf => @paf.welshDoubleDependentLocality }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.postcode")
@@ -471,7 +463,6 @@
                                 @address.paf.map { paf => @paf.postcode }
                                 </div>
                             </div>
-
                             @*NAG TABLE*@
                             <div class="taRowH">
                                 <div class="taColumn1H">
@@ -487,7 +478,6 @@
                                 @messages("clerical.outputdata")
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.organisation_name")
@@ -544,7 +534,6 @@
                                 @address.nag.map { nag => @nag(0).sao.saoText }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.department_name")
@@ -559,7 +548,6 @@
                                 @address.nag.map { nag => @nag(0).legalName }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.sub_building_name")
@@ -630,7 +618,6 @@
                                 @address.nag.map { nag => @nag(0).sao.saoEndSuffix }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.building_name")
@@ -701,7 +688,6 @@
                                 @address.nag.map { nag => @nag(0).pao.paoEndSuffix }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.building_number")
@@ -716,7 +702,6 @@
                                 @address.nag.map { nag => @nag(0).pao.paoStartNumber }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.street_name")
@@ -731,7 +716,6 @@
                                 @address.nag.map { nag => @nag(0).streetDescriptor }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.locality")
@@ -746,7 +730,6 @@
                                 @address.nag.map { nag => @nag(0).locality }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1top">
                                 @messages("clerical.token.town_name")
@@ -775,7 +758,6 @@
                                 @address.nag.map { nag => @nag(0).locality }
                                 </div>
                             </div>
-
                             <div class="taRow">
                                 <div class="taColumn1">
                                 @messages("clerical.token.postcode")
@@ -869,7 +851,6 @@
                                 @address.formattedAddressNag.replaceAll(",", "")
                                 </div>
                             </div>
-
                         </div>
                         <div class="clerical2">
                             <details>

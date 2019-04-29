@@ -5,9 +5,9 @@ info:
   description: The ONS Address Index API lets you retrieve the official version of addresses in England and Wales. The data is currently updated on a 6 week rolling basis.
   version: see /version below
 consumes:
-- application/json
+  - application/json
 produces:
-- application/json
+  - application/json
 definitions:
   uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse:
     properties:
@@ -58,12 +58,12 @@ definitions:
               type: number
               format: double
           required:
-          - id
-          - inputAddress
-          - uprn
-          - matchedFormattedAddress
-          - tokens
-          - score
+            - id
+            - inputAddress
+            - uprn
+            - matchedFormattedAddress
+            - tokens
+            - score
       status:
         "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
       errors:
@@ -71,8 +71,8 @@ definitions:
         items:
           "$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
     required:
-    - apiVersion
-    - dataVersion
-    - bulkAddresses
-    - status
-    - errors
+      - apiVersion
+      - dataVersion
+      - bulkAddresses
+      - status
+      - errors

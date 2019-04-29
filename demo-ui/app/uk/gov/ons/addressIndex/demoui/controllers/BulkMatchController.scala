@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
-import javax.inject.{Inject, Singleton}
 import akka.stream.scaladsl.Source
 import com.github.tototoshi.csv._
+import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.Files.TemporaryFile
@@ -24,30 +24,27 @@ import scala.concurrent.{ExecutionContext, Future}
   * @param ec
   */
 @Singleton
-class BulkMatchController @Inject()(
-  val controllerComponents: ControllerComponents,
-  override val messagesApi: MessagesApi,
-  apiClient: AddressIndexClientInstance,
-  version: DemoUIAddressIndexVersionModule
- )(
-  implicit
-  ec: ExecutionContext,
-  mat: akka.stream.Materializer
-) extends BaseController with I18nSupport {
-
+class BulkMatchController @Inject()(val controllerComponents: ControllerComponents,
+                                    override val messagesApi: MessagesApi,
+                                    apiClient: AddressIndexClientInstance,
+                                    version: DemoUIAddressIndexVersionModule
+                                   )(implicit
+                                     ec: ExecutionContext,
+                                     mat: akka.stream.Materializer
+                                   ) extends BaseController with I18nSupport {
   private val multiMatchFormName = "file"
   private val logger = Logger("BulkMatchController")
 
   def bulkMatchPage(): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
-    Future successful Ok(
-      uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
-        nav = Navigation.default,
-        fileFormName = multiMatchFormName,
-        version = version
+      Future successful Ok(
+        uk.gov.ons.addressIndex.demoui.views.html.multiMatch(
+          nav = Navigation.default,
+          fileFormName = multiMatchFormName,
+          version = version
+        )
       )
-    )
     }.getOrElse {
       Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
@@ -58,9 +55,8 @@ class BulkMatchController @Inject()(
     */
   def uploadFileVisualise(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = upload {
     (apiResponse: AddressBulkResponseContainer, _, requestParam) =>
-
       // This is required by the `Ok()` class to render the actual html page
-      implicit val request = requestParam
+      implicit val request: Request[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = requestParam
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
@@ -84,9 +80,8 @@ class BulkMatchController @Inject()(
     */
   def uploadFileDownloadCsv(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = upload {
     (apiResponse: AddressBulkResponseContainer, token: String, requestParam) =>
-
       // This is required by the `Ok()` class to render the actual html page
-      implicit val request = requestParam
+      implicit val request: Request[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = requestParam
 
       logger info s"Response size: ${apiResponse.bulkAddresses.size}"
 
@@ -120,6 +115,7 @@ class BulkMatchController @Inject()(
 
   /**
     * Helper function that handles file upload (as we have 2 endpoints with this functionality)
+    *
     * @param apiResponseAction lambda function that actually decides how to transform the response
     *                          from the API into something useful, like html page with a table
     *                          or a csv file
@@ -129,13 +125,11 @@ class BulkMatchController @Inject()(
       parse.maxLength(10 * 1024 * 1024, parse.multipartFormData)
     ) { request =>
       request.session.get("api-key").map { apiKey =>
-
         val result: Option[Future[Result]] = request.body match {
           case Right(file) =>
             val token: String = file.asFormUrlEncoded.get("token").flatMap(_.headOption).getOrElse("")
 
             file.file(multiMatchFormName).map { file =>
-
               val addresses = CSVReader.open(file.ref.path.toFile).all().tail.collect { case List(id, address) if address.nonEmpty =>
                 BulkQuery(id, address)
               }
@@ -143,16 +137,13 @@ class BulkMatchController @Inject()(
               apiClient.bulk(BulkBody(addresses), apiKey).map {
                 apiResponse => apiResponseAction(apiResponse, token, request)
               }
-
             }
 
           case Left(maxSizeExceeded) =>
             logger.info(s"Max size exceeded: $maxSizeExceeded")
             Some(Future.successful(EntityTooLarge))
         }
-
         result.getOrElse(Future.successful(InternalServerError))
-
       }.getOrElse {
         Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
       }

@@ -8,96 +8,13 @@ import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class AddressControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with AddressControllerResponse {
-
-  // get the defaults and maxima for the paging parameters from the config
-
-  def validateLocation(lat: Option[String], lon: Option[String], rangekm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-
-    val latVal: String = lat.getOrElse("")
-    val lonVal: String = lon.getOrElse("")
-    val rangeVal: String = rangekm.getOrElse("")
-
-    val latInvalid: Boolean = if (rangeVal.equals("")) false else Try(latVal.toDouble).isFailure
-    val lonInvalid: Boolean = if (rangeVal.equals("")) false else Try(lonVal.toDouble).isFailure
-
-    val latTooFarNorth: Boolean = if (rangeVal.equals("")) false else Try(latVal.toDouble).getOrElse(50D) > 60.9
-    val latTooFarSouth: Boolean = if (rangeVal.equals("")) false else Try(latVal.toDouble).getOrElse(50D) < 49.8
-    val lonTooFarEast: Boolean = if (rangeVal.equals("")) false else Try(lonVal.toDouble).getOrElse(0D) > 1.8
-    val lonTooFarWest: Boolean = if (rangeVal.equals("")) false else Try(lonVal.toDouble).getOrElse(0D) < -8.6
-
-    if (latInvalid) {
-      logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LatitiudeNotNumeric(queryValues)))
-    } else if (lonInvalid) {
-      logger.systemLog(badRequestMessage = LongitudeNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(LongitudeNotNumeric(queryValues)))
-    } else if (latTooFarNorth) {
-      logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
-      Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
-    } else if (latTooFarSouth) {
-      logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
-      Some(futureJsonBadRequest(LatitudeTooFarSouth(queryValues)))
-    } else if (lonTooFarEast) {
-      logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
-      Some(futureJsonBadRequest(LongitudeTooFarEast(queryValues)))
-    } else if (lonTooFarWest) {
-      logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
-      Some(futureJsonBadRequest(LongitudeTooFarWest(queryValues)))
-    } else None
-  }
-
-  def validateAddressFilter(classificationfilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-
-    val filterString: String = classificationfilter.getOrElse("")
-
-    if (!filterString.isEmpty){
-      if (filterString.contains("*") && filterString.contains(",")){
-        logger.systemLog(badRequestMessage = MixedFilterError.message)
-        Some(futureJsonBadRequest(AddressMixedFilter(queryValues)))
-      }
-      else if (!filterString.matches("""\b(residential|commercial|C|c|C\w+|c\w+|L|l|L\w+|l\w+|M|m|M\w+|m\w+|O|o|O\w+|o\w+|P|p|P\w+|p\w+|R|r|R\w+|r\w+|U|u|U\w+|u\w+|X|x|X\w+|x\w+|Z|z|Z\w+|z\w+)\b.*""")) {
-        logger.systemLog(badRequestMessage = FilterInvalidError.message)
-        Some(futureJsonBadRequest(AddressFilterInvalid(queryValues)))
-      } else None
-    } else None
-
-  }
-
-  def validateRange(rangekm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val rangeVal: String = rangekm.getOrElse("")
-    val rangeInvalid: Boolean = if (rangeVal.equals("")) false else Try(rangeVal.toDouble).isFailure
-
-    if (rangeInvalid) {
-      logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(RangeNotNumeric(queryValues)))
-    } else None
-  }
-
-  def validateThreshold(matchthreshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-
-    val defThreshold: Float = conf.config.elasticSearch.matchThreshold
-    val threshval = matchthreshold.getOrElse(defThreshold.toString)
-    val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
-    val thresholdNotInRange = !(thresholdFloat >= 0 && thresholdFloat <= 100)
-    val thresholdInvalid = Try(threshval.toFloat).isFailure
-
-    if (thresholdInvalid) {
-      logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
-      Some(futureJsonBadRequest(ThresholdNotNumeric(queryValues)))
-    } else if (thresholdNotInRange) {
-      logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
-      Some(futureJsonBadRequest(ThresholdNotInRange(queryValues)))
-    } else None
-  }
-
-  // set minimum string length from config
-  val validEpochs = conf.config.elasticSearch.validEpochs
-  val validEpochsMessage = validEpochs.replace("|test","").replace("|", ", ")
+  val matchThreshold: Float = conf.config.elasticSearch.matchThreshold
+  private val addressFilterRegex = raw"""\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -106,21 +23,90 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   )
 
   override def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues,EpochNotAvailableErrorCustom)
+    BadRequestTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
+  // get the defaults and maxima for the paging parameters from the config
+  def validateLocation(lat: Option[String], lon: Option[String], rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+    (rangeKm, Try(lat.get.toDouble), Try(lon.get.toDouble)) match {
+      case (None, _, _) => None
+      case (Some(""), _, _) => None
+      case (_, Failure(_), _) =>
+        logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(LatitiudeNotNumeric(queryValues)))
+      case (_, _, Failure(_)) =>
+        logger.systemLog(badRequestMessage = LongitudeNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(LongitudeNotNumeric(queryValues)))
+      case (_, Success(latD), _) if latD > 60.9 =>
+        logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
+        Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
+      case (_, Success(latD), _) if latD < 49.8 =>
+        logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
+        Some(futureJsonBadRequest(LatitudeTooFarSouth(queryValues)))
+      case (_, _, Success(lonD)) if lonD > 1.8 =>
+        logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
+        Some(futureJsonBadRequest(LongitudeTooFarEast(queryValues)))
+      case (_, _, Success(lonD)) if lonD < -8.6 =>
+        logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
+        Some(futureJsonBadRequest(LongitudeTooFarWest(queryValues)))
+      case (_, _, _) => None
+    }
+  }
+
+  def validateAddressFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
+    case None => None
+    case Some("") => None
+    case Some(filter) => filter match {
+      case f if f.contains("*") && f.contains(",") =>
+        logger.systemLog(badRequestMessage = MixedFilterError.message)
+        Some(futureJsonBadRequest(AddressMixedFilter(queryValues)))
+      case addressFilterRegex(_*) => None
+      case _ =>
+        logger.systemLog(badRequestMessage = FilterInvalidError.message)
+        Some(futureJsonBadRequest(AddressFilterInvalid(queryValues)))
+    }
+  }
+
+
+  def validateRange(rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = rangeKm match {
+    case None => None
+    case Some("") => None
+    case Some(r) => Try(r.toDouble) match {
+      case Failure(_) =>
+        logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
+        Some(futureJsonBadRequest(RangeNotNumeric(queryValues)))
+      case Success(_) => None
+    }
+  }
+
+  def validateThreshold(threshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+    def inner(threshold: Float): Option[Future[Result]] = threshold match {
+      case t if !(0 <= t && t <= 100) =>
+        logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+        Some(futureJsonBadRequest(ThresholdNotInRange(queryValues)))
+      case _ => None
+    }
+
+    threshold match {
+      case Some("") => None
+      case Some(t) => Try(t.toFloat) match {
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(ThresholdNotNumeric(queryValues)))
+        case Success(tFloat) => inner(tFloat)
+      }
+      case None => inner(matchThreshold)
+    }
+  }
+
+  // validEpochsRegex is inherited from AddressControllerValidation
   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
-
-    val epochVal: String = queryValues.epochOrDefault
-    val validEpochs: String = conf.config.elasticSearch.validEpochs
-
-    if (!epochVal.isEmpty){
-      if (!epochVal.matches("""\b("""+ validEpochs + """)\b.*""")) {
+    queryValues.epochOrDefault match {
+      case "" => None
+      case validEpochsRegex(_*) => None
+      case _ =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(EpochInvalid(queryValues)))
-      } else None
-    } else None
-
+    }
   }
-
 }

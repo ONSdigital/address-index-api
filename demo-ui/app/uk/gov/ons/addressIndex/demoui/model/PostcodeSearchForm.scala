@@ -6,15 +6,13 @@ import play.api.libs.json._
   * Form for single address
   */
 
-case class PostcodeSearchForm(
- address: String,
- filter: String,
- historical: Boolean,
- startdate: String,
- enddate: String
-)
+case class PostcodeSearchForm(address: String,
+                              filter: String,
+                              historical: Boolean,
+                              startdate: String,
+                              enddate: String)
 
 object PostcodeSearchForm {
-  val jsonFmt = Json.format[PostcodeSearchForm]
+  val jsonFmt: OFormat[PostcodeSearchForm] = Json.format[PostcodeSearchForm]
 }
 

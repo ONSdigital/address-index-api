@@ -4,6 +4,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
+import io.gatling.http.request.builder.HttpRequestBuilder
 import uk.gov.ons.gatling.conf.ConfigLoader
 
 import scala.concurrent.duration._
@@ -31,9 +32,9 @@ class RegistersSimulationOpenModel extends Simulation {
     .shareConnections
     .authorizationHeader(apiKey)
 
-  val headers = Map("Upgrade-Insecure-Requests" -> "1")
+  val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
 
-  val httpRequestBuilder = if (requestType == "POST") {
+  val httpRequestBuilder: HttpRequestBuilder = if (requestType == "POST") {
     http(requestName)
       .post(requestRelPath)
       .headers(headers)
@@ -44,7 +45,7 @@ class RegistersSimulationOpenModel extends Simulation {
   }
 
   val scn: ScenarioBuilder = if (requestType == "POST") {
-    val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath()
+    val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath
     scenario(requestName).exec(httpRequestBuilder.body(RawFileBody(postRequestBody)).asJSON)
   } else {
     scenario(requestName).exec(httpRequestBuilder)
