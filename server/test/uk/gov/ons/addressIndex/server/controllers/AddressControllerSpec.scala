@@ -2359,7 +2359,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a 429 error if Elastic threw exception (request failed) while querying for address" in {
+    "reply with a 500 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
       val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
 
