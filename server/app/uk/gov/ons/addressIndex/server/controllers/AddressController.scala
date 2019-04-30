@@ -203,7 +203,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
 
             writeLog(activity = "address_request")
-            overloadProtection.breaker.succeed()
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
             overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(

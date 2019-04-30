@@ -116,6 +116,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
             )
 
             writeLog(activity = "random_address_request")
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByRandomResponseContainer(
