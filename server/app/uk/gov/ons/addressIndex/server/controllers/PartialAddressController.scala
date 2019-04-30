@@ -157,6 +157,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
             val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
 
             writeLog(activity = "partial_request")
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByPartialAddressResponseContainer(
