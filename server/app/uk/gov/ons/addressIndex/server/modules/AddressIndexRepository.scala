@@ -295,7 +295,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           constantScoreQuery(matchQuery(
             field = "lpi.saoStartSuffix",
             value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)),
+        args.tokens.get(Tokens.paoStartSuffix).map(token =>
+          constantScoreQuery(matchQuery(
+            field = "lpi.paoStartSuffix",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoPaoStartSuffixBoost))
       ).flatten match {
         case Seq() => None
         case s => Some(Seq(dismax(s: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker)))
@@ -390,6 +395,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       args.tokens.get(Tokens.paoStartNumber).map(token => Seq(
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
+          value = token
+        )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
+        constantScoreQuery(matchQuery(
+          field = "nisra.buildingNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(

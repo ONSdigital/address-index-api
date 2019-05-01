@@ -57,12 +57,16 @@ object Tokens {
 
     val inputWithoutAccents = StringUtils.stripAccents(upperInput)
 
+    val flatLabels = List(flat).flatten.mkString("|")
+
     val tokens = inputWithoutAccents
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
+      .replaceAll("(?i)($flatLabels)([a-zA-Z]{1,2})", "$1 $2")
+      .replaceAll("([a-zA-Z]*)[\\.]([a-zA-Z]*)", "$1 $2")
       .replace(" IN ", " ")
       .replace(" - ", " ")
       .replace(",", " ")
@@ -201,18 +205,6 @@ object Tokens {
     val buildingNameSplit: BuildingNameSplit = splitBuildingName(buildingNameToken)
     val subBuildingNameSplit: BuildingNameSplit = splitBuildingName(subBuildingNameToken)
 
-    val floatingSuffix: Option[String] = if (subBuildingNameSplit.startSuffix.isEmpty) {
-      buildingNameSplit.startSuffix
-    } else {
-      subBuildingNameSplit.startSuffix
-    }
-
-    val subBuildingNameAdditional: Option[String] = if (subBuildingNameToken.isEmpty) {
-      buildingNameSplit.startSuffix
-    } else {
-      None
-    }
-
     // It is now safe to fill pao/sao fields because paoStartNumber filtered out buildingName in the steps before
     // but first of all we need to remove empty parsed tokens
     // What remains will be transformed into tuple and inserted into `tokens` map
@@ -222,10 +214,9 @@ object Tokens {
       buildingNameSplit.endNumber.map(token => paoEndNumber -> token),
       buildingNameSplit.endSuffix.map(token => paoEndSuffix -> token),
       subBuildingNameSplit.startNumber.map(token => saoStartNumber -> token),
-      floatingSuffix.map(token => saoStartSuffix -> token),
+      subBuildingNameSplit.startSuffix.map(token => saoStartSuffix -> token),
       subBuildingNameSplit.endNumber.map(token => saoEndNumber -> token),
       subBuildingNameSplit.endSuffix.map(token => saoEndSuffix -> token),
-      subBuildingNameAdditional.map(token => subBuildingName -> token)
     ).flatten
 
     tokens ++ newTokens
