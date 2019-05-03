@@ -8,7 +8,7 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
 import scala.concurrent.ExecutionContext
 
-class ClassHierarchy_NoApplicationTest extends FlatSpec with BeforeAndAfterEach with Matchers with MockFactory with OneInstancePerTest {
+class ClassHierarchyNoAppTest extends FlatSpec with BeforeAndAfterEach with Matchers with MockFactory with OneInstancePerTest {
 
   private trait Fixture {
 

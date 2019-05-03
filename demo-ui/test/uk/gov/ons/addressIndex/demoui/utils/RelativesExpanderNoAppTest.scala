@@ -15,7 +15,7 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RelativesExpander_NoApplicationTest extends FlatSpec with Matchers with MockFactory with ScalaFutures {
+class RelativesExpanderNoAppTest extends FlatSpec with Matchers with MockFactory with ScalaFutures {
   private trait Fixture {
     val someApiKey = "api-key"
     val someLevel = 0
