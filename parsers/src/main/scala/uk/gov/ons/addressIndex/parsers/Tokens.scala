@@ -66,7 +66,6 @@ object Tokens {
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
       .replaceAll("(?i)($flatLabels)([a-zA-Z]{1,2})", "$1 $2")
-   //   .replaceAll("([a-zA-Z]*)[\\.]([a-zA-Z]*)", "$1 $2")
       .replace(" R0AD ", " ROAD ")
       .replace(" IN ", " ")
       .replace(" - ", " ")
@@ -125,8 +124,10 @@ object Tokens {
     */
   def postTokenizeTreatmentPostCode(tokens: Map[String, String]): Map[String, String] = {
 
+
+    val dedupPostCode: String = tokens.getOrElse(postcode,"").split(" ").distinct.mkString.replaceAll("\\s", "")
     // Before analyzing the postcode, we also remove whitespaces so that they don't influence the outcome
-    val postcodeToken: Option[String] = tokens.get(postcode).map(_.replaceAll("\\s", ""))
+    val postcodeToken: Option[String] = if (dedupPostCode.equals("")) None else Option(dedupPostCode)
 
     postcodeToken match {
       case Some(concatenatedPostcode) if concatenatedPostcode.length >= 5 =>
