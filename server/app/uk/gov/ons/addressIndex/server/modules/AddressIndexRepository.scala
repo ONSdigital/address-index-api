@@ -269,16 +269,19 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           )).boost(queryParams.subBuildingRange.lpiSaoStartEndBoost))
       ).flatten
 
+
     val subBuildingNameQuery: Seq[QueryDefinition] = Seq(
       args.tokens.get(Tokens.subBuildingName).map(token => Seq(
         constantScoreQuery(matchQuery(
           field = "paf.subBuildingName",
           value = token
-        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
+          .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
         constantScoreQuery(matchQuery(
           field = "nisra.subBuildingName",
           value = token
-        )).boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
+          .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
         constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
@@ -286,21 +289,118 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           .boost(queryParams.subBuildingName.lpiSaoTextBoost)
       )),
       Seq(
-        args.tokens.get(Tokens.saoStartNumber).map(token =>
+        args.tokens.get(Tokens.saoStartNumber).map(token => Seq(
           constantScoreQuery(matchQuery(
             field = "lpi.saoStartNumber",
             value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost)),
-        args.tokens.get(Tokens.saoStartSuffix).map(token =>
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
+          constantScoreQuery(matchQuery(
+            field = "paf.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
+          constantScoreQuery(matchQuery(
+            field = "nisra.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoText",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost))),
+        args.tokens.get(Tokens.saoStartSuffix).map(token =>Seq(
           constantScoreQuery(matchQuery(
             field = "lpi.saoStartSuffix",
             value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost))
-      ).flatten match {
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
+          constantScoreQuery(matchQuery(
+            field = "paf.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
+          constantScoreQuery(matchQuery(
+            field = "nisra.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoText",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)))
+      ).flatten.flatten match {
         case Seq() => None
         case s => Some(Seq(dismax(s: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker)))
       }
     ).flatten.flatten
+
+    // this part of query should be used only when no subbuilding information has been parsed
+    val saoStartNumber = args.tokens.getOrElse(Tokens.saoStartNumber, "")
+    val saoStartSuffix = args.tokens.getOrElse(Tokens.saoStartSuffix, "")
+    val subBuildingName = args.tokens.getOrElse(Tokens.subBuildingName, "")
+    val crossPaoSao = saoStartNumber == "" && saoStartSuffix == "" && subBuildingName == ""
+
+    val subBuildingPaoQuery: Seq[QueryDefinition] = if (crossPaoSao) Seq.empty else Seq(
+      args.tokens.get(Tokens.buildingName).map(token => Seq(
+        constantScoreQuery(matchQuery(
+          field = "paf.subBuildingName",
+          value = token
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
+          .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
+        constantScoreQuery(matchQuery(
+          field = "nisra.subBuildingName",
+          value = token
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
+          .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
+        constantScoreQuery(matchQuery(
+          field = "lpi.saoText",
+          value = token
+        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
+          .boost(queryParams.subBuildingName.lpiSaoTextBoost)
+      )),
+      Seq(
+        args.tokens.get(Tokens.paoStartNumber).map(token => Seq(
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartNumber",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
+          constantScoreQuery(matchQuery(
+            field = "paf.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
+          constantScoreQuery(matchQuery(
+            field = "nisra.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoText",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost))),
+
+        args.tokens.get(Tokens.paoStartSuffix).map(token =>Seq(
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoStartSuffix",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
+          constantScoreQuery(matchQuery(
+            field = "paf.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
+          constantScoreQuery(matchQuery(
+            field = "nisra.subBuildingName",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
+          constantScoreQuery(matchQuery(
+            field = "lpi.saoText",
+            value = token
+          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost)))
+      ).flatten.flatten match {
+        case Seq() => None
+        case s => Some(Seq(dismax(s: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker)))
+      }
+    ).flatten.flatten
+
+    val extraPaoSaoQueries = Seq(
+      subBuildingPaoQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition])
+      .tieBreaker(queryParams.excludingDisMaxTieBreaker)
+      .boost(queryParams.subBuildingName.lpiSaoPaoStartSuffixBoost))
 
     // this part of query should be blank unless there is an end number or end suffix
     val paoEndNumber = args.tokens.getOrElse(Tokens.paoEndNumber, "")
@@ -384,12 +484,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         value = token
       ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
         .boost(queryParams.buildingName.lpiPaoTextBoost)
-    )).toList.flatten ++ paoBuildingNameMust
+    )).toList.flatten ++ paoBuildingNameMust ++ extraPaoSaoQueries
 
     val buildingNumberQuery = if (skipPao) {
       args.tokens.get(Tokens.paoStartNumber).map(token => Seq(
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
+          value = token
+        )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
+        constantScoreQuery(matchQuery(
+          field = "nisra.buildingNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(
@@ -661,6 +765,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
+    // add extra dismax after bestOfTheLot
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
     val queryFilter = if (args.filters.isEmpty) radiusQuery
