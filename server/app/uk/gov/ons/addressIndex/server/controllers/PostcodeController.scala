@@ -129,6 +129,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
             )
 
             writeLog(activity = "postcode_request")
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByPostcodeResponseContainer(

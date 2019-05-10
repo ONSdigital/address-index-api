@@ -7,6 +7,7 @@ trait APIThrottler {
   def breaker: CircuitBreaker
 
   def currentStatus: ThrottleStatus
+  def setStatus(status: ThrottleStatus)
 }
 
 object ThrottlerStatus extends Enumeration {

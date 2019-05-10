@@ -107,6 +107,9 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
               score = hybridAddress.score.toString, activity = "address_request"
             )
 
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+              overloadProtection.setStatus(ThrottlerStatus.Closed)
+
             jsonOk(
               AddressByUprnResponseContainer(
                 apiVersion = apiVersion,
