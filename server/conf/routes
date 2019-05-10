@@ -185,6 +185,8 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #  parameters:
 #    - name: input
 #      description: Specifies the address input.
+#    - name: fallback
+#      description: Specifies whether a slow fallback query is used in the event of the main query returning no results.
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0

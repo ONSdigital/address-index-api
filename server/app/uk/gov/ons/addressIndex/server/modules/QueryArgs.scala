@@ -189,7 +189,7 @@ sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filt
   * Search according to a partial search
   *
   * @param input    the partial search to search by
-  * @param fallback whether to generate a fallback query instead of a
+  * @param fallback whether to try a slow fallback query in the event of a normal query failing
   */
 final case class PartialArgs(input: String,
                              fallback: Boolean = false,
