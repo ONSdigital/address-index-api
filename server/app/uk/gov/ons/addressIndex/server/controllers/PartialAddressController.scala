@@ -36,7 +36,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     */
 
   def partialAddressQuery(input: String,
-                          fallback: Boolean,
+                          fallback: Option[String] = None,
                           offset: Option[String] = None,
                           limit: Option[String] = None,
                           classificationFilter: Option[String] = None,
@@ -65,6 +65,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val startDateVal = ""
     val endDateVal = ""
 
+    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
@@ -134,7 +135,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case _ =>
         val args = PartialArgs(
           input = input,
-          fallback = fallback,
+          fallback = fall,
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
