@@ -13,7 +13,7 @@ import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander, 
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ClientToolNoAppTest extends PlaySpec with Results {
+class ClericalToolNoAppTest extends PlaySpec with Results {
 
   private trait Fixture {
 
@@ -45,7 +45,7 @@ class ClientToolNoAppTest extends PlaySpec with Results {
     val classHierarchy = new ClassHierarchy(messagesApi, langs)
     val relativesExpander = new RelativesExpander(addressIndexClientMock, conf)
 
-    val singleController = new SingleMatchController(
+    val clericalController = new ClericalToolController(
       controllerComponents,
       conf,
       messagesApi,
@@ -56,15 +56,19 @@ class ClientToolNoAppTest extends PlaySpec with Results {
       version)
   }
 
-  "Single Match Controller" should {
+  "Clerical Tool Controller" should {
     "return the initial search page" in new Fixture {
 
       // Given
-      val expectedString = "Search for an address"
+      val expectedString = "GATE REACH"
+      val inputAddress = "7 GATE REACH EXETER EX2 6GA"
+      val filter = ""
+      val historical = true
+      val matchThreshold = 5
 
       // When
-      val response: Future[Result] = singleController.showSingleMatchPage()
-        .apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = clericalController
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchThreshold), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
@@ -73,58 +77,6 @@ class ClientToolNoAppTest extends PlaySpec with Results {
       content must include(expectedString)
     }
 
-    "return a page including an appropriate error message when empty address posted" in new Fixture {
-
-      // Given
-      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter an address</span></div>"
-
-      // When
-      val response: Future[Result] = singleController.
-        doMatch().apply(FakeRequest(POST, "/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
-
-
-      val content = contentAsString(response)
-
-      // Then
-      status(response) mustBe 200
-      content must include(expectedString)
-    }
-
-    "return a page including some search results" in new Fixture {
-
-      // Given
-      val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
-      val inputAddress = "7 EX2 6GA"
-      val filter=""
-
-      // When
-      val response: Future[Result] = singleController.
-        doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
-
-      val content = contentAsString(response)
-
-      // Then
-      status(response) mustBe 200
-      content must include(expectedString)
-    }
-
-    "return a page including some search results with a filter" in new Fixture {
-
-      // Given
-      val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
-      val inputAddress = "7 EX2 6GA"
-      val filter = "RD"
-
-      // When
-      val response: Future[Result] = singleController.
-        doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
-
-      val content = contentAsString(response)
-
-      // Then
-      status(response) mustBe 200
-      content must include(expectedString)
-    }
   }
 }
 

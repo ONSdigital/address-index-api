@@ -33,6 +33,11 @@ class PostcodeMatchNoAppTest extends PlaySpec with Results {
         "category.MF99UG" -> "Air Force Military Storage",
         "category.R" -> "Residential",
         "category.RD" -> "Dwelling",
+        "postcode.sfatext" -> "Search for an address by postcode",
+        "postcode.found" -> "addresses found",
+        "postcode.foundpre" -> "We have matched",
+        "postcode.foundpost" -> "addresses",
+        "postcode.pleasesupply" -> "Please enter a postcode",
         "results.foundexactpre" -> "We have matched",
         "results.foundpost" -> "addresses",
         "single.pleasesupply" -> "Please enter an address",
@@ -45,26 +50,25 @@ class PostcodeMatchNoAppTest extends PlaySpec with Results {
     val classHierarchy = new ClassHierarchy(messagesApi, langs)
     val relativesExpander = new RelativesExpander(addressIndexClientMock, conf)
 
-    val singleController = new SingleMatchController(
+    val postcodeController = new PostcodeController(
       controllerComponents,
       conf,
       messagesApi,
       langs,
       addressIndexClientMock,
       classHierarchy,
-      relativesExpander,
       version)
   }
 
-  "Single Match Controller" should {
-    "return the initial search page" in new Fixture {
+  "Postcode Controller" should {
+    "return a page including a heading" in new Fixture {
 
       // Given
-      val expectedString = "Search for an address"
+      val expectedString = "Search for an address by postcode"
 
       // When
-      val response: Future[Result] = singleController.showSingleMatchPage()
-        .apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = postcodeController.
+      showPostcodeMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
@@ -76,11 +80,11 @@ class PostcodeMatchNoAppTest extends PlaySpec with Results {
     "return a page including an appropriate error message when empty address posted" in new Fixture {
 
       // Given
-      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter an address</span></div>"
+      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a postcode</span></div>"
 
       // When
-      val response: Future[Result] = singleController.
-        doMatch().apply(FakeRequest(POST, "/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+      val response: Future[Result] = postcodeController.
+        doMatch().apply(FakeRequest(POST, "/postcode/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
 
 
       val content = contentAsString(response)
@@ -94,12 +98,13 @@ class PostcodeMatchNoAppTest extends PlaySpec with Results {
 
       // Given
       val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
-      val inputAddress = "7 EX2 6GA"
-      val filter=""
+      val inputAddress = "EX2 6GA"
+      val filter = ""
+      val historical = true
 
       // When
-      val response: Future[Result] = singleController.
-        doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = postcodeController
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
@@ -114,10 +119,11 @@ class PostcodeMatchNoAppTest extends PlaySpec with Results {
       val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "7 EX2 6GA"
       val filter = "RD"
+      val historical = true
 
       // When
-      val response: Future[Result] = singleController.
-        doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = postcodeController
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
