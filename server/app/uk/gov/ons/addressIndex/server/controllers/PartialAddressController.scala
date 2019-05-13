@@ -36,6 +36,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     */
 
   def partialAddressQuery(input: String,
+                          fallback: Boolean,
                           offset: Option[String] = None,
                           limit: Option[String] = None,
                           classificationFilter: Option[String] = None,
@@ -133,6 +134,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case _ =>
         val args = PartialArgs(
           input = input,
+          fallback = fallback,
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
