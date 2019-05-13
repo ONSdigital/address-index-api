@@ -106,6 +106,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     val queryValues = QueryValues(
       input = Some(input),
+      fallback = Some(fall),
       epoch = Some(epochVal),
       filter = Some(filterString),
       historical = Some(hist),
