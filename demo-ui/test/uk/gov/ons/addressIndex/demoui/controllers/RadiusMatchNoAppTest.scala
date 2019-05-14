@@ -33,6 +33,10 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
         "category.MF99UG" -> "Air Force Military Storage",
         "category.R" -> "Residential",
         "category.RD" -> "Dwelling",
+        "radius.foundpre" -> "We have matched",
+        "radius.foundpost" -> "addresses",
+        "radius.pleasesupply" -> "Please enter a radius and search term",
+        "radius.sfatext" -> "Search for an address within a radius",
         "results.foundexactpre" -> "We have matched",
         "results.foundpost" -> "addresses",
         "single.pleasesupply" -> "Please enter an address",
@@ -45,26 +49,25 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
     val classHierarchy = new ClassHierarchy(messagesApi, langs)
     val relativesExpander = new RelativesExpander(addressIndexClientMock, conf)
 
-    val singleController = new SingleMatchController(
+    val radiusController = new RadiusController(
       controllerComponents,
       conf,
       messagesApi,
       langs,
       addressIndexClientMock,
       classHierarchy,
-      relativesExpander,
       version)
   }
 
-  "Single Match Controller" should {
+  "Radius Controller" should {
     "return the initial search page" in new Fixture {
 
       // Given
-      val expectedString = "Search for an address"
+      val expectedString = "Search for an address within a radius"
 
       // When
-      val response: Future[Result] = singleController.showSingleMatchPage()
-        .apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = radiusController
+        .showRadiusMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
@@ -76,11 +79,11 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
     "return a page including an appropriate error message when empty address posted" in new Fixture {
 
       // Given
-      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter an address</span></div>"
+      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a radius and search term</span>"
 
       // When
-      val response: Future[Result] = singleController.
-        doMatch().apply(FakeRequest(POST, "/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+      val response: Future[Result] = radiusController.
+        doMatch().apply(FakeRequest(POST, "/radius/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
 
 
       val content = contentAsString(response)
@@ -94,12 +97,17 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
 
       // Given
       val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
-      val inputAddress = "7 EX2 6GA"
-      val filter=""
+      val inputAddress = "recycling"
+      val filter = ""
+      val range = ""
+      val latitude = ""
+      val longitude = ""
+      val historical = true
+      val matchThreshold = 5
 
       // When
-      val response: Future[Result] = singleController.
-        doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = radiusController
+        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchThreshold)).apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
@@ -114,10 +122,15 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
       val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
       val inputAddress = "7 EX2 6GA"
       val filter = "RD"
+      val range = ""
+      val latitude = ""
+      val longitude = ""
+      val historical = true
+      val matchThreshold = 5
 
       // When
-      val response: Future[Result] = singleController.
-        doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
+      val response: Future[Result] = radiusController
+        .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchThreshold)).apply(FakeRequest().withSession("api-key" -> ""))
 
       val content = contentAsString(response)
 
