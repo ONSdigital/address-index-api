@@ -15,6 +15,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
 case class AddressByPartialAddressResponse(input: String,
                                            addresses: Seq[AddressResponseAddress],
                                            filter: String,
+                                           fallback: Boolean,
                                            historical: Boolean,
                                            epoch: String,
                                            limit: Int,

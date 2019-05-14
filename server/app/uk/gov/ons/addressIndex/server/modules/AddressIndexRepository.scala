@@ -3,8 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition}
-import com.sksamuel.elastic4s.searches.queries.QueryDefinition
+import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
@@ -103,11 +102,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     * old param fallback   flag to indicate if fallback query is required
     * old param verbose    flag to indicate that skinny index should be used when false
     *
-    * @param args partial query arguments (including fallback state)
+    * @param args     partial query arguments
+    * @param fallback flag indicating whether to generate a slower fallback query
     * @return Search definition containing query to the ES
     */
-  def makePartialSearch(args: PartialArgs): SearchDefinition = {
-    if (args.fallback) {
+  def makePartialSearch(args: PartialArgs, fallback: Boolean): SearchDefinition = {
+    if (fallback) {
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
@@ -115,7 +115,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val dateQuery = makeDateQuery(args.filterDateRange)
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
-    val queryWithMatchType = if (args.fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
+    val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
     val filterSeq = Seq(
       if (args.filters.isEmpty) None
@@ -306,7 +306,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             field = "lpi.saoText",
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost))),
-        args.tokens.get(Tokens.saoStartSuffix).map(token =>Seq(
+        args.tokens.get(Tokens.saoStartSuffix).map(token => Seq(
           constantScoreQuery(matchQuery(
             field = "lpi.saoStartSuffix",
             value = token
@@ -372,7 +372,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost))),
 
-        args.tokens.get(Tokens.paoStartSuffix).map(token =>Seq(
+        args.tokens.get(Tokens.paoStartSuffix).map(token => Seq(
           constantScoreQuery(matchQuery(
             field = "lpi.saoStartSuffix",
             value = token
@@ -802,7 +802,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       makeUprnQuery(uprnArgs)
     // uprn normally runs .map(_.addresses.headOption)
     case partialArgs: PartialArgs =>
-      makePartialSearch(partialArgs)
+      // we default to the fast, non-fallback query here
+      makePartialSearch(partialArgs, fallback = false)
     case postcodeArgs: PostcodeArgs =>
       makePostcodeQuery(postcodeArgs)
     case randomArgs: RandomArgs =>
@@ -824,11 +825,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     args match {
       case partialArgs: PartialArgs =>
-        lazy val fallbackQuery = makePartialSearch(partialArgs.copy(fallback = true))
+        // generate a slow, fuzzy fallback query for later
+        lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
         val partResult = client.execute(query).map(HybridAddressCollection.fromEither)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
-          if (adds.addresses.isEmpty) client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)
+          if (adds.addresses.isEmpty && partialArgs.fallback) client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)
           else partResult
         }.flatten
       case _ =>
