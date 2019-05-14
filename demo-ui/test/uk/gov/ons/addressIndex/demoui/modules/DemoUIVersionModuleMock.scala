@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.demoui.modules
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.ws.WSClient
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
 
 import scala.concurrent.ExecutionContext

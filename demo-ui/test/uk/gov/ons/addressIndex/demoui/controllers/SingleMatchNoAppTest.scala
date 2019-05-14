@@ -5,7 +5,7 @@ import org.specs2.execute.Results
 import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Langs}
 import play.api.libs.ws.WSClient
 import play.api.test.{FakeRequest, WsTestClient}
-import play.api.mvc.Result
+import play.api.mvc.{ControllerComponents, Result}
 import play.api.test.Helpers.{POST, contentAsString, defaultAwaitTimeout, status}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIVersionModuleMock, DemouiConfigModuleMock}
@@ -19,7 +19,7 @@ class SingleMatchNoAppTest extends PlaySpec with Results {
 
     implicit val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
     val conf: DemouiConfigModuleMock = new DemouiConfigModuleMock
-    val wsClient =  WsTestClient.withClient[WSClient](identity)
+    val wsClient: WSClient =  WsTestClient.withClient[WSClient](identity)
     val addressIndexClientMock: AddressIndexClientMock = new AddressIndexClientMock(wsClient, conf)
     val version = new DemoUIVersionModuleMock(addressIndexClientMock, executionContext)
 
@@ -38,12 +38,11 @@ class SingleMatchNoAppTest extends PlaySpec with Results {
         "single.pleasesupply" -> "Please enter an address",
         "single.sfatext" -> "Search for an address"))
     )
+
     val langs: Langs = new DefaultLangs()
-
-    val controllerComponents = StubFactory.stubControllerComponents()
-
-    val classHierarchy = new ClassHierarchy(messagesApi, langs)
-    val relativesExpander = new RelativesExpander(addressIndexClientMock, conf)
+    val controllerComponents: ControllerComponents = StubFactory.stubControllerComponents()
+    val classHierarchy: ClassHierarchy = new ClassHierarchy(messagesApi, langs)
+    val relativesExpander: RelativesExpander = new RelativesExpander(addressIndexClientMock, conf)
 
     val singleController = new SingleMatchController(
       controllerComponents,
@@ -66,7 +65,7 @@ class SingleMatchNoAppTest extends PlaySpec with Results {
       val response: Future[Result] = singleController.showSingleMatchPage()
       .apply(FakeRequest().withSession("api-key" -> ""))
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
@@ -83,7 +82,7 @@ class SingleMatchNoAppTest extends PlaySpec with Results {
         doMatch().apply(FakeRequest(POST, "/addresses/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
 
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
@@ -95,13 +94,13 @@ class SingleMatchNoAppTest extends PlaySpec with Results {
       // Given
       val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
       val inputAddress = "7 EX2 6GA"
-      val filter=""
+      val filter = ""
 
       // When
       val response: Future[Result] = singleController.
         doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
@@ -119,7 +118,7 @@ class SingleMatchNoAppTest extends PlaySpec with Results {
       val response: Future[Result] = singleController.
         doMatchWithInput(inputAddress, Some(filter), Some(1)).apply(FakeRequest().withSession("api-key" -> ""))
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200

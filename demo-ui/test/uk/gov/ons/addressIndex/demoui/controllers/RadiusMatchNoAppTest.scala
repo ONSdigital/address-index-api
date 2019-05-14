@@ -5,11 +5,11 @@ import org.specs2.execute.Results
 import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Langs}
 import play.api.libs.ws.WSClient
 import play.api.test.{FakeRequest, WsTestClient}
-import play.api.mvc.Result
+import play.api.mvc.{ControllerComponents, Result}
 import play.api.test.Helpers.{POST, contentAsString, defaultAwaitTimeout, status}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
 import uk.gov.ons.addressIndex.demoui.modules.{DemoUIVersionModuleMock, DemouiConfigModuleMock}
-import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander, StubFactory}
+import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, StubFactory}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,10 +19,9 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
 
     implicit val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
     val conf: DemouiConfigModuleMock = new DemouiConfigModuleMock
-    val wsClient =  WsTestClient.withClient[WSClient](identity)
+    val wsClient: WSClient =  WsTestClient.withClient[WSClient](identity)
     val addressIndexClientMock: AddressIndexClientMock = new AddressIndexClientMock(wsClient, conf)
-    val version = new DemoUIVersionModuleMock(addressIndexClientMock, executionContext)
-
+    val version: DemoUIVersionModuleMock = new DemoUIVersionModuleMock(addressIndexClientMock, executionContext)
     val messagesApi = new DefaultMessagesApi(
       Map("en" -> Map("category.C" -> "Commercial",
         "category.CL" -> "Leisure - Applicable to recreational sites and enterprises",
@@ -43,12 +42,8 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
         "single.sfatext" -> "Search for an address"))
     )
     val langs: Langs = new DefaultLangs()
-
-    val controllerComponents = StubFactory.stubControllerComponents()
-
-    val classHierarchy = new ClassHierarchy(messagesApi, langs)
-    val relativesExpander = new RelativesExpander(addressIndexClientMock, conf)
-
+    val controllerComponents: ControllerComponents = StubFactory.stubControllerComponents()
+    val classHierarchy: ClassHierarchy = new ClassHierarchy(messagesApi, langs)
     val radiusController = new RadiusController(
       controllerComponents,
       conf,
@@ -69,7 +64,7 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
       val response: Future[Result] = radiusController
         .showRadiusMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
@@ -85,8 +80,7 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
       val response: Future[Result] = radiusController.
         doMatch().apply(FakeRequest(POST, "/radius/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
 
-
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
@@ -109,7 +103,7 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
       val response: Future[Result] = radiusController
         .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchThreshold)).apply(FakeRequest().withSession("api-key" -> ""))
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
@@ -132,7 +126,7 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
       val response: Future[Result] = radiusController
         .doMatchWithInput(inputAddress, Some(filter), Some(range), Some(latitude), Some(longitude), Some(1), Some(historical), Some(matchThreshold)).apply(FakeRequest().withSession("api-key" -> ""))
 
-      val content = contentAsString(response)
+      val content: String = contentAsString(response)
 
       // Then
       status(response) mustBe 200
