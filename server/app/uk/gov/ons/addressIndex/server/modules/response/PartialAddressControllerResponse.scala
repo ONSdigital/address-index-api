@@ -79,6 +79,7 @@ trait PartialAddressControllerResponse extends AddressResponse {
       input = queryValues.inputOrDefault,
       addresses = Seq.empty,
       filter = queryValues.filterOrDefault,
+      fallback = queryValues.fallbackOrDefault,
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       limit = queryValues.limitOrDefault,

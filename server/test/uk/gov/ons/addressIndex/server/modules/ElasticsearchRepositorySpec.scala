@@ -952,7 +952,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = "residential",
         limit = 1
       )
-      val query = repository.makePartialSearch(args)
+      val query = repository.makePartialSearch(args, fallback = true)
       val result = Json.parse(SearchBodyBuilderFn(query).string())
 
       // Then
@@ -1081,7 +1081,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = "residential",
         filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31"),
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -1209,7 +1209,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filterDateRange = DateRange(start = "2013-01-01", end = "2013-12-31"),
         fallback = true,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected
@@ -3788,7 +3788,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterNone,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -3865,7 +3865,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterNone,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected
@@ -3903,7 +3903,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterNone,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -3941,7 +3941,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterNone,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected
@@ -4024,7 +4024,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterCode,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -4107,7 +4107,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterCode,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected
@@ -4191,7 +4191,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterPrefix,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -4275,7 +4275,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterPrefix,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected
@@ -4318,7 +4318,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterCode,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -4361,7 +4361,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterCode,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected
@@ -4406,7 +4406,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterPrefix,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
       // Then
       result shouldBe expected
@@ -4451,7 +4451,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         filters = partialFilterPrefix,
         limit = 1,
       )
-      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+      val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
       // Then
       result shouldBe expected

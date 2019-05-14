@@ -185,6 +185,8 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #  parameters:
 #    - name: input
 #      description: Specifies the address input.
+#    - name: fallback
+#      description: Specifies whether a slow fallback query is used in the event of the main query returning no results.
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
@@ -220,7 +222,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], startboost: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], startboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode.

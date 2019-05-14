@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.model.dao
 
 case class QueryValues(input: Option[String] = None,
+                       fallback: Option[Boolean] = None,
                        postcode: Option[String] = None,
                        uprn: Option[String] = None,
                        epoch: Option[String] = None,
@@ -16,6 +17,8 @@ case class QueryValues(input: Option[String] = None,
                        longitude: Option[String] = None,
                        matchThreshold: Option[Float] = None) {
   def inputOrDefault: String = this.input.getOrElse("")
+
+  def fallbackOrDefault: Boolean = this.fallback.getOrElse(true)
 
   def postcodeOrDefault: String = this.postcode.getOrElse("")
 

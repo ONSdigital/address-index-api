@@ -36,6 +36,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     */
 
   def partialAddressQuery(input: String,
+                          fallback: Option[String] = None,
                           offset: Option[String] = None,
                           limit: Option[String] = None,
                           classificationFilter: Option[String] = None,
@@ -64,6 +65,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val startDateVal = ""
     val endDateVal = ""
 
+    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
@@ -92,6 +94,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         partialAddress = input, isNotFound = notFound, offset = offval,
+        fallback = fall,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
@@ -104,6 +107,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     val queryValues = QueryValues(
       input = Some(input),
+      fallback = Some(fall),
       epoch = Some(epochVal),
       filter = Some(filterString),
       historical = Some(hist),
@@ -133,6 +137,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       case _ =>
         val args = PartialArgs(
           input = input,
+          fallback = fall,
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
@@ -168,6 +173,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   input = input,
                   addresses = sortAddresses,
                   filter = filterString,
+                  fallback = fall,
                   historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
