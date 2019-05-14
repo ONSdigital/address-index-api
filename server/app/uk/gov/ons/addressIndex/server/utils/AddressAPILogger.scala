@@ -32,7 +32,7 @@ class AddressAPILogger(log: String) extends APILogger {
         s"is_postcode=${!postcode.isEmpty} is_input=${!input.isEmpty} is_random=${!random.isEmpty} " +
         s"is_bulk=${!bulkSize.isEmpty} is_partial=${!partialAddress.isEmpty} " +
         s"uprn=$uprn postcode=$postcode input=$input " +
-        s"fallback=$fallback" +
+        s"fallback=$fallback " +
         s"offset=$offset limit=$limit filter=$filter " + s"verbose=$verbose " +
         s"partialAddress=$partialAddress " + s"historical=$historical " + s"epoch=$epoch " +
         s"rangekm=$rangekm lat=$lat lon=$lon " +
