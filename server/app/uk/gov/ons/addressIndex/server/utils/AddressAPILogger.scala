@@ -15,6 +15,7 @@ class AddressAPILogger(log: String) extends APILogger {
 
   def systemLog(ip: String = "", url: String = "", responseTimeMillis: String = "",
                 uprn: String = "", postcode: String = "", random: String = "", partialAddress: String = "", input: String = "",
+                fallback: Boolean = true,
                 offset: String = "", limit: String = "", filter: String = "", verbose: Boolean = false,
                 historical: Boolean = true,
                 epoch: String = "",

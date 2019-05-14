@@ -94,6 +94,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         partialAddress = input, isNotFound = notFound, offset = offval,
+        fallback = fall,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
@@ -172,6 +173,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   input = input,
                   addresses = sortAddresses,
                   filter = filterString,
+                  fallback = fall,
                   historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
