@@ -1,9 +1,14 @@
 package uk.gov.ons.addressIndex.demoui.modules
 
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
+import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
+
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class DemoUIVersionModuleMock {
-  val apiVersion = "a12345"
-  val dataVersion = "39"
+class DemoUIVersionModuleMock @Inject()(apiClient: AddressIndexClientMock, ec: ExecutionContext)
+
+  extends DemoUIAddressIndexVersionModule(apiClient: AddressIndexClientMock)(ec: ExecutionContext) {
+  override lazy val apiVersion = "a12345"
+  override lazy val dataVersion = "39"
 }

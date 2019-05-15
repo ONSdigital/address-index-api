@@ -1,0 +1,135 @@
+package uk.gov.ons.addressIndex.demoui.controllers
+
+import org.scalatestplus.play.PlaySpec
+import org.specs2.execute.Results
+import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Langs}
+import play.api.libs.ws.WSClient
+import play.api.test.{FakeRequest, WsTestClient}
+import play.api.mvc.{ControllerComponents, Result}
+import play.api.test.Helpers.{POST, contentAsString, defaultAwaitTimeout, status}
+import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
+import uk.gov.ons.addressIndex.demoui.modules.{DemoUIVersionModuleMock, DemouiConfigModuleMock}
+import uk.gov.ons.addressIndex.demoui.utils.{ClassHierarchy, RelativesExpander, StubFactory}
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class PostcodeMatchNoAppTest extends PlaySpec with Results {
+
+  private trait Fixture {
+
+    implicit val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+    val conf: DemouiConfigModuleMock = new DemouiConfigModuleMock
+    val wsClient: WSClient =  WsTestClient.withClient[WSClient](identity)
+    val addressIndexClientMock: AddressIndexClientMock = new AddressIndexClientMock(wsClient, conf)
+    val version = new DemoUIVersionModuleMock(addressIndexClientMock, executionContext)
+
+    val messagesApi = new DefaultMessagesApi(
+      Map("en" -> Map("category.C" -> "Commercial",
+        "category.CL" -> "Leisure - Applicable to recreational sites and enterprises",
+        "category.CL06" -> "Indoor / Outdoor Leisure / Sporting Activity / Centre",
+        "category.CL06RG" -> "Recreation Ground",
+        "category.M" -> "Military",
+        "category.MF" -> "Air Force",
+        "category.MF99UG" -> "Air Force Military Storage",
+        "category.R" -> "Residential",
+        "category.RD" -> "Dwelling",
+        "postcode.sfatext" -> "Search for an address by postcode",
+        "postcode.found" -> "addresses found",
+        "postcode.foundpre" -> "We have matched",
+        "postcode.foundpost" -> "addresses",
+        "postcode.pleasesupply" -> "Please enter a postcode",
+        "results.foundexactpre" -> "We have matched",
+        "results.foundpost" -> "addresses",
+        "single.pleasesupply" -> "Please enter an address",
+        "single.sfatext" -> "Search for an address"))
+    )
+
+    val langs: Langs = new DefaultLangs()
+    val controllerComponents: ControllerComponents = StubFactory.stubControllerComponents()
+    val classHierarchy: ClassHierarchy = new ClassHierarchy(messagesApi, langs)
+    val relativesExpander: RelativesExpander = new RelativesExpander(addressIndexClientMock, conf)
+
+    val postcodeController = new PostcodeController(
+      controllerComponents,
+      conf,
+      messagesApi,
+      langs,
+      addressIndexClientMock,
+      classHierarchy,
+      version)
+  }
+
+  "Postcode Controller" should {
+    "return a page including a heading" in new Fixture {
+
+      // Given
+      val expectedString = "Search for an address by postcode"
+
+      // When
+      val response: Future[Result] = postcodeController.
+      showPostcodeMatchPage().apply(FakeRequest().withSession("api-key" -> ""))
+
+      val content: String = contentAsString(response)
+
+      // Then
+      status(response) mustBe 200
+      content must include(expectedString)
+    }
+
+    "return a page including an appropriate error message when empty address posted" in new Fixture {
+
+      // Given
+      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a postcode</span></div>"
+
+      // When
+      val response: Future[Result] = postcodeController.
+        doMatch().apply(FakeRequest(POST, "/postcode/search").withFormUrlEncodedBody("address" -> "").withSession("api-key" -> ""))
+
+      val content: String = contentAsString(response)
+
+      // Then
+      status(response) mustBe 200
+      content must include(expectedString)
+    }
+
+    "return a page including some search results" in new Fixture {
+
+      // Given
+      val expectedString = "<div class=\"standout\">We have matched 1 addresses</div>"
+      val inputAddress = "EX2 6GA"
+      val filter = ""
+      val historical = true
+
+      // When
+      val response: Future[Result] = postcodeController
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
+
+      val content: String = contentAsString(response)
+
+      // Then
+      status(response) mustBe 200
+      content must include(expectedString)
+    }
+
+    "return a page including some search results with a filter" in new Fixture {
+
+      // Given
+      val expectedString = "[ RD ] [ Residential ] [ Dwelling ]"
+      val inputAddress = "7 EX2 6GA"
+      val filter = "RD"
+      val historical = true
+
+      // When
+      val response: Future[Result] = postcodeController
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(historical), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
+
+      val content: String = contentAsString(response)
+
+      // Then
+      status(response) mustBe 200
+      content must include(expectedString)
+    }
+  }
+}
+
+
