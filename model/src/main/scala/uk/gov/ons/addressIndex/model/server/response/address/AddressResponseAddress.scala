@@ -45,21 +45,19 @@ object AddressResponseAddress {
     */
   def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddress = {
 
-    val chosenNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = if (chosenNag.isEmpty) "" else chosenNag.get.mixedNag
-    val lpiLogicalStatus = if (chosenNag.isEmpty) "" else chosenNag.get.lpiLogicalStatus
+    val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
+    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse("")
+    val lpiLogicalStatus = chosenNag.map(_.lpiLogicalStatus).getOrElse("")
 
-    val chosenWelshNag: Option[NationalAddressGazetteerAddress] = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = if (chosenWelshNag.isEmpty) "" else chosenWelshNag.get.mixedNag
+    val chosenWelshNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
+    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedNag).getOrElse("")
 
-    val chosenPaf: Option[PostcodeAddressFileAddress] = other.paf.headOption
-    val formattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedPaf
-    val welshFormattedAddressPaf = if (chosenPaf.isEmpty) "" else chosenPaf.get.mixedWelshPaf
+    val chosenPaf = other.paf.headOption
+    val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
+    val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
-    val chosenNisra: Option[NisraAddress] = other.nisra.headOption
-    val formattedAddressNisra = if (chosenNisra.isEmpty) "" else chosenNisra.get.mixedNisra
-
-    val fromSource = other.fromSource
+    val chosenNisra = other.nisra.headOption
+    val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -92,7 +90,7 @@ object AddressResponseAddress {
       },
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
-      fromSource = fromSource,
+      fromSource = other.fromSource,
       confidenceScore = 1D,
       underlyingScore = other.score
     )
@@ -105,12 +103,14 @@ object AddressResponseAddress {
     * @return the NAG address that corresponds to the returned address
     */
   def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress], language: String): Option[NationalAddressGazetteerAddress] = {
-    addresses.find(addr => addr.lpiLogicalStatus == "1" && addr.language == language).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6" && addr.language == language)).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8" && addr.language == language)).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "1")).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6")).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8")).
-      orElse(addresses.headOption)
+    addresses
+      .filter(_.language == language)
+      .sortBy(_.lpiLogicalStatus match {
+        case "1" => 1
+        case "6" => 2
+        case "8" => 3
+        case _ => 4
+      })
+      .headOption
   }
 }
