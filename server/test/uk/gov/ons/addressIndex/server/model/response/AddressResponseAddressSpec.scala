@@ -146,7 +146,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
   )
 
   val givenRelative = Relative (
-    level = 1.toInt,
+    level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
@@ -287,7 +287,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         formattedAddressNag = "mixedNag",
         formattedAddressPaf = "mixedPaf",
         formattedAddressNisra = "mixedNisra",
-        welshFormattedAddressNag = "mixedNag",
+        welshFormattedAddressNag = "",
         welshFormattedAddressPaf = "mixedWelshPaf",
         paf = Some(expectedPaf),
         nag = Some(Seq(expectedNag)),
