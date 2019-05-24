@@ -9,6 +9,7 @@ case class NisraAddress(
   organisationName: String,
   subBuildingName: String,
   buildingName: String,
+  buildingNumber: String,
   paoText: String,
   paoStartNumber: String,
   paoStartSuffix: String,
@@ -54,7 +55,7 @@ object NisraAddress {
     val organisationName: String = "organisationName"
     val subBuildingName: String = "subBuildingName"
     val buildingName: String = "buildingName"
-//    val buildingNumber: String = "buildingNumber"
+    val buildingNumber: String = "buildingNumber"
     val paoText: String = "paoText"
     val paoStartNumber: String = "paoStartNumber"
     val paoStartSuffix: String = "paoStartSuffix"
@@ -97,6 +98,7 @@ object NisraAddress {
       organisationName = filteredNisra.getOrElse(Fields.organisationName, "").toString,
       subBuildingName = filteredNisra.getOrElse(Fields.subBuildingName, "").toString,
       buildingName = filteredNisra.getOrElse(Fields.buildingName, "").toString,
+      buildingNumber = filteredNisra.getOrElse(Fields.buildingNumber, "").toString,
       paoText = filteredNisra.getOrElse(Fields.paoText, "").toString,
       paoStartNumber = filteredNisra.getOrElse(Fields.paoStartNumber, "").toString,
       paoStartSuffix = filteredNisra.getOrElse(Fields.paoStartSuffix, "").toString,

@@ -30,6 +30,7 @@ case class AddressResponseNisra(
                                  organisationName: String,
                                  subBuildingName: String,
                                  buildingName: String,
+                                 buildingNumber: String,
                                  pao: AddressResponsePao,
                                  sao: AddressResponseSao,
                                  thoroughfare: String,
@@ -57,7 +58,7 @@ object AddressResponseNisra {
       other.organisationName,
       other.subBuildingName,
       other.buildingName,
-   //   other.buildingNumber,
+      other.buildingNumber,
       pao = AddressResponsePao(
         other.paoText,
         other.paoStartNumber,
