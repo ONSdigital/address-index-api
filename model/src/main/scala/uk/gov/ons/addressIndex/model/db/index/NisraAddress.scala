@@ -9,7 +9,16 @@ case class NisraAddress(
   organisationName: String,
   subBuildingName: String,
   buildingName: String,
-  buildingNumber: String,
+  paoText: String,
+  paoStartNumber: String,
+  paoStartSuffix: String,
+  paoEndNumber: String,
+  paoEndSuffix: String,
+  saoText: String,
+  saoStartNumber: String,
+  saoStartSuffix: String,
+  saoEndNumber: String,
+  saoEndSuffix: String,
   thoroughfare: String,
   altThoroughfare: String,
   dependentThoroughfare: String,
@@ -28,7 +37,7 @@ case class NisraAddress(
   archivedDate: String,
   latitude: String,
   longitude: String,
-  nisraAll: String,
+ // nisraAll: String,
   mixedNisra: String
   )
 
@@ -45,7 +54,17 @@ object NisraAddress {
     val organisationName: String = "organisationName"
     val subBuildingName: String = "subBuildingName"
     val buildingName: String = "buildingName"
-    val buildingNumber: String = "buildingNumber"
+//    val buildingNumber: String = "buildingNumber"
+    val paoText: String = "paoText"
+    val paoStartNumber: String = "paoStartNumber"
+    val paoStartSuffix: String = "paoStartSuffix"
+    val paoEndNumber: String = "paoEndNumber"
+    val paoEndSuffix: String = "paoEndSuffix"
+    val saoText: String = "saoText"
+    val saoStartNumber: String = "saoStartNumber"
+    val saoStartSuffix: String = "saoStartSuffix"
+    val saoEndNumber: String = "saoEndNumber"
+    val saoEndSuffix: String = "saoEndSuffix"
     val thoroughfare: String = "thoroughfare"
     val altThoroughfare: String = "altThoroughfare"
     val dependentThoroughfare: String = "dependentThoroughfare"
@@ -71,14 +90,23 @@ object NisraAddress {
     val filteredNisra = nisra.filter { case (_, value) => value != null && value !="" }
 
     val matchLocationRegex = """-?\d+(?:\.\d*)?(?:[E][+\-]?\d+)?""".r
-    val location = filteredNisra.getOrElse(Fields.location, "").toString
+    val location = filteredNisra.getOrElse(Fields.location, "0,0").toString
     val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
 
     NisraAddress (
       organisationName = filteredNisra.getOrElse(Fields.organisationName, "").toString,
       subBuildingName = filteredNisra.getOrElse(Fields.subBuildingName, "").toString,
       buildingName = filteredNisra.getOrElse(Fields.buildingName, "").toString,
-      buildingNumber = filteredNisra.getOrElse(Fields.buildingNumber, "").toString,
+      paoText = filteredNisra.getOrElse(Fields.paoText, "").toString,
+      paoStartNumber = filteredNisra.getOrElse(Fields.paoStartNumber, "").toString,
+      paoStartSuffix = filteredNisra.getOrElse(Fields.paoStartSuffix, "").toString,
+      paoEndNumber = filteredNisra.getOrElse(Fields.paoEndNumber, "").toString,
+      paoEndSuffix = filteredNisra.getOrElse(Fields.paoEndSuffix, "").toString,
+      saoText = filteredNisra.getOrElse(Fields.saoText, "").toString,
+      saoStartNumber = filteredNisra.getOrElse(Fields.saoStartNumber, "").toString,
+      saoStartSuffix =filteredNisra.getOrElse(Fields.saoStartSuffix, "").toString,
+      saoEndNumber = filteredNisra.getOrElse(Fields.saoEndNumber, "").toString,
+      saoEndSuffix = filteredNisra.getOrElse(Fields.saoEndSuffix, "").toString,
       thoroughfare = filteredNisra.getOrElse(Fields.thoroughfare, "").toString,
       altThoroughfare = filteredNisra.getOrElse(Fields.altThoroughfare, "").toString,
       dependentThoroughfare = filteredNisra.getOrElse(Fields.dependentThoroughfare, "").toString,
@@ -97,7 +125,7 @@ object NisraAddress {
       archivedDate = filteredNisra.getOrElse(Fields.archivedDate, "").toString,
       latitude = latitude,
       longitude = longitude,
-      nisraAll = filteredNisra.getOrElse(Fields.nisraAll, "").toString,
+   //   nisraAll = filteredNisra.getOrElse(Fields.nisraAll, "").toString,
       mixedNisra = filteredNisra.getOrElse(Fields.mixedNisra, "").toString
     )
   }

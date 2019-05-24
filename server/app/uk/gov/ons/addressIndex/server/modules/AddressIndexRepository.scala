@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
@@ -114,6 +115,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val slopVal = 4
     val dateQuery = makeDateQuery(args.filterDateRange)
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+  //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
@@ -137,21 +139,23 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         // prevents (a a -> a b) from causing two matches
         numMatchQuery("lpi.paoStartNumber", first).boost(0.5D),
         numMatchQuery("lpi.saoStartNumber", first).boost(0.5D),
-        numMatchQuery("nisra.buildingNumber", first).boost(0.5D))
+        numMatchQuery("nisra.paoStartNumber", first).boost(0.5D))
       case first :: second :: _ => Seq(
         // allow the input pao and input sao to match once each
         // because they cannot both match the same target, matches should not overlap (usually)
         dismax(numMatchQuery("lpi.paoStartNumber", first).boost(0.2D),
           numMatchQuery("lpi.saoStartNumber", first).boost(0.5D),
-          numMatchQuery("nisra.buildingNumber", first).boost(0.5D)),
+          numMatchQuery("nisra.saoStartNumber", first).boost(0.5D)),
         dismax(numMatchQuery("lpi.paoStartNumber", second).boost(0.5D),
           numMatchQuery("lpi.saoStartNumber", second).boost(0.2D),
-          numMatchQuery("nisra.buildingNumber", second).boost(0.5D)))
+          numMatchQuery("nisra.paoStartNumber", second).boost(0.5D)))
       case Seq(first) => Seq(
         // otherwise, match either
         dismax(numMatchQuery("lpi.paoStartNumber", first).boost(0.5D),
           numMatchQuery("lpi.saoStartNumber", first).boost(0.2D),
-          numMatchQuery("nisra.buildingNumber", first).boost(0.5D)))
+          numMatchQuery("nisra.paoStartNumber", first).boost(0.5D),
+          numMatchQuery("nisra.saoStartNumber", first).boost(0.2D),
+        ))
       case _ => Seq.empty
     }
 
@@ -197,7 +201,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         FieldSortDefinition("lpi.paoStartNumber").asc(),
         FieldSortDefinition("lpi.paoStartSuffix.keyword").asc(),
         FieldSortDefinition("nisra.thoroughfare.keyword").asc(),
-        FieldSortDefinition("nisra.buildingNumber.keyword").asc(),
+        FieldSortDefinition("nisra.paoStartNumber").asc(),
         FieldSortDefinition("uprn").asc())
       .start(args.start)
       .limit(args.limit)
@@ -446,12 +450,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
       args.tokens.get(Tokens.paoEndNumber).map(token =>
         constantScoreQuery(matchQuery(
-          field = "nisra.buildingNumber",
+          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
       args.tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
-          field = "nisra.buildingNumber",
+          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
     ).flatten else Seq.empty
@@ -493,7 +497,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(
-          field = "nisra.buildingNumber",
+          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(
@@ -822,7 +826,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-
+    val debugq: String = SearchBodyBuilderFn(query).string()
+    println(debugq)
     args match {
       case partialArgs: PartialArgs =>
         // generate a slow, fuzzy fallback query for later

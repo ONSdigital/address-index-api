@@ -197,7 +197,7 @@ object HopperScoreHelper {
 
     // get nisra values
     val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("").toUpperCase
-    val nisraBuildingNumber = address.nisra.map(_.buildingNumber).getOrElse("").toUpperCase
+    val nisraBuildingNumber = address.nisra.map(_.pao.paoStartNumber).getOrElse("").toUpperCase
     val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("").toUpperCase
 
     //get nag values
