@@ -3,7 +3,8 @@ dist: trusty
 language: scala
 script:
   - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; else travis_retry sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; fi
-  - echo "$DOCKER_PASSWORD" | base64 --decode | docker login "$DOCKER_REGISTRY" --username "$DOCKER_USERNAME" --password-stdin
+ # - echo "$DOCKER_PASSWORD" | base64 --decode | docker login "$DOCKER_REGISTRY" --username "$DOCKER_USERNAME" --password-stdin
+  - echo "$DOCKER_PASSWORD" | docker login "$DOCKER_REGISTRY" --username "$DOCKER_USERNAME" --password-stdin
  #   docker build -t "$DOCKER_LOCATION"/census-rm-fwmtrmadapter -t "$DOCKER_LOCATION"/census-rm-fwmtrmadapter:census-fwmt-rm-adapter-$TRAVIS_BUILD_NUMBER -t "$DOCKER_LOCATION"/census-rm-fwmtrmadapter:snapshot --build-arg jar=build/libs/census-fwmt-rm-adapter-*.jar .
  #   docker push "$DOCKER_LOCATION"/census-rm-fwmtrmadapter
   - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" docker:publish
