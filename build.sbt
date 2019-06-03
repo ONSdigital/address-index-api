@@ -65,6 +65,8 @@ lazy val Resolvers: Seq[MavenRepository] = Seq(
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
+  dockerUpdateLatest := true,
+  dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev/address-index-api-v1"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
     "-encoding", "UTF-8",
