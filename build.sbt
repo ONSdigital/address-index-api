@@ -9,6 +9,7 @@ import sbt.Resolver.{file => _, url => _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import sbtrelease.Version
+import sbtrelease.versionFormatError
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 import scala.io.Source
@@ -24,9 +25,14 @@ val verFile: File = file("./version.sbt")
 val getVersionFromFile = IO.readLines(verFile).mkString
 //val getVersionFromFile = IO.readLines(new File(Path.userHome.absolutePath + "/.version.sbt")).mkString
 val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
+
+val snapVersion = Version(readVersion).map(_.bump(sbtrelease.Version.Bump.Next).asSnapshot.string).getOrElse(versionFormatError(""))
+val releaseVersion = Version(snapVersion).map(_.withoutQualifier.string).getOrElse(versionFormatError(""))
+
 //version in ThisBuild := "1.5.6"
-version in ThisBuild := readVersion
+version in ThisBuild := snapVersion
 val ver = version in ThisBuild
+//val rVer = releaseVersion
 //val vernow:String = (ver in Compile).value
 
 lazy val Versions = new {
@@ -249,8 +255,11 @@ lazy val `address-index-server` = project.in(file("server"))
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
     //  val contents = git.gitHeadCommit.value.map { sha => s"v_$sha" }.getOrElse("develop")
+
       val contents = (ver in Compile).value
-      IO.write(file, contents)
+      val snapPos = contents.lastIndexOf("-")
+      IO.write(file, contents.substring(0,snapPos))
+   //   IO.write(verFile, contents.substring(0,snapPos))
       Seq(file)
     }.taskValue
   )
