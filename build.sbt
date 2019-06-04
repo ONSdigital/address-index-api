@@ -8,16 +8,23 @@ import sbt.Keys.{mappings, _}
 import sbt.Resolver.{file => _, url => _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
+import sbtrelease.Version
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
+import scala.io.Source
+
 routesImport := Seq.empty
+
+val fileContents = Source.fromFile("version.sbt").getLines.mkString
+val readVersion = fileContents.replaceAll("version := ","")
+val test = Version.Bump.Next.bump.toString()
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
-  //val applicationVersion = "1.0.0"
+  val applicationVersion = "1.2.3"
 }
 
 name := "address-index"
@@ -67,8 +74,9 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
   dockerUpdateLatest := true,
-  releaseUseGlobalVersion := false,
-  version in Docker := releaseNextVersion.toString(),
+ // releaseUseGlobalVersion := false,
+ // version in Docker := Versions.applicationVersion,
+  version in Docker := test,
   dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
