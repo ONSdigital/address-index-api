@@ -17,6 +17,7 @@ lazy val Versions = new {
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
+  val applicationVersion = "1.0.0"
 }
 
 name := "address-index"
@@ -66,7 +67,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
   dockerUpdateLatest := true,
-//  dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev/address-index-api-v1"),
+  version in Docker := Versions.applicationVersion,
   dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
