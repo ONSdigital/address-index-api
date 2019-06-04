@@ -15,10 +15,19 @@ import scala.io.Source
 
 routesImport := Seq.empty
 
-//val fileContents = Source.fromFile("version.sbt").getLines.mkString
+//val fileURL = getClass.getClassLoader.getResource("version.sbt").toString
+//val fileContents = scala.io.Source.fromFile(vfile).getLines().mkString
+//def verfile(base: File): File = base / "version.sbt"
+//val root = Project("root", file("."))
+val verFile: File = file("./version.sbt")
+
+val getVersionFromFile = IO.readLines(verFile).mkString
 //val getVersionFromFile = IO.readLines(new File(Path.userHome.absolutePath + "/.version.sbt")).mkString
-//val readVersion = getVersionFromFile.replaceAll("version := ","")
-val test = Version.Bump.Next.bump.toString()
+val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
+//version in ThisBuild := "1.5.6"
+version in ThisBuild := readVersion
+val ver = version in ThisBuild
+//val vernow:String = (ver in Compile).value
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
@@ -75,9 +84,9 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
   dockerUpdateLatest := true,
- // releaseUseGlobalVersion := false,
+  releaseUseGlobalVersion := false,
  // version in Docker := Versions.applicationVersion,
-  version in Docker := test,
+  version in Docker := (ver in Compile).value,
   dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
@@ -239,7 +248,8 @@ lazy val `address-index-server` = project.in(file("server"))
     },
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
-      val contents = git.gitHeadCommit.value.map { sha => s"v_$sha" }.getOrElse("develop")
+    //  val contents = git.gitHeadCommit.value.map { sha => s"v_$sha" }.getOrElse("develop")
+      val contents = (ver in Compile).value
       IO.write(file, contents)
       Seq(file)
     }.taskValue
