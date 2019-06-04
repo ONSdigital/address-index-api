@@ -16,8 +16,8 @@ import scala.io.Source
 routesImport := Seq.empty
 
 //val fileContents = Source.fromFile("version.sbt").getLines.mkString
-val getVersionFromFile = IO.readLines(new File(Path.userHome.absolutePath + "/.version.sbt")).mkString
-val readVersion = getVersionFromFile.replaceAll("version := ","")
+//val getVersionFromFile = IO.readLines(new File(Path.userHome.absolutePath + "/.version.sbt")).mkString
+//val readVersion = getVersionFromFile.replaceAll("version := ","")
 val test = Version.Bump.Next.bump.toString()
 
 lazy val Versions = new {
