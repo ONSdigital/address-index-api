@@ -12,7 +12,6 @@ script:
   #  sbt "project address-index-server" docker:publishLocal
   #  docker tag address-index-server:c875fa34fdfa1cf308505b8b6524dbe5e4824595-SNAPSHOT eu.gcr.io/census-ai-dev/address-index-api-v1
   #  docker push eu.gcr.io/census-ai-dev/address-index-api-v1
-  #  gtrf
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
