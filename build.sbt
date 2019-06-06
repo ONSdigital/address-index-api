@@ -16,6 +16,10 @@ val verFile: File = file("./version.sbt")
 val getVersionFromFile = IO.readLines(verFile).mkString
 val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
 version in ThisBuild := readVersion
+val userName = sys.env.get("ART_USER").getOrElse("username environment variable not set")
+val passWord = sys.env.get("ART_PASS").getOrElse("password environment variable not set")
+publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
+credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
