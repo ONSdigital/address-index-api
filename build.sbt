@@ -16,7 +16,7 @@ val verFile: File = file("./version.sbt")
 val getVersionFromFile = IO.readLines(verFile).mkString
 val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
 version in ThisBuild := readVersion
-publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release")
+publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk:8081/artifactory/libs-release")
 credentials in ThisBuild += Credentials("Artifactory Realm", "http://artifactory-sdc.onsdigital.uk", "build", "build")
 
 lazy val Versions = new {
