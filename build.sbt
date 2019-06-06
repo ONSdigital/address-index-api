@@ -17,7 +17,7 @@ val getVersionFromFile = IO.readLines(verFile).mkString
 val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
 version in ThisBuild := readVersion
 publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
-credentials in ThisBuild += Credentials("Artifactory Realm", "http://54.154.140.52", "build", "build")
+credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", "build", "build")
 
 lazy val Versions = new {
   val elastic4s = "6.1.3"
