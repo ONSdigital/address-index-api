@@ -5,22 +5,6 @@ import uk.gov.ons.addressIndex.model.db.index.NationalAddressGazetteerAddress
 
 object AddressResponsePartialAddress {
   implicit lazy val addressResponsePartialAddressFormat: Format[AddressResponsePartialAddress] = Json.format[AddressResponsePartialAddress]
-
-  /**
-    * Gets the right (most often - the most recent) address from an array of NAG addresses
-    *
-    * @param addresses list of Nag addresses
-    * @return the NAG address that corresponds to the returned address
-    */
-  def chooseMostRecentNag(addresses: Seq[NationalAddressGazetteerAddress], language: String): Option[NationalAddressGazetteerAddress] = {
-    addresses.find(addr => addr.lpiLogicalStatus == "1" && addr.language == language).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6" && addr.language == language)).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8" && addr.language == language)).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "1")).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "6")).
-      orElse(addresses.find(addr => addr.lpiLogicalStatus == "8")).
-      orElse(addresses.headOption)
-  }
 }
 
 /**

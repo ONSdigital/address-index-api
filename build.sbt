@@ -12,6 +12,15 @@ import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 routesImport := Seq.empty
 
+val verFile: File = file("./version.sbt")
+val getVersionFromFile = IO.readLines(verFile).mkString
+val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
+version in ThisBuild := readVersion
+val userName = sys.env.get("ART_USER").getOrElse("username environment variable not set")
+val passWord = sys.env.get("ART_PASS").getOrElse("password environment variable not set")
+publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
+credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
+
 lazy val Versions = new {
   val elastic4s = "6.1.3"
   val scala = "2.12.4"
@@ -65,6 +74,9 @@ lazy val Resolvers: Seq[MavenRepository] = Seq(
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
+  dockerUpdateLatest := true,
+  version in Docker := readVersion + "-SNAPSHOT",
+  dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
     "-encoding", "UTF-8",
@@ -225,8 +237,7 @@ lazy val `address-index-server` = project.in(file("server"))
     },
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
-      val contents = git.gitHeadCommit.value.map { sha => s"v_$sha" }.getOrElse("develop")
-      IO.write(file, contents)
+      IO.write(file, readVersion)
       Seq(file)
     }.taskValue
   )
