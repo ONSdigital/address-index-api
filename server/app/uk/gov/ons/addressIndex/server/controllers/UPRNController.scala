@@ -3,13 +3,13 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,12 +18,12 @@ import scala.util.control.NonFatal
 
 @Singleton
 class UPRNController @Inject()(val controllerComponents: ControllerComponents,
-  esRepo: ElasticsearchRepository,
-  conf: ConfigModule,
-  versionProvider: VersionModule,
-  overloadProtection: APIThrottler,
-  uprnValidation: UPRNControllerValidation
-)(implicit ec: ExecutionContext)
+                               esRepo: ElasticsearchRepository,
+                               conf: ConfigModule,
+                               versionProvider: VersionModule,
+                               overloadProtection: APIThrottler,
+                               uprnValidation: UPRNControllerValidation
+                              )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:UPRNController")
@@ -35,21 +35,17 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @return
     */
   def uprnQuery(uprn: String,
-    historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+                historical: Option[String] = None,
+                verbose: Option[String] = None,
+                epoch: Option[String] = None
+               ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
     val endpointType = "uprn"
 
-    val hist = historical match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
-    }
-
-    val verb = verbose match {
-      case Some(x) => Try(x.toBoolean).getOrElse(false)
-      case None => false
-    }
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
@@ -58,14 +54,14 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
     def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       val networkid = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation =  if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
+      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
 
 
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-      //  startDate = startDateVal, endDate = endDateVal,
-        historical = hist, epoch = epochVal, verbose = verb, badRequestMessage=badRequestErrorMessage,
+        // startDate = startDateVal, endDate = endDateVal,
+        historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -90,20 +86,29 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         res // a validation error
 
       case _ =>
+        // TODO do we even need `verbose` any more? Is it still used?
+        val args = UPRNArgs(
+          uprn = uprn,
+          historical = hist,
+          epoch = epochVal,
+        )
 
         val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
-          esRepo.queryUprn(uprn, hist, epochVal)
+          esRepo.runUPRNQuery(args)
         )
 
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddress,verb)
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb)
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",
               score = hybridAddress.score.toString, activity = "address_request"
             )
+
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByUprnResponseContainer(

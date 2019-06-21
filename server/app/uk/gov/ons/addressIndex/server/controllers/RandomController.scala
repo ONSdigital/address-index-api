@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddresses, HybridAddressesSkinny}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -33,7 +33,12 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return Json response with addresses information
     */
-  def randomQuery(classificationfilter: Option[String] = None, limit: Option[String] = None, historical: Option[String] = None, verbose: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action async { implicit req =>
+  def randomQuery(classificationfilter: Option[String] = None,
+                  limit: Option[String] = None,
+                  historical: Option[String] = None,
+                  verbose: Option[String] = None,
+                  epoch: Option[String] = None
+                 ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
@@ -45,15 +50,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "random"
 
-    val hist = historical match {
-      case Some(x) => Try(x.toBoolean).getOrElse(true)
-      case None => true
-    }
-
-    val verb = verbose match {
-      case Some(x) => Try(x.toBoolean).getOrElse(false)
-      case None => false
-    }
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
@@ -96,117 +94,70 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         res // a validation error
 
       case _ =>
+        val args = RandomArgs(
+          filters = filterString,
+          limit = limitInt,
+          historical = hist,
+          verbose = verb,
+          epoch = epochVal,
+          skinny = !verb,
+        )
 
-        if (verb == false) {
-          val request: Future[HybridAddressesSkinny] =
-            overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandomSkinny(filterString, limitInt, hist, verb, epochVal)
+        val request: Future[HybridAddressCollection] =
+          overloadProtection.breaker.withCircuitBreaker(
+            esRepo.runMultiResultQuery(args)
+          )
+
+        request.map {
+          case HybridAddressCollection(hybridAddresses, _, _) =>
+
+            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+              AddressResponseAddress.fromHybridAddress(_, verb)
             )
 
-          request.map {
-            case HybridAddressesSkinny(hybridAddresses, maxScore@_, total@_) =>
+            writeLog(activity = "random_address_request")
+            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
-              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddressSkinny(_, verb)
+            jsonOk(
+              AddressByRandomResponseContainer(
+                apiVersion = apiVersion,
+                dataVersion = dataVersion,
+                response = AddressByRandomResponse(
+                  addresses = addresses,
+                  filter = filterString,
+                  historical = hist,
+                  epoch = epochVal,
+                  limit = limitInt,
+                  verbose = verb
+                ),
+                status = OkAddressResponseStatus
               )
-
-              writeLog(activity = "random_address_request")
-
-              jsonOk(
-                AddressByRandomResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByRandomResponse(
-                    addresses = addresses,
-                    filter = filterString,
-                    historical = hist,
-                    epoch = epochVal,
-                    limit = limitInt,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
-                )
-              )
-
-          }.recover {
-            case NonFatal(exception) =>
-
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
-                  logger.warn(
-                    s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
-                  )
-                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
-              }
-          }
-        } else {
-          val request: Future[HybridAddresses] =
-            overloadProtection.breaker.withCircuitBreaker(
-              esRepo.queryRandom(filterString, limitInt, hist, verb, epochVal)
             )
 
-          request.map {
-            case HybridAddresses(hybridAddresses, maxScore@_, total@_) =>
+        }.recover {
+          case NonFatal(exception) =>
 
-              val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-                AddressResponseAddress.fromHybridAddress(_, verb)
-              )
-
-              writeLog(activity = "random_address_request")
-
-              jsonOk(
-                AddressByRandomResponseContainer(
-                  apiVersion = apiVersion,
-                  dataVersion = dataVersion,
-                  response = AddressByRandomResponse(
-                    addresses = addresses,
-                    filter = filterString,
-                    historical = hist,
-                    epoch = epochVal,
-                    limit = limitInt,
-                    verbose = verb
-                  ),
-                  status = OkAddressResponseStatus
+            overloadProtection.currentStatus match {
+              case ThrottlerStatus.HalfOpen =>
+                logger.warn(
+                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
                 )
-              )
-
-          }.recover {
-            case NonFatal(exception) =>
-
-              overloadProtection.currentStatus match {
-                case ThrottlerStatus.HalfOpen =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
-                case ThrottlerStatus.Open =>
-                  logger.warn(
-                    s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                  )
-                  TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
-                case _ =>
-                  // Circuit Breaker is closed. Some other problem
-                  writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
-                  logger.warn(
-                    s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
-                  )
-                  InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
-              }
-          }
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
+              case ThrottlerStatus.Open =>
+                logger.warn(
+                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
+                )
+                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
+              case _ =>
+                // Circuit Breaker is closed. Some other problem
+                writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
+                logger.warn(
+                  s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
+                )
+                InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
+            }
         }
-
 
     }
   }

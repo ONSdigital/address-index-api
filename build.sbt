@@ -12,6 +12,15 @@ import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 routesImport := Seq.empty
 
+val verFile: File = file("./version.sbt")
+val getVersionFromFile = IO.readLines(verFile).mkString
+val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
+version in ThisBuild := readVersion
+val userName = sys.env.get("ART_USER").getOrElse("username environment variable not set")
+val passWord = sys.env.get("ART_PASS").getOrElse("password environment variable not set")
+publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
+credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
+
 lazy val Versions = new {
   val elastic4s = "6.1.3"
   val scala = "2.12.4"
@@ -32,7 +41,7 @@ lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
   assemblyJarName in assembly := "ons-ai-api.jar",
   mainClass in assembly := Some("play.core.server.AkkaHttpServerProvider"),
   assemblyMergeStrategy in assembly := {
-//    case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
+    // case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
     case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
     case x =>
       val oldStrategy = (assemblyMergeStrategy in assembly).value
@@ -44,25 +53,30 @@ lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
   // The following will cause parsers/.../resources directory to be added to the list of mappings recursively
   // excluding .md and .conf files
   mappings in Universal ++= {
-    val rootDir = (baseDirectory.value).getParentFile
-    def directoryToAdd = (rootDir / "parsers/src/main/resources")
-    ((directoryToAdd.***) * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
+    val rootDir = baseDirectory.value.getParentFile
+
+    def directoryToAdd = rootDir / "parsers/src/main/resources"
+
+    (directoryToAdd.*** * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
   }
 )
 
 lazy val Resolvers: Seq[MavenRepository] = Seq(
   Resolver.typesafeRepo("releases"),
-  "elasticsearch-releases"     at "https://maven.elasticsearch.org/releases",
+  "elasticsearch-releases" at "https://maven.elasticsearch.org/releases",
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
-  "Twitter Repository"         at "http://maven.twttr.com",
-  "Artima Maven Repository"    at "http://repo.artima.com/releases",
-  "scalaz-bintray"             at "https://dl.bintray.com/scalaz/releases"
+  "Twitter Repository" at "http://maven.twttr.com",
+  "Artima Maven Repository" at "http://repo.artima.com/releases",
+  "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 )
 
 
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
+  dockerUpdateLatest := true,
+  version in Docker := readVersion + "-SNAPSHOT",
+  dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
     "-encoding", "UTF-8",
@@ -79,34 +93,34 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   ),
   // TODO: Fix the following errors highlighted by scapegoat. Remove the corresponding overrides below.
   scalacOptions in Scapegoat += "-P:scapegoat:overrideLevels:TraversableHead=Warning:OptionSize=Warning:ComparingFloatingPointTypes=Warning",
-  ivyScala := ivyScala.value map(_.copy(overrideScalaVersion = true)),
+  ivyScala := ivyScala.value map (_.copy(overrideScalaVersion = true)),
   resolvers ++= Resolvers,
   coverageExcludedPackages := ".*Routes.*;.*ReverseRoutes.*;.*javascript.*"
 )
 
 val commonDeps = Seq(
-  "org.scalatest"          %% "scalatest"         % "3.0.0" % Test,
-  "org.scalamock"          %% "scalamock"         % "4.1.0" % Test,
-  "com.typesafe"           %  "config"            % "1.3.0",
-  "com.github.melrief"     %% "pureconfig"        % "0.3.3",
-  "com.lihaoyi"            %% "pprint"            % "0.5.3",
+  "org.scalatest" %% "scalatest" % "3.0.0" % Test,
+  "org.scalamock" %% "scalamock" % "4.1.0" % Test,
+  "com.typesafe" % "config" % "1.3.0",
+  "com.github.melrief" %% "pureconfig" % "0.3.3",
+  "com.lihaoyi" %% "pprint" % "0.5.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
-   // for the http client
+  // for the http client
   "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // for the tcp client
   "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
 
   // if you want to use reactive streams
- // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
+  // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
   // testing
   "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
   "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
   "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
-// old
-//  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
- // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
-  "org.apache.commons"     %  "commons-lang3"     % "3.3.2",
+  // old
+  //  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
+  // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
+  "org.apache.commons" % "commons-lang3" % "3.3.2",
   guice
 )
 
@@ -119,26 +133,26 @@ val parsersDeps = commonDeps
 val serverDeps = Seq(
   filters,
   specs2 % Test,
-  "org.scalatestplus.play"   %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test"
- )++ commonDeps
+) ++ commonDeps
 
 val uiDeps = Seq(
   jdbc,
   cache,
   ws,
   specs2 % Test,
-  "com.typesafe.play"      %% "play-test"          % "2.6.10" % Test ,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test ,
-  "com.github.tototoshi"   %% "scala-csv"          % "1.3.4"
+  "com.typesafe.play" %% "play-test" % "2.6.10" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "com.github.tototoshi" %% "scala-csv" % "1.3.4"
 ) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
   .settings(
     publishLocal := {},
-    publish      := {}
+    publish := {}
   )
   .aggregate(
     `address-index-model`,
@@ -153,18 +167,18 @@ lazy val `address-index-model` = project.in(file("model"))
   .settings(
     libraryDependencies ++= modelDeps
   ).dependsOn(
-    `address-index-parsers`
-  )
+  `address-index-parsers`
+)
 
 lazy val `address-index-client` = project.in(file("client"))
   .settings(localCommonSettings: _*)
   .settings(
     libraryDependencies ++= clientDeps
   ).dependsOn(
-    `address-index-model`
-  ).enablePlugins(
-    SbtWeb
-  )
+  `address-index-model`
+).enablePlugins(
+  SbtWeb
+)
 
 
 lazy val `address-index-server` = project.in(file("server"))
@@ -190,8 +204,8 @@ lazy val `address-index-server` = project.in(file("server"))
 
       // Move any files in "parsers" directory to root
       val mappings: Set[(File, String)] = extractedFiles.map(f => {
-        val relativePathWithoutRootDir = f.getAbsolutePath.substring(originalFileName.getParent.size + base.size + 2)
-        val relativePathWithRootDir = f.getAbsolutePath.substring(originalFileName.getParent.size + 1)
+        val relativePathWithoutRootDir = f.getAbsolutePath.substring(originalFileName.getParent.length + base.length + 2)
+        val relativePathWithRootDir = f.getAbsolutePath.substring(originalFileName.getParent.length + 1)
 
         val justFileName = f.getName
 
@@ -223,8 +237,7 @@ lazy val `address-index-server` = project.in(file("server"))
     },
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
-      val contents = git.gitHeadCommit.value.map{ sha => s"v_$sha" }.getOrElse("develop")
-      IO.write(file, contents)
+      IO.write(file, readVersion)
       Seq(file)
     }.taskValue
   )

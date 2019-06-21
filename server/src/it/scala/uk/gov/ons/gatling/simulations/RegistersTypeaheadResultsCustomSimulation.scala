@@ -1,6 +1,7 @@
 package uk.gov.ons.gatling.simulations
 
 import io.gatling.core.Predef._
+import io.gatling.core.feeder.RecordSeqFeederBuilder
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
@@ -31,10 +32,10 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
     .shareConnections
     .authorizationHeader(apiKey)
 
-  val headers = Map("Upgrade-Insecure-Requests" -> "1")
+  val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
 
   // partial addresses from the Random Address Generator
-  val feeder = csv("typeahead2.csv").circular
+  val feeder: RecordSeqFeederBuilder[String] = csv("typeahead2.csv").circular
 
   val uprns: List[String] = List(
     "100021379998",
@@ -60,25 +61,29 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
 
   // user pause of 300ms between keystrokes, then get next partial from file
   // requestRelpath is addresses/partial/ (no further)
-  val scn: ScenarioBuilder  =
-    scenario(requestName)
-      .pause(300 millis)
-      .feed(feeder)
-      .exec(http("Typeahead")
-        .get(requestRelPath + "${addresspart}" + "?limit=4")
-        .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
-        .check(jsonPath("$..input").findAll.saveAs("inputs"))
-      )
+  val scn: ScenarioBuilder =
+  scenario(requestName)
+    .pause(300 millis)
+    .feed(feeder)
+    .exec(http("Typeahead")
+      .get(requestRelPath + "${addresspart}" + "?limit=4")
+      .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
+      .check(jsonPath("$..input").findAll.saveAs("inputs"))
+    )
 
     .foreach("${inputs}", "input") {
       exec(foundaddress => {
         println(foundaddress("input").as[String])
-        foundaddress}).foreach("${uprns}", "uprn") {
+        foundaddress
+      }).foreach("${uprns}", "uprn") {
         exec(foundaddress => {
           val uprnString = foundaddress("uprn").as[String]
-          val hit = {if (uprns.contains(uprnString)) " => HIT" else " "}
+          val hit = {
+            if (uprns.contains(uprnString)) " => HIT" else " "
+          }
           println(uprnString + hit)
-          foundaddress})
+          foundaddress
+        })
       }
     }
 

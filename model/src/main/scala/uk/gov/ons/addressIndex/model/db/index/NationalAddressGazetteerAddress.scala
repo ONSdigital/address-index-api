@@ -8,57 +8,53 @@ import scala.util.Try
 /**
   * NAG Address DTO
   */
-case class NationalAddressGazetteerAddress (
-  uprn: String,
-  postcodeLocator: String,
-  addressBasePostal: String,
-  latitude: String,
-  longitude: String,
-  easting: String,
-  northing: String,
-  organisation: String,
-  legalName: String,
-  usrn: String,
-  lpiKey: String,
-  paoText: String,
-  paoStartNumber: String,
-  paoStartSuffix: String,
-  paoEndNumber: String,
-  paoEndSuffix: String,
-  saoText: String,
-  saoStartNumber: String,
-  saoStartSuffix: String,
-  saoEndNumber: String,
-  saoEndSuffix: String,
-  level: String,
-  officialFlag: String,
-  streetDescriptor: String,
-  townName: String,
-  locality: String,
-  lpiLogicalStatus: String,
-  blpuLogicalStatus: String,
-  usrnMatchIndicator: String,
-  parentUprn: String,
-  streetClassification: String,
-  multiOccCount: String,
-  language: String,
-  localCustodianCode: String,
-  localCustodianName: String,
-  localCustodianGeogCode: String,
-  rpc: String,
-  nagAll: String,
-  lpiEndDate: String,
-  lpiStartDate: String,
-  mixedNag: String
-)
+case class NationalAddressGazetteerAddress(uprn: String,
+                                           postcodeLocator: String,
+                                           addressBasePostal: String,
+                                           latitude: String,
+                                           longitude: String,
+                                           easting: String,
+                                           northing: String,
+                                           organisation: String,
+                                           legalName: String,
+                                           usrn: String,
+                                           lpiKey: String,
+                                           paoText: String,
+                                           paoStartNumber: String,
+                                           paoStartSuffix: String,
+                                           paoEndNumber: String,
+                                           paoEndSuffix: String,
+                                           saoText: String,
+                                           saoStartNumber: String,
+                                           saoStartSuffix: String,
+                                           saoEndNumber: String,
+                                           saoEndSuffix: String,
+                                           level: String,
+                                           officialFlag: String,
+                                           streetDescriptor: String,
+                                           townName: String,
+                                           locality: String,
+                                           lpiLogicalStatus: String,
+                                           blpuLogicalStatus: String,
+                                           usrnMatchIndicator: String,
+                                           parentUprn: String,
+                                           streetClassification: String,
+                                           multiOccCount: String,
+                                           language: String,
+                                           localCustodianCode: String,
+                                           localCustodianName: String,
+                                           localCustodianGeogCode: String,
+                                           rpc: String,
+                                           nagAll: String,
+                                           lpiEndDate: String,
+                                           lpiStartDate: String,
+                                           mixedNag: String)
 
 /**
   * NAF Address DTO companion object that also contains implicits needed for Elastic4s
   */
 object NationalAddressGazetteerAddress {
-
   object Fields {
-
     /**
       * Document Fields
       */
@@ -109,14 +105,13 @@ object NationalAddressGazetteerAddress {
     val welsh: String = "CYM"
   }
 
-  def fromEsMap (nag: Map[String, Any]): NationalAddressGazetteerAddress = {
-
-    val filteredNag = nag.filter{ case (_, value) => value != null }
+  def fromEsMap(nag: Map[String, Any]): NationalAddressGazetteerAddress = {
+    val filteredNag = nag.filter { case (_, value) => value != null }
     val matchLocationRegex = """-?\d+(?:\.\d*)?(?:[E][+\-]?\d+)?""".r
     val location = filteredNag.getOrElse(Fields.location, "").toString
     val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
 
-    NationalAddressGazetteerAddress (
+    NationalAddressGazetteerAddress(
       uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
       postcodeLocator = filteredNag.getOrElse(Fields.postcodeLocator, "").toString,
       addressBasePostal = filteredNag.getOrElse(Fields.addressBasePostal, "").toString,
@@ -162,32 +157,36 @@ object NationalAddressGazetteerAddress {
   }
 }
 
-case class LocalCustodian (custodians: Map[String, AddressResponseCustodian])
+case class LocalCustodian(custodians: Map[String, AddressResponseCustodian])
 
 object LocalCustodian {
+  def emptyCustodian = new AddressResponseCustodian("", "not found", "not found", "not found", "not found", "not found")
 
-  def emptyCustodian = new AddressResponseCustodian("","not found","not found","not found","not found","not found")
+  def getCustodian(code: String): AddressResponseCustodian = custodians.getOrElse(code, emptyCustodian)
 
-  def getCustodian (code:String) = custodians.getOrElse(code,emptyCustodian )
+  def getCustName(code: String): String = getCustodian(code).custName
 
-  def getCustName(code:String): String = getCustodian(code).custName
-  def getCustCode(code:String): String = getCustodian(code).custCode
-  def getLAName(code:String): String = getCustodian(code).laName
-  def getLACode(code:String): String = getCustodian(code).laCode
-  def getRegionOrCountryName(code:String): String = getCustodian(code).regName
-  def getRegionOrCountryCode(code:String): String = getCustodian(code).regCode
+  def getCustCode(code: String): String = getCustodian(code).custCode
 
-  val custodians = Tokens.custodianList.map{custval =>
-    (custval.split(",").lift(0).getOrElse(""),
+  def getLAName(code: String): String = getCustodian(code).laName
+
+  def getLACode(code: String): String = getCustodian(code).laCode
+
+  def getRegionOrCountryName(code: String): String = getCustodian(code).regName
+
+  def getRegionOrCountryCode(code: String): String = getCustodian(code).regCode
+
+  val custodians: Map[String, AddressResponseCustodian] = Tokens.custodianList.map { custval =>
+    val split = custval.split(",")
+    (split.lift(0).getOrElse(""),
       new AddressResponseCustodian(
-      custval.split(",").lift(0).getOrElse(""),
-      custval.split(",").lift(1).getOrElse(""),
-      custval.split(",").lift(2).getOrElse(""),
-      custval.split(",").lift(3).getOrElse(""),
-      custval.split(",").lift(4).getOrElse(""),
-      custval.split(",").lift(5).getOrElse("")
+        split.lift(0).getOrElse(""),
+        split.lift(1).getOrElse(""),
+        split.lift(2).getOrElse(""),
+        split.lift(3).getOrElse(""),
+        split.lift(4).getOrElse(""),
+        split.lift(5).getOrElse("")
       )
     )
   }.toMap
-
 }

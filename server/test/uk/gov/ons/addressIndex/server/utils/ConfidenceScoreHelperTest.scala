@@ -1,4 +1,5 @@
 package uk.gov.ons.addressIndex.server.utils
+
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.Logger
 import uk.gov.ons.addressIndex.parsers.Tokens
@@ -11,7 +12,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
 
   val logger = Logger("HopperScoreHelperTest")
 
-  val mockAddressTokens = Map (
+  val mockAddressTokens: Map[String, String] = Map(
     Tokens.buildingNumber -> "7",
     Tokens.paoStartNumber -> "7",
     Tokens.streetName -> "GATE REACH",
@@ -21,7 +22,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     Tokens.postcodeOut -> "PO7"
   )
 
-  val mockAddressTokens2 = Map (
+  val mockAddressTokens2: Map[String, String] = Map(
     Tokens.buildingNumber -> "7",
     Tokens.subBuildingName -> "MY SHED",
     Tokens.paoStartNumber -> "7",
@@ -41,7 +42,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val expected = 0.9905d
 
     // When
-    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens,structuralScore, unitScore, elasticRatio)
+    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
     // Then
     actual shouldBe expected
@@ -56,7 +57,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val expected = 0.5135d
 
     // When
-    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens,structuralScore, unitScore, elasticRatio)
+    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
     // Then
     actual shouldBe expected
@@ -71,7 +72,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val expected = 0.9589d
 
     // When
-    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens,structuralScore, unitScore, elasticRatio)
+    val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
 
     // Then
     actual shouldBe expected
@@ -79,7 +80,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the elastic denominator for a list of scores with equal top two " in {
     // Given
-    val scores = Seq(10F,10F,5F,3F)
+    val scores = Seq(10F, 10F, 5F, 3F)
     val expected = 10d
 
     // When
@@ -91,7 +92,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
 
   it should "calculate the elastic denominator for a list of scores with different top two " in {
     // Given
-    val scores = Seq(10F,5F,3F,2F)
+    val scores = Seq(10F, 5F, 3F, 2F)
     val expected = 7.5d
 
     // When

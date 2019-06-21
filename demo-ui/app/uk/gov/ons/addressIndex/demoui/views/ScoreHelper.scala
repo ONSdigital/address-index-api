@@ -27,8 +27,9 @@ object ScoreHelper {
 
   /**
     * Returns rank of the address among the addresses with the same id
+    *
     * @param index the index of the address in the response container
-    * @param set response container
+    * @param set   response container
     * @return the rank of the address
     */
   def getRank(index: Int, set: AddressBulkResponseContainer): Int = {

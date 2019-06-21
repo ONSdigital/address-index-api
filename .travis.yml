@@ -2,7 +2,12 @@ sudo: required
 dist: trusty
 language: scala
 script:
-  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION test; else travis_retry sbt ++$TRAVIS_SCALA_VERSION test; fi
+  - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; else travis_retry sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; fi
+after_success:
+  - echo "$DOCKER_PASSWORD" | base64 --decode | docker login "$DOCKER_REGISTRY" --username "$DOCKER_USERNAME" --password-stdin
+  - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" docker:publish
+  - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" publish
+  - bash <(curl -s https://codecov.io/bash)
 scala:
   - 2.12.4
 jdk:
@@ -20,10 +25,3 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
-addons:
-  # https://github.com/travis-ci/travis-ci/issues/5227#issuecomment-165131913
-  hosts:
-    - ons-ai
-  hostname: ons-ai
-# notifications:
-  # slack: valtech-ons:nLeAGETA8HsuIi5fMQCaLe2G

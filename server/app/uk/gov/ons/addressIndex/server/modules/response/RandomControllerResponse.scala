@@ -24,15 +24,15 @@ trait RandomControllerResponse extends Response {
   }
 
   def RandomFilterInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,FilterInvalidError)
+    BadRequestRandomTemplate(queryValues, FilterInvalidError)
   }
 
   def RandomMixedFilter(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,MixedFilterError)
+    BadRequestRandomTemplate(queryValues, MixedFilterError)
   }
 
   def FailedRequestToEsRandom(detail: String, queryValues: QueryValues): AddressByRandomResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code,FailedRequestToEsRandomError.message.replace("see logs",detail))
+    val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code, FailedRequestToEsRandomError.message.replace("see logs", detail))
     AddressByRandomResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -43,7 +43,7 @@ trait RandomControllerResponse extends Response {
   }
 
   def FailedRequestToEsTooBusyRandom(detail: String, queryValues: QueryValues): AddressByRandomResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code,FailedRequestToEsRandomError.message.replace("see logs",detail))
+    val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code, FailedRequestToEsRandomError.message.replace("see logs", detail))
     AddressByRandomResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -75,19 +75,19 @@ trait RandomControllerResponse extends Response {
   }
 
   def LimitNotNumericRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,LimitNotNumericAddressResponseError)
+    BadRequestRandomTemplate(queryValues, LimitNotNumericAddressResponseError)
   }
 
   def LimitTooSmallRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,LimitTooSmallAddressResponseError)
+    BadRequestRandomTemplate(queryValues, LimitTooSmallAddressResponseError)
   }
 
   def LimitTooLargeRandom(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,LimitTooLargeAddressResponseError)
+    BadRequestRandomTemplate(queryValues, LimitTooLargeAddressResponseError)
   }
 
   def RandomEpochInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
-    BadRequestRandomTemplate(queryValues,EpochNotAvailableError)
+    BadRequestRandomTemplate(queryValues, EpochNotAvailableError)
   }
 
 }
