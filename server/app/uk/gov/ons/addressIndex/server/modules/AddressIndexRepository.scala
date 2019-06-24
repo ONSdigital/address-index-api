@@ -458,20 +458,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         )
       ))).boost(queryParams.buildingName.lpiPaoStartSuffixBoost))
 
-//    val paoBuildingNameMust = for {
-//      paoStartNumber <- args.tokens.get(Tokens.paoStartNumber)
-//      paoStartSuffix <- args.tokens.get(Tokens.paoStartSuffix)
-//    } yield constantScoreQuery(must(Seq(
-//      matchQuery(
-//        field = "lpi.paoStartNumber",
-//        value = paoStartNumber
-//      ),
-//      matchQuery(
-//        field = "lpi.paoStartSuffix",
-//        value = paoStartSuffix
-//      )
-//    ))).boost(queryParams.buildingName.lpiPaoStartSuffixBoost)
-
     val buildingNameQuery: Seq[QueryDefinition] = args.tokens.get(Tokens.buildingName).map(token => Seq(
       constantScoreQuery(matchQuery(
         field = "paf.buildingName",
@@ -486,7 +472,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         value = token
       ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
         .boost(queryParams.buildingName.lpiPaoTextBoost)
-    )).toList.flatten ++ paoBuildingNameMust ++ extraPaoSaoQueries
+    )).toList.flatten ++ paoBuildingNameMust
 
     val buildingNumberQuery = if (skipPao) {
       args.tokens.get(Tokens.paoStartNumber).map(token => Seq(
@@ -598,20 +584,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           value = postcodeIn
         ).fuzziness("2")
       ))).boost(queryParams.postcode.postcodeInOutBoost))
-
-//    val postcodeInOutMust = for {
-//      postcodeOut <- args.tokens.get(Tokens.postcodeOut)
-//      postcodeIn <- args.tokens.get(Tokens.postcodeIn)
-//    } yield constantScoreQuery(must(Seq(
-//      matchQuery(
-//        field = "postcodeOut",
-//        value = postcodeOut
-//      ).fuzziness(defaultFuzziness),
-//      matchQuery(
-//        field = "postcodeIn",
-//        value = postcodeIn
-//      ).fuzziness("2")
-//    ))).boost(queryParams.postcode.postcodeInOutBoost)
 
     val postcodeQuery: Seq[ConstantScoreDefinition] = args.tokens.get(Tokens.postcode).map(token => Seq(
       constantScoreQuery(matchQuery(
@@ -760,8 +732,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
 
     val bestOfTheLotQueries = Seq(
-      buildingNumberQuery,
-      buildingNameQuery,
+
       subBuildingNameQuery,
       streetNameQuery,
       postcodeQuery
@@ -774,14 +745,22 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
-
     val townLocalityQueries = Seq(
       townNameQuery,
       localityQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
+    val widerBuildingNameQueries = Seq(
+      buildingNameQuery,
+      buildingNumberQuery,
+      extraPaoSaoQueries
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+
+
     val everythingMattersQueries = Seq(
+      widerBuildingNameQueries,
       organisationDepartmentQueries,
       townLocalityQueries,
       paoQuery,
