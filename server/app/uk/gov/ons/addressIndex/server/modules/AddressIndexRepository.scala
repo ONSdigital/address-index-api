@@ -73,15 +73,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
-  private def makeDateQuery(dateRange: DateRange): Option[QueryDefinition] = {
-    if (dateRange.start.isEmpty && dateRange.end.isEmpty) None
-    else Some(should(
-      must(rangeQuery("paf.startDate").gte(dateRange.start).format(dateFormat),
-        rangeQuery("paf.endDate").lte(dateRange.end).format(dateFormat)),
-      must(rangeQuery("lpi.lpiStartDate").gte(dateRange.start).format(dateFormat),
-        rangeQuery("lpi.lpiEndDate").lte(dateRange.end).format(dateFormat))))
-  }
-
   private def makeUprnQuery(args: UPRNArgs): SearchDefinition = {
     val query = termQuery("uprn", args.uprn)
 
@@ -112,7 +103,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
 
     val slopVal = 4
-    val dateQuery = makeDateQuery(args.filterDateRange)
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
@@ -120,8 +110,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val filterSeq = Seq(
       if (args.filters.isEmpty) None
       else if (args.filtersType == "prefix") Some(prefixQuery("classificationCode", args.filtersValuePrefix))
-      else Some(termsQuery("classificationCode", args.filtersValueTerm)),
-      dateQuery,
+      else Some(termsQuery("classificationCode", args.filtersValueTerm))
     ).flatten
 
     // if there is only one number, give boost for pao or sao not both.
@@ -237,8 +226,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val saoEndNumber = args.tokens.getOrElse(Tokens.saoEndNumber, "")
     val saoEndSuffix = args.tokens.getOrElse(Tokens.saoEndSuffix, "")
     val skipSao = saoEndNumber == "" && saoEndSuffix == ""
-
-    val dateQuery = makeDateQuery(args.filterDateRange)
 
     val saoQuery = if (skipSao) Seq.empty else
       Seq(
@@ -739,7 +726,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => termWithGeo
     }
 
-    val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter ++ Seq(dateQuery).flatten)
+    val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
 
     val bestOfTheLotQueries = Seq(
       buildingNumberQuery,
@@ -778,7 +765,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       dismax(
         should(shouldQuery.asInstanceOf[Iterable[QueryDefinition]])
           .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
-          .filter(queryFilter ++ dateQuery)
+          .filter(queryFilter)
         , fallbackQuery)
         .tieBreaker(queryParams.topDisMaxTieBreaker)
     }

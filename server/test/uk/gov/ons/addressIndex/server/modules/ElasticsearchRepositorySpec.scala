@@ -959,7 +959,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "generate valid query from partial address with date" in {
+    "generate valid query from partial address with date" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
@@ -1087,7 +1087,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       result shouldBe expected
     }
 
-    "generate valid fallback query from partial address with date" in {
+    "generate valid fallback query from partial address with date" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
@@ -1341,7 +1341,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       maxScore should be > 0d
     }
 
-    "generate valid query to find HYBRID addresses by building number and postcode by date and range" in {
+    "generate valid query to find HYBRID addresses by building number and postcode by date and range" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val tokens: Map[String, String] = Map(
@@ -3059,7 +3059,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       addresses(1).uprn shouldBe hybridSecondaryUprn.toString
     }
 
-    "bulk search addresses by date" in {
+    "bulk search addresses by date" ignore {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
 
