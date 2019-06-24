@@ -66,8 +66,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
-  private val dateFormat = "yyyy-MM-dd"
-
   val client: HttpClient = elasticClientProvider.client
   lazy val logger = GenericLogger("AddressIndexRepository")
 
@@ -733,11 +731,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       buildingNameQuery,
       subBuildingNameQuery,
       streetNameQuery,
-      postcodeQuery,
+      postcodeQuery
+      // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
+    ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+
+    val organisationDepartmentQueries = Seq(
       organisationNameQuery,
       departmentNameQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
+
 
     val townLocalityQueries = Seq(
       townNameQuery,
@@ -746,6 +749,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[QueryDefinition]).tieBreaker(queryParams.excludingDisMaxTieBreaker))
 
     val everythingMattersQueries = Seq(
+      organisationDepartmentQueries,
       townLocalityQueries,
       paoQuery,
       saoQuery
