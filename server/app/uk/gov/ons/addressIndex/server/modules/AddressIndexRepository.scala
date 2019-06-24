@@ -444,7 +444,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val paoStartNumber = args.tokens.getOrElse(Tokens.paoStartNumber, "")
     val paoStartSuffix = args.tokens.getOrElse(Tokens.paoStartSuffix, "")
-    val skipbuildingMust = paoStartNumber == "" && paoStartSuffix == ""
+    val skipbuildingMust = paoStartNumber == "" || paoStartSuffix == ""
 
     val paoBuildingNameMust = if (skipbuildingMust) Seq.empty else
       Seq(constantScoreQuery(must(Seq(
@@ -571,7 +571,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val postcodeOut = args.tokens.getOrElse(Tokens.postcodeOut, "")
     val postcodeIn = args.tokens.getOrElse(Tokens.postcodeIn, "")
-    val skipPostCodeOutMust = postcodeOut == "" && postcodeIn == ""
+    val skipPostCodeOutMust = postcodeOut == "" || postcodeIn == ""
 
     val postcodeInOutMust = if (skipPostCodeOutMust) Seq.empty else
       Seq(constantScoreQuery(must(Seq(
