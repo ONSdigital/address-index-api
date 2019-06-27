@@ -167,17 +167,6 @@ object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 30,
   message = "Request to ElasticSearch failed (partial address)(see logs)"
 )
-
-object StartDateInvalidResponseError extends AddressResponseError(
-  code = 31,
-  message = "Invalid start date. Format is YYYY-MM-DD."
-)
-
-object EndDateInvalidResponseError extends AddressResponseError(
-  code = 32,
-  message = "Invalid end date. Format is YYYY-MM-DD."
-)
-
 object ShortQueryAddressResponseError extends AddressResponseError(
   code = 33,
   message = "Partial address string too short, minimum * characters"

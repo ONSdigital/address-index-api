@@ -39,8 +39,6 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     rangekm = "2",
     latitude = "50.705948",
     longitude = "-3.5091076",
-    startDate = "",
-    endDate = "",
     total = 1,
     sampleSize = 20,
     maxScore = 1f,
