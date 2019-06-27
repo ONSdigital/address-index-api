@@ -7,7 +7,7 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, DateRange, ElasticsearchRepository, ParserModule, Region, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, ElasticsearchRepository, ParserModule, Region, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,9 +59,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val ip: String = req.remoteAddress
     val url: String = req.uri
 
-    val startDateVal = ""
-    val endDateVal = ""
-
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
     val defOffset = conf.config.elasticSearch.defaultOffset
@@ -112,8 +109,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       historical = Some(hist),
       limit = Some(limitInt),
       offset = Some(offsetInt),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
       verbose = Some(verb),
       rangeKM = Some(rangeVal),
       latitude = Some(latVal),
@@ -129,7 +124,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       historical = hist,
       verbose = verb,
       filters = filterString,
-      filterDateRange = DateRange(startDateVal, endDateVal),
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
@@ -219,8 +213,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   rangekm = rangeVal,
                   latitude = latVal,
                   longitude = lonVal,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = newTotal,
