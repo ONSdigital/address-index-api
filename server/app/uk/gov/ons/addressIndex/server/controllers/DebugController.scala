@@ -45,7 +45,8 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
                  lat: Option[String] = None,
                  lon: Option[String] = None,
                  historical: Option[String] = None,
-                 epoch: Option[String]
+                 epoch: Option[String],
+                 fromsource: Option[String]
                 ): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
@@ -60,6 +61,7 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
+    val fromSourceVal = fromsource.getOrElse("")
 
     val args = AddressArgs(
       input = "",
@@ -72,6 +74,7 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
       filterDateRange = DateRange(startDateVal, endDateVal),
       limit = 0,
       queryParamsConfig = None,
+      fromSource = fromSourceVal
     )
 
     val query = esRepo.makeQuery(args)

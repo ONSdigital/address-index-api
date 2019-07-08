@@ -38,7 +38,8 @@ case class NisraAddress(
   archivedDate: String,
   latitude: String,
   longitude: String,
- // nisraAll: String,
+  addressStatus: String,
+  buildingStatus: String,
   mixedNisra: String
   )
 
@@ -85,6 +86,8 @@ object NisraAddress {
     val location: String = "location"
     val nisraAll: String = "nisraAll"
     val mixedNisra: String = "mixedNisra"
+    val addressStatus: String = "addressStatus"
+    val buildingStatus: String = "buildingStatus"
   }
 
   def fromEsMap (nisra: Map[String, Any]): NisraAddress = {
@@ -127,7 +130,8 @@ object NisraAddress {
       archivedDate = filteredNisra.getOrElse(Fields.archivedDate, "").toString,
       latitude = latitude,
       longitude = longitude,
-   //   nisraAll = filteredNisra.getOrElse(Fields.nisraAll, "").toString,
+      addressStatus = filteredNisra.getOrElse(Fields.addressStatus, "").toString,
+      buildingStatus = filteredNisra.getOrElse(Fields.buildingStatus, "").toString,
       mixedNisra = filteredNisra.getOrElse(Fields.mixedNisra, "").toString
     )
   }

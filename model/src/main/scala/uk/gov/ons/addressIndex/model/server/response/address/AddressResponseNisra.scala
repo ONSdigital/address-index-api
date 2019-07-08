@@ -46,7 +46,8 @@ case class AddressResponseNisra(
                                  creationDate: String,
                                  commencementDate: String,
                                  archivedDate: String,
-                                 //        nisraAll: String,
+                                 addressStatus: String,
+                                 buildingStatus: String,
                                  mixedNisra: String
                                )
 
@@ -86,7 +87,8 @@ object AddressResponseNisra {
       other.creationDate,
       other.commencementDate,
       other.archivedDate,
-  //    other.nisraAll,
+      other.addressStatus,
+      other.buildingStatus,
       other.mixedNisra
     )
 }

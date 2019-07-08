@@ -43,7 +43,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          startBoost: Option[String] = None
+                          startBoost: Option[String] = None,
+                          fromsource: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -65,6 +66,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+    val fromsourceVal = fromsource.getOrElse("all")
 
     val defStartBoost = conf.config.elasticSearch.defaultStartBoost
     // query string param for testing, will probably be removed
@@ -108,7 +110,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       historical = Some(hist),
       limit = Some(limitInt),
       offset = Some(offsetInt),
-      verbose = Some(verb)
+      verbose = Some(verb),
+      fromSource = Some(fromsourceVal)
     )
 
     val result: Option[Future[Result]] =
@@ -136,6 +139,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          fromSource = fromsourceVal
         )
 
         val request: Future[HybridAddressCollection] =

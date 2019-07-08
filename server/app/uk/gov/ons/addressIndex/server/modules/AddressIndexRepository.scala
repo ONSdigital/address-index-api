@@ -863,6 +863,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         verbose = false,
         isBulk = true,
         epoch = args.epoch,
+        fromSource = "all"
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>
