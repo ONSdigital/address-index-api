@@ -87,7 +87,8 @@ trait Response {
       sampleSize = 20,
       maxScore = 0f,
       matchthreshold = 5f,
-      verbose = queryValues.verboseOrDefault
+      verbose = queryValues.verboseOrDefault,
+      fromsource = queryValues.fromSourceOrDefault
     )
   }
 

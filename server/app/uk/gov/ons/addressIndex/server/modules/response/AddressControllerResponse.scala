@@ -57,6 +57,10 @@ trait AddressControllerResponse extends AddressResponse {
     BadRequestTemplate(queryValues, ThresholdNotInRangeAddressResponseError)
   }
 
+  def FromSourceInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues, FromSourceInvalidError)
+  }
+
   def EpochInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
     BadRequestTemplate(queryValues, EpochNotAvailableError)
   }

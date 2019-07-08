@@ -17,7 +17,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
   extends AddressValidation with RandomControllerResponse {
   val randomFilterRegex: Regex = raw"""\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
 
-  // override error message with named length
+ //  override error message with named valid epochs
   object EpochNotAvailableErrorCustom extends AddressResponseError(
     code = 36,
     message = EpochNotAvailableError.message.concat(". Current available epochs are " + validEpochsMessage + ".")
@@ -67,7 +67,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None
@@ -75,5 +75,17 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
     }
+
+  def validateFromSource(queryValues: QueryValues): Option[Future[Result]] = {
+    queryValues.fromSource match {
+      case Some("nionly") => None
+      case Some("ewonly") => None
+      case Some("niboost") => None
+      case Some("all") => None
+      case _ =>
+        logger.systemLog(badRequestMessage = FromSourceInvalidError.message)
+        Some(futureJsonBadRequest(RandomFromSourceInvalid(queryValues)))
+    }
+  }
 
 }

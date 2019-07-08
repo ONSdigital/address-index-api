@@ -16,7 +16,8 @@ trait RandomControllerResponse extends Response {
         limit = queryValues.limitOrDefault,
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
-        verbose = queryValues.verboseOrDefault
+        verbose = queryValues.verboseOrDefault,
+        fromsource = queryValues.fromSourceOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -60,7 +61,8 @@ trait RandomControllerResponse extends Response {
       limit = queryValues.limitOrDefault,
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
-      verbose = queryValues.verboseOrDefault
+      verbose = queryValues.verboseOrDefault,
+      fromsource = queryValues.fromSourceOrDefault
     )
   }
 
@@ -88,6 +90,10 @@ trait RandomControllerResponse extends Response {
 
   def RandomEpochInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues, EpochNotAvailableError)
+  }
+
+  def RandomFromSourceInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(queryValues, FromSourceInvalidError)
   }
 
 }

@@ -39,11 +39,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           fallback: Option[String] = None,
                           offset: Option[String] = None,
                           limit: Option[String] = None,
-                          classificationFilter: Option[String] = None,
+                          classificationfilter: Option[String] = None,
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          startBoost: Option[String] = None,
+                          startboost: Option[String] = None,
                           fromsource: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
@@ -58,7 +58,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
@@ -66,11 +66,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = fromsource.getOrElse("all")
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     val defStartBoost = conf.config.elasticSearch.defaultStartBoost
     // query string param for testing, will probably be removed
-    val sboost = startBoost.flatMap(x => Try(x.toInt).toOption).getOrElse(defStartBoost)
+    val sboost = startboost.flatMap(x => Try(x.toInt).toOption).getOrElse(defStartBoost)
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
@@ -120,8 +120,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         .orElse(partialAddressValidation.validateSource(queryValues))
         .orElse(partialAddressValidation.validateKeyStatus(queryValues))
         .orElse(partialAddressValidation.validateInput(input, queryValues))
-        .orElse(partialAddressValidation.validateAddressFilter(classificationFilter, queryValues))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
+        .orElse(partialAddressValidation.validateFromSource(queryValues))
         .orElse(None)
 
     result match {
@@ -174,7 +175,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb
+                  verbose = verb,
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )

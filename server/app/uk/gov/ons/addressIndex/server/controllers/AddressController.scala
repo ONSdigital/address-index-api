@@ -81,7 +81,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val lonVal = lon.getOrElse("")
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = fromsource.getOrElse("all")
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val authVal = req.headers.get("authorization").getOrElse("Anon")
@@ -144,6 +144,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateInput(input, queryValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
+        .orElse(addressValidation.validateFromSource(queryValues))
         .orElse(None)
 
     result match {
@@ -223,7 +224,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   maxScore = maxScore,
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
-                  verbose = verb
+                  verbose = verb,
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )

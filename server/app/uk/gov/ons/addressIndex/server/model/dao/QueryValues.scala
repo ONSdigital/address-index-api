@@ -49,4 +49,6 @@ case class QueryValues(input: Option[String] = None,
   def longitudeOrDefault: String = this.longitude.getOrElse("")
 
   def matchThresholdOrDefault: Float = this.matchThreshold.getOrElse(0f)
+
+  def fromSourceOrDefault: String = this.fromSource.getOrElse("all")
 }

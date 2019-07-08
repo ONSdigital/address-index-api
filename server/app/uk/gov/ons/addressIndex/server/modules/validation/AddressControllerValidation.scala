@@ -109,4 +109,16 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
         Some(futureJsonBadRequest(EpochInvalid(queryValues)))
     }
   }
+
+  def validateFromSource(queryValues: QueryValues): Option[Future[Result]] = {
+    queryValues.fromSource match {
+      case Some("nionly") => None
+      case Some("ewonly") => None
+      case Some("niboost") => None
+      case Some("all") => None
+      case _ =>
+        logger.systemLog(badRequestMessage = FromSourceInvalidError.message)
+        Some(futureJsonBadRequest(FromSourceInvalid(queryValues)))
+    }
+  }
 }

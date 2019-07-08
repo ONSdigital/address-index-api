@@ -267,7 +267,7 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                             fromSource: String
+                             fromSource: String = "all"
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 
