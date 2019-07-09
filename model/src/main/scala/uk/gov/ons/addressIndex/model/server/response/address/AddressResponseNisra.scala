@@ -15,7 +15,6 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSao
   * @param altThoroughfare              altThoroughfare
   * @param dependentThoroughfare        dependentThoroughfare
   * @param locality                     locality
-  * @param townland                     townland
   * @param townName                     townName
   * @param postcode                     postcode
   * @param uprn                         uprn
@@ -37,7 +36,6 @@ case class AddressResponseNisra(
                                  altThoroughfare: String,
                                  dependentThoroughfare: String,
                                  locality: String,
-                                 townland: String,
                                  townName: String,
                                  postcode: String,
                                  uprn: String,
@@ -78,7 +76,6 @@ object AddressResponseNisra {
       other.altThoroughfare,
       other.dependentThoroughfare,
       other.locality,
-      other.townland,
       other.townName,
       other.postcode,
       other.uprn,
