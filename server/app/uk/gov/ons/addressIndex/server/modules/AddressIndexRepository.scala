@@ -103,9 +103,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val slopVal = 4
     val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
-  //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial")
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
+
+    val fromSourceQueryMust = args.fromSource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case _ => Seq.empty
+    }
+
+    val fromSourceQueryShould = args.fromSource match {
+      case "niboost" => Seq(termsQuery("fromSource","NI"))
+      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+      case _ => Seq.empty
+    }
 
     val filterSeq = Seq(
       if (args.filters.isEmpty) None
@@ -146,7 +157,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => Seq.empty
     }
 
-    val query = must(queryWithMatchType).filter(filterSeq).should(numberQuery)
+    val query = must(queryWithMatchType).filter(filterSeq ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPartial else hybridIndexHistoricalSkinnyPartial
@@ -204,7 +215,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => Option(termsQuery("classificationCode", args.filtersValueTerm))
     }
 
-    val fromSourceQuery2 = args.fromSource match {
+    val fromSourceQuery = args.fromSource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
       case "nionly" => Seq(termsQuery("fromSource","NI"))
       case "niboost" => Seq(termsQuery("fromSource","NI"))
@@ -214,7 +225,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(Seq(queryInner).flatten ++ fromSourceQuery2))
+      .query(boolQuery().filter(Seq(queryInner).flatten ++ fromSourceQuery))
       .boostMode("replace")
 
     val source = if (args.historical) {
