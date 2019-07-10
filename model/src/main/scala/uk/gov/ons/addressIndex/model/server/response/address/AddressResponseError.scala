@@ -170,7 +170,7 @@ object FailedRequestToEsPartialAddressError extends AddressResponseError(
 
 object FromSourceInvalidError extends AddressResponseError(
   code = 31,
-  message = "Query string parameter fromsource must be all, niboost, nionly or ewonly"
+  message = "Query string parameter fromsource must be all, niboost, ewboost, nionly or ewonly"
 )
 
 object ShortQueryAddressResponseError extends AddressResponseError(

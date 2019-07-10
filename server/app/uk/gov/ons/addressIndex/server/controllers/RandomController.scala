@@ -105,6 +105,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          fromSource = fromSourceVal
         )
 
         val request: Future[HybridAddressCollection] =

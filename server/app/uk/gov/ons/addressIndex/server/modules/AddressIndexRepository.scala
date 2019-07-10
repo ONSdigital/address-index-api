@@ -204,9 +204,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => Option(termsQuery("classificationCode", args.filtersValueTerm))
     }
 
+    val fromSourceQuery2 = args.fromSource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case "niboost" => Seq(termsQuery("fromSource","NI"))
+      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+      case _ => Seq.empty
+    }
+
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(Seq(queryInner).flatten))
+      .query(boolQuery().filter(Seq(queryInner).flatten ++ fromSourceQuery2))
       .boostMode("replace")
 
     val source = if (args.historical) {
@@ -695,6 +703,20 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case None => Seq.empty
     }
 
+    val fromSourceQuery1 = args.fromSource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case _ => Seq.empty
+    }
+
+    val fromSourceQuery2 = args.fromSource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case "niboost" => Seq(termsQuery("fromSource","NI"))
+      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+      case _ => Seq.empty
+    }
+
     val prefixWithGeo = Seq(prefixQuery("classificationCode", args.filtersValuePrefix)) ++ radiusQuery
     val termWithGeo = Seq(termsQuery("classificationCode", args.filtersValueTerm)) ++ radiusQuery
 
@@ -727,10 +749,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       Seq.empty).boost(queryParams.fallback.fallbackQueryBoost)
 
     val fallbackQueryFilter = if (args.filters.isEmpty)
-      radiusQuery
+      radiusQuery ++ fromSourceQuery2
     else args.filtersType match {
-      case "prefix" => prefixWithGeo
-      case _ => termWithGeo
+      case "prefix" => prefixWithGeo ++ fromSourceQuery2
+      case _ => termWithGeo ++ fromSourceQuery2
     }
 
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
@@ -775,9 +797,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     // add extra dismax after bestOfTheLot
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
-    val queryFilter = if (args.filters.isEmpty) radiusQuery
-    else if (args.filtersType == "prefix") prefixWithGeo
-    else termWithGeo
+    val queryFilter = if (args.filters.isEmpty) radiusQuery ++ fromSourceQuery1
+    else if (args.filtersType == "prefix") prefixWithGeo ++ fromSourceQuery1
+    else termWithGeo ++ fromSourceQuery1
 
     val query = if (shouldQuery.isEmpty)
       fallbackQuery

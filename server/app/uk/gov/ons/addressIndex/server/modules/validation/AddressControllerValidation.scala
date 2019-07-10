@@ -115,6 +115,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
       case Some("nionly") => None
       case Some("ewonly") => None
       case Some("niboost") => None
+      case Some("ewboost") => None
       case Some("all") => None
       case _ =>
         logger.systemLog(badRequestMessage = FromSourceInvalidError.message)

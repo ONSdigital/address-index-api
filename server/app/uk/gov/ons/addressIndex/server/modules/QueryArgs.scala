@@ -246,6 +246,7 @@ final case class RandomArgs(epoch: String = "",
                             limit: Int,
                             verbose: Boolean = true,
                             skinny: Boolean = false,
+                            fromSource: String = "all"
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }
