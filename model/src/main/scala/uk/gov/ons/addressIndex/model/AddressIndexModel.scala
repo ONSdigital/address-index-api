@@ -27,6 +27,7 @@ case class AddressIndexSearchRequest(input: String,
                                      limit: String,
                                      offset: String,
                                      verbose: Boolean,
+                                     fromsource: String,
                                      id: UUID,
                                      apiKey: String)
 
