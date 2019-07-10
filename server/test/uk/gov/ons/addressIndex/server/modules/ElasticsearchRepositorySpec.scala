@@ -564,25 +564,52 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     hybridNisraSubBuildingName,
     hybridNisraBuildingName,
     hybridNisraBuildingNumber,
+//    hybridPaoText,
+//    hybridPaoStartNumber,
+//    hybridPaoStartSuffix,
+//    hybridPaoEndNumber,
+//    hybridPaoEndSuffix,
+//    hybridSaoText,
+//    hybridSaoStartNumber,
+//    hybridSaoStartSuffix,
+//    hybridSaoEndNumber,
+//    hybridSaoEndSuffix,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
+    hybridNotUsed,
     hybridNisraThoroughfare,
     hybridNisraAltThoroughfare,
     hybridNisraDependentThoroughfare,
     hybridNisraLocality,
-    hybridNisraTownland,
     hybridNisraTownName,
     hybridNisraPostcode,
     hybridNisraUprn,
+    // hybridClassificationCode,
+    // hybridUdprn,
     hybridNotUsed,
     hybridNotUsed,
     hybridNisraPostTown,
     hybridNisraEasting,
     hybridNisraNorthing,
+    //  hybridCreationDate,
+    //  hybridCommencementDate,
+    //  hybridArchivedDate,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
     hybridNisraLatitude,
     hybridNisraLongitude,
     hybridNotUsed,
+    hybridNotUsed,
+//    hybridAddressStatus,
+//    hybridBuildingStatus,
     hybridMixedNisra
   )
 
@@ -811,7 +838,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val args = PartialArgs(
         input = "h4",
         filters = "residential",
-        limit = 1
+        limit = 1,
+        fromSource = "all"
       )
       val query = repository.makeQuery(args)
       val result = Json.parse(SearchBodyBuilderFn(query).string())
@@ -895,7 +923,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = "h4",
         fallback = true,
         filters = "residential",
-        limit = 1
+        limit = 1,
+        fromSource = "all"
       )
       val query = repository.makePartialSearch(args, fallback = true)
       val result = Json.parse(SearchBodyBuilderFn(query).string())
@@ -3186,6 +3215,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInput,
         filters = partialFilterNone,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3263,6 +3293,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         fallback = true,
         filters = partialFilterNone,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3301,6 +3332,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputWithout,
         filters = partialFilterNone,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3339,6 +3371,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         fallback = true,
         filters = partialFilterNone,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3422,6 +3455,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInput,
         filters = partialFilterCode,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3505,6 +3539,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         fallback = true,
         filters = partialFilterCode,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3589,6 +3624,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInput,
         filters = partialFilterPrefix,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3673,6 +3709,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         fallback = true,
         filters = partialFilterPrefix,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3716,6 +3753,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputWithout,
         filters = partialFilterCode,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3759,6 +3797,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         fallback = true,
         filters = partialFilterCode,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3804,6 +3843,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         input = partialInputWithout,
         filters = partialFilterPrefix,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3849,6 +3889,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
         fallback = true,
         filters = partialFilterPrefix,
         limit = 1,
+        fromSource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 

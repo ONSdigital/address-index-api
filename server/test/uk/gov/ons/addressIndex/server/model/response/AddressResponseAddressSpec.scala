@@ -127,7 +127,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     altThoroughfare = "6",
     dependentThoroughfare = "7",
     locality = "8",
-    townland = "9",
     townName = "10",
     postcode = "BT36 5SN",
     uprn = "11",
@@ -140,9 +139,20 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     commencementDate = "18",
     archivedDate = "19",
     latitude = "50.7341677",
-    nisraAll = "nisraAll",
     mixedNisra = "mixedNisra",
-    longitude = "-3.540302"
+    longitude = "-3.540302",
+    paoText = "",
+    paoStartNumber = "4",
+    paoStartSuffix = "",
+    paoEndNumber = "",
+    paoEndSuffix = "",
+    saoText = "",
+    saoStartNumber = "4",
+    saoStartSuffix = "",
+    saoEndNumber = "",
+    saoEndSuffix = "",
+    addressStatus = "APPROVED",
+    buildingStatus = "DEMOLISHED"
   )
 
   val givenRelative = Relative (

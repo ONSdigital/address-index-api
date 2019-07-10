@@ -24,7 +24,6 @@ case class NisraAddress(
   altThoroughfare: String,
   dependentThoroughfare: String,
   locality: String,
-  townland: String,
   townName: String,
   postcode: String,
   uprn: String,
@@ -71,7 +70,6 @@ object NisraAddress {
     val altThoroughfare: String = "altThoroughfare"
     val dependentThoroughfare: String = "dependentThoroughfare"
     val locality: String = "locality"
-    val townland: String = "townland"
     val townName: String = "townName"
     val postcode: String = "postcode"
     val uprn: String = "uprn"
@@ -116,7 +114,6 @@ object NisraAddress {
       altThoroughfare = filteredNisra.getOrElse(Fields.altThoroughfare, "").toString,
       dependentThoroughfare = filteredNisra.getOrElse(Fields.dependentThoroughfare, "").toString,
       locality = filteredNisra.getOrElse(Fields.locality, "").toString,
-      townland = filteredNisra.getOrElse(Fields.townland, "").toString,
       townName = filteredNisra.getOrElse(Fields.townName, "").toString,
       postcode = filteredNisra.getOrElse(Fields.postcode, "").toString,
       uprn = filteredNisra.getOrElse(Fields.uprn, "").toString,
