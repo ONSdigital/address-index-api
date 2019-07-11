@@ -3,7 +3,6 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
@@ -26,8 +25,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
                                       )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
-  //  private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
-  //  private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
 
   private def prefixPolicy(str: String): String = str match {
     case "" => "";
@@ -862,8 +859,6 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
- //   val debugq: String = SearchBodyBuilderFn(query).string()
- //   println(debugq)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback

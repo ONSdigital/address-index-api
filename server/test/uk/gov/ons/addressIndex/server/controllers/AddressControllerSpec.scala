@@ -739,6 +739,44 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if an invalid fromsource value is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "RD02",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 1,
+          offset = 1,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="twitter"
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(FromSourceInvalidError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("twitter")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply with a 400 error if an invalid filter value is supplied" in {
       // Given
       val controller = addressController
