@@ -144,9 +144,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         )
 
         val request: Future[HybridAddressCollection] =
-          overloadProtection.breaker.withCircuitBreaker(
+//          overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
-          )
+//          )
 
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
@@ -157,8 +157,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
             val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
 
             writeLog(activity = "partial_request")
-            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
-              overloadProtection.setStatus(ThrottlerStatus.Closed)
+//            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+//              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByPartialAddressResponseContainer(
@@ -185,19 +185,19 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         }.recover {
           case NonFatal(exception) =>
 
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-              case ThrottlerStatus.Open =>
-                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-              case _ =>
+//            overloadProtection.currentStatus match {
+//              case ThrottlerStatus.HalfOpen =>
+//                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+//                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
+//              case ThrottlerStatus.Open =>
+//                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+//                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
+//              case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
                 logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
                 InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
-            }
+//            }
         }
 
     }

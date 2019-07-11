@@ -20,6 +20,8 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
   private val circuitBreakerMaxFailures: Int = esConf.circuitBreakerMaxFailures
   private val circuitBreakerCallTimeout: Int = esConf.circuitBreakerCallTimeout
   private val circuitBreakerResetTimeout: Int = esConf.circuitBreakerResetTimeout
+  private val circuitBreakerMaxResetTimeout: Int = esConf.circuitBreakerMaxResetTimeout
+  private val circuitBreakerExponentialBackoffFactor: Double = esConf.circuitBreakerExponentialBackoffFactor
 
   var currentStatus: ThrottleStatus = {
     if (breaker.isOpen) {
@@ -45,7 +47,9 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
       system.scheduler,
       maxFailures = circuitBreakerMaxFailures,
       callTimeout = circuitBreakerCallTimeout.milliseconds,
-      resetTimeout = circuitBreakerResetTimeout milliseconds)
+      resetTimeout = circuitBreakerResetTimeout milliseconds,
+      maxResetTimeout = circuitBreakerMaxResetTimeout.milliseconds,
+      exponentialBackoffFactor = circuitBreakerExponentialBackoffFactor)
       .onOpen({
         logger.warn("Circuit breaker is now open")
         currentStatus = ThrottlerStatus.Open
