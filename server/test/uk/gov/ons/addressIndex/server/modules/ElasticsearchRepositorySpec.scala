@@ -768,69 +768,91 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {
-           	"version": true,
-           	"query": {
-           		"bool": {
-           			"must": [{
-           				"multi_match": {
-           					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial"],
-           					"type": "phrase",
-                    "slop":4
-           				}
-           			}],
-           			"should": [{
-                     "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                             "lpi.paoStartNumber": {
-                               "query": "4",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "4",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                          "match": {
-                            "nisra.buildingNumber": {
-                              "query": "4",
-                              "boost": 0.5,
-                              "fuzzy_transpositions": false,
-                              "max_expansions": 10,
-                              "prefix_length": "1"
-                            }
+           {
+              "version":true,
+              "query":{
+                 "bool":{
+                    "must":[
+                       {
+                          "multi_match":{
+                             "query":"h4",
+                             "fields":[
+                                "lpi.nagAll.partial",
+                                "paf.mixedPaf.partial",
+                                "paf.mixedWelshPaf.partial",
+                                "nisra.mixedNisra.partial"
+                             ],
+                             "type":"phrase",
+                             "slop":4
                           }
-                        }
-                       ]
-                     }
-                   }],
-           			"filter": [{
-           				"prefix": {
-           					"classificationCode": {
-           						"value": "R"
-           					}
-           				}
-           			}]
-           		}
-           	},
-            "from": 0,
-            "size": 1
-          }
+                       }
+                    ],
+                    "should":[
+                       {
+                          "dis_max":{
+                             "queries":[
+                                {
+                                   "match":{
+                                      "lpi.paoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.5,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
+                                      }
+                                   }
+                                },
+                                {
+                                   "match":{
+                                      "lpi.saoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.2,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
+                                      }
+                                   }
+                                },
+                                {
+                                   "match":{
+                                      "nisra.paoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.5,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
+                                      }
+                                   }
+                                },
+                                {
+                                   "match":{
+                                      "nisra.saoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.2,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
+                                      }
+                                   }
+                                }
+                             ]
+                          }
+                       }
+                    ],
+                    "filter":[
+                       {
+                          "prefix":{
+                             "classificationCode":{
+                                "value":"R"
+                             }
+                          }
+                       }
+                    ]
+                 }
+              },
+              "from":0,
+              "size":1
+           }
          """.stripMargin
       )
 
@@ -853,68 +875,90 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {
-           	"version": true,
-           	"query": {
-           		"bool": {
-           			"must": [{
-           				"multi_match": {
-           					"query": "h4",
-           					"fields": ["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial"],
-           					"type": "best_fields"
-           				}
-           			}],
-                      			"should": [{
-                                "dis_max": {
-                                  "queries": [
-                                    {
-                                      "match": {
-                                        "lpi.paoStartNumber": {
-                                          "query": "4",
-                                          "boost": 0.5,
-                                          "fuzzy_transpositions": false,
-                                          "max_expansions": 10,
-                                          "prefix_length": "1"
-                                        }
+           {
+              "version":true,
+              "query":{
+                 "bool":{
+                    "must":[
+                       {
+                          "multi_match":{
+                             "query":"h4",
+                             "fields":[
+                                "lpi.nagAll.partial",
+                                "paf.mixedPaf.partial",
+                                "paf.mixedWelshPaf.partial",
+                                "nisra.mixedNisra.partial"
+                             ],
+                             "type":"best_fields"
+                          }
+                       }
+                    ],
+                    "should":[
+                       {
+                          "dis_max":{
+                             "queries":[
+                                {
+                                   "match":{
+                                      "lpi.paoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.5,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
                                       }
-                                    },
-                                    {
-                                      "match": {
-                                        "lpi.saoStartNumber": {
-                                          "query": "4",
-                                          "boost": 0.2,
-                                          "fuzzy_transpositions": false,
-                                          "max_expansions": 10,
-                                          "prefix_length": "1"
-                                        }
+                                   }
+                                },
+                                {
+                                   "match":{
+                                      "lpi.saoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.2,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
                                       }
-                                    },
-                                    {
-                                      "match": {
-                                        "nisra.buildingNumber": {
-                                          "query": "4",
-                                          "boost": 0.5,
-                                          "fuzzy_transpositions": false,
-                                          "max_expansions": 10,
-                                          "prefix_length": "1"
-                                        }
+                                   }
+                                },
+                                {
+                                   "match":{
+                                      "nisra.paoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.5,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
                                       }
-                                    }
-                                  ]
+                                   }
+                                },
+                                {
+                                   "match":{
+                                      "nisra.saoStartNumber":{
+                                         "query":"4",
+                                         "boost":0.2,
+                                         "fuzzy_transpositions":false,
+                                         "max_expansions":10,
+                                         "prefix_length":"1"
+                                      }
+                                   }
                                 }
-                              }],
-           			"filter": [{
-           				"prefix": {
-           					"classificationCode": {
-           						"value": "R"
-           					}
-           				}
-           			}]
-           		}
-           	},
-            "from": 0,
-            "size": 1
-          }
+                             ]
+                          }
+                       }
+                    ],
+                    "filter":[
+                       {
+                          "prefix":{
+                             "classificationCode":{
+                                "value":"R"
+                             }
+                          }
+                       }
+                    ]
+                 }
+              },
+              "from":0,
+              "size":1
+           }
          """.stripMargin
       )
 
@@ -936,11 +980,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "find HYBRID address by UPRN in non-historical index" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
-      val expected = Some(expectedHybridHist)
+      val expected = Some(expectedHybrid)
 
       // When
       val args = UPRNArgs(
-        uprn = hybridFirstUprnHist.toString,
+        uprn = hybridFirstUprn.toString,
         historical = false,
       )
       val result = repository.runUPRNQuery(args).await
@@ -956,59 +1000,65 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {
-           	"version": true,
-           	"query": {
-           		"bool": {
-           			"must": [{
-           				"term": {
-           					"postcode": {
-           						"value": " H4"
-           					}
-           				}
-           			}],
-           			"filter": [{
-           				"prefix": {
-           					"classificationCode": {
-           						"value": "R"
-           					}
-           				}
-           			}]
-           		}
-           	},
-            "from": 0,
-            "size": 1,
-           	"sort": [{
-           		"lpi.streetDescriptor.keyword": {
-           			"order": "asc"
-           		}
-           	},
-           	{
-           		"lpi.paoStartNumber": {
-           			"order": "asc"
-           		}
-           	},
-           	{
-           		"lpi.paoStartSuffix.keyword": {
-           			"order": "asc"
-           		}
-           	},
-            {
-              "nisra.thoroughfare.keyword": {
-                "order": "asc"
-              }
-            },
-            {
-              "nisra.buildingNumber.keyword": {
-                "order": "asc"
-              }
-            },
-           	{
-           		"uprn": {
-           			"order": "asc"
-           		}
-           	}]
-          }
+ {
+              "version":true,
+              "query":{
+                 "bool":{
+                    "must":[
+                       {
+                          "term":{
+                             "postcode":{
+                                "value":" H4"
+                             }
+                          }
+                       }
+                    ],
+                    "filter":[
+                       {
+                          "prefix":{
+                             "classificationCode":{
+                                "value":"R"
+                             }
+                          }
+                       }
+                    ]
+                 }
+              },
+              "from":0,
+              "size":1,
+              "sort":[
+                 {
+                    "lpi.streetDescriptor.keyword":{
+                       "order":"asc"
+                    }
+                 },
+                 {
+                    "lpi.paoStartNumber":{
+                       "order":"asc"
+                    }
+                 },
+                 {
+                    "lpi.paoStartSuffix.keyword":{
+                       "order":"asc"
+                    }
+                 },
+                 {
+                    "nisra.thoroughfare.keyword":{
+                       "order":"asc"
+                    }
+                 },
+                 {
+                    "nisra.paoStartNumber":{
+                       "order":"asc"
+                    }
+                 },
+                 {
+                    "uprn":{
+                       "order":"asc"
+                    }
+                 }
+              ]
+           }
          """.stripMargin
       )
 
@@ -1218,1259 +1268,1259 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse(
         s"""
-           {
-             "version": true,
-             "query": {
-               "dis_max": {
-                 "tie_breaker": 1,
-                 "queries": [
-                   {
-                     "bool": {
-                       "should": [
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0,
-                             "queries": [
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.subBuildingName": {
-                                         "query": "h4",
-                                         "minimum_should_match": "-45%"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1.5
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.subBuildingName": {
-                                         "query": "h4",
-                                         "minimum_should_match": "-45%"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1.5
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.saoText": {
-                                         "query": "h4",
-                                         "minimum_should_match": "-45%"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1.5
-                                 }
-                               },
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0.5,
-                                   "queries": [
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.saoStartNumber": {
-                                               "query": "15"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.subBuildingName": {
-                                               "query": "15"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.subBuildingName": {
-                                               "query": "15"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.saoText": {
-                                               "query": "15"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.saoStartSuffix": {
-                                               "query": "h16"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.subBuildingName": {
-                                               "query": "h16"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.subBuildingName": {
-                                               "query": "h16"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.saoText": {
-                                               "query": "h16"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     }
-                                   ]
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0,
-                             "queries": [
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.thoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.thoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.welshThoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.dependentThoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.5
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.welshDependentThoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.5
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.dependentThoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.5
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.altThoroughfare": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.5
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.streetDescriptor": {
-                                         "query": "h7",
-                                         "fuzziness": "1"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0,
-                             "queries": [
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.postcode": {
-                                         "query": "h10"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.postcode": {
-                                         "query": "h10"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.postcodeLocator": {
-                                         "query": "h10"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "bool": {
-                                       "must": [
-                                         {
-                                           "match": {
-                                             "postcodeOut": {
-                                               "query": "h02p",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         {
-                                           "match": {
-                                             "postcodeIn": {
-                                               "query": "h01p",
-                                               "fuzziness": "2"
-                                             }
-                                           }
-                                         }
-                                       ]
-                                     }
-                                   },
-                                   "boost": 0.5
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0.5,
-                             "queries": [
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0,
-                                   "queries": [
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.buildingName": {
-                                               "query": "h5",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 2.5
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.buildingName": {
-                                               "query": "h5",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 2.5
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.paoText": {
-                                               "query": "h5",
-                                               "fuzziness": "1",
-                                               "minimum_should_match": "-45%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 2.5
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "bool": {
-                                             "must": [
-                                               {
-                                                 "match": {
-                                                   "lpi.paoStartNumber": {
-                                                     "query": "13"
-                                                   }
-                                                 }
-                                               },
-                                               {
-                                                 "match": {
-                                                   "lpi.paoStartSuffix": {
-                                                     "query": "h11"
-                                                   }
-                                                 }
-                                               }
-                                             ]
-                                           }
-                                         },
-                                         "boost": 3
-                                       }
-                                     }
-                                   ]
-                                 }
-                               },
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0,
-                                   "queries": [
-                                     {
-                                       "dis_max": {
-                                         "tie_breaker": 0,
-                                         "boost": 0.5,
-                                         "queries": [
-                                           {
-                                             "constant_score": {
-                                               "filter": {
-                                                 "match": {
-                                                   "paf.subBuildingName": {
-                                                     "query": "h5",
-                                                     "minimum_should_match": "-45%"
-                                                   }
-                                                 }
-                                               },
-                                               "boost": 1.5
-                                             }
-                                           },
-                                           {
-                                             "constant_score": {
-                                               "filter": {
-                                                 "match": {
-                                                   "nisra.subBuildingName": {
-                                                     "query": "h5",
-                                                     "minimum_should_match": "-45%"
-                                                   }
-                                                 }
-                                               },
-                                               "boost": 1.5
-                                             }
-                                           },
-                                           {
-                                             "constant_score": {
-                                               "filter": {
-                                                 "match": {
-                                                   "lpi.saoText": {
-                                                     "query": "h5",
-                                                     "minimum_should_match": "-45%"
-                                                   }
-                                                 }
-                                               },
-                                               "boost": 1.5
-                                             }
-                                           },
-                                           {
-                                             "dis_max": {
-                                               "tie_breaker": 0.5,
-                                               "queries": [
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "lpi.saoStartNumber": {
-                                                           "query": "13"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "paf.subBuildingName": {
-                                                           "query": "13"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "nisra.subBuildingName": {
-                                                           "query": "13"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "lpi.saoText": {
-                                                           "query": "13"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "lpi.saoStartSuffix": {
-                                                           "query": "h11"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "paf.subBuildingName": {
-                                                           "query": "h11"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "nisra.subBuildingName": {
-                                                           "query": "h11"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 },
-                                                 {
-                                                   "constant_score": {
-                                                     "filter": {
-                                                       "match": {
-                                                         "lpi.saoText": {
-                                                           "query": "h11"
-                                                         }
-                                                       }
-                                                     },
-                                                     "boost": 1
-                                                   }
-                                                 }
-                                               ]
-                                             }
-                                           }
-                                         ]
-                                       }
-                                     }
-                                   ]
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0.5,
-                             "queries": [
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0,
-                                   "queries": [
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.organisationName": {
-                                               "query": "h2",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.organisationName": {
-                                               "query": "h2",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.organisation": {
-                                               "query": "h2",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.paoText": {
-                                               "query": "h2",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.legalName": {
-                                               "query": "h2",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.saoText": {
-                                               "query": "h2",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.5
-                                       }
-                                     }
-                                   ]
-                                 }
-                               },
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0,
-                                   "queries": [
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.departmentName": {
-                                               "query": "h3",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.legalName": {
-                                               "query": "h3",
-                                               "minimum_should_match": "30%"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.5
-                                       }
-                                     }
-                                   ]
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0.5,
-                             "queries": [
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0,
-                                   "queries": [
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.postTown": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.welshPostTown": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.townName": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.townName": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 1
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.dependentLocality": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.5
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.welshDependentLocality": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.5
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.locality": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.5
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.doubleDependentLocality": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.2
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.welshDoubleDependentLocality": {
-                                               "query": "h8",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.2
-                                       }
-                                     }
-                                   ]
-                                 }
-                               },
-                               {
-                                 "dis_max": {
-                                   "tie_breaker": 0,
-                                   "queries": [
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.postTown": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.2
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.townland": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.2
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.welshPostTown": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.2
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.townName": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.2
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.dependentLocality": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.6
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.welshDependentLocality": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.6
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "nisra.locality": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.6
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "lpi.locality": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.6
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.doubleDependentLocality": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.3
-                                       }
-                                     },
-                                     {
-                                       "constant_score": {
-                                         "filter": {
-                                           "match": {
-                                             "paf.welshDoubleDependentLocality": {
-                                               "query": "h20",
-                                               "fuzziness": "1"
-                                             }
-                                           }
-                                         },
-                                         "boost": 0.3
-                                       }
-                                     }
-                                   ]
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0.5,
-                             "queries": [
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.paoStartNumber": {
-                                         "query": "13"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.paoStartSuffix": {
-                                         "query": "h11"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.paoEndNumber": {
-                                         "query": "12"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.paoEndSuffix": {
-                                         "query": "h14"
-                                       }
-                                     }
-                                   },
-                                   "boost": 2
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.paoStartNumber": {
-                                         "query": "12"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.buildingNumber": {
-                                         "query": "12"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "paf.buildingNumber": {
-                                         "query": "13"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.buildingNumber": {
-                                         "query": "12"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "nisra.buildingNumber": {
-                                         "query": "13"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.1
-                                 }
-                               }
-                             ]
-                           }
-                         },
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0.5,
-                             "queries": [
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.saoStartNumber": {
-                                         "query": "15"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.saoStartSuffix": {
-                                         "query": "h16"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.saoEndNumber": {
-                                         "query": "17"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.saoEndSuffix": {
-                                         "query": "h18"
-                                       }
-                                     }
-                                   },
-                                   "boost": 1
-                                 }
-                               },
-                               {
-                                 "constant_score": {
-                                   "filter": {
-                                     "match": {
-                                       "lpi.saoStartNumber": {
-                                         "query": "17"
-                                       }
-                                     }
-                                   },
-                                   "boost": 0.1
-                                 }
-                               }
-                             ]
-                           }
-                         }
-                       ],
-                       "minimum_should_match": "-40%"
-                     }
-                   },
-                   {
-                     "bool": {
-                       "must": [
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0,
-                             "queries": [
-                               {
-                                 "match": {
-                                   "lpi.nagAll": {
-                                     "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-                                     "analyzer": "welsh_split_synonyms_analyzer",
-                                     "boost": 1,
-                                     "minimum_should_match": "-40%"
-                                   }
-                                 }
-                               },
-                               {
-                                 "match": {
-                                   "nisra.nisraAll": {
-                                     "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-                                     "analyzer": "welsh_split_synonyms_analyzer",
-                                     "boost": 1,
-                                     "minimum_should_match": "-40%"
-                                   }
-                                 }
-                               },
-                               {
-                                 "match": {
-                                   "paf.pafAll": {
-                                     "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-                                     "analyzer": "welsh_split_synonyms_analyzer",
-                                     "boost": 1,
-                                     "minimum_should_match": "-40%"
-                                   }
-                                 }
-                               }
-                             ]
-                           }
-                         }
-                       ],
-                       "should": [
-                         {
-                           "dis_max": {
-                             "tie_breaker": 0,
-                             "queries": [
-                               {
-                                 "match": {
-                                   "lpi.nagAll.bigram": {
-                                     "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-                                     "boost": 0.2,
-                                     "fuzziness": "0"
-                                   }
-                                 }
-                               },
-                               {
-                                 "match": {
-                                   "nisra.nisraAll.bigram": {
-                                     "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-                                     "boost": 0.2,
-                                     "fuzziness": "0"
-                                   }
-                                 }
-                               },
-                               {
-                                 "match": {
-                                   "paf.pafAll.bigram": {
-                                     "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-                                     "boost": 0.2,
-                                     "fuzziness": "0"
-                                   }
-                                 }
-                               }
-                             ]
-                           }
-                         }
-                       ],
-                       "boost": 0.075
-                     }
-                   }
-                 ]
-               }
-             },
-             "from": 0,
-             "size": 1,
-             "sort": [
-               {
-                 "_score": {
-                   "order": "desc"
-                 }
-               },
-               {
-                 "uprn": {
-                   "order": "asc"
-                 }
-               }
-             ],
-             "track_scores": true
-           }
+{
+"version":true,
+"query":{
+"dis_max":{
+"tie_breaker":1,
+"queries":[
+{
+"bool":{
+"should":[
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.subBuildingName":{
+"query":"h4",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":1.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.subBuildingName":{
+"query":"h4",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":1.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"h4",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":1.5
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartNumber":{
+"query":"15"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.subBuildingName":{
+"query":"15"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.subBuildingName":{
+"query":"15"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"15"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartSuffix":{
+"query":"h16"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.subBuildingName":{
+"query":"h16"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.subBuildingName":{
+"query":"h16"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"h16"
+}
+}
+},
+"boost":1
+}
+}
+]
+}
+}
+]
+}
+},
+ {
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.thoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.thoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshThoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.dependentThoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshDependentThoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.dependentThoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.altThoroughfare":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.streetDescriptor":{
+"query":"h7",
+"fuzziness":"1"
+}
+}
+},
+"boost":2
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.postcode":{
+"query":"h10"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.postcode":{
+"query":"h10"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.postcodeLocator":{
+"query":"h10"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"bool":{
+"must":[
+{
+"match":{
+"postcodeOut":{
+"query":"h02p",
+"fuzziness":"1"
+}
+}
+},
+{
+"match":{
+"postcodeIn":{
+"query":"h01p",
+"fuzziness":"2"
+}
+}
+}
+]
+}
+},
+"boost":0.5
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.buildingName":{
+"query":"h5",
+"fuzziness":"1"
+}
+}
+},
+"boost":2.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.buildingName":{
+"query":"h5",
+"fuzziness":"1"
+}
+}
+},
+"boost":2.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoText":{
+"query":"h5",
+"fuzziness":"1",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":2.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"bool":{
+"must":[
+{
+"match":{
+"lpi.paoStartNumber":{
+"query":"13"
+}
+}
+},
+{
+"match":{
+"lpi.paoStartSuffix":{
+"query":"h11"
+}
+}
+}
+]
+}
+},
+"boost":3
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"dis_max":{
+"tie_breaker":0,
+"boost":0.5,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.subBuildingName":{
+"query":"h5",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":1.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.subBuildingName":{
+"query":"h5",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":1.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"h5",
+"minimum_should_match":"-45%"
+}
+}
+},
+"boost":1.5
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartNumber":{
+"query":"13"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.subBuildingName":{
+"query":"13"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+ "filter":{
+"match":{
+"nisra.subBuildingName":{
+"query":"13"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"13"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartSuffix":{
+"query":"h11"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.subBuildingName":{
+"query":"h11"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.subBuildingName":{
+"query":"h11"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"h11"
+}
+}
+},
+"boost":1
+}
+}
+]
+}
+}
+]
+}
+}
+]
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.organisationName":{
+"query":"h2",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.organisationName":{
+"query":"h2",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.organisation":{
+"query":"h2",
+"minimum_should_match":"30%"
+ }
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoText":{
+"query":"h2",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.legalName":{
+"query":"h2",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoText":{
+"query":"h2",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":0.5
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.departmentName":{
+"query":"h3",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.legalName":{
+"query":"h3",
+"minimum_should_match":"30%"
+}
+}
+},
+"boost":0.5
+}
+}
+]
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.postTown":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshPostTown":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.townName":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.townName":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.dependentLocality":{
+"query":"h8",
+"fuzziness":"1"
+}
+ }
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshDependentLocality":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.locality":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.5
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.doubleDependentLocality":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshDoubleDependentLocality":{
+"query":"h8",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.2
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.postTown":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.townland":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshPostTown":{
+"query":"h20",
+"fuzziness":"1"
+ }
+}
+},
+"boost":0.2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.townName":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.dependentLocality":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.6
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshDependentLocality":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.6
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.locality":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.6
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.locality":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.6
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.doubleDependentLocality":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.3
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.welshDoubleDependentLocality":{
+"query":"h20",
+"fuzziness":"1"
+}
+}
+},
+"boost":0.3
+}
+}
+]
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoStartNumber":{
+"query":"13"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoStartSuffix":{
+"query":"h11"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoEndNumber":{
+"query":"12"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoEndSuffix":{
+"query":"h14"
+}
+}
+},
+"boost":2
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.paoStartNumber":{
+"query":"12"
+ }
+}
+},
+"boost":0.1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.buildingNumber":{
+"query":"12"
+}
+}
+},
+"boost":0.1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"paf.buildingNumber":{
+"query":"13"
+}
+}
+},
+"boost":0.1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.paoStartNumber":{
+"query":"12"
+}
+}
+},
+"boost":0.1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"nisra.paoStartNumber":{
+"query":"13"
+}
+}
+},
+"boost":0.1
+}
+}
+]
+}
+},
+{
+"dis_max":{
+"tie_breaker":0.5,
+"queries":[
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartNumber":{
+"query":"15"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartSuffix":{
+"query":"h16"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoEndNumber":{
+"query":"17"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoEndSuffix":{
+"query":"h18"
+}
+}
+},
+"boost":1
+}
+},
+{
+"constant_score":{
+"filter":{
+"match":{
+"lpi.saoStartNumber":{
+"query":"17"
+}
+}
+},
+"boost":0.1
+}
+}
+]
+}
+}
+],
+"minimum_should_match":"-40%"
+}
+},
+{
+"bool":{
+"must":[
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"match":{
+"lpi.nagAll":{
+"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+"analyzer":"welsh_split_synonyms_analyzer",
+"boost":1,
+"minimum_should_match":"-40%"
+}
+}
+},
+{
+"match":{
+"nisra.nisraAll":{
+"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+"analyzer":"welsh_split_synonyms_analyzer",
+"boost":1,
+"minimum_should_match":"-40%"
+}
+}
+},
+{
+"match":{
+"paf.pafAll":{
+"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+"analyzer":"welsh_split_synonyms_analyzer",
+"boost":1,
+"minimum_should_match":"-40%"
+}
+}
+}
+]
+}
+}
+],
+"should":[
+{
+"dis_max":{
+"tie_breaker":0,
+"queries":[
+{
+"match":{
+"lpi.nagAll.bigram":{
+"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+"boost":0.2,
+"fuzziness":"0"
+}
+}
+},
+{
+"match":{
+"nisra.nisraAll.bigram":{
+"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+"boost":0.2,
+"fuzziness":"0"
+}
+}
+},
+{
+"match":{
+"paf.pafAll.bigram":{
+"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+"boost":0.2,
+"fuzziness":"0"
+}
+}
+}
+]
+}
+}
+],
+"boost":0.075
+}
+}
+]
+}
+},
+"from":0,
+"size":1,
+"sort":[
+{
+"_score":{
+"order":"desc"
+}
+},
+{
+"uprn":{
+"order":"asc"
+}
+}
+],
+"track_scores":true
+        }
          """.stripMargin)
 
       // When
@@ -3151,63 +3201,83 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse(
         """
-        {
-          "version":true,
-          "query" : {
-            "bool" : {
-              "must" : [{
+    {
+    "version":true,
+    "query":{
+       "bool":{
+          "must":[
+             {
                 "multi_match":{
-                  "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
-                  "type":"phrase",
-                  "slop":4
+                   "query":"7 Gate Re",
+                   "fields":[
+                      "lpi.nagAll.partial",
+                      "paf.mixedPaf.partial",
+                      "paf.mixedWelshPaf.partial",
+                      "nisra.mixedNisra.partial"
+                   ],
+                   "type":"phrase",
+                   "slop":4
                 }
-              }],
-           			"should": [{
-                      "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                             "lpi.paoStartNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "7",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "nisra.buildingNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
+             }
+          ],
+          "should":[
+             {
+                "dis_max":{
+                   "queries":[
+                      {
+                         "match":{
+                            "lpi.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
                          }
-                       ]
-                     }
-                   }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
-        """
+                      },
+                      {
+                         "match":{
+                            "lpi.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      }
+                   ]
+                }
+             }
+          ]
+       }
+    },
+    "from":0,
+    "size":1
+ }
+         """
       )
 
       // When
@@ -3229,61 +3299,81 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse(
         """
-        {
-          "version":true,
-          "query" : {
-            "bool" : {
-              "must" : [{
+  {
+    "version":true,
+    "query":{
+       "bool":{
+          "must":[
+             {
                 "multi_match":{
-                  "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
-                  "type":"best_fields"
+                   "query":"7 Gate Ret",
+                   "fields":[
+                      "lpi.nagAll.partial",
+                      "paf.mixedPaf.partial",
+                      "paf.mixedWelshPaf.partial",
+                      "nisra.mixedNisra.partial"
+                   ],
+                   "type":"best_fields"
                 }
-              }],
-           			"should": [{
-                      "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                              "lpi.paoStartNumber": {
-                              "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "7",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "nisra.buildingNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
+             }
+          ],
+          "should":[
+             {
+                "dis_max":{
+                   "queries":[
+                      {
+                         "match":{
+                            "lpi.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
                          }
-                       ]
-                     }
-                   }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+                      },
+                      {
+                         "match":{
+                            "lpi.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      }
+                   ]
+                }
+             }
+          ]
+       }
+    },
+    "from":0,
+    "size":1
+  }
         """
       )
 
@@ -3387,66 +3477,90 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
-          "query" : {
-            "bool" : {
-              "must" : [{
+    "version":true,
+    "query":{
+       "bool":{
+          "must":[
+             {
                 "multi_match":{
-                  "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
-                  "type":"phrase",
-                  "slop":4
+                   "query":"7 Gate Re",
+                   "fields":[
+                      "lpi.nagAll.partial",
+                      "paf.mixedPaf.partial",
+                      "paf.mixedWelshPaf.partial",
+                      "nisra.mixedNisra.partial"
+                   ],
+                   "type":"phrase",
+                   "slop":4
                 }
-              }],
-           			"should": [{
-                      "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                             "lpi.paoStartNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "7",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "nisra.buildingNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
+             }
+          ],
+          "should":[
+             {
+                "dis_max":{
+                   "queries":[
+                      {
+                         "match":{
+                            "lpi.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
                          }
-                       ]
-                     }
-                   }],
-              "filter":[{
-                "terms":{
-                  "classificationCode": ["RD"]
+                      },
+                      {
+                         "match":{
+                            "lpi.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      }
+                   ]
                 }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+             }
+          ],
+          "filter":[
+             {
+                "terms":{
+                   "classificationCode":[
+                      "RD"
+                   ]
+                }
+             }
+          ]
+       }
+    },
+    "from":0,
+    "size":1
+   }
         """
       )
 
@@ -3470,66 +3584,90 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse(
         """
-        {
-          "version":true,
-          "query" : {
-            "bool" : {
-              "must" : [{
+    {
+    "version":true,
+    "query":{
+       "bool":{
+          "must":[
+             {
                 "multi_match":{
-                  "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
-                  "type":"best_fields"
+                   "query":"7 Gate Ret",
+                   "fields":[
+                      "lpi.nagAll.partial",
+                      "paf.mixedPaf.partial",
+                      "paf.mixedWelshPaf.partial",
+                      "nisra.mixedNisra.partial"
+                   ],
+                   "type":"best_fields"
                 }
-              }],
-           			"should": [{
-                      "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                             "lpi.paoStartNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "7",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "nisra.buildingNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
+             }
+          ],
+          "should":[
+             {
+                "dis_max":{
+                   "queries":[
+                      {
+                         "match":{
+                            "lpi.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
                          }
-                       ]
-                     }
-                   }],
-              "filter":[{
-                "terms":{
-                  "classificationCode": ["RD"]
+                      },
+                      {
+                         "match":{
+                            "lpi.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      }
+                   ]
                 }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+             }
+          ],
+          "filter":[
+             {
+                "terms":{
+                   "classificationCode":[
+                      "RD"
+                   ]
+                }
+             }
+          ]
+       }
+    },
+    "from":0,
+    "size":1
+   }
         """
       )
 
@@ -3553,69 +3691,91 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse(
         """
-        {
-          "version":true,
-          "query" : {
-            "bool" : {
-              "must" : [{
+{
+    "version":true,
+    "query":{
+       "bool":{
+          "must":[
+             {
                 "multi_match":{
-                  "query":"7 Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
-                  "type":"phrase",
-                  "slop":4
+                   "query":"7 Gate Re",
+                   "fields":[
+                      "lpi.nagAll.partial",
+                      "paf.mixedPaf.partial",
+                      "paf.mixedWelshPaf.partial",
+                      "nisra.mixedNisra.partial"
+                   ],
+                   "type":"phrase",
+                   "slop":4
                 }
-              }],
-           			"should": [{
-                      "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                             "lpi.paoStartNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "7",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "nisra.buildingNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
+             }
+          ],
+          "should":[
+             {
+                "dis_max":{
+                   "queries":[
+                      {
+                         "match":{
+                            "lpi.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
                          }
-                       ]
-                     }
-                   }],
-              "filter":[{
-                "prefix":{
-                  "classificationCode":{
-                    "value":"R"
-                  }
+                      },
+                      {
+                         "match":{
+                            "lpi.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      }
+                   ]
                 }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+             }
+          ],
+          "filter":[
+             {
+                "prefix":{
+                   "classificationCode":{
+                      "value":"R"
+                   }
+                }
+             }
+          ]
+       }
+    },
+    "from":0,
+    "size":1
+ }
         """
       )
 
@@ -3638,68 +3798,90 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse(
         """
-        {
-          "version":true,
-          "query" : {
-            "bool" : {
-              "must" : [{
+{
+    "version":true,
+    "query":{
+       "bool":{
+          "must":[
+             {
                 "multi_match":{
-                  "query":"7 Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial"],
-                  "type":"best_fields"
+                   "query":"7 Gate Ret",
+                   "fields":[
+                      "lpi.nagAll.partial",
+                      "paf.mixedPaf.partial",
+                      "paf.mixedWelshPaf.partial",
+                      "nisra.mixedNisra.partial"
+                   ],
+                   "type":"best_fields"
                 }
-              }],
-          			"should": [{
-                      "dis_max": {
-                       "queries": [
-                         {
-                           "match": {
-                             "lpi.paoStartNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "lpi.saoStartNumber": {
-                               "query": "7",
-                               "boost": 0.2,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
-                         },
-                         {
-                           "match": {
-                             "nisra.buildingNumber": {
-                               "query": "7",
-                               "boost": 0.5,
-                               "fuzzy_transpositions": false,
-                               "max_expansions": 10,
-                               "prefix_length": "1"
-                             }
-                           }
+             }
+          ],
+          "should":[
+             {
+                "dis_max":{
+                   "queries":[
+                      {
+                         "match":{
+                            "lpi.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
                          }
-                       ]
-                     }
-                   }],
-              "filter":[{
-                "prefix":{
-                  "classificationCode":{
-                    "value":"R"
-                  }
+                      },
+                      {
+                         "match":{
+                            "lpi.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.paoStartNumber":{
+                               "query":"7",
+                               "boost":0.5,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      },
+                      {
+                         "match":{
+                            "nisra.saoStartNumber":{
+                               "query":"7",
+                               "boost":0.2,
+                               "fuzzy_transpositions":false,
+                               "max_expansions":10,
+                               "prefix_length":"1"
+                            }
+                         }
+                      }
+                   ]
                 }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+             }
+          ],
+          "filter":[
+             {
+                "prefix":{
+                   "classificationCode":{
+                      "value":"R"
+                   }
+                }
+             }
+          ]
+       }
+    },
+    "from":0,
+    "size":1
+ }
         """
       )
 
@@ -3927,1277 +4109,1277 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       val expected = Json.parse (
         s"""
-      {
-        "version": true,
-        "query": {
-          "dis_max": {
-          "tie_breaker": 1,
-          "queries": [
-        {
-          "bool": {
-          "should": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.subBuildingName": {
-          "query": "h4",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 1.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.subBuildingName": {
-          "query": "h4",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 1.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "h4",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 1.5
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartNumber": {
-          "query": "15"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.subBuildingName": {
-          "query": "15"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.subBuildingName": {
-          "query": "15"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "15"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartSuffix": {
-          "query": "h16"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.subBuildingName": {
-          "query": "h16"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.subBuildingName": {
-          "query": "h16"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "h16"
-        }
-        }
-        },
-          "boost": 1
-        }
-        }
-          ]
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.thoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.thoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshThoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.dependentThoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshDependentThoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.dependentThoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.altThoroughfare": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.streetDescriptor": {
-          "query": "h7",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 2
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.postcode": {
-          "query": "h10"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.postcode": {
-          "query": "h10"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.postcodeLocator": {
-          "query": "h10"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "bool": {
-          "must": [
-        {
-          "match": {
-          "postcodeOut": {
-          "query": "h02p",
-          "fuzziness": "1"
-        }
-        }
-        },
-        {
-          "match": {
-          "postcodeIn": {
-          "query": "h01p",
-          "fuzziness": "2"
-        }
-        }
-        }
-          ]
-        }
-        },
-          "boost": 0.5
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.buildingName": {
-          "query": "h5",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 2.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.buildingName": {
-          "query": "h5",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 2.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoText": {
-          "query": "h5",
-          "fuzziness": "1",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 2.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "bool": {
-          "must": [
-        {
-          "match": {
-          "lpi.paoStartNumber": {
-          "query": "13"
-        }
-        }
-        },
-        {
-          "match": {
-          "lpi.paoStartSuffix": {
-          "query": "h11"
-        }
-        }
-        }
-          ]
-        }
-        },
-          "boost": 3
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "boost": 0.5,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.subBuildingName": {
-          "query": "h5",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 1.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.subBuildingName": {
-          "query": "h5",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 1.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "h5",
-          "minimum_should_match": "-45%"
-        }
-        }
-        },
-          "boost": 1.5
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartNumber": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.subBuildingName": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.subBuildingName": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartSuffix": {
-          "query": "h11"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.subBuildingName": {
-          "query": "h11"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.subBuildingName": {
-          "query": "h11"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "h11"
-        }
-        }
-        },
-          "boost": 1
-        }
-        }
-          ]
-        }
-        }
-          ]
-        }
-        }
-          ]
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.organisationName": {
-          "query": "h2",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.organisationName": {
-          "query": "h2",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.organisation": {
-          "query": "h2",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoText": {
-          "query": "h2",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.legalName": {
-          "query": "h2",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoText": {
-          "query": "h2",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.departmentName": {
-          "query": "h3",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.legalName": {
-          "query": "h3",
-          "minimum_should_match": "30%"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        }
-          ]
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.postTown": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshPostTown": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.townName": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.townName": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.dependentLocality": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshDependentLocality": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.locality": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.5
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.doubleDependentLocality": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshDoubleDependentLocality": {
-          "query": "h8",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.2
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.postTown": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.townland": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshPostTown": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.townName": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.dependentLocality": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.6
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshDependentLocality": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.6
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.locality": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.6
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.locality": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.6
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.doubleDependentLocality": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.3
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.welshDoubleDependentLocality": {
-          "query": "h20",
-          "fuzziness": "1"
-        }
-        }
-        },
-          "boost": 0.3
-        }
-        }
-          ]
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoStartNumber": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoStartSuffix": {
-          "query": "h11"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoEndNumber": {
-          "query": "12"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoEndSuffix": {
-          "query": "h14"
-        }
-        }
-        },
-          "boost": 2
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.paoStartNumber": {
-          "query": "12"
-        }
-        }
-        },
-          "boost": 0.1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.buildingNumber": {
-          "query": "12"
-        }
-        }
-        },
-          "boost": 0.1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "paf.buildingNumber": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 0.1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.buildingNumber": {
-          "query": "12"
-        }
-        }
-        },
-          "boost": 0.1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "nisra.buildingNumber": {
-          "query": "13"
-        }
-        }
-        },
-          "boost": 0.1
-        }
-        }
-          ]
-        }
-        },
-        {
-          "dis_max": {
-          "tie_breaker": 0.5,
-          "queries": [
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartNumber": {
-          "query": "15"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartSuffix": {
-          "query": "h16"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoEndNumber": {
-          "query": "17"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoEndSuffix": {
-          "query": "h18"
-        }
-        }
-        },
-          "boost": 1
-        }
-        },
-        {
-          "constant_score": {
-          "filter": {
-          "match": {
-          "lpi.saoStartNumber": {
-          "query": "17"
-        }
-        }
-        },
-          "boost": 0.1
-        }
-        }
-          ]
-        }
-        }
-          ],
-          "filter": [
-        {
-          "terms": {
-          "classificationCode": [
-          "RD06"
-          ]
-        }
-        }
-          ],
-          "minimum_should_match": "-40%"
-        }
-        },
-        {
-          "bool": {
-          "must": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "match": {
-          "lpi.nagAll": {
-          "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-          "analyzer": "welsh_split_synonyms_analyzer",
-          "boost": 1,
-          "minimum_should_match": "-40%"
-        }
-        }
-        },
-        {
-          "match": {
-          "nisra.nisraAll": {
-          "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-          "analyzer": "welsh_split_synonyms_analyzer",
-          "boost": 1,
-          "minimum_should_match": "-40%"
-        }
-        }
-        },
-        {
-          "match": {
-          "paf.pafAll": {
-          "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-          "analyzer": "welsh_split_synonyms_analyzer",
-          "boost": 1,
-          "minimum_should_match": "-40%"
-        }
-        }
-        }
-          ]
-        }
-        }
-          ],
-          "should": [
-        {
-          "dis_max": {
-          "tie_breaker": 0,
-          "queries": [
-        {
-          "match": {
-          "lpi.nagAll.bigram": {
-          "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-          "boost": 0.2,
-          "fuzziness": "0"
-        }
-        }
-        },
-        {
-          "match": {
-          "nisra.nisraAll.bigram": {
-          "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-          "boost": 0.2,
-          "fuzziness": "0"
-        }
-        }
-        },
-        {
-          "match": {
-          "paf.pafAll.bigram": {
-          "query": "h2 h3 h4 h5 6 h7 h20 h8 h10",
-          "boost": 0.2,
-          "fuzziness": "0"
-        }
-        }
-        }
-          ]
-        }
-        }
-          ],
-          "filter": [
-        {
-          "terms": {
-          "classificationCode": [
-          "RD06"
-          ]
-        }
-        }
-          ],
-          "boost": 0.075
-        }
-        }
-          ]
-        }
-        },
-        "from": 0,
-        "size": 1,
-        "sort": [
-        {
-          "_score": {
-            "order": "desc"
-          }
-        },
-        {
-          "uprn": {
-            "order": "asc"
-          }
-        }
-        ],
-        "track_scores": true
-      }
+           {
+            "version":true,
+            "query":{
+           "dis_max":{
+            "tie_breaker":1,
+            "queries":[
+           {
+            "bool":{
+           "should":[
+            {
+           "dis_max":{
+            "tie_breaker":0,
+            "queries":[
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.subBuildingName":{
+            "query":"h4",
+            "minimum_should_match":"-45%"
+           }
+            }
+           },
+           "boost":1.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.subBuildingName":{
+            "query":"h4",
+            "minimum_should_match":"-45%"
+           }
+            }
+           },
+           "boost":1.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoText":{
+            "query":"h4",
+            "minimum_should_match":"-45%"
+           }
+            }
+           },
+           "boost":1.5
+            }
+           },
+           {
+            "dis_max":{
+           "tie_breaker":0.5,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoStartNumber":{
+           "query":"15"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.subBuildingName":{
+           "query":"15"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.subBuildingName":{
+           "query":"15"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoText":{
+           "query":"15"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoStartSuffix":{
+           "query":"h16"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.subBuildingName":{
+           "query":"h16"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.subBuildingName":{
+           "query":"h16"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoText":{
+           "query":"h16"
+            }
+           }
+            },
+            "boost":1
+           }
+            }
+           ]
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0,
+            "queries":[
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.thoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.thoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.welshThoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.dependentThoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":0.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.welshDependentThoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":0.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.dependentThoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":0.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.altThoroughfare":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":0.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.streetDescriptor":{
+            "query":"h7",
+            "fuzziness":"1"
+           }
+            }
+           },
+           "boost":2
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0,
+            "queries":[
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.postcode":{
+            "query":"h10"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.postcode":{
+            "query":"h10"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.postcodeLocator":{
+            "query":"h10"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "bool":{
+           "must":[
+            {
+           "match":{
+            "postcodeOut":{
+           "query":"h02p",
+           "fuzziness":"1"
+            }
+           }
+            },
+            {
+           "match":{
+            "postcodeIn":{
+           "query":"h01p",
+           "fuzziness":"2"
+            }
+           }
+            }
+           ]
+            }
+           },
+           "boost":0.5
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0.5,
+            "queries":[
+           {
+            "dis_max":{
+           "tie_breaker":0,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.buildingName":{
+           "query":"h5",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":2.5
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.buildingName":{
+           "query":"h5",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":2.5
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.paoText":{
+           "query":"h5",
+           "fuzziness":"1",
+           "minimum_should_match":"-45%"
+            }
+           }
+            },
+            "boost":2.5
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "bool":{
+            "must":[
+           {
+            "match":{
+           "lpi.paoStartNumber":{
+            "query":"13"
+           }
+            }
+           },
+           {
+            "match":{
+           "lpi.paoStartSuffix":{
+            "query":"h11"
+           }
+            }
+           }
+            ]
+           }
+            },
+            "boost":3
+           }
+            }
+           ]
+            }
+           },
+           {
+            "dis_max":{
+           "tie_breaker":0,
+           "queries":[
+            {
+           "dis_max":{
+            "tie_breaker":0,
+            "boost":0.5,
+            "queries":[
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.subBuildingName":{
+            "query":"h5",
+            "minimum_should_match":"-45%"
+           }
+            }
+           },
+           "boost":1.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.subBuildingName":{
+            "query":"h5",
+            "minimum_should_match":"-45%"
+           }
+            }
+           },
+           "boost":1.5
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoText":{
+            "query":"h5",
+            "minimum_should_match":"-45%"
+           }
+            }
+           },
+           "boost":1.5
+            }
+           },
+           {
+            "dis_max":{
+           "tie_breaker":0.5,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoStartNumber":{
+           "query":"13"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.subBuildingName":{
+           "query":"13"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.subBuildingName":{
+           "query":"13"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoText":{
+           "query":"13"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoStartSuffix":{
+           "query":"h11"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.subBuildingName":{
+           "query":"h11"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.subBuildingName":{
+           "query":"h11"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoText":{
+           "query":"h11"
+            }
+           }
+            },
+            "boost":1
+           }
+            }
+           ]
+            }
+           }
+            ]
+           }
+            }
+           ]
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0.5,
+            "queries":[
+           {
+            "dis_max":{
+           "tie_breaker":0,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.organisationName":{
+           "query":"h2",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.organisationName":{
+           "query":"h2",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.organisation":{
+           "query":"h2",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.paoText":{
+           "query":"h2",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.legalName":{
+           "query":"h2",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.saoText":{
+           "query":"h2",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":0.5
+           }
+            }
+           ]
+            }
+           },
+           {
+            "dis_max":{
+           "tie_breaker":0,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.departmentName":{
+           "query":"h3",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.legalName":{
+           "query":"h3",
+           "minimum_should_match":"30%"
+            }
+           }
+            },
+            "boost":0.5
+           }
+            }
+           ]
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0.5,
+            "queries":[
+           {
+            "dis_max":{
+           "tie_breaker":0,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.postTown":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.welshPostTown":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.townName":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.townName":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":1
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.dependentLocality":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.5
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.welshDependentLocality":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.5
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.locality":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.5
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.doubleDependentLocality":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.2
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.welshDoubleDependentLocality":{
+           "query":"h8",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.2
+           }
+            }
+           ]
+            }
+           },
+           {
+            "dis_max":{
+           "tie_breaker":0,
+           "queries":[
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.postTown":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.2
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.townland":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.2
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.welshPostTown":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.2
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.townName":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.2
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.dependentLocality":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.6
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.welshDependentLocality":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.6
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "nisra.locality":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.6
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "lpi.locality":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.6
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.doubleDependentLocality":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.3
+           }
+            },
+            {
+           "constant_score":{
+            "filter":{
+           "match":{
+            "paf.welshDoubleDependentLocality":{
+           "query":"h20",
+           "fuzziness":"1"
+            }
+           }
+            },
+            "boost":0.3
+           }
+            }
+           ]
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0.5,
+            "queries":[
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.paoStartNumber":{
+            "query":"13"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.paoStartSuffix":{
+            "query":"h11"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.paoEndNumber":{
+            "query":"12"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.paoEndSuffix":{
+            "query":"h14"
+           }
+            }
+           },
+           "boost":2
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.paoStartNumber":{
+            "query":"12"
+           }
+            }
+           },
+           "boost":0.1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.buildingNumber":{
+            "query":"12"
+           }
+            }
+           },
+           "boost":0.1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "paf.buildingNumber":{
+            "query":"13"
+           }
+            }
+           },
+           "boost":0.1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.paoStartNumber":{
+            "query":"12"
+           }
+            }
+           },
+           "boost":0.1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "nisra.paoStartNumber":{
+            "query":"13"
+           }
+            }
+           },
+           "boost":0.1
+            }
+           }
+            ]
+           }
+            },
+            {
+           "dis_max":{
+            "tie_breaker":0.5,
+            "queries":[
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoStartNumber":{
+            "query":"15"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoStartSuffix":{
+            "query":"h16"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoEndNumber":{
+            "query":"17"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoEndSuffix":{
+            "query":"h18"
+           }
+            }
+           },
+           "boost":1
+            }
+           },
+           {
+            "constant_score":{
+           "filter":{
+            "match":{
+           "lpi.saoStartNumber":{
+            "query":"17"
+           }
+            }
+           },
+           "boost":0.1
+            }
+           }
+            ]
+           }
+            }
+           ],
+           "filter":[
+            {
+           "terms":{
+            "classificationCode":[
+           "RD06"
+            ]
+           }
+            }
+           ],
+           "minimum_should_match":"-40%"
+            }
+           },
+           {
+            "bool":{
+           "must":[
+            {
+           "dis_max":{
+            "tie_breaker":0,
+            "queries":[
+           {
+            "match":{
+           "lpi.nagAll":{
+            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+            "analyzer":"welsh_split_synonyms_analyzer",
+            "boost":1,
+            "minimum_should_match":"-40%"
+           }
+            }
+           },
+           {
+            "match":{
+           "nisra.nisraAll":{
+            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+            "analyzer":"welsh_split_synonyms_analyzer",
+            "boost":1,
+            "minimum_should_match":"-40%"
+           }
+            }
+           },
+           {
+            "match":{
+           "paf.pafAll":{
+            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+            "analyzer":"welsh_split_synonyms_analyzer",
+            "boost":1,
+            "minimum_should_match":"-40%"
+           }
+            }
+           }
+            ]
+           }
+            }
+           ],
+           "should":[
+            {
+           "dis_max":{
+            "tie_breaker":0,
+            "queries":[
+           {
+            "match":{
+           "lpi.nagAll.bigram":{
+            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+            "boost":0.2,
+            "fuzziness":"0"
+           }
+            }
+           },
+           {
+            "match":{
+           "nisra.nisraAll.bigram":{
+            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+            "boost":0.2,
+            "fuzziness":"0"
+           }
+            }
+           },
+           {
+            "match":{
+           "paf.pafAll.bigram":{
+            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
+            "boost":0.2,
+            "fuzziness":"0"
+           }
+            }
+           }
+            ]
+           }
+            }
+           ],
+           "filter":[
+            {
+           "terms":{
+            "classificationCode":[
+           "RD06"
+            ]
+           }
+            }
+           ],
+           "boost":0.075
+            }
+           }
+            ]
+           }
+            },
+            "from":0,
+            "size":1,
+            "sort":[
+           {
+            "_score":{
+           "order":"desc"
+            }
+           },
+           {
+            "uprn":{
+           "order":"asc"
+            }
+           }
+            ],
+            "track_scores":true
+           }
       """.stripMargin)
 
       // When

@@ -70,7 +70,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
         offset = "0",
         apiKey = "",
         verbose = verbose,
-        epoch = ""
+        epoch = "",
+        fromsource = "all"
       )
     ).queryString
     val expected = Map(
@@ -85,7 +86,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
       "startdate" -> Seq("startdate"),
       "enddate" -> Seq("enddate"),
       "limit" -> Seq("10"),
-      "offset" -> Seq("0")
+      "offset" -> Seq("0"),
+      "fromsource" -> List("all")
     )
     actual shouldBe expected
   }

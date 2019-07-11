@@ -862,8 +862,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-    val debugq: String = SearchBodyBuilderFn(query).string()
-    println(debugq)
+ //   val debugq: String = SearchBodyBuilderFn(query).string()
+ //   println(debugq)
     args match {
       case partialArgs: PartialArgs =>
         // generate a slow, fuzzy fallback query for later
@@ -876,7 +876,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         }.flatten
       case _ =>
         // activates for postcode, random, address
-        logger.trace(query.toString)
+     //   logger.trace(query.toString)
         client.execute(query).map(HybridAddressCollection.fromEither)
     }
   }
