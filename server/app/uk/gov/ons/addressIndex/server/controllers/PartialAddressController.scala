@@ -60,11 +60,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
-    val startDateVal = ""
-    val endDateVal = ""
-
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
@@ -113,16 +108,12 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       historical = Some(hist),
       limit = Some(limitInt),
       offset = Some(offsetInt),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
       verbose = Some(verb)
     )
 
     val result: Option[Future[Result]] =
       partialAddressValidation.validatePartialLimit(limit, queryValues)
         .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
-        //      .orElse(partialAddressValidation.validateStartDate(startDateVal))
-        //      .orElse(partialAddressValidation.validateEndDate(endDateVal))
         .orElse(partialAddressValidation.validateSource(queryValues))
         .orElse(partialAddressValidation.validateKeyStatus(queryValues))
         .orElse(partialAddressValidation.validateInput(input, queryValues))
@@ -141,7 +132,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
-          filterDateRange = DateRange(startDateVal, endDateVal),
           historical = hist,
           verbose = verb,
           epoch = epochVal,
@@ -180,8 +170,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
                   verbose = verb
                 ),
                 status = OkAddressResponseStatus
