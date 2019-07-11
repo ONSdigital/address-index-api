@@ -828,12 +828,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     args match {
       case partialArgs: PartialArgs =>
+        val minimumFallback: Int = esConf.minimumFallback
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
         val partResult = client.execute(query).map(HybridAddressCollection.fromEither)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
-          if (adds.addresses.isEmpty && partialArgs.fallback) client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)
+          if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
+            logger.info(s"minimumFallback: ${minimumFallback} ")
+            logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
+            client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)}
           else partResult
         }.flatten
       case _ =>
