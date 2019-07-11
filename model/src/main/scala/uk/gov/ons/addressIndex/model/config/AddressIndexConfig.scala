@@ -36,7 +36,10 @@ case class ElasticSearchConfig(local: Boolean,
                                circuitBreakerMaxFailures: Int,
                                circuitBreakerCallTimeout: Int,
                                circuitBreakerResetTimeout: Int,
+                               circuitBreakerMaxResetTimeout: Int,
+                               circuitBreakerExponentialBackoffFactor: Double,
                                minimumPartial: Int,
+                               minimumFallback: Int,
                                defaultStartBoost: Int,
                                validEpochs: String)
 
