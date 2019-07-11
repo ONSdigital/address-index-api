@@ -2474,7 +2474,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a 429 error if Elastic threw exception (request failed) while querying for a partial address" in {
+    "reply with a 500 error if Elastic threw exception (request failed) while querying for a partial address" in {
       // Given
       val controller = new PartialAddressController(components, failingRepositoryMock, config, versions, overloadProtection, partialAddressValidation)
 
@@ -2498,7 +2498,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = ""
         ),
-        TooManyRequestsResponseStatus,
+        InternalServerErrorAddressResponseStatus,
         errors = Seq(enhancedError)
       ))
 
@@ -2507,7 +2507,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe TOO_MANY_REQUESTS
+      status(result) mustBe INTERNAL_SERVER_ERROR
       actual mustBe expected
     }
 
