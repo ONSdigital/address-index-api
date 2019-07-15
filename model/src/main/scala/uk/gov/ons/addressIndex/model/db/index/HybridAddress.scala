@@ -45,7 +45,8 @@ object HybridAddress {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def read(hit: Hit): Either[Throwable, HybridAddress] = {
+  //  override def read(hit: Hit): Either[Throwable, HybridAddress] = {
+      override def read(hit: Hit): Try[HybridAddress] = {
       val cRefs: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
@@ -66,7 +67,7 @@ object HybridAddress {
         hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-      Right(HybridAddress(
+      Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),

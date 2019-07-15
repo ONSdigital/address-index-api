@@ -1,8 +1,8 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import cats.Show
-import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.searches.SearchDefinition
+import com.sksamuel.elastic4s.Show
+import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
+import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -16,8 +16,8 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
                                 parser: ParserModule
                                )(implicit ec: ExecutionContext) extends BaseController {
 
-  implicit object DebugShow extends Show[SearchDefinition] {
-    override def show(req: SearchDefinition): String = SearchBodyBuilderFn(req).string()
+  implicit object DebugShow extends Show[SearchRequest] {
+    override def show(req: SearchRequest): String = SearchBodyBuilderFn(req).string()
   }
 
 

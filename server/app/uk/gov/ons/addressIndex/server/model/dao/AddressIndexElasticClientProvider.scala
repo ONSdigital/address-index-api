@@ -3,7 +3,9 @@ package uk.gov.ons.addressIndex.server.model.dao
 import java.security.cert.X509Certificate
 
 import com.sksamuel.elastic4s.ElasticsearchClientUri
-import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.HttpClient
+import com.sksamuel.elastic4s.http.JavaClient
+import com.sksamuel.elastic4s.ElasticClient
 import javax.inject.{Inject, Singleton}
 import javax.net.ssl.{SSLContext, X509TrustManager}
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
@@ -58,7 +60,9 @@ class AddressIndexElasticClientProvider @Inject()
     }
   ), null)
 
-  val client: HttpClient = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
+  val clientx: ElasticClient = ElasticClient(client)
+
+  val client: HttpClient = JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
       requestConfigBuilder.setConnectTimeout(connectionTimeout)

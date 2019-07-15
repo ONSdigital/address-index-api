@@ -24,7 +24,7 @@ publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.on
 credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
-  val elastic4s = "6.1.3"
+  val elastic4s = "7.1.0"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
@@ -108,21 +108,24 @@ val commonDeps = Seq(
   "com.lihaoyi" %% "pprint" % "0.5.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // for the http client
-  "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
+  "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // for the tcp client
-  "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
+ // "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
 
   // if you want to use reactive streams
   // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
   // testing
   "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
-  "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
+//  "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
   "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
   // old
   //  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
   // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
   "org.apache.commons" % "commons-lang3" % "3.3.2",
+  "org.apache.httpcomponents" % "httpcore" % "4.4.11",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.7",
+  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.1.1",
   guice
 )
 
