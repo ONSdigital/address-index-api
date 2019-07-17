@@ -1,21 +1,24 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
+//import scala.concurrent.ExecutionContext.Implicits.global
 
-class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
+class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
+
+
 
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
-  val testClient: HttpClient = http
+  val client: ElasticClient = client
 
-  // injections
-  val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
-    override def client: HttpClient = testClient
-  }
+    // injections
+    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
+      override def client: ElasticClient = client
+    }
 
   val testConfig = new AddressIndexConfigModule
 
@@ -32,7 +35,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNode
   val hybridIndex3 = "hybrid_35_202020"
   val hybridAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_current"
 
-  testClient.execute(
+  client.execute(
     bulk(
       indexInto(s"$hybridIndex1/address") id "11" fields ("name" -> "test1"),
       indexInto(s"$hybridIndex2/address") id "12" fields ("name" -> "test2"),
@@ -44,7 +47,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClassLocalNode
   blockUntilCount(1, hybridIndex2)
   blockUntilCount(1, hybridIndex3)
 
-  testClient.execute {
+  client.execute {
     addAlias(hybridAlias, hybridIndex2)
   }.await
 

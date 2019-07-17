@@ -110,7 +110,7 @@ val commonDeps = Seq(
   // for the http client
   "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // for the tcp client
- // "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
+ // "com.sksamuel.elastic4s" %% "elastic4s-tcp" % "6.1.3" excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
 
   // if you want to use reactive streams
   // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,

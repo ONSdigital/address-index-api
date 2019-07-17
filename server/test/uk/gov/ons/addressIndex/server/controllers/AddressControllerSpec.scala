@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import com.sksamuel.elastic4s.IndexesAndTypes
-import com.sksamuel.elastic4s.searches.SearchDefinition
+import com.sksamuel.elastic4s.{Indexes, IndexesAndTypes}
+import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, RequestHeader, Result, Results}
@@ -197,7 +197,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(args: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(args: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
@@ -224,7 +224,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
@@ -245,7 +245,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val sometimesFailingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
@@ -268,7 +268,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.failed(new Exception("test failure"))
 

@@ -12,12 +12,12 @@ trait ElasticClientProvider {
     *
     * @return
     */
-  def client: HttpClient
+  //def client: HttpClient
 
   /**
     * Defines a getter for Elastic client
     *
     * @return
     */
-  def clientx: ElasticClient
+  def client: ElasticClient
 }

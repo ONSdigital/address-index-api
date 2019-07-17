@@ -41,7 +41,7 @@ class AddressIndexVersionModule @Inject()
       alias
     }
 
-    val requestForIndexes = elasticClientProvider.clientx.execute {
+    val requestForIndexes = elasticClientProvider.client.execute {
       getAliases(Nil, aliaseq)
     }
 

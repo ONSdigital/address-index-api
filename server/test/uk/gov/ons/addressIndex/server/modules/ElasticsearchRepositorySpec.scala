@@ -1,9 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
-import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.mappings.MappingDefinition
+import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
+import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
+import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
+import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
 import com.sksamuel.elastic4s.testkit._
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
@@ -16,14 +16,14 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
+class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
 
-  val testClient: HttpClient = http
+  val client: ElasticClient = client
 
-  // injections
-  val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
-    override def client: HttpClient = testClient
-  }
+ //  injections
+   val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
+      override def client: ElasticClient = client
+    }
 
   val defaultLat = "50.705948"
   val defaultLon = "-3.5091076"
@@ -424,45 +424,45 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
-  testClient.execute {
+  client.execute {
     createIndex(hybridIndexName)
-      .mappings(MappingDefinition.apply(hybridMappings))
+      .mappings(MappingDefinition.apply(Some(hybridMappings)))
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
       ))
   }.await
 
-  testClient.execute {
+  client.execute {
     createIndex(hybridIndexHistoricalName)
-      .mappings(MappingDefinition.apply(hybridMappings))
+      .mappings(MappingDefinition.apply(Some(hybridMappings)))
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
       ))
   }.await
 
-  testClient.execute {
+  client.execute {
     bulk(
-      indexInto(hybridIndexName / hybridMappings).fields(firstHybridHistEs)
+      indexInto(hybridIndexName + "/" + hybridMappings).fields(firstHybridHistEs)
     )
   }.await
 
   blockUntilCount(1, hybridIndexName)
 
-  testClient.execute {
+  client.execute {
     bulk(
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(firstHybridEs),
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(secondHybridEs)
+      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(firstHybridEs),
+      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(secondHybridEs)
     )
   }.await
 
   blockUntilCount(2, hybridIndexHistoricalName)
 
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
-  testClient.execute {
+  client.execute {
     bulk(
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(thirdHybridEs),
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(fourthHybridEs),
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(fifthHybridEs)
+      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(thirdHybridEs),
+      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fourthHybridEs),
+      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fifthHybridEs)
     )
   }.await
 

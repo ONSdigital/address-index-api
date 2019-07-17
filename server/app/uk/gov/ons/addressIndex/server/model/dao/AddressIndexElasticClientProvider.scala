@@ -60,9 +60,7 @@ class AddressIndexElasticClientProvider @Inject()
     }
   ), null)
 
-  val clientx: ElasticClient = ElasticClient(client)
-
-  val client: HttpClient = JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
+  val client: ElasticClient = ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
       requestConfigBuilder.setConnectTimeout(connectionTimeout)
@@ -76,7 +74,7 @@ class AddressIndexElasticClientProvider @Inject()
     httpClientBuilder
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
-  })
+  }))
 
 }
 

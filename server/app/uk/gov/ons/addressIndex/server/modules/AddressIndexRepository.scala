@@ -66,12 +66,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
-  val client: HttpClient = elasticClientProvider.client
-  val clientx: ElasticClient = elasticClientProvider.clientx
+  val client: ElasticClient = elasticClientProvider.client
+
   lazy val logger = GenericLogger("AddressIndexRepository")
 
   
-  def queryHealth(): Future[String] = clientx.execute(clusterHealth()).map(_.toString)
+  def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   private def makeUprnQuery(args: UPRNArgs): SearchRequest = {
     val query = termQuery("uprn", args.uprn)
@@ -822,7 +822,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
-    clientx.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
+    client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
   }
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
@@ -833,19 +833,19 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         val minimumFallback: Int = esConf.minimumFallback
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
-        val partResult = clientx.execute(query).map(HybridAddressCollection.fromResponse)
+        val partResult = client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
             logger.info(s"minimumFallback: ${minimumFallback} ")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
-            clientx.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
+            client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
           else partResult
         }.flatten
       case _ =>
         // activates for postcode, random, address
         logger.trace(query.toString)
-        clientx.execute(query).map(HybridAddressCollection.fromResponse)
+        client.execute(query).map(HybridAddressCollection.fromResponse)
     }
   }
 
