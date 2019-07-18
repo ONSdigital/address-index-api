@@ -111,7 +111,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      fromSource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal)
     )
 
     val result: Option[Future[Result]] =
@@ -140,7 +140,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromSource = fromsourceVal
+          fromsource = fromsourceVal
         )
 
         val request: Future[HybridAddressCollection] =

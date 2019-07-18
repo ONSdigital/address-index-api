@@ -103,13 +103,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
-    val fromSourceQueryMust = args.fromSource match {
+    val fromSourceQueryMust = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
       case "nionly" => Seq(termsQuery("fromSource","NI"))
       case _ => Seq.empty
     }
 
-    val fromSourceQueryShould = args.fromSource match {
+    val fromSourceQueryShould = args.fromsource match {
       case "niboost" => Seq(termsQuery("fromSource","NI"))
       case "ewboost" => Seq(termsQuery("fromSource","EW"))
       case _ => Seq.empty
@@ -212,7 +212,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => Option(termsQuery("classificationCode", args.filtersValueTerm))
     }
 
-    val fromSourceQuery = args.fromSource match {
+    val fromSourceQuery = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
       case "nionly" => Seq(termsQuery("fromSource","NI"))
       case "niboost" => Seq(termsQuery("fromSource","NI"))
@@ -664,7 +664,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost),
       constantScoreQuery(matchQuery(
-        field = "nisra.townland",
+        field = "nisra.townName",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost),
       constantScoreQuery(matchQuery(
@@ -711,13 +711,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case None => Seq.empty
     }
 
-    val fromSourceQuery1 = args.fromSource match {
+    val fromSourceQuery1 = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
       case "nionly" => Seq(termsQuery("fromSource","NI"))
       case _ => Seq.empty
     }
 
-    val fromSourceQuery2 = args.fromSource match {
+    val fromSourceQuery2 = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
       case "nionly" => Seq(termsQuery("fromSource","NI"))
       case "niboost" => Seq(termsQuery("fromSource","NI"))
@@ -895,7 +895,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         verbose = false,
         isBulk = true,
         epoch = args.epoch,
-        fromSource = "all"
+        fromsource = "all"
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>

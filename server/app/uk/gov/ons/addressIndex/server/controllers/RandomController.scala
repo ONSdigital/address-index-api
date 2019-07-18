@@ -55,7 +55,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
-    val fromSourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -80,7 +80,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       historical = Some(hist),
       limit = Some(limitInt),
       verbose = Some(verb),
-      fromSource = Some(fromSourceVal)
+      fromsource = Some(fromsourceVal)
     )
 
     val result: Option[Future[Result]] =
@@ -105,7 +105,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromSource = fromSourceVal
+          fromsource = fromsourceVal
         )
 
         val request: Future[HybridAddressCollection] =
@@ -135,7 +135,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   epoch = epochVal,
                   limit = limitInt,
                   verbose = verb,
-                  fromsource = fromSourceVal
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )

@@ -108,7 +108,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     }
 
   override def validateFromSource(queryValues: QueryValues): Option[Future[Result]] = {
-    queryValues.fromSource match {
+    queryValues.fromsource match {
       case Some("nionly") => None
       case Some("ewonly") => None
       case Some("niboost") => None

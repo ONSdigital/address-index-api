@@ -116,7 +116,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       latitude = Some(latVal),
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
-      fromSource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal)
     )
 
     val args = AddressArgs(
@@ -130,7 +130,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
-      fromSource = fromsourceVal
+      fromsource = fromsourceVal
     )
 
     val result: Option[Future[Result]] =

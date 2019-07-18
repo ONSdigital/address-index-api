@@ -82,7 +82,6 @@ object NisraAddress {
     val commencementDate: String = "commencementDate"
     val archivedDate: String = "archivedDate"
     val location: String = "location"
-    val nisraAll: String = "nisraAll"
     val mixedNisra: String = "mixedNisra"
     val addressStatus: String = "addressStatus"
     val buildingStatus: String = "buildingStatus"
