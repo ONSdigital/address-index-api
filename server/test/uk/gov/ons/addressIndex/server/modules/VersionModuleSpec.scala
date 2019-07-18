@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
-import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
+import uk.gov.ons.addressIndex.server.model.dao.{AddressIndexElasticClientProvider, ElasticClientProvider}
 
 //import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -13,15 +13,20 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
 
 
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
-  val client: ElasticClient = client
-  val testClient = this.client
 
-    // injections
-    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
-      override def client: ElasticClient = testClient
-    }
+//  val testClient = this.client
 
   val testConfig = new AddressIndexConfigModule
+
+  val elasticClientProvider: AddressIndexElasticClientProvider = new AddressIndexElasticClientProvider(testConfig)
+  val client: ElasticClient = elasticClientProvider.client
+
+    // injections
+//    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
+//      override def client: ElasticClient = client
+//    }
+//
+
 
   val invalidConfig: ConfigModule = new ConfigModule {
     override def config: AddressIndexConfig = testConfig.config.copy(
