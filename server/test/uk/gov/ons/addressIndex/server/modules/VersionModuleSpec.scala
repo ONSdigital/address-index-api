@@ -14,10 +14,11 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
 
   // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
   val client: ElasticClient = client
+  val testClient = this.client
 
     // injections
     val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
-      override def client: ElasticClient = client
+      override def client: ElasticClient = testClient
     }
 
   val testConfig = new AddressIndexConfigModule
