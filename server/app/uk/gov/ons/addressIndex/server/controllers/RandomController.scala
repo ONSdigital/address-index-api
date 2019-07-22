@@ -37,7 +37,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   limit: Option[String] = None,
                   historical: Option[String] = None,
                   verbose: Option[String] = None,
-                  epoch: Option[String] = None
+                  epoch: Option[String] = None,
+                  fromsource: Option[String] = None
                  ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -54,6 +55,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -78,6 +80,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       historical = Some(hist),
       limit = Some(limitInt),
       verbose = Some(verb),
+      fromsource = Some(fromsourceVal)
     )
 
     val result: Option[Future[Result]] =
@@ -86,6 +89,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         .orElse(randomValidation.validateKeyStatus(queryValues))
         .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
         .orElse(randomValidation.validateEpoch(queryValues))
+        .orElse(randomValidation.validateFromSource(queryValues))
         .orElse(None)
 
     result match {
@@ -101,6 +105,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          fromsource = fromsourceVal
         )
 
         val request: Future[HybridAddressCollection] =
@@ -129,7 +134,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
-                  verbose = verb
+                  verbose = verb,
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )

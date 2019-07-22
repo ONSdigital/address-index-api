@@ -107,4 +107,17 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
     }
 
+  override def validateFromSource(queryValues: QueryValues): Option[Future[Result]] = {
+    queryValues.fromsource match {
+      case Some("nionly") => None
+      case Some("ewonly") => None
+      case Some("niboost") => None
+      case Some("ewboost") => None
+      case Some("all") => None
+      case _ =>
+        logger.systemLog(badRequestMessage = FromSourceInvalidError.message)
+        Some(futureJsonBadRequest(PartialFromSourceInvalid(queryValues)))
+    }
+  }
+
 }

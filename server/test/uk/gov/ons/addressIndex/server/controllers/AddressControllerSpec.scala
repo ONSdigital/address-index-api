@@ -109,11 +109,20 @@ class AddressControllerSpec extends PlaySpec with Results {
     subBuildingName = "2",
     buildingName = "3",
     buildingNumber = "4",
+    paoText = "",
+    paoStartNumber = "4",
+    paoStartSuffix = "",
+    paoEndNumber = "",
+    paoEndSuffix = "",
+    saoText = "",
+    saoStartNumber = "4",
+    saoStartSuffix = "",
+    saoEndNumber = "",
+    saoEndSuffix = "",
     thoroughfare = "5",
     altThoroughfare = "6",
     dependentThoroughfare = "7",
     locality = "8",
-    townland = "9",
     townName = "10",
     postcode = "BT36 5SN",
     uprn = "11",
@@ -126,10 +135,11 @@ class AddressControllerSpec extends PlaySpec with Results {
     commencementDate = "18",
     archivedDate = "19",
     latitude = "20",
-    nisraAll = "nisraAll",
-    mixedNisra = "mixedNisra",
-    longitude = "21"
-  )
+    longitude = "21",
+    addressStatus = "APPROVED",
+    buildingStatus = "DEMOLISHED",
+    mixedNisra = "mixedNisra"
+ )
 
   val validRelative = Relative(
     level = 1,
@@ -437,7 +447,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource = "all"
         ),
         OkAddressResponseStatus
       ))
@@ -465,7 +476,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -496,7 +508,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 1,
           maxScore = 1.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -526,7 +539,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 1,
           maxScore = 1.0f,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -562,7 +576,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -598,7 +613,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           matchthreshold = 5f,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -634,7 +650,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -670,7 +687,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -706,7 +724,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           matchthreshold = 5f,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -717,6 +736,44 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // Then
       status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if an invalid fromsource value is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "RD02",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 1,
+          offset = 1,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="twitter"
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(FromSourceInvalidError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("twitter")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
 
@@ -742,7 +799,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -779,7 +837,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(MixedFilterError)
@@ -817,7 +876,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -886,7 +946,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -946,7 +1007,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -983,7 +1045,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyRadiusQueryAddressResponseError)
@@ -1020,7 +1083,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1089,7 +1153,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1149,7 +1214,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 0,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1186,7 +1252,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -1255,7 +1322,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1315,7 +1383,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 999999,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1343,7 +1412,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = "epoch"
+          epoch = "epoch",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.EpochNotAvailableErrorCustom)
@@ -1380,7 +1450,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -1417,7 +1488,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -1454,7 +1526,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -1491,7 +1564,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -1528,7 +1602,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -1565,7 +1640,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -1602,7 +1678,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -1639,7 +1716,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -1672,7 +1750,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -1705,7 +1784,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = "epoch"
+          epoch = "epoch",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -1808,7 +1888,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           matchthreshold = 5f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -1872,7 +1953,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -1907,7 +1989,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         InternalServerErrorAddressResponseStatus,
         errors = Seq(enhancedError)

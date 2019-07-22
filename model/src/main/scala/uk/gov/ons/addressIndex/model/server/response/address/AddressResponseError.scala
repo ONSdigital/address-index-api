@@ -167,6 +167,12 @@ object FailedRequestToEsPartialAddressError extends AddressResponseError(
   code = 30,
   message = "Request to ElasticSearch failed (partial address)(see logs)"
 )
+
+object FromSourceInvalidError extends AddressResponseError(
+  code = 31,
+  message = "Query string parameter fromsource must be all, niboost, ewboost, nionly or ewonly"
+)
+
 object ShortQueryAddressResponseError extends AddressResponseError(
   code = 33,
   message = "Partial address string too short, minimum * characters"

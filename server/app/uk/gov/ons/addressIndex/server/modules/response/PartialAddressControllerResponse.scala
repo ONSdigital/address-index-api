@@ -52,6 +52,10 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(queryValues, EpochNotAvailableError)
   }
 
+  def PartialFromSourceInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, FromSourceInvalidError)
+  }
+
   def FailedRequestToEsPartialAddress(detail: String, queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code, FailedRequestToEsPartialAddressError.message.replace("see logs", detail))
     AddressByPartialAddressResponseContainer(
@@ -86,7 +90,8 @@ trait PartialAddressControllerResponse extends AddressResponse {
       offset = queryValues.offsetOrDefault,
       total = 0,
       maxScore = 0f,
-      verbose = queryValues.verboseOrDefault
+      verbose = queryValues.verboseOrDefault,
+      fromsource = queryValues.fromSourceOrDefault
     )
   }
 
