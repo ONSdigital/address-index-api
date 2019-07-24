@@ -840,12 +840,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
-            logger.info(s"minimumFallback: ${minimumFallback} ")
+            logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
             client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)}
           else partResult
         }.flatten
-      case addressArgs: AddressArgs =>
+      case _: AddressArgs =>
         if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
           client.execute(query).map(HybridAddressCollection.fromEither)
       case _ =>
