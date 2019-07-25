@@ -292,8 +292,8 @@ object Tokens {
     //    val buildingNameRangeStartSuffixEndSuffix = """.*?(\d+)([A-Z])-(\d+)([A-Z]).*?""".r
 
     val rangeRegex = """.*?(\d+)([A-Z]?)-(\d+)([A-Z]?).*?""".r
-    val letterRegex = """.*?(\b[^-][a-zA-Z]\b).*?""".r
-    val numberRegex = """.*?(\d+).*?""".r
+    val numberLetterRegex = """.*?(\d+) *([A-Z]?).*?""".r
+    val letterOnlyRegex = """.*?(\b[^-][a-zA-Z]\b).*?""".r
 
     def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
 
@@ -303,8 +303,9 @@ object Tokens {
     buildingName match {
       case Some(rangeRegex(startNumber, startSuffix, endNumber, endSuffix)) =>
         BuildingNameSplit(optShort(startNumber), opt(startSuffix), optShort(endNumber), opt(endSuffix))
-      case Some(letterRegex(startSuffix)) => BuildingNameSplit(startSuffix = opt(startSuffix.trim))
-      case Some(numberRegex(startNumber)) => BuildingNameSplit(startNumber = optShort(startNumber))
+      case Some(numberLetterRegex(startNumber, startSuffix)) =>
+        BuildingNameSplit(startNumber = optShort(startNumber), startSuffix = opt(startSuffix))
+      case Some(letterOnlyRegex(startSuffix)) => BuildingNameSplit(startSuffix = opt(startSuffix.trim))
       case _ => BuildingNameSplit()
       //      case Some(buildingNameRangeStartSuffixEndSuffix(startNumber, startSuffix, endNumber, endSuffix)) =>
       //        BuildingNameSplit(
