@@ -32,7 +32,8 @@ case class AddressResponseAddress(uprn: String,
                                   lpiLogicalStatus: String,
                                   fromSource: String,
                                   confidenceScore: Double,
-                                  underlyingScore: Float)
+                                  underlyingScore: Float,
+                                  bestMatchField: String)
 
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
@@ -92,9 +93,12 @@ object AddressResponseAddress {
       lpiLogicalStatus = lpiLogicalStatus,
       fromSource = other.fromSource,
       confidenceScore = 1D,
-      underlyingScore = other.score
+      underlyingScore = other.score,
+      bestMatchField = ""
     )
   }
+
+
 
   /**
     * Gets the right (most often - the most recent) address from an array of NAG addresses

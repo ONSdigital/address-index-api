@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
 import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
-import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
+import com.sksamuel.elastic4s.searches.{Highlight, HighlightFieldDefinition, SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -162,8 +162,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
+  //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+
+    val hFields = Seq(HighlightFieldDefinition("lpi.nagAll.partial"),
+      HighlightFieldDefinition("paf.mixedPaf.partial"),
+      HighlightFieldDefinition("paf.mixedWelshPaf.partial"),
+      HighlightFieldDefinition("nisra.mixedNisra.partial"))
+
+
     search(source + args.epochParam + hybridMapping)
-      .query(query)
+      .query(query).highlighting(hFields)
       .start(args.start)
       .limit(args.limit)
   }

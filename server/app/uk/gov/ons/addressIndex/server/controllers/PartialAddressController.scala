@@ -79,9 +79,53 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost)
-      } else add.copy(underlyingScore = add.underlyingScore)
+        add.copy(underlyingScore = add.underlyingScore + sboost,
+        bestMatchField = getBestMatchField(add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
+      } else add.copy(underlyingScore = add.underlyingScore,
+        bestMatchField = getBestMatchField(add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
     }
+
+    def getBestMatchField(nag: String, paf: String, welshnag: String, welshpaf: String): String =
+      {
+        val matchfieldScores = "paf=" + levenshtein(paf, input).toString() +
+          " nag=" + levenshtein(nag, input).toString() +
+           " welshnag=" + levenshtein(welshnag, input).toString() +
+             " welshpaf=" + levenshtein(welshpaf, input).toString()
+        println("matchfield = " + matchfieldScores)
+    matchfieldScores
+    }
+
+    /**
+      * Calculates the edit distance between two strings
+      *
+      * @param str1 string 1
+      * @param str2 string 2
+      * @return int number of edits required
+      */
+    def levenshtein(str1: String, str2: String): Int = {
+      val lenStr1 = str1.length
+      val lenStr2 = str2.length
+      val d: Array[Array[Int]] = Array.ofDim(lenStr1 + 1, lenStr2 + 1)
+      for (i <- 0 to lenStr1) d(i)(0) = i
+      for (j <- 0 to lenStr2) d(0)(j) = j
+      for (i <- 1 to lenStr1; j <- 1 to lenStr2) {
+        val cost = if (str1(i - 1) == str2(j - 1)) 0 else 1
+        d(i)(j) = min(
+          d(i - 1)(j) + 1, // deletion
+          d(i)(j - 1) + 1, // insertion
+          d(i - 1)(j - 1) + cost // substitution
+        )
+      }
+      d(lenStr1)(lenStr2)
+    }
+
+    /**
+      * Return the smallest number in a list
+      *
+      * @param nums nums
+      * @return
+      */
+    def min(nums: Int*): Int = nums.min
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""

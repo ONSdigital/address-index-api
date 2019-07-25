@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import com.sksamuel.elastic4s.http.search.SearchHit
 import com.sksamuel.elastic4s.{Hit, HitReader}
 
 import scala.util.Try
@@ -15,7 +16,8 @@ case class HybridAddress(uprn: String,
                          nisra: Seq[NisraAddress],
                          score: Float,
                          classificationCode: String,
-                         fromSource: String)
+                         fromSource: String,
+                         highlights: Seq[Map[String,Seq[String]]])
 
 object HybridAddress {
   /**
@@ -34,6 +36,7 @@ object HybridAddress {
     score = 0,
     classificationCode = "",
     fromSource = "",
+    highlights = Seq.empty
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -66,6 +69,12 @@ object HybridAddress {
         hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
+      val highlights = hit.asInstanceOf[SearchHit].highlight
+
+      val test = highlights.toMap[String,AnyRef]
+
+      println("highlights = " + highlights)
+
       Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
@@ -79,6 +88,7 @@ object HybridAddress {
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
+        highlights = Seq(highlights)
       ))
     }
   }
