@@ -283,17 +283,9 @@ object Tokens {
     */
   private def splitBuildingName(buildingName: Option[String]): BuildingNameSplit = {
 
-    //    val buildingNameNumber = """.*?(\d+).*?""".r
-    //    val buildingNameSingleLetter = """.*?(\b[^-][a-zA-Z]\b).*?""".r
-    //    val buildingNameLetter = """.*?(\d+)([A-Z]).*?""".r
-    //    val buildingNameRange = """.*?(\d+)-(\d+).*?""".r
-    //    val buildingNameRangeStartSuffix = """.*?(\d+)([A-Z])-(\d+).*?""".r
-    //    val buildingNameRangeEndSuffix = """.*?(\d+)-(\d+)([A-Z]).*?""".r
-    //    val buildingNameRangeStartSuffixEndSuffix = """.*?(\d+)([A-Z])-(\d+)([A-Z]).*?""".r
-
-    val rangeRegex = """.*?(\d+)([A-Z]?)-(\d+)([A-Z]?).*?""".r
-    val numberLetterRegex = """.*?(\d+) *([A-Z]?).*?""".r
-    val letterOnlyRegex = """.*?(\b[^-][a-zA-Z]\b).*?""".r
+    val rangeRegex = """.*?\b(\d+)([A-Z]?)-(\d+)([A-Z]?)\b.*?""".r
+    val numberRegex = """.*?\b(\d+) *([A-Z]?)\b.*?""".r
+    val letterRegex = """.*?\b([A-Z])\b.*?""".r
 
     def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
 
@@ -303,51 +295,10 @@ object Tokens {
     buildingName match {
       case Some(rangeRegex(startNumber, startSuffix, endNumber, endSuffix)) =>
         BuildingNameSplit(optShort(startNumber), opt(startSuffix), optShort(endNumber), opt(endSuffix))
-      case Some(numberLetterRegex(startNumber, startSuffix)) =>
+      case Some(numberRegex(startNumber, startSuffix)) =>
         BuildingNameSplit(startNumber = optShort(startNumber), startSuffix = opt(startSuffix))
-      case Some(letterOnlyRegex(startSuffix)) => BuildingNameSplit(startSuffix = opt(startSuffix.trim))
+      case Some(letterRegex(startSuffix)) => BuildingNameSplit(startSuffix = opt(startSuffix.trim))
       case _ => BuildingNameSplit()
-      //      case Some(buildingNameRangeStartSuffixEndSuffix(startNumber, startSuffix, endNumber, endSuffix)) =>
-      //        BuildingNameSplit(
-      //          startNumber = Try(startNumber.toShort.toString).toOption,
-      //          startSuffix = Some(startSuffix),
-      //          endNumber = Try(endNumber.toShort.toString).toOption,
-      //          endSuffix = Some(endSuffix)
-      //        )
-      //
-      //      case Some(buildingNameRangeEndSuffix(startNumber, endNumber, endSuffix)) =>
-      //        BuildingNameSplit(
-      //          startNumber = Try(startNumber.toShort.toString).toOption,
-      //          endNumber = Try(endNumber.toShort.toString).toOption,
-      //          endSuffix = Some(endSuffix)
-      //        )
-      //
-      //      case Some(buildingNameRangeStartSuffix(startNumber, startSuffix, endNumber)) =>
-      //        BuildingNameSplit(
-      //          startNumber = Try(startNumber.toShort.toString).toOption,
-      //          startSuffix = Some(startSuffix),
-      //          endNumber = Try(endNumber.toShort.toString).toOption
-      //        )
-      //
-      //      case Some(buildingNameRange(startNumber, endNumber)) =>
-      //        BuildingNameSplit(
-      //          startNumber = Try(startNumber.toShort.toString).toOption,
-      //          endNumber = Try(endNumber.toShort.toString).toOption
-      //        )
-      //
-      //      case Some(buildingNameLetter(startNumber, startSuffix)) =>
-      //        BuildingNameSplit(
-      //          startNumber = Try(startNumber.toShort.toString).toOption,
-      //          startSuffix = Some(startSuffix)
-      //        )
-      //
-      //      case Some(buildingNameSingleLetter(startSuffix)) =>
-      //        BuildingNameSplit(
-      //          startSuffix = Some(startSuffix.replaceAll(" ",""))
-      //        )
-      //
-      //      case Some(buildingNameNumber(number)) =>
-      //        BuildingNameSplit(startNumber = Try(number.toShort.toString).toOption)
     }
   }
 
