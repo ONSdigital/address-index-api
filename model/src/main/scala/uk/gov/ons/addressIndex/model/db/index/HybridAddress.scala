@@ -71,9 +71,7 @@ object HybridAddress {
 
       val highlights = hit.asInstanceOf[SearchHit].highlight
 
-      val test = highlights.toMap[String,AnyRef]
-
-      println("highlights = " + highlights)
+  //    println("highlights = " + highlights)
 
       Right(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
@@ -88,7 +86,7 @@ object HybridAddress {
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
-        highlights = Seq(highlights)
+        highlights = if (highlights == null) Seq() else Seq(highlights)
       ))
     }
   }
