@@ -44,7 +44,8 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     maxScore = 1f,
     matchthreshold = 5f,
     verbose = true,
-    epoch = ""
+    epoch = "",
+    fromsource = "EW"
   )
 
   val mockAddressByPostcodeResponse = AddressByPostcodeResponse(
@@ -179,11 +180,24 @@ object AddressIndexClientMock {
     subBuildingName = "",
     buildingName = "",
     buildingNumber = "7",
+    pao = AddressResponsePao(
+      paoText = "",
+      paoStartNumber = "7",
+      paoStartSuffix = "",
+      paoEndNumber = "",
+      paoEndSuffix = ""
+    ),
+    sao = AddressResponseSao(
+      saoText = "",
+      saoStartNumber = "",
+      saoStartSuffix = "",
+      saoEndNumber = "",
+      saoEndSuffix = ""
+    ),
     thoroughfare = "",
     altThoroughfare = "",
     dependentThoroughfare = "GATE REACH",
     locality = "",
-    townland = "",
     townName = "EXETER",
     postcode = "PO7 6GA",
     uprn = "",
@@ -192,8 +206,10 @@ object AddressIndexClientMock {
     creationDate = "",
     commencementDate = "",
     archivedDate = "",
-    nisraAll = "",
-    mixedNisra = ""
+    mixedNisra = "",
+    addressStatus = "APPROVED",
+    buildingStatus = "",
+
   )
 
   val mockBespokeScore = AddressResponseScore(

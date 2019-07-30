@@ -15,7 +15,9 @@ case class QueryValues(input: Option[String] = None,
                        rangeKM: Option[String] = None,
                        latitude: Option[String] = None,
                        longitude: Option[String] = None,
-                       matchThreshold: Option[Float] = None) {
+                       matchThreshold: Option[Float] = None,
+                       fromsource: Option[String] = None)
+{
   def inputOrDefault: String = this.input.getOrElse("")
 
   def fallbackOrDefault: Boolean = this.fallback.getOrElse(true)
@@ -47,4 +49,6 @@ case class QueryValues(input: Option[String] = None,
   def longitudeOrDefault: String = this.longitude.getOrElse("")
 
   def matchThresholdOrDefault: Float = this.matchThreshold.getOrElse(0f)
+
+  def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
 }

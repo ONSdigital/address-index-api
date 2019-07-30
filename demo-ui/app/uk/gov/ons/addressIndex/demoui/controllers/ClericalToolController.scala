@@ -191,7 +191,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
             id = UUID.randomUUID,
             apiKey = apiKey,
             verbose = true,
-            epoch = epochVal
+            epoch = epochVal,
+            fromsource = "all"
           )
         ) map { resp: AddressBySearchResponseContainer =>
           val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
@@ -531,7 +532,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
               id = UUID.randomUUID,
               apiKey = apiKey,
               verbose = true,
-              epoch = epochVal
+              epoch = epochVal,
+              fromsource = "all"
             )
           ) map { resp: AddressBySearchResponseContainer =>
             val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, startDateVal, endDateVal))

@@ -50,7 +50,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    historical: Option[String] = None,
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
-                   epoch: Option[String] = None
+                   epoch: Option[String] = None,
+                   fromsource: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -80,6 +81,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val lonVal = lon.getOrElse("")
 
     val epochVal = epoch.getOrElse("")
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val authVal = req.headers.get("authorization").getOrElse("Anon")
@@ -113,7 +115,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       rangeKM = Some(rangeVal),
       latitude = Some(latVal),
       longitude = Some(lonVal),
-      matchThreshold = Some(thresholdFloat)
+      matchThreshold = Some(thresholdFloat),
+      fromsource = Some(fromsourceVal)
     )
 
     val args = AddressArgs(
@@ -127,6 +130,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
+      fromsource = fromsourceVal
     )
 
     val result: Option[Future[Result]] =
@@ -140,6 +144,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateInput(input, queryValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
+        .orElse(addressValidation.validateFromSource(queryValues))
         .orElse(None)
 
     result match {
@@ -219,7 +224,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   maxScore = maxScore,
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
-                  verbose = verb
+                  verbose = verb,
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )

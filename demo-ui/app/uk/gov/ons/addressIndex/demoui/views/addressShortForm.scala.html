@@ -161,7 +161,7 @@ expandRow: Int = 0
                     <td>@messages("clerical.token.building_number")</td>
                     <td>@messages("clerical.building_number")</td>
                     <td>@tokens.getOrElse(Tokens.buildingNumber, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.buildingNumber }</td>
+                    <td>@address.nisra.map { nisra => @nisra.pao.paoStartNumber }</td>
                 </tr>
                 <tr>
                     <td rowspan="3">@messages("clerical.token.street_name")</td>
@@ -188,7 +188,7 @@ expandRow: Int = 0
                 <tr>
                     <td>Townland</td>
                     <td>@tokens.getOrElse(Tokens.locality, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.townland }</td>
+                    <td><i>townland not in current index</i></td>
                 </tr>
 
                 <tr>

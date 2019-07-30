@@ -64,6 +64,7 @@ trait AddressIndexClient {
         "lon" -> request.lon,
         "limit" -> request.limit,
         "offset" -> request.offset,
+        "fromsource" -> request.fromsource,
         "verbose" -> request.verbose.toString
       )
   }
