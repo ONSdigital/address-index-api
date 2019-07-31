@@ -2455,7 +2455,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 "lpi.nagAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
 "boost":0.2,
-"fuzziness":"0"
+"fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
 },
@@ -2464,7 +2464,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 "nisra.nisraAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
 "boost":0.2,
-"fuzziness":"0"
+"fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
 },
@@ -2473,7 +2473,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 "paf.pafAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
 "boost":0.2,
-"fuzziness":"0"
+"fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
 }
@@ -5305,7 +5305,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            "lpi.nagAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
             "boost":0.2,
-            "fuzziness":"0"
+            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
            },
@@ -5314,7 +5314,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            "nisra.nisraAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
             "boost":0.2,
-            "fuzziness":"0"
+            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
            },
@@ -5323,7 +5323,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            "paf.pafAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
             "boost":0.2,
-            "fuzziness":"0"
+            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
            }
