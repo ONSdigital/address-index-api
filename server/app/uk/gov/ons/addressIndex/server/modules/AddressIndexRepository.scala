@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
 import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
 import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
@@ -100,9 +101,9 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
     val slopVal = 4
     val niFactor = args.fromsource match {
-      case "niboost" => "^1.1"
-      case "ewboost" => "^0.6"
-      case _ => "0.8"
+      case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
+      case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
+      case _ => "^" + esConf.queryParams.nisra.partialAllBoost
     }
 
     val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
@@ -116,9 +117,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => Seq.empty
     }
 
+    // test with and without this - probably better not to have it was we have boost numbers
     val fromSourceQueryShould = args.fromsource match {
-      case "niboost" => Seq(termsQuery("fromSource","NI"))
-      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+    //  case "niboost" => Seq(termsQuery("fromSource","NI"))
+     // case "ewboost" => Seq(termsQuery("fromSource","EW"))
       case _ => Seq.empty
     }
 
@@ -741,10 +743,10 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
           .boost(queryParams.fallback.fallbackLpiBoost),
-        matchQuery("nisra.nisraAll", normalizedInput)
+        matchQuery("nisra.nisraAll",  normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-          .boost(queryParams.fallback.fallbackLpiBoost),
+          .boost(queryParams.nisra.fullFallBackNiBoost),
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -756,7 +758,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           .boost(queryParams.fallback.fallbackLpiBigramBoost),
         matchQuery("nisra.nisraAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
-          .boost(queryParams.fallback.fallbackLpiBigramBoost),
+          .boost(queryParams.nisra.fullFallBackBigramNiBoost),
         matchQuery("paf.pafAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackPafBigramBoost))
@@ -866,6 +868,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
+    println(SearchBodyBuilderFn(query).string())
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
