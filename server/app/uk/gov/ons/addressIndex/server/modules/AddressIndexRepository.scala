@@ -99,7 +99,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
 
     val slopVal = 4
-    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+    val niFactor = args.fromsource match {
+      case "niboost" => "^1.1"
+      case "ewboost" => "^0.6"
+      case _ => "0.8"
+    }
+
+    val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
