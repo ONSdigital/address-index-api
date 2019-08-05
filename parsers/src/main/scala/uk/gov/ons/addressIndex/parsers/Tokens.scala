@@ -125,7 +125,7 @@ object Tokens {
   def postTokenizeTreatmentPostCode(tokens: Map[String, String]): Map[String, String] = {
 
 
-    val dedupPostCode: String = tokens.getOrElse(postcode,"").split(" ").distinct.mkString.replaceAll("\\s", "")
+    val dedupPostCode: String = tokens.getOrElse(postcode, "").split(" ").distinct.mkString.replaceAll("\\s", "")
     // Before analyzing the postcode, we also remove whitespaces so that they don't influence the outcome
     val postcodeToken: Option[String] = if (dedupPostCode.equals("")) None else Option(dedupPostCode)
 
@@ -283,65 +283,27 @@ object Tokens {
     */
   private def splitBuildingName(buildingName: Option[String]): BuildingNameSplit = {
 
-    val buildingNameNumber = """.*?(\d+).*?""".r
-    val buildingNameSingleLetter = """.*?(\b[^-][a-zA-Z]\b).*?""".r
-    val buildingNameLetter = """.*?(\d+)([A-Z]).*?""".r
-    val buildingNameRange = """.*?(\d+)-(\d+).*?""".r
-    val buildingNameRangeStartSuffix = """.*?(\d+)([A-Z])-(\d+).*?""".r
-    val buildingNameRangeEndSuffix = """.*?(\d+)-(\d+)([A-Z]).*?""".r
-    val buildingNameRangeStartSuffixEndSuffix = """.*?(\d+)([A-Z])-(\d+)([A-Z]).*?""".r
+    val rangeRegex = """.*?\b(\d+)([A-Z]?)-(\d+)([A-Z]?)\b.*?""".r
+    val numberRegex = """.*?\b(\d+) *([A-Z]?)\b.*?""".r
+    val letterRegex = """.*?\b([A-Z])\b.*?""".r
+
+    def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
+
+    def optShort(s: String): Option[String] = if (Try(s.toShort).isSuccess) Some(s) else None
 
     // order is important
     buildingName match {
-      case Some(buildingNameRangeStartSuffixEndSuffix(startNumber, startSuffix, endNumber, endSuffix)) =>
-        BuildingNameSplit(
-          startNumber = Try(startNumber.toShort.toString).toOption,
-          startSuffix = Some(startSuffix),
-          endNumber = Try(endNumber.toShort.toString).toOption,
-          endSuffix = Some(endSuffix)
-        )
-
-      case Some(buildingNameRangeEndSuffix(startNumber, endNumber, endSuffix)) =>
-        BuildingNameSplit(
-          startNumber = Try(startNumber.toShort.toString).toOption,
-          endNumber = Try(endNumber.toShort.toString).toOption,
-          endSuffix = Some(endSuffix)
-        )
-
-      case Some(buildingNameRangeStartSuffix(startNumber, startSuffix, endNumber)) =>
-        BuildingNameSplit(
-          startNumber = Try(startNumber.toShort.toString).toOption,
-          startSuffix = Some(startSuffix),
-          endNumber = Try(endNumber.toShort.toString).toOption
-        )
-
-      case Some(buildingNameRange(startNumber, endNumber)) =>
-        BuildingNameSplit(
-          startNumber = Try(startNumber.toShort.toString).toOption,
-          endNumber = Try(endNumber.toShort.toString).toOption
-        )
-
-      case Some(buildingNameLetter(startNumber, startSuffix)) =>
-        BuildingNameSplit(
-          startNumber = Try(startNumber.toShort.toString).toOption,
-          startSuffix = Some(startSuffix)
-        )
-
-      case Some(buildingNameSingleLetter(startSuffix)) =>
-        BuildingNameSplit(
-          startSuffix = Some(startSuffix.replaceAll(" ",""))
-        )
-
-      case Some(buildingNameNumber(number)) =>
-        BuildingNameSplit(startNumber = Try(number.toShort.toString).toOption)
-
+      case Some(rangeRegex(startNumber, startSuffix, endNumber, endSuffix)) =>
+        BuildingNameSplit(optShort(startNumber), opt(startSuffix), optShort(endNumber), opt(endSuffix))
+      case Some(numberRegex(startNumber, startSuffix)) =>
+        BuildingNameSplit(startNumber = optShort(startNumber), startSuffix = opt(startSuffix))
+      case Some(letterRegex(startSuffix)) => BuildingNameSplit(startSuffix = opt(startSuffix.trim))
       case _ => BuildingNameSplit()
     }
   }
 
   /**
     * Concatenates post-processed tokens so that we could use it against special xAll fields
-    *
     *
     * @param tokens post-processed tokens
     * @return concatenated resulting string
@@ -423,8 +385,7 @@ object Tokens {
   /**
     * Convert external file into list
     *
-    *
-    * @param folder Folder
+    * @param folder   Folder
     * @param fileName Filename
     * @return
     */
@@ -436,7 +397,7 @@ object Tokens {
   /**
     * Convert external file into array
     *
-    * @param folder Folder
+    * @param folder   Folder
     * @param fileName Filename
     * @return
     */
@@ -467,7 +428,7 @@ object Tokens {
   /**
     * Fetch file stream as buffered source
     *
-    * @param folder Folder
+    * @param folder   Folder
     * @param fileName Filename
     * @return
     */
