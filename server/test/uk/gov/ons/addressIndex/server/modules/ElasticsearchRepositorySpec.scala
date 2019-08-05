@@ -19,10 +19,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
 
   val testClient: HttpClient = http
+  val testClient2: HttpClient = http
 
   // injections
   val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
     override def client: HttpClient = testClient
+
+    /* Not currently used in tests as it doesn't look like you can have two test ES instances */
+    override def clientFullmatch: HttpClient = testClient2
   }
 
   val defaultLat = "50.705948"

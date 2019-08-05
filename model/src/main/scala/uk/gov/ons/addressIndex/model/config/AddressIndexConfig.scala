@@ -12,8 +12,10 @@ case class AddressIndexConfig(apiKeyRequired: Boolean,
                               bulk: BulkConfig)
 
 case class ElasticSearchConfig(local: Boolean,
+                               gcp: String,
                                cluster: String,
                                uri: String,
+                               uriFullmatch: String,
                                port: String,
                                ssl: String,
                                connectionTimeout: Int,

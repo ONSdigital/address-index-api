@@ -20,7 +20,7 @@ import scala.math._
 import scala.util.Try
 
 @Singleton
-class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
+class AddressIndexRepository @Inject()(conf: ConfigModule,
                                        elasticClientProvider: ElasticClientProvider
                                       )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
@@ -64,7 +64,13 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
+  private val gcp : Boolean = Try(esConf.gcp.toBoolean).getOrElse(false)
+
   val client: HttpClient = elasticClientProvider.client
+
+  // clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
+  val clientFullmatch: HttpClient = elasticClientProvider.clientFullmatch
+
   lazy val logger = GenericLogger("AddressIndexRepository")
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
@@ -862,7 +868,8 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
-    client.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption)
+    if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption) else
+      client.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption)
   }
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
@@ -876,14 +883,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
-            logger.info(s"minimumFallback: ${minimumFallback} ")
+            logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
             client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)}
           else partResult
         }.flatten
+      case _: AddressArgs =>
+        if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+          client.execute(query).map(HybridAddressCollection.fromEither)
       case _ =>
-        // activates for postcode, random, address
-     //   logger.trace(query.toString)
+        // activates for postcode, random
+        // logger.trace(query.toString)
         client.execute(query).map(HybridAddressCollection.fromEither)
     }
   }
