@@ -748,7 +748,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
           .boost(queryParams.fallback.fallbackLpiBoost),
-        matchQuery("nisra.nisraAll",  normalizedInput)
+        matchQuery("nisra.nisraAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
           .boost(queryParams.nisra.fullFallBackNiBoost),
