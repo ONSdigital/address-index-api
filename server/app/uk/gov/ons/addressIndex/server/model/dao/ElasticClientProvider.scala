@@ -13,4 +13,12 @@ trait ElasticClientProvider {
     * @return
     */
   def client: HttpClient
+
+  /**
+    * Defines a getter for Elastic client lite
+    * Currently used for GCP deployments. Internally the API gateway determines the cluster to use.
+    *
+    * @return
+    */
+  def clientFullmatch: HttpClient
 }
