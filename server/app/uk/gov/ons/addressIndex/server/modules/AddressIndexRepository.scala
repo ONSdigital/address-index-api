@@ -105,7 +105,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
 
     val slopVal = 4
-    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+    val niFactor = args.fromsource match {
+      case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
+      case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
+      case _ => "^" + esConf.queryParams.nisra.partialAllBoost
+    }
+
+    val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
@@ -115,9 +122,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
+    // test with and without this - probably better not to have it was we have boost numbers
     val fromSourceQueryShould = args.fromsource match {
-      case "niboost" => Seq(termsQuery("fromSource","NI"))
-      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+    //  case "niboost" => Seq(termsQuery("fromSource","NI"))
+     // case "ewboost" => Seq(termsQuery("fromSource","EW"))
       case _ => Seq.empty
     }
 
@@ -743,7 +751,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         matchQuery("nisra.nisraAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-          .boost(queryParams.fallback.fallbackLpiBoost),
+          .boost(queryParams.nisra.fullFallBackNiBoost),
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -755,7 +763,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           .boost(queryParams.fallback.fallbackLpiBigramBoost),
         matchQuery("nisra.nisraAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
-          .boost(queryParams.fallback.fallbackLpiBigramBoost),
+          .boost(queryParams.nisra.fullFallBackBigramNiBoost),
         matchQuery("paf.pafAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackPafBigramBoost))
