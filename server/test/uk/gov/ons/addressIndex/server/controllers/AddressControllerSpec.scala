@@ -1869,110 +1869,110 @@ class AddressControllerSpec extends PlaySpec with Results with BeforeAndAfterAll
       actual mustBe expected
     }
 
-//    "reply with a 429 error if Elastic threw exception (request failed) while querying for address" in {
-//      // Given
-//      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
-//
-//      val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
-//
-//      val expected = Json.toJson(AddressBySearchResponseContainer(
-//        apiVersion = apiVersionExpected,
-//        dataVersion = dataVersionExpected,
-//        AddressBySearchResponse(
-//          tokens = Map.empty,
-//          addresses = Seq.empty,
-//          filter = "",
-//          historical = true,
-//          rangekm = "",
-//          latitude = "",
-//          longitude = "",
-//          limit = 10,
-//          offset = 0,
-//          total = 0,
-//          sampleSize = 20,
-//          maxScore = 0.0f,
-//          matchthreshold = 5f,
-//          verbose = false,
-//          epoch = "",
-//          fromsource="all"
-//        ),
-//        TooManyRequestsResponseStatus,
-//        errors = Seq(enhancedError)
-//      ))
-//
-//      // When
-//      val result = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
-//      val actual: JsValue = contentAsJson(result)
-//
-//      // Then
-//      status(result) mustBe TOO_MANY_REQUESTS
-//      actual mustBe expected
-//    }
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for address" in {
+      // Given
+      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
 
-//    "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
-//      // Given
-//      val controller = new PostcodeController(components, failingRepositoryMock, config, versions, overloadProtection, postcodeValidation)
-//
-//      val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code, FailedRequestToEsPostcodeError.message.replace("see logs", "test failure"))
-//
-//      val expected = Json.toJson(AddressByPostcodeResponseContainer(
-//        apiVersion = apiVersionExpected,
-//        dataVersion = dataVersionExpected,
-//        AddressByPostcodeResponse(
-//          postcode = "ab123cd",
-//          addresses = Seq.empty,
-//          filter = "",
-//          historical = true,
-//          limit = 10,
-//          offset = 0,
-//          total = 0,
-//          maxScore = 0.0f,
-//          verbose = false,
-//          epoch = ""
-//        ),
-//        TooManyRequestsResponseStatus,
-//        errors = Seq(enhancedError)
-//      ))
-//
-//      // When - retry param must be true
-//      val result = controller.postcodeQuery(postcode = "ab123cd", offset = Some("0"), limit = Some("10")).apply(FakeRequest())
-//      val actual: JsValue = contentAsJson(result)
-//
-//      // Then
-//      status(result) mustBe TOO_MANY_REQUESTS
-//      actual mustBe expected
-//    }
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
 
-//    "reply with a 429 error if Elastic threw exception (request failed) while querying for a random address" in {
-//      // Given
-//      val controller = new RandomController(components, failingRepositoryMock, config, versions, overloadProtection, randomValidation)
-//
-//      val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code, FailedRequestToEsRandomError.message.replace("see logs", "test failure"))
-//
-//      val expected = Json.toJson(AddressByRandomResponseContainer(
-//        apiVersion = apiVersionExpected,
-//        dataVersion = dataVersionExpected,
-//        AddressByRandomResponse(
-//          addresses = Seq.empty,
-//          filter = "",
-//          historical = true,
-//          limit = 1,
-//          verbose = false,
-//          epoch = "",
-//          fromsource="all"
-//        ),
-//        TooManyRequestsResponseStatus,
-//        errors = Seq(enhancedError)
-//      ))
-//
-//      // When - retry param must be true
-//      val result = controller.randomQuery(limit = Some("1")).apply(FakeRequest())
-//      val actual: JsValue = contentAsJson(result)
-//
-//      // Then
-//      status(result) mustBe TOO_MANY_REQUESTS
-//      actual mustBe expected
-//    }
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all"
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe TOO_MANY_REQUESTS
+      actual mustBe expected
+    }
+
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
+      // Given
+      val controller = new PostcodeController(components, failingRepositoryMock, config, versions, overloadProtection, postcodeValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code, FailedRequestToEsPostcodeError.message.replace("see logs", "test failure"))
+
+      val expected = Json.toJson(AddressByPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPostcodeResponse(
+          postcode = "ab123cd",
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 10,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      // When - retry param must be true
+      val result = controller.postcodeQuery(postcode = "ab123cd", offset = Some("0"), limit = Some("10")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe TOO_MANY_REQUESTS
+      actual mustBe expected
+    }
+
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for a random address" in {
+      // Given
+      val controller = new RandomController(components, failingRepositoryMock, config, versions, overloadProtection, randomValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code, FailedRequestToEsRandomError.message.replace("see logs", "test failure"))
+
+      val expected = Json.toJson(AddressByRandomResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByRandomResponse(
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          limit = 1,
+          verbose = false,
+          epoch = "",
+          fromsource="all"
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      // When - retry param must be true
+      val result = controller.randomQuery(limit = Some("1")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe TOO_MANY_REQUESTS
+      actual mustBe expected
+    }
 
     "reply with a 500 error if Elastic threw exception (request failed) while querying for a partial address" in {
       // Given
