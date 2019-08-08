@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import com.sksamuel.elastic4s.IndexesAndTypes
 import com.sksamuel.elastic4s.searches.SearchDefinition
+import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, RequestHeader, Result, Results}
@@ -17,13 +18,17 @@ import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResp
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper, ThrottlerStatus}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec extends PlaySpec with Results {
+class AddressControllerSpec extends PlaySpec with Results with BeforeAndAfterAll {
+  override def beforeAll(): Unit = {
+    overloadProtection.setStatus(ThrottlerStatus.Closed)
+    overloadProtection.breaker.resetTimeout
+  }
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
