@@ -209,8 +209,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").asc(),
         FieldSortDefinition("lpi.paoStartNumber").asc(),
         FieldSortDefinition("lpi.paoStartSuffix.keyword").asc(),
+        FieldSortDefinition("lpi.secondarySort").asc(),
         FieldSortDefinition("nisra.thoroughfare.keyword").asc(),
         FieldSortDefinition("nisra.paoStartNumber").asc(),
+        FieldSortDefinition("nisra.secondarySort").asc(),
         FieldSortDefinition("uprn").asc())
       .start(args.start)
       .limit(args.limit)
