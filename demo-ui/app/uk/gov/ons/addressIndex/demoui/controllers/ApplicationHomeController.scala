@@ -13,6 +13,7 @@ import uk.gov.ons.addressIndex.demoui.utils.GatewaySimulator
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.util.Try
 
 /**
   * Simple controller for home page
@@ -62,7 +63,7 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
     */
   def login: Action[AnyContent] = Action { implicit req =>
     // logger.info("Login Required =  " + conf.config.loginRequired )
-    if (conf.config.loginRequired) {
+    if (Try(conf.config.loginRequired.toBoolean).getOrElse(true)) {
       Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", "", version))
     } else {
       Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage())
