@@ -168,14 +168,9 @@ object FailedRequestToEsPartialAddressError extends AddressResponseError(
   message = "Request to ElasticSearch failed (partial address)(see logs)"
 )
 
-object StartDateInvalidResponseError extends AddressResponseError(
+object FromSourceInvalidError extends AddressResponseError(
   code = 31,
-  message = "Invalid start date. Format is YYYY-MM-DD."
-)
-
-object EndDateInvalidResponseError extends AddressResponseError(
-  code = 32,
-  message = "Invalid end date. Format is YYYY-MM-DD."
+  message = "Query string parameter fromsource must be all, niboost, ewboost, nionly or ewonly"
 )
 
 object ShortQueryAddressResponseError extends AddressResponseError(

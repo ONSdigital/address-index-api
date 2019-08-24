@@ -88,6 +88,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     val epochVal: Option[String] = Try(request.body.asFormUrlEncoded.get("epoch").mkString).toOption
+    val fromSourceOpt = request.getQueryString("fromsource")
+
 
     if (addressText.trim.isEmpty) {
       logger info "Single Match with Empty input address"
@@ -111,7 +113,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     } else {
       Future.successful(
         Redirect(controllers.routes.SingleMatchController
-          .doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+          .doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchThresholdValue), fromSourceOpt, Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -122,7 +124,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     * @param input Input value
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, fromsource: Option[String] = None, startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
@@ -138,6 +140,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
       val rangeString = rangekm.getOrElse("")
       val latString = lat.getOrElse("50.705948")
       val lonString = lon.getOrElse("-3.5091076")
+      val fromSource = fromsource.getOrElse("all")
       if (addressText.trim.isEmpty) {
         logger info "Single Match with expected input address missing"
         val viewToRender = views.html.singleMatch(
@@ -169,6 +172,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             lon = lonString,
             verbose = true,
             epoch = epochVal,
+            fromsource = fromSource,
             id = UUID.randomUUID,
             apiKey = apiKey
           )

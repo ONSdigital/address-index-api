@@ -10,6 +10,8 @@ import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
+import com.typesafe.sbt.packager.docker._
+
 routesImport := Seq.empty
 
 val verFile: File = file("./version.sbt")
@@ -186,6 +188,9 @@ lazy val `address-index-server` = project.in(file("server"))
   .settings(serverUniversalMappings: _*)
   .settings(
     libraryDependencies ++= serverDeps,
+    // "-Dlogback.debug=true" can be set to show which logfile is being used.
+    dockerBaseImage := "openjdk:8",
+    dockerCommands += ExecCmd("CMD", "-Dlogger.file=/opt/docker/conf/logback-gcp.xml"),
     routesGenerator := InjectedRoutesGenerator,
     swaggerDomainNameSpaces := Seq("uk.gov.ons.addressIndex.model.server.response"),
     Revolver.settings ++ Seq(
@@ -264,7 +269,8 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(localCommonSettings: _*)
   .settings(
     libraryDependencies ++= uiDeps,
-    routesGenerator := InjectedRoutesGenerator
+    routesGenerator := InjectedRoutesGenerator,
+    dockerBaseImage := "openjdk:8"
   )
   .dependsOn(
     `address-index-client`

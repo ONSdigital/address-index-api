@@ -197,7 +197,7 @@ object HopperScoreHelper {
 
     // get nisra values
     val nisraBuildingName = address.nisra.map(_.buildingName).getOrElse("").toUpperCase
-    val nisraBuildingNumber = address.nisra.map(_.buildingNumber).getOrElse("").toUpperCase
+    val nisraBuildingNumber = address.nisra.map(_.pao.paoStartNumber).getOrElse("").toUpperCase
     val nisraOrganisationName = address.nisra.map(_.organisationName).getOrElse("").toUpperCase
 
     //get nag values
@@ -536,8 +536,7 @@ object HopperScoreHelper {
     val nisraThoroughfare = address.nisra.map(_.thoroughfare).getOrElse("").toUpperCase
     val nisraDependentThoroughfare = address.nisra.map(_.dependentThoroughfare).getOrElse("").toUpperCase
     val nisraAltThoroughfare = address.nisra.map(_.altThoroughfare).getOrElse("").toUpperCase
-    val nisraTownland = address.nisra.map(_.townland).getOrElse("").toUpperCase
-    val nisraPostTown = address.nisra.map(_.townName).getOrElse("").toUpperCase
+     val nisraPostTown = address.nisra.map(_.townName).getOrElse("").toUpperCase
     val nisraLocality = address.nisra.map(_.locality).getOrElse("").toUpperCase
     val nisraPostcode = address.nisra.map(_.postcode).getOrElse("").toUpperCase
 
@@ -610,7 +609,6 @@ object HopperScoreHelper {
     val townLocalityNisraScore = calculateTownLocalityNisraScore(
       townName,
       locality,
-      nisraTownland,
       nisraPostTown,
       nisraLocality,
       streetName)
@@ -954,7 +952,6 @@ object HopperScoreHelper {
     */
   def calculateTownLocalityNisraScore(townName: String,
                                       locality: String,
-                                      nisraTownland: String,
                                       nisraTownName: String,
                                       nisraLocality: String,
                                       streetName: String): Int = {
@@ -967,10 +964,9 @@ object HopperScoreHelper {
 
     // locality
     val nisraTownNamelocalityMatchScore = matchNames(locality, nisraTownName).min(matchNames(nisraTownName, locality))
-    val nisraTownlandlocalityMatchScore = matchNames(locality, nisraTownland).min(matchNames(nisraTownland, locality))
-    val nisraLocalitylocalityMatchScore = matchNames(locality, nisraLocality).min(matchNames(nisraLocality, locality))
+      val nisraLocalitylocalityMatchScore = matchNames(locality, nisraLocality).min(matchNames(nisraLocality, locality))
     val nisraLocalityMatchScore = if (locality == empty) 4
-    else min(nisraTownNamelocalityMatchScore, nisraTownlandlocalityMatchScore, nisraLocalitylocalityMatchScore)
+    else min(nisraTownNamelocalityMatchScore, nisraLocalitylocalityMatchScore)
 
     // Accept a NISRA match via locality with an edit distance of 2 or less
     if (nisraTownNameMatchScore < 2 || nisraLocalityMatchScore < 2) 1

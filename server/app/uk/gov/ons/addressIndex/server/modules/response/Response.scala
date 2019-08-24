@@ -13,14 +13,6 @@ trait Response {
   val dataVersion: String
   val apiVersion: String
 
-  def StartDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues, StartDateInvalidResponseError)
-  }
-
-  def EndDateInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
-    BadRequestTemplate(queryValues, EndDateInvalidResponseError)
-  }
-
   def BadRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
@@ -89,15 +81,14 @@ trait Response {
       rangekm = queryValues.rangeKMOrDefault.toString,
       latitude = queryValues.latitudeOrDefault,
       longitude = queryValues.longitudeOrDefault,
-      startDate = queryValues.startDateOrDefault,
-      endDate = queryValues.endDateOrDefault,
       limit = queryValues.limitOrDefault,
       offset = queryValues.offsetOrDefault,
       total = 0,
       sampleSize = 20,
       maxScore = 0f,
       matchthreshold = 5f,
-      verbose = queryValues.verboseOrDefault
+      verbose = queryValues.verboseOrDefault,
+      fromsource = queryValues.fromSourceOrDefault
     )
   }
 

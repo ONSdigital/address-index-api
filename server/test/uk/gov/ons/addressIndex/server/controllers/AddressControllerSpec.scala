@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.controllers
 
 import com.sksamuel.elastic4s.IndexesAndTypes
 import com.sksamuel.elastic4s.searches.SearchDefinition
+import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, RequestHeader, Result, Results}
@@ -17,13 +18,17 @@ import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResp
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper, ThrottlerStatus}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-class AddressControllerSpec extends PlaySpec with Results {
+class AddressControllerSpec extends PlaySpec with Results with BeforeAndAfterAll {
+  override def beforeAll(): Unit = {
+    overloadProtection.setStatus(ThrottlerStatus.Closed)
+    overloadProtection.breaker.resetTimeout
+  }
 
   val validPafAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
@@ -109,11 +114,20 @@ class AddressControllerSpec extends PlaySpec with Results {
     subBuildingName = "2",
     buildingName = "3",
     buildingNumber = "4",
+    paoText = "",
+    paoStartNumber = "4",
+    paoStartSuffix = "",
+    paoEndNumber = "",
+    paoEndSuffix = "",
+    saoText = "",
+    saoStartNumber = "4",
+    saoStartSuffix = "",
+    saoEndNumber = "",
+    saoEndSuffix = "",
     thoroughfare = "5",
     altThoroughfare = "6",
     dependentThoroughfare = "7",
     locality = "8",
-    townland = "9",
     townName = "10",
     postcode = "BT36 5SN",
     uprn = "11",
@@ -126,10 +140,11 @@ class AddressControllerSpec extends PlaySpec with Results {
     commencementDate = "18",
     archivedDate = "19",
     latitude = "20",
-    nisraAll = "nisraAll",
-    mixedNisra = "mixedNisra",
-    longitude = "21"
-  )
+    longitude = "21",
+    addressStatus = "APPROVED",
+    buildingStatus = "DEMOLISHED",
+    mixedNisra = "mixedNisra"
+ )
 
   val validRelative = Relative(
     level = 1,
@@ -437,7 +452,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource = "all"
         ),
         OkAddressResponseStatus
       ))
@@ -465,7 +481,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -480,7 +497,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply on a found address in concise format (by partial address query with start and end date)" ignore {
+   "reply on a found address in concise format (by partial)" in {
       // Given
       val expected = Json.toJson(AddressByPartialAddressResponseContainer(
         apiVersion = apiVersionExpected,
@@ -495,75 +512,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          startDate = "2013-01-01",
-          endDate = "2014-01-01",
           verbose = false,
-          epoch = ""
-        ),
-        OkAddressResponseStatus
-      ))
-
-      // When
-      val result: Future[Result] = partialAddressController.partialAddressQuery(input = "some query", verbose = Some("false")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe OK
-      actual mustBe expected
-    }
-
-    "reply on a found address in verbose format (by partial address query with start and end date)" ignore {
-      // Given
-      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        response = AddressByPartialAddressResponse(
-          input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
-          filter = "",
-          fallback = true,
-          historical = true,
-          limit = 20,
-          offset = 0,
-          total = 1,
-          maxScore = 1.0f,
-          startDate = "2013-01-01",
-          endDate = "2014-01-01",
-          verbose = true,
-          epoch = ""
-        ),
-        OkAddressResponseStatus
-      ))
-
-      // When
-      val result: Future[Result] = partialAddressController.partialAddressQuery(input = "some query", verbose = Some("true")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe OK
-      actual mustBe expected
-    }
-
-
-    "reply on a found address in concise format (by partial)" in {
-      // Given
-      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        response = AddressByPartialAddressResponse(
-          input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false)),
-          filter = "",
-          fallback = true,
-          historical = true,
-          limit = 20,
-          offset = 0,
-          total = 1,
-          maxScore = 1.0f,
-          startDate = "",
-          endDate = "",
-          verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -592,10 +543,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          startDate = "",
-          endDate = "",
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -630,10 +580,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -668,10 +617,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -706,10 +654,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -744,10 +691,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -782,10 +728,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 1.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = true,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         OkAddressResponseStatus
       ))
@@ -799,8 +744,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-
-    "reply with a found address in concise format (by address query with start and end date)" ignore {
+    "reply with a 400 error if an invalid fromsource value is supplied" in {
       // Given
       val controller = addressController
 
@@ -809,73 +753,34 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
-          filter = "",
+          addresses = Seq.empty,
+          filter = "RD02",
           historical = true,
           rangekm = "",
           latitude = "",
           longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 1,
+          limit = 1,
+          offset = 1,
+          total = 0,
           sampleSize = 20,
-          maxScore = 1.0f,
+          maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "2013-01-01",
-          endDate = "2014-01-01",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="twitter"
         ),
-        OkAddressResponseStatus
+        BadRequestAddressResponseStatus,
+        errors = Seq(FromSourceInvalidError)
       ))
 
       // When
-      val result = controller.addressQuery("some query", None, None, None, None, None, None, Some("2013-01-01"), Some("2014-01-01"), verbose = Some("false")).apply(FakeRequest())
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("twitter")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe OK
+      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
-
-    "reply with a found address in verbose format (by address query with start and end date)" ignore {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D),
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 1,
-          sampleSize = 20,
-          maxScore = 1.0f,
-          matchthreshold = 5f,
-          startDate = "2013-01-01",
-          endDate = "2014-01-01",
-          verbose = true,
-          epoch = ""
-        ),
-        OkAddressResponseStatus
-      ))
-
-      // When
-      val result = controller.addressQuery("some query", None, None, None, None, None, None, Some("2013-01-01"), Some("2014-01-01"), verbose = Some("true")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe OK
-      actual mustBe expected
-    }
-
 
     "reply with a 400 error if an invalid filter value is supplied" in {
       // Given
@@ -898,10 +803,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -937,10 +841,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(MixedFilterError)
@@ -977,10 +880,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -1048,10 +950,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1111,7 +1012,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1147,10 +1049,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyRadiusQueryAddressResponseError)
@@ -1186,10 +1087,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1257,10 +1157,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1320,7 +1219,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 0,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -1356,10 +1256,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -1427,10 +1326,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1490,7 +1388,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 999999,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -1518,7 +1417,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = "epoch"
+          epoch = "epoch",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.EpochNotAvailableErrorCustom)
@@ -1554,10 +1454,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -1593,10 +1492,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -1632,10 +1530,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -1671,10 +1568,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -1710,10 +1606,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -1749,10 +1644,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -1788,10 +1682,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -1827,10 +1720,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -1838,318 +1730,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.addressQuery("").apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if startDate is not valid (by address query)" ignore {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(StartDateInvalidResponseError)
-      ))
-
-      // When
-      val result = controller.addressQuery("query", Some("1"), Some("1"), None, None, None, None, Some("xyz"), Some("2013-01-01")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if endDate is not valid (by address query)" ignore {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = false,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(EndDateInvalidResponseError)
-      ))
-
-      // When
-      val result = controller.addressQuery("query", Some("1"), Some("1"), None, None, None, None, Some("2013-01-01"), Some("xyz")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if epoch is invalid (by address query)" ignore {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = false,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(addressValidation.EpochNotAvailableErrorCustom)
-      ))
-
-      // When
-      val result = controller.addressQuery("query", epoch = Some("epoch")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if startDate is not valid (by uprn query)" ignore {
-      // Given
-      val controller = uprnController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(StartDateInvalidResponseError)
-      ))
-
-      // When
-      val result = controller.uprnQuery("1234", Some("xyz"), Some("2013-01-01")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if epoch is invalid (by uprn query)" ignore {
-      // Given
-      val controller = uprnController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(uprnValidation.EpochNotAvailableErrorCustom)
-      ))
-
-      // When
-      val result = controller.uprnQuery("1234", epoch = Some("epoch")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if endDate is not valid (by uprn query)" ignore {
-      // Given
-      val controller = uprnController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(EndDateInvalidResponseError)
-      ))
-
-      // When
-      val result = controller.uprnQuery("1234", Some("2013-01-01"), Some("xyz")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if startDate is not valid (by postcode query)" ignore {
-      // Given
-      val controller = postcodeController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(StartDateInvalidResponseError)
-      ))
-
-      // When
-      val result = controller.postcodeQuery("1234", None, None, None, Some("xyz"), Some("2013-01-01")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if endDate is not valid (by postcode query)" ignore {
-      // Given
-      val controller = postcodeController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(EndDateInvalidResponseError)
-      ))
-
-      // When
-      val result = controller.postcodeQuery("1234", None, None, None, Some("2013-01-01"), Some("xyz")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -2174,10 +1754,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0,
           maxScore = 0.0f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -2209,10 +1788,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0,
           maxScore = 0.0f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = "epoch"
+          epoch = "epoch",
+          fromsource="all"
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -2220,84 +1798,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.partialAddressQuery(input = "something", epoch = Some("epoch")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if startDate is not valid (by partial address query)" ignore {
-      // Given
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(StartDateInvalidResponseError)
-      ))
-
-      // When
-      // TODO This test is completely wrong. startdate doesn't exist as a parameter any more.
-      val result = partialAddressController.partialAddressQuery(input = "query", historical = Some("xyz"), verbose = Some("2013-01-01")).apply(FakeRequest())
-      // val result = partialAddressController.partialAddressQuery(input = "query", startdate = Some("xyz"), enddate = Some("2013-01-01")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply on a 400 error if endDate is not valid (by partial address query)" ignore {
-      // Given
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 10,
-          offset = 0,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
-          verbose = true,
-          epoch = ""
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(EndDateInvalidResponseError)
-      ))
-
-      // When
-      // TODO This test is completely wrong. enddate doesn't exist as a parameter any more.
-      val result = partialAddressController.partialAddressQuery(input = "query", historical = Some("2013-01-01"), verbose = Some("xyz")).apply(FakeRequest())
-      // val result = partialAddressController.partialAddressQuery(input = "query", startdate = Some("2013-01-01"), enddate = Some("xyz")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -2369,7 +1869,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a 500 error if Elastic threw exception (request failed) while querying for address" in {
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
       val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
 
@@ -2392,10 +1892,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           sampleSize = 20,
           maxScore = 0.0f,
           matchthreshold = 5f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2459,7 +1958,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           historical = true,
           limit = 1,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2474,7 +1974,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a 429 error if Elastic threw exception (request failed) while querying for a partial address" in {
+    "reply with a 500 error if Elastic threw exception (request failed) while querying for a partial address" in {
       // Given
       val controller = new PartialAddressController(components, failingRepositoryMock, config, versions, overloadProtection, partialAddressValidation)
 
@@ -2493,12 +1993,11 @@ class AddressControllerSpec extends PlaySpec with Results {
           offset = 0,
           total = 0,
           maxScore = 0.0f,
-          startDate = "",
-          endDate = "",
           verbose = false,
-          epoch = ""
+          epoch = "",
+          fromsource="all"
         ),
-        TooManyRequestsResponseStatus,
+        InternalServerErrorAddressResponseStatus,
         errors = Seq(enhancedError)
       ))
 
@@ -2507,7 +2006,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe TOO_MANY_REQUESTS
+      status(result) mustBe INTERNAL_SERVER_ERROR
       actual mustBe expected
     }
 

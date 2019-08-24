@@ -39,11 +39,12 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           fallback: Option[String] = None,
                           offset: Option[String] = None,
                           limit: Option[String] = None,
-                          classificationFilter: Option[String] = None,
+                          classificationfilter: Option[String] = None,
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          startBoost: Option[String] = None
+                          startboost: Option[String] = None,
+                          fromsource: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -57,23 +58,19 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
 
-    val filterString = classificationFilter.getOrElse("").replaceAll("\\s+", "")
+    val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
-
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
-    val startDateVal = ""
-    val endDateVal = ""
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     val defStartBoost = conf.config.elasticSearch.defaultStartBoost
     // query string param for testing, will probably be removed
-    val sboost = startBoost.flatMap(x => Try(x.toInt).toOption).getOrElse(defStartBoost)
+    val sboost = startboost.flatMap(x => Try(x.toInt).toOption).getOrElse(defStartBoost)
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
@@ -113,21 +110,19 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       historical = Some(hist),
       limit = Some(limitInt),
       offset = Some(offsetInt),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
-      verbose = Some(verb)
+      verbose = Some(verb),
+      fromsource = Some(fromsourceVal)
     )
 
     val result: Option[Future[Result]] =
       partialAddressValidation.validatePartialLimit(limit, queryValues)
         .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
-        //      .orElse(partialAddressValidation.validateStartDate(startDateVal))
-        //      .orElse(partialAddressValidation.validateEndDate(endDateVal))
         .orElse(partialAddressValidation.validateSource(queryValues))
         .orElse(partialAddressValidation.validateKeyStatus(queryValues))
         .orElse(partialAddressValidation.validateInput(input, queryValues))
-        .orElse(partialAddressValidation.validateAddressFilter(classificationFilter, queryValues))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
+        .orElse(partialAddressValidation.validateFromSource(queryValues))
         .orElse(None)
 
     result match {
@@ -141,17 +136,17 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
-          filterDateRange = DateRange(startDateVal, endDateVal),
           historical = hist,
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          fromsource = fromsourceVal
         )
 
         val request: Future[HybridAddressCollection] =
-          overloadProtection.breaker.withCircuitBreaker(
+//          overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
-          )
+//          )
 
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
@@ -162,8 +157,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
             val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
 
             writeLog(activity = "partial_request")
-            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
-              overloadProtection.setStatus(ThrottlerStatus.Closed)
+//            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
+//              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByPartialAddressResponseContainer(
@@ -180,9 +175,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
-                  verbose = verb
+                  verbose = verb,
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )
@@ -191,19 +185,19 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         }.recover {
           case NonFatal(exception) =>
 
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-              case ThrottlerStatus.Open =>
-                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
-              case _ =>
+//            overloadProtection.currentStatus match {
+//              case ThrottlerStatus.HalfOpen =>
+//                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+//                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
+//              case ThrottlerStatus.Open =>
+//                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
+//                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
+//              case _ =>
                 // Circuit Breaker is closed. Some other problem
                 writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
                 logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
                 InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
-            }
+//            }
         }
 
     }

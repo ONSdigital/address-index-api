@@ -7,7 +7,7 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, DateRange, ElasticsearchRepository, ParserModule, Region, VersionModule}
+import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, ElasticsearchRepository, ParserModule, Region, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,7 +50,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    historical: Option[String] = None,
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
-                   epoch: Option[String] = None
+                   epoch: Option[String] = None,
+                   fromsource: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -58,9 +59,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
     val url: String = req.uri
-
-    val startDateVal = ""
-    val endDateVal = ""
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimit
@@ -83,6 +81,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val lonVal = lon.getOrElse("")
 
     val epochVal = epoch.getOrElse("")
+    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val authVal = req.headers.get("authorization").getOrElse("Anon")
@@ -112,13 +111,12 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       historical = Some(hist),
       limit = Some(limitInt),
       offset = Some(offsetInt),
-      startDate = Some(startDateVal),
-      endDate = Some(endDateVal),
       verbose = Some(verb),
       rangeKM = Some(rangeVal),
       latitude = Some(latVal),
       longitude = Some(lonVal),
-      matchThreshold = Some(thresholdFloat)
+      matchThreshold = Some(thresholdFloat),
+      fromsource = Some(fromsourceVal)
     )
 
     val args = AddressArgs(
@@ -129,10 +127,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       historical = hist,
       verbose = verb,
       filters = filterString,
-      filterDateRange = DateRange(startDateVal, endDateVal),
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
+      fromsource = fromsourceVal
     )
 
     val result: Option[Future[Result]] =
@@ -146,6 +144,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateInput(input, queryValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
+        .orElse(addressValidation.validateFromSource(queryValues))
         .orElse(None)
 
     result match {
@@ -219,15 +218,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   rangekm = rangeVal,
                   latitude = latVal,
                   longitude = lonVal,
-                  startDate = startDateVal,
-                  endDate = endDateVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = newTotal,
                   maxScore = maxScore,
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
-                  verbose = verb
+                  verbose = verb,
+                  fromsource = fromsourceVal
                 ),
                 status = OkAddressResponseStatus
               )

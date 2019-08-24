@@ -201,6 +201,7 @@ final case class PartialArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean = true,
                              skinny: Boolean = false,
+                             fromsource: String
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -245,6 +246,7 @@ final case class RandomArgs(epoch: String = "",
                             limit: Int,
                             verbose: Boolean = true,
                             skinny: Boolean = false,
+                            fromsource: String = "all"
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }
@@ -266,6 +268,7 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
+                             fromsource: String = "all"
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 

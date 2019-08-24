@@ -12,8 +12,10 @@ case class AddressIndexConfig(apiKeyRequired: Boolean,
                               bulk: BulkConfig)
 
 case class ElasticSearchConfig(local: Boolean,
+                               gcp: String,
                                cluster: String,
                                uri: String,
+                               uriFullmatch: String,
                                port: String,
                                ssl: String,
                                connectionTimeout: Int,
@@ -36,7 +38,10 @@ case class ElasticSearchConfig(local: Boolean,
                                circuitBreakerMaxFailures: Int,
                                circuitBreakerCallTimeout: Int,
                                circuitBreakerResetTimeout: Int,
+                               circuitBreakerMaxResetTimeout: Int,
+                               circuitBreakerExponentialBackoffFactor: Double,
                                minimumPartial: Int,
+                               minimumFallback: Int,
                                defaultStartBoost: Int,
                                validEpochs: String)
 
@@ -53,6 +58,7 @@ case class QueryParamsConfig(// the number of cases has to be at most 22
                              departmentName: DepartmentNameConfig,
                              locality: LocalityConfig,
                              fallback: FallbackConfig,
+                             nisra: NisraConfig,
                              excludingDisMaxTieBreaker: Double,
                              includingDisMaxTieBreaker: Double,
                              topDisMaxTieBreaker: Double,
@@ -200,6 +206,17 @@ object FallbackConfig {
   implicit val fallbackConfigFormat: Format[FallbackConfig] = Json.format[FallbackConfig]
 }
 
+case class NisraConfig (partialNiBoostBoost: Double,
+                        partialEwBoostBoost: Double,
+                        partialAllBoost: Double,
+                        fullFallBackNiBoost: Double,
+                        fullFallBackBigramNiBoost: Double)
+
+object NisraConfig {
+  implicit val NisraConfigFormat: Format[NisraConfig] = Json.format[NisraConfig]
+}
+
+
 case class BulkConfig(batch: BatchConfig,
                       limitperaddress: Int,
                       maxLimitperaddress: Int,
@@ -219,7 +236,7 @@ case class ApiConfig(host: String,
                      apidocs: String,
                      swaggerui: String)
 
-case class DemouiConfig(loginRequired: Boolean,
+case class DemouiConfig(loginRequired: String,
                         realGatewayDev: Boolean,
                         realGatewayTest: Boolean,
                         realGatewayProd: Boolean,
