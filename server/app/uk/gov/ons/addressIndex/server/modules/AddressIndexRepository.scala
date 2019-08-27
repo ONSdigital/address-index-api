@@ -723,7 +723,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     // was once geoDistanceQueryInner
     val radiusQuery = args.region match {
       case Some(Region(range, lat, lon)) =>
-        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"))
+        Seq(bool(Seq(),
+        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"),
+          geoDistanceQuery("nisra.location").point(lat, lon).distance(s"${range}km")),Seq()))
       case None => Seq.empty
     }
 
