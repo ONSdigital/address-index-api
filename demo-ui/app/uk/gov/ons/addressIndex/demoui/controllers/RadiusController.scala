@@ -86,7 +86,7 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
     val matchThresholdValue = optMatchThreshold.getOrElse(5)
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
-    if (addressText.trim.isEmpty && filterText.trim.isEmpty) {
+    if (addressText.trim.isEmpty) {
       logger info "Radius Match with Empty search term"
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
         radiusSearchForm = RadiusController.form,
