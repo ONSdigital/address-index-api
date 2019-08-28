@@ -45,7 +45,7 @@ isClerical: Boolean = false
 
             </section>
 
-            <p class="venus"><a href='@{uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput("Add search term", None, Some("5"), address.geo.map { geo => geo.latitude.toString}, address.geo.map { geo => geo.longitude.toString}, None, Some(true), Some(5), Some(startdate), Some(enddate))}'>Radius search from this location</a></p>
+            <p class="venus"><a href='@{uk.gov.ons.addressIndex.demoui.controllers.routes.RadiusController.doMatchWithInput("*", None, Some("5"), address.geo.map { geo => geo.latitude.toString}, address.geo.map { geo => geo.longitude.toString}, None, Some(true), Some(5), Some(startdate), Some(enddate))}'>Radius search from this location</a></p>
 
             @if(address.fromSource == "EW") {
             <section class="infobox-standard">
