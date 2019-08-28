@@ -890,7 +890,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
             logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
-            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromEither) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)}
           else partResult
         }.flatten
