@@ -15,6 +15,7 @@ pageSize: Int,
 pageMax: Int,
 expandRow: Int,
 pagerAction: String,
+showNisra: Boolean,
 addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule,
@@ -43,7 +44,7 @@ placeholderFilter: String
                 <section class="searchbox-results">
                     @helper.form(action = action) {
                     <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter, messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter, messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"),showNisra)
                     </div>
                     }
                 </section>

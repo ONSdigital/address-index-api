@@ -49,6 +49,9 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
   val maxPages: Int = (maxOff + pageSize - 1) / pageSize
   // val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
   val apiUrl: String = conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath
+  val showNisra: Boolean = Try(conf.config.nisra.toBoolean).getOrElse(true)
+
+
 
   /**
     * Present empty form for user to input address
@@ -105,7 +108,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         pageSize = pageSize,
         addressBySearchResponse = None,
         classification = None,
-        version = version)
+        version = version,
+        showNisra = showNisra)
       Future.successful(Ok(viewToRender))
     } else if (Try(addressText.toLong).isSuccess) {
       Future.successful(
@@ -155,7 +159,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         // logger info ("Single Match with supplied input address " + addressText)
@@ -198,7 +203,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             pageSize = pageSize,
             addressBySearchResponse = Some(resp.response),
             classification = Some(classCodes),
-            version = version)
+            version = version,
+            showNisra = showNisra)
           Ok(viewToRender)
         }
       }
@@ -235,7 +241,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         // logger info("UPRN with supplied input address " + addressText)
@@ -305,7 +312,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         //   logger info("UPRN with supplied input address " + addressText)
@@ -385,7 +393,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         //   logger info("UPRN with supplied input address " + addressText)

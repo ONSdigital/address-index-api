@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String, labelstartdate: String, placeholderstartdate: String, labelenddate: String, placeholderenddate: String)(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String, labelstartdate: String, placeholderstartdate: String, labelenddate: String, placeholderenddate: String, showNisra: Boolean)(implicit messages: Messages)
 @import helper._
 
 <fieldset class="searchfield venus">
@@ -72,7 +72,8 @@
             </div>
 
         </div>
-
+    }
+    @if(showNisra == true) {
         <div class="group">
 
             <div class="col-8">

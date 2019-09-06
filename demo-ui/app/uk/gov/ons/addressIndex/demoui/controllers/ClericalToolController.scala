@@ -46,6 +46,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
   val maxPages: Int = (maxOff + pageSize - 1) / pageSize
   // val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
   val apiUrl: String = conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath
+  val showNisra: Boolean = Try(conf.config.nisra.toBoolean).getOrElse(true)
 
   /**
     * Present empty form for user to input address
@@ -73,7 +74,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         version = version,
         placeholder = messagesApi("clericalsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
-        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+        showNisra = showNisra
       )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
@@ -116,7 +118,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         version = version,
         placeholder = messagesApi("clericalsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
-        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+        placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+        showNisra = showNisra
       )
       Ok(viewToRender)
     } else if (Try(addressText.toLong).isSuccess) {
@@ -170,7 +173,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
           version = version,
           placeholder = messagesApi("clericalsearchform.placeholder"),
           labelFilter = messagesApi("clericalsearchform.labelfilter"),
-          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+          placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+          showNisra = showNisra
         )
 
         Future.successful(
@@ -224,7 +228,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+            showNisra = showNisra
           ))
         }
       }
@@ -454,6 +459,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         placeholder = messagesApi("debugsearchform.placeholder"),
         labelFilter = messagesApi("clericalsearchform.labelfilter"),
         placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+        showNisra = showNisra
       )
       Future.successful(
         Ok(viewToRender)
@@ -514,7 +520,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
             version = version,
             placeholder = messagesApi("debugsearchform.placeholder"),
             labelFilter = messagesApi("clericalsearchform.labelfilter"),
-            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+            placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+            showNisra = showNisra
           )
 
           Future.successful(
@@ -569,7 +576,8 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
               version = version,
               placeholder = messagesApi("debugsearchform.placeholder"),
               labelFilter = messagesApi("clericalsearchform.labelfilter"),
-              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter")
+              placeholderFilter = messagesApi("clericalsearchform.placeholderfilter"),
+              showNisra = showNisra
             ))
           }
         }

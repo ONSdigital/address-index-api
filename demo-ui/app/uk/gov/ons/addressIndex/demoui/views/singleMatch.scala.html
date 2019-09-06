@@ -11,6 +11,7 @@
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
+    showNisra: Boolean,
     addressBySearchResponse: Option[AddressBySearchResponse],
     classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
@@ -45,7 +46,7 @@ version: DemoUIAddressIndexVersionModule
                 <section class='@if(warningMessage){search-error}else{searchbox-results}'>
                     @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                     <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"),showNisra)
                     </div>
                     }
                 </section>
