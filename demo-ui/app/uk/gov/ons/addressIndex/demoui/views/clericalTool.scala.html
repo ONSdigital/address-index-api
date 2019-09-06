@@ -15,6 +15,7 @@ pageSize: Int,
 pageMax: Int,
 expandRow: Int,
 pagerAction: String,
+showNisra: Boolean,
 addressBySearchResponse: Option[AddressBySearchResponse],
 classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule,
@@ -43,7 +44,7 @@ placeholderFilter: String
                 <section class="searchbox-results">
                     @helper.form(action = action) {
                     <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter, messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, placeholder, labelFilter, placeholderFilter, messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"),showNisra)
                     </div>
                     }
                 </section>
@@ -89,6 +90,7 @@ placeholderFilter: String
                         singleSearchForm("filter").value.getOrElse(""),
                         singleSearchForm("historical").value.getOrElse("true").toBoolean,
                         singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
+                        singleSearchForm("fromsource").value.getOrElse("all"),
                         dates.getOrElse("startdate", ""),
                         dates.getOrElse("enddate", ""),
                         epoch = "",
@@ -101,7 +103,7 @@ placeholderFilter: String
                         )
 
                         }
-                        @pager(pageNum,pageSize,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""), epoch = "")
+                        @pager(pageNum,pageSize,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("fromsource").value.getOrElse("all"), dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""), epoch = "")
 
                     </div>
                 </section>

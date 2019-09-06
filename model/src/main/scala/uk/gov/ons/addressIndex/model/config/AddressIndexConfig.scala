@@ -249,4 +249,5 @@ case class DemouiConfig(loginRequired: String,
                         offset: Int,
                         maxLimit: Int,
                         maxOffset: Int,
-                        pauseMillis: Int)
+                        pauseMillis: Int,
+                        nisra: String)
