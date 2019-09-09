@@ -181,6 +181,10 @@ addressresult.position_tertiary=Tertiary properties
 addressresult.position_quaternary=Quaternary properties
 addressresult.position_quinary=Quinary properties
 addressresult.address=Address
+addressresult.ni_ab_classification=Mapped AB Classification
+addressresult.ni_lps_addressstatus=LPS Address Status
+addressresult.ni_lps_classification=LPS Classification
+addressresult.ni_lps_buildingstatus=LPS Building Status
 
 postcode.title=Postcode demo - find an address by postcode
 postcode.sfatext=Search for an address by postcode
