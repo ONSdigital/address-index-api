@@ -38,7 +38,7 @@ isClerical: Boolean
             <section class='@if(warningMessage){search-error}else{searchbox-results}'>
                 @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                 <div id="search-form" class="search-bar-active">
-                    @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
+                    @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"),false)
                 </div>
                 }
             </section>
@@ -66,6 +66,7 @@ isClerical: Boolean
                     singleSearchForm("filter").value.getOrElse(""),
                     singleSearchForm("historical").value.getOrElse("true").toBoolean,
                     5,
+                    "all",
                     singleSearchForm("startdate").value.getOrElse(""),
                     singleSearchForm("enddate").value.getOrElse(""),
                     epoch = "",

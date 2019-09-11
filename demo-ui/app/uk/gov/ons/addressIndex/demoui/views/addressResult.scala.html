@@ -76,6 +76,7 @@ isClerical: Boolean = false
                             }
                             }</td>
                     </tr>
+                    }
                     @if(address.nisra.isEmpty) {
                     <tr>
                         <td>@messages("addressresult.la")</td>
@@ -85,10 +86,34 @@ isClerical: Boolean = false
                         <td>@messages("addressresult.la_code")</td>
                         <td class="venus">@address.nag.map{ nag => @nag(0).localCustodianGeogCode}</td>
                     </tr>
+                    } else {
+                    <section class="infobox-standard">
+                        <table class="address-result-table mars">
+                    <tr>
+                        <td>@messages("addressresult.ni_ab_classification")</td>
+                        <td class="venus">@if(address.classificationCode.isEmpty) {
+                            @messages("category.notfound")
+                            } else {
+                              @classification.getOrElse(Map.empty).getOrElse(address.uprn, "")
+                            }</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.ni_lps_classification")</td>
+                        <td class="venus">@address.nisra.map{ nisra => @nisra.classificationCode }</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.ni_lps_addressstatus")</td>
+                        <td class="venus">@address.nisra.map{ nisra => @nisra.addressStatus }</td>
+                    </tr>
+                    <tr>
+                        <td>@messages("addressresult.ni_lps_buildingstatus")</td>
+                        <td class="venus">@address.nisra.map{ nisra => @nisra.buildingStatus }</td>
+                    </tr>
                     }
                 </table>
             </section>
 
+            @if(address.fromSource == "EW") {
             @if(address.nag.map { nag => nag(0).logicalStatus }.contains("8")) {
             <div class="resultRow">
                 <strong>@messages("single.enddate"): </strong>&nbsp;@address.nag.map { nag => @(new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(nag(0).lpiEndDate))) }
