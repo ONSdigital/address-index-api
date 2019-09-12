@@ -10,111 +10,119 @@
 <h3>Query parameters</h3>
 
 <table class="table">
-    <thead class="table--head">
-    <th scope="col" class="table--header--cell">Parameter name</th>
-    <th scope="col" class="table--header--cell">Value</th>
-    <th scope="col" class="table--header--cell">Description</th>
-    <th scope="col" class="table--header--cell">Additional</th>
-    </thead>
+        <thead class="table--head">
+        <th scope="col" class="table--header--cell">Parameter name</th>
+        <th scope="col" class="table--header--cell">Value</th>
+        <th scope="col" class="table--header--cell">Description</th>
+        <th scope="col" class="table--header--cell">Additional</th>
+        </thead>
     <tbody>
-    <tr class="table--row">
-        <td class="table--cell">input</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Specifies the address search string (e.g. &#39;14 Acacia Avenue, Ruislip, HA4 8RG&#39;).</td>
-        <td class="table--cell">
-            Required
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">offset</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Specifies the offset from zero, used for pagination.</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: 0
-            <br>Maximum: 250
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">limit</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Specifies the number of addresses to return.</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: 10
-            <br>Maximum: 100
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">classificationfilter</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial</td>
-        <td class="table--cell">
-            Optional
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">rangekm</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Limit results to those within this number of kilometers of point (decimal e.g. 0.1)</td>
-        <td class="table--cell">
-            Optional
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">lat</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Latitude of point in decimal format (e.g. 50.705948).</td>
-        <td class="table--cell">
-            Optional
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">lon</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Longitude of point in decimal format (e.g. -3.5091076).</td>
-        <td class="table--cell">
-            Optional
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">historical</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Include historical addresses</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: True
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">matchthreshold</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Minimum confidence score (percentage) for match to be included in results.</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: 5
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">verbose</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: False
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">epoch</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Select a specific AddressBase Epoch to search.</td>
-        <td class="table--cell">
-            Optional
-        </td>
-    </tr>
-    </tbody>
-</table>
-
+        <tr class="table--row">
+            <td class="table--cell">input</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Specifies the address search string (e.g. &#39;14 Acacia Avenue, Ruislip, HA4 8RG&#39;).</td>
+            <td class="table--cell">
+                Required
+             </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">offset</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Specifies the offset from zero, used for pagination.</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 0
+                <br>Maximum: 250
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">limit</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Specifies the number of addresses to return.</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 10
+                <br>Maximum: 100
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">classificationfilter</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial</td>
+            <td class="table--cell">
+                Optional
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">rangekm</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Limit results to those within this number of kilometers of point (decimal e.g. 0.1)</td>
+            <td class="table--cell">
+                Optional
+            </td>
+        </tr>
+          <tr class="table--row">
+            <td class="table--cell">lat</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Latitude of point in decimal format (e.g. 50.705948).</td>
+            <td class="table--cell">
+                Optional
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">lon</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Longitude of point in decimal format (e.g. -3.5091076).</td>
+            <td class="table--cell">
+                Optional
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">historical</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Include historical addresses</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: True
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">matchthreshold</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Minimum confidence score (percentage) for match to be included in results.</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 5
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">verbose</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: False
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">epoch</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Select a specific AddressBase Epoch to search.</td>
+            <td class="table--cell">
+                Optional
+            </td>
+        </tr>
+         <tr class="table--row">
+            <td class="table--cell">fromsource</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: all
+            </td>
+        </tr>
+     </tbody>
+  </table>
     
 
 <h2>Responses</h2>
@@ -145,57 +153,205 @@
 <p><pre>University Of Exeter</pre></p>
 <p><pre>coffee</pre></p>
 
-   <h2 class="saturn">Sample Output</h2>
+   <h2 class="saturn">Sample Output (Concise)</h2>
 
    <pre><code>{
-    &#34;apiVersion&#34;: &#34;v_3d37d4ca49a9f451284fca57185aa5df7ba30658&#34;,
-    &#34;dataVersion&#34;: &#34;39&#34;,
-    &#34;errors&#34;: [],
-    &#34;response&#34;: {
-        &#34;addresses&#34;: [
+    &quot;apiVersion&quot;: &quot;1.0.0&quot;,
+    &quot;dataVersion&quot;: &quot;39&quot;,
+    &quot;errors&quot;: [],
+    &quot;response&quot;: {
+        &quot;addresses&quot;: [
             {
-                &#34;classificationCode&#34;: &#34;RD&#34;,
-                &#34;confidenceScore&#34;: 0.9999,
-                &#34;formattedAddress&#34;: &#34;7 Gate Reach, Exeter, EX2 6GA&#34;,
-                &#34;formattedAddressNag&#34;: &#34;7 Gate Reach, Exeter, EX2 6GA&#34;,
-                &#34;formattedAddressPaf&#34;: &#34;7 Gate Reach, Exeter, EX2 6GA&#34;,
-                &#34;geo&#34;: {
-                    &#34;easting&#34;: 293535,
-                    &#34;latitude&#34;: 50.705948,
-                    &#34;longitude&#34;: -3.5091076,
-                    &#34;northing&#34;: 90677
+                &quot;classificationCode&quot;: &quot;RD&quot;,
+                &quot;confidenceScore&quot;: 0.9997,
+                &quot;formattedAddress&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
+                &quot;formattedAddressNag&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
+                &quot;formattedAddressNisra&quot;: &quot;&quot;,
+                &quot;formattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;,
+                &quot;fromSource&quot;: &quot;EW&quot;,
+                &quot;geo&quot;: {
+                    &quot;easting&quot;: 293535,
+                    &quot;latitude&quot;: 50.705948,
+                    &quot;longitude&quot;: -3.5091076,
+                    &quot;northing&quot;: 90677
                 },
-                &#34;lpiLogicalStatus&#34;: &#34;1&#34;,
-                &#34;parentUprn&#34;: &#34;0&#34;,
-                &#34;underlyingScore&#34;: 2.498049259185791,
-                &#34;uprn&#34;: &#34;10023122457&#34;,
-                &#34;welshFormattedAddressNag&#34;: &#34;7 Gate Reach, Exeter, EX2 6GA&#34;,
-                &#34;welshFormattedAddressPaf&#34;: &#34;7 Gate Reach, Exeter, EX2 6GA&#34;
+                &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
+                &quot;parentUprn&quot;: &quot;0&quot;,
+                &quot;underlyingScore&quot;: 2.4958550930023193,
+                &quot;uprn&quot;: &quot;10023122457&quot;,
+                &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
+                &quot;welshFormattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;
             }
         ],
-        &#34;endDate&#34;: &#34;&#34;,
-        &#34;epoch&#34;: &#34;&#34;,
-        &#34;filter&#34;: &#34;&#34;,
-        &#34;historical&#34;: true,
-        &#34;latitude&#34;: &#34;&#34;,
-        &#34;limit&#34;: 10,
-        &#34;longitude&#34;: &#34;&#34;,
-        &#34;matchthreshold&#34;: 5,
-        &#34;maxScore&#34;: 2.4980493,
-        &#34;offset&#34;: 0,
-        &#34;rangekm&#34;: &#34;&#34;,
-        &#34;sampleSize&#34;: 20,
-        &#34;startDate&#34;: &#34;&#34;,
-        &#34;tokens&#34;: {
-            &#34;BuildingNumber&#34;: &#34;7&#34;,
-            &#34;PaoStartNumber&#34;: &#34;7&#34;,
-            &#34;StreetName&#34;: &#34;GATE REACH&#34;
+        &quot;epoch&quot;: &quot;&quot;,
+        &quot;filter&quot;: &quot;&quot;,
+        &quot;fromsource&quot;: &quot;all&quot;,
+        &quot;historical&quot;: true,
+        &quot;latitude&quot;: &quot;&quot;,
+        &quot;limit&quot;: 10,
+        &quot;longitude&quot;: &quot;&quot;,
+        &quot;matchthreshold&quot;: 5,
+        &quot;maxScore&quot;: 2.495855,
+        &quot;offset&quot;: 0,
+        &quot;rangekm&quot;: &quot;&quot;,
+        &quot;sampleSize&quot;: 20,
+        &quot;tokens&quot;: {
+            &quot;BuildingNumber&quot;: &quot;7&quot;,
+            &quot;PaoStartNumber&quot;: &quot;7&quot;,
+            &quot;StreetName&quot;: &quot;GATE REACH&quot;
         },
-        &#34;total&#34;: 1,
-        &#34;verbose&#34;: false
+        &quot;total&quot;: 1,
+        &quot;verbose&quot;: false
     },
-    &#34;status&#34;: {
-        &#34;code&#34;: 200,
-        &#34;message&#34;: &#34;Ok&#34;
+    &quot;status&quot;: {
+        &quot;code&quot;: 200,
+        &quot;message&quot;: &quot;Ok&quot;
     }
 }</code></pre>
+
+   <h2 class="saturn">Sample Output (Verbose)</h2>
+   <pre><code>{
+         &quot;apiVersion&quot;: &quot;1.0.0&quot;,
+         &quot;dataVersion&quot;: &quot;39&quot;,
+         &quot;errors&quot;: [],
+         &quot;response&quot;: {
+             &quot;addresses&quot;: [
+                 {
+                     &quot;classificationCode&quot;: &quot;RD&quot;,
+                     &quot;confidenceScore&quot;: 0.9997,
+                     &quot;crossRefs&quot;: [
+                         {
+                             &quot;crossReference&quot;: &quot;osgb5000005114135395&quot;,
+                             &quot;source&quot;: &quot;7666MI&quot;
+                         },
+                         {
+                             &quot;crossReference&quot;: &quot;osgb5000005112135238&quot;,
+                             &quot;source&quot;: &quot;7666MA&quot;
+                         },
+                         {
+                             &quot;crossReference&quot;: &quot;E05003501&quot;,
+                             &quot;source&quot;: &quot;7666OW&quot;
+                         },
+                         {
+                             &quot;crossReference&quot;: &quot;osgb5000005112092595&quot;,
+                             &quot;source&quot;: &quot;7666MT&quot;
+                         },
+                         {
+                             &quot;crossReference&quot;: &quot;8933413000&quot;,
+                             &quot;source&quot;: &quot;7666VC&quot;
+                         }
+                     ],
+                     &quot;formattedAddress&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
+                     &quot;formattedAddressNag&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
+                     &quot;formattedAddressNisra&quot;: &quot;&quot;,
+                     &quot;formattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;,
+                     &quot;fromSource&quot;: &quot;EW&quot;,
+                     &quot;geo&quot;: {
+                         &quot;easting&quot;: 293535,
+                         &quot;latitude&quot;: 50.705948,
+                         &quot;longitude&quot;: -3.5091076,
+                         &quot;northing&quot;: 90677
+                     },
+                     &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
+                     &quot;nag&quot;: [
+                         {
+                             &quot;addressBasePostal&quot;: &quot;D&quot;,
+                             &quot;legalName&quot;: &quot;&quot;,
+                             &quot;level&quot;: &quot;&quot;,
+                             &quot;localCustodianCode&quot;: &quot;1110&quot;,
+                             &quot;localCustodianGeogCode&quot;: &quot;E07000041&quot;,
+                             &quot;localCustodianName&quot;: &quot;Exeter&quot;,
+                             &quot;locality&quot;: &quot;&quot;,
+                             &quot;logicalStatus&quot;: &quot;1&quot;,
+                             &quot;lpiEndDate&quot;: &quot;&quot;,
+                             &quot;lpiKey&quot;: &quot;1110L000168890&quot;,
+                             &quot;lpiStartDate&quot;: &quot;2013-06-30T00:00:00+01:00&quot;,
+                             &quot;officialFlag&quot;: &quot;Y&quot;,
+                             &quot;organisation&quot;: &quot;&quot;,
+                             &quot;pao&quot;: {
+                                 &quot;paoEndNumber&quot;: &quot;&quot;,
+                                 &quot;paoEndSuffix&quot;: &quot;&quot;,
+                                 &quot;paoStartNumber&quot;: &quot;7&quot;,
+                                 &quot;paoStartSuffix&quot;: &quot;&quot;,
+                                 &quot;paoText&quot;: &quot;&quot;
+                             },
+                             &quot;postcodeLocator&quot;: &quot;EX2 6GA&quot;,
+                             &quot;sao&quot;: {
+                                 &quot;saoEndNumber&quot;: &quot;&quot;,
+                                 &quot;saoEndSuffix&quot;: &quot;&quot;,
+                                 &quot;saoStartNumber&quot;: &quot;&quot;,
+                                 &quot;saoStartSuffix&quot;: &quot;&quot;,
+                                 &quot;saoText&quot;: &quot;&quot;
+                             },
+                             &quot;streetDescriptor&quot;: &quot;Gate Reach&quot;,
+                             &quot;townName&quot;: &quot;Exeter&quot;,
+                             &quot;uprn&quot;: &quot;10023122457&quot;,
+                             &quot;usrn&quot;: &quot;14203041&quot;
+                         }
+                     ],
+                     &quot;paf&quot;: {
+                         &quot;buildingName&quot;: &quot;&quot;,
+                         &quot;buildingNumber&quot;: &quot;7&quot;,
+                         &quot;deliveryPointSuffix&quot;: &quot;1H&quot;,
+                         &quot;departmentName&quot;: &quot;&quot;,
+                         &quot;dependentLocality&quot;: &quot;&quot;,
+                         &quot;dependentThoroughfare&quot;: &quot;&quot;,
+                         &quot;doubleDependentLocality&quot;: &quot;&quot;,
+                         &quot;endDate&quot;: &quot;&quot;,
+                         &quot;organisationName&quot;: &quot;&quot;,
+                         &quot;poBoxNumber&quot;: &quot;&quot;,
+                         &quot;postTown&quot;: &quot;Exeter&quot;,
+                         &quot;postcode&quot;: &quot;EX2 6GA&quot;,
+                         &quot;postcodeType&quot;: &quot;S&quot;,
+                         &quot;startDate&quot;: &quot;2013-07-29T00:00:00+01:00&quot;,
+                         &quot;subBuildingName&quot;: &quot;&quot;,
+                         &quot;thoroughfare&quot;: &quot;Gate Reach&quot;,
+                         &quot;udprn&quot;: &quot;52995192&quot;,
+                         &quot;welshDependentLocality&quot;: &quot;&quot;,
+                         &quot;welshDependentThoroughfare&quot;: &quot;&quot;,
+                         &quot;welshDoubleDependentLocality&quot;: &quot;&quot;,
+                         &quot;welshPostTown&quot;: &quot;Exeter&quot;,
+                         &quot;welshThoroughfare&quot;: &quot;Gate Reach&quot;
+                     },
+                     &quot;parentUprn&quot;: &quot;0&quot;,
+                     &quot;relatives&quot;: [
+                         {
+                             &quot;level&quot;: 1,
+                             &quot;parents&quot;: [],
+                             &quot;siblings&quot;: [
+                                 10023122457
+                             ]
+                         }
+                     ],
+                     &quot;underlyingScore&quot;: 2.4958550930023193,
+                     &quot;uprn&quot;: &quot;10023122457&quot;,
+                     &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
+                     &quot;welshFormattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;
+                 }
+             ],
+             &quot;epoch&quot;: &quot;&quot;,
+             &quot;filter&quot;: &quot;&quot;,
+             &quot;fromsource&quot;: &quot;all&quot;,
+             &quot;historical&quot;: true,
+             &quot;latitude&quot;: &quot;&quot;,
+             &quot;limit&quot;: 10,
+             &quot;longitude&quot;: &quot;&quot;,
+             &quot;matchthreshold&quot;: 5,
+             &quot;maxScore&quot;: 2.495855,
+             &quot;offset&quot;: 0,
+             &quot;rangekm&quot;: &quot;&quot;,
+             &quot;sampleSize&quot;: 20,
+             &quot;tokens&quot;: {
+                 &quot;BuildingNumber&quot;: &quot;7&quot;,
+                 &quot;PaoStartNumber&quot;: &quot;7&quot;,
+                 &quot;StreetName&quot;: &quot;GATE REACH&quot;
+             },
+             &quot;total&quot;: 1,
+             &quot;verbose&quot;: true
+         },
+         &quot;status&quot;: {
+             &quot;code&quot;: 200,
+             &quot;message&quot;: &quot;Ok&quot;
+         } 
+   }</code></pre>
+   
