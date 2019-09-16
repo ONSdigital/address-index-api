@@ -205,7 +205,7 @@ radius.title=Radius demo - find an address within a radius
 radius.sfatext=Search for an address within a radius
 radius.foundpre=We have matched
 radius.foundpost=addresses
-radius.pleasesupply=Please enter a radius and search term
+radius.pleasesupply=Please enter a radius and search term and/or a classification filter
 radius.openmap=Location map
 radius.intro=To get started, complete the form with a range, latitude, longitude and search term.
 
