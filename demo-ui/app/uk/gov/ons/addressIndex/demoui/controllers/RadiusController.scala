@@ -100,8 +100,9 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
         Ok(viewToRender)
       )
     } else {
-      Future.successful(
-        Redirect(controllers.routes.RadiusController.doMatchWithInput(addressText, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+     val addressText2 = if (addressText.isEmpty) "*" else addressText
+     Future.successful(
+        Redirect(controllers.routes.RadiusController.doMatchWithInput(addressText2, Some(filterText), Some(rangeText), Some(latText), Some(lonText), Some(1), Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -115,7 +116,7 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
   def doMatchWithInput(input: String, filter: Option[String] = None, rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     val refererUrl = request.uri
     request.session.get("api-key").map { apiKey =>
-      val addressText = StringUtils.stripAccents(input)
+      val addressText = if (input == "*") "" else StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
       val limit = pageSize.toString
       val pageNum = page.getOrElse(1)
@@ -129,11 +130,11 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
       val matchThresholdValue = matchthreshold.getOrElse(5)
       val startDateVal = StringUtils.stripAccents(startdate.getOrElse(""))
       val endDateVal = StringUtils.stripAccents(enddate.getOrElse(""))
-      if (addressText.trim.isEmpty) {
+      if (addressText.trim.isEmpty && filterText.trim.isEmpty) {
         logger info "Radius Match with expected search term missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.radiusMatch(
           radiusSearchForm = RadiusController.form,
-          warningMessage = Some(messagesApi("single.pleasesupply")),
+          warningMessage = Some(messagesApi("radius.pleasesupply")),
           pageNum = 1,
           pageSize = pageSize,
           addressBySearchResponse = None,
