@@ -24,7 +24,7 @@ publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.on
 credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
-  val elastic4s = "6.1.3"
+  val elastic4s = "6.1.4"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
