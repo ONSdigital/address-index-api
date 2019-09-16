@@ -190,6 +190,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses =
+               // for range / classification only filter sort by nearest first (underlying score contains distance) and set confidence score to 1
               if (finalArgs.isBlank) addresses.filter(_.confidenceScore >= threshold).sortBy(_.underlyingScore)(Ordering[Float])
               else scoredAddresses.filter(_.confidenceScore >= threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
 

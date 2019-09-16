@@ -68,12 +68,7 @@ object HybridAddress {
         hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-     // val sorts = hit.asInstanceOf[SearchHit].innerHits.get("sort")
-       val sorts = hit.asInstanceOf[SearchHit].sort
-    //  val sorts = hit.asInstanceOf[org.elasticsearch.search.SearchHit].getSortValues().mkString
-      println("sort = " + sorts.mkString)
-      //val ewDistance = Try(sorts.toList.lift(0).get)
-
+      val sorts = hit.asInstanceOf[SearchHit].sort
       val slist = sorts.getOrElse(Seq())
       val eWDistance = Try(slist.lift(0).get.toString.toDouble).getOrElse(0D)
       val niDistance = Try(slist.lift(1).get.toString.toDouble).getOrElse(0D)
