@@ -81,6 +81,28 @@ class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "transform buildingNumber and buildingName into paoStartNumber and paoStartSuffix if not adjacent" in {
+    // Given
+    val input = Map(
+      Tokens.buildingName -> "65 B",
+      Tokens.buildingNumber -> "12"
+    )
+
+    val expected = Map(
+      Tokens.buildingName -> "65 B",
+      Tokens.buildingNumber -> "12",
+      Tokens.paoStartNumber -> "12",
+      Tokens.saoStartNumber -> "65",
+      Tokens.saoStartSuffix -> "B"
+    )
+
+    // When
+    val actual = Tokens.postTokenize(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "transform buildingName into paoStartNumber and paoEndSuffix" in {
     // Given
     val input = Map(

@@ -1,5 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
+import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, GeoDistanceSortDefinition, SortOrder}
+import com.sksamuel.elastic4s.searches.{GeoPoint, SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.requests.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
@@ -20,13 +23,11 @@ import scala.math._
 import scala.util.Try
 
 @Singleton
-class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
+class AddressIndexRepository @Inject()(conf: ConfigModule,
                                        elasticClientProvider: ElasticClientProvider
                                       )(implicit ec: ExecutionContext) extends ElasticsearchRepository {
 
   private val esConf = conf.config.elasticSearch
-  //  private val hybridIndex = esConf.indexes.hybridIndex + "/" + esConf.indexes.hybridMapping
-  //  private val hybridIndexHistorical = esConf.indexes.hybridIndexHistorical + "/" + esConf.indexes.hybridMapping
 
   private def prefixPolicy(str: String): String = str match {
     case "" => "";
@@ -66,11 +67,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
 
   private val hybridMapping = "/" + esConf.indexes.hybridMapping
 
-  val client: ElasticClient = elasticClientProvider.client
+  private val gcp : Boolean = Try(esConf.gcp.toBoolean).getOrElse(false)
 
+  val client: ElasticClient = elasticClientProvider.client
+// clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
+  val clientFullmatch: HttpClient = elasticClientProvider.clientFullmatch
   lazy val logger = GenericLogger("AddressIndexRepository")
 
-  
+
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   private def makeUprnQuery(args: UPRNArgs): SearchRequest = {
@@ -103,9 +107,29 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     }
 
     val slopVal = 4
-    val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+    val niFactor = args.fromsource match {
+      case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
+      case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
+      case _ => "^" + esConf.queryParams.nisra.partialAllBoost
+    }
+
+    val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
+
+    val fromSourceQueryMust = args.fromsource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case _ => Seq.empty
+    }
+
+    // test with and without this - probably better not to have it was we have boost numbers
+    val fromSourceQueryShould = args.fromsource match {
+    //  case "niboost" => Seq(termsQuery("fromSource","NI"))
+     // case "ewboost" => Seq(termsQuery("fromSource","EW"))
+      case _ => Seq.empty
+    }
 
     val filterSeq = Seq(
       if (args.filters.isEmpty) None
@@ -126,25 +150,27 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         // prevents (a a -> a b) from causing two matches
         numMatchQuery("lpi.paoStartNumber", first).boost(0.5D),
         numMatchQuery("lpi.saoStartNumber", first).boost(0.5D),
-        numMatchQuery("nisra.buildingNumber", first).boost(0.5D))
+        numMatchQuery("nisra.paoStartNumber", first).boost(0.5D))
       case first :: second :: _ => Seq(
         // allow the input pao and input sao to match once each
         // because they cannot both match the same target, matches should not overlap (usually)
         dismax(numMatchQuery("lpi.paoStartNumber", first).boost(0.2D),
           numMatchQuery("lpi.saoStartNumber", first).boost(0.5D),
-          numMatchQuery("nisra.buildingNumber", first).boost(0.5D)),
+          numMatchQuery("nisra.saoStartNumber", first).boost(0.5D)),
         dismax(numMatchQuery("lpi.paoStartNumber", second).boost(0.5D),
           numMatchQuery("lpi.saoStartNumber", second).boost(0.2D),
-          numMatchQuery("nisra.buildingNumber", second).boost(0.5D)))
+          numMatchQuery("nisra.paoStartNumber", second).boost(0.5D)))
       case Seq(first) => Seq(
         // otherwise, match either
         dismax(numMatchQuery("lpi.paoStartNumber", first).boost(0.5D),
           numMatchQuery("lpi.saoStartNumber", first).boost(0.2D),
-          numMatchQuery("nisra.buildingNumber", first).boost(0.5D)))
+          numMatchQuery("nisra.paoStartNumber", first).boost(0.5D),
+          numMatchQuery("nisra.saoStartNumber", first).boost(0.2D),
+        ))
       case _ => Seq.empty
     }
 
-    val query = must(queryWithMatchType).filter(filterSeq).should(numberQuery)
+    val query = must(queryWithMatchType).filter(filterSeq ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPartial else hybridIndexHistoricalSkinnyPartial
@@ -182,12 +208,14 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     val searchBase = search(source + args.epochParam + hybridMapping)
 
     searchBase.query(query)
-      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
-        FieldSort("lpi.paoStartNumber").asc(),
-        FieldSort("lpi.paoStartSuffix.keyword").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
-        FieldSort("nisra.buildingNumber.keyword").asc(),
-        FieldSort("uprn").asc())
+      .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").asc(),
+        FieldSortDefinition("lpi.paoStartNumber").asc(),
+        FieldSortDefinition("lpi.paoStartSuffix.keyword").asc(),
+        FieldSortDefinition("lpi.secondarySort").asc(),
+        FieldSortDefinition("nisra.thoroughfare.keyword").asc(),
+        FieldSortDefinition("nisra.paoStartNumber").asc(),
+        FieldSortDefinition("nisra.secondarySort").asc(),
+        FieldSortDefinition("uprn").asc())
       .start(args.start)
       .limit(args.limit)
   }
@@ -202,9 +230,17 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       case _ => Option(termsQuery("classificationCode", args.filtersValueTerm))
     }
 
+    val fromSourceQuery = args.fromsource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case "niboost" => Seq(termsQuery("fromSource","NI"))
+      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+      case _ => Seq.empty
+    }
+
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(Seq(queryInner).flatten))
+      .query(boolQuery().filter(Seq(queryInner).flatten ++ fromSourceQuery))
       .boostMode("replace")
 
     val source = if (args.historical) {
@@ -221,6 +257,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   private def makeAddressQuery(args: AddressArgs): SearchRequest = {
     val queryParams = args.queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
+    val isBlank = args.isBlank
 
     // this part of query should be blank unless there is an end number or end suffix
     val saoEndNumber = args.tokens.getOrElse(Tokens.saoEndNumber, "")
@@ -433,12 +470,12 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
       args.tokens.get(Tokens.paoEndNumber).map(token =>
         constantScoreQuery(matchQuery(
-          field = "nisra.buildingNumber",
+          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
       args.tokens.get(Tokens.paoStartNumber).map(token =>
         constantScoreQuery(matchQuery(
-          field = "nisra.buildingNumber",
+          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
     ).flatten else Seq.empty
@@ -483,7 +520,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(
-          field = "nisra.buildingNumber",
+          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(
@@ -646,7 +683,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost),
       constantScoreQuery(matchQuery(
-        field = "nisra.townland",
+        field = "nisra.townName",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost),
       constantScoreQuery(matchQuery(
@@ -689,8 +726,24 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     // was once geoDistanceQueryInner
     val radiusQuery = args.region match {
       case Some(Region(range, lat, lon)) =>
-        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"))
+        Seq(bool(Seq(),
+        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"),
+          geoDistanceQuery("nisra.location").point(lat, lon).distance(s"${range}km")),Seq()))
       case None => Seq.empty
+    }
+
+    val fromSourceQuery1 = args.fromsource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case _ => Seq.empty
+    }
+
+    val fromSourceQuery2 = args.fromsource match {
+      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+      case "nionly" => Seq(termsQuery("fromSource","NI"))
+      case "niboost" => Seq(termsQuery("fromSource","NI"))
+      case "ewboost" => Seq(termsQuery("fromSource","EW"))
+      case _ => Seq.empty
     }
 
     val prefixWithGeo = Seq(prefixQuery("classificationCode", args.filtersValuePrefix)) ++ radiusQuery
@@ -705,7 +758,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         matchQuery("nisra.nisraAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
-          .boost(queryParams.fallback.fallbackLpiBoost),
+          .boost(queryParams.nisra.fullFallBackNiBoost),
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
@@ -717,7 +770,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
           .boost(queryParams.fallback.fallbackLpiBigramBoost),
         matchQuery("nisra.nisraAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
-          .boost(queryParams.fallback.fallbackLpiBigramBoost),
+          .boost(queryParams.nisra.fullFallBackBigramNiBoost),
         matchQuery("paf.pafAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackPafBigramBoost))
@@ -725,13 +778,16 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       Seq.empty).boost(queryParams.fallback.fallbackQueryBoost)
 
     val fallbackQueryFilter = if (args.filters.isEmpty)
-      radiusQuery
+      radiusQuery ++ fromSourceQuery2
     else args.filtersType match {
-      case "prefix" => prefixWithGeo
-      case _ => termWithGeo
+      case "prefix" => prefixWithGeo ++ fromSourceQuery2
+      case _ => termWithGeo ++ fromSourceQuery2
     }
 
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
+
+    val blankQuery : BoolQueryDefinition = bool(
+    Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter)
 
     val bestOfTheLotQueries = Seq(
 
@@ -773,20 +829,24 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
     // add extra dismax after bestOfTheLot
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
-    val queryFilter = if (args.filters.isEmpty) radiusQuery
-    else if (args.filtersType == "prefix") prefixWithGeo
-    else termWithGeo
+    val queryFilter = if (args.filters.isEmpty) radiusQuery ++ fromSourceQuery1
+    else if (args.filtersType == "prefix") prefixWithGeo ++ fromSourceQuery1
+    else termWithGeo ++ fromSourceQuery1
 
-    val query = if (shouldQuery.isEmpty)
-      fallbackQuery
-    else {
-      dismax(
-        should(shouldQuery.asInstanceOf[Iterable[Query]])
-          .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
-          .filter(queryFilter)
-        , fallbackQuery)
-        .tieBreaker(queryParams.topDisMaxTieBreaker)
-    }
+    val query = if (isBlank)
+      blankQuery
+     else {
+       if (shouldQuery.isEmpty)
+         fallbackQuery
+       else {
+         dismax(
+           should(shouldQuery.asInstanceOf[Iterable[Query]])
+             .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
+             .filter(queryFilter)
+           , fallbackQuery)
+           .tieBreaker(queryParams.topDisMaxTieBreaker)
+       }
+     }
 
     val source = if (args.historical) {
       if (args.isBulk) hybridIndexHistoricalBulk else hybridIndexHistoricalAddress
@@ -794,12 +854,32 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
       if (args.isBulk) hybridIndexBulk else hybridIndexAddress
     }
 
-    search(source + args.epochParam + hybridMapping).query(query)
-      .sortBy(FieldSort("_score").order(SortOrder.DESC), FieldSort("uprn").order(SortOrder.ASC))
-      .trackScores(true)
-      .searchType(SearchType.DfsQueryThenFetch)
-      .start(args.start)
-      .limit(args.limit)
+    val radiusSort = args.region match {
+      case Some(Region(range, lat, lon)) =>
+            Seq(GeoDistanceSortDefinition(field="lpi.location", points= Seq(new GeoPoint(lat, lon))),
+              GeoDistanceSortDefinition(field="nisra.location", points= Seq(new GeoPoint(lat, lon))))
+      case None => Seq.empty
+    }
+
+    if (isBlank) {
+      search(source + args.epochParam + hybridMapping).query(query)
+        .sortBy(
+          radiusSort
+        )
+        .trackScores(true)
+        .searchType(SearchType.DfsQueryThenFetch)
+        .start(args.start)
+        .limit(args.limit)
+    } else {
+      search(source + args.epochParam + hybridMapping).query(query)
+        .sortBy(
+          FieldSort("_score").order(SortOrder.DESC), FieldSort("uprn").order(SortOrder.ASC)
+        )
+        .trackScores(true)
+        .searchType(SearchType.DfsQueryThenFetch)
+        .start(args.start)
+        .limit(args.limit)
+    }
   }
 
   override def makeQuery(queryArgs: QueryArgs): SearchRequest = queryArgs match {
@@ -822,29 +902,36 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
-    client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
+    if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption) else
+      client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
   }
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-
+   //  val searchString = SearchBodyBuilderFn(query).string()
+   // println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
-        val partResult = client.execute(query).map(HybridAddressCollection.fromResponse)
+        val partResult = if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+          client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
-            logger.info(s"minimumFallback: ${minimumFallback} ")
+            logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
+            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromEither) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
           else partResult
         }.flatten
+      case _: AddressArgs =>
+        if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+          client.execute(query).map(HybridAddressCollection.fromEither)
       case _ =>
-        // activates for postcode, random, address
-        logger.trace(query.toString)
+        if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+        // activates for postcode, random
         client.execute(query).map(HybridAddressCollection.fromResponse)
     }
   }
@@ -864,6 +951,7 @@ class AddressIndexRepository @Inject()(conf: AddressIndexConfigModule,
         verbose = false,
         isBulk = true,
         epoch = args.epoch,
+        fromsource = "all"
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>

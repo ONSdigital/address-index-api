@@ -30,6 +30,7 @@ class AddressIndexElasticClientProvider @Inject()
   private val logger = GenericLogger("address-index:ElasticsearchRepositoryModule")
 
   val host: String = esConf.uri
+  val hostFullmatch: String = esConf.uriFullmatch
   val port: String = esConf.port
   val ssl: String = esConf.ssl
   val connectionTimeout: Int = esConf.connectionTimeout
@@ -38,7 +39,7 @@ class AddressIndexElasticClientProvider @Inject()
   val maxESConnections: Int = esConf.maxESConnections
   private val context = SSLContext.getInstance("SSL")
 
-  /* This looks like dead code. Is it? */
+  /* This code is used when authentication is setup on the ES cluster */
   val provider: BasicCredentialsProvider = {
 
     logger info "Connecting to Elasticsearch"
@@ -60,7 +61,11 @@ class AddressIndexElasticClientProvider @Inject()
     }
   ), null)
 
-  val client: ElasticClient = ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
+  val client: HttpClient = clientBuilder(host, port, ssl)
+
+  val clientFullmatch: HttpClient = clientBuilder(hostFullmatch, port, ssl)
+
+  def clientBuilder(host: String, port: String, ssl: String): ElasticClient = ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
       requestConfigBuilder.setConnectTimeout(connectionTimeout)
@@ -75,7 +80,6 @@ class AddressIndexElasticClientProvider @Inject()
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
   }))
-
 }
 
 

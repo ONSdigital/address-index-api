@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.{Hit, HitReader}
-
+import com.sksamuel.elastic4s.search.SearchHit
 import scala.util.Try
 
 case class HybridAddress(uprn: String,
@@ -15,7 +15,8 @@ case class HybridAddress(uprn: String,
                          nisra: Seq[NisraAddress],
                          score: Float,
                          classificationCode: String,
-                         fromSource: String)
+                         fromSource: String,
+                         distance: Double = 0D)
 
 object HybridAddress {
   /**
@@ -34,6 +35,7 @@ object HybridAddress {
     score = 0,
     classificationCode = "",
     fromSource = "",
+    distance = 0D
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -67,6 +69,18 @@ object HybridAddress {
         hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
+      val sorts = hit.asInstanceOf[SearchHit].sort
+      val slist = sorts.getOrElse(Seq())
+      val eWDistance = Try(slist.lift(0).get.toString.toDouble).getOrElse(0D)
+      val niDistance = Try(slist.lift(1).get.toString.toDouble).getOrElse(0D)
+      val testUPRN = Try(slist.lift(1).get.toString.toLong).getOrElse(0L)
+      val bestDistance = if (testUPRN != 0) 0D
+                        else if (eWDistance > 0 && niDistance == 0) eWDistance
+                          else if (eWDistance == 0 && niDistance > 0) niDistance
+                            else if (eWDistance > niDistance) niDistance
+                              else eWDistance
+
+
       Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
@@ -80,6 +94,7 @@ object HybridAddress {
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
+        distance = bestDistance
       ))
     }
   }

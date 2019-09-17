@@ -34,7 +34,7 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
         "category.RD" -> "Dwelling",
         "radius.foundpre" -> "We have matched",
         "radius.foundpost" -> "addresses",
-        "radius.pleasesupply" -> "Please enter a radius and search term",
+        "radius.pleasesupply" -> "Please enter a radius and search term and/or a classification filter",
         "radius.sfatext" -> "Search for an address within a radius",
         "results.foundexactpre" -> "We have matched",
         "results.foundpost" -> "addresses",
@@ -74,7 +74,7 @@ class RadiusMatchNoAppTest extends PlaySpec with Results {
     "return a page including an appropriate error message when empty address posted" in new Fixture {
 
       // Given
-      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a radius and search term</span>"
+      val expectedString = "<div class=\"warning-error-suggestion mars\" role=\"alert\"><span onclick=\"setFocus('address');\">Please enter a radius and search term and/or a classification filter</span>"
 
       // When
       val response: Future[Result] = radiusController.

@@ -49,6 +49,9 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
   val maxPages: Int = (maxOff + pageSize - 1) / pageSize
   // val apiUrl = conf.config.apiURL.host + ":" + conf.config.apiURL.port + conf.config.apiURL.gatewayPath
   val apiUrl: String = conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath
+  val showNisra: Boolean = Try(conf.config.nisra.toBoolean).getOrElse(true)
+
+
 
   /**
     * Present empty form for user to input address
@@ -88,6 +91,10 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     val startDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("startdate").mkString).toOption
     val endDateVal: Option[String] = Try(request.body.asFormUrlEncoded.get("enddate").mkString).toOption
     val epochVal: Option[String] = Try(request.body.asFormUrlEncoded.get("epoch").mkString).toOption
+    val optFromSource: Option[String] = Try(request.body.asFormUrlEncoded.get("fromsource").mkString).toOption
+    val fromSourceValue = optFromSource.getOrElse("all")
+ //   val fromSourceOpt = request.getQueryString("fromsource")
+
 
     if (addressText.trim.isEmpty) {
       logger info "Single Match with Empty input address"
@@ -101,7 +108,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         pageSize = pageSize,
         addressBySearchResponse = None,
         classification = None,
-        version = version)
+        version = version,
+        showNisra = showNisra)
       Future.successful(Ok(viewToRender))
     } else if (Try(addressText.toLong).isSuccess) {
       Future.successful(
@@ -111,7 +119,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     } else {
       Future.successful(
         Redirect(controllers.routes.SingleMatchController
-          .doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchThresholdValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+          .doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchThresholdValue), Some(fromSourceValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
       )
     }
   }
@@ -122,7 +130,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     * @param input Input value
     * @return result to view
     */
-  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
+  def doMatchWithInput(input: String, filter: Option[String] = None, page: Option[Int], rangekm: Option[String] = None, lat: Option[String] = None, lon: Option[String] = None, historical: Option[Boolean] = None, matchthreshold: Option[Int] = None, fromsource: Option[String] = None, startdate: Option[String] = None, enddate: Option[String] = None, epoch: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     request.session.get("api-key").map { apiKey =>
       val addressText = StringUtils.stripAccents(input)
       val filterText = StringUtils.stripAccents(filter.getOrElse(""))
@@ -138,6 +146,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
       val rangeString = rangekm.getOrElse("")
       val latString = lat.getOrElse("50.705948")
       val lonString = lon.getOrElse("-3.5091076")
+      val fromSourceValue = fromsource.getOrElse("all")
       if (addressText.trim.isEmpty) {
         logger info "Single Match with expected input address missing"
         val viewToRender = views.html.singleMatch(
@@ -150,7 +159,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         // logger info ("Single Match with supplied input address " + addressText)
@@ -169,11 +179,12 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             lon = lonString,
             verbose = true,
             epoch = epochVal,
+            fromsource = fromSourceValue,
             id = UUID.randomUUID,
             apiKey = apiKey
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.addresses.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -192,7 +203,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             pageSize = pageSize,
             addressBySearchResponse = Some(resp.response),
             classification = Some(classCodes),
-            version = version)
+            version = version,
+            showNisra = showNisra)
           Ok(viewToRender)
         }
       }
@@ -229,7 +241,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         // logger info("UPRN with supplied input address " + addressText)
@@ -246,7 +259,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             epoch = epochVal
           )
         ) map { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, "all", startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -299,7 +312,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         //   logger info("UPRN with supplied input address " + addressText)
@@ -316,7 +330,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             epoch = epochVal
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, "all", startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -379,7 +393,8 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
           pageSize = pageSize,
           addressBySearchResponse = None,
           classification = None,
-          version = version)
+          version = version,
+          showNisra = showNisra)
         Future.successful(Ok(viewToRender))
       } else {
         //   logger info("UPRN with supplied input address " + addressText)
@@ -396,7 +411,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             epoch = epochVal
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historical, matchthresholdValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historical, matchthresholdValue, "all", startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -440,6 +455,7 @@ object SingleMatchController {
       "filter" -> text,
       "historical" -> boolean,
       "matchthreshold" -> number,
+      "fromsource" -> text,
       "startdate" -> text,
       "enddate" -> text
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)

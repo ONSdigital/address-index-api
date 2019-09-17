@@ -66,13 +66,14 @@ version: DemoUIAddressIndexVersionModule
                                 postcodeSearchForm("filter").value.getOrElse(""),
                                 postcodeSearchForm("historical").value.getOrElse("true").toBoolean,
                                 5,
+                                "all",
                                 postcodeSearchForm("startdate").value.getOrElse(""),
                                 postcodeSearchForm("enddate").value.getOrElse(""),
                                 epoch = "",
                                                                classification
                             )
                         }
-                        @pager(pageNum,pageSize,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5,postcodeSearchForm("startdate").value.getOrElse(""),postcodeSearchForm("enddate").value.getOrElse(""), epoch = "")
+                        @pager(pageNum,pageSize,postcodeSearchForm("address").value.getOrElse(""),postcodeSearchForm("filter").value.getOrElse(""),aresponse.total, "postcode", postcodeSearchForm("historical").value.getOrElse("true").toBoolean,5,"all",postcodeSearchForm("startdate").value.getOrElse(""),postcodeSearchForm("enddate").value.getOrElse(""), epoch = "")
                         }
                     </div>
                 </section>

@@ -92,7 +92,7 @@ object AddressResponseAddress {
       lpiLogicalStatus = lpiLogicalStatus,
       fromSource = other.fromSource,
       confidenceScore = 1D,
-      underlyingScore = other.score
+      underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat
     )
   }
 
