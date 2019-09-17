@@ -1,14 +1,11 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
-import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, GeoDistanceSortDefinition, SortOrder}
-import com.sksamuel.elastic4s.searches.{GeoPoint, SearchDefinition, SearchType}
 import com.sksamuel.elastic4s.requests.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
-import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -71,7 +68,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   val client: ElasticClient = elasticClientProvider.client
 // clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
-  val clientFullmatch: HttpClient = elasticClientProvider.clientFullmatch
+  val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
   lazy val logger = GenericLogger("AddressIndexRepository")
 
 
@@ -208,14 +205,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam + hybridMapping)
 
     searchBase.query(query)
-      .sortBy(FieldSortDefinition("lpi.streetDescriptor.keyword").asc(),
-        FieldSortDefinition("lpi.paoStartNumber").asc(),
-        FieldSortDefinition("lpi.paoStartSuffix.keyword").asc(),
-        FieldSortDefinition("lpi.secondarySort").asc(),
-        FieldSortDefinition("nisra.thoroughfare.keyword").asc(),
-        FieldSortDefinition("nisra.paoStartNumber").asc(),
-        FieldSortDefinition("nisra.secondarySort").asc(),
-        FieldSortDefinition("uprn").asc())
+      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
+        FieldSort("lpi.paoStartNumber").asc(),
+        FieldSort("lpi.paoStartSuffix.keyword").asc(),
+        FieldSort("lpi.secondarySort").asc(),
+        FieldSort("nisra.thoroughfare.keyword").asc(),
+        FieldSort("nisra.paoStartNumber").asc(),
+        FieldSort("nisra.secondarySort").asc(),
+        FieldSort("uprn").asc())
       .start(args.start)
       .limit(args.limit)
   }
@@ -786,7 +783,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
 
-    val blankQuery : BoolQueryDefinition = bool(
+    val blankQuery : BoolQuery = bool(
     Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter)
 
     val bestOfTheLotQueries = Seq(
@@ -856,8 +853,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val radiusSort = args.region match {
       case Some(Region(range, lat, lon)) =>
-            Seq(GeoDistanceSortDefinition(field="lpi.location", points= Seq(new GeoPoint(lat, lon))),
-              GeoDistanceSortDefinition(field="nisra.location", points= Seq(new GeoPoint(lat, lon))))
+            Seq(GeoDistanceSort(field="lpi.location", points= Seq(new GeoPoint(lat, lon))),
+              GeoDistanceSort(field="nisra.location", points= Seq(new GeoPoint(lat, lon))))
       case None => Seq.empty
     }
 
@@ -902,7 +899,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
-    if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither).map(_.addresses.headOption) else
+    if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
   }
 
@@ -915,22 +912,22 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         val minimumFallback: Int = esConf.minimumFallback
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
-        val partResult = if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+        val partResult = if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
             logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
-            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromEither) else
+            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromResponse) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
           else partResult
         }.flatten
       case _: AddressArgs =>
-        if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
-          client.execute(query).map(HybridAddressCollection.fromEither)
+        if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+          client.execute(query).map(HybridAddressCollection.fromResponse)
       case _ =>
-        if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+        if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
         // activates for postcode, random
         client.execute(query).map(HybridAddressCollection.fromResponse)
     }

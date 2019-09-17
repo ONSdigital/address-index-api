@@ -1,6 +1,5 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import com.sksamuel.elastic4s.searches.SearchDefinition
 import org.scalatest.BeforeAndAfterAll
 import com.sksamuel.elastic4s.{Indexes, IndexesAndTypes}
 import com.sksamuel.elastic4s.requests.searches.SearchRequest

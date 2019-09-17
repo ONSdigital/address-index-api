@@ -61,9 +61,9 @@ class AddressIndexElasticClientProvider @Inject()
     }
   ), null)
 
-  val client: HttpClient = clientBuilder(host, port, ssl)
+  val client: ElasticClient = clientBuilder(host, port, ssl)
 
-  val clientFullmatch: HttpClient = clientBuilder(hostFullmatch, port, ssl)
+  val clientFullmatch: ElasticClient = clientBuilder(hostFullmatch, port, ssl)
 
   def clientBuilder(host: String, port: String, ssl: String): ElasticClient = ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
 

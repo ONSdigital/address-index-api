@@ -1,7 +1,8 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import com.sksamuel.elastic4s.requests.searches.SearchHit
 import com.sksamuel.elastic4s.{Hit, HitReader}
-import com.sksamuel.elastic4s.search.SearchHit
+
 import scala.util.Try
 
 case class HybridAddress(uprn: String,

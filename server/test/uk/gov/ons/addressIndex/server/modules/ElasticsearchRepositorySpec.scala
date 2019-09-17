@@ -28,7 +28,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clie
    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
       override def client: ElasticClient = testClient
   /* Not currently used in tests as it doesn't look like you can have two test ES instances */
-    override def clientFullmatch: HttpClient = testClient2  }
+    override def clientFullmatch: ElasticClient = testClient2  }
 
 
   val defaultLat = "50.705948"
