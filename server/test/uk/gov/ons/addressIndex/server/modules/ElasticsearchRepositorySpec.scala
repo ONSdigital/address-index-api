@@ -1,9 +1,10 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import com.sksamuel.elastic4s.http.JavaClient
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, HttpClient}
 import com.sksamuel.elastic4s.testkit._
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
@@ -18,18 +19,23 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
 
- // val testclient: ElasticClient = client
+  override val client: ElasticClient = null
 
- val client:ElasticClient = client
-  val testClient = this.client
-  val testClient2 = this.client
+ val testClient: ElasticClient = client
+
+  //val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider()
+
+ // override val client : ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
+
+// override val client:ElasticClient = client
+//  val testClient = client
+// val testClient2 = client
 
  //  injections
    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
       override def client: ElasticClient = testClient
   /* Not currently used in tests as it doesn't look like you can have two test ES instances */
-    override def clientFullmatch: ElasticClient = testClient2  }
-
+    override def clientFullmatch: ElasticClient = testClient  }
 
   val defaultLat = "50.705948"
   val defaultLon = "-3.5091076"

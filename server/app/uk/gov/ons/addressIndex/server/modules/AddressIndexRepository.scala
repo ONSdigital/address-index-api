@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchBodyBuilderFn, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -62,7 +62,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   private val hybridIndexRandom = esConf.indexes.hybridIndex + clusterPolicyRandom
   private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + clusterPolicyRandom
 
-  private val hybridMapping = "/" + esConf.indexes.hybridMapping
+  //private val hybridMapping = "/" + esConf.indexes.hybridMapping
+  private val hybridMapping = ""
 
   private val gcp : Boolean = Try(esConf.gcp.toBoolean).getOrElse(false)
 
@@ -905,8 +906,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-   //  val searchString = SearchBodyBuilderFn(query).string()
-   // println(searchString)
+     val searchString = SearchBodyBuilderFn(query).string()
+    println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
