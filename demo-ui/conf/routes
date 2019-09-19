@@ -9,6 +9,8 @@ GET         /assets/*file                       controllers.Assets.versioned(pat
 GET         /                                   uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.login
 POST        /login                              uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.doLogin
 
+# GCP Health Check
+GET         /hc                                 uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.hc
 
 # ONS-Address Index home page
 GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home
