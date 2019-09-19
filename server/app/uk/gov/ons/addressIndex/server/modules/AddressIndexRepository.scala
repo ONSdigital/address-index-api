@@ -3,9 +3,10 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.http.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.searches.queries.{BoolQueryDefinition, ConstantScoreDefinition, QueryDefinition}
-import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, SortOrder}
-import com.sksamuel.elastic4s.searches.{SearchDefinition, SearchType}
+import com.sksamuel.elastic4s.searches.sort.{FieldSortDefinition, GeoDistanceSortDefinition, SortOrder}
+import com.sksamuel.elastic4s.searches.{GeoPoint, SearchDefinition, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -255,6 +256,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   private def makeAddressQuery(args: AddressArgs): SearchDefinition = {
     val queryParams = args.queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
+    val isBlank = args.isBlank
 
     // this part of query should be blank unless there is an end number or end suffix
     val saoEndNumber = args.tokens.getOrElse(Tokens.saoEndNumber, "")
@@ -723,7 +725,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     // was once geoDistanceQueryInner
     val radiusQuery = args.region match {
       case Some(Region(range, lat, lon)) =>
-        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"))
+        Seq(bool(Seq(),
+        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"),
+          geoDistanceQuery("nisra.location").point(lat, lon).distance(s"${range}km")),Seq()))
       case None => Seq.empty
     }
 
@@ -781,6 +785,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
 
+    val blankQuery : BoolQueryDefinition = bool(
+    Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter)
+
     val bestOfTheLotQueries = Seq(
 
       subBuildingNameQuery,
@@ -825,16 +832,20 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     else if (args.filtersType == "prefix") prefixWithGeo ++ fromSourceQuery1
     else termWithGeo ++ fromSourceQuery1
 
-    val query = if (shouldQuery.isEmpty)
-      fallbackQuery
-    else {
-      dismax(
-        should(shouldQuery.asInstanceOf[Iterable[QueryDefinition]])
-          .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
-          .filter(queryFilter)
-        , fallbackQuery)
-        .tieBreaker(queryParams.topDisMaxTieBreaker)
-    }
+    val query = if (isBlank)
+      blankQuery
+     else {
+       if (shouldQuery.isEmpty)
+         fallbackQuery
+       else {
+         dismax(
+           should(shouldQuery.asInstanceOf[Iterable[QueryDefinition]])
+             .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
+             .filter(queryFilter)
+           , fallbackQuery)
+           .tieBreaker(queryParams.topDisMaxTieBreaker)
+       }
+     }
 
     val source = if (args.historical) {
       if (args.isBulk) hybridIndexHistoricalBulk else hybridIndexHistoricalAddress
@@ -842,12 +853,32 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.isBulk) hybridIndexBulk else hybridIndexAddress
     }
 
-    search(source + args.epochParam + hybridMapping).query(query)
-      .sortBy(FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC))
-      .trackScores(true)
-      .searchType(SearchType.DfsQueryThenFetch)
-      .start(args.start)
-      .limit(args.limit)
+    val radiusSort = args.region match {
+      case Some(Region(range, lat, lon)) =>
+            Seq(GeoDistanceSortDefinition(field="lpi.location", points= Seq(new GeoPoint(lat, lon))),
+              GeoDistanceSortDefinition(field="nisra.location", points= Seq(new GeoPoint(lat, lon))))
+      case None => Seq.empty
+    }
+
+    if (isBlank) {
+      search(source + args.epochParam + hybridMapping).query(query)
+        .sortBy(
+          radiusSort
+        )
+        .trackScores(true)
+        .searchType(SearchType.DfsQueryThenFetch)
+        .start(args.start)
+        .limit(args.limit)
+    } else {
+      search(source + args.epochParam + hybridMapping).query(query)
+        .sortBy(
+          FieldSortDefinition("_score").order(SortOrder.DESC), FieldSortDefinition("uprn").order(SortOrder.ASC)
+        )
+        .trackScores(true)
+        .searchType(SearchType.DfsQueryThenFetch)
+        .start(args.start)
+        .limit(args.limit)
+    }
   }
 
   override def makeQuery(queryArgs: QueryArgs): SearchDefinition = queryArgs match {
@@ -876,17 +907,21 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
+   //  val searchString = SearchBodyBuilderFn(query).string()
+   // println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
-        val partResult = client.execute(query).map(HybridAddressCollection.fromEither)
+        val partResult = if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
+          client.execute(query).map(HybridAddressCollection.fromEither)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
             logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
+            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromEither) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromEither)}
           else partResult
         }.flatten
@@ -894,8 +929,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
           client.execute(query).map(HybridAddressCollection.fromEither)
       case _ =>
+        if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromEither) else
         // activates for postcode, random
-        // logger.trace(query.toString)
         client.execute(query).map(HybridAddressCollection.fromEither)
     }
   }

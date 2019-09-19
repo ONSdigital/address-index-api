@@ -6,7 +6,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #  description: Returns a ranked list of addresses matching the search query in the specified format.
 #  parameters:
 #    - name: input
-#      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
+#      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG'). Can only be blank if rangekm, lat, lon and classificationfilter are supplied in which case the underlyingScore returned is the distance in km.
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0

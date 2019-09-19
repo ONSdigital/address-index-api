@@ -55,6 +55,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
 
   def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
     case None => None
+    case Some("") => None
     case Some(filter) => filter match {
       case f if f.contains("*") && f.contains(",") =>
         logger.systemLog(badRequestMessage = MixedFilterError.message)

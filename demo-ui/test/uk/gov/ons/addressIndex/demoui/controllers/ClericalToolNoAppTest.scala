@@ -64,10 +64,11 @@ class ClericalToolNoAppTest extends PlaySpec with Results {
       val filter = ""
       val historical = true
       val matchThreshold = 5
+      val fromSource = "all"
 
       // When
       val response: Future[Result] = clericalController
-        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchThreshold), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
+        .doMatchWithInput(inputAddress, Some(filter), Some(1), Some(1), Some(historical), Some(matchThreshold), Some(fromSource), None, None, None).apply(FakeRequest().withSession("api-key" -> ""))
 
       val content: String = contentAsString(response)
 

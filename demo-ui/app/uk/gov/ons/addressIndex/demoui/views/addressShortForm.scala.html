@@ -8,6 +8,7 @@ address: AddressResponseAddress,
 filter: String,
 historical: Boolean,
 matchthreshold: Int,
+fromsource: String,
 startdate: String,
 enddate: String,
 epoch: String,
@@ -27,7 +28,7 @@ expandRow: Int = 0
 <article class="result-short-form">
 
     @if(isClerical == true){
-    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn, Some(historical), Some(matchthreshold), Some(startdate), Some(enddate), Some(epoch))}">@address.formattedAddress</a></h2>
+    <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doGetResultClerical(address.uprn, Some(historical), Some(matchthreshold), Some(fromsource), Some(startdate), Some(enddate), Some(epoch))}">@address.formattedAddress</a></h2>
     }else{
     <h2 class="saturn"><a class="result-short-form-link" href="@{uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doGetResult(address.uprn, Some(historical), Some(startdate), Some(enddate), Some(epoch))}">@address.formattedAddress</a></h2>
     }
@@ -83,7 +84,7 @@ expandRow: Int = 0
 
         @if(index != expandRow) {
             <div class="clericalInfo mars">
-                <a href="?filter=@filter&page=@{pageNum}&historical=@historical&matchthreshold=@matchthreshold&expand=@index#@index">@messages("clerical.addinfo")</a>
+                <a href="?filter=@filter&page=@{pageNum}&historical=@historical&matchthreshold=@matchthreshold&fromsource=@fromsource&expand=@index#@index">@messages("clerical.addinfo")</a>
             </div>
         }
 
@@ -92,7 +93,7 @@ expandRow: Int = 0
 
             @if(index >= 0) {
                 <div class="clericalInfo mars">
-                    <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&expand=-1#@index">Hide</a>
+                    <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&fromsource=@fromsource&expand=-1#@index">Hide</a>
                 </div>
             }
 
@@ -525,7 +526,7 @@ expandRow: Int = 0
 
             @if(index >= 0) {
             <div class="clericalInfo mars">
-                <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&expand=-1#@index">Hide</a>
+                <a href="?filter=@{filter}&historical=@{historical}&page=@{pageNum}&matchthreshold=@{matchthreshold}&fromsource=@fromsource&expand=-1#@index">Hide</a>
             </div>
             }
 

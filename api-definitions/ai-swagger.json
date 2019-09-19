@@ -92,6 +92,14 @@
 						"type": "string",
 						"required": false,
 						"description": "Select a specific AddressBase Epoch to search."
+					},
+					{
+						"in": "query",
+						"name": "fromsource",
+						"type": "string",
+						"required": false,
+						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
+						"default": "all"
 					}
 				],
 				"responses": {
@@ -349,6 +357,13 @@
 					},
 					{
 						"in": "query",
+						"name": "fallback",
+						"type": "string",
+						"required": false,
+						"description": "Specifies whether a slow fallback query is used in the event of the main query returning no results."
+					},
+					{
+						"in": "query",
 						"name": "offset",
 						"type": "string",
 						"required": false,
@@ -402,6 +417,14 @@
 						"required": false,
 						"description": "Boost results where the input string appears at the start of the address (0 = no boost).",
 						"default": 2
+					},
+					{
+						"in": "query",
+						"name": "fromsource",
+						"type": "string",
+						"required": false,
+						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
+						"default": "all"
 					}
 				],
 				"responses": {
@@ -560,6 +583,14 @@
 						"type": "string",
 						"required": false,
 						"description": "Select a specific AddressBase Epoch to search."
+					},
+					{
+						"in": "query",
+						"name": "fromsource",
+						"type": "string",
+						"required": false,
+						"description": "Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)",
+						"default": "all"
 					}
 				],
 				"responses": {
@@ -763,6 +794,9 @@
 				},
 				"verbose": {
 					"type": "boolean"
+				},
+				"fromsource": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -771,7 +805,8 @@
 				"historical",
 				"epoch",
 				"limit",
-				"verbose"
+				"verbose",
+				"fromsource"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer": {
@@ -921,6 +956,9 @@
 				"filter": {
 					"type": "string"
 				},
+				"fallback": {
+					"type": "boolean"
+				},
 				"historical": {
 					"type": "boolean"
 				},
@@ -943,29 +981,26 @@
 					"type": "number",
 					"format": "double"
 				},
-				"startDate": {
-					"type": "string"
-				},
-				"endDate": {
-					"type": "string"
-				},
 				"verbose": {
 					"type": "boolean"
+				},
+				"fromsource": {
+					"type": "string"
 				}
 			},
 			"required": [
 				"input",
 				"addresses",
 				"filter",
+				"fallback",
 				"historical",
 				"epoch",
 				"limit",
 				"offset",
 				"total",
 				"maxScore",
-				"startDate",
-				"endDate",
-				"verbose"
+				"verbose",
+				"fromsource"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
@@ -1103,12 +1138,6 @@
 				"longitude": {
 					"type": "string"
 				},
-				"startDate": {
-					"type": "string"
-				},
-				"endDate": {
-					"type": "string"
-				},
 				"limit": {
 					"type": "integer",
 					"format": "int32"
@@ -1135,6 +1164,9 @@
 				},
 				"verbose": {
 					"type": "boolean"
+				},
+				"fromsource": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -1146,15 +1178,14 @@
 				"rangekm",
 				"latitude",
 				"longitude",
-				"startDate",
-				"endDate",
 				"limit",
 				"offset",
 				"total",
 				"sampleSize",
 				"maxScore",
 				"matchthreshold",
-				"verbose"
+				"verbose",
+				"fromsource"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer": {
@@ -1297,6 +1328,12 @@
 				"buildingNumber": {
 					"type": "string"
 				},
+				"pao": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponsePao"
+				},
+				"sao": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSao"
+				},
 				"thoroughfare": {
 					"type": "string"
 				},
@@ -1307,9 +1344,6 @@
 					"type": "string"
 				},
 				"locality": {
-					"type": "string"
-				},
-				"townland": {
 					"type": "string"
 				},
 				"townName": {
@@ -1336,7 +1370,10 @@
 				"archivedDate": {
 					"type": "string"
 				},
-				"nisraAll": {
+				"addressStatus": {
+					"type": "string"
+				},
+				"buildingStatus": {
 					"type": "string"
 				},
 				"mixedNisra": {
@@ -1348,11 +1385,12 @@
 				"subBuildingName",
 				"buildingName",
 				"buildingNumber",
+				"pao",
+				"sao",
 				"thoroughfare",
 				"altThoroughfare",
 				"dependentThoroughfare",
 				"locality",
-				"townland",
 				"townName",
 				"postcode",
 				"uprn",
@@ -1361,7 +1399,8 @@
 				"creationDate",
 				"commencementDate",
 				"archivedDate",
-				"nisraAll",
+				"addressStatus",
+				"buildingStatus",
 				"mixedNisra"
 			]
 		},
