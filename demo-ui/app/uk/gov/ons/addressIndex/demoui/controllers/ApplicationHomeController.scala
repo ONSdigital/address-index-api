@@ -57,6 +57,15 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
   }
 
   /**
+    * Health check endpoint used in GCP deployments
+    *
+    * @return result to view
+    */
+  def hc(): Action[AnyContent] = Action {
+    Ok("Healthy")
+  }
+
+  /**
     * Load login viewlet unless config says login is not required in the conf
     *
     * @return
