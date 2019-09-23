@@ -91,6 +91,7 @@ placeholderFilter: String
                         singleSearchForm("historical").value.getOrElse("true").toBoolean,
                         singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
                         singleSearchForm("fromsource").value.getOrElse("all"),
+                        false,
                         dates.getOrElse("startdate", ""),
                         dates.getOrElse("enddate", ""),
                         epoch = "",
@@ -103,7 +104,7 @@ placeholderFilter: String
                         )
 
                         }
-                        @pager(pageNum,pageSize,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("fromsource").value.getOrElse("all"), dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""), epoch = "")
+                        @pager(pageNum,pageSize,singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, pagerAction, singleSearchForm("historical").value.getOrElse("true").toBoolean, singleSearchForm("matchthreshold").value.getOrElse("5").toInt, singleSearchForm("fromsource").value.getOrElse("all"), false, dates.getOrElse("startdate", ""), dates.getOrElse("enddate", ""), epoch = "")
 
                     </div>
                 </section>

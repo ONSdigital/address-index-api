@@ -202,7 +202,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
             fromsource = fromSourceValue
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, fromSourceValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, fromSourceValue, false, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.addresses.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -349,7 +349,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
           epoch = epochVal
         )
       ) map { resp: AddressByUprnResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.getOrElse(""), historicalValue, matchThresholdValue, "all", startDateVal, endDateVal))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, filter.getOrElse(""), historicalValue, matchThresholdValue, "all", false, startDateVal, endDateVal))
 
         val classCodes: Map[String, String] = resp.response.address.map(address =>
           (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -405,7 +405,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
           epoch = epochVal,
         )
       ) flatMap { resp: AddressByUprnResponseContainer =>
-        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, "", historicalValue, matchThresholdValue, fromSourceValue, startDateVal, endDateVal))
+        val filledForm = SingleMatchController.form.fill(SingleSearchForm(input.toString, "", historicalValue, matchThresholdValue, fromSourceValue, false, startDateVal, endDateVal))
 
         val classCodes: Map[String, String] = resp.response.address.map(address =>
           (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -549,7 +549,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
               fromsource = fromSourceValue
             )
           ) map { resp: AddressBySearchResponseContainer =>
-            val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, startDateVal, endDateVal))
+            val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, false, startDateVal, endDateVal))
 
             val classCodes: Map[String, String] = resp.response.addresses.map(address =>
               (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -596,6 +596,7 @@ object ClericalToolController {
       "historical" -> boolean,
       "matchthreshold" -> number,
       "fromsource" -> text,
+      "partial" -> boolean,
       "startdate" -> text,
       "enddate" -> text
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)

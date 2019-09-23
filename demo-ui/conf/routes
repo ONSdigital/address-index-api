@@ -49,7 +49,7 @@ POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.c
 GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
 
 # ONS-Address Index Single Search Request
-GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], startdate: Option[String], enddate: Option[String])
+GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], partial: Option[Boolean], startdate: Option[String], enddate: Option[String])
 
 # ONS-Address Index Single Search Request
 GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String])
