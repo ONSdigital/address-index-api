@@ -17,17 +17,23 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
+class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
-  override val client: ElasticClient = null
+  val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
+  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
 
- val testClient: ElasticClient = client
+  val testClient = client.copy()
+  val testClient2 = clientFullmatch.copy()
 
-  //val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider()
+  //override val client: ElasticClient = null
+
+//val testClient: ElasticClient = client
+
+ //val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider()
 
  // override val client : ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
 
-// override val client:ElasticClient = client
+ //verride val client:ElasticClient = client
 //  val testClient = client
 // val testClient2 = client
 
@@ -35,7 +41,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clie
    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
       override def client: ElasticClient = testClient
   /* Not currently used in tests as it doesn't look like you can have two test ES instances */
-    override def clientFullmatch: ElasticClient = testClient  }
+   override def clientFullmatch: ElasticClient = testClient2}
 
   val defaultLat = "50.705948"
   val defaultLon = "-3.5091076"
