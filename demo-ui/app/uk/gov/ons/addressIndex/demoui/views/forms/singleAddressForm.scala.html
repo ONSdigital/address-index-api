@@ -84,6 +84,15 @@
                 '_label -> "NISRA boost setting")
             </div>
 
+            <div class="col-3">
+                @inputRadioGroup(
+                singleSearchForm("partial"),
+                options = Seq("true"->"Yes","false"->"No"),
+                'class -> "form-control mars",
+                '_label -> "Use partial endpoint",
+                '_help -> "Yes for typeahead")
+            </div>
+
         </div>
     }
 </fieldset>
