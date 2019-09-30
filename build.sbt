@@ -126,6 +126,9 @@ val commonDeps = Seq(
   "org.apache.httpcomponents" % "httpcore" % "4.4.11",
   "org.apache.httpcomponents" % "httpclient" % "4.5.7",
   "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.1.1",
+  // https://mvnrepository.com/artifact/org.testcontainers/elasticsearch
+  "org.testcontainers" % "elasticsearch" % "1.12.2" % "test",
+    // "org.elasticsearch" % "elasticsearch" % "7.1.1",
   guice
 )
 

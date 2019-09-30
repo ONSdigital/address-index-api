@@ -2,10 +2,11 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
-import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
+import com.sksamuel.elastic4s.requests.mappings.{Analysis, MappingDefinition}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, HttpClient}
 import com.sksamuel.elastic4s.testkit._
+import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
@@ -18,6 +19,33 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
+
+
+  val container = new ElasticsearchContainer()
+    container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch:7.1.1")
+
+//  import org.elasticsearch.client.RestClient
+//
+//  container.start
+//
+//  // Do whatever you want here.
+//  val credentialsProvider = new Nothing
+//  credentialsProvider.setCredentials(AuthScope.ANY, new Nothing("elastic", "changeme"))
+//  val client: RestClient = RestClient.builder(container.getHost).setHttpClientConfigCallback((httpClientBuilder: HttpAsyncClientBuilder) => httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)).build
+//  val response: Nothing = client.performRequest("GET", "/")
+//
+//  // Stop the container.
+//
+//
+//  // Optional but highly recommended: Specify the version you need.
+//  container.withVersion("7.1.1")
+
+  container.start()
+
+val host = container.getHttpHostAddress()
+  println("host = " + host)
+
+  container.stop()
 
   val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
   val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
@@ -50,9 +78,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val config = new AddressIndexConfigModule
   val queryParams: QueryParamsConfig = config.config.elasticSearch.queryParams
-
-  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + defaultEpoch
-  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + defaultEpoch
+  val dateMillis = DateTime.now().getMillis()
+  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + "_" + dateMillis + defaultEpoch
+  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + "_" +  dateMillis + defaultEpoch
   val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
@@ -441,45 +469,65 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
-  client.execute {
-    createIndex(hybridIndexName)
+  val testAnalysis: Analysis = new Analysis (Some("welsh_split_synonyms_analyzer"),Some("welsh_split_synonyms_analyzer"))
+
+  testClient.execute {
+    createIndex(hybridIndexName).replicas(0).alias("index_full_nohist_current")
       .mappings(MappingDefinition.apply(Some(hybridMappings)))
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
       ))
   }.await
 
-  client.execute {
-    createIndex(hybridIndexHistoricalName)
-      .mappings(MappingDefinition.apply(Some(hybridMappings)))
-      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-        StandardTokenizer("myTokenizer1"))
-      ))
+  testClient.execute{
+    addAlias("index_full_nohist_current",hybridIndexName)
+  }
+
+  testClient.execute{
+    createIndex(hybridIndexHistoricalName).alias("index_full_hist_current").mapping(MappingDefinition.apply(Some(hybridMappings))).replicas(0)
   }.await
 
-  client.execute {
+  testClient.execute{
+    addAlias("index_full_hist_current",hybridIndexHistoricalName)
+  }
+
+//  testClient.execute {
+//    createIndex(hybridIndexHistoricalName).replicas(0).alias("index_full_hist_current")
+//      .mappings(MappingDefinition.apply(Some(hybridMappings)))
+//      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+//        StandardTokenizer("myTokenizer1"))
+//      ))
+//  }.await
+
+  testClient.execute {
     bulk(
-      indexInto(hybridIndexName + "/" + hybridMappings).fields(firstHybridHistEs)
+  //    indexInto(hybridIndexName + "/" + hybridMappings).fields(firstHybridHistEs)
+        indexInto(hybridIndexName).fields(firstHybridHistEs)
     )
   }.await
 
   blockUntilCount(1, hybridIndexName)
 
-  client.execute {
+  testClient.execute {
     bulk(
-      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(firstHybridEs),
-      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(secondHybridEs)
+    //  indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(firstHybridEs),
+    //  indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(secondHybridEs)
+      indexInto(hybridIndexHistoricalName).fields(firstHybridEs),
+      indexInto(hybridIndexHistoricalName).fields(secondHybridEs)
     )
   }.await
 
   blockUntilCount(2, hybridIndexHistoricalName)
 
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
-  client.execute {
+  testClient.execute {
     bulk(
-      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(thirdHybridEs),
-      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fourthHybridEs),
-      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fifthHybridEs)
+//      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(thirdHybridEs),
+//      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fourthHybridEs),
+//      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fifthHybridEs)
+      indexInto(hybridIndexHistoricalName).fields(thirdHybridEs),
+      indexInto(hybridIndexHistoricalName).fields(fourthHybridEs),
+      indexInto(hybridIndexHistoricalName).fields(fifthHybridEs)
     )
   }.await
 
@@ -726,7 +774,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "term" : {
             "uprn" : {"value":"1"}
@@ -769,7 +817,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
            {
-              "version":true,
+
               "query":{
                  "bool":{
                     "must":[
@@ -876,7 +924,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
            {
-              "version":true,
+
               "query":{
                  "bool":{
                     "must":[
@@ -1001,7 +1049,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-             "version":true,
+
              "query":{
                 "bool":{
                    "must":[
@@ -1153,7 +1201,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -1279,7 +1327,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
 {
-"version":true,
+
 "query":{
 "dis_max":{
 "tie_breaker":1,
@@ -2637,7 +2685,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -2754,7 +2802,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -2871,7 +2919,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -2986,7 +3034,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -3101,7 +3149,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -3212,7 +3260,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
     {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3310,7 +3358,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
   {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3408,7 +3456,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -3447,7 +3495,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -3487,7 +3535,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3595,7 +3643,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
     {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3702,7 +3750,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
 {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3809,7 +3857,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
 {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3916,7 +3964,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
           "query" : {
             "bool" : {
               "must" : [{
@@ -3960,7 +4007,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -4004,7 +4051,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -4050,7 +4097,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -4120,7 +4167,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse (
         s"""
            {
-            "version":true,
+
             "query":{
            "dis_max":{
             "tie_breaker":1,
