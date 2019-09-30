@@ -2,7 +2,8 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
-import com.sksamuel.elastic4s.requests.mappings.{Analysis, MappingDefinition}
+import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
+import com.sksamuel.elastic4s.requests.analysis.{Analysis, Analyzer, CustomAnalyzer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, HttpClient}
 import com.sksamuel.elastic4s.testkit._
@@ -22,8 +23,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
 
   val container = new ElasticsearchContainer()
-    container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch:7.1.1")
+    container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.1")
 
+  //docker.elastic.co/elasticsearch/elasticsearch-oss
+  //docker.elastic.co/elasticsearch/elasticsearch:
 //  import org.elasticsearch.client.RestClient
 //
 //  container.start
@@ -45,10 +48,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 val host = container.getHttpHostAddress()
   println("host = " + host)
 
-  container.stop()
 
-  val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
-  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
+
+ // val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
+//  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
+
+  val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"http://${host}?ssl=false")))
+  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"http://${host}?ssl=false")))
 
   val testClient = client.copy()
   val testClient2 = clientFullmatch.copy()
@@ -469,35 +475,34 @@ val host = container.getHttpHostAddress()
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
-  val testAnalysis: Analysis = new Analysis (Some("welsh_split_synonyms_analyzer"),Some("welsh_split_synonyms_analyzer"))
+  val customAnalyzer = new CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
+
+  val testAnalysis: Analysis = new Analysis(
+    List(customAnalyzer))
 
   testClient.execute {
-    createIndex(hybridIndexName).replicas(0).alias("index_full_nohist_current")
+    createIndex(hybridIndexName).analysis(analysis = testAnalysis)
       .mappings(MappingDefinition.apply(Some(hybridMappings)))
-      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-        StandardTokenizer("myTokenizer1"))
-      ))
+  //    .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+   //     StandardTokenizer("myTokenizer1"))
+   //   ))
   }.await
 
-  testClient.execute{
-    addAlias("index_full_nohist_current",hybridIndexName)
-  }
+ //   .replicas(0).alias("index_full_nohist_current")
 
-  testClient.execute{
-    createIndex(hybridIndexHistoricalName).alias("index_full_hist_current").mapping(MappingDefinition.apply(Some(hybridMappings))).replicas(0)
-  }.await
+  //testClient.execute{
+  //  createIndex(hybridIndexHistoricalName).alias("index_full_hist_current").mapping(MappingDefinition.apply(Some(hybridMappings))).replicas(0)
+ // }.await
 
-  testClient.execute{
-    addAlias("index_full_hist_current",hybridIndexHistoricalName)
-  }
-
-//  testClient.execute {
-//    createIndex(hybridIndexHistoricalName).replicas(0).alias("index_full_hist_current")
-//      .mappings(MappingDefinition.apply(Some(hybridMappings)))
+  testClient.execute {
+    createIndex(hybridIndexHistoricalName).analysis(analysis = testAnalysis)
+      .mapping(MappingDefinition.apply(Some(hybridMappings)))
 //      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
 //        StandardTokenizer("myTokenizer1"))
 //      ))
-//  }.await
+  }.await
+
+//  replicas(0).alias("index_full_hist_current").
 
   testClient.execute {
     bulk(
@@ -532,6 +537,17 @@ val host = container.getHttpHostAddress()
   }.await
 
   blockUntilCount(3, hybridIndexHistoricalName)
+
+  testClient.execute{
+    addAlias("index_full_nohist_current",hybridIndexName)
+  }
+
+
+
+
+  testClient.execute{
+    addAlias("index_full_hist_current",hybridIndexHistoricalName)
+  }
 
   val expectedPaf = PostcodeAddressFileAddress(
     hybridNotUsed,
@@ -5454,7 +5470,7 @@ val host = container.getHttpHostAddress()
       result shouldBe expected
     }
 
-
+  //  container.stop()
   }
 
 }
