@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.google.inject.{Inject, Singleton}
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.requests.indexes.alias.IndexAliases
-import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess}
+import com.sksamuel.elastic4s.{ElasticClient, HttpClient, RequestFailure, RequestSuccess}
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
 
@@ -18,6 +18,9 @@ class AddressIndexVersionModule @Inject()
 (configProvider: ConfigModule, elasticClientProvider: ElasticClientProvider) extends VersionModule {
 
   private val logger = GenericLogger("address-index:VersionModule")
+  private val gcp : Boolean = Try(configProvider.config.elasticSearch.gcp.toBoolean).getOrElse(false)
+  val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
+  val client: ElasticClient = elasticClientProvider.client
 
   lazy val apiVersion: String = {
     val filename = "version.app"
@@ -41,9 +44,13 @@ class AddressIndexVersionModule @Inject()
       alias
     }
 
-    val requestForIndexes = elasticClientProvider.client.execute {
-      getAliases(Nil, aliaseq)
-    }
+    val requestForIndexes =
+      if (gcp) clientFullmatch.execute {
+        getAliases(Nil, aliaseq)
+      }
+      else client.execute {
+        getAliases(Nil, aliaseq)
+      }
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
     val indexes = Try(Await.result(requestForIndexes, 10 seconds)).toEither
