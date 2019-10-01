@@ -21,37 +21,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
-
   val container = new ElasticsearchContainer()
-    container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.1")
-
-  //docker.elastic.co/elasticsearch/elasticsearch-oss
-  //docker.elastic.co/elasticsearch/elasticsearch:
-//  import org.elasticsearch.client.RestClient
-//
-//  container.start
-//
-//  // Do whatever you want here.
-//  val credentialsProvider = new Nothing
-//  credentialsProvider.setCredentials(AuthScope.ANY, new Nothing("elastic", "changeme"))
-//  val client: RestClient = RestClient.builder(container.getHost).setHttpClientConfigCallback((httpClientBuilder: HttpAsyncClientBuilder) => httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)).build
-//  val response: Nothing = client.performRequest("GET", "/")
-//
-//  // Stop the container.
-//
-//
-//  // Optional but highly recommended: Specify the version you need.
-//  container.withVersion("7.1.1")
-
+  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.2")
   container.start()
-
-val host = container.getHttpHostAddress()
+  val host = container.getHttpHostAddress()
   println("host = " + host)
-
-
-
- // val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
-//  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
 
   val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"http://${host}?ssl=false")))
   val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"http://${host}?ssl=false")))
@@ -59,23 +33,12 @@ val host = container.getHttpHostAddress()
   val testClient = client.copy()
   val testClient2 = clientFullmatch.copy()
 
-  //override val client: ElasticClient = null
-
-//val testClient: ElasticClient = client
-
- //val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider()
-
- // override val client : ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://localhost:9200?ssl=false")))
-
- //verride val client:ElasticClient = client
-//  val testClient = client
-// val testClient2 = client
-
  //  injections
    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
       override def client: ElasticClient = testClient
   /* Not currently used in tests as it doesn't look like you can have two test ES instances */
-   override def clientFullmatch: ElasticClient = testClient2}
+   override def clientFullmatch: ElasticClient = testClient2
+   }
 
   val defaultLat = "50.705948"
   val defaultLon = "-3.5091076"
@@ -481,32 +444,21 @@ val host = container.getHttpHostAddress()
     List(customAnalyzer))
 
   testClient.execute {
-    createIndex(hybridIndexName).analysis(analysis = testAnalysis)
-      .mappings(MappingDefinition.apply(Some(hybridMappings)))
-  //    .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-   //     StandardTokenizer("myTokenizer1"))
-   //   ))
+    createIndex(hybridIndexName)
+      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+        StandardTokenizer("myTokenizer1"))
+     ))
   }.await
-
- //   .replicas(0).alias("index_full_nohist_current")
-
-  //testClient.execute{
-  //  createIndex(hybridIndexHistoricalName).alias("index_full_hist_current").mapping(MappingDefinition.apply(Some(hybridMappings))).replicas(0)
- // }.await
 
   testClient.execute {
-    createIndex(hybridIndexHistoricalName).analysis(analysis = testAnalysis)
-      .mapping(MappingDefinition.apply(Some(hybridMappings)))
-//      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-//        StandardTokenizer("myTokenizer1"))
-//      ))
+    createIndex(hybridIndexHistoricalName)
+      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+        StandardTokenizer("myTokenizer1"))
+      ))
   }.await
-
-//  replicas(0).alias("index_full_hist_current").
 
   testClient.execute {
     bulk(
-  //    indexInto(hybridIndexName + "/" + hybridMappings).fields(firstHybridHistEs)
         indexInto(hybridIndexName).fields(firstHybridHistEs)
     )
   }.await
@@ -515,8 +467,6 @@ val host = container.getHttpHostAddress()
 
   testClient.execute {
     bulk(
-    //  indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(firstHybridEs),
-    //  indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(secondHybridEs)
       indexInto(hybridIndexHistoricalName).fields(firstHybridEs),
       indexInto(hybridIndexHistoricalName).fields(secondHybridEs)
     )
@@ -527,9 +477,6 @@ val host = container.getHttpHostAddress()
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
   testClient.execute {
     bulk(
-//      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(thirdHybridEs),
-//      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fourthHybridEs),
-//      indexInto(hybridIndexHistoricalName + "/" + hybridMappings).fields(fifthHybridEs)
       indexInto(hybridIndexHistoricalName).fields(thirdHybridEs),
       indexInto(hybridIndexHistoricalName).fields(fourthHybridEs),
       indexInto(hybridIndexHistoricalName).fields(fifthHybridEs)
@@ -542,11 +489,16 @@ val host = container.getHttpHostAddress()
     addAlias("index_full_nohist_current",hybridIndexName)
   }
 
-
-
-
   testClient.execute{
     addAlias("index_full_hist_current",hybridIndexHistoricalName)
+  }
+
+  testClient.execute{
+    updateIndexLevelSettings(hybridIndexName).numberOfReplicas(0)
+  }
+
+  testClient.execute{
+    updateIndexLevelSettings(hybridIndexHistoricalName).numberOfReplicas(0)
   }
 
   val expectedPaf = PostcodeAddressFileAddress(
@@ -5470,7 +5422,7 @@ val host = container.getHttpHostAddress()
       result shouldBe expected
     }
 
-  //  container.stop()
+   // container.stop()
   }
 
 }
