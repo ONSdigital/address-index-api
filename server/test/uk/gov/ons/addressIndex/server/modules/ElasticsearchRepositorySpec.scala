@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, Stan
 import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
 import com.sksamuel.elastic4s.requests.analysis.{Analysis, Analyzer, CustomAnalyzer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, HttpClient}
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, ElasticsearchClientUri, HttpClient}
 import com.sksamuel.elastic4s.testkit._
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.joda.time.DateTime
@@ -18,17 +18,24 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
   val container = new ElasticsearchContainer()
   container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.2")
   container.start()
-  val host = container.getHttpHostAddress()
+  val containerHost = container.getHttpHostAddress()
+  val host =  containerHost.split(":").headOption.getOrElse("localhost")
+  val port =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
   println("host = " + host)
+  println("port = " + port)
 
-  val client: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"http://${host}?ssl=false")))
-  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(ElasticsearchClientUri(s"http://${host}?ssl=false")))
+  val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint("http",host,port,None)
+  val eProps: ElasticProperties = new ElasticProperties(endpoints = Seq(elEndpoint))
+
+  val client: ElasticClient = new ElasticClient(JavaClient(eProps))
+  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(eProps))
 
   val testClient = client.copy()
   val testClient2 = clientFullmatch.copy()

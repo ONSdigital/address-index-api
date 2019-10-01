@@ -1,32 +1,42 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
+import com.sksamuel.elastic4s.http.JavaClient
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, HttpClient}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
+import org.testcontainers.elasticsearch.ElasticsearchContainer
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.server.model.dao.{AddressIndexElasticClientProvider, ElasticClientProvider}
+
+import scala.util.Try
 
 //import scala.concurrent.ExecutionContext.Implicits.global
 
 class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
 
-
-
-  // this is necessary so that it can be injected in the provider (otherwise the method will call itself)
-
-//  val testClient = this.client
-
   val testConfig = new AddressIndexConfigModule
 
-  val elasticClientProvider: AddressIndexElasticClientProvider = new AddressIndexElasticClientProvider(testConfig)
-  val client: ElasticClient = elasticClientProvider.client
+  val container = new ElasticsearchContainer()
+  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.2")
+  container.start()
+  val containerHost = container.getHttpHostAddress()
+  val host =  containerHost.split(":").headOption.getOrElse("localhost")
+  val port =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
+  println("host = " + host)
+  println("port = " + port)
 
-    // injections
-//    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
-//      override def client: ElasticClient = client
-//    }
-//
+  val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint("http",host,port,None)
+  val eProps: ElasticProperties = new ElasticProperties(endpoints = Seq(elEndpoint))
 
+  val client: ElasticClient = new ElasticClient(JavaClient(eProps))
+  val testClient = client.copy()
+
+  //  injections
+  val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
+    override def client: ElasticClient = testClient
+    /* Not currently used in tests as it doesn't look like you can have two test ES instances */
+    override def clientFullmatch: ElasticClient = testClient
+  }
 
   val invalidConfig: ConfigModule = new ConfigModule {
     override def config: AddressIndexConfig = testConfig.config.copy(
@@ -41,11 +51,11 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
   val hybridIndex3 = "hybrid_35_202020"
   val hybridAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_current"
 
-  client.execute(
+  testClient.execute(
     bulk(
-      indexInto(s"$hybridIndex1/address") id "11" fields ("name" -> "test1"),
-      indexInto(s"$hybridIndex2/address") id "12" fields ("name" -> "test2"),
-      indexInto(s"$hybridIndex3/address") id "13" fields ("name" -> "test3")
+      indexInto(hybridIndex1) id "11" fields ("name" -> "test1"),
+      indexInto(hybridIndex2) id "12" fields ("name" -> "test2"),
+      indexInto(hybridIndex3) id "13" fields ("name" -> "test3")
     )
   ).await
 
@@ -53,7 +63,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
   blockUntilCount(1, hybridIndex2)
   blockUntilCount(1, hybridIndex3)
 
-  client.execute {
+  testClient.execute {
     addAlias(hybridAlias, hybridIndex2)
   }.await
 

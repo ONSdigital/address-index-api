@@ -2,10 +2,8 @@ package uk.gov.ons.addressIndex.server.model.dao
 
 import java.security.cert.X509Certificate
 
-import com.sksamuel.elastic4s.ElasticsearchClientUri
-import com.sksamuel.elastic4s.HttpClient
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, ElasticsearchClientUri, HttpClient}
 import com.sksamuel.elastic4s.http.JavaClient
-import com.sksamuel.elastic4s.ElasticClient
 import javax.inject.{Inject, Singleton}
 import javax.net.ssl.{SSLContext, X509TrustManager}
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
@@ -15,6 +13,8 @@ import org.apache.http.impl.nio.client._
 import org.elasticsearch.client.RestClientBuilder._
 import uk.gov.ons.addressIndex.server.modules.ConfigModule
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
+
+import scala.util.Try
 
 /**
   * Gets the information from the configuration file and then creates a corresponding client
@@ -61,11 +61,18 @@ class AddressIndexElasticClientProvider @Inject()
     }
   ), null)
 
-  val client: ElasticClient = clientBuilder(host, port, ssl)
+  def propsBuilder(host: String, port: String, ssl: String): ElasticProperties = {
+    val intPort = Try(port.toInt).getOrElse(9200)
+    val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint(
+      if (ssl == "true") "https" else "http", host, intPort, None)
+    new ElasticProperties(endpoints = Seq(elEndpoint))
+  }
 
-  val clientFullmatch: ElasticClient = clientBuilder(hostFullmatch, port, ssl)
+  val client: ElasticClient = clientBuilder(propsBuilder(host, port, ssl))
 
-  def clientBuilder(host: String, port: String, ssl: String): ElasticClient = ElasticClient(JavaClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
+  val clientFullmatch: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
+
+  def clientBuilder(eProps: ElasticProperties): ElasticClient = ElasticClient(JavaClient(eProps, new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
       requestConfigBuilder.setConnectTimeout(connectionTimeout)
