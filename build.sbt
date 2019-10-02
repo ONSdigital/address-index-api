@@ -24,7 +24,7 @@ publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.on
 credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
-  val elastic4s = "7.3.0"
+  val elastic4s = "7.3.1"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
@@ -125,10 +125,8 @@ val commonDeps = Seq(
   "org.apache.commons" % "commons-lang3" % "3.3.2",
   "org.apache.httpcomponents" % "httpcore" % "4.4.11",
   "org.apache.httpcomponents" % "httpclient" % "4.5.7",
-  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.3.0",
-  // https://mvnrepository.com/artifact/org.testcontainers/elasticsearch
+  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.3.1",
   "org.testcontainers" % "elasticsearch" % "1.12.2" % "test",
-    // "org.elasticsearch" % "elasticsearch" % "7.1.1",
   guice
 )
 

@@ -45,7 +45,7 @@ class AddressIndexElasticClientProvider @Inject()
     logger info "Connecting to Elasticsearch"
 
     val provider = new BasicCredentialsProvider
-    val credentials = new UsernamePasswordCredentials("elastic", "changeme")
+    val credentials = new UsernamePasswordCredentials("mrsearchy", "mrsearchy")
 
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
@@ -82,8 +82,8 @@ class AddressIndexElasticClientProvider @Inject()
       requestConfigBuilder
     }
   }, (httpClientBuilder: HttpAsyncClientBuilder) => {
-    //      httpClientBuilder.setDefaultCredentialsProvider(provider)
     httpClientBuilder
+   //   .setDefaultCredentialsProvider(provider)
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
   }))
