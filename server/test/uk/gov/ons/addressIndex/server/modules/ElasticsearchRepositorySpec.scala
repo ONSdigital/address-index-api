@@ -494,19 +494,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   testClient.execute{
     addAlias("index_full_nohist_current",hybridIndexName)
-  }
+  }.await
 
   testClient.execute{
     addAlias("index_full_hist_current",hybridIndexHistoricalName)
-  }
+  }.await
 
   testClient.execute{
     updateIndexLevelSettings(hybridIndexName).numberOfReplicas(0)
-  }
+  }.await
 
   testClient.execute{
     updateIndexLevelSettings(hybridIndexHistoricalName).numberOfReplicas(0)
-  }
+  }.await
 
   val expectedPaf = PostcodeAddressFileAddress(
     hybridNotUsed,
