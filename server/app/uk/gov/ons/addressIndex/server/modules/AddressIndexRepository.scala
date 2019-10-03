@@ -725,8 +725,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val radiusQuery = args.region match {
       case Some(Region(range, lat, lon)) =>
         Seq(bool(Seq(),
-        Seq(geoDistanceQuery("lpi.location").point(lat, lon).distance(s"${range}km"),
-          geoDistanceQuery("nisra.location").point(lat, lon).distance(s"${range}km")),Seq()))
+        Seq(geoDistanceQuery("lpi.location", lat, lon).distance(s"${range}km"),
+          geoDistanceQuery("nisra.location", lat, lon).distance(s"${range}km")),Seq()))
       case None => Seq.empty
     }
 
@@ -854,8 +854,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val radiusSort = args.region match {
       case Some(Region(range, lat, lon)) =>
-            Seq(GeoDistanceSort(field="lpi.location", points= Seq(new GeoPoint(lat, lon))),
-              GeoDistanceSort(field="nisra.location", points= Seq(new GeoPoint(lat, lon))))
+            Seq(GeoDistanceSort(field="lpi.location", points= Seq(GeoPoint(lat, lon))),
+              GeoDistanceSort(field="nisra.location", points= Seq(GeoPoint(lat, lon))))
       case None => Seq.empty
     }
 
@@ -913,14 +913,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         val minimumFallback: Int = esConf.minimumFallback
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
-        val partResult = if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        val partResult = if (gcp && args.verboseOrDefault) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
           if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
             logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
-            if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromResponse) else
+            if (gcp && args.verboseOrDefault) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromResponse) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
           else partResult
         }.flatten
@@ -928,7 +928,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         if (gcp) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _ =>
-        if (gcp && args.verboseOrDefault == true) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        if (gcp && args.verboseOrDefault) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
         // activates for postcode, random
         client.execute(query).map(HybridAddressCollection.fromResponse)
     }

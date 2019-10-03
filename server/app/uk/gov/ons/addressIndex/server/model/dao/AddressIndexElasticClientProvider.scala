@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.model.dao
 
 import java.security.cert.X509Certificate
 
-import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, ElasticsearchClientUri, HttpClient}
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import com.sksamuel.elastic4s.http.JavaClient
 import javax.inject.{Inject, Singleton}
 import javax.net.ssl.{SSLContext, X509TrustManager}
@@ -63,7 +63,7 @@ class AddressIndexElasticClientProvider @Inject()
 
   def propsBuilder(host: String, port: String, ssl: String): ElasticProperties = {
     val intPort = Try(port.toInt).getOrElse(9200)
-    val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint(
+    val elEndpoint: ElasticNodeEndpoint = ElasticNodeEndpoint(
       if (ssl == "true") "https" else "http", host, intPort, None)
     new ElasticProperties(endpoints = Seq(elEndpoint))
   }

@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
-import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
+//import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
 import com.sksamuel.elastic4s.requests.analysis.{Analysis, Analyzer, CustomAnalyzer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, ElasticsearchClientUri, HttpClient}
@@ -25,20 +25,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val container = new ElasticsearchContainer()
   container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.2")
   container.start()
-  val containerHost = container.getHttpHostAddress()
-  val host =  containerHost.split(":").headOption.getOrElse("localhost")
-  val port =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
-  println("host = " + host)
-  println("port = " + port)
+  val containerHost: String = container.getHttpHostAddress
+  val host: String =  containerHost.split(":").headOption.getOrElse("localhost")
+  val port:Int =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
 
   val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint("http",host,port,None)
   val eProps: ElasticProperties = new ElasticProperties(endpoints = Seq(elEndpoint))
 
-  val client: ElasticClient = new ElasticClient(JavaClient(eProps))
-  val clientFullmatch: ElasticClient = new ElasticClient(JavaClient(eProps))
+  val client: ElasticClient = ElasticClient(JavaClient(eProps))
+  val clientFullmatch: ElasticClient = ElasticClient(JavaClient(eProps))
 
-  val testClient = client.copy()
-  val testClient2 = clientFullmatch.copy()
+  val testClient: ElasticClient = client.copy()
+  val testClient2: ElasticClient = clientFullmatch.copy()
 
  //  injections
    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
@@ -54,7 +52,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val config = new AddressIndexConfigModule
   val queryParams: QueryParamsConfig = config.config.elasticSearch.queryParams
-  val dateMillis = DateTime.now().getMillis()
+  val dateMillis: Long = DateTime.now().getMillis
   val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + "_" + dateMillis + defaultEpoch
   val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + "_" +  dateMillis + defaultEpoch
   val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
@@ -445,11 +443,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
-  val customAnalyzer = new CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
-
+  // new analysis object, doesn't seem to work
+  val customAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
   val testAnalysis: Analysis = new Analysis(
     List(customAnalyzer))
 
+  // todo get it to work with new analysis package
   testClient.execute {
     createIndex(hybridIndexName)
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
@@ -457,6 +456,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
      ))
   }.await
 
+  // todo get it to work with new analysis package
   testClient.execute {
     createIndex(hybridIndexHistoricalName)
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
@@ -1132,7 +1132,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
-      total should be > 0l
+      total should be > 0L
 
       val resultHybrid = results.head
       resultHybrid shouldBe expected.copy(score = resultHybrid.score)
