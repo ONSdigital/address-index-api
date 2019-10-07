@@ -1,8 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.requests.analyzers.CustomAnalyzer
 import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
-import com.sksamuel.elastic4s.{ElasticClient, HttpClient}
+import com.sksamuel.elastic4s.{ElasticClient}
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchBodyBuilderFn, SearchRequest, SearchType}
@@ -751,15 +750,15 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       Seq(dismax(
         matchQuery("lpi.nagAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+          .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackLpiBoost),
         matchQuery("nisra.nisraAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+          .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.nisra.fullFallBackNiBoost),
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-          .analyzer(CustomAnalyzer("welsh_split_synonyms_analyzer"))
+          .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackPafBoost))
         .tieBreaker(0.0)),
       Seq(dismax(
@@ -906,8 +905,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-  //   val searchString = SearchBodyBuilderFn(query).string()
-  //  println(searchString)
+ // uncomment to see generated query
+ //    val searchString = SearchBodyBuilderFn(query).string()
+ //    println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback

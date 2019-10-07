@@ -29,8 +29,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val host: String =  containerHost.split(":").headOption.getOrElse("localhost")
   val port:Int =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
 
-  val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint("http",host,port,None)
-  val eProps: ElasticProperties = new ElasticProperties(endpoints = Seq(elEndpoint))
+  val elEndpoint: ElasticNodeEndpoint = ElasticNodeEndpoint("http",host,port,None)
+  val eProps: ElasticProperties = ElasticProperties(endpoints = Seq(elEndpoint))
 
   val client: ElasticClient = ElasticClient(JavaClient(eProps))
   val clientFullmatch: ElasticClient = ElasticClient(JavaClient(eProps))
@@ -445,23 +445,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   // new analysis object, doesn't seem to work
   val customAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
-  val testAnalysis: Analysis = new Analysis(
+  val testAnalysis: Analysis = Analysis(
     List(customAnalyzer))
 
   // todo get it to work with new analysis package
   testClient.execute {
     createIndex(hybridIndexName)
+//      .analysis(testAnalysis)
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
      ))
-  }.await
-
-  // todo get it to work with new analysis package
-  testClient.execute {
-    createIndex(hybridIndexHistoricalName)
-      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-        StandardTokenizer("myTokenizer1"))
-      ))
   }.await
 
   testClient.execute {
@@ -471,6 +464,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   }.await
 
   blockUntilCount(1, hybridIndexName)
+
+  // todo get it to work with new analysis package
+  testClient.execute {
+    createIndex(hybridIndexHistoricalName)
+//      .analysis(testAnalysis)
+          .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+            StandardTokenizer("myTokenizer1"))
+        ))
+  }.await
+
 
   testClient.execute {
     bulk(
