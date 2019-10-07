@@ -22,8 +22,6 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
   val containerHost = container.getHttpHostAddress()
   val host =  containerHost.split(":").headOption.getOrElse("localhost")
   val port =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
-  println("host = " + host)
-  println("port = " + port)
 
   val elEndpoint: ElasticNodeEndpoint = new ElasticNodeEndpoint("http",host,port,None)
   val eProps: ElasticProperties = new ElasticProperties(endpoints = Seq(elEndpoint))

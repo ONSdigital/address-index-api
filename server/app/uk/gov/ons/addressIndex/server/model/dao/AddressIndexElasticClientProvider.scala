@@ -33,6 +33,9 @@ class AddressIndexElasticClientProvider @Inject()
   val hostFullmatch: String = esConf.uriFullmatch
   val port: String = esConf.port
   val ssl: String = esConf.ssl
+  val basicAuth: String = esConf.basicAuth
+  val searchUser: String = esConf.searchUser
+  val searchPassword: String = esConf.searchPassword
   val connectionTimeout: Int = esConf.connectionTimeout
   val connectionRequestTimeout: Int = esConf.connectionRequestTimeout
   val socketTimeout: Int = esConf.connectionRequestTimeout
@@ -45,7 +48,7 @@ class AddressIndexElasticClientProvider @Inject()
     logger info "Connecting to Elasticsearch"
 
     val provider = new BasicCredentialsProvider
-    val credentials = new UsernamePasswordCredentials("mrsearchy", "mrsearchy")
+    val credentials = new UsernamePasswordCredentials(searchUser, searchPassword)
 
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
@@ -82,11 +85,18 @@ class AddressIndexElasticClientProvider @Inject()
       requestConfigBuilder
     }
   }, (httpClientBuilder: HttpAsyncClientBuilder) => {
+    if (basicAuth == "true") {
     httpClientBuilder
-   //   .setDefaultCredentialsProvider(provider)
+      .setDefaultCredentialsProvider(provider)
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
-  }))
+  } else {
+      httpClientBuilder
+        .setMaxConnTotal(maxESConnections)
+        .setSSLContext(context)
+    }
+  }
+  ))
 }
 
 
