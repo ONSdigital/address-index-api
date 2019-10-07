@@ -196,11 +196,15 @@ div#banner h1 {
 	vertical-align: top;
 }
 
-.tab-content input#address, .tab-content input#address-debug {
+.tab-content input#address, .tab-content input#address-debug, .tab-content input#typeahead {
 	width: 400px;
 }
 
-.tab-content input#filter, .tab-content input#filter-debug {
+.tab-content input#uprn {
+	width: 200px;
+}
+
+.tab-content input#filter, .tab-content input#filter-debug, .tab-content input#partfilter, .tab-content input#randomfilter  {
 	width: 150px;
 }
 
@@ -248,20 +252,21 @@ div#banner h1 {
 				<div class="banner-logo"><img class="logo" alt="Office for National Statistics" src="https://cdn.ons.gov.uk/assets/images/ons-logo/v2/ons-logo.svg"></div>
 				<h1>Address Index Simple Tester</h1>
 				<div class="banner-title">
-					<label for="apikey">API Key: </label><br><input type="text" name="apikey" id="apikey" value="" placeholder="Enter your API key" />
+                    <label for="apiurl">API Url: </label><br><input type="text" name="apiurl" id="apiurl" value="http://localhost:9001" placeholder="host and port" />
 				</div>
 			</div>
-
 		</div>
 	</header>
 	<nav>
 		<div class="content-container">
 			<ul class="tab">
 				<li><button class="tablinks" onclick="openTab(event, 'version-tab')">Version</button></li>
-				<li><button class="tablinks" onclick="openTab(event, 'swagger-tab')">Swagger</button></li>
+			<!--	<li><button class="tablinks" onclick="openTab(event, 'swagger-tab')">Swagger</button></li>-->
 				<li><button class="tablinks" onclick="openTab(event, 'single-match-tab')" id="defaultOpen">Single Match</button></li>
-				<li><button class="tablinks" onclick="openTab(event, 'debug-tab')">Debug</button></li>
-				<li><button class="tablinks" onclick="openTab(event, 'uprn-tab')">UPRN</button></li>
+                <li><button class="tablinks" onclick="openTab(event, 'partial-tab')">Partial</button></li>
+                <li><button class="tablinks" onclick="openTab(event, 'random-tab')">Random</button></li>
+                <li><button class="tablinks" onclick="openTab(event, 'uprn-tab')">UPRN</button></li>
+            <!-- <li><button class="tablinks" onclick="openTab(event, 'debug-tab')">Debug</button></li>-->
 				<li><button class="tablinks" onclick="openTab(event, 'bulk-tab')">Bulk</button></li>
 				<li><button class="tablinks" onclick="openTab(event, 'bulk-full-tab')">Bulk Full</button></li>
 				<li><button class="tablinks" onclick="openTab(event, 'bulk-debug-tab')">Bulk Debug</button></li>
@@ -288,6 +293,18 @@ div#banner h1 {
                 <p>Returns a ranked list of addresses matching the search query in the specified format.</p>
                 <div class="fields"><label for="address">Address: </label><input type="text" name="address" id="address" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter">Filter: </label><input type="text" name="filter" id="filter" value="" placeholder="Optional" /><button onclick="getSingle()">Get Response</button></div>
             </div>
+
+            <div id="partial-tab" class="tab-content">
+                <h2>Partial:</h2>
+                <p>Returns a list of addresses matching an incomplete string (for typeahead).</p>
+                <div class="fields"><label for="uprn">String: </label><input type="text" name="typeahead" id="typeahead" value="7 GAT" /><label for="partfilter">Filter: </label><input type="text" name="partfilter" id="partfilter" value="" placeholder="Optional" /><button onclick="getPartial()">Get Response</button></div>
+            </div>
+
+            <div id="random-tab" class="tab-content">
+                <h2>Random:</h2>
+                <p>Returns a random address, optionally fitlered by classification.</p>
+                <div class="fields"><label for="randomfilter">Filter: </label><input type="text" name="randomfilter" id="randomfilter" value="" placeholder="Optional" /><button onclick="getRandom()">Get Response</button></div>
+            </div>
 			
 			<div id="uprn-tab" class="tab-content">
 				<h2>UPRN:</h2>
@@ -308,10 +325,10 @@ div#banner h1 {
 {
     "addresses": [{
         "id": "1",
-        "address": "20 FROG LANE, TITCHFIELD, PO14 4DU"
+        "address": "4 Gate Reach, Exeter, EX2 6GA"
     },{
         "id": "2",
-        "address": "2 CHINE CLOSE, SOUTHAMPTON, SO31 6WA"
+        "address": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL"
     }]
 }
 					</textarea><button onclick="getBulk()">Get Response</button>
@@ -325,10 +342,10 @@ div#banner h1 {
 {
     "addresses": [{
         "id": "1",
-        "address": "20 FROG LANE, TITCHFIELD, PO14 4DU"
+        "address": "4 Gate Reach, Exeter, EX2 6GA"
     },{
         "id": "2",
-        "address": "2 CHINE CLOSE, SOUTHAMPTON, SO31 6WA"
+        "address": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL"
     }]
 }
 					</textarea><button onclick="getBulkFull()">Get Response</button>
@@ -367,7 +384,8 @@ div#banner h1 {
 	     "pafSubBuildingNameBoost":1.5,
 		 "lpiSaoTextBoost":1.5,
          "lpiSaoStartNumberBoost":1.0,
-         "lpiSaoStartSuffixBoost":1.0
+         "lpiSaoStartSuffixBoost":1.0,
+         "lpiSaoPaoStartSuffixBoost": 0.5
 	  },
 	  "subBuildingRange": {
 	     "lpiSaoStartNumberBoost":1.0,
@@ -380,7 +398,8 @@ div#banner h1 {
 	     "lpiPaoStartSuffixBoost":3.5,
 	     "pafBuildingNameBoost":2.5,
          "lpiPaoTextBoost":2.5,			 
-         "lpiPaoStartNumberBoost":2.5
+         "lpiPaoStartNumberBoost":2.5,
+         "lpiSaoPaoStartSuffixBoost": 0.5
       },
       "buildingNumber":{
          "pafBuildingNumberBoost":2.0,
@@ -449,6 +468,13 @@ div#banner h1 {
 		"fallbackMinimumShouldMatch":"-35%",
 		"bigramFuzziness": "0"
 	  },
+      "nisra" : {
+       "partialNiBoostBoost" : 1.1,
+       "partialEwBoostBoost" : 0.5,
+       "partialAllBoost" : 0.8,
+       "fullFallBackNiBoost" : 1.0,
+       "fullFallBackBigramNiBoost" : 0.2
+     },
       "excludingDisMaxTieBreaker":0.0,
       "includingDisMaxTieBreaker":0.5,
       "topDisMaxTieBreaker":1.0,
@@ -476,49 +502,68 @@ div#banner h1 {
 	
     <script>
         
-        var apikey = document.getElementById("apikey").value
-        
+        var apikey = "putyourkeyhere"
+        var verbose = "true" // change to false for concise response
+        var apiURL = document.getElementById("apiurl").value
 
 		function getVersion() {
-            getJSONResponse("https://apigw-in-d-01-if1:8443/ai/master/version")
+            getJSONResponse(apiURL + "/version")
         }
 		
         function getSwagger() {
-		   getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/api-docs")
+		   getJSONResponseWithKey(apiURL + "/docs/swagger.json")
         }
 
         function getUPRN() {
-            getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/addresses/" + document.getElementById("uprn").value)
+            getJSONResponseWithKey(apiURL + "/addresses/uprn/" + document.getElementById("uprn").value + "?verbose=" + verbose)
+        }
+
+        function getPartial() {
+        	if (document.getElementById("partfilter").value != "") {
+        		getJSONResponseWithKey(apiURL + "/addresses/partial?input=" + document.getElementById("typeahead").value + "&classificationfilter=" + document.getElementById("partfilter").value + "&verbose=" + verbose)
+        		}
+        	else {
+            	getJSONResponseWithKey(apiURL + "/addresses/partial?input=" + document.getElementById("typeahead").value + "&verbose=" + verbose)
+        	}
+        }
+
+        function getRandom() {
+        	if (document.getElementById("randomfilter").value != "") {
+        		getJSONResponseWithKey(apiURL + "/addresses/random" + "?classificationfilter=" + document.getElementById("randomfilter").value + "&verbose=" + verbose)
+        		}
+        	else {
+            	getJSONResponseWithKey(apiURL + "/addresses/random" + "?verbose=" + verbose)
+        	}
         }
 
         function getSingle() {
         	if (document.getElementById("filter").value != "") {
-        		getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/addresses?input=" + document.getElementById("address").value + "&filter=" + document.getElementById("filter").value)
+        		getJSONResponseWithKey(apiURL + "/addresses?input=" + document.getElementById("address").value + "&classificationfilter=" + document.getElementById("filter").value + "&verbose=" + verbose)
         		}
         	else {
-            	getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/addresses?input=" + document.getElementById("address").value)
+            	getJSONResponseWithKey(apiURL + "/addresses?input=" + document.getElementById("address").value + "&verbose=" + verbose)
         	}
         }
 
         function getDebug() {
         	if (document.getElementById("filter-debug").value != "") {
-        		getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/query-debug?input=" + document.getElementById("address-debug").value + "&filter=" + document.getElementById("filter-debug").value)
+        		getJSONResponseWithKey(apiURL + "/query-debug?input=" + document.getElementById("address-debug").value + "&filter=" + document.getElementById("filter-debug").value)
         		}
         	else {
-            	getJSONResponseWithKey("https://apigw-in-d-01-if1:8443/ai/master/query-debug?input=" + document.getElementById("address-debug").value)
+            	getJSONResponseWithKey(apiURL + "/query-debug?input=" + document.getElementById("address-debug").value)
         	}
         }
 
         function getBulk() {
-            postWithKey("https://apigw-in-d-01-if1:8443/ai/master/bulk", document.getElementById("simplebulk").value)
+            postWithKey(apiURL + "/bulk", document.getElementById("simplebulk").value)
         }
 
         function getBulkFull() {
-            postWithKey("https://apigw-in-d-01-if1:8443/ai/master/bulk-full", document.getElementById("simplebulkfull").value)
+            postWithKey(apiURL + "/bulk-full", document.getElementById("simplebulkfull").value)
         }
 
         function getBulkDebug() {
-            postWithKey("https://apigw-in-d-01-if1:8443/ai/master/bulk-debug", document.getElementById("debugbulk").value)
+            postWithKey(apiURL + "/bulk-debug", document.getElementById("debugbulk").value)
         }
 
         function getJSONResponseWithKey(durl) {
@@ -529,7 +574,8 @@ div#banner h1 {
                     url: durl,
                     dataType: 'json',
                     headers: {
-                        "Authorization": document.getElementById("apikey").value
+            //           "Authorization": document.getElementById("apikey").value
+            "Authorization": apikey
                     }
 
                 })
@@ -558,7 +604,8 @@ div#banner h1 {
 					contentType:"application/json; charset=utf-8",
                     dataType: 'json',
                     headers: {
-                        "Authorization": document.getElementById("apikey").value
+            //           "Authorization": document.getElementById("apikey").value
+            "Authorization": apikey
                     }
 
                 })
