@@ -1,23 +1,21 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
-import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, HttpClient}
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import com.sksamuel.elastic4s.testkit._
 import org.scalatest.WordSpec
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
-import uk.gov.ons.addressIndex.server.model.dao.{AddressIndexElasticClientProvider, ElasticClientProvider}
+import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.util.Try
-
-//import scala.concurrent.ExecutionContext.Implicits.global
 
 class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
 
   val testConfig = new AddressIndexConfigModule
 
   val container = new ElasticsearchContainer()
-  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.2")
+  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.1")
   container.start()
   val containerHost = container.getHttpHostAddress()
   val host =  containerHost.split(":").headOption.getOrElse("localhost")

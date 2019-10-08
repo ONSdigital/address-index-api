@@ -2,10 +2,9 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
-//import com.sksamuel.elastic4s.requests.mappings.MappingDefinition
-import com.sksamuel.elastic4s.requests.analysis.{Analysis, Analyzer, CustomAnalyzer}
+import com.sksamuel.elastic4s.requests.analysis.{Analysis, CustomAnalyzer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, ElasticsearchClientUri, HttpClient}
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import com.sksamuel.elastic4s.testkit._
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.joda.time.DateTime
@@ -23,7 +22,7 @@ import scala.util.Try
 class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
   val container = new ElasticsearchContainer()
-  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.2")
+  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.1")
   container.start()
   val containerHost: String = container.getHttpHostAddress
   val host: String =  containerHost.split(":").headOption.getOrElse("localhost")
@@ -752,7 +751,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val expected = Json.parse(
         """
         {
-
           "query" : {
             "term" : {
             "uprn" : {"value":"1"}
@@ -5432,7 +5430,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       result shouldBe expected
     }
 
-   // container.stop()
   }
 
 }

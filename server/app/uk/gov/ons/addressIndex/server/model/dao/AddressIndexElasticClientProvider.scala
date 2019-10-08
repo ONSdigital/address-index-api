@@ -86,14 +86,14 @@ class AddressIndexElasticClientProvider @Inject()
     }
   }, (httpClientBuilder: HttpAsyncClientBuilder) => {
     if (basicAuth == "true") {
-    httpClientBuilder
-      .setDefaultCredentialsProvider(provider)
+      httpClientBuilder
+       .setDefaultCredentialsProvider(provider)
+       .setMaxConnTotal(maxESConnections)
+       .setSSLContext(context)
+  } else {
+     httpClientBuilder
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
-  } else {
-      httpClientBuilder
-        .setMaxConnTotal(maxESConnections)
-        .setSSLContext(context)
     }
   }
   ))
