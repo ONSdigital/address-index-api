@@ -14,10 +14,6 @@ import com.typesafe.sbt.packager.docker._
 
 routesImport := Seq.empty
 
-val verFile: File = file("./version.sbt")
-val getVersionFromFile = IO.readLines(verFile).mkString
-val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
-version in ThisBuild := readVersion
 val userName = sys.env.get("ART_USER").getOrElse("username environment variable not set")
 val passWord = sys.env.get("ART_PASS").getOrElse("password environment variable not set")
 publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
@@ -77,7 +73,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
   dockerUpdateLatest := true,
-  version in Docker := readVersion + "-SNAPSHOT",
+  version in Docker := version.value,
   dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
@@ -236,7 +232,7 @@ lazy val `address-index-server` = project.in(file("server"))
     },
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
-      IO.write(file, readVersion)
+      IO.write(file, version.value)
       Seq(file)
     }.taskValue
   )
