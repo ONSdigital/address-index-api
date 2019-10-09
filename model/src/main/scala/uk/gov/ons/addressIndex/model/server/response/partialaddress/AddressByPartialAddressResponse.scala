@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.partialaddress
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponse, AddressResponseAddress}
 
 /**
   * Contains relevant, to the address request, data
@@ -27,4 +27,28 @@ case class AddressByPartialAddressResponse(input: String,
 
 object AddressByPartialAddressResponse {
   implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]
+
+def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): AddressBySearchResponse = {
+
+  new AddressBySearchResponse(
+    tokens = Map("input" -> partResponse.input),
+      addresses = partResponse.addresses,
+      filter = partResponse.filter,
+      historical = partResponse.historical,
+      epoch  = partResponse.epoch,
+      rangekm = "",
+      latitude = "",
+      longitude = "",
+      limit  = partResponse.limit,
+      offset  = partResponse.offset,
+      total = partResponse.total,
+      sampleSize = partResponse.limit * 2,
+      maxScore = partResponse.maxScore,
+      matchthreshold = 0F,
+      verbose = partResponse.verbose,
+      fromsource = partResponse.fromsource
+  )
+
+}
+
 }

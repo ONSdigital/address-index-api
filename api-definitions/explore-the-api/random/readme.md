@@ -9,13 +9,13 @@
 <h3>Query parameters</h3>
 
 <table class="table">
-    <thead class="table--head">
+  <thead class="table--head">
     <th scope="col" class="table--header--cell">Parameter name</th>
     <th scope="col" class="table--header--cell">Value</th>
     <th scope="col" class="table--header--cell">Description</th>
     <th scope="col" class="table--header--cell">Additional</th>
-    </thead>
-    <tbody>    
+  </thead>
+  <tbody>    
     <tr class="table--row">
         <td class="table--cell">classificationfilter</td>
         <td class="table--cell">string</td>
@@ -58,7 +58,16 @@
             Optional
         </td>
     </tr>
-    </tbody>
+    <tr class="table--row">
+          <td class="table--cell">fromsource</td>
+          <td class="table--cell">string</td>
+          <td class="table--cell">Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)</td>
+          <td class="table--cell">
+              Optional
+              <br>Default: all
+          </td>
+     /tr>
+  </tbody>
 </table>
 
 <h2>Responses</h2>
@@ -83,3 +92,47 @@
 <div class="markdown">
     <pre><code>curl -uYOUR_APIKEY_FOLLOWED_BY_A_COLON: #API_URL#/addresses/random</code></pre>
 </div>
+
+   <h2>Sample Output</h2>
+
+   <pre><code>{
+   &quot;apiVersion&quot;: &quot;1.0.0&quot;,
+    &quot;dataVersion&quot;: &quot;39&quot;,
+    &quot;errors&quot;: [],
+    &quot;response&quot;: {
+        &quot;addresses&quot;: [
+            {
+                &quot;classificationCode&quot;: &quot;CR06&quot;,
+                &quot;confidenceScore&quot;: 1,
+                &quot;formattedAddress&quot;: &quot;Kings Arms, 173 Cowick Street, Exeter, EX4 1AA&quot;,
+                &quot;formattedAddressNag&quot;: &quot;Kings Arms, 173 Cowick Street, Exeter, EX4 1AA&quot;,
+                &quot;formattedAddressNisra&quot;: &quot;&quot;,
+                &quot;formattedAddressPaf&quot;: &quot;&quot;,
+                &quot;fromSource&quot;: &quot;EW&quot;,
+                &quot;geo&quot;: {
+                    &quot;easting&quot;: 291445,
+                    &quot;latitude&quot;: 50.717735,
+                    &quot;longitude&quot;: -3.539086,
+                    &quot;northing&quot;: 92032
+                },
+                &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
+                &quot;parentUprn&quot;: &quot;0&quot;,
+                &quot;underlyingScore&quot;: 0.9934200048446655,
+                &quot;uprn&quot;: &quot;100041141461&quot;,
+                &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
+                &quot;welshFormattedAddressPaf&quot;: &quot;&quot;
+            }
+        ],
+        &quot;epoch&quot;: &quot;&quot;,
+        &quot;filter&quot;: &quot;CR06&quot;,
+        &quot;fromsource&quot;: &quot;all&quot;,
+        &quot;historical&quot;: true,
+        &quot;limit&quot;: 1,
+        &quot;verbose&quot;: false
+    },
+    &quot;status&quot;: {
+        &quot;code&quot;: 200,
+        &quot;message&quot;: &quot;Ok&quot;
+    }
+
+}</code></pre>

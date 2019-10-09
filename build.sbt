@@ -20,7 +20,7 @@ publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.on
 credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
-  val elastic4s = "6.1.3"
+  val elastic4s = "6.1.4"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
@@ -265,7 +265,8 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(localCommonSettings: _*)
   .settings(
     libraryDependencies ++= uiDeps,
-    routesGenerator := InjectedRoutesGenerator
+    routesGenerator := InjectedRoutesGenerator,
+    dockerBaseImage := "openjdk:8"
   )
   .dependsOn(
     `address-index-client`

@@ -1,4 +1,4 @@
-@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String, labelstartdate: String, placeholderstartdate: String, labelenddate: String, placeholderenddate: String)(implicit messages: Messages)
+@(singleSearchForm: Form[uk.gov.ons.addressIndex.demoui.model.SingleSearchForm], display: String, showfilter: Boolean, placeholder: String, labelfilter: String, placeholderfilter: String, labelstartdate: String, placeholderstartdate: String, labelenddate: String, placeholderenddate: String, showNisra: Boolean)(implicit messages: Messages)
 @import helper._
 
 <fieldset class="searchfield venus">
@@ -68,34 +68,32 @@
                 'class -> "form-control mars",
                 '_label -> "Minimum match %",
                 '_default -> "Select",
-                '_help -> "Match score must be greater than this value")
+                '_help -> "Match score must be greater than this")
             </div>
 
         </div>
+    }
+    @if(showNisra == true) {
+        <div class="group">
 
-        <!--div class="group">
-
-            <div class="col-2">
-                @inputText(
-                singleSearchForm("startdate"),
-                args = '_id -> "startDate",
+            <div class="col-8">
+                @inputRadioGroup(
+                singleSearchForm("fromsource"),
+                options = Seq("all"->"All","nionly"->"NI Only","niboost"->"NI Boost","ewonly"->"EW Only","ewboost"->"EW Boost"),
                 'class -> "form-control mars",
-                '_label -> labelstartdate,
-                'placeholder -> placeholderstartdate
-                )
+                '_label -> "NISRA boost setting")
             </div>
 
-            <div class="col-2">
-                @inputText(
-                singleSearchForm("enddate"),
-                args = '_id -> "endDate",
+            <div class="col-3">
+                @inputRadioGroup(
+                singleSearchForm("partial"),
+                options = Seq("true"->"Yes","false"->"No"),
                 'class -> "form-control mars",
-                '_label -> labelenddate,
-                'placeholder -> placeholderenddate
-                )
+                '_label -> "Use partial endpoint",
+                '_help -> "Yes for typeahead")
             </div>
 
-        </div-->
+        </div>
     }
 </fieldset>
 

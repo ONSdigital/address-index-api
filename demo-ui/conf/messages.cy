@@ -182,6 +182,10 @@ addressresult.position_tertiary=Eiddo trydyddol
 addressresult.position_quaternary=Eiddo quaternary
 addressresult.position_quinary=Eiddo pumol
 addressresult.address=Cyfeiriad
+addressresult.ni_ab_classification=Mapped AB Classification
+addressresult.ni_lps_addressstatus=LPS Address Status
+addressresult.ni_lps_classification=LPS Classification
+addressresult.ni_lps_buildingstatus=LPS Building Status
 
 postcode.title=Cod post demo-dod o hyd i gyfeiriad gan cod post
 postcode.sfatext=Chwilio am gyfeiriad yn ôl cod post

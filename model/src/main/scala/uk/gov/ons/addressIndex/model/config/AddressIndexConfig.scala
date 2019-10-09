@@ -236,7 +236,7 @@ case class ApiConfig(host: String,
                      apidocs: String,
                      swaggerui: String)
 
-case class DemouiConfig(loginRequired: Boolean,
+case class DemouiConfig(loginRequired: String,
                         realGatewayDev: Boolean,
                         realGatewayTest: Boolean,
                         realGatewayProd: Boolean,
@@ -249,4 +249,5 @@ case class DemouiConfig(loginRequired: Boolean,
                         offset: Int,
                         maxLimit: Int,
                         maxOffset: Int,
-                        pauseMillis: Int)
+                        pauseMillis: Int,
+                        nisra: String)
