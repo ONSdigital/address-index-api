@@ -59,6 +59,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val epochValOrCurrent = epoch.getOrElse("current")
     val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
+    println("epochVal = "+ epochVal)
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
