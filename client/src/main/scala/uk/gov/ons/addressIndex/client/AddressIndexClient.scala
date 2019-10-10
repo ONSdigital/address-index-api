@@ -140,13 +140,24 @@ trait AddressIndexClient {
       )
   }
 
-  def bulk(request: BulkBody, apiKey: String)(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
+  def bulk(request: BulkBody,
+           apiKey: String,
+           limitperaddress:String = "5",
+           historical: String = "true",
+           matchthreshold:String = "5",
+           epoch: String = "current")(implicit ec: ExecutionContext): Future[AddressBulkResponseContainer] = {
     Bulk
       .toReq
       .withRequestTimeout(Duration.Inf)
       .withHttpHeaders(
         "Content-Type" -> "application/json",
         "authorization" -> apiKey
+      )
+      .withQueryStringParameters(
+        "limitperaddress" -> limitperaddress,
+        "historical" -> historical,
+        "matchthreshold" -> matchthreshold,
+        "epoch" -> epoch
       )
       .post(Json.toJson(request))
       .map(_.json.as[AddressBulkResponseContainer])
