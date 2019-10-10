@@ -122,7 +122,7 @@ class BulkMatchController @Inject()(val controllerComponents: ControllerComponen
     */
   private def upload(apiResponseAction: (AddressBulkResponseContainer, String, Request[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]]) => Result): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] =
     Action.async(
-      parse.maxLength(10 * 1024 * 1024, parse.multipartFormData)
+      parse.maxLength(1 * 1024 * 1024, parse.multipartFormData)
     ) { request =>
       request.session.get("api-key").map { apiKey =>
         val result: Option[Future[Result]] = request.body match {
@@ -134,7 +134,15 @@ class BulkMatchController @Inject()(val controllerComponents: ControllerComponen
                 BulkQuery(id, address)
               }
 
-              apiClient.bulk(BulkBody(addresses), apiKey).map {
+              val bulkparams = CSVReader.open(file.ref.path.toFile).all().head.mkString
+              val paramList:Array[String] = bulkparams.split("&")
+              val paramMap: Map[String,String] = paramList.map(_.split("=")).map(a=>(a(0), a(1))).toMap
+              val limitperaddress:String = paramMap.getOrElse("limitperaddress","5")
+              val historical: String = paramMap.getOrElse("historical","true")
+              val matchthreshold:String = paramMap.getOrElse("matchthreshold","5")
+              val epoch: String = paramMap.getOrElse("epoch","current")
+
+              apiClient.bulk(BulkBody(addresses), apiKey, limitperaddress, historical, matchthreshold, epoch).map {
                 apiResponse => apiResponseAction(apiResponse, token, request)
               }
             }
