@@ -57,7 +57,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
-    val epochVal = epoch.getOrElse("")
+    val epochValOrCurrent = epoch.getOrElse("current")
+    val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
@@ -124,7 +125,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
-    val epochVal = epoch.getOrElse("")
+    val epochValOrCurrent = epoch.getOrElse("current")
+    val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
@@ -191,7 +193,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
-    val epochVal = epoch.getOrElse("")
+    val epochValOrCurrent = epoch.getOrElse("current")
+    val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
 
     logger.info("threshold = " + thresholdFloat)
 
