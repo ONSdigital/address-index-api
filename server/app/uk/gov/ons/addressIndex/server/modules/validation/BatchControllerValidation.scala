@@ -106,7 +106,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   def validateBatchEpoch(epoch: Option[String], queryValues: QueryValues): Option[Result] = {
     epoch match {
       case None => None
-      case Some(epochStr) if epochStr.matches(epochRegex) || epochStr.equals("current") => None
+      case Some(epochStr) if epochStr.matches(epochRegex) || epochStr.equals("current") || epochStr.equals("") => None
       case Some(_) =>
         logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
         Some(jsonBadRequest(EpochInvalid(queryValues)))

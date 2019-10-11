@@ -120,7 +120,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     } else {
       Future.successful(
         Redirect(controllers.routes.SingleMatchController
-          .doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchThresholdValue), Some(fromSourceValue), Some(partialValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse(""))))
+          .doMatchWithInput(addressText, Some(filterText), Some(1), rangeOpt, latOpt, lonOpt, Some(historical), Some(matchThresholdValue), Some(fromSourceValue), Some(partialValue), Some(startDateVal.getOrElse("")), Some(endDateVal.getOrElse("")),Some(epochVal.getOrElse(""))))
       )
     }
   }
@@ -183,7 +183,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
               apiKey = apiKey
             )
           ) map { resp: AddressByPartialAddressResponseContainer =>
-            val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, partialValue, startDateVal, endDateVal))
+            val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, partialValue, epochVal, startDateVal, endDateVal))
 
             val classCodes: Map[String, String] = resp.response.addresses.map(address =>
               (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -228,7 +228,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             apiKey = apiKey
           )
         ) map { resp: AddressBySearchResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, partialValue, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, fromSourceValue, partialValue, epochVal, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.addresses.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -304,7 +304,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             epoch = epochVal
           )
         ) map { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, "all", false, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchThresholdValue, "all", partial = false, epochVal, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -375,7 +375,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             epoch = epochVal
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, "all", false, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historicalValue, matchthresholdValue, "all", partial = false, epochVal, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -456,7 +456,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
             epoch = epochVal
           )
         ) flatMap { resp: AddressByUprnResponseContainer =>
-          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historical, matchthresholdValue, "all", false, startDateVal, endDateVal))
+          val filledForm = SingleMatchController.form.fill(SingleSearchForm(addressText, filterText, historical, matchthresholdValue, "all", partial = false, epochVal, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.address.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -502,6 +502,7 @@ object SingleMatchController {
       "matchthreshold" -> number,
       "fromsource" -> text,
       "partial" -> boolean,
+      "epoch" -> text,
       "startdate" -> text,
       "enddate" -> text
     )(SingleSearchForm.apply)(SingleSearchForm.unapply)

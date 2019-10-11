@@ -65,7 +65,8 @@ trait AddressIndexClient {
         "limit" -> request.limit,
         "offset" -> request.offset,
         "fromsource" -> request.fromsource,
-        "verbose" -> request.verbose.toString
+        "verbose" -> request.verbose.toString,
+        "epoch" -> request.epoch.toString
       )
   }
 
@@ -100,7 +101,8 @@ trait AddressIndexClient {
         "enddate" -> request.enddate.toString,
         "limit" -> request.limit,
         "offset" -> request.offset,
-        "verbose" -> request.verbose.toString
+        "verbose" -> request.verbose.toString,
+        "epoch" -> request.epoch.toString
       )
   }
 
@@ -136,7 +138,8 @@ trait AddressIndexClient {
         "limit" -> request.limit,
         "offset" -> request.offset,
         "verbose" -> request.verbose.toString,
-        "fromsource" -> request.fromsource.toString
+        "fromsource" -> request.fromsource.toString,
+        "epoch" -> request.epoch.toString
       )
   }
 
@@ -177,7 +180,8 @@ trait AddressIndexClient {
         "historical" -> request.historical.toString,
         "startdate" -> request.startdate.toString,
         "enddate" -> request.enddate.toString,
-        "verbose" -> request.verbose.toString
+        "verbose" -> request.verbose.toString,
+        "epoch" -> request.epoch.toString
       )
       .get
       .map(_.json.as[AddressByUprnResponseContainer])
