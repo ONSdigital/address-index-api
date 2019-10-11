@@ -53,13 +53,22 @@
                 )
             </div>
 
-            <div class="col-4">
+            <div class="col-3">
                 @inputRadioGroup(
                 postcodeForm("historical"),
                 options = Seq("true"->"Yes","false"->"No"),
                 'class -> "form-control mars",
-                '_label -> "Include historical data?",
-                '_help -> "Historical data is included by default")
+                '_label -> "Include historical",
+                '_help -> " address data?")
+            </div>
+
+            <div class="col-1">
+                @select(
+                postcodeForm("epoch"),
+                options = Seq(""->" ", "65"->"65","61"->"61"),
+                'class -> "form-control mars",
+                '_label -> "Epoch",
+                '_help -> "Number")
             </div>
 
         </div>
