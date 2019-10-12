@@ -147,7 +147,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
             epoch = epochVal
           )
         } map { resp: AddressByPostcodeResponseContainer =>
-          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText, filterText, historicalValue, startDateVal, endDateVal))
+          val filledForm = PostcodeController.form.fill(PostcodeSearchForm(addressText, filterText, historicalValue, epochVal, startDateVal, endDateVal))
 
           val classCodes: Map[String, String] = resp.response.addresses.map(address =>
             (address.uprn, classHierarchy.analyseClassCode(address.classificationCode))).toMap
@@ -179,6 +179,7 @@ object PostcodeController {
       "address" -> text,
       "filter" -> text,
       "historical" -> boolean,
+      "epoch" -> text,
       "startdate" -> text,
       "enddate" -> text
     )(PostcodeSearchForm.apply)(PostcodeSearchForm.unapply)

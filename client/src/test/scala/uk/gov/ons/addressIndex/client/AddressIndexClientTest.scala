@@ -87,7 +87,8 @@ class AddressIndexClientTest extends FlatSpec with Matchers {
       "enddate" -> Seq("enddate"),
       "limit" -> Seq("10"),
       "offset" -> Seq("0"),
-      "fromsource" -> List("all")
+      "fromsource" -> List("all"),
+      "epoch" -> List("")
     )
     actual shouldBe expected
   }
