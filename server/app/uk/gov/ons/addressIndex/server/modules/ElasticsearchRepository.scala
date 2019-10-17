@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.ImplementedBy
-import com.sksamuel.elastic4s.searches.SearchDefinition
+import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
@@ -24,7 +24,7 @@ trait ElasticsearchRepository {
     * @param args arguments for the ES query
     * @return Search definition describing an ES query
     */
-  def makeQuery(args: QueryArgs): SearchDefinition
+  def makeQuery(args: QueryArgs): SearchRequest
 
   /**
     * Query the address index by UPRN.

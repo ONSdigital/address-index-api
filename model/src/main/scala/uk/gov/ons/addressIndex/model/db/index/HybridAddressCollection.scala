@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.db.index
 
-import com.sksamuel.elastic4s.http.search.SearchResponse
-import com.sksamuel.elastic4s.http.{RequestFailure, RequestSuccess}
+import com.sksamuel.elastic4s.requests.searches.SearchResponse
+import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
 
 /**
   * Contains the result of an ES query
@@ -23,6 +23,10 @@ object HybridAddressCollection {
     }
   }
 
+  def fromResponse(resp: Response[SearchResponse]): HybridAddressCollection = {
+    if (resp.isError) throw new Exception("search failed - " + resp.error.reason)
+    else fromSearchResponse(resp.result)
+  }
   /**
     * Transforms `SearchResponse` into a hybrid address
     * It needs implicit `HitAs[HybridAddress]` that's why the definition should be after

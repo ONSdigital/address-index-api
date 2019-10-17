@@ -1,9 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{Inject, Singleton}
-import com.sksamuel.elastic4s.http.ElasticDsl._
-import com.sksamuel.elastic4s.http.index.alias.IndexAliases
-import com.sksamuel.elastic4s.http.{HttpClient, RequestFailure, RequestSuccess}
+import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticClient
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
 
@@ -19,8 +18,8 @@ class AddressIndexVersionModule @Inject()
 
   private val logger = GenericLogger("address-index:VersionModule")
   private val gcp : Boolean = Try(configProvider.config.elasticSearch.gcp.toBoolean).getOrElse(false)
-  val clientFullmatch: HttpClient = elasticClientProvider.clientFullmatch
-  val client: HttpClient = elasticClientProvider.client
+  val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
+  val client: ElasticClient = elasticClientProvider.client
 
   lazy val apiVersion: String = {
     val filename = "version.app"
@@ -53,10 +52,10 @@ class AddressIndexVersionModule @Inject()
       }
 
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
-    val indexes: Either[RequestFailure, RequestSuccess[IndexAliases]] = Await.result(requestForIndexes, 10 seconds)
+    val indexes = Try(Await.result(requestForIndexes, 10 seconds)).toEither
 
     val index: String = indexes match {
-      case Left(l) => l.error.reason
+      case Left(l) => l.getMessage
       case Right(r) => r.result.mappings.keys.toString()
     }
 

@@ -2,8 +2,8 @@ package uk.gov.ons.addressIndex.server.model.dao
 
 import java.security.cert.X509Certificate
 
-import com.sksamuel.elastic4s.ElasticsearchClientUri
-import com.sksamuel.elastic4s.http.HttpClient
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
+import com.sksamuel.elastic4s.http.JavaClient
 import javax.inject.{Inject, Singleton}
 import javax.net.ssl.{SSLContext, X509TrustManager}
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
@@ -13,6 +13,8 @@ import org.apache.http.impl.nio.client._
 import org.elasticsearch.client.RestClientBuilder._
 import uk.gov.ons.addressIndex.server.modules.ConfigModule
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
+
+import scala.util.Try
 
 /**
   * Gets the information from the configuration file and then creates a corresponding client
@@ -31,6 +33,9 @@ class AddressIndexElasticClientProvider @Inject()
   val hostFullmatch: String = esConf.uriFullmatch
   val port: String = esConf.port
   val ssl: String = esConf.ssl
+  val basicAuth: String = esConf.basicAuth
+  val searchUser: String = esConf.searchUser
+  val searchPassword: String = esConf.searchPassword
   val connectionTimeout: Int = esConf.connectionTimeout
   val connectionRequestTimeout: Int = esConf.connectionRequestTimeout
   val socketTimeout: Int = esConf.connectionRequestTimeout
@@ -43,7 +48,7 @@ class AddressIndexElasticClientProvider @Inject()
     logger info "Connecting to Elasticsearch"
 
     val provider = new BasicCredentialsProvider
-    val credentials = new UsernamePasswordCredentials("elastic", "changeme")
+    val credentials = new UsernamePasswordCredentials(searchUser, searchPassword)
 
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
@@ -59,11 +64,18 @@ class AddressIndexElasticClientProvider @Inject()
     }
   ), null)
 
-  val client: HttpClient = clientBuilder(host, port, ssl)
+  def propsBuilder(host: String, port: String, ssl: String): ElasticProperties = {
+    val intPort = Try(port.toInt).getOrElse(9200)
+    val elEndpoint: ElasticNodeEndpoint = ElasticNodeEndpoint(
+      if (ssl == "true") "https" else "http", host, intPort, None)
+    new ElasticProperties(endpoints = Seq(elEndpoint))
+  }
 
-  val clientFullmatch: HttpClient = clientBuilder(hostFullmatch, port, ssl)
+  val client: ElasticClient = clientBuilder(propsBuilder(host, port, ssl))
 
-  def clientBuilder(host: String, port: String, ssl: String): HttpClient = HttpClient(ElasticsearchClientUri(s"elasticsearch://$host:$port?ssl=$ssl"), new RequestConfigCallback {
+  val clientFullmatch: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
+
+  def clientBuilder(eProps: ElasticProperties): ElasticClient = ElasticClient(JavaClient(eProps, new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
       requestConfigBuilder.setConnectTimeout(connectionTimeout)
@@ -73,11 +85,18 @@ class AddressIndexElasticClientProvider @Inject()
       requestConfigBuilder
     }
   }, (httpClientBuilder: HttpAsyncClientBuilder) => {
-    //      httpClientBuilder.setDefaultCredentialsProvider(provider)
-    httpClientBuilder
+    if (basicAuth == "true") {
+      httpClientBuilder
+       .setDefaultCredentialsProvider(provider)
+       .setMaxConnTotal(maxESConnections)
+       .setSSLContext(context)
+  } else {
+     httpClientBuilder
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
-  })
+    }
+  }
+  ))
 }
 
 
