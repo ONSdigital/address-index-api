@@ -15,6 +15,7 @@ import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseCon
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkQuery}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 /**
   * Controller class for a multiple addresses to be matched
@@ -136,7 +137,7 @@ class BulkMatchController @Inject()(val controllerComponents: ControllerComponen
 
               val bulkparams = CSVReader.open(file.ref.path.toFile).all().head.mkString
               val paramList:Array[String] = bulkparams.split("&")
-              val paramMap: Map[String,String] = paramList.map(_.split("=")).map(a=>(a(0), a(1))).toMap
+              val paramMap: Map[String,String] = Try(paramList.map(_.split("=")).map(a=>(a(0), a(1))).toMap).getOrElse(Map.empty[String, String])
               val limitperaddress:String = paramMap.getOrElse("limitperaddress","5")
               val historical: String = paramMap.getOrElse("historical","true")
               val matchthreshold:String = paramMap.getOrElse("matchthreshold","5")
