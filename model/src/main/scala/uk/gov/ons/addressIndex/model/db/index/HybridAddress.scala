@@ -76,9 +76,9 @@ object HybridAddress {
       val testUPRN = Try(slist.lift(1).get.toString.toLong).getOrElse(0L)
       val bestDistance = if (testUPRN != 0) 0D
                         else if (eWDistance > 0 && niDistance == 0) eWDistance
-                          else if (eWDistance == 0 && niDistance > 0) niDistance
+                          else if (eWDistance == 0 && niDistance > 0 && !niDistance.isInfinite) niDistance
                             else if (eWDistance > niDistance) niDistance
-                              else eWDistance
+                              else eWDistance + 0.01
 
 
       Try(HybridAddress(
