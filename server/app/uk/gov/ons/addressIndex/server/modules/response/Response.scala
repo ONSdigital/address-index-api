@@ -7,6 +7,7 @@ import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
 import scala.concurrent.Future
+import scala.util.Try
 
 trait Response {
 
@@ -24,7 +25,8 @@ trait Response {
   }
 
   def FailedRequestToEs(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", detail))
+    val detailOrDefault = if (detail == null || detail.isEmpty) "No details" else detail
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code, Try(FailedRequestToEsError.message.replace("see logs", detailOrDefault)).getOrElse(""))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
@@ -35,7 +37,8 @@ trait Response {
   }
 
   def FailedRequestToEsTooBusy(detail: String, queryValues: QueryValues): AddressBySearchResponseContainer = {
-    val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", detail))
+    val detailOrDefault = if (detail == null || detail.isEmpty) "No details" else detail
+    val enhancedError = new AddressResponseError(FailedRequestToEsError.code, Try(FailedRequestToEsError.message.replace("see logs", detailOrDefault)).getOrElse(""))
     AddressBySearchResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
