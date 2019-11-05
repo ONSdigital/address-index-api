@@ -32,6 +32,14 @@ object Links {
     )
   }
 
+  def typeahead(implicit messages: Messages): Link = {
+    Link(
+      href = controllers.routes.TypeaheadController.showMatchPartialPage().toString,
+      label = messages("navbar.typeahead"),
+      section = "typeahead"
+    )
+  }
+
   def clerical(implicit messages: Messages): Link = {
     Link(
       href = controllers.routes.ClericalToolController.showSingleMatchPage().toString,
@@ -79,7 +87,8 @@ object Navigation {
       links = Seq(
         Links.single,
         Links.postcode,
-        Links.multi
+        Links.multi,
+        Links.typeahead
       )
     )
   }

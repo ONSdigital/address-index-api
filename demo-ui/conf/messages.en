@@ -148,6 +148,7 @@ navbar.query=Display Query
 navbar.help=Help
 navbar.radius=Radius Search
 navbar.developers=</developers>
+navbar.typeahead=Typeahead
 
 single.pleasesupply=Please enter an address
 single.sfatext=Search for an address
@@ -166,6 +167,8 @@ single.openmap=Open Map
 single.classification=Classification
 single.enddate=Historical End Date
 single.intro=To get started, enter an address or postcode. Provide as much of the address as possible for best results.
+
+typeahead.title=Typeahead demo
 
 addressresult.la_address=Local Authority address
 addressresult.postal_address_file=Postal Address File
