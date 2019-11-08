@@ -61,7 +61,7 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
     *
     * @return result to view
     */
-  def hc(): Action[AnyContent] = Action {
+  def healthz(): Action[AnyContent] = Action {
     Ok("Healthy")
   }
 

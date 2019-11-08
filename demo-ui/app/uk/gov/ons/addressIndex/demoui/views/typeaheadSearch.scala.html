@@ -21,28 +21,24 @@ version: DemoUIAddressIndexVersionModule
         <div class="group">
             <div class="col-12">
                 <h1 class="jupiter">@messages("typeahead.title")</h1>
-                <p class="venus">Returns a ranked list of addresses matching the input text (minimum 5 characters)</p>
+                <p class="venus"></p>
             </div>
         </div>
         <div class="group">
-            <section id="request" class="col-6">
+            <section id="request" class="col-7">
                 <div id="typeahead-tab" class="tab-content">
                     <div class="fields">
                         <dl>
                             <dt><label for="address" class="venus">Address </label></dt>
-                            <dd><input type="text" name="address" id="address" placeholder="Type here" value="" onkeyup="getSingle();" class="form-control mars" /></dd>
-                        </dl>
-                        <dl>
-                            <dt><label for="filter" class="venus">Filter </label></dt>
-                            <dd><input type="text" name="filter" id="filter" placeholder="For example residential, commercial" value="" class="form-control mars" /></dd>
+                            <dd><input type="text" name="address" id="address" placeholder="Start typing an address here. Results will be shown after 5 or more characters." value="" onkeyup="getSingle();" class="form-control mars" /></dd>
                         </dl>
                     </div>
                 </div>
             </section>
-            <section id="response" class="col-6">
+            <section id="response" class="col-5">
                 <div class="content-container">
                     <div class="venus">Response:</div>
-                    <div id="response-text">Response will appear here</div>
+                    <div id="response-text" class="mars">Response will appear here</div>
                 </div>
             </section>
         </div>
@@ -53,9 +49,8 @@ version: DemoUIAddressIndexVersionModule
 
     function getSingle() {
       var addressPart = document.getElementById("address").value;
-      var filterPart = document.getElementById("filter").value;
-      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&classificationfilter=" + filterPart + "&limit=20";
-      var singleUrlGcp = "/addresses/partial/" + addressPart + "?classificationfilter=" + filterPart + "&limit=20";
+      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&limit=20";
+      var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20";
 
       if (addressPart.length > 4) {
         if (@{conf.config.gcp}) {
@@ -80,7 +75,7 @@ version: DemoUIAddressIndexVersionModule
           document.getElementById("response-text").innerHTML = "No results from API"
           try {
             for (i = 0; i < response.response.addresses.length; i++) {
-              resultString = resultString + response.response.addresses[i].formattedAddress + " (<a href='/addresses/result/" + response.response.addresses[i].uprn + "' target='_blank'>" + response.response.addresses[i].uprn + "</a>)" + "<br>";
+              resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.addresses.length == 0) {
@@ -110,7 +105,7 @@ version: DemoUIAddressIndexVersionModule
           document.getElementById("response-text").innerHTML = "No results from API"
           try {
             for (i = 0; i < response.response.addresses.length; i++) {
-              resultString = resultString + response.response.addresses[i].formattedAddress + " (<a href='http://addressindex-ui-test.apps.cf1.ons.statistics.gov.uk/addresses/result/" + response.response.addresses[i].uprn + "' target='_blank'>" + response.response.addresses[i].uprn + "</a>)" + "<br>";
+              resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.addresses.length == 0) {

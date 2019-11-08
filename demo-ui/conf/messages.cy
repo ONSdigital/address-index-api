@@ -169,7 +169,7 @@ single.openmap=Map agored
 single.classification=Dosbarthiad
 single.intro=I ddechrau, rhowch y cyfeiriad neu god post. Darparu cymaint o'r cyfeiriad ag y bo modd i gael y canlyniadau gorau.
 
-typeahead.title=Typeahead demo
+typeahead.title=Typeahead Address Lookup Demo
 
 addressresult.la_address=Cyfeiriad yr awdurdod lleol
 addressresult.postal_address_file=Ffeil cyfeiriadau post

@@ -10,7 +10,7 @@ GET         /                                   uk.gov.ons.addressIndex.demoui.c
 POST        /login                              uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.doLogin
 
 # GCP Health Check
-GET         /hc                                 uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.hc
+GET         /healthz                            uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.healthz
 
 # ONS-Address Index home page
 GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home

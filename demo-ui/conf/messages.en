@@ -168,7 +168,7 @@ single.classification=Classification
 single.enddate=Historical End Date
 single.intro=To get started, enter an address or postcode. Provide as much of the address as possible for best results.
 
-typeahead.title=Typeahead demo
+typeahead.title=Typeahead Address Lookup Demo
 
 addressresult.la_address=Local Authority address
 addressresult.postal_address_file=Postal Address File
