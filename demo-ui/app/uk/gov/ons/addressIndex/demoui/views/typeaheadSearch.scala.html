@@ -1,0 +1,127 @@
+@import uk.gov.ons.addressIndex.demoui.model.ui.Navigation
+@import uk.gov.ons.addressIndex.demoui.modules.DemoUIAddressIndexVersionModule
+@import play.twirl.api.HtmlFormat
+@import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
+
+@(
+conf : DemouiConfigModule,
+version: DemoUIAddressIndexVersionModule
+)(implicit messages: Messages)
+
+@*
+* Call the `main` template with two arguments. The first
+* argument is a `String` with the title of the page, the second
+* argument is an `Html` object containing the body of the page.
+*@
+
+@main(title = messages("typeahead.title"), version = version, showBannerNavigation = true, showBannerTagline = true, siteSection = Some("typeahead"))  {
+
+<div class="container">
+    <div class="wrapper">
+        <div class="group">
+            <div class="col-12">
+                <h1 class="jupiter">@messages("typeahead.title")</h1>
+                <p class="venus"></p>
+            </div>
+        </div>
+        <div class="group">
+            <section id="request" class="col-7">
+                <div id="typeahead-tab" class="tab-content">
+                    <div class="fields">
+                        <dl>
+                            <dt><label for="address" class="venus">Address </label></dt>
+                            <dd><input type="text" name="address" id="address" placeholder="Start typing an address here. Results will be shown after 5 or more characters." value="" onkeyup="getSingle();" class="form-control mars" /></dd>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+            <section id="response" class="col-5">
+                <div class="content-container">
+                    <div class="venus">Response:</div>
+                    <div id="response-text" class="mars">Response will appear here</div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function getSingle() {
+      var addressPart = document.getElementById("address").value;
+      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&limit=20";
+      var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20";
+
+      if (addressPart.length > 4) {
+        if (@{conf.config.gcp}) {
+          getJSONResponse(singleUrlGcp)
+        } else {
+          getJSONResponseWithKey(singleUrl)
+        }
+      }
+    }
+
+    function getJSONResponse(durl) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', durl, true);
+      xhr.send();
+
+      xhr.addEventListener("readystatechange", processRequest, false);
+
+      function processRequest(e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          var response = JSON.parse(xhr.responseText);
+          var resultString = ""
+          document.getElementById("response-text").innerHTML = "No results from API"
+          try {
+            for (i = 0; i < response.response.addresses.length; i++) {
+              resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
+            }
+            document.getElementById("response-text").innerHTML = resultString;
+            if (response.response.addresses.length == 0) {
+              document.getElementById("response-text").innerHTML = "No results from API"
+            }
+          } catch (err) {
+            document.getElementById("response-text").innerHTML = "No results from API"
+          }
+        }
+      }
+    }
+
+    function getJSONResponseWithKey(durl) {
+      $("body").css("cursor", "progress");
+      $.support.cors = true; // this is required for IE8
+      $.ajax({
+          type: 'GET',
+          url: durl,
+          dataType: 'json',
+          headers: {
+            "Authorization": "typeahead_ons+8daf92dc-82e0-408c-8600-ee4a62360c08"
+          }
+        })
+
+        .done(function(response) {
+          var resultString = "";
+          document.getElementById("response-text").innerHTML = "No results from API"
+          try {
+            for (i = 0; i < response.response.addresses.length; i++) {
+              resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
+            }
+            document.getElementById("response-text").innerHTML = resultString;
+            if (response.response.addresses.length == 0) {
+              document.getElementById("response-text").innerHTML = "No results from API"
+            }
+          } catch (err) {
+            document.getElementById("response-text").innerHTML = "No results from API"
+          }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+          alert("API call failed:" + errorThrown);
+        })
+        .always(function() {
+          $("body").css("cursor", "default");
+        });
+    }
+
+</script>
+}
