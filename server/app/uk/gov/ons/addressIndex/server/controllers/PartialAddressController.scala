@@ -43,7 +43,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          startboost: Option[String] = None,
                           fromsource: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
@@ -68,9 +67,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
-    val defStartBoost = conf.config.elasticSearch.defaultStartBoost
-    // query string param for testing, will probably be removed
-    val sboost = startboost.flatMap(x => Try(x.toInt).toOption).getOrElse(defStartBoost)
+    val sboost = conf.config.elasticSearch.defaultStartBoost
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }

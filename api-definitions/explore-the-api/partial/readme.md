@@ -91,15 +91,6 @@
             </td>
         </tr>
         <tr class="table--row">
-            <td class="table--cell">startboost</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Boost results where the input string appears at the start of the address (0 = no boost).</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: 2
-            </td>
-        </tr>
-        <tr class="table--row">
             <td class="table--cell">fromsource</td>
             <td class="table--cell">string</td>
             <td class="table--cell">Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)</td>

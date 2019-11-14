@@ -208,9 +208,6 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: startboost
-#      description: Boost results where the input string appears at the start of the address (0 = no boost).
-#      default: 2
 #    - name: fromsource
 #      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
@@ -228,7 +225,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], startboost: Option[String], fromsource: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
