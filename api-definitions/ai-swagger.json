@@ -412,14 +412,6 @@
 					},
 					{
 						"in": "query",
-						"name": "startboost",
-						"type": "string",
-						"required": false,
-						"description": "Boost results where the input string appears at the start of the address (0 = no boost).",
-						"default": 2
-					},
-					{
-						"in": "query",
 						"name": "fromsource",
 						"type": "string",
 						"required": false,
