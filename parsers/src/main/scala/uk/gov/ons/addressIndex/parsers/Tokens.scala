@@ -38,6 +38,8 @@ object Tokens {
   val defaultCodelistFolder = "parser.codelist.folder"
   val defaultDelimiter = "="
 
+  val ocrlist: Map[String, String] = fileToMap(s"ocr", defaultPreProcessFolder)
+
   /**
     * Does pre-tokenization treatment to the input (normalization + splitting)
     *
@@ -57,16 +59,25 @@ object Tokens {
 
     val inputWithoutAccents = StringUtils.stripAccents(upperInput)
 
+    // FWMT-1161 Deal with common OCR errors
+    val inputWithoutAccentsOCR = inputWithoutAccents.split(" ").map
+    { token =>
+      {
+        val ocrMatch = ocrlist.get(token)
+        if (ocrMatch.isDefined) ocrMatch.get else token
+      }
+    }.mkString(" ")
+
     val flatLabels = List(flat).flatten.mkString("|")
 
-    val tokens = inputWithoutAccents
+    val tokens = inputWithoutAccentsOCR
       .replaceAll("(\\d+[A-Z]?) *- *(\\d+[A-Z]?)", "$1-$2")
       .replaceAll("(\\d+)/(\\d+)", "$1-$2")
       .replaceAll("(\\d+) *TO *(\\d+)", "$1-$2")
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
       .replaceAll("(?i)($flatLabels)([a-zA-Z]{1,2})", "$1 $2")
-      .replace(" R0AD ", " ROAD ")
+     // .replace(" R0AD ", " ROAD ")
       .replace(" IN ", " ")
       .replace(" - ", " ")
       .replace(",", " ")

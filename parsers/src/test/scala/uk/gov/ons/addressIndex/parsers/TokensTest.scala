@@ -235,4 +235,27 @@ class TokensTest extends FlatSpec with Matchers {
     val actual = Tokens.preTokenize(input).mkString(" ")
     actual shouldBe expected
   }
+
+  it should "convert '11 WOMBAT CRESCENT C0LCHESTER' into '11 WOMBAT CRESCENT COLCHESTER'" in {
+    val input = "11 WOMBAT CRESCENT C0LCHESTER"
+    val expected = "11 WOMBAT CRESCENT COLCHESTER"
+    val actual = Tokens.preTokenize(input).mkString(" ")
+    actual shouldBe expected
+  }
+
+  it should "convert '42 FARTH1NG W00D R0AD PO0LE BH15 1NG' into '42 FARTH 1NG WOOD ROAD POOLE BH15 1NG'" in {
+    // FARTHING is not on the ocr list, WOOD, ROAD and POOLE are
+    val input = "42 FARTH1NG W00D R0AD PO0LE BH15 1NG"
+    val expected = "42 FARTH 1NG WOOD ROAD POOLE BH15 1NG"
+    val actual = Tokens.preTokenize(input).mkString(" ")
+    actual shouldBe expected
+  }
+
+  it should "convert 'MY WO0DEN BUILD1NG BLANDFORD R0AD PO0LE BH15 1NG' into 'MY WO0DEN BUILDING BLANDFORD ROAD POOLE BH15 1NG'" in {
+    // WOODEN is not on the ocr list, BUILDING, ROAD and POOLE are
+    val input = "MY WO0DEN BUILD1NG BLANDFORD R0AD PO0LE BH15 1NG"
+    val expected = "MY WO0 DEN BUILDING BLANDFORD ROAD POOLE BH15 1NG"
+    val actual = Tokens.preTokenize(input).mkString(" ")
+    actual shouldBe expected
+  }
 }
