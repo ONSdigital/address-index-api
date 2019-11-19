@@ -77,7 +77,6 @@ object Tokens {
       .replaceAll("(\\d+)([a-zA-Z]{3,})", "$1 $2")
       .replaceAll("([a-zA-Z]{3,})(\\d+)", "$1 $2")
       .replaceAll("(?i)($flatLabels)([a-zA-Z]{1,2})", "$1 $2")
-     // .replace(" R0AD ", " ROAD ")
       .replace(" IN ", " ")
       .replace(" - ", " ")
       .replace(",", " ")

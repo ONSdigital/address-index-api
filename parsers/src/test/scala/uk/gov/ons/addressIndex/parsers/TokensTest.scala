@@ -251,7 +251,7 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "convert 'MY WO0DEN BUILD1NG BLANDFORD R0AD PO0LE BH15 1NG' into 'MY WO0DEN BUILDING BLANDFORD ROAD POOLE BH15 1NG'" in {
+  it should "convert 'MY WO0DEN BUILD1NG BLANDFORD R0AD PO0LE BH15 1NG' into 'MY WO0 DEN BUILDING BLANDFORD ROAD POOLE BH15 1NG'" in {
     // WOODEN is not on the ocr list, BUILDING, ROAD and POOLE are
     val input = "MY WO0DEN BUILD1NG BLANDFORD R0AD PO0LE BH15 1NG"
     val expected = "MY WO0 DEN BUILDING BLANDFORD ROAD POOLE BH15 1NG"
