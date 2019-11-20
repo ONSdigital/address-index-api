@@ -35,7 +35,7 @@ class RegistersPostcodeCustomSimulation extends Simulation {
   val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
 
   // partial addresses from the Random Address Generator
-  val feeder: RecordSeqFeederBuilder[String] = csv("postcodes100K.csv").circular
+  val feeder: RecordSeqFeederBuilder[String] = csv("postcodes100K.csv").random
 
   // user pause of 100ms between postcodes, then get next one from file
   // requestRelpath is addresses/postcode/ (no further)
@@ -47,8 +47,8 @@ class RegistersPostcodeCustomSimulation extends Simulation {
       .get(requestRelPath + "${postcode}")
     )
 
-  setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (1 minute)))
-    .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(1 minute))
+  setUp(scn.inject(constantUsersPerSec(numOfRequestsPerSecond) during (10 minutes)))
+    .throttle(jumpToRps(numOfRequestsPerSecond), holdFor(10 minutes))
     .protocols(httpProtocol)
 
 }
