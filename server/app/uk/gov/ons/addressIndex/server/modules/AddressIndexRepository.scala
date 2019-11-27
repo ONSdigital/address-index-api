@@ -61,9 +61,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   private val hybridIndexRandom = esConf.indexes.hybridIndex + clusterPolicyRandom
   private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + clusterPolicyRandom
 
-  //private val hybridMapping = "/" + esConf.indexes.hybridMapping
-  private val hybridMapping = ""
-
   private val gcp : Boolean = Try(esConf.gcp.toBoolean).getOrElse(false)
 
   val client: ElasticClient = elasticClientProvider.client
@@ -79,7 +76,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val source = if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn
 
-    search(source + args.epochParam + hybridMapping).query(query)
+    search(source + args.epochParam).query(query)
   }
 
   /**
@@ -175,7 +172,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
-    search(source + args.epochParam + hybridMapping)
+    search(source + args.epochParam)
       .query(query)
       .start(args.start)
       .limit(args.limit)
@@ -202,7 +199,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPostcode else hybridIndexSkinnyPostcode
     }
 
-    val searchBase = search(source + args.epochParam + hybridMapping)
+    val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
       .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
@@ -246,7 +243,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexRandom else hybridIndexSkinnyRandom
     }
 
-    search(source + args.epochParam + hybridMapping)
+    search(source + args.epochParam)
       .query(query)
       .limit(args.limit)
   }
@@ -859,7 +856,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
 
     if (isBlank) {
-      search(source + args.epochParam + hybridMapping).query(query)
+      search(source + args.epochParam).query(query)
         .sortBy(
           radiusSort
         )
@@ -868,7 +865,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         .start(args.start)
         .limit(args.limit)
     } else {
-      search(source + args.epochParam + hybridMapping).query(query)
+      search(source + args.epochParam).query(query)
         .sortBy(
           FieldSort("_score").order(SortOrder.DESC), FieldSort("uprn").order(SortOrder.ASC)
         )

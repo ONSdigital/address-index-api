@@ -54,7 +54,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val dateMillis: Long = DateTime.now().getMillis
   val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + "_" + dateMillis + defaultEpoch
   val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + "_" +  dateMillis + defaultEpoch
-  val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
 
   val hybridRelLevel = 1
   val hybridRelSibArray = List(6L, 7L)
