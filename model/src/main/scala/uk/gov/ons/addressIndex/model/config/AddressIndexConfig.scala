@@ -86,8 +86,7 @@ case class ClusterPoliciesConfig(bulk: String,
 case class IndexesConfig(hybridIndexHistorical: String,
                          hybridIndex: String,
                          hybridIndexHistoricalSkinny: String,
-                         hybridIndexSkinny: String,
-                         hybridMapping: String)
+                         hybridIndexSkinny: String)
 
 case class SubBuildingNameConfig(pafSubBuildingNameBoost: Double,
                                  lpiSaoTextBoost: Double,
