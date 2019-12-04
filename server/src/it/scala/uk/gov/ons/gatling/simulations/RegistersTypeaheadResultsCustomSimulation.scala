@@ -12,7 +12,7 @@ import scala.language.postfixOps
 
 class RegistersTypeaheadResultsCustomSimulation extends Simulation {
 
-  val baseUrl: String = ConfigLoader("baseUrl")
+  val baseUrl: String = ConfigLoader("baseUrl").replace("partial/", "")
   val apiKey: String = ConfigLoader("apiKey")
   val numOfRequestsPerSecond: Int = ConfigLoader("requestsPerSecond") toInt
   val requestRelPath = ConfigLoader("request_rel_path")
@@ -66,7 +66,7 @@ class RegistersTypeaheadResultsCustomSimulation extends Simulation {
     .pause(300 millis)
     .feed(feeder)
     .exec(http("Typeahead")
-      .get(requestRelPath + "${addresspart}" + "?limit=4")
+      .get(requestRelPath + "partial?input=" + "${addresspart}" + "&limit=4")
       .check(jsonPath("$..uprn").findAll.saveAs("uprns"))
       .check(jsonPath("$..input").findAll.saveAs("inputs"))
     )
