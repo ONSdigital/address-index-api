@@ -142,24 +142,24 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case first :: second :: _ if first == second => Seq(
         // allow the target pao and target sao to match once each
         // prevents (a a -> a b) from causing two matches
-        numMatchQuery("lpi.paoStartNumber", first).boost(0.5D),
-        numMatchQuery("lpi.saoStartNumber", first).boost(0.5D),
-        numMatchQuery("nisra.paoStartNumber", first).boost(0.5D))
+        numMatchQuery("lpi.paoStartNumber", first).boost(2D),
+        numMatchQuery("lpi.saoStartNumber", first).boost(2D),
+        numMatchQuery("nisra.paoStartNumber", first).boost(2D))
       case first :: second :: _ => Seq(
         // allow the input pao and input sao to match once each
         // because they cannot both match the same target, matches should not overlap (usually)
-        dismax(numMatchQuery("lpi.paoStartNumber", first).boost(0.2D),
-          numMatchQuery("lpi.saoStartNumber", first).boost(0.5D),
-          numMatchQuery("nisra.saoStartNumber", first).boost(0.5D)),
-        dismax(numMatchQuery("lpi.paoStartNumber", second).boost(0.5D),
-          numMatchQuery("lpi.saoStartNumber", second).boost(0.2D),
-          numMatchQuery("nisra.paoStartNumber", second).boost(0.5D)))
+        dismax(numMatchQuery("lpi.paoStartNumber", first).boost(1D),
+          numMatchQuery("lpi.saoStartNumber", first).boost(2D),
+          numMatchQuery("nisra.saoStartNumber", first).boost(2D)),
+        dismax(numMatchQuery("lpi.paoStartNumber", second).boost(2D),
+          numMatchQuery("lpi.saoStartNumber", second).boost(1D),
+          numMatchQuery("nisra.paoStartNumber", second).boost(2D)))
       case Seq(first) => Seq(
         // otherwise, match either
-        dismax(numMatchQuery("lpi.paoStartNumber", first).boost(0.5D),
-          numMatchQuery("lpi.saoStartNumber", first).boost(0.2D),
-          numMatchQuery("nisra.paoStartNumber", first).boost(0.5D),
-          numMatchQuery("nisra.saoStartNumber", first).boost(0.2D),
+        dismax(numMatchQuery("lpi.paoStartNumber", first).boost(2D),
+          numMatchQuery("lpi.saoStartNumber", first).boost(1D),
+          numMatchQuery("nisra.paoStartNumber", first).boost(2D),
+          numMatchQuery("nisra.saoStartNumber", first).boost(1D),
         ))
       case _ => Seq.empty
     }
