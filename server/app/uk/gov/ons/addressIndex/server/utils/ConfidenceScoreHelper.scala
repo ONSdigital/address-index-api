@@ -27,7 +27,7 @@ object ConfidenceScoreHelper {
     val hScoreScaled = pow(hScore, 6)
     val elasticRatioScaled = 1 / (1 + exp(15 * (0.99 - elasticRatio)))
     //   confidence = (99* max (  sigmoid(e_ratio) ,  h_score^6 ) + sigmoid(e_ratio) )/100
-    BigDecimal((99 * max(hScoreScaled, elasticRatioScaled) + elasticRatioScaled) / 100).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
+    BigDecimal(99 * max(hScoreScaled, elasticRatioScaled) + elasticRatioScaled).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
   /**

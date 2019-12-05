@@ -39,7 +39,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val structuralScore = 1d
     val unitScore = -1d
     val elasticRatio = 1.3
-    val expected = 0.9905d
+    val expected = 99.0529d
 
     // When
     val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
@@ -54,7 +54,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val structuralScore = 1d
     val unitScore = 0.5d
     val elasticRatio = 0.98
-    val expected = 0.5135d
+    val expected = 51.3547d
 
     // When
     val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
@@ -69,7 +69,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val structuralScore = 1d
     val unitScore = 0.5d
     val elasticRatio = 1.2
-    val expected = 0.9589d
+    val expected = 95.8909d
 
     // When
     val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)

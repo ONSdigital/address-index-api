@@ -91,7 +91,7 @@ object AddressResponseAddress {
       classificationCode = other.classificationCode,
       lpiLogicalStatus = lpiLogicalStatus,
       fromSource = other.fromSource,
-      confidenceScore = 1D,
+      confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat
     )
   }
