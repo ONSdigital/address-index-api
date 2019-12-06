@@ -3,18 +3,18 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules.{AddressArgs, ConfigModule, ElasticsearchRepository, ParserModule, Region, VersionModule}
-import uk.gov.ons.addressIndex.server.utils.{AddressAPILogger, _}
+import uk.gov.ons.addressIndex.server.modules._
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
 import scala.util.Try
 import scala.util.control.NonFatal
-import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 
 @Singleton
 class AddressController @Inject()(val controllerComponents: ControllerComponents,
@@ -22,12 +22,12 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                                   parser: ParserModule,
                                   conf: ConfigModule,
                                   versionProvider: VersionModule,
-                                  overloadProtection: APIThrottler,
+                                  overloadProtection: APIThrottle,
                                   addressValidation: AddressControllerValidation
                                  )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
-  lazy val logger = AddressAPILogger("address-index-server:AddressController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:AddressController")
 
   val missing: String = "missing"
   val invalid: String = "invalid"
@@ -166,7 +166,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           tokens = tokens,
           start = 0,
           limit = limitExpanded,
-          isBlank = (input.isEmpty && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "")
+          isBlank = input.isEmpty && rangeVal != "" && latVal != "" && lonVal != "" && filterString != ""
         )
 
         val request: Future[HybridAddressCollection] =
@@ -205,8 +205,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
 
             writeLog(activity = "address_request")
-            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
-            overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressBySearchResponseContainer(
@@ -235,18 +233,17 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             )
         }.recover {
           case NonFatal(exception) =>
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
-              case ThrottlerStatus.Open =>
-                logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}")
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
-              case _ =>
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
-                logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
-                InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage, queryValues)))
+            if (overloadProtection.breaker.isHalfOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
+            }else if (overloadProtection.breaker.isOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (address input). Circuit breaker is Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
+            } else {
+              // Circuit Breaker is closed. Some other problem
+              writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
+              logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage, queryValues)))
             }
         }
     }
