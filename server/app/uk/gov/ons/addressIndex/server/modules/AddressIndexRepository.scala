@@ -971,7 +971,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             val elasticDenominator = Try(ConfidenceScoreHelper.calculateElasticDenominator(addressResponseAddresses.map(_.underlyingScore))).getOrElse(1D)
             // add the Hopper and hybrid scores to the address
             // val matchThreshold = 5
-            val threshold = Try((args.matchThreshold / 100).toDouble).getOrElse(0.05D)
+            val threshold = Try((args.matchThreshold).toDouble).getOrElse(5.0D)
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator)
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map { case (b, s) =>
               AddressBulkResponseAddress.fromBulkAddress(b, s, args.includeFullAddress)
