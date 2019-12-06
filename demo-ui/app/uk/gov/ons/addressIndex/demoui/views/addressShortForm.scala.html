@@ -58,7 +58,7 @@ expandRow: Int = 0
         }
         <tr>
             <td class="mars">Score</td>
-            <td class="venus">@{(address.confidenceScore).toString + "% match"}</td>
+            <td class="venus">@{(BigDecimal(address.confidenceScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble).toString + "% match"}</td>
         </tr>
         <tr>
             <td colspan="2" class="mars">
