@@ -10,7 +10,7 @@ import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.RandomControllerValidation
-import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -21,12 +21,12 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                                  esRepo: ElasticsearchRepository,
                                  conf: ConfigModule,
                                  versionProvider: VersionModule,
-                                 overloadProtection: APIThrottler,
+                                 overloadProtection: APIThrottle,
                                  randomValidation: RandomControllerValidation
                                 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with RandomControllerResponse {
 
-  lazy val logger = AddressAPILogger("address-index-server:RandomController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:RandomController")
 
   /**
     * Random query API
@@ -121,8 +121,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
             )
 
             writeLog(activity = "random_address_request")
-            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
-              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByRandomResponseContainer(
@@ -143,25 +141,17 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
         }.recover {
           case NonFatal(exception) =>
-
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
-              case ThrottlerStatus.Open =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
-              case _ =>
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
-                logger.warn(
-                  s"Could not handle individual request (random input), problem with ES ${exception.getMessage}"
-                )
-                InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
+            if (overloadProtection.breaker.isHalfOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (random input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
+            }else if (overloadProtection.breaker.isOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (random input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyRandom(exception.getMessage, queryValues)))
+            } else {
+              // Circuit Breaker is closed. Some other problem
+              writeLog(badRequestErrorMessage = FailedRequestToEsRandomError.message)
+              logger.warn(s"Could not handle individual request (random input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsRandom(exception.getMessage, queryValues)))
             }
         }
 
