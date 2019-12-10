@@ -44,5 +44,5 @@ object InternalServerErrorAddressResponseStatus extends AddressResponseStatus(
 
 object TooManyRequestsResponseStatus extends AddressResponseStatus(
   code = Status.TOO_MANY_REQUESTS,
-  message = "Too many requests (unexpected errors can also trigger the circuit breaker, see message detail)"
+  message = "Too many requests (see message detail)"
 )
