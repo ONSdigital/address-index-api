@@ -668,7 +668,7 @@
 						"type": "string",
 						"required": false,
 						"description": "Minimum confidence score (percentage) for match to be included in results.",
-						"default": 5
+						"default": 10
 					},
 					{
 						"in": "query",
@@ -730,7 +730,7 @@
 						"type": "string",
 						"required": false,
 						"description": "Minimum confidence score (percentage) for match to be included in results.",
-						"default": 5
+						"default": 10
 					},
 					{
 						"in": "query",

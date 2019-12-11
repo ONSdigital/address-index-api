@@ -241,7 +241,7 @@ object AddressIndexClientMock {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 1.0f,
+    confidenceScore = 100f,
     underlyingScore = 1.0f
   )
 

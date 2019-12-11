@@ -334,6 +334,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val tweakedCBConfig: ConfigModule = new ConfigModule {
     override def config: AddressIndexConfig = testConfig.config.copy(
       elasticSearch = testConfig.config.elasticSearch.copy(
+        circuitBreakerMaxFailures = 1,
         circuitBreakerCallTimeout = 250,
         circuitBreakerResetTimeout = 250,
         circuitBreakerMaxResetTimeout = 500

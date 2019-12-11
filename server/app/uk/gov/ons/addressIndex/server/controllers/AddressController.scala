@@ -186,7 +186,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
             // work out the threshold for accepting matches (default 5% -> 0.05)
-            val threshold = Try((thresholdFloat / 100).toDouble).getOrElse(0.05D)
+            val threshold = Try((thresholdFloat).toDouble).getOrElse(5.0D)
 
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses =

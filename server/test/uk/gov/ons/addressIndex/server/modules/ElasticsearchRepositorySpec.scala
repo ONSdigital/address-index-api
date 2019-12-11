@@ -818,7 +818,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "lpi.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -829,7 +829,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "lpi.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -840,7 +840,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "nisra.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -851,7 +851,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "nisra.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -924,7 +924,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "lpi.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -935,7 +935,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "lpi.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -946,7 +946,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "nisra.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -957,7 +957,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                                    "match":{
                                       "nisra.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -1242,7 +1242,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }]
                     }
                   }],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -2110,8 +2110,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 }
 }
 },
-"boost":0.2
-}
+"boost":0.2}
 },
 {
 "constant_score":{
@@ -2505,7 +2504,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 "match":{
 "lpi.nagAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.2,
+"boost":0.4,
 "fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
@@ -2514,7 +2513,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 "match":{
 "nisra.nisraAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.2,
+"boost":0.4,
 "fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
@@ -2523,7 +2522,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 "match":{
 "paf.pafAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.2,
+"boost":0.4,
 "fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
@@ -2532,7 +2531,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 }
 }
 ],
-"boost":0.075
+"boost":0.5
 }
 }
 ]
@@ -2735,7 +2734,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -2852,7 +2851,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -2967,7 +2966,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -3082,7 +3081,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -3197,7 +3196,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -3261,7 +3260,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3272,7 +3271,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3283,7 +3282,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3294,7 +3293,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3358,7 +3357,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3369,7 +3368,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3380,7 +3379,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3391,7 +3390,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3536,7 +3535,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3547,7 +3546,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3558,7 +3557,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3569,7 +3568,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3643,7 +3642,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3654,7 +3653,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3665,7 +3664,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3676,7 +3675,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3751,7 +3750,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3762,7 +3761,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3773,7 +3772,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3784,7 +3783,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3857,7 +3856,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3868,7 +3867,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3879,7 +3878,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3890,7 +3889,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -4950,8 +4949,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             }
            }
             },
-            "boost":0.2
-           }
+            "boost":0.2           }
             },
             {
            "constant_score":{
@@ -5354,7 +5352,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             "match":{
            "lpi.nagAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.2,
+            "boost":0.4,
             "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
@@ -5363,7 +5361,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             "match":{
            "nisra.nisraAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.2,
+            "boost":0.4,
             "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
@@ -5372,7 +5370,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             "match":{
            "paf.pafAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.2,
+            "boost":0.4,
             "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
@@ -5390,7 +5388,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            }
             }
            ],
-           "boost":0.075
+           "boost":0.5
             }
            }
             ]

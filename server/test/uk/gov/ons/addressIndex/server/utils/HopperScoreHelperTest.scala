@@ -198,7 +198,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 0.6336D,
+    confidenceScore = 63.3597D,
     underlyingScore = 1.0f
   )
 
@@ -221,7 +221,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 0.6336D,
+    confidenceScore = 63.3597D,
     underlyingScore = 1.0f
   )
 
@@ -244,7 +244,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 0.6336D,
+    confidenceScore = 63.3597D,
     underlyingScore = 1.0f
   )
 

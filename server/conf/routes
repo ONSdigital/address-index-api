@@ -335,7 +335,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      default: true
 #    - name: matchthreshold
 #      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
+#      default: 10.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -365,7 +365,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #      default: true
 #    - name: matchthreshold
 #      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
+#      default: 10.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -441,7 +441,7 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      default: true
 #    - name: matchthreshold
 #      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
+#      default: 10.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
