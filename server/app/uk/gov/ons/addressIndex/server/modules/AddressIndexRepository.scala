@@ -928,8 +928,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
           else partResult
         }.flatten
-      case _: AddressArgs =>
-        if (gcp || AddressFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+      case addressArgs: AddressArgs =>
+        if (gcp || (!addressArgs.isBulk && AddressFull) || (addressArgs.isBulk && BulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: PostcodeArgs =>
         if ((gcp && args.verboseOrDefault) || PostcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
