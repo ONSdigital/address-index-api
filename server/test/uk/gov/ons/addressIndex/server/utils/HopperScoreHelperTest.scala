@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.parsers.Tokens
   */
 class HopperScoreHelperTest extends FlatSpec with Matchers {
 
-  val logger = Logger("HopperScoreHelperTest")
+  val logger: Logger = Logger("HopperScoreHelperTest")
 
   val mockAddressTokens: Map[String, String] = Map(
     Tokens.buildingNumber -> "7",
@@ -23,7 +23,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     Tokens.postcodeOut -> "PO7"
   )
 
-  val mockPafAddress1 = AddressResponsePaf(
+  val mockPafAddress1: AddressResponsePaf = AddressResponsePaf(
     udprn = "",
     organisationName = "",
     departmentName = "",
@@ -48,7 +48,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     endDate = ""
   )
 
-  val mockPafAddress2 = AddressResponsePaf(
+  val mockPafAddress2: AddressResponsePaf = AddressResponsePaf(
     udprn = "",
     organisationName = "",
     departmentName = "",
@@ -73,7 +73,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     endDate = ""
   )
 
-  val mockNagAddress1 = AddressResponseNag(
+  val mockNagAddress1: AddressResponseNag = AddressResponseNag(
     uprn = "",
     postcodeLocator = "PO7 6GA",
     addressBasePostal = "",
@@ -108,7 +108,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     lpiStartDate = ""
   )
 
-  val mockNagAddress2 = AddressResponseNag(
+  val mockNagAddress2: AddressResponseNag = AddressResponseNag(
     uprn = "",
     postcodeLocator = "PO7",
     addressBasePostal = "",
@@ -143,13 +143,13 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     lpiStartDate = ""
   )
 
-  val mockRelative = Relative(
+  val mockRelative: Relative = Relative(
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
 
-  val mockCrossRef = CrossRef(
+  val mockCrossRef: CrossRef = CrossRef(
     crossReference = "osgb1000000347959147",
     source = "7666MT"
   )
@@ -158,7 +158,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
 
   val mockCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
-  val mockBespokeScoreEmpty = AddressResponseScore(
+  val mockBespokeScoreEmpty: AddressResponseScore = AddressResponseScore(
     objectScore = 0d,
     structuralScore = 0d,
     buildingScore = 0d,
@@ -169,7 +169,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     unitScoreDebug = "0",
     ambiguityPenalty = 1d)
 
-  val mockBespokeScore = AddressResponseScore(
+  val mockBespokeScore: AddressResponseScore = AddressResponseScore(
     objectScore = -1.0d,
     structuralScore = 1.0d,
     buildingScore = 1.0d,
@@ -180,7 +180,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     unitScoreDebug = "0999",
     ambiguityPenalty = 1d)
 
-  val mockAddressResponseAddress = AddressResponseAddress(
+  val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -198,12 +198,12 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 63.3597D,
+    confidenceScore = 63.3795D,
     underlyingScore = 1.0f
   )
 
 
-  val mockAddressResponseAddress1 = AddressResponseAddress(
+  val mockAddressResponseAddress1: AddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -221,12 +221,12 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 63.3597D,
+    confidenceScore = 63.3795D,
     underlyingScore = 1.0f
   )
 
 
-  val mockAddressResponseAddressWithScores = AddressResponseAddress(
+  val mockAddressResponseAddressWithScores: AddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -244,7 +244,7 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
-    confidenceScore = 63.3597D,
+    confidenceScore = 63.3795D,
     underlyingScore = 1.0f
   )
 
