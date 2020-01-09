@@ -10,7 +10,7 @@ import uk.gov.ons.addressIndex.parsers.Tokens
   */
 class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
 
-  val logger = Logger("HopperScoreHelperTest")
+  val logger: Logger = Logger("HopperScoreHelperTest")
 
   val mockAddressTokens: Map[String, String] = Map(
     Tokens.buildingNumber -> "7",
@@ -39,7 +39,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val structuralScore = 1d
     val unitScore = -1d
     val elasticRatio = 1.3
-    val expected = 99.0529d
+    val expected = 99.92d
 
     // When
     val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
@@ -54,7 +54,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val structuralScore = 1d
     val unitScore = 0.5d
     val elasticRatio = 0.98
-    val expected = 51.3457d
+    val expected = 51.3258d
 
     // When
     val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
@@ -69,7 +69,7 @@ class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
     val structuralScore = 1d
     val unitScore = 0.5d
     val elasticRatio = 1.2
-    val expected = 95.8909d
+    val expected = 99.2077d
 
     // When
     val actual = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
