@@ -25,7 +25,7 @@ object ConfidenceScoreHelper {
       tokens.contains(Tokens.saoStartSuffix)) 0.8D else 0.9D
     val hScore = structuralScore * (alpha + (0.99 - alpha) * unitScoreReplaced)
     val hScoreScaled = pow(hScore, 6)
-    val elasticRatioScaled = 1 / (1 + exp(30 * (0.99 - elasticRatio)))
+    val elasticRatioScaled = 1 / (1 + exp(22 * (0.99 - elasticRatio)))
     //   confidence = (99* max (  sigmoid(e_ratio) ,  h_score^6 ) + sigmoid(e_ratio) )/100
     BigDecimal(99 * max(hScoreScaled, elasticRatioScaled) + elasticRatioScaled).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
