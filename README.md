@@ -23,7 +23,7 @@ It is planned to deploy the application in the near future as a service intended
     * Java 1.8 
     * sbt 0.13.13 (or 0.13.16)
     * Scala 2.12.4
-    * Elasticsearch 5.6.7
+    * Elasticsearch 7.3.1
     * An IDE such as IntelliJ is recommended
 
 2) Create Project from GitHub (IntelliJ shown as example)
