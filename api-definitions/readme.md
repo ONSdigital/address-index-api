@@ -4,11 +4,11 @@
 
 <p>The Office for National Statistics (ONS) Address Index API provides public sector organisations with address lookup functions, via HTTP. It allows users to look-up addresses in England and Wales, and to select and retrieve the official address.</p>
 
-<p>The API is currently only available to a limited audience. Access can be requested by contacting <a href="mailto:ai.users@ons.gov.uk">Address Index</a></p>
+<p>The API is currently only available within ONS (for Census and other purposes) and a small number of other government departments.</p>
 
-<p>API access is restricted. API keys are required, and will be provided for those granted access.</p>
+<p>Access control is currently via simple API keys, but OAuth2 will be implemented in future.</p>
 
-<p>This API is currently in Beta and still being developed. Please be aware that as a result there may occasionally be breaking changes as we enhance functionality and respond to feedback.</p>
+<p>This API is currently in Beta and still being developed. There is no formal versioning yet, so there may occasionally be breaking changes as we enhance functionality.</p>
 
 <h2>Getting data from ONS Address Index API</h2>
 
