@@ -1,10 +1,12 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
-import com.sksamuel.elastic4s.http.HttpClient
-import com.sksamuel.elastic4s.http.search.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.mappings.MappingDefinition
+import com.sksamuel.elastic4s.http.JavaClient
+import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
+import com.sksamuel.elastic4s.requests.analysis.{Analysis, CustomAnalyzer}
+import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import com.sksamuel.elastic4s.testkit._
+import org.testcontainers.elasticsearch.ElasticsearchContainer
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
@@ -15,19 +17,32 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ClassLocalNodeProvider with HttpElasticSugar {
+class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
-  val testClient: HttpClient = http
-  val testClient2: HttpClient = http
+  val container = new ElasticsearchContainer()
+  container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.1")
+  container.start()
+  val containerHost: String = container.getHttpHostAddress
+  val host: String =  containerHost.split(":").headOption.getOrElse("localhost")
+  val port:Int =  Try(containerHost.split(":").lastOption.getOrElse("9200").toInt).getOrElse(9200)
 
-  // injections
-  val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
-    override def client: HttpClient = testClient
+  val elEndpoint: ElasticNodeEndpoint = ElasticNodeEndpoint("http",host,port,None)
+  val eProps: ElasticProperties = ElasticProperties(endpoints = Seq(elEndpoint))
 
-    /* Not currently used in tests as it doesn't look like you can have two test ES instances */
-    override def clientFullmatch: HttpClient = testClient2
-  }
+  val client: ElasticClient = ElasticClient(JavaClient(eProps))
+  val clientFullmatch: ElasticClient = ElasticClient(JavaClient(eProps))
+
+  val testClient: ElasticClient = client.copy()
+  val testClient2: ElasticClient = clientFullmatch.copy()
+
+ //  injections
+   val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
+      override def client: ElasticClient = testClient
+  /* Not currently used in tests as it doesn't look like you can have two test ES instances */
+   override def clientFullmatch: ElasticClient = testClient2
+   }
 
   val defaultLat = "50.705948"
   val defaultLon = "-3.5091076"
@@ -36,10 +51,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
   val config = new AddressIndexConfigModule
   val queryParams: QueryParamsConfig = config.config.elasticSearch.queryParams
-
-  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + defaultEpoch
-  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + defaultEpoch
-  val hybridMappings: String = config.config.elasticSearch.indexes.hybridMapping
+  val dateMillis: Long = DateTime.now().getMillis
+  val hybridIndexName: String = config.config.elasticSearch.indexes.hybridIndex + "_" + dateMillis + defaultEpoch
+  val hybridIndexHistoricalName: String = config.config.elasticSearch.indexes.hybridIndexHistorical + "_" +  dateMillis + defaultEpoch
 
   val hybridRelLevel = 1
   val hybridRelSibArray = List(6L, 7L)
@@ -427,34 +441,42 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
+  // new analysis object, doesn't seem to work
+  val customAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
+  val testAnalysis: Analysis = Analysis(
+    List(customAnalyzer))
+
+  // todo get it to work with new analysis package
   testClient.execute {
     createIndex(hybridIndexName)
-      .mappings(MappingDefinition.apply(hybridMappings))
+//      .analysis(testAnalysis)
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
-      ))
-  }.await
-
-  testClient.execute {
-    createIndex(hybridIndexHistoricalName)
-      .mappings(MappingDefinition.apply(hybridMappings))
-      .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
-        StandardTokenizer("myTokenizer1"))
-      ))
+     ))
   }.await
 
   testClient.execute {
     bulk(
-      indexInto(hybridIndexName / hybridMappings).fields(firstHybridHistEs)
+        indexInto(hybridIndexName).fields(firstHybridHistEs)
     )
   }.await
 
   blockUntilCount(1, hybridIndexName)
 
+  // todo get it to work with new analysis package
+  testClient.execute {
+    createIndex(hybridIndexHistoricalName)
+//      .analysis(testAnalysis)
+          .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
+            StandardTokenizer("myTokenizer1"))
+        ))
+  }.await
+
+
   testClient.execute {
     bulk(
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(firstHybridEs),
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(secondHybridEs)
+      indexInto(hybridIndexHistoricalName).fields(firstHybridEs),
+      indexInto(hybridIndexHistoricalName).fields(secondHybridEs)
     )
   }.await
 
@@ -463,13 +485,29 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
   testClient.execute {
     bulk(
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(thirdHybridEs),
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(fourthHybridEs),
-      indexInto(hybridIndexHistoricalName / hybridMappings).fields(fifthHybridEs)
+      indexInto(hybridIndexHistoricalName).fields(thirdHybridEs),
+      indexInto(hybridIndexHistoricalName).fields(fourthHybridEs),
+      indexInto(hybridIndexHistoricalName).fields(fifthHybridEs)
     )
   }.await
 
   blockUntilCount(3, hybridIndexHistoricalName)
+
+  testClient.execute{
+    addAlias("index_full_nohist_current",hybridIndexName)
+  }.await
+
+  testClient.execute{
+    addAlias("index_full_hist_current",hybridIndexHistoricalName)
+  }.await
+
+  testClient.execute{
+    updateIndexLevelSettings(hybridIndexName).numberOfReplicas(0)
+  }.await
+
+  testClient.execute{
+    updateIndexLevelSettings(hybridIndexHistoricalName).numberOfReplicas(0)
+  }.await
 
   val expectedPaf = PostcodeAddressFileAddress(
     hybridNotUsed,
@@ -712,7 +750,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
           "query" : {
             "term" : {
             "uprn" : {"value":"1"}
@@ -755,7 +792,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
            {
-              "version":true,
+
               "query":{
                  "bool":{
                     "must":[
@@ -781,7 +818,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "lpi.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -792,7 +829,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "lpi.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -803,7 +840,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "nisra.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -814,7 +851,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "nisra.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -862,7 +899,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
            {
-              "version":true,
+
               "query":{
                  "bool":{
                     "must":[
@@ -887,7 +924,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "lpi.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -898,7 +935,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "lpi.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -909,7 +946,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "nisra.paoStartNumber":{
                                          "query":"4",
-                                         "boost":0.5,
+                                         "boost":2,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -920,7 +957,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                                    "match":{
                                       "nisra.saoStartNumber":{
                                          "query":"4",
-                                         "boost":0.2,
+                                         "boost":1,
                                          "fuzzy_transpositions":false,
                                          "max_expansions":10,
                                          "prefix_length":"1"
@@ -987,7 +1024,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-             "version":true,
+
              "query":{
                 "bool":{
                    "must":[
@@ -1095,7 +1132,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
-      total should be > 0l
+      total should be > 0L
 
       val resultHybrid = results.head
       resultHybrid shouldBe expected.copy(score = resultHybrid.score)
@@ -1139,7 +1176,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -1205,7 +1242,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }]
                     }
                   }],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -1265,7 +1302,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
 {
-"version":true,
+
 "query":{
 "dis_max":{
 "tie_breaker":1,
@@ -2073,8 +2110,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 }
 }
 },
-"boost":0.2
-}
+"boost":0.2}
 },
 {
 "constant_score":{
@@ -2468,7 +2504,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 "match":{
 "lpi.nagAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.2,
+"boost":0.4,
 "fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
@@ -2477,7 +2513,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 "match":{
 "nisra.nisraAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.2,
+"boost":0.4,
 "fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
@@ -2486,7 +2522,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 "match":{
 "paf.pafAll.bigram":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.2,
+"boost":0.4,
 "fuzziness":"${queryParams.fallback.bigramFuzziness}"
 }
 }
@@ -2495,7 +2531,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
 }
 }
 ],
-"boost":0.075
+"boost":0.5
 }
 }
 ]
@@ -2623,7 +2659,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -2698,7 +2734,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -2740,7 +2776,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -2815,7 +2851,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -2857,7 +2893,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -2930,7 +2966,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -2972,7 +3008,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -3045,7 +3081,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -3087,7 +3123,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         s"""
           {
-            "version":true,
+
             "query":{
               "bool":{
                 "must":[{
@@ -3160,7 +3196,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                       }
                     }
                   ],
-                  "boost":0.075
+                  "boost":0.5
                 }
               },
               "from": 0,
@@ -3198,7 +3234,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
     {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3224,7 +3260,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3235,7 +3271,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3246,7 +3282,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3257,7 +3293,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3296,7 +3332,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
   {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3321,7 +3357,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3332,7 +3368,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3343,7 +3379,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3354,7 +3390,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3394,7 +3430,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -3433,7 +3469,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -3473,7 +3509,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3499,7 +3535,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3510,7 +3546,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3521,7 +3557,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3532,7 +3568,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3581,7 +3617,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
     {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3606,7 +3642,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3617,7 +3653,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3628,7 +3664,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3639,7 +3675,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3688,7 +3724,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
 {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3714,7 +3750,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3725,7 +3761,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3736,7 +3772,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3747,7 +3783,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3795,7 +3831,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
 {
-    "version":true,
+
     "query":{
        "bool":{
           "must":[
@@ -3820,7 +3856,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3831,7 +3867,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "lpi.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3842,7 +3878,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.paoStartNumber":{
                                "query":"7",
-                               "boost":0.5,
+                               "boost":2,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3853,7 +3889,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
                          "match":{
                             "nisra.saoStartNumber":{
                                "query":"7",
-                               "boost":0.2,
+                               "boost":1,
                                "fuzzy_transpositions":false,
                                "max_expansions":10,
                                "prefix_length":"1"
@@ -3902,7 +3938,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
           "query" : {
             "bool" : {
               "must" : [{
@@ -3946,7 +3981,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -3990,7 +4025,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -4036,7 +4071,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse(
         """
         {
-          "version":true,
+
           "query" : {
             "bool" : {
               "must" : [{
@@ -4106,7 +4141,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       val expected = Json.parse (
         s"""
            {
-            "version":true,
+
             "query":{
            "dis_max":{
             "tie_breaker":1,
@@ -4914,8 +4949,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
             }
            }
             },
-            "boost":0.2
-           }
+            "boost":0.2           }
             },
             {
            "constant_score":{
@@ -5318,7 +5352,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
             "match":{
            "lpi.nagAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.2,
+            "boost":0.4,
             "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
@@ -5327,7 +5361,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
             "match":{
            "nisra.nisraAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.2,
+            "boost":0.4,
             "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
@@ -5336,7 +5370,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
             "match":{
            "paf.pafAll.bigram":{
             "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.2,
+            "boost":0.4,
             "fuzziness":"${queryParams.fallback.bigramFuzziness}"
            }
             }
@@ -5354,7 +5388,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
            }
             }
            ],
-           "boost":0.075
+           "boost":0.5
             }
            }
             ]
@@ -5392,7 +5426,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Clas
       // Then
       result shouldBe expected
     }
-
 
   }
 

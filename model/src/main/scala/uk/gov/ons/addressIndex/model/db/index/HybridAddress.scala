@@ -1,7 +1,8 @@
 package uk.gov.ons.addressIndex.model.db.index
 
+import com.sksamuel.elastic4s.requests.searches.SearchHit
 import com.sksamuel.elastic4s.{Hit, HitReader}
-import com.sksamuel.elastic4s.http.search.SearchHit
+
 import scala.util.Try
 
 case class HybridAddress(uprn: String,
@@ -47,7 +48,7 @@ object HybridAddress {
       * @param hit Elastic's response
       * @return generated Hybrid Address
       */
-    override def read(hit: Hit): Either[Throwable, HybridAddress] = {
+      override def read(hit: Hit): Try[HybridAddress] = {
       val cRefs: Seq[Map[String, AnyRef]] = Try {
         hit.sourceAsMap("crossRefs").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
@@ -70,17 +71,18 @@ object HybridAddress {
 
       val sorts = hit.asInstanceOf[SearchHit].sort
       val slist = sorts.getOrElse(Seq())
+      val centimetre = if (slist.isEmpty) 0 else 0.01
       val eWDistance = Try(slist.lift(0).get.toString.toDouble).getOrElse(0D)
       val niDistance = Try(slist.lift(1).get.toString.toDouble).getOrElse(0D)
       val testUPRN = Try(slist.lift(1).get.toString.toLong).getOrElse(0L)
       val bestDistance = if (testUPRN != 0) 0D
                         else if (eWDistance > 0 && niDistance == 0) eWDistance
-                          else if (eWDistance == 0 && niDistance > 0) niDistance
+                          else if (eWDistance == 0 && niDistance > 0 && !niDistance.isInfinite) niDistance
                             else if (eWDistance > niDistance) niDistance
-                              else eWDistance
+                              else (eWDistance + centimetre)
 
 
-      Right(HybridAddress(
+      Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),

@@ -6,15 +6,17 @@
 
 ### What is this repository for? ###
 
-Address Index is a Play Framework (2.6) application which matches addresses.
+Address Index is a Play Framework (2.6) application which matches addresses. 
 
-The input can be a complete address (from any source), and the system will use advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
+The system works via large Elasticsearch (7.3) indices build primarily from AddressBase Premium data.
+
+The input can be a complete address (from any source), and the system uses advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
 
 Addresses can be matched one at a time or in batches.
 
 Additional functions exist for postcode searching and partial address string matching for typeaheads.
 
-It is planned to deploy the application in the near future as a service intended to be freely available to all members of the Public Sector Mapping Agreement.
+Plans to deploy the application as a service available to all members of the Public Sector Mapping Agreement have been put on hold for the duration of the Census test. The support team are awaiting a decision on the future of this.
 
 ### How do I get set up? ###
 
@@ -23,7 +25,7 @@ It is planned to deploy the application in the near future as a service intended
     * Java 1.8 
     * sbt 0.13.13 (or 0.13.16)
     * Scala 2.12.4
-    * Elasticsearch 5.6.7
+    * Elasticsearch 7.3.1
     * An IDE such as IntelliJ is recommended
 
 2) Create Project from GitHub (IntelliJ shown as example)

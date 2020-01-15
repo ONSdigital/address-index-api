@@ -140,7 +140,7 @@ class BulkMatchController @Inject()(val controllerComponents: ControllerComponen
               val paramMap: Map[String,String] = Try(paramList.map(_.split("=")).map(a=>(a(0), a(1))).toMap).getOrElse(Map.empty[String, String])
               val limitperaddress:String = paramMap.getOrElse("limitperaddress","5")
               val historical: String = paramMap.getOrElse("historical","true")
-              val matchthreshold:String = paramMap.getOrElse("matchthreshold","5")
+              val matchthreshold:String = paramMap.getOrElse("matchthreshold","10")
               val epoch: String = paramMap.getOrElse("epoch","current")
 
               apiClient.bulk(BulkBody(addresses), apiKey, limitperaddress, historical, matchthreshold, epoch).map {

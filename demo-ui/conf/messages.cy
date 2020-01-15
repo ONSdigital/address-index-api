@@ -149,6 +149,7 @@ navbar.query=Ymholiad arddangos
 navbar.help=Helpu
 navbar.radius=Chwilio radiws
 navbar.developers=</datblygwyr>
+navbar.typeahead=Typeahead
 
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad
@@ -167,6 +168,8 @@ single.found=dod o hyd i gyfeiriadau
 single.openmap=Map agored
 single.classification=Dosbarthiad
 single.intro=I ddechrau, rhowch y cyfeiriad neu god post. Darparu cymaint o'r cyfeiriad ag y bo modd i gael y canlyniadau gorau.
+
+typeahead.title=Typeahead Address Lookup Demo
 
 addressresult.la_address=Cyfeiriad yr awdurdod lleol
 addressresult.postal_address_file=Ffeil cyfeiriadau post

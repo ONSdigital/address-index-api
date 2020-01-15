@@ -10,7 +10,7 @@ GET         /                                   uk.gov.ons.addressIndex.demoui.c
 POST        /login                              uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.doLogin
 
 # GCP Health Check
-GET         /hc                                 uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.hc
+GET         /healthz                            uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.healthz
 
 # ONS-Address Index home page
 GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home
@@ -50,6 +50,12 @@ GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.c
 
 # ONS-Address Index Single Search Request
 GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], partial: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String])
+
+# ONS-Address Index Partial Search Request for GCP
+GET         /addresses/partial/:input           uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchPartial(input: String, filter: Option[String])
+
+# ONS-Address Index Typeahead View
+GET         /typeahead                          uk.gov.ons.addressIndex.demoui.controllers.TypeaheadController.showMatchPartialPage
 
 # ONS-Address Index Single Search Request
 GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String])

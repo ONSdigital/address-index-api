@@ -143,6 +143,16 @@ trait AddressIndexClient {
       )
   }
 
+  def gcpPartialQueryWSRequest(request: AddressIndexPartialRequestGcp): WSRequest = {
+    PartialQuery()
+      .toReq
+      .withQueryStringParameters(
+        "input" -> request.partial,
+        "classificationfilter" -> request.filter,
+        "limit" -> request.limit
+      )
+  }
+
   def bulk(request: BulkBody,
            apiKey: String,
            limitperaddress:String = "5",

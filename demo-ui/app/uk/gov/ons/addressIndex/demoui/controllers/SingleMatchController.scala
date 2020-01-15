@@ -18,7 +18,7 @@ import uk.gov.ons.addressIndex.demoui.views
 import uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
-import uk.gov.ons.addressIndex.model.{AddressIndexPartialRequest, AddressIndexSearchRequest, AddressIndexUPRNRequest}
+import uk.gov.ons.addressIndex.model.{AddressIndexPartialRequest, AddressIndexPartialRequestGcp, AddressIndexSearchRequest, AddressIndexUPRNRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -327,6 +327,23 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     }.getOrElse {
       Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
         .withSession("referer" -> request.uri))
+    }
+  }
+
+  def doMatchPartial(input: String, filter: Option[String] = None): Action[AnyContent] = Action.async {
+
+    val addressText = StringUtils.stripAccents(input)
+    val filterText = StringUtils.stripAccents(filter.getOrElse(""))
+    val limit = pageSize.toString
+
+    apiClient.gcpPartialQueryWSRequest(
+      AddressIndexPartialRequestGcp (
+        partial = addressText,
+        filter = filterText,
+        limit = limit
+      )
+    ).get.map(_.json) map { resp =>
+      Ok(resp).as("application/json")
     }
   }
 

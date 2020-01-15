@@ -412,14 +412,6 @@
 					},
 					{
 						"in": "query",
-						"name": "startboost",
-						"type": "string",
-						"required": false,
-						"description": "Boost results where the input string appears at the start of the address (0 = no boost).",
-						"default": 2
-					},
-					{
-						"in": "query",
 						"name": "fromsource",
 						"type": "string",
 						"required": false,
@@ -676,7 +668,7 @@
 						"type": "string",
 						"required": false,
 						"description": "Minimum confidence score (percentage) for match to be included in results.",
-						"default": 5
+						"default": 10
 					},
 					{
 						"in": "query",
@@ -738,7 +730,7 @@
 						"type": "string",
 						"required": false,
 						"description": "Minimum confidence score (percentage) for match to be included in results.",
-						"default": 5
+						"default": 10
 					},
 					{
 						"in": "query",
