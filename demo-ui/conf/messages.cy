@@ -149,6 +149,7 @@ navbar.query=Ymholiad arddangos
 navbar.help=Helpu
 navbar.radius=Chwilio radiws
 navbar.developers=</datblygwyr>
+navbar.typeahead=Typeahead
 
 single.pleasesupply=Rhowch gyfeiriad
 single.sfatext=Chwilio am gyfeiriad
@@ -168,6 +169,8 @@ single.openmap=Map agored
 single.classification=Dosbarthiad
 single.intro=I ddechrau, rhowch y cyfeiriad neu god post. Darparu cymaint o'r cyfeiriad ag y bo modd i gael y canlyniadau gorau.
 
+typeahead.title=Typeahead Address Lookup Demo
+
 addressresult.la_address=Cyfeiriad yr awdurdod lleol
 addressresult.postal_address_file=Ffeil cyfeiriadau post
 addressresult.welsh_language_nag=Iaith Gymraeg (NAG)
@@ -182,6 +185,10 @@ addressresult.position_tertiary=Eiddo trydyddol
 addressresult.position_quaternary=Eiddo quaternary
 addressresult.position_quinary=Eiddo pumol
 addressresult.address=Cyfeiriad
+addressresult.ni_ab_classification=Mapped AB Classification
+addressresult.ni_lps_addressstatus=LPS Address Status
+addressresult.ni_lps_classification=LPS Classification
+addressresult.ni_lps_buildingstatus=LPS Building Status
 
 postcode.title=Cod post demo-dod o hyd i gyfeiriad gan cod post
 postcode.sfatext=Chwilio am gyfeiriad yn ôl cod post

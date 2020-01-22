@@ -10,7 +10,7 @@ import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
-import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -21,12 +21,12 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                                    esRepo: ElasticsearchRepository,
                                    conf: ConfigModule,
                                    versionProvider: VersionModule,
-                                   overloadProtection: APIThrottler,
+                                   overloadProtection: APIThrottle,
                                    postcodeValidation: PostcodeControllerValidation
                                   )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PostcodeControllerResponse {
 
-  lazy val logger = AddressAPILogger("address-index-server:PostcodeController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PostcodeController")
 
   /**
     * POSTCODE query API
@@ -129,8 +129,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
             )
 
             writeLog(activity = "postcode_request")
-            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
-              overloadProtection.setStatus(ThrottlerStatus.Closed)
 
             jsonOk(
               AddressByPostcodeResponseContainer(
@@ -153,24 +151,17 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
             )
         }.recover {
           case NonFatal(exception) =>
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
-              case ThrottlerStatus.Open =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
-              case _ =>
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
-                logger.warn(
-                  s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}"
-                )
-                InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
+            if (overloadProtection.breaker.isHalfOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (postcode input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
+            }else if (overloadProtection.breaker.isOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (postcode input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
+            } else {
+              // Circuit Breaker is closed. Some other problem
+              writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+              logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
             }
         }
     }

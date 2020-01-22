@@ -11,6 +11,7 @@
     warningMessage : Option[String],
     pageNum: Int,
     pageSize: Int,
+    showNisra: Boolean,
     addressBySearchResponse: Option[AddressBySearchResponse],
     classification: Option[Map[String,String]],
 version: DemoUIAddressIndexVersionModule
@@ -45,7 +46,7 @@ version: DemoUIAddressIndexVersionModule
                 <section class='@if(warningMessage){search-error}else{searchbox-results}'>
                     @helper.form(action = uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.doMatch) {
                     <div id="search-form" class="search-bar-active">
-                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"))
+                        @forms.singleAddressForm(singleSearchForm, display = "inline", true, messages("singlesearchform.placeholder"), messages("singlesearchform.labelfilter"), messages("singlesearchform.placeholderfilter"), messages("singlesearchform.labelstartdate"), messages("singlesearchform.placeholderstartdate"), messages("singlesearchform.labelenddate"), messages("singlesearchform.placeholderenddate"),showNisra)
                     </div>
                     }
                 </section>
@@ -73,13 +74,15 @@ version: DemoUIAddressIndexVersionModule
                         singleSearchForm("filter").value.getOrElse(""),
                         singleSearchForm("historical").value.getOrElse("true").toBoolean,
                         singleSearchForm("matchthreshold").value.getOrElse("5").toInt,
+                        singleSearchForm("fromsource").value.getOrElse("all"),
+                        singleSearchForm("partial").value.getOrElse("false").toBoolean,
                         singleSearchForm("startdate").value.getOrElse(""),
                         singleSearchForm("enddate").value.getOrElse(""),
-                        epoch = "",
+                        epoch = singleSearchForm("epoch").value.getOrElse(""),
                         classification
                         )
                         }
-                        @pager(pageNum,pageSize,address = singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, "single", rangekm = rangekm, lat = lat, lon = lon, historical = singleSearchForm("historical").value.getOrElse("true").toBoolean, matchthreshold = singleSearchForm("matchthreshold").value.getOrElse("5").toInt, startdate = singleSearchForm("startdate").value.getOrElse(""), enddate = singleSearchForm("enddate").value.getOrElse(""), epoch = "")
+                        @pager(pageNum,pageSize,address = singleSearchForm("address").value.getOrElse(""),singleSearchForm("filter").value.getOrElse(""),aresponse.total, "single", rangekm = rangekm, lat = lat, lon = lon, historical = singleSearchForm("historical").value.getOrElse("true").toBoolean, matchthreshold = singleSearchForm("matchthreshold").value.getOrElse("5").toInt, fromsource = singleSearchForm("fromsource").value.getOrElse("all"), partial = singleSearchForm("partial").value.getOrElse("false").toBoolean, startdate = singleSearchForm("startdate").value.getOrElse(""), enddate = singleSearchForm("enddate").value.getOrElse(""), epoch = singleSearchForm("epoch").value.getOrElse(""))
                         }
                     </div>
                 </section>

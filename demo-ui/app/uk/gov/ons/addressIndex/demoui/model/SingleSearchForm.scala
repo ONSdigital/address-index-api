@@ -10,6 +10,9 @@ case class SingleSearchForm(address: String,
                             filter: String,
                             historical: Boolean,
                             matchthreshold: Int,
+                            fromsource: String,
+                            partial: Boolean,
+                            epoch: String,
                             startdate: String,
                             enddate: String)
 

@@ -1,12 +1,14 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import com.sksamuel.elastic4s.IndexesAndTypes
-import com.sksamuel.elastic4s.searches.SearchDefinition
+import org.scalatest.BeforeAndAfterAll
+import com.sksamuel.elastic4s.{Indexes, IndexesAndTypes}
+import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{ControllerComponents, RequestHeader, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address._
@@ -207,7 +209,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(args: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(args: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
@@ -215,6 +217,42 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
+        args.requestsData.map(requestData => {
+          val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+
+          Right(Seq(filledBulkAddress))
+        })
+      }
+  }
+
+  val slowElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
+    def getHybridAddress(args: QueryArgs): HybridAddress = args match {
+      case s: Skinnyable => if (s.skinny) validHybridAddressSkinny else validHybridAddress
+      case _ => validHybridAddress
+    }
+
+    override def queryHealth(): Future[String] = Future {
+      Thread.sleep(500)
+      ""
+    }
+
+    override def makeQuery(args: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
+
+    override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future {
+      Thread.sleep(500)
+      Some(getHybridAddress(args))
+    }
+
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future {
+      Thread.sleep(500)
+      HybridAddressCollection(Seq(getHybridAddress(args)), 1.0f, 1)
+    }
+
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+      Future {
+        Thread.sleep(500)
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
           val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
@@ -234,7 +272,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
@@ -255,7 +293,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val sometimesFailingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
@@ -278,7 +316,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
     override def queryHealth(): Future[String] = Future.successful("")
 
-    override def makeQuery(queryArgs: QueryArgs): SearchDefinition = SearchDefinition(IndexesAndTypes())
+    override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.failed(new Exception("test failure"))
 
@@ -289,7 +327,20 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val parser: ParserModule = (_: String) => Map.empty
 
-  val config = new AddressIndexConfigModule
+  val testConfig = new AddressIndexConfigModule
+
+  // Lower CB timeouts so test time isn't silly, Max reset should be reached after 2 iterations
+  // as exponential backoff is 2.0
+  val tweakedCBConfig: ConfigModule = new ConfigModule {
+    override def config: AddressIndexConfig = testConfig.config.copy(
+      elasticSearch = testConfig.config.elasticSearch.copy(
+        circuitBreakerMaxFailures = 1,
+        circuitBreakerCallTimeout = 250,
+        circuitBreakerResetTimeout = 250,
+        circuitBreakerMaxResetTimeout = 500
+      )
+    )
+  }
 
   val apiVersionExpected = "testApi"
   val dataVersionExpected = "testData"
@@ -299,23 +350,23 @@ class AddressControllerSpec extends PlaySpec with Results {
     val dataVersion: String = dataVersionExpected
   }
 
-  val overloadProtection: APIThrottle = new APIThrottle(config)
+  val overloadProtection: APIThrottle = new APIThrottle(tweakedCBConfig)
   val components: ControllerComponents = stubControllerComponents()
   val rh: RequestHeader = FakeRequest(GET, "/")
-  val addressValidation: AddressControllerValidation = new AddressControllerValidation()(config, versions)
-  val partialAddressValidation: PartialAddressControllerValidation = new PartialAddressControllerValidation()(config, versions)
-  val postcodeValidation: PostcodeControllerValidation = new PostcodeControllerValidation()(config, versions)
-  val randomValidation: RandomControllerValidation = new RandomControllerValidation()(config, versions)
-  val uprnValidation: UPRNControllerValidation = new UPRNControllerValidation()(config, versions)
-  val batchValidation: BatchControllerValidation = new BatchControllerValidation()(config, versions)
-  val codelistValidation: CodelistControllerValidation = new CodelistControllerValidation()(config, versions)
+  val addressValidation: AddressControllerValidation = new AddressControllerValidation()(testConfig, versions)
+  val partialAddressValidation: PartialAddressControllerValidation = new PartialAddressControllerValidation()(testConfig, versions)
+  val postcodeValidation: PostcodeControllerValidation = new PostcodeControllerValidation()(testConfig, versions)
+  val randomValidation: RandomControllerValidation = new RandomControllerValidation()(testConfig, versions)
+  val uprnValidation: UPRNControllerValidation = new UPRNControllerValidation()(testConfig, versions)
+  val batchValidation: BatchControllerValidation = new BatchControllerValidation()(testConfig, versions)
+  val codelistValidation: CodelistControllerValidation = new CodelistControllerValidation()(testConfig, versions)
 
-  val addressController = new AddressController(components, elasticRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
-  val partialAddressController = new PartialAddressController(components, elasticRepositoryMock, config, versions, overloadProtection, partialAddressValidation)
+  val addressController = new AddressController(components, elasticRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
+  val partialAddressController = new PartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
 
-  val postcodeController = new PostcodeController(components, elasticRepositoryMock, config, versions, overloadProtection, postcodeValidation)
-  val randomController = new RandomController(components, elasticRepositoryMock, config, versions, overloadProtection, randomValidation)
-  val uprnController = new UPRNController(components, elasticRepositoryMock, config, versions, overloadProtection, uprnValidation)
+  val postcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+  val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
+  val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
 
   "Address controller" should {
@@ -1864,9 +1915,228 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "test the circuit breaker" in {
+
+      /* These tests test the Circuit Breaker implementation. Unfortunately they require Thread.sleep
+         to simulate timeouts and resets. To be successful the Circuit Breaker will follow the following states:
+         Open
+         Half-Open
+         Open
+         Half-Open
+         Open
+         Half-Open
+         Closed
+         Open
+         Half-Open
+         Closed
+       */
+
+      // Given
+      val controller = new AddressController(components, failingRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
+      val controller1 = new AddressController(components, elasticRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
+      val controller2 = new AddressController(components, slowElasticRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
+
+      val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
+      val cbError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "Circuit Breaker is open; calls are failing fast"))
+      val cbTimeoutError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "Circuit Breaker Timed out."))
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 1,
+          sampleSize = 20,
+          maxScore = 1.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all"
+        ),
+        OkAddressResponseStatus
+      ))
+
+      val expectedFail = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all"
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(enhancedError)
+      ))
+
+      val expectedFailCBOpen = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all"
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(cbError)
+      ))
+
+      val expectedFailCBTimeout = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 10,
+          offset = 0,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all"
+        ),
+        TooManyRequestsResponseStatus,
+        errors = Seq(cbTimeoutError)
+      ))
+
+
+      // When - Normal call should work - CB closed
+      def r1 = controller1.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual1: JsValue = contentAsJson(r1)
+
+      // Then
+      status(r1) mustBe OK
+      actual1 mustBe expected
+
+      // When - Call failed (Exception returned) should open CB
+      def r2 = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual2: JsValue = contentAsJson(r2)
+
+      // Then
+      status(r2) mustBe TOO_MANY_REQUESTS
+      actual2 mustBe expectedFail
+
+      // When - Normal call should work but the CB is Open so it will fail
+      def r3 = controller1.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual3: JsValue = contentAsJson(r3)
+
+      // Then
+      status(r3) mustBe TOO_MANY_REQUESTS
+      actual3 mustBe expectedFailCBOpen
+
+      // Wait for reset timeout to pass (250ms)
+      Thread.sleep(400)
+
+      // When - Call failed (Exception returned) CB in Half-Open state. Reset timeout doubled to 500ms by exponential backoff setting
+      def r4 = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual4: JsValue = contentAsJson(r4)
+
+      // The5
+      status(r4) mustBe TOO_MANY_REQUESTS
+      actual4 mustBe expectedFail
+
+      // When - Normal call should work but the CB is Open so it will fail
+      def r5 = controller1.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual5: JsValue = contentAsJson(r5)
+
+      // Then
+      status(r5) mustBe TOO_MANY_REQUESTS
+      actual5 mustBe expectedFailCBOpen
+
+      // Wait for reset timeout to pass (500ms)
+      Thread.sleep(700)
+
+      // When - Call failed (Exception returned) CB in Half-Open state. Reset timeout max reached so should stay at 500ms
+      def r6 = controller.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual6: JsValue = contentAsJson(r6)
+
+      // Then
+      status(r6) mustBe TOO_MANY_REQUESTS
+      actual6 mustBe expectedFail
+
+      // When - Normal call should work but the CB is Open so it will fail
+      def r7 = controller1.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual7: JsValue = contentAsJson(r7)
+
+      // Then
+      status(r7) mustBe TOO_MANY_REQUESTS
+      actual7 mustBe expectedFailCBOpen
+
+      // Wait for reset timeout to pass (500ms)
+      Thread.sleep(700)
+
+      // When - Normal call should work - CB Half-Open. Closed after this successful call
+      def r8 = controller1.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual8: JsValue = contentAsJson(r8)
+
+      // Then
+      status(r8) mustBe OK
+      actual8 mustBe expected
+
+      // When - Normal call should work but won't as this simulates a slow response from ES and timesout the CB.
+      def r9 = controller2.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual9: JsValue = contentAsJson(r9)
+
+      // Then
+      status(r9) mustBe TOO_MANY_REQUESTS
+      actual9 mustBe expectedFailCBTimeout
+
+      // Wait for reset timeout to pass (250ms) - then CB is Half-Open
+      Thread.sleep(400)
+
+      // When - Normal call should work - CB Half-Open. Closed after this successful call. This final test is to reset the CB so it doesn't interfere with any other tests
+      def r10 = controller1.addressQuery("some query", Some("0"), Some("10")).apply(FakeRequest())
+      val actual10: JsValue = contentAsJson(r10)
+
+      // Then
+      status(r10) mustBe OK
+      actual10 mustBe expected
+
+    }
+
     "reply with a 429 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
-      val controller = new AddressController(components, failingRepositoryMock, parser, config, versions, overloadProtection, addressValidation)
+      val controller = new AddressController(components, failingRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
 
@@ -1902,11 +2172,15 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Then
       status(result) mustBe TOO_MANY_REQUESTS
       actual mustBe expected
+
+      // This test tripped the CB so wait for reset timeout to pass (250ms) - then CB is Half-Open. Need to make sure CB has transitioned to Half-Open
+      // Otherwise next test will fail
+      Thread.sleep(400)
     }
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
       // Given
-      val controller = new PostcodeController(components, failingRepositoryMock, config, versions, overloadProtection, postcodeValidation)
+      val controller = new PostcodeController(components, failingRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code, FailedRequestToEsPostcodeError.message.replace("see logs", "test failure"))
 
@@ -1936,11 +2210,15 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Then
       status(result) mustBe TOO_MANY_REQUESTS
       actual mustBe expected
+
+      // This test tripped the CB so wait for reset timeout to pass (250ms) - then CB is Half-Open. Need to make sure CB has transitioned to Half-Open
+      // Otherwise next test will fail
+      Thread.sleep(400)
     }
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for a random address" in {
       // Given
-      val controller = new RandomController(components, failingRepositoryMock, config, versions, overloadProtection, randomValidation)
+      val controller = new RandomController(components, failingRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code, FailedRequestToEsRandomError.message.replace("see logs", "test failure"))
 
@@ -1967,11 +2245,16 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Then
       status(result) mustBe TOO_MANY_REQUESTS
       actual mustBe expected
+
+      // This test tripped the CB so wait for reset timeout to pass (250ms) - then CB is Half-Open. Need to make sure CB has transitioned to Half-Open
+      // Otherwise next test will fail
+      Thread.sleep(400)
     }
 
-    "reply with a 500 error if Elastic threw exception (request failed) while querying for a partial address" in {
+    "reply with a 429 error if Elastic threw exception (request failed) while querying for a partial address" in {
       // Given
-      val controller = new PartialAddressController(components, failingRepositoryMock, config, versions, overloadProtection, partialAddressValidation)
+
+      val controller = new PartialAddressController(components, failingRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code, FailedRequestToEsPartialAddressError.message.replace("see logs", "test failure"))
 
@@ -1992,7 +2275,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           epoch = "",
           fromsource="all"
         ),
-        InternalServerErrorAddressResponseStatus,
+        TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
       ))
 
@@ -2001,13 +2284,17 @@ class AddressControllerSpec extends PlaySpec with Results {
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      status(result) mustBe TOO_MANY_REQUESTS
       actual mustBe expected
+
+      // This test tripped the CB so wait for reset timeout to pass (250ms) - then CB is Half-Open. Need to make sure CB has transitioned to Half-Open
+      // Otherwise next test will fail
+      Thread.sleep(400)
     }
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
-      val controller = new UPRNController(components, failingRepositoryMock, config, versions, overloadProtection, uprnValidation)
+      val controller = new UPRNController(components, failingRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code, FailedRequestToEsUprnError.message.replace("see logs", "test failure"))
 
@@ -2031,11 +2318,15 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Then
       status(result) mustBe TOO_MANY_REQUESTS
       actual mustBe expected
+
+      // This test tripped the CB so wait for reset timeout to pass (250ms) - then CB is Half-Open. Need to make sure CB has transitioned to Half-Open
+      // Otherwise next test will fail
+      Thread.sleep(400)
     }
 
     "reply a 400 error if address was not numeric (by uprn)" in {
       // Given
-      val controller = new UPRNController(components, emptyElasticRepositoryMock, config, versions, overloadProtection, uprnValidation)
+      val controller = new UPRNController(components, emptyElasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,
@@ -2061,7 +2352,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply a 404 error if address was not found (by uprn)" in {
       // Given
-      val controller = new UPRNController(components, emptyElasticRepositoryMock, config, versions, overloadProtection, uprnValidation)
+      val controller = new UPRNController(components, emptyElasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,
@@ -2087,7 +2378,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "do multiple search from an iterator with tokens (AddressIndexActions method)" in {
       // Given
-      val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, config, versions, batchValidation)
+      val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, testConfig, versions, batchValidation)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("", "1", Map("first" -> "success")),
@@ -2105,7 +2396,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "have process bulk addresses using back-pressure" in {
       // Given
-      val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, config, versions, batchValidation)
+      val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, testConfig, versions, batchValidation)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("", "1", Map("first" -> "success")),
@@ -2128,7 +2419,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "have back-pressure that should throw an exception if there is an always failing request" in {
       // Given
-      val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, config, versions, batchValidation)
+      val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, testConfig, versions, batchValidation)
 
       val requestsData: Stream[BulkAddressRequestData] = Stream(
         BulkAddressRequestData("", "1", Map("first" -> "success")),

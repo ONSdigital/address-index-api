@@ -4,14 +4,13 @@ import akka.actor.ActorSystem
 import akka.pattern.CircuitBreaker
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.server.modules.ConfigModule
-import uk.gov.ons.addressIndex.server.utils.ThrottlerStatus.ThrottleStatus
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 @Singleton
-class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) extends APIThrottler {
+class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) {
 
   private lazy val logger = GenericLogger("address-index-server:APIThrottle")
 
@@ -23,26 +22,7 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
   private val circuitBreakerMaxResetTimeout: Int = esConf.circuitBreakerMaxResetTimeout
   private val circuitBreakerExponentialBackoffFactor: Double = esConf.circuitBreakerExponentialBackoffFactor
 
-  var currentStatus: ThrottleStatus = {
-    if (breaker.isOpen) {
-      ThrottlerStatus.Open
-    } else {
-      if (breaker.isClosed) {
-        ThrottlerStatus.Closed
-      } else {
-        ThrottlerStatus.HalfOpen
-      }
-    }
-  }
-
-  def setStatus(status:ThrottleStatus) = {
-    currentStatus = status
-    if (status == ThrottlerStatus.Closed) {
-      logger.warn("Circuit breaker is now closed")
-    }
-  }
-
-  override def breaker: CircuitBreaker = {
+  val breaker: CircuitBreaker = {
     new CircuitBreaker(
       system.scheduler,
       maxFailures = circuitBreakerMaxFailures,
@@ -51,16 +31,16 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) e
       maxResetTimeout = circuitBreakerMaxResetTimeout.milliseconds,
       exponentialBackoffFactor = circuitBreakerExponentialBackoffFactor)
       .onOpen({
-        logger.warn("Circuit breaker is now open")
-        currentStatus = ThrottlerStatus.Open
+        logger.info("Circuit breaker is now open")
+        // System.out.println("Open")
       })
       .onHalfOpen({
-        logger.warn("Circuit breaker is now half-open")
-        currentStatus = ThrottlerStatus.HalfOpen
+        logger.info("Circuit breaker is now half-open")
+        // System.out.println("Half-Open")
       })
       .onClose({
-        logger.warn("circuit breaker is now closed")
-        currentStatus = ThrottlerStatus.Closed
+        logger.info("Circuit Breaker is now closed")
+        // System.out.println("Closed")
       })
   }
 }

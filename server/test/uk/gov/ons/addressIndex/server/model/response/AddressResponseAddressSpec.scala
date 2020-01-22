@@ -311,7 +311,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         classificationCode = "classificationCode",
         lpiLogicalStatus = givenNag.lpiLogicalStatus,
         fromSource = "47",
-        confidenceScore = 1,
+        confidenceScore = 100,
         underlyingScore = 1
       )
 

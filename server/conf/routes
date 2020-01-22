@@ -6,7 +6,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #  description: Returns a ranked list of addresses matching the search query in the specified format.
 #  parameters:
 #    - name: input
-#      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG').
+#      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG'). Can only be blank if rangekm, lat, lon and classificationfilter are supplied in which case the underlyingScore returned is the distance in km.
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
@@ -208,9 +208,6 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: startboost
-#      description: Boost results where the input string appears at the start of the address (0 = no boost).
-#      default: 2
 #    - name: fromsource
 #      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
@@ -228,7 +225,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], startboost: Option[String], fromsource: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -338,7 +335,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #      default: true
 #    - name: matchthreshold
 #      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
+#      default: 10.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -368,7 +365,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #      default: true
 #    - name: matchthreshold
 #      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
+#      default: 10.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -444,7 +441,7 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      default: true
 #    - name: matchthreshold
 #      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
+#      default: 10.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.

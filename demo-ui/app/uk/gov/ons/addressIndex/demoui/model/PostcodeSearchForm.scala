@@ -9,6 +9,7 @@ import play.api.libs.json._
 case class PostcodeSearchForm(address: String,
                               filter: String,
                               historical: Boolean,
+                              epoch: String,
                               startdate: String,
                               enddate: String)
 

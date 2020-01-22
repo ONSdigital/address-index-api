@@ -14,17 +14,13 @@ import com.typesafe.sbt.packager.docker._
 
 routesImport := Seq.empty
 
-val verFile: File = file("./version.sbt")
-val getVersionFromFile = IO.readLines(verFile).mkString
-val readVersion = getVersionFromFile.replaceAll("version := ","").replaceAll("\"","")
-version in ThisBuild := readVersion
 val userName = sys.env.get("ART_USER").getOrElse("username environment variable not set")
 val passWord = sys.env.get("ART_PASS").getOrElse("password environment variable not set")
 publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
 credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
-  val elastic4s = "6.1.3"
+  val elastic4s = "7.3.1"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
@@ -77,7 +73,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
   dockerUpdateLatest := true,
-  version in Docker := readVersion + "-SNAPSHOT",
+  version in Docker := version.value,
   dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
@@ -107,22 +103,16 @@ val commonDeps = Seq(
   "com.github.melrief" %% "pureconfig" % "0.3.3",
   "com.lihaoyi" %% "pprint" % "0.5.3",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
-  // for the http client
-  "com.sksamuel.elastic4s" %% "elastic4s-http" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
-  // for the tcp client
-  "com.sksamuel.elastic4s" %% "elastic4s-tcp" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
-
-  // if you want to use reactive streams
-  // "com.sksamuel.elastic4s" %% "elastic4s-streams" % Versions.elastic4s,
+  "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // testing
   "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
-  "com.sksamuel.elastic4s" %% "elastic4s-embedded" % Versions.elastic4s % "test",
   "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
-  // old
-  //  "com.sksamuel.elastic4s" %% "elastic4s-jackson" % Versions.elastic4s,
-  // "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s,
   "org.apache.commons" % "commons-lang3" % "3.3.2",
+  "org.apache.httpcomponents" % "httpcore" % "4.4.11",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.7",
+  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.3.1",
+  "org.testcontainers" % "elasticsearch" % "1.12.2" % "test",
   guice
 )
 
@@ -242,7 +232,7 @@ lazy val `address-index-server` = project.in(file("server"))
     },
     resourceGenerators in Compile += Def.task {
       val file = (resourceManaged in Compile).value / "version.app"
-      IO.write(file, readVersion)
+      IO.write(file, version.value)
       Seq(file)
     }.taskValue
   )
@@ -269,7 +259,8 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(localCommonSettings: _*)
   .settings(
     libraryDependencies ++= uiDeps,
-    routesGenerator := InjectedRoutesGenerator
+    routesGenerator := InjectedRoutesGenerator,
+    dockerBaseImage := "openjdk:8"
   )
   .dependsOn(
     `address-index-client`

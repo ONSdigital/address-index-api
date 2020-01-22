@@ -148,6 +148,7 @@ navbar.query=Display Query
 navbar.help=Help
 navbar.radius=Radius Search
 navbar.developers=</developers>
+navbar.typeahead=Typeahead
 
 single.pleasesupply=Please enter an address
 single.sfatext=Search for an address
@@ -167,6 +168,8 @@ single.classification=Classification
 single.enddate=Historical End Date
 single.intro=To get started, enter an address or postcode. Provide as much of the address as possible for best results.
 
+typeahead.title=Typeahead Address Lookup Demo
+
 addressresult.la_address=Local Authority address
 addressresult.postal_address_file=Postal Address File
 addressresult.welsh_language_nag=Welsh Language (NAG)
@@ -181,6 +184,10 @@ addressresult.position_tertiary=Tertiary properties
 addressresult.position_quaternary=Quaternary properties
 addressresult.position_quinary=Quinary properties
 addressresult.address=Address
+addressresult.ni_ab_classification=Mapped AB Classification
+addressresult.ni_lps_addressstatus=LPS Address Status
+addressresult.ni_lps_classification=LPS Classification
+addressresult.ni_lps_buildingstatus=LPS Building Status
 
 postcode.title=Postcode demo - find an address by postcode
 postcode.sfatext=Search for an address by postcode
@@ -201,7 +208,7 @@ radius.title=Radius demo - find an address within a radius
 radius.sfatext=Search for an address within a radius
 radius.foundpre=We have matched
 radius.foundpost=addresses
-radius.pleasesupply=Please enter a radius and search term
+radius.pleasesupply=Please enter a radius and search term and/or a classification filter
 radius.openmap=Location map
 radius.intro=To get started, complete the form with a range, latitude, longitude and search term.
 

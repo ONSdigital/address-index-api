@@ -28,7 +28,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                                )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
-  lazy val logger = AddressAPILogger("address-index-server:BatchController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:BatchController")
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
@@ -57,7 +57,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
-    val epochVal = epoch.getOrElse("")
+    val epochValOrCurrent = epoch.getOrElse("current")
+    val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
@@ -69,8 +70,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource(queryValues)
-        //     .orElse(batchValidation.validateBatchStartDate(startDateVal))
-        //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus(queryValues))
         .orElse(batchValidation.validateBatchKeyStatus(queryValues))
         .orElse(batchValidation.validateBatchAddressLimit(Some(limVal), queryValues))
@@ -100,7 +99,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
   def bulkFull(limitperaddress: Option[String],
-               //  startDate: Option[String] = None, endDate: Option[String] = None,
                historical: Option[String] = None, matchthreshold: Option[String] = None, epoch: Option[String]): Action[BulkBody] = Action(
     parse.json[BulkBody]) { implicit request =>
 
@@ -111,8 +109,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       case None => true
     }
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -124,7 +120,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
-    val epochVal = epoch.getOrElse("")
+    val epochValOrCurrent = epoch.getOrElse("current")
+    val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
@@ -138,8 +135,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource(queryValues)
-        //       .orElse(batchValidation.validateBatchStartDate(startDateVal))
-        //      .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus(queryValues))
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
@@ -164,8 +159,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return reduced info on found addresses
     */
   def bulkDebug(limitperaddress: Option[String],
-                // startDate: Option[String] = None,
-                // endDate: Option[String] = None,
                 historical: Option[String] = None,
                 matchthreshold: Option[String] = None,
                 epoch: Option[String]): Action[BulkBodyDebug] = Action(
@@ -178,8 +171,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       case None => true
     }
 
-    //  val startDateVal = startDate.getOrElse("")
-    //  val endDateVal = endDate.getOrElse("")
     val startDateVal = ""
     val endDateVal = ""
 
@@ -191,7 +182,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val threshval = matchthreshold.getOrElse(defThreshold.toString)
     val thresholdFloat = Try(threshval.toFloat).toOption.getOrElse(defThreshold)
 
-    val epochVal = epoch.getOrElse("")
+    val epochValOrCurrent = epoch.getOrElse("current")
+    val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
 
     logger.info("threshold = " + thresholdFloat)
 
@@ -205,8 +197,6 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Result] =
       batchValidation.validateBatchSource(queryValues)
-        //     .orElse(batchValidation.validateBatchStartDate(startDateVal))
-        //     .orElse(batchValidation.validateBatchEndDate(endDateVal))
         .orElse(batchValidation.validateBatchKeyStatus(queryValues))
         .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
         .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
@@ -357,7 +347,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                         configOverwrite: Option[QueryParamsConfig],
                         limitperaddress: Option[Int],
                         includeFullAddress: Boolean,
-                        startDate: String, endDate: String,
+                        startDate: String,
+                        endDate: String,
                         historical: Boolean,
                         epoch: String,
                         matchThreshold: Float,

@@ -10,7 +10,7 @@ import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
-import uk.gov.ons.addressIndex.server.utils.{APIThrottler, AddressAPILogger, ThrottlerStatus}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -21,7 +21,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                                esRepo: ElasticsearchRepository,
                                conf: ConfigModule,
                                versionProvider: VersionModule,
-                               overloadProtection: APIThrottler,
+                               overloadProtection: APIThrottle,
                                uprnValidation: UPRNControllerValidation
                               )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
@@ -107,9 +107,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
               score = hybridAddress.score.toString, activity = "address_request"
             )
 
-            if (overloadProtection.currentStatus == ThrottlerStatus.HalfOpen)
-              overloadProtection.setStatus(ThrottlerStatus.Closed)
-
             jsonOk(
               AddressByUprnResponseContainer(
                 apiVersion = apiVersion,
@@ -130,29 +127,19 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
         }.recover {
           case NonFatal(exception) =>
-
-            overloadProtection.currentStatus match {
-              case ThrottlerStatus.HalfOpen =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is Half Open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
-              case ThrottlerStatus.Open =>
-                logger.warn(
-                  s"Elasticsearch is overloaded or down (address input). Circuit breaker is open: ${exception.getMessage}"
-                )
-                TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
-              case _ =>
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
-                logger.warn(
-                  s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}"
-                )
-                InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
+            if (overloadProtection.breaker.isHalfOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (uprn input). Circuit breaker is Half Open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
+            }else if (overloadProtection.breaker.isOpen) {
+              logger.warn(s"Elasticsearch is overloaded or down (uprn input). Circuit breaker is open: ${exception.getMessage}")
+              TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
+            } else {
+              // Circuit Breaker is closed. Some other problem
+              writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
+              logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
             }
         }
-
-
     }
   }
 }
