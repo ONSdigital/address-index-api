@@ -83,13 +83,10 @@ object HybridAddress {
                             else if (eWDistance > niDistance) niDistance
                               else (eWDistance + centimetre)
 
-
-      Try(HybridAddress(
       val highlights = hit.asInstanceOf[SearchHit].highlight
-
   //    println("highlights = " + highlights)
 
-      Right(HybridAddress(
+      Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = hit.sourceAsMap("parentUprn").toString,
         relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),

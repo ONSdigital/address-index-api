@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchBodyBuilderFn, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -181,10 +181,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
 
-    val hFields = Seq(HighlightFieldDefinition("lpi.nagAll.partial"),
-      HighlightFieldDefinition("paf.mixedPaf.partial"),
-      HighlightFieldDefinition("paf.mixedWelshPaf.partial"),
-      HighlightFieldDefinition("nisra.mixedNisra.partial"))
+    val hFields = Seq(HighlightField("lpi.nagAll.partial"),
+      HighlightField("paf.mixedPaf.partial"),
+      HighlightField("paf.mixedWelshPaf.partial"),
+      HighlightField("nisra.mixedNisra.partial"))
 
 
     search(source + args.epochParam)

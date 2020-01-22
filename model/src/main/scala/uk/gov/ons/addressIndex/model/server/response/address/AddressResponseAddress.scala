@@ -97,7 +97,7 @@ object AddressResponseAddress {
       lpiLogicalStatus = lpiLogicalStatus,
       fromSource = other.fromSource,
       confidenceScore = 100D,
-      underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat
+      underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat,
       bestMatchField = ""
     )
   }
