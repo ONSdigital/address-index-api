@@ -102,20 +102,20 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
       val nags = highs.highlight.filter(_._1 == "lpi.nagAll.partial").map {
         hlist => hlist._2.map {lin =>
-          val hLine = lin.mkString
-//          println("hString = " + hLine)
+          val hLine = lin.mkString.split(" ").distinct.mkString
+  //        println("hString = " + hLine)
           hLine.count(_ == '<')
         }
       }
 
       val pafs_w = highs.highlight.filter(_._1 == "paf.mixedWelshPaf.partial").map {
-        hlist => val hString = hlist._2.mkString
+        hlist => val hString = hlist._2.mkString.split(" ").distinct.mkString
  //         println("hString = " + hString)
           hString.count(_ == '<')
       }
 
       val pafs_e = highs.highlight.filter(_._1 == "paf.mixedPaf.partial").map {
-        hlist => val hString = hlist._2.mkString
+        hlist => val hString = hlist._2.mkString.split(" ").distinct.mkString
    //       println("hString = " + hString)
           hString.count(_ == '<')
       }
