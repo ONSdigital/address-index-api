@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseHighlight, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
@@ -77,20 +77,66 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(underlyingScore = add.underlyingScore + sboost,
-        bestMatchField = getBestMatchField(add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
+        bestMatchField = getBestMatchField(add.highlights,true, true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
       } else add.copy(underlyingScore = add.underlyingScore,
-        bestMatchField = getBestMatchField(add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
+        bestMatchField = getBestMatchField(add.highlights,true,true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
     }
 
-    def getBestMatchField(nag: String, paf: String, welshnag: String, welshpaf: String): String =
-      {
-        val matchfieldScores = "paf=" + levenshtein(paf, input).toString() +
-          " nag=" + levenshtein(nag, input).toString() +
-           " welshnag=" + levenshtein(welshnag, input).toString() +
-             " welshpaf=" + levenshtein(welshpaf, input).toString()
-        println("matchfield = " + matchfieldScores)
-    matchfieldScores
+//    def getBestMatchField(nag: String, paf: String, welshnag: String, welshpaf: String): String =
+//      {
+//        val matchfieldScores = "paf=" + levenshtein(paf, input).toString() +
+//          " nag=" + levenshtein(nag, input).toString() +
+//           " welshnag=" + levenshtein(welshnag, input).toString() +
+//             " welshpaf=" + levenshtein(welshpaf, input).toString()
+//        println("matchfield = " + matchfieldScores)
+//    matchfieldScores
+//    }
+
+    def getBestMatchField(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false, nag: String, paf: String, welshNag: String, welshPaf: String): String =
+    {
+
+      val highs:AddressResponseHighlight = highlights match {
+        case Some(value) => value
+        case None => null
+      }
+
+      val nags = highs.highlight.filter(_._1 == "lpi.nagAll.partial").map {
+        hlist => hlist._2.map {lin =>
+          val hLine = lin.mkString
+//          println("hString = " + hLine)
+          hLine.count(_ == '<')
+        }
+      }
+
+      val pafs_w = highs.highlight.filter(_._1 == "paf.mixedWelshPaf.partial").map {
+        hlist => val hString = hlist._2.mkString
+ //         println("hString = " + hString)
+          hString.count(_ == '<')
+      }
+
+      val pafs_e = highs.highlight.filter(_._1 == "paf.mixedPaf.partial").map {
+        hlist => val hString = hlist._2.mkString
+   //       println("hString = " + hString)
+          hString.count(_ == '<')
+      }
+
+      val maxpafs_e = if(pafs_e.isEmpty) 0 else pafs_e.max / 2
+      val maxpafs_w = if(pafs_w.isEmpty) 0 else pafs_w.max / 2
+      val maxnags = if(nags.isEmpty) 0 else nags.head.max / 2
+      val maxpafs = math.max(maxpafs_e,maxpafs_w)
+  //    println("pafs_e = " + maxpafs_e)
+  //    println("pafs_w = " + maxpafs_w)
+  //    println("nags = " + maxnags)
+
+// this logic is not complete
+     if (maxnags > maxpafs) {
+       if (favourWelsh && !welshNag.isEmpty) welshNag else nag
+     } else {
+       if (maxpafs_e > maxpafs_w) paf else welshPaf
+     }
     }
+
+
 
     /**
       * Calculates the edit distance between two strings
