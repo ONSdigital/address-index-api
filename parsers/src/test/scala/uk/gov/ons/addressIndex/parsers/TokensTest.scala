@@ -102,9 +102,9 @@ class TokensTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
-  it should "replace synonyms at the beginning, middle or the end of the input" in {
+  it should "replace synonyms at the middle or the end of the input, but not the beginning" in {
     val input = "ENGLAND THIS WALES ENGLANDLONDON LONDONWALES THAT UNITEDKINGDOM"
-    val expected = Seq("THIS", "ENGLANDLONDON", "LONDONWALES", "THAT")
+    val expected = Seq("ENGLAND", "THIS", "ENGLANDLONDON", "LONDONWALES", "THAT")
     val actual = Tokens.preTokenize(input)
     actual shouldBe expected
   }
@@ -256,6 +256,34 @@ class TokensTest extends FlatSpec with Matchers {
     val input = "MY WO0DEN BUILD1NG BLANDFORD R0AD PO0LE BH15 1NG"
     val expected = "MY WO0 DEN BUILDING BLANDFORD ROAD POOLE BH15 1NG"
     val actual = Tokens.preTokenize(input).mkString(" ")
+    actual shouldBe expected
+  }
+
+  it should "remove the county from 'MOONLIGHT COTTAGE COCKING MIDHURST WEST SUSSEX'" in {
+    val input = "MOONLIGHT COTTAGE COCKING MIDHURST WEST SUSSEX"
+    val expected = "MOONLIGHT COTTAGE COCKING MIDHURST"
+    val actual = Tokens.removeCounties(input)
+    actual shouldBe expected
+  }
+
+  it should "not remove Cornwall from 'FLAT 3 CORNWALL COURT 19 CORNWALL STREET, BIRMINGHAM B3 2DT'" in {
+    val input = "FLAT 3 CORNWALL COURT 19 CORNWALL STREET, BIRMINGHAM B3 2DT"
+    val expected = "FLAT 3 CORNWALL COURT 19 CORNWALL STREET, BIRMINGHAM B3 2DT"
+    val actual = Tokens.removeCounties(input)
+    actual shouldBe expected
+  }
+
+  it should "remove the second Hampshire from 'HAMPSHIRE FIRE BRIGADE LEIGH ROAD EASTLEIGH HAMPSHIRE SO59 9SJ'" in {
+    val input = "HAMPSHIRE FIRE BRIGADE LEIGH ROAD EASTLEIGH HAMPSHIRE SO59 9SJ"
+    val expected = "HAMPSHIRE FIRE BRIGADE LEIGH ROAD EASTLEIGH SO59 9SJ"
+    val actual = Tokens.removeCounties(input)
+    actual shouldBe expected
+  }
+
+  it should "not remove Highlands from 'HIGHLANDS LLANMAES LLANTWIT MAJOR SOUTH GLAMORGAN CF61 2XR'" in {
+    val input = "HIGHLANDS LLANMAES LLANTWIT MAJOR SOUTH GLAMORGAN CF61 2XR"
+    val expected = "HIGHLANDS LLANMAES LLANTWIT MAJOR CF61 2XR"
+    val actual = Tokens.removeCounties(input)
     actual shouldBe expected
   }
 }
