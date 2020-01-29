@@ -2,7 +2,6 @@ package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index._
-import uk.gov.ons.addressIndex.model.server.response._
 import uk.gov.ons.addressIndex.model.server.response.address._
 
 /**
@@ -10,7 +9,7 @@ import uk.gov.ons.addressIndex.model.server.response.address._
   */
 class AddressResponseAddressSpec extends WordSpec with Matchers {
 
-  val givenNag = NationalAddressGazetteerAddress(
+  val givenNag: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
     uprn = "n1",
     postcodeLocator = "n2",
     addressBasePostal = "n3",
@@ -83,7 +82,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     locality = ""
   )
 
-  val givenPaf = PostcodeAddressFileAddress(
+  val givenPaf: PostcodeAddressFileAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
     changeType = "2",
     proOrder = "3",
@@ -118,7 +117,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     mixedWelshPaf = "mixedWelshPaf"
   )
 
-  val givenNisra = NisraAddress(
+  val givenNisra: NisraAddress = NisraAddress(
     organisationName = "1",
     subBuildingName = "2",
     buildingName = "3",
@@ -152,21 +151,22 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     saoEndNumber = "",
     saoEndSuffix = "",
     addressStatus = "APPROVED",
-    buildingStatus = "DEMOLISHED"
+    buildingStatus = "DEMOLISHED",
+    localCouncil = "BELFAST"
   )
 
-  val givenRelative = Relative (
+  val givenRelative: Relative = Relative (
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
 
-  val givenCrossRef = CrossRef(
+  val givenCrossRef: CrossRef = CrossRef(
     crossReference = "E05011011",
     source = "7666OW"
   )
 
-  val givenBespokeScore = AddressResponseScore(
+  val givenBespokeScore: AddressResponseScore = AddressResponseScore(
     objectScore = 0,
     structuralScore = 0,
     buildingScore = 0,
@@ -284,7 +284,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "47")
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "47","E")
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expectedNisra = AddressResponseNisra.fromNisraAddress(givenNisra)
@@ -312,7 +312,10 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         lpiLogicalStatus = givenNag.lpiLogicalStatus,
         fromSource = "47",
         confidenceScore = 100,
-        underlyingScore = 1
+        underlyingScore = 1,
+        countryCode = "E",
+        censusAddressType = "TBA",
+        censusEstabType = "TBA"
       )
 
       // When

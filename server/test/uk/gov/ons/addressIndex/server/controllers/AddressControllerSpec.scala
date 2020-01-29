@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import org.scalatest.BeforeAndAfterAll
-import com.sksamuel.elastic4s.{Indexes, IndexesAndTypes}
+import com.sksamuel.elastic4s.Indexes
 import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
@@ -27,7 +26,7 @@ import scala.concurrent.{Await, Future}
 
 class AddressControllerSpec extends PlaySpec with Results {
 
-  val validPafAddress = PostcodeAddressFileAddress(
+  val validPafAddress: PostcodeAddressFileAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
     changeType = "2",
     proOrder = "3",
@@ -62,7 +61,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     mixedWelshPaf = "32"
   )
 
-  val validNagAddress = NationalAddressGazetteerAddress(
+  val validNagAddress: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
     uprn = "1",
     postcodeLocator = "B16 8TH",
     addressBasePostal = "3",
@@ -106,7 +105,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     mixedNag = "mixedNag"
   )
 
-  val validNisraAddress = NisraAddress(
+  val validNisraAddress: NisraAddress = NisraAddress(
     organisationName = "1",
     subBuildingName = "2",
     buildingName = "3",
@@ -140,21 +139,22 @@ class AddressControllerSpec extends PlaySpec with Results {
     longitude = "21",
     addressStatus = "APPROVED",
     buildingStatus = "DEMOLISHED",
+    localCouncil = "BELFAST",
     mixedNisra = "mixedNisra"
  )
 
-  val validRelative = Relative(
+  val validRelative: Relative = Relative(
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
 
-  val validCrossRef = CrossRef(
+  val validCrossRef: CrossRef = CrossRef(
     crossReference = "E05011011",
     source = "7666OW"
   )
 
-  val validHybridAddress = HybridAddress(
+  val validHybridAddress: HybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = Some(Seq(validRelative)),
@@ -166,10 +166,11 @@ class AddressControllerSpec extends PlaySpec with Results {
     nisra = Seq(),
     score = 1f,
     classificationCode = "29",
-    fromSource = "47"
+    fromSource = "47",
+    countryCode = "E"
   )
 
-  val validHybridAddressSkinny = HybridAddress(
+  val validHybridAddressSkinny: HybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = None,
@@ -181,7 +182,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     nisra = Seq(validNisraAddress),
     score = 1f,
     classificationCode = "29",
-    fromSource = "47"
+    fromSource = "47",
+    countryCode = "E"
   )
 
   val validCodelistList: String = "{\"codelists\"" +

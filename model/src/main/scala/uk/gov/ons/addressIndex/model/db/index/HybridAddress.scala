@@ -17,6 +17,7 @@ case class HybridAddress(uprn: String,
                          score: Float,
                          classificationCode: String,
                          fromSource: String,
+                         countryCode: String,
                          distance: Double = 0D)
 
 object HybridAddress {
@@ -36,6 +37,7 @@ object HybridAddress {
     score = 0,
     classificationCode = "",
     fromSource = "",
+    countryCode = "",
     distance = 0D
   )
 
@@ -95,6 +97,7 @@ object HybridAddress {
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
+        countryCode = Try(hit.sourceAsMap("countryCode").toString).getOrElse("E"),
         distance = bestDistance
       ))
     }
