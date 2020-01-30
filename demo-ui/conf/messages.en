@@ -202,7 +202,7 @@ results.foundatleastpre=We have matched at least
 results.foundexactpre=We have matched
 results.foundpost=addresses
 
-postcodesearchform.labelsearch=Enter address
+postcodesearchform.labelsearch=Full postcode
 
 radius.title=Radius demo - find an address within a radius
 radius.sfatext=Search for an address within a radius
