@@ -112,6 +112,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridMixedNag = "mixedNag"
 
   val hybridFromSource = "EW"
+  val hybridCountryCode = "E"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn: Long = hybridPafUprn
@@ -156,6 +157,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNisraNorthing = "h22"
   val hybridNisraLatitude = "h23"
   val hybridNisraLongitude = "h24"
+  val hybridNisraLocalCouncil = "BELFAST"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -407,7 +409,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
-    "fromSource" -> hybridFromSource
+    "fromSource" -> hybridFromSource,
+    "countryCode" -> hybridCountryCode
   )
 
   val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
@@ -423,7 +426,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
-    "fromSource" -> hybridFromSource
+    "fromSource" -> hybridFromSource,
+    "countryCode" -> hybridCountryCode
   )
 
   val thirdHybridEs: Map[String, Any] = firstHybridEs + (
@@ -634,7 +638,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNisraLongitude,
     hybridNotUsed,
     hybridNotUsed,
-    hybridNotUsed,
+    hybridNisraLocalCouncil,
     hybridMixedNisra
   )
 
