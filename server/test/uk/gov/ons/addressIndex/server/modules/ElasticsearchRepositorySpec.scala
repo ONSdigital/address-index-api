@@ -110,7 +110,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridMixedPaf = "mixedPaf"
   val hybridMixedWelshPaf = "MixedWelshPaf"
   val hybridMixedNag = "mixedNag"
-
+  val hybridCensusAddressType = "NA"
+  val hybridCensusEstabType = "NA"
   val hybridFromSource = "EW"
   val hybridCountryCode = "E"
 
@@ -158,6 +159,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNisraLatitude = "h23"
   val hybridNisraLongitude = "h24"
   val hybridNisraLocalCouncil = "BELFAST"
+  val hybridNisraLGDCode = "N09000003"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -409,6 +411,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
+    "censusAddressType" -> hybridCensusAddressType,
+    "censusEstabType" -> hybridCensusEstabType,
     "fromSource" -> hybridFromSource,
     "countryCode" -> hybridCountryCode
   )
@@ -426,6 +430,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
+    "censusAddressType" -> hybridCensusAddressType,
+    "censusEstabType" -> hybridCensusEstabType,
     "fromSource" -> hybridFromSource,
     "countryCode" -> hybridCountryCode
   )
@@ -639,6 +645,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNotUsed,
     hybridNotUsed,
     hybridNisraLocalCouncil,
+    hybridNisraLGDCode,
     hybridMixedNisra
   )
 
@@ -688,6 +695,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
+    censusAddressType = "NA",
+    censusEstabType = "NA",
     fromSource = "EW",
     countryCode ="E"
   )
@@ -704,6 +713,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
+    censusAddressType = "NA",
+    censusEstabType = "NA",
     fromSource = "EW",
     countryCode ="E"
   )
@@ -720,6 +731,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
+    censusAddressType = "NA",
+    censusEstabType = "NA",
     fromSource = "EW",
     countryCode = "E"
   )
@@ -736,6 +749,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
+    censusAddressType = "NA",
+    censusEstabType = "NA",
     fromSource = "EW",
     countryCode ="E"
   )

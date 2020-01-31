@@ -140,6 +140,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     addressStatus = "APPROVED",
     buildingStatus = "DEMOLISHED",
     localCouncil = "BELFAST",
+    LGDCode = "N09000003",
     mixedNisra = "mixedNisra"
  )
 
@@ -166,6 +167,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     nisra = Seq(),
     score = 1f,
     classificationCode = "29",
+    censusAddressType = "NA",
+    censusEstabType = "NA",
     fromSource = "47",
     countryCode = "E"
   )
@@ -182,6 +185,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     nisra = Seq(validNisraAddress),
     score = 1f,
     classificationCode = "29",
+    censusAddressType = "NA",
+    censusEstabType = "NA",
     fromSource = "47",
     countryCode = "E"
   )

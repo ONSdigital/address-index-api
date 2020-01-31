@@ -152,7 +152,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     saoEndSuffix = "",
     addressStatus = "APPROVED",
     buildingStatus = "DEMOLISHED",
-    localCouncil = "BELFAST"
+    localCouncil = "BELFAST",
+    LGDCode = "N09000003"
   )
 
   val givenRelative: Relative = Relative (
@@ -284,7 +285,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "47","E")
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "47","E")
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expectedNisra = AddressResponseNisra.fromNisraAddress(givenNisra)
@@ -314,8 +315,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         confidenceScore = 100,
         underlyingScore = 1,
         countryCode = "E",
-        censusAddressType = "TBA",
-        censusEstabType = "TBA"
+        censusAddressType = "NA",
+        censusEstabType = "NA"
       )
 
       // When

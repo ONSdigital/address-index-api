@@ -92,8 +92,8 @@ object AddressResponseAddress {
         if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
       },
       classificationCode = other.classificationCode,
-      censusAddressType = "TBA",
-      censusEstabType = "TBA",
+      censusAddressType = other.censusAddressType,
+      censusEstabType = other.censusEstabType,
       countryCode = other.countryCode,
       lpiLogicalStatus = lpiLogicalStatus,
       fromSource = other.fromSource,
