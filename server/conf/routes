@@ -275,7 +275,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: limit
 #      description: Specifies the number of addresses to return.
-#      default: 10
+#      default: 1
 #      maximum: 100
 #    - name: historical
 #      description: Include historical addresses
