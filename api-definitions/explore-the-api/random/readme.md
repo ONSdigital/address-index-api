@@ -28,7 +28,7 @@
         <td class="table--cell">Specifies the number of addresses to return.</td>
         <td class="table--cell">
             Optional
-            <br>Default: 10
+            <br>Default: 1
             <br>Maximum: 100
         </td>
     </tr>    

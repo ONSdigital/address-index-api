@@ -110,8 +110,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridMixedPaf = "mixedPaf"
   val hybridMixedWelshPaf = "MixedWelshPaf"
   val hybridMixedNag = "mixedNag"
-
+  val hybridCensusAddressType = "NA"
+  val hybridCensusEstabType = "NA"
   val hybridFromSource = "EW"
+  val hybridCountryCode = "E"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn: Long = hybridPafUprn
@@ -156,6 +158,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNisraNorthing = "h22"
   val hybridNisraLatitude = "h23"
   val hybridNisraLongitude = "h24"
+  val hybridNisraLocalCouncil = "BELFAST"
+  val hybridNisraLGDCode = "N09000003"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -407,7 +411,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
-    "fromSource" -> hybridFromSource
+    "censusAddressType" -> hybridCensusAddressType,
+    "censusEstabType" -> hybridCensusEstabType,
+    "fromSource" -> hybridFromSource,
+    "countryCode" -> hybridCountryCode
   )
 
   val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
@@ -423,7 +430,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
-    "fromSource" -> hybridFromSource
+    "censusAddressType" -> hybridCensusAddressType,
+    "censusEstabType" -> hybridCensusEstabType,
+    "fromSource" -> hybridFromSource,
+    "countryCode" -> hybridCountryCode
   )
 
   val thirdHybridEs: Map[String, Any] = firstHybridEs + (
@@ -442,7 +452,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(fourthHybridPafEs))
 
   // new analysis object, doesn't seem to work
-  val customAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
+  val customAnalyzer: CustomAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
   val testAnalysis: Analysis = Analysis(
     List(customAnalyzer))
 
@@ -509,7 +519,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     updateIndexLevelSettings(hybridIndexHistoricalName).numberOfReplicas(0)
   }.await
 
-  val expectedPaf = PostcodeAddressFileAddress(
+  val expectedPaf: PostcodeAddressFileAddress = PostcodeAddressFileAddress(
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
@@ -556,7 +566,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     endDate = hybridCurrentEndDate
   )
 
-  val expectedNag = NationalAddressGazetteerAddress(
+  val expectedNag: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
     hybridNagUprn.toString,
     hybridNagPostcodeLocator,
     hybridNotUsed,
@@ -600,7 +610,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridMixedNag
   )
 
-  val expectedNisra = NisraAddress(
+  val expectedNisra: NisraAddress = NisraAddress(
     hybridNisraOrganisationName,
     hybridNisraSubBuildingName,
     hybridNisraBuildingName,
@@ -634,6 +644,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNisraLongitude,
     hybridNotUsed,
     hybridNotUsed,
+    hybridNisraLocalCouncil,
+    hybridNisraLGDCode,
     hybridMixedNisra
   )
 
@@ -655,23 +667,23 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpiEndDate = hybridEndDate
   )
 
-  val expectedRelative = Relative(
+  val expectedRelative: Relative = Relative(
     level = hybridRelLevel,
     siblings = hybridRelSibArray,
     parents = hybridRelParArray
   )
 
-  val expectedCrossRef = CrossRef(
+  val expectedCrossRef: CrossRef = CrossRef(
     crossReference = hybridCrossRefReference,
     source = hybridCrossRefSource
   )
 
-  val expectedCrossRef2 = CrossRef(
+  val expectedCrossRef2: CrossRef = CrossRef(
     crossReference = hybridCrossRefReference2,
     source = hybridCrossRefSource2
   )
 
-  val expectedHybrid = HybridAddress(
+  val expectedHybrid: HybridAddress = HybridAddress(
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -683,10 +695,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode ="E"
   )
 
-  val expectedDateHybrid = HybridAddress(
+  val expectedDateHybrid: HybridAddress = HybridAddress(
     uprn = hybridFirstDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -698,10 +713,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode ="E"
   )
 
-  val expectedSecondDateHybrid = HybridAddress(
+  val expectedSecondDateHybrid: HybridAddress = HybridAddress(
     uprn = hybridSecondDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -713,10 +731,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode = "E"
   )
 
-  val expectedThirdDateHybrid = HybridAddress(
+  val expectedThirdDateHybrid: HybridAddress = HybridAddress(
     uprn = hybridThirdDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -728,7 +749,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode ="E"
   )
 
   val expectedHybridHist: HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)

@@ -16,7 +16,10 @@ case class HybridAddress(uprn: String,
                          nisra: Seq[NisraAddress],
                          score: Float,
                          classificationCode: String,
+                         censusAddressType: String,
+                         censusEstabType: String,
                          fromSource: String,
+                         countryCode: String,
                          distance: Double = 0D)
 
 object HybridAddress {
@@ -35,7 +38,10 @@ object HybridAddress {
     nisra = Seq.empty,
     score = 0,
     classificationCode = "",
+    censusAddressType = "",
+    censusEstabType = "",
     fromSource = "",
+    countryCode = "",
     distance = 0D
   )
 
@@ -94,7 +100,10 @@ object HybridAddress {
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
+        censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString).getOrElse(""),
+        censusEstabType = Try(hit.sourceAsMap("censusEstabType").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
+        countryCode = Try(hit.sourceAsMap("countryCode").toString).getOrElse("E"),
         distance = bestDistance
       ))
     }
