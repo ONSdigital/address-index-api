@@ -76,10 +76,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost,
-        bestMatchField = getBestMatchField(add.highlights,true, true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
-      } else add.copy(underlyingScore = add.underlyingScore,
-        bestMatchField = getBestMatchField(add.highlights,true,true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))
+        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = Option(add.highlights.get.copy(
+        bestMatchField = getBestMatchField(add.highlights,true, true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
+      } else add.copy(underlyingScore = add.underlyingScore, highlights = Option(add.highlights.get.copy(
+        bestMatchField = getBestMatchField(add.highlights,true,true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
     }
 
 //    def getBestMatchField(nag: String, paf: String, welshnag: String, welshpaf: String): String =

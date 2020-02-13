@@ -5,13 +5,13 @@ import play.api.libs.json.{Format, Json}
 
 //import scala.util.Try
 
-case class AddressResponseHighlight(highlight: Map[String,Seq[String]])
+case class AddressResponseHighlight(bestMatchField: String, highlight: Map[String,Seq[String]])
 
 object AddressResponseHighlight {
   implicit lazy val addressResponseHighlightFormat: Format[AddressResponseHighlight] = Json.format[AddressResponseHighlight]
 
-  def fromHighlight(other: Map[String,Seq[String]]): Option[AddressResponseHighlight] = {
-  Some(AddressResponseHighlight(other))
+  def fromHighlight(bestMatchField: String, other: Map[String,Seq[String]]): Option[AddressResponseHighlight] = {
+   Some(AddressResponseHighlight(bestMatchField,other))
  }
 
  }

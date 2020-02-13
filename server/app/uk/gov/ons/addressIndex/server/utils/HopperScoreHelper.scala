@@ -188,7 +188,7 @@ object HopperScoreHelper {
                              paoEndSuffix: String,
                              organisationName: String): String = {
 
-    val fromSource = address.fromSource
+    val fromSource = address.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
@@ -231,7 +231,7 @@ object HopperScoreHelper {
       nisraOrganisationName)
 
     val detailedOrganisationBuildingNameParam =
-      if (fromSource == "NI") detailedOrganisationBuildingNameNisraScore
+      if (fromSource == "N") detailedOrganisationBuildingNameNisraScore
       else detailedOrganisationBuildingNamePafScore.min(detailedOrganisationBuildingNameNagScore)
 
     val buildingNumberPafScore = calculateBuildingNumPafScore(
@@ -263,7 +263,7 @@ object HopperScoreHelper {
       buildingNumber)
 
     val buildingNumberParam =
-      if (fromSource == "NI") buildingNumberNisraScore
+      if (fromSource == "N") buildingNumberNisraScore
       else buildingNumberPafScore.min(buildingNumberNagScore)
 
     "building." + detailedOrganisationBuildingNameParam + buildingNumberParam
@@ -505,7 +505,7 @@ object HopperScoreHelper {
                              organisationName: String,
                              buildingName: String): String = {
 
-    val fromSource = address.fromSource
+    val fromSource = address.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
@@ -566,7 +566,7 @@ object HopperScoreHelper {
       nisraOrganisationName)
 
     val organisationBuildingNameParam =
-      if (fromSource == "NI") OrganisationBuildingNameNisraScore
+      if (fromSource == "N") OrganisationBuildingNameNisraScore
       else OrganisationBuildingNamePafScore.min(OrganisationBuildingNameNagScore)
 
     val streetPafScore = calculateStreetPafScore(
@@ -585,7 +585,7 @@ object HopperScoreHelper {
     val streetNagScore = calculateStreetNagScore(streetName, nagStreetDescriptor)
 
     val streetParam =
-      if (fromSource == "NI") streetNisraScore
+      if (fromSource == "N") streetNisraScore
       else streetPafScore.min(streetNagScore)
 
     val townLocalityPafScore = calculateTownLocalityPafScore(
@@ -614,7 +614,7 @@ object HopperScoreHelper {
       streetName)
 
     val townLocalityParam =
-      if (fromSource == "NI") townLocalityNisraScore
+      if (fromSource == "N") townLocalityNisraScore
       else townLocalityPafScore.min(townLocalityNagScore)
 
     val postcodePafScore = calculatePostcodePafScore(
@@ -642,7 +642,7 @@ object HopperScoreHelper {
       postcodeArea)
 
     val postcodeParam =
-      if (fromSource == "NI") postcodeNisraScore
+      if (fromSource == "N") postcodeNisraScore
       else postcodePafScore.min(postcodeNagScore)
 
     "locality." + organisationBuildingNameParam + streetParam + townLocalityParam + postcodeParam
@@ -1084,7 +1084,7 @@ object HopperScoreHelper {
                          saoEndSuffix: String,
                          organisationName: String): String = {
 
-    val fromSource = address.fromSource
+    val fromSource = address.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
@@ -1132,7 +1132,7 @@ object HopperScoreHelper {
       getNonNumberPartsFromName(nisraSubBuildingName), atSignForEmpty(getNonNumberPartsFromName(organisationName)))
 
     val subBuildingNameParam =
-      if (fromSource == "NI") subBuildingNameNisraScore
+      if (fromSource == "N") subBuildingNameNisraScore
       else subBuildingNamePafScore.min(subBuildingNameNagScore)
 
     val subBuildingNumberPafScore = calculateSubBuildingNumberPafScore(
@@ -1160,7 +1160,7 @@ object HopperScoreHelper {
     val subBuildingNumberNisraScore = 9
 
     val subBuildingNumberParam =
-      if (fromSource == "NI") subBuildingNumberNisraScore
+      if (fromSource == "N") subBuildingNumberNisraScore
       else subBuildingNumberPafScore.min(subBuildingNumberNagScore)
 
     "unit." + refHierarchyParam + organisationNameParam + subBuildingNameParam + subBuildingNumberParam

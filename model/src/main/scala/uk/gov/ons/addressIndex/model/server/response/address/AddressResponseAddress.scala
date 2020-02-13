@@ -34,10 +34,11 @@ case class AddressResponseAddress(uprn: String,
                                   censusEstabType: String,
                                   countryCode: String,
                                   lpiLogicalStatus: String,
-                                  fromSource: String,
+                              //    fromSource: String,
                                   confidenceScore: Double,
                                   underlyingScore: Float,
-                                  bestMatchField: String)
+                               //   bestMatchField: String
+                                 )
 
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
@@ -83,7 +84,7 @@ object AddressResponseAddress {
       formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
-      highlights = if (other.highlights.isEmpty) None else AddressResponseHighlight.fromHighlight(other.highlights.head),
+      highlights = if (other.highlights.isEmpty) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.head),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
       },
@@ -101,10 +102,10 @@ object AddressResponseAddress {
       censusEstabType = other.censusEstabType,
       countryCode = other.countryCode,
       lpiLogicalStatus = lpiLogicalStatus,
-      fromSource = other.fromSource,
+  //    fromSource = other.fromSource,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat,
-      bestMatchField = ""
+    //  bestMatchField = ""
     )
   }
 
