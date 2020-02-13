@@ -199,7 +199,10 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA"
   )
 
 
@@ -222,7 +225,10 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA"
   )
 
 
@@ -245,7 +251,10 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA"
   )
 
   val mockLocalityParams: Seq[(String, String)] =
