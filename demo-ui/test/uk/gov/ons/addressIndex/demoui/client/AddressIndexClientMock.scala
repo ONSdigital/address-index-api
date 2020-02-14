@@ -238,7 +238,6 @@ object AddressIndexClientMock {
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),
     geo = None,
-    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 100f,

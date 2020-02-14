@@ -99,7 +99,7 @@ expandRow: Int = 0
             }
 
             <table class="address-result-table mars">
-                @if(address.fromSource == "EW") {
+                @if(address.countryCode != "N") {
                 <tr>
                     <td>@messages("clerical.logicalstatus")</td>
                     <td class="venus">@address.nag.map { nag => @messages("logical." + nag(0).logicalStatus) }</td>
@@ -122,7 +122,7 @@ expandRow: Int = 0
                         @if(address.parentUprn == "0") {N/A} else {@address.parentUprn}
                     </td>
                 </tr>
-                @if(address.fromSource == "EW") {
+                @if(address.countryCode != "N") {
                 <tr>
                     <td>@messages("clerical.la")</td>
                     <td class="venus">@address.nag.map { nag => @nag(0).localCustodianName } | @address.nag.map { nag => @nag(0).localCustodianGeogCode }</td>
@@ -133,7 +133,7 @@ expandRow: Int = 0
             <h3 class="neptune">@messages("clerical.ta"):</h3>
 
             <table class="address-result-table-clerical mars">
-                @if(address.fromSource == "NI") {
+                @if(address.countryCode == "N") {
                 @*NISRA TABLE*@
                 <tr class="venus">
                     <th>@messages("clerical.token_description")</th>
