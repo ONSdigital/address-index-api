@@ -155,6 +155,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
+  // todo add test highlighting
+
   val validHybridAddress: HybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
@@ -170,7 +172,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "47",
-    countryCode = "E"
+    countryCode = "E",
+    highlights = Seq()
   )
 
   val validHybridAddressSkinny: HybridAddress = HybridAddress(
@@ -188,7 +191,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "47",
-    countryCode = "E"
+    countryCode = "E",
+    highlights = Seq()
   )
 
   val validCodelistList: String = "{\"codelists\"" +
@@ -567,7 +571,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource = "all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         OkAddressResponseStatus
       ))
@@ -598,7 +605,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = true,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         OkAddressResponseStatus
       ))
@@ -1809,7 +1819,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -1843,7 +1856,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "epoch",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -2280,7 +2296,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)

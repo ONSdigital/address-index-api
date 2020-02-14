@@ -194,14 +194,17 @@ sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filt
 final case class PartialArgs(input: String,
                              fallback: Boolean = false,
                              epoch: String = "",
-                             historical: Boolean = true,
+                             historical: Boolean = false,
                              limit: Int,
                              start: Int = 0,
                              filters: String,
                              filterDateRange: DateRange = DateRange(),
-                             verbose: Boolean = true,
+                             verbose: Boolean = false,
                              skinny: Boolean = false,
-                             fromsource: String
+                             fromsource: String,
+                             highverbose: Boolean = true,
+                             favourpaf: Boolean = true,
+                             favourwelsh: Boolean = true
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 

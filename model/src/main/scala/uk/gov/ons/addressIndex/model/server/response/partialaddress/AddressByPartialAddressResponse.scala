@@ -23,7 +23,10 @@ case class AddressByPartialAddressResponse(input: String,
                                            total: Long,
                                            maxScore: Double,
                                            verbose: Boolean,
-                                           fromsource:String)
+                                           fromsource: String,
+                                           highverbose: Boolean,
+                                           favourpaf: Boolean,
+                                           favourwelsh: Boolean)
 
 object AddressByPartialAddressResponse {
   implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]

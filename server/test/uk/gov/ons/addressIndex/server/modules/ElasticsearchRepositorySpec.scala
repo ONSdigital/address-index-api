@@ -698,7 +698,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode ="E"
+    countryCode ="E",
+    highlights = Seq()
   )
 
   val expectedDateHybrid: HybridAddress = HybridAddress(
@@ -716,7 +717,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode ="E"
+    countryCode ="E",
+    highlights = Seq()
   )
 
   val expectedSecondDateHybrid: HybridAddress = HybridAddress(
@@ -734,7 +736,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode = "E"
+    countryCode = "E",
+    highlights = Seq()
   )
 
   val expectedThirdDateHybrid: HybridAddress = HybridAddress(
@@ -752,7 +755,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode ="E"
+    countryCode ="E",
+    highlights = Seq()
   )
 
   val expectedHybridHist: HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)

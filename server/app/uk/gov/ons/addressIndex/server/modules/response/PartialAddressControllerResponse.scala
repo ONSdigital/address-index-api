@@ -91,7 +91,10 @@ trait PartialAddressControllerResponse extends AddressResponse {
       total = 0,
       maxScore = 0f,
       verbose = queryValues.verboseOrDefault,
-      fromsource = queryValues.fromSourceOrDefault
+      fromsource = queryValues.fromSourceOrDefault,
+      highverbose = queryValues.highVerboseOrDefault,
+      favourpaf = queryValues.favourParOrDefault,
+      favourwelsh = queryValues.favourWelshOrDefault
     )
   }
 

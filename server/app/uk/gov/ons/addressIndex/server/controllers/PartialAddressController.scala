@@ -43,7 +43,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          fromsource: Option[String] = None
+                          fromsource: Option[String] = None,
+                          highverbose: Option[String] = None,
+                          favourpaf: Option[String] = None,
+                          favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -61,8 +64,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val highVerbose = highverbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
@@ -77,20 +83,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(underlyingScore = add.underlyingScore + sboost, highlights = Option(add.highlights.get.copy(
-        bestMatchField = getBestMatchField(add.highlights,true, true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
+        bestMatchField = getBestMatchField(add.highlights, favourPaf, favourWelsh, add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
       } else add.copy(underlyingScore = add.underlyingScore, highlights = Option(add.highlights.get.copy(
-        bestMatchField = getBestMatchField(add.highlights,true,true,add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
+        bestMatchField = getBestMatchField(add.highlights, favourPaf, favourWelsh, add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
     }
-
-//    def getBestMatchField(nag: String, paf: String, welshnag: String, welshpaf: String): String =
-//      {
-//        val matchfieldScores = "paf=" + levenshtein(paf, input).toString() +
-//          " nag=" + levenshtein(nag, input).toString() +
-//           " welshnag=" + levenshtein(welshnag, input).toString() +
-//             " welshpaf=" + levenshtein(welshpaf, input).toString()
-//        println("matchfield = " + matchfieldScores)
-//    matchfieldScores
-//    }
 
     def getBestMatchField(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false, nag: String, paf: String, welshNag: String, welshPaf: String): String =
     {
@@ -198,7 +194,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      fromsource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal),
+      highverbose = Some(highVerbose),
+      favourpaf = Some(favourPaf),
+      favourwelsh = Some(favourWelsh)
     )
 
     val result: Option[Future[Result]] =
@@ -227,7 +226,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal
+          fromsource = fromsourceVal,
+          highverbose = highVerbose,
+          favourpaf = favourPaf,
+          favourwelsh = favourWelsh
         )
 
         val request: Future[HybridAddressCollection] =
@@ -261,7 +263,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  fromsource = fromsourceVal
+                  fromsource = fromsourceVal,
+                  highverbose = highVerbose,
+                  favourpaf = favourPaf,
+                  favourwelsh = favourWelsh
                 ),
                 status = OkAddressResponseStatus
               )

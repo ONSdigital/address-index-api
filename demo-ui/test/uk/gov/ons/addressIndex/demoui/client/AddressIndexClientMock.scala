@@ -244,7 +244,8 @@ object AddressIndexClientMock {
     underlyingScore = 1.0f,
     countryCode = "E",
     censusAddressType = "TBA",
-    censusEstabType = "TBA"
+    censusEstabType = "TBA",
+    highlights = None
   )
 
   val mockAddressByUprnResponse: AddressByUprnResponse = AddressByUprnResponse(
