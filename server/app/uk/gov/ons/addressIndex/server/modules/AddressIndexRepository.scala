@@ -104,7 +104,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => "^" + esConf.queryParams.nisra.partialAllBoost
     }
 
-    val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+    val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
@@ -171,7 +171,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
 
-    val hFields = Seq(HighlightField("lpi.nagAll.partial"),
+    val hFields = Seq(HighlightField("lpi.mixedNag.partial"),
+      HighlightField("lpi.mixedWelshNag.partial"),
       HighlightField("paf.mixedPaf.partial"),
       HighlightField("paf.mixedWelshPaf.partial"),
       HighlightField("nisra.mixedNisra.partial"))

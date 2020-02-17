@@ -52,11 +52,11 @@ object AddressResponseAddress {
   def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddress = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse("")
+    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
     val lpiLogicalStatus = chosenNag.map(_.lpiLogicalStatus).getOrElse("")
 
     val chosenWelshNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedNag).getOrElse("")
+    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedWelshNag).getOrElse("")
 
     val chosenPaf = other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
