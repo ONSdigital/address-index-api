@@ -102,7 +102,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
     lpiStartDate = "lpiStartDate",
-    mixedNag = "mixedNag"
+    mixedNag = "mixedNag",
+    mixedWelshNag = "mixedWelshNag"
   )
 
   val validNisraAddress: NisraAddress = NisraAddress(

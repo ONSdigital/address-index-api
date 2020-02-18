@@ -1,17 +1,19 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
-//import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NisraAddress}
-
-//import scala.util.Try
-
-case class AddressResponseHighlight(bestMatchField: String, highlight: Map[String,Seq[String]])
+case class AddressResponseHighlight(bestMatchAddress: String,
+                                    hits: Option[Seq[AddressResponseHighlightHit]])
 
 object AddressResponseHighlight {
   implicit lazy val addressResponseHighlightFormat: Format[AddressResponseHighlight] = Json.format[AddressResponseHighlight]
 
-  def fromHighlight(bestMatchField: String, other: Map[String,Seq[String]]): Option[AddressResponseHighlight] = {
-   Some(AddressResponseHighlight(bestMatchField,other))
+  def fromHighlight(bestMatchAddress: String, other: Map[String,Seq[String]]): Option[AddressResponseHighlight] = {
+   val hitList = other.flatMap{hit =>
+     AddressResponseHighlightHit.fromHighlight(hit)}
+    val optList = Option(hitList.toSeq)
+   Some(AddressResponseHighlight(bestMatchAddress,optList))
  }
+}
 
- }
+
+

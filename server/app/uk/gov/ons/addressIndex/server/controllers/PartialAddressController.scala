@@ -83,56 +83,35 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(underlyingScore = add.underlyingScore + sboost, highlights = Option(add.highlights.get.copy(
-        bestMatchField = getBestMatchField(add.highlights, favourPaf, favourWelsh, add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh))))
       } else add.copy(underlyingScore = add.underlyingScore, highlights = Option(add.highlights.get.copy(
-        bestMatchField = getBestMatchField(add.highlights, favourPaf, favourWelsh, add.formattedAddressNag,add.formattedAddressPaf,add.welshFormattedAddressNag, add.welshFormattedAddressPaf))))
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh))))
     }
 
-    def getBestMatchField(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false, nag: String, paf: String, welshNag: String, welshPaf: String): String =
+    def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
     {
 
-      val highs:AddressResponseHighlight = highlights match {
-        case Some(value) => value
-        case None => null
+      highlights match {
+        case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
+        case None => ""
       }
-
-      val nags = highs.highlight.filter(_._1 == "lpi.nagAll.partial").map {
-        hlist => hlist._2.map {lin =>
-          val hLine = lin.mkString.split(" ").distinct.mkString
-  //        println("hString = " + hLine)
-          hLine.count(_ == '<')
-        }
-      }
-
-      val pafs_w = highs.highlight.filter(_._1 == "paf.mixedWelshPaf.partial").map {
-        hlist => val hString = hlist._2.mkString.split(" ").distinct.mkString
- //         println("hString = " + hString)
-          hString.count(_ == '<')
-      }
-
-      val pafs_e = highs.highlight.filter(_._1 == "paf.mixedPaf.partial").map {
-        hlist => val hString = hlist._2.mkString.split(" ").distinct.mkString
-   //       println("hString = " + hString)
-          hString.count(_ == '<')
-      }
-
-      val maxpafs_e = if(pafs_e.isEmpty) 0 else pafs_e.max / 2
-      val maxpafs_w = if(pafs_w.isEmpty) 0 else pafs_w.max / 2
-      val maxnags = if(nags.isEmpty) 0 else nags.head.max / 2
-      val maxpafs = math.max(maxpafs_e,maxpafs_w)
-  //    println("pafs_e = " + maxpafs_e)
-  //    println("pafs_w = " + maxpafs_w)
-  //    println("nags = " + maxnags)
-
-// this logic is not complete
-     if (maxnags > maxpafs) {
-       if (favourWelsh && !welshNag.isEmpty) welshNag else nag
-     } else {
-       if (maxpafs_e > maxpafs_w) paf else welshPaf
-     }
     }
 
+    def determineBestMatchAddress(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+    {
+      val highs = favourPaf match {
+        case true => if (favourWelsh)
+          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)(Ordering[String].reverse)
+         else
+          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)(Ordering[String].reverse)
+        case false => if (favourWelsh)
+          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)
+         else
+          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)
+      }
 
+      highs.headOption.get.highLightedText
+    }
 
     /**
       * Calculates the edit distance between two strings
