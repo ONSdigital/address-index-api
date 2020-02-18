@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseHighlight, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseHighlight, AddressResponseHighlightHit, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
@@ -83,9 +83,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(underlyingScore = add.underlyingScore + sboost, highlights = Option(add.highlights.get.copy(
-        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh))))
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
       } else add.copy(underlyingScore = add.underlyingScore, highlights = Option(add.highlights.get.copy(
-        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh))))
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }
 
     def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
@@ -99,51 +101,24 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def determineBestMatchAddress(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
     {
-      val highs = favourPaf match {
+      val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+      highs.headOption.map(_.highLightedText).getOrElse("")
+    }
+
+    def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
+    {
+      favourPaf match {
         case true => if (favourWelsh)
-          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)(Ordering[String].reverse)
-         else
-          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)(Ordering[String].reverse)
+          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)(Ordering[String].reverse)
+        else
+          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)(Ordering[String].reverse)
         case false => if (favourWelsh)
-          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)
-         else
-          highlight.hits.getOrElse(Seq()).sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)
+          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)
+        else
+          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)
       }
-
-      highs.headOption.get.highLightedText
     }
 
-    /**
-      * Calculates the edit distance between two strings
-      *
-      * @param str1 string 1
-      * @param str2 string 2
-      * @return int number of edits required
-      */
-    def levenshtein(str1: String, str2: String): Int = {
-      val lenStr1 = str1.length
-      val lenStr2 = str2.length
-      val d: Array[Array[Int]] = Array.ofDim(lenStr1 + 1, lenStr2 + 1)
-      for (i <- 0 to lenStr1) d(i)(0) = i
-      for (j <- 0 to lenStr2) d(0)(j) = j
-      for (i <- 1 to lenStr1; j <- 1 to lenStr2) {
-        val cost = if (str1(i - 1) == str2(j - 1)) 0 else 1
-        d(i)(j) = min(
-          d(i - 1)(j) + 1, // deletion
-          d(i)(j - 1) + 1, // insertion
-          d(i - 1)(j - 1) + cost // substitution
-        )
-      }
-      d(lenStr1)(lenStr2)
-    }
-
-    /**
-      * Return the smallest number in a list
-      *
-      * @param nums nums
-      * @return
-      */
-    def min(nums: Int*): Int = nums.min
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
