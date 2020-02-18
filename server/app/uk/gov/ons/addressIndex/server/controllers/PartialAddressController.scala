@@ -109,13 +109,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     {
       favourPaf match {
         case true => if (favourWelsh)
-          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)(Ordering[String].reverse)
+          hits.sortBy(_.distinctHitCount).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)(Ordering[String].reverse)
         else
-          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)(Ordering[String].reverse)
+          hits.sortBy(_.distinctHitCount).sortBy(_.lang).sortBy(_.source)(Ordering[String].reverse)
         case false => if (favourWelsh)
-          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)
+          hits.sortBy(_.distinctHitCount).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)
         else
-          hits.sortBy(_.distinctHitCount)(Ordering[Int].reverse).sortBy(_.lang).sortBy(_.source)
+          hits.sortBy(_.distinctHitCount).sortBy(_.lang).sortBy(_.source)
       }
     }
 
