@@ -9,7 +9,8 @@ object AddressResponseHighlight {
 
   def fromHighlight(bestMatchAddress: String, other: Map[String,Seq[String]]): Option[AddressResponseHighlight] = {
    val hitList = other.flatMap{hit =>
-     AddressResponseHighlightHit.fromHighlight(hit)}
+     hit._2.flatMap {lin =>
+     AddressResponseHighlightHit.fromHighlight(hit,lin)}}
     val optList = Option(hitList.toSeq)
    Some(AddressResponseHighlight(bestMatchAddress,optList))
  }

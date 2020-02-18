@@ -65,8 +65,11 @@ object AddressResponseAddress {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
-   // val formattedHighligts
-
+    val showmeHighlights = other.highlights
+//    println("hl=" + showmeHighlights)
+ //   println ("empty=" +showmeHighlights.isEmpty)
+    val testHigh = (showmeHighlights.headOption.getOrElse("") == Map())
+//    println ("testHigh=" + testHigh)
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
@@ -84,7 +87,7 @@ object AddressResponseAddress {
       formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
-      highlights = if (other.highlights.isEmpty) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.head),
+      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.head),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
       },
@@ -102,10 +105,8 @@ object AddressResponseAddress {
       censusEstabType = other.censusEstabType,
       countryCode = other.countryCode,
       lpiLogicalStatus = lpiLogicalStatus,
-  //    fromSource = other.fromSource,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat,
-    //  bestMatchField = ""
     )
   }
 
