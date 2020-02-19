@@ -17,7 +17,7 @@ object AddressResponseHighlightHit {
     val searchField = hit._1.mkString
     val lang = if (searchField.contains("Welsh")) "W" else "E"
     val source = if (searchField.contains("Nag")) "L" else if (searchField.contains("Nisra")) "N" else "P"
-    val distinctHitCount = Math.round(highLightedText.mkString.split(" ").distinct.mkString.count(_ == '<') / 2)
+    val distinctHitCount = Math.round(highLightedText.mkString.replace(",","").split(" ").distinct.mkString.count(_ == '<') / 2)
 
    Some(AddressResponseHighlightHit(source,lang,distinctHitCount,highLightedText))
   }
