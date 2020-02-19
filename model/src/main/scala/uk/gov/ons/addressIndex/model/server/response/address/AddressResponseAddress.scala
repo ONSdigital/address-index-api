@@ -65,11 +65,8 @@ object AddressResponseAddress {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
-    val showmeHighlights = other.highlights
-//    println("hl=" + showmeHighlights)
- //   println ("empty=" +showmeHighlights.isEmpty)
-    val testHigh = (showmeHighlights.headOption.getOrElse("") == Map())
-//    println ("testHigh=" + testHigh)
+    val testHigh = (other.highlights.headOption.getOrElse(Map()) == Map())
+
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,
@@ -87,7 +84,7 @@ object AddressResponseAddress {
       formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
-      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.head),
+      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.headOption.getOrElse(Map())),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
       },

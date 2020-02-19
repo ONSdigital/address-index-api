@@ -64,7 +64,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
@@ -82,10 +82,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = Option(add.highlights.get.copy(
+        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-      } else add.copy(underlyingScore = add.underlyingScore, highlights = Option(add.highlights.get.copy(
+      } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }
