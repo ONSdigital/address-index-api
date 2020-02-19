@@ -50,7 +50,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
     lpiStartDate = "lpiStartDate",
-    mixedNag = "mixedNag"
+    mixedNag = "mixedNag",
+    mixedWelshNag = "mixedWelshNag"
   )
 
   val givenWelshNag: NationalAddressGazetteerAddress = givenNag.copy(

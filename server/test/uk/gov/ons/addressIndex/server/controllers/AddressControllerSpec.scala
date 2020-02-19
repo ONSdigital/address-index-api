@@ -2522,5 +2522,21 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Then
       actual.toString().substring(0, expectedCodelist.length) mustBe expectedCodelist
     }
+
+    "sort highlights correctly in partial controller" in {
+     //Given
+     val controller = new PartialAddressController(components, failingRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+     //When
+      val high1 = new AddressResponseHighlightHit( source = "L", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high2 = new AddressResponseHighlightHit( source = "P", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high3 = new AddressResponseHighlightHit( source = "P", lang = "W",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high4 = new AddressResponseHighlightHit( source = "N", lang = "E",distinctHitCount = 4, highLightedText ="6 Long Lane Belfast")
+
+      val result = controller.sortHighs(Seq(high1,high2,high3,high4),true,true)
+      val expected = Seq(high4,high3,high2,high1)
+
+      // Then
+      result mustBe expected
+    }
   }
 }

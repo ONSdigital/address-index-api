@@ -90,37 +90,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }
 
-    def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
-    {
-
-      highlights match {
-        case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
-        case None => ""
-      }
-    }
-
-    def determineBestMatchAddress(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
-    {
-      val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
-      highs.headOption.map(_.highLightedText).getOrElse("")
-    }
-
-    def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
-    {
-      favourPaf match {
-        case true => if (favourWelsh)
-          hits.sortBy(_.distinctHitCount).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)(Ordering[String].reverse)
-        else
-          hits.sortBy(_.distinctHitCount).sortBy(_.lang).sortBy(_.source)(Ordering[String].reverse)
-        case false => if (favourWelsh)
-          hits.sortBy(_.distinctHitCount).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.source)
-        else
-          hits.sortBy(_.distinctHitCount).sortBy(_.lang).sortBy(_.source)
-      }
-    }
-
-
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+      def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
@@ -240,6 +210,35 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
             }
         }
+    }
+  }
+
+  def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
+      case None => ""
+    }
+  }
+
+  def determineBestMatchAddress(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.highLightedText).getOrElse("")
+  }
+
+  def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
+  {
+    favourPaf match {
+      case true => if (favourWelsh)
+        hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
+      else
+        hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
+      case false => if (favourWelsh)
+        hits.sortBy(_.source).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
+      else
+        hits.sortBy(_.source).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
     }
   }
 }

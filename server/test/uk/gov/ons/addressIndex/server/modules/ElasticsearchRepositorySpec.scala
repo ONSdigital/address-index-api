@@ -607,7 +607,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridAll,
     hybridNotUsed,
     hybridNotUsed,
-    hybridMixedNag
+    hybridMixedNag,
+    hybridNotUsed
+
   )
 
   val expectedNisra: NisraAddress = NisraAddress(
