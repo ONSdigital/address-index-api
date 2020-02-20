@@ -102,7 +102,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
     lpiStartDate = "lpiStartDate",
-    mixedNag = "mixedNag"
+    mixedNag = "mixedNag",
+    mixedWelshNag = "mixedWelshNag"
   )
 
   val validNisraAddress: NisraAddress = NisraAddress(
@@ -155,6 +156,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
+  // todo add test highlighting
+
   val validHybridAddress: HybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
@@ -170,7 +173,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "47",
-    countryCode = "E"
+    countryCode = "E",
+    highlights = Seq()
   )
 
   val validHybridAddressSkinny: HybridAddress = HybridAddress(
@@ -188,7 +192,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "47",
-    countryCode = "E"
+    countryCode = "E",
+    highlights = Seq()
   )
 
   val validCodelistList: String = "{\"codelists\"" +
@@ -567,7 +572,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource = "all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         OkAddressResponseStatus
       ))
@@ -598,7 +606,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = true,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         OkAddressResponseStatus
       ))
@@ -1809,7 +1820,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -1843,7 +1857,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "epoch",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -2280,7 +2297,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highverbose = true,
+          favourpaf = true,
+          favourwelsh = true
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2501,6 +2521,22 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // Then
       actual.toString().substring(0, expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "sort highlights correctly in partial controller" in {
+     //Given
+     val controller = new PartialAddressController(components, failingRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+     //When
+      val high1 = new AddressResponseHighlightHit( source = "L", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high2 = new AddressResponseHighlightHit( source = "P", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high3 = new AddressResponseHighlightHit( source = "P", lang = "W",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high4 = new AddressResponseHighlightHit( source = "N", lang = "E",distinctHitCount = 4, highLightedText ="6 Long Lane Belfast")
+
+      val result = controller.sortHighs(Seq(high1,high2,high3,high4),true,true)
+      val expected = Seq(high4,high3,high2,high1)
+
+      // Then
+      result mustBe expected
     }
   }
 }

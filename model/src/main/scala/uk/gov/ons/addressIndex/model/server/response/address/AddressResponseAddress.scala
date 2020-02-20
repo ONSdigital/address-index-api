@@ -24,6 +24,7 @@ case class AddressResponseAddress(uprn: String,
                                   formattedAddressNisra: String,
                                   welshFormattedAddressNag: String,
                                   welshFormattedAddressPaf: String,
+                                  highlights: Option[AddressResponseHighlight],
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
                                   nisra: Option[AddressResponseNisra],
@@ -33,9 +34,9 @@ case class AddressResponseAddress(uprn: String,
                                   censusEstabType: String,
                                   countryCode: String,
                                   lpiLogicalStatus: String,
-                                  fromSource: String,
                                   confidenceScore: Double,
-                                  underlyingScore: Float)
+                                  underlyingScore: Float
+                                 )
 
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
@@ -49,11 +50,11 @@ object AddressResponseAddress {
   def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddress = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
-    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse("")
+    val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
     val lpiLogicalStatus = chosenNag.map(_.lpiLogicalStatus).getOrElse("")
 
     val chosenWelshNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
-    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedNag).getOrElse("")
+    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedWelshNag).getOrElse("")
 
     val chosenPaf = other.paf.headOption
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
@@ -61,6 +62,8 @@ object AddressResponseAddress {
 
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
+
+    val testHigh = (other.highlights.headOption.getOrElse(Map()) == Map())
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -79,6 +82,7 @@ object AddressResponseAddress {
       formattedAddressNisra = formattedAddressNisra,
       welshFormattedAddressNag = welshFormattedAddressNag,
       welshFormattedAddressPaf = welshFormattedAddressPaf,
+      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.headOption.getOrElse(Map())),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
       },
@@ -96,11 +100,12 @@ object AddressResponseAddress {
       censusEstabType = other.censusEstabType,
       countryCode = other.countryCode,
       lpiLogicalStatus = lpiLogicalStatus,
-      fromSource = other.fromSource,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat
     )
   }
+
+
 
   /**
     * Gets the right (most often - the most recent) address from an array of NAG addresses

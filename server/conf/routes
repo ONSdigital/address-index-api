@@ -211,6 +211,15 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: fromsource
 #      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
+#    - name: highverbose
+#      description: include detailed highlighting info
+#      default: true
+#    - name: favourpaf
+#      description: paf beats nag on draw for best match
+#      default: true
+#    - name: favourwelsh
+#      description: Welsh beats English on draw for best match
+#      default: true
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -225,7 +234,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highverbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
 
 ###
 #  summary: Search for an address by postcode.

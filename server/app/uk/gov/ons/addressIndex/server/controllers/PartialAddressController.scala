@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseHighlight, AddressResponseHighlightHit, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
@@ -43,7 +43,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          fromsource: Option[String] = None
+                          fromsource: Option[String] = None,
+                          highverbose: Option[String] = None,
+                          favourpaf: Option[String] = None,
+                          favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -63,6 +66,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val highVerbose = highverbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
@@ -76,11 +82,15 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost)
-      } else add.copy(underlyingScore = add.underlyingScore)
+        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
+      } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }
 
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+      def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
@@ -108,7 +118,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      fromsource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal),
+      highverbose = Some(highVerbose),
+      favourpaf = Some(favourPaf),
+      favourwelsh = Some(favourWelsh)
     )
 
     val result: Option[Future[Result]] =
@@ -137,7 +150,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal
+          fromsource = fromsourceVal,
+          highverbose = highVerbose,
+          favourpaf = favourPaf,
+          favourwelsh = favourWelsh
         )
 
         val request: Future[HybridAddressCollection] =
@@ -171,7 +187,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  fromsource = fromsourceVal
+                  fromsource = fromsourceVal,
+                  highverbose = highVerbose,
+                  favourpaf = favourPaf,
+                  favourwelsh = favourWelsh
                 ),
                 status = OkAddressResponseStatus
               )
@@ -191,6 +210,35 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
             }
         }
+    }
+  }
+
+  def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
+      case None => ""
+    }
+  }
+
+  def determineBestMatchAddress(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.highLightedText).getOrElse("")
+  }
+
+  def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
+  {
+    favourPaf match {
+      case true => if (favourWelsh)
+        hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
+      else
+        hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
+      case false => if (favourWelsh)
+        hits.sortBy(_.source).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
+      else
+        hits.sortBy(_.source).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
     }
   }
 }

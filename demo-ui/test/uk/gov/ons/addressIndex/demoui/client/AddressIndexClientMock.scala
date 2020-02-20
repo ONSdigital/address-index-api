@@ -238,14 +238,14 @@ object AddressIndexClientMock {
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),
     geo = None,
-    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 100f,
     underlyingScore = 1.0f,
     countryCode = "E",
     censusAddressType = "TBA",
-    censusEstabType = "TBA"
+    censusEstabType = "TBA",
+    highlights = None
   )
 
   val mockAddressByUprnResponse: AddressByUprnResponse = AddressByUprnResponse(

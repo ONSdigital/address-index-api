@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchBodyBuilderFn, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -104,7 +104,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => "^" + esConf.queryParams.nisra.partialAllBoost
     }
 
-    val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+    val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
@@ -169,8 +169,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
+  //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+
+    val hFields = Seq(HighlightField("lpi.mixedNag.partial"),
+      HighlightField("lpi.mixedWelshNag.partial"),
+      HighlightField("paf.mixedPaf.partial"),
+      HighlightField("paf.mixedWelshPaf.partial"),
+      HighlightField("nisra.mixedNisra.partial"))
+
+
     search(source + args.epochParam)
-      .query(query)
+      .query(query).highlighting(hFields)
       .start(args.start)
       .limit(args.limit)
   }

@@ -607,7 +607,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridAll,
     hybridNotUsed,
     hybridNotUsed,
-    hybridMixedNag
+    hybridMixedNag,
+    hybridNotUsed
+
   )
 
   val expectedNisra: NisraAddress = NisraAddress(
@@ -698,7 +700,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode ="E"
+    countryCode ="E",
+    highlights = Seq(Map())
   )
 
   val expectedDateHybrid: HybridAddress = HybridAddress(
@@ -716,7 +719,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode ="E"
+    countryCode ="E",
+    highlights = Seq()
   )
 
   val expectedSecondDateHybrid: HybridAddress = HybridAddress(
@@ -734,7 +738,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode = "E"
+    countryCode = "E",
+    highlights = Seq()
   )
 
   val expectedThirdDateHybrid: HybridAddress = HybridAddress(
@@ -752,7 +757,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     censusAddressType = "NA",
     censusEstabType = "NA",
     fromSource = "EW",
-    countryCode ="E"
+    countryCode ="E",
+    highlights = Seq()
   )
 
   val expectedHybridHist: HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
@@ -824,7 +830,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                           "multi_match":{
                              "query":"h4",
                              "fields":[
-                                "lpi.nagAll.partial",
+                                "lpi.mixedNag.partial",
+                                "lpi.mixedWelshNag.partial",
                                 "paf.mixedPaf.partial",
                                 "paf.mixedWelshPaf.partial",
                                 "nisra.mixedNisra.partial^0.8"
@@ -898,7 +905,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                  }
               },
               "from":0,
-              "size":1
+              "size":1,
+                            "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
            }
          """.stripMargin
       )
@@ -931,7 +939,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                           "multi_match":{
                              "query":"h4",
                              "fields":[
-                                "lpi.nagAll.partial",
+                                "lpi.mixedNag.partial",
+                                "lpi.mixedWelshNag.partial",
                                 "paf.mixedPaf.partial",
                                 "paf.mixedWelshPaf.partial",
                                 "nisra.mixedNisra.partial^0.8"
@@ -1004,7 +1013,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                  }
               },
               "from":0,
-              "size":1
+              "size":1,
+              "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
            }
          """.stripMargin
       )
@@ -3266,7 +3276,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "multi_match":{
                    "query":"7 Gate Re",
                    "fields":[
-                      "lpi.nagAll.partial",
+                      "lpi.mixedNag.partial",
+                      "lpi.mixedWelshNag.partial",
                       "paf.mixedPaf.partial",
                       "paf.mixedWelshPaf.partial",
                       "nisra.mixedNisra.partial^0.8"
@@ -3331,7 +3342,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
        }
     },
     "from":0,
-    "size":1
+    "size":1,
+                  "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
  }
          """
       )
@@ -3364,7 +3376,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "multi_match":{
                    "query":"7 Gate Ret",
                    "fields":[
-                      "lpi.nagAll.partial",
+                      "lpi.mixedNag.partial",
+                      "lpi.mixedWelshNag.partial",
                       "paf.mixedPaf.partial",
                       "paf.mixedWelshPaf.partial",
                       "nisra.mixedNisra.partial^0.8"
@@ -3428,7 +3441,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
        }
     },
     "from":0,
-    "size":1
+    "size":1,
+                  "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
   }
         """
       )
@@ -3460,7 +3474,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
+                  "fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3468,7 +3482,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             }
           },
           "from": 0,
-          "size": 1
+          "size": 1,
+                        "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
         }
         """
       )
@@ -3499,14 +3514,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
+                  "fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
                   "type":"best_fields"
                 }
               }]
             }
           },
           "from": 0,
-          "size": 1
+          "size": 1,
+                        "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
         }
         """
       )
@@ -3541,7 +3557,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "multi_match":{
                    "query":"7 Gate Re",
                    "fields":[
-                      "lpi.nagAll.partial",
+                      "lpi.mixedNag.partial",
+                      "lpi.mixedWelshNag.partial",
                       "paf.mixedPaf.partial",
                       "paf.mixedWelshPaf.partial",
                       "nisra.mixedNisra.partial^0.8"
@@ -3615,7 +3632,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
        }
     },
     "from":0,
-    "size":1
+    "size":1,
+                  "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
    }
         """
       )
@@ -3649,7 +3667,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "multi_match":{
                    "query":"7 Gate Ret",
                    "fields":[
-                      "lpi.nagAll.partial",
+                      "lpi.mixedNag.partial",
+                      "lpi.mixedWelshNag.partial",
                       "paf.mixedPaf.partial",
                       "paf.mixedWelshPaf.partial",
                       "nisra.mixedNisra.partial^0.8"
@@ -3722,7 +3741,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
        }
     },
     "from":0,
-    "size":1
+    "size":1,
+                  "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
    }
         """
       )
@@ -3756,7 +3776,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "multi_match":{
                    "query":"7 Gate Re",
                    "fields":[
-                      "lpi.nagAll.partial",
+                      "lpi.mixedNag.partial",
+                      "lpi.mixedWelshNag.partial",
                       "paf.mixedPaf.partial",
                       "paf.mixedWelshPaf.partial",
                       "nisra.mixedNisra.partial^0.8"
@@ -3830,7 +3851,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
        }
     },
     "from":0,
-    "size":1
+    "size":1,
+                  "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
  }
         """
       )
@@ -3863,7 +3885,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "multi_match":{
                    "query":"7 Gate Ret",
                    "fields":[
-                      "lpi.nagAll.partial",
+                      "lpi.mixedNag.partial",
+                      "lpi.mixedWelshNag.partial",
                       "paf.mixedPaf.partial",
                       "paf.mixedWelshPaf.partial",
                       "nisra.mixedNisra.partial^0.8"
@@ -3936,7 +3959,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
        }
     },
     "from":0,
-    "size":1
+    "size":1,
+                  "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
  }
         """
       )
@@ -3967,7 +3991,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
+                  "fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -3980,7 +4004,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             }
           },
           "from": 0,
-          "size": 1
+          "size": 1,
+                        "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
         }
         """
       )
@@ -4011,7 +4036,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
+                  "fields": ["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
                   "type":"best_fields"
                 }
               }],
@@ -4023,7 +4048,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             }
           },
           "from": 0,
-          "size": 1
+          "size": 1,
+          "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
         }
         """
       )
@@ -4055,7 +4081,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
+                  "fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
                   "type":"phrase",
                   "slop":4
                 }
@@ -4070,7 +4096,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             }
           },
           "from": 0,
-          "size": 1
+          "size": 1,
+                        "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
         }
         """
       )
@@ -4101,7 +4128,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
               "must" : [{
                 "multi_match":{
                   "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
+                  "fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
                   "type":"best_fields"
                 }
               }],
@@ -4115,7 +4142,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             }
           },
           "from": 0,
-          "size": 1
+          "size": 1,
+                        "highlight":{"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}
         }
         """
       )

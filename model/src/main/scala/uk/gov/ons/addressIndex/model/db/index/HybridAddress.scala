@@ -20,7 +20,8 @@ case class HybridAddress(uprn: String,
                          censusEstabType: String,
                          fromSource: String,
                          countryCode: String,
-                         distance: Double = 0D)
+                         distance: Double = 0D,
+                         highlights: Seq[Map[String,Seq[String]]])
 
 object HybridAddress {
   /**
@@ -42,7 +43,8 @@ object HybridAddress {
     censusEstabType = "",
     fromSource = "",
     countryCode = "",
-    distance = 0D
+    distance = 0D,
+    highlights = Seq.empty
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -87,6 +89,7 @@ object HybridAddress {
                             else if (eWDistance > niDistance) niDistance
                               else (eWDistance + centimetre)
 
+      val highlights = hit.asInstanceOf[SearchHit].highlight
 
       Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
@@ -104,7 +107,8 @@ object HybridAddress {
         censusEstabType = Try(hit.sourceAsMap("censusEstabType").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
         countryCode = Try(hit.sourceAsMap("countryCode").toString).getOrElse("E"),
-        distance = bestDistance
+        distance = bestDistance,
+        highlights = if (highlights == null) Seq() else Seq(highlights)
       ))
     }
   }
