@@ -34,10 +34,8 @@ case class AddressResponseAddress(uprn: String,
                                   censusEstabType: String,
                                   countryCode: String,
                                   lpiLogicalStatus: String,
-                              //    fromSource: String,
                                   confidenceScore: Double,
-                                  underlyingScore: Float,
-                               //   bestMatchField: String
+                                  underlyingScore: Float
                                  )
 
 object AddressResponseAddress {
@@ -103,7 +101,7 @@ object AddressResponseAddress {
       countryCode = other.countryCode,
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 100D,
-      underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat,
+      underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat
     )
   }
 

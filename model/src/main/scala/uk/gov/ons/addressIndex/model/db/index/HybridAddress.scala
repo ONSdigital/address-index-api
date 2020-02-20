@@ -90,7 +90,6 @@ object HybridAddress {
                               else (eWDistance + centimetre)
 
       val highlights = hit.asInstanceOf[SearchHit].highlight
-  //    println("highlights = " + highlights)
 
       Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
