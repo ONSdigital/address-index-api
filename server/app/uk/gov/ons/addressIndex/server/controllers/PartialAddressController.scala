@@ -77,15 +77,21 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
+      boostedAddresses.sortBy(_.highlights.map(b => b.bestMatchAddress)).sortBy(_.confidenceScore)(Ordering[Double].reverse)
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
+        add.copy(
+          confidenceScore = (math.round((add.underlyingScore + sboost)/3)*10).min(100),
+          underlyingScore = add.underlyingScore + sboost,
+          highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-      } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
+      } else add.copy(
+        confidenceScore = (math.round(add.underlyingScore/3)*10).min(100),
+        underlyingScore = add.underlyingScore,
+        highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }

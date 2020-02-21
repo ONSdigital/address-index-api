@@ -81,7 +81,7 @@ object AddressResponseAddress {
       formattedAddressPaf = removeConcatenatedPostcode(formattedAddressPaf),
       formattedAddressNisra = removeConcatenatedPostcode(formattedAddressNisra),
       welshFormattedAddressNag = removeConcatenatedPostcode(welshFormattedAddressNag),
-      welshFormattedAddressPaf =removeConcatenatedPostcode(welshFormattedAddressPaf),
+      welshFormattedAddressPaf = removeConcatenatedPostcode(welshFormattedAddressPaf),
       highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.headOption.getOrElse(Map())),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
