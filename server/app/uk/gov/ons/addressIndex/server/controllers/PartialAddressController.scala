@@ -217,7 +217,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   {
 
     highlights match {
-      case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineBestMatchAddress(value, favourPaf, favourWelsh)))
       case None => ""
     }
   }

@@ -75,13 +75,13 @@ object AddressResponseAddress {
         if (verbose) other.crossRefs.map(_.map(AddressResponseCrossRef.fromCrossRef)) else None
       },
       formattedAddress = {
-        if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra
+        if (chosenNisra.isEmpty) removeConcatenatedPostcode(formattedAddressNag) else removeConcatenatedPostcode(formattedAddressNisra)
       },
-      formattedAddressNag = formattedAddressNag,
-      formattedAddressPaf = formattedAddressPaf,
-      formattedAddressNisra = formattedAddressNisra,
-      welshFormattedAddressNag = welshFormattedAddressNag,
-      welshFormattedAddressPaf = welshFormattedAddressPaf,
+      formattedAddressNag = removeConcatenatedPostcode(formattedAddressNag),
+      formattedAddressPaf = removeConcatenatedPostcode(formattedAddressPaf),
+      formattedAddressNisra = removeConcatenatedPostcode(formattedAddressNisra),
+      welshFormattedAddressNag = removeConcatenatedPostcode(welshFormattedAddressNag),
+      welshFormattedAddressPaf =removeConcatenatedPostcode(welshFormattedAddressPaf),
       highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.headOption.getOrElse(Map())),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
@@ -123,5 +123,23 @@ object AddressResponseAddress {
         case _ => 4
       })
       .headOption
+  }
+
+  def removeConcatenatedPostcode(formattedAddress: String) : String = {
+    // if last token = last but two + last but one then remove last token
+    val faTokens = formattedAddress.split(" ")
+    val concatPostcode = faTokens.takeRight(1).headOption.getOrElse("")
+    val faTokensTemp1 = faTokens.dropRight(1)
+    val incode = faTokensTemp1.takeRight(1).headOption.getOrElse("")
+    val faTokensTemp2 =  faTokensTemp1.dropRight(1)
+    val outcode = faTokensTemp2.takeRight(1).headOption.getOrElse("")
+    val testCode = outcode + incode
+    if (testCode.equals(concatPostcode))
+      formattedAddress.replaceAll(concatPostcode,"").trim()
+    else formattedAddress
+  }
+
+  def removeEms(formattedAddress: String) : String = {
+    formattedAddress.replaceAll("<em>","").replaceAll("</em>","")
   }
 }

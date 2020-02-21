@@ -97,7 +97,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-    val slopVal = 4
+    val slopVal = 5
     val niFactor = args.fromsource match {
       case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
       case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
@@ -169,14 +169,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
-  //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
+      val hFields = Seq(HighlightField("lpi.mixedNag.partial").highlighterType("unified"),
+      HighlightField("lpi.mixedWelshNag.partial").highlighterType("unified"),
+      HighlightField("paf.mixedPaf.partial").highlighterType("unified"),
+      HighlightField("paf.mixedWelshPaf.partial").highlighterType("unified"),
+      HighlightField("nisra.mixedNisra.partial").highlighterType("unified"))
 
-    val hFields = Seq(HighlightField("lpi.mixedNag.partial"),
-      HighlightField("lpi.mixedWelshNag.partial"),
-      HighlightField("paf.mixedPaf.partial"),
-      HighlightField("paf.mixedWelshPaf.partial"),
-      HighlightField("nisra.mixedNisra.partial"))
-
+//    val hFields = Seq(HighlightField("lpi.mixedNag.partial").highlighterType("plain"),
+//      HighlightField("lpi.mixedWelshNag.partial").highlighterType("plain"),
+//      HighlightField("paf.mixedPaf.partial").highlighterType("plain"),
+//      HighlightField("paf.mixedWelshPaf.partial").highlighterType("plain"),
+//      HighlightField("nisra.mixedNisra.partial").highlighterType("plain"))
 
     search(source + args.epochParam)
       .query(query).highlighting(hFields)
