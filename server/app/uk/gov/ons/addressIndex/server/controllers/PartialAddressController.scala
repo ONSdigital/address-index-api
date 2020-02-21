@@ -83,13 +83,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(
-          confidenceScore = (math.round((add.underlyingScore + sboost)/3)*10).min(100),
+          confidenceScore = (math.round((add.underlyingScore + sboost)/4)*10).min(100),
           underlyingScore = add.underlyingScore + sboost,
           highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
       } else add.copy(
-        confidenceScore = (math.round(add.underlyingScore/3)*10).min(100),
+        confidenceScore = (math.round(add.underlyingScore/4)*10).min(100),
         underlyingScore = add.underlyingScore,
         highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
