@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.FunctionScoreQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
@@ -182,12 +183,27 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 //      HighlightField("paf.mixedWelshPaf.partial").highlighterType("plain"),
 //      HighlightField("nisra.mixedNisra.partial").highlighterType("plain"))
 
+//    (doc['nagAll'].toUpperCase().replaceAll("[,]", "").startsWith(args.input.toUpperCase().replaceAll("[,]", ""))
+//
+//    "params": {
+//      "a": 5,
+//      "b": 1.2
+//    },
+
+   // "source": "Math.round(_score + (('xxxxx' == params.input)? 1 : 0))",
+
+   // "source": "Math.round(_score + ((doc['lpi.secondarySort'].value == params.input)? 1 : 0))",
+
+    val scriptText: String = "Math.round(_score /2)"
+    val scriptParams: Map[String,Any] = Map("input" -> args.input)
+    val partialScript: Script = new Script(script = scriptText, params = scriptParams )
+
     search(source + args.epochParam)
       .query(
 //        functionScoreQuery(query).scorers(
 //      scriptScore("_score  +  log(doc['reviews'].value + 1 )"))
           functionScoreQuery(query).functions(
-          scriptScore("Math.round(_score/4)"))
+          scriptScore(partialScript))
             .boostMode("replace")
       )
       .highlighting(hFields)
@@ -955,8 +971,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
-   //  val searchString = SearchBodyBuilderFn(query).string()
-  //   println(searchString)
+     val searchString = SearchBodyBuilderFn(query).string()
+     println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
