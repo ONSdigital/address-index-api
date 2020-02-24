@@ -65,9 +65,6 @@ object AddressResponseAddress {
 
     val testHigh = (other.highlights.headOption.getOrElse(Map()) == Map())
 
- //   println("other.score=" + other.score)
-//    println("other.distance=" + other.distance)
-
     AddressResponseAddress(
       uprn = other.uprn,
       parentUprn = other.parentUprn,

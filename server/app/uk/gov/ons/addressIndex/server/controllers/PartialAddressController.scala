@@ -75,13 +75,18 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     val sboost = conf.config.elasticSearch.defaultStartBoost
 
+//    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
+//      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
+//      boostedAddresses.sortBy(_.highlights.map(b => b.bestMatchAddress)).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+//    }
+
+    // try without sorting by bestMatchAddress
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses.sortBy(_.highlights.map(b => b.bestMatchAddress)).sortBy(_.confidenceScore)(Ordering[Double].reverse)
+      boostedAddresses.sortBy(_.confidenceScore)(Ordering[Double].reverse)
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
- //     println("underlying score=" + add.underlyingScore )
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
         add.copy(
           confidenceScore = (math.round(add.underlyingScore + sboost/4)*10).min(100),
