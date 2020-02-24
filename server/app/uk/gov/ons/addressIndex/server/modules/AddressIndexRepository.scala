@@ -1,10 +1,11 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
+import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.FunctionScoreQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchBodyBuilderFn, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -182,10 +183,52 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 //      HighlightField("nisra.mixedNisra.partial").highlighterType("plain"))
 
     search(source + args.epochParam)
-      .query(query).highlighting(hFields)
+      .query(
+//        functionScoreQuery(query).scorers(
+//      scriptScore("_score  +  log(doc['reviews'].value + 1 )"))
+          functionScoreQuery(query).functions(
+          scriptScore("Math.round(_score/4)"))
+            .boostMode("replace")
+      )
+      .highlighting(hFields)
+      .sortBy(
+        //FieldSort(confidenceSort(_score)).order(SortOrder.DESC),
+        FieldSort("_score").order(SortOrder.DESC),
+        FieldSort("lpi.streetDescriptor.keyword").asc(),
+        FieldSort("lpi.paoStartNumber").asc(),
+        FieldSort("lpi.paoStartSuffix.keyword").asc(),
+        FieldSort("lpi.secondarySort").asc(),
+        FieldSort("nisra.thoroughfare.keyword").asc(),
+        FieldSort("nisra.paoStartNumber").asc(),
+        FieldSort("nisra.secondarySort").asc(),
+        FieldSort("uprn").asc())
       .start(args.start)
       .limit(args.limit)
   }
+
+//  {
+//    "query" : {
+//      "term" : { "user" : "kimchy" }
+//    },
+//    "sort" : {
+//      "_script" : {
+//      "type" : "number",
+//      "script" : {
+//      "lang": "painless",
+//      "source": "doc['field_name'].value * params.factor",
+//      "params" : {
+//      "factor" : 1.1
+//    }
+//    },
+//      "order" : "asc"
+//    }
+//    }
+//  }
+
+  def confidenceSort(score: Float): Int =
+    {
+      (math.round(score/4)*10).min(100)
+    }
 
   private def makePostcodeQuery(args: PostcodeArgs): SearchRequest = {
     val postcodeFormatted: String = if (!args.postcode.contains(" ")) {
@@ -211,17 +254,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
-      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
-        FieldSort("lpi.paoStartNumber").asc(),
-        FieldSort("lpi.paoStartSuffix.keyword").asc(),
-        FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
-        FieldSort("nisra.paoStartNumber").asc(),
-        FieldSort("nisra.secondarySort").asc(),
-        FieldSort("uprn").asc())
-      .start(args.start)
-      .limit(args.limit)
-  }
+    .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
+      FieldSort("lpi.paoStartNumber").asc(),
+      FieldSort("lpi.paoStartSuffix.keyword").asc(),
+      FieldSort("lpi.secondarySort").asc(),
+      FieldSort("nisra.thoroughfare.keyword").asc(),
+      FieldSort("nisra.paoStartNumber").asc(),
+      FieldSort("nisra.secondarySort").asc(),
+      FieldSort("uprn").asc())
+    .start(args.start)
+    .limit(args.limit)
+}
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
     val timestamp: Long = System.currentTimeMillis
@@ -912,8 +955,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //    val searchString = SearchBodyBuilderFn(query).string()
- //    println(searchString)
+   //  val searchString = SearchBodyBuilderFn(query).string()
+  //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback

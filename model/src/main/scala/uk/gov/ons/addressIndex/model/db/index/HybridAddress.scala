@@ -79,17 +79,22 @@ object HybridAddress {
 
       val sorts = hit.asInstanceOf[SearchHit].sort
       val slist = sorts.getOrElse(Seq())
+    //    println("slist =" + slist)
       val centimetre = if (slist.isEmpty) 0 else 0.01
       val eWDistance = Try(slist.lift(0).get.toString.toDouble).getOrElse(0D)
+     //   println("ewDistance=" + eWDistance)
+        val isPartial = (eWDistance == hit.score)
       val niDistance = Try(slist.lift(1).get.toString.toDouble).getOrElse(0D)
       val testUPRN = Try(slist.lift(1).get.toString.toLong).getOrElse(0L)
-      val bestDistance = if (testUPRN != 0) 0D
+      val bestDistance = if (isPartial || testUPRN != 0) 0D
                         else if (eWDistance > 0 && niDistance == 0) eWDistance
                           else if (eWDistance == 0 && niDistance > 0 && !niDistance.isInfinite) niDistance
                             else if (eWDistance > niDistance) niDistance
                               else (eWDistance + centimetre)
 
       val highlights = hit.asInstanceOf[SearchHit].highlight
+
+    //    println("hit score=" + hit.score)
 
       Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
