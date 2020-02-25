@@ -80,10 +80,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 //      boostedAddresses.sortBy(_.highlights.map(b => b.bestMatchAddress)).sortBy(_.confidenceScore)(Ordering[Double].reverse)
 //    }
 
-    // try without sorting by bestMatchAddress
+    // try without sorting in API
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses.sortBy(_.confidenceScore)(Ordering[Double].reverse)
+      boostedAddresses
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {

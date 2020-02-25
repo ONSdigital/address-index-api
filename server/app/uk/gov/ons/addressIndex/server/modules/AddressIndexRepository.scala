@@ -177,38 +177,26 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       HighlightField("paf.mixedWelshPaf.partial").highlighterType("unified"),
       HighlightField("nisra.mixedNisra.partial").highlighterType("unified"))
 
-//    val hFields = Seq(HighlightField("lpi.mixedNag.partial").highlighterType("plain"),
-//      HighlightField("lpi.mixedWelshNag.partial").highlighterType("plain"),
-//      HighlightField("paf.mixedPaf.partial").highlighterType("plain"),
-//      HighlightField("paf.mixedWelshPaf.partial").highlighterType("plain"),
-//      HighlightField("nisra.mixedNisra.partial").highlighterType("plain"))
 
-//    (doc['nagAll'].toUpperCase().replaceAll("[,]", "").startsWith(args.input.toUpperCase().replaceAll("[,]", ""))
-//
-//    "params": {
-//      "a": 5,
-//      "b": 1.2
-//    },
+    val scriptText: String =  "Math.round((_score " +
+      "+ ((doc['lpi.mixedNag.keyword'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['lpi.mixedNag.keyword'].size() > 0 && doc['lpi.mixedWelshNag.keyword'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['paf.mixedPaf.keyword'].size() > 0 && doc['paf.mixedPaf.keyword'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['paf.mixedWelshPaf.keyword'].size() > 0 && doc['paf.mixedWelshPaf.keyword'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['nisra.mixedNisra.keyword'].size() > 0 && doc['nisra.mixedNisra.keyword'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
 
-   // "source": "Math.round(_score + (('xxxxx' == params.input)? 1 : 0))",
 
-   // "source": "Math.round(_score + ((doc['lpi.secondarySort'].value == params.input)? 1 : 0))",
-
-    val scriptText: String = "Math.round(_score /2)"
     val scriptParams: Map[String,Any] = Map("input" -> args.input)
     val partialScript: Script = new Script(script = scriptText, params = scriptParams )
 
     search(source + args.epochParam)
       .query(
-//        functionScoreQuery(query).scorers(
-//      scriptScore("_score  +  log(doc['reviews'].value + 1 )"))
           functionScoreQuery(query).functions(
           scriptScore(partialScript))
             .boostMode("replace")
       )
       .highlighting(hFields)
       .sortBy(
-        //FieldSort(confidenceSort(_score)).order(SortOrder.DESC),
         FieldSort("_score").order(SortOrder.DESC),
         FieldSort("lpi.streetDescriptor.keyword").asc(),
         FieldSort("lpi.paoStartNumber").asc(),
