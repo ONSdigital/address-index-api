@@ -110,7 +110,7 @@ conf : DemouiConfigModule)
           document.getElementById("response-text").innerHTML = "No results from API"
           try {
             for (i = 0; i < response.response.addresses.length; i++) {
-              resultString = resultString + response.response.addresses[i].confidenceScore + " " + response.response.addresses[i].highlights.bestMatchAddress + " (<a href='http://addressindex-ui-test.apps.cf1.ons.statistics.gov.uk/addresses/result/" + response.response.addresses[i].uprn + "' target='_blank'>" + response.response.addresses[i].uprn + "</a>)" + "<br>";
+              resultString = resultString + "(" + response.response.addresses[i].confidenceScore + ", " + response.response.addresses[i].highlights.lang + ", " + response.response.addresses[i].highlights.source + ") " + response.response.addresses[i].highlights.bestMatchAddress + " (<a href='http://addressindex-ui-test.apps.cf1.ons.statistics.gov.uk/addresses/result/" + response.response.addresses[i].uprn + "' target='_blank'>" + response.response.addresses[i].uprn + "</a>)" + "<br>";
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.addresses.length == 0) {

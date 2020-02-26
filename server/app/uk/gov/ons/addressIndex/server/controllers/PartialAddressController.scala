@@ -93,12 +93,16 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           underlyingScore = add.underlyingScore,
           highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
       } else add.copy(
         confidenceScore = (math.round(add.underlyingScore)*5).min(100),
         underlyingScore = add.underlyingScore,
         highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }
 
@@ -234,10 +238,40 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     }
   }
 
+  def getSource(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineSource(value, favourPaf, favourWelsh)))
+      case None => ""
+    }
+  }
+
+  def getLang(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineLang(value, favourPaf, favourWelsh)))
+      case None => ""
+    }
+  }
+
   def determineBestMatchAddress(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
   {
     val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
     highs.headOption.map(_.highLightedText).getOrElse("")
+  }
+
+  def determineSource(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.source).getOrElse("")
+  }
+
+  def determineLang(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.lang).getOrElse("")
   }
 
   def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
@@ -253,4 +287,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         hits.sortBy(_.source).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
     }
   }
+
+
 }
