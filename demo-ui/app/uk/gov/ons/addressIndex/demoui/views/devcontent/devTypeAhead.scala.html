@@ -54,7 +54,7 @@ conf : DemouiConfigModule)
     function getSingle() {
       var addressPart = document.getElementById("address").value;
       var filterPart = document.getElementById("filter").value;
-      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&classificationfilter=" + filterPart + "&limit=20";
+      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&classificationfilter=" + filterPart + "&limit=20&fallback=false";
       var singleUrlGcp = "/addresses/partial/" + addressPart + "?classificationfilter=" + filterPart + "&limit=20&fallback=false";
 
       if (addressPart.length > 4) {
