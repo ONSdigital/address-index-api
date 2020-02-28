@@ -186,7 +186,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
 
 
-    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",",""))
+    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").take(20))
     val partialScript: Script = new Script(script = scriptText, params = scriptParams )
 
     search(source + args.epochParam)
