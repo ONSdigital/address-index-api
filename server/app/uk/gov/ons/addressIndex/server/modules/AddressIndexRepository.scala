@@ -99,7 +99,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-    val slopVal = 7
+    val slopVal = 8
     val niFactor = args.fromsource match {
       case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
       case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
@@ -171,11 +171,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
-      val hFields = Seq(HighlightField("lpi.mixedNag.partial").highlighterType("unified"),
-      HighlightField("lpi.mixedWelshNag.partial").highlighterType("unified"),
-      HighlightField("paf.mixedPaf.partial").highlighterType("unified"),
-      HighlightField("paf.mixedWelshPaf.partial").highlighterType("unified"),
-      HighlightField("nisra.mixedNisra.partial").highlighterType("unified"))
+      val hFields = Seq(HighlightField("lpi.mixedNag.partial"),
+      HighlightField("lpi.mixedWelshNag.partial"),
+      HighlightField("paf.mixedPaf.partial"),
+      HighlightField("paf.mixedWelshPaf.partial"),
+      HighlightField("nisra.mixedNisra.partial"))
 
 
     val scriptText: String =  "Math.round((_score " +
