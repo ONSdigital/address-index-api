@@ -166,7 +166,7 @@ single.found=addresses found
 single.openmap=Open Map
 single.classification=Classification
 single.enddate=Historical End Date
-single.intro=To get started, enter an address or postcode. Provide as much of the address as possible for best results.
+single.intro=To get started, enter an address. Provide as much of the address as possible for best results. For just a postcode, use the postcode tab.
 
 typeahead.title=Typeahead Address Lookup Demo
 
