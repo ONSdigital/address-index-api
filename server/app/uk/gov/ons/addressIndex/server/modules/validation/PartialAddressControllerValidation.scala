@@ -34,7 +34,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
       case "" =>
         logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
         Some(futureJsonBadRequest(EmptySearch(queryValues)))
-      case i if i.length < minimumTermLength =>
+      case i if i.trim().replaceAll(",","").length < minimumTermLength =>
         logger.systemLog(badRequestMessage = ShortQueryAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(ShortSearch(queryValues)))
       case _ => None

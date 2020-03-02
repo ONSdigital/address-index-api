@@ -64,7 +64,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
@@ -75,12 +75,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     val sboost = conf.config.elasticSearch.defaultStartBoost
 
-//    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-//      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-//      boostedAddresses.sortBy(_.highlights.map(b => b.bestMatchAddress)).sortBy(_.confidenceScore)(Ordering[Double].reverse)
-//    }
-
-    // try without sorting in API
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
       boostedAddresses
