@@ -52,7 +52,7 @@ version: DemoUIAddressIndexVersionModule
       var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&limit=20";
       var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20";
 
-      if (addressPart.length > 4) {
+      if (addressPart.trim().length > 4) {
         if (@{conf.config.gcp}) {
           getJSONResponse(singleUrlGcp)
         } else {
