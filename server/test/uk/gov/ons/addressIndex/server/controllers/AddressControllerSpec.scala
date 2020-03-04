@@ -573,7 +573,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           fromsource = "all",
-          highverbose = true,
+          highlight = "on",
           favourpaf = true,
           favourwelsh = true
         ),
@@ -607,7 +607,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true,
           epoch = "",
           fromsource="all",
-          highverbose = true,
+          highlight= "on",
           favourpaf = true,
           favourwelsh = true
         ),
@@ -1821,7 +1821,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           fromsource="all",
-          highverbose = true,
+          highlight = "on",
           favourpaf = true,
           favourwelsh = true
         ),
@@ -1858,7 +1858,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "epoch",
           fromsource="all",
-          highverbose = true,
+          highlight = "on",
           favourpaf = true,
           favourwelsh = true
         ),
@@ -2298,7 +2298,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           fromsource="all",
-          highverbose = true,
+          highlight = "on",
           favourpaf = true,
           favourwelsh = true
         ),

@@ -171,12 +171,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
-      val hFields = Seq(HighlightField("lpi.mixedNag.partial"),
+      val hFields = if (args.highlight == "off") Seq() else
+        Seq(HighlightField("lpi.mixedNag.partial"),
       HighlightField("lpi.mixedWelshNag.partial"),
       HighlightField("paf.mixedPaf.partial"),
       HighlightField("paf.mixedWelshPaf.partial"),
       HighlightField("nisra.mixedNisra.partial"))
-
 
     val scriptText: String =  "Math.round((_score " +
       "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +

@@ -44,7 +44,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
                           fromsource: Option[String] = None,
-                          highverbose: Option[String] = None,
+                          highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
@@ -68,7 +68,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val highVerbose = highverbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    // values are off, on and debug - off will be the default later (eQ set to on)
+    val highVal = highlight.getOrElse("on")
+    val highVerbose: Boolean = (highVal == "debug")
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
@@ -129,7 +131,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       offset = Some(offsetInt),
       verbose = Some(verb),
       fromsource = Some(fromsourceVal),
-      highverbose = Some(highVerbose),
+      highlight = Some(highVal),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh)
     )
@@ -161,7 +163,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           epoch = epochVal,
           skinny = !verb,
           fromsource = fromsourceVal,
-          highverbose = highVerbose,
+          highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh
         )
@@ -198,7 +200,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   maxScore = maxScore,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  highverbose = highVerbose,
+                  highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh
                 ),
