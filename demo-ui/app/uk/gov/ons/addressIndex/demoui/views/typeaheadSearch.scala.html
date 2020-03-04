@@ -105,7 +105,7 @@ version: DemoUIAddressIndexVersionModule
           document.getElementById("response-text").innerHTML = "No results from API"
           try {
             for (i = 0; i < response.response.addresses.length; i++) {
-              resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
+              resultString = resultString + response.response.addresses[i].highlights.bestMatchAddress + "<br>";
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.addresses.length == 0) {
