@@ -2,6 +2,8 @@ package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
 case class AddressResponseHighlight(bestMatchAddress: String,
+                                    source: String,
+                                    lang: String,
                                     hits: Option[Seq[AddressResponseHighlightHit]])
 
 object AddressResponseHighlight {
@@ -12,7 +14,10 @@ object AddressResponseHighlight {
      hit._2.flatMap {lin =>
      AddressResponseHighlightHit.fromHighlight(hit,lin)}}
     val optList = Option(hitList.toSeq)
-   Some(AddressResponseHighlight(bestMatchAddress,optList))
+   Some(AddressResponseHighlight(bestMatchAddress,
+     hitList.headOption.map(hit => hit.source).getOrElse(""),
+     hitList.headOption.map(hit => hit.lang).getOrElse(""),
+     optList))
  }
 }
 

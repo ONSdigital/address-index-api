@@ -44,7 +44,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
                           fromsource: Option[String] = None,
-                          highverbose: Option[String] = None,
+                          highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
@@ -64,11 +64,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val highVerbose = highverbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    // values are off, on and debug - off will be the default later (eQ set to on)
+    val highVal = highlight.getOrElse("on")
+    val highVerbose: Boolean = (highVal == "debug")
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
@@ -77,16 +79,26 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
+      boostedAddresses
     }
 
     def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
       if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
+        add.copy(
+          confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+          underlyingScore = add.underlyingScore,
+          highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-      } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
+      } else add.copy(
+        confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+        underlyingScore = add.underlyingScore,
+        highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
           hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
     }
 
@@ -119,7 +131,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       offset = Some(offsetInt),
       verbose = Some(verb),
       fromsource = Some(fromsourceVal),
-      highverbose = Some(highVerbose),
+      highlight = Some(highVal),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh)
     )
@@ -151,7 +163,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           epoch = epochVal,
           skinny = !verb,
           fromsource = fromsourceVal,
-          highverbose = highVerbose,
+          highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh
         )
@@ -188,7 +200,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   maxScore = maxScore,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  highverbose = highVerbose,
+                  highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh
                 ),
@@ -217,7 +229,25 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   {
 
     highlights match {
-      case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineBestMatchAddress(value, favourPaf, favourWelsh)))
+      case None => ""
+    }
+  }
+
+  def getSource(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineSource(value, favourPaf, favourWelsh)))
+      case None => ""
+    }
+  }
+
+  def getLang(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineLang(value, favourPaf, favourWelsh)))
       case None => ""
     }
   }
@@ -226,6 +256,18 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   {
     val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
     highs.headOption.map(_.highLightedText).getOrElse("")
+  }
+
+  def determineSource(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.source).getOrElse("")
+  }
+
+  def determineLang(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.lang).getOrElse("")
   }
 
   def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
@@ -241,4 +283,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         hits.sortBy(_.source).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
     }
   }
+
+
 }

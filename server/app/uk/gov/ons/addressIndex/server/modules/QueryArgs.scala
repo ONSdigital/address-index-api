@@ -202,7 +202,7 @@ final case class PartialArgs(input: String,
                              verbose: Boolean = false,
                              skinny: Boolean = false,
                              fromsource: String,
-                             highverbose: Boolean = true,
+                             highlight: String = "on",
                              favourpaf: Boolean = true,
                              favourwelsh: Boolean = true
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
