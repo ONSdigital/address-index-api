@@ -575,7 +575,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           fromsource = "all",
           highlight = "on",
           favourpaf = true,
-          favourwelsh = true
+          favourwelsh = false
         ),
         OkAddressResponseStatus
       ))
@@ -609,7 +609,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           fromsource="all",
           highlight= "on",
           favourpaf = true,
-          favourwelsh = true
+          favourwelsh = false
         ),
         OkAddressResponseStatus
       ))
