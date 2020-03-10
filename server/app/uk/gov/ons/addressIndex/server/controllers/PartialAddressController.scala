@@ -67,7 +67,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     // values are off, on and debug - off will be the default later (eQ set to on)
     val highVal = highlight.getOrElse("on")
     val highVerbose: Boolean = (highVal == "debug")

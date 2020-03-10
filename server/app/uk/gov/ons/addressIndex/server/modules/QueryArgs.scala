@@ -216,7 +216,7 @@ final case class PartialArgs(input: String,
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 
-  def inputNumbers: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
+  def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.nonEmpty).toList
 }
 
 /**
