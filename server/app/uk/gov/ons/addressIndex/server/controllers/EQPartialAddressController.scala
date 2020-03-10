@@ -5,7 +5,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
@@ -16,7 +17,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class PartialAddressController @Inject()(val controllerComponents: ControllerComponents,
+class EQPartialAddressController @Inject()(val controllerComponents: ControllerComponents,
                                          esRepo: ElasticsearchRepository,
                                          conf: ConfigModule,
                                          versionProvider: VersionModule,
@@ -25,7 +26,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                                         )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
-  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PartialAddressController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQPartialAddressController")
 
   val sboost: Int = conf.config.elasticSearch.defaultStartBoost
 
@@ -45,7 +46,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
                           fromsource: Option[String] = None,
-                          highlight: Option[String] = None,
+                          highverbose: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
@@ -65,59 +66,16 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    // values are off, on and debug - off will be the default later (eQ set to on)
-    val highVal = highlight.getOrElse("on")
-    val highVerbose: Boolean = highVal == "debug"
+    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val highVerbose = highverbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
-//    val sboost = conf.config.elasticSearch.defaultStartBoost
-
-//    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-//      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-//      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
-//    }
-//
-//    def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
-//      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-//        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-//        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-//          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-//      } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-//        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-//          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-//    }
-    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses
-    }
-
-    def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
-      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(
-          confidenceScore = (math.round(add.underlyingScore)*5).min(100),
-          underlyingScore = add.underlyingScore,
-          highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-          source = getSource(add.highlights, favourPaf, favourWelsh),
-          lang = getLang(add.highlights, favourPaf, favourWelsh),
-          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-      } else add.copy(
-        confidenceScore = (math.round(add.underlyingScore)*5).min(100),
-        underlyingScore = add.underlyingScore,
-        highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-          source = getSource(add.highlights, favourPaf, favourWelsh),
-          lang = getLang(add.highlights, favourPaf, favourWelsh),
-          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-    }
-
-      def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
@@ -146,7 +104,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       offset = Some(offsetInt),
       verbose = Some(verb),
       fromsource = Some(fromsourceVal),
-      highlight = Some(highVal),
+      highverbose = Some(highVerbose),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh)
     )
@@ -178,7 +136,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           epoch = epochVal,
           skinny = !verb,
           fromsource = fromsourceVal,
-          highlight = highVal,
+          highverbose = highVerbose,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh
         )
@@ -190,21 +148,21 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verb)
+            val addresses: Seq[AddressResponseAddressEQ] = hybridAddresses.map(
+              AddressResponseAddressEQ.fromHybridAddress(_, verb)
             )
 
             val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses
 
-            writeLog(activity = "partial_request")
+            writeLog(activity = "eq_partial_request")
 
             jsonOk(
-              AddressByPartialAddressResponseContainer(
+              AddressByEQPartialAddressResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByPartialAddressResponse(
+                response = AddressByEQPartialAddressResponse(
                   input = input,
-                  addresses = sortAddresses,
+                  addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
                   filter = filterString,
                   fallback = fall,
                   historical = hist,
@@ -215,7 +173,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   maxScore = maxScore,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  highlight = highVal,
+                  highverbose = highVerbose,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh
                 ),
@@ -231,10 +189,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               logger.warn(s"Elasticsearch is overloaded or down (partialAddress input). Circuit breaker is Open: ${exception.getMessage}")
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
             } else {
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
-                logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
+              // Circuit Breaker is closed. Some other problem
+              writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+              logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
             }
         }
     }
@@ -242,27 +200,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
   def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
   {
-
     highlights match {
-      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineBestMatchAddress(value, favourPaf, favourWelsh)))
-      case None => ""
-    }
-  }
-
-  def getSource(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
-  {
-
-    highlights match {
-      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineSource(value, favourPaf, favourWelsh)))
-      case None => ""
-    }
-  }
-
-  def getLang(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
-  {
-
-    highlights match {
-      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineLang(value, favourPaf, favourWelsh)))
+      case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
       case None => ""
     }
   }
@@ -273,38 +212,27 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     highs.headOption.map(_.highLightedText).getOrElse("")
   }
 
-  def determineSource(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
-  {
-    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
-    highs.headOption.map(_.source).getOrElse("")
-  }
-
-  def determineLang(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
-  {
-    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
-    highs.headOption.map(_.lang).getOrElse("")
-  }
-
   def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
   {
-    favourPaf match {
-      case true => if (favourWelsh)
+    if (favourPaf) {
+      if (favourWelsh)
         hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
       else
         hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
-      case false => if (favourWelsh)
+    } else {
+      if (favourWelsh)
         hits.sortBy(_.source).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
       else
         hits.sortBy(_.source).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
     }
   }
 
-  def boostAtStart(inAddresses: Seq[AddressResponseAddress], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddress] = {
-    val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
+  def boostAtStart(inAddresses: Seq[AddressResponseAddressEQ], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddressEQ] = {
+    val boostedAddresses: Seq[AddressResponseAddressEQ] = inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
     boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
   }
 
-  def boostAddress(add: AddressResponseAddress, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddress = {
+  def boostAddress(add: AddressResponseAddressEQ, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddressEQ = {
     if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
       add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),

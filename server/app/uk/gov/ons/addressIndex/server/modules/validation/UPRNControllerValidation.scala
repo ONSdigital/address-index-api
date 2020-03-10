@@ -19,6 +19,7 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
   val validEpochs: String = conf.config.elasticSearch.validEpochs
   val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
   val validEpochsRegex: String = """\b(""" + validEpochs + """)\b.*"""
+  val validAddressTypes: Seq[String] = Seq("PAF", "WELSHPAF", "NAG", "WELSHNAG", "NISRA")
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -36,6 +37,16 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
       case Failure(_) =>
         logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
+    }
+  }
+
+  def validateAddressType(addressType: String, queryValues: QueryValues): Option[Future[Result]] = {
+
+    if (validAddressTypes.contains(addressType)) {
+      None
+    } else {
+      logger.systemLog(badRequestMessage = InvalidAddressTypeAddressResponseError.message)
+      Some(futureJsonBadRequest(AddressTypeInvalid(queryValues)))
     }
   }
 

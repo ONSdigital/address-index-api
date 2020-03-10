@@ -202,3 +202,8 @@ object EmptyRadiusQueryAddressResponseError extends AddressResponseError(
   code = 38,
   message = "Latitude, longitude, rangekm and filter must all be provided."
 )
+
+object InvalidAddressTypeAddressResponseError extends AddressResponseError(
+  code = 39,
+  message = "AddressType must be of type PAF, NAG or NISRA."
+)
