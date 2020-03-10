@@ -617,6 +617,32 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       result shouldBe Some(expectedNag)
     }
 
+    "strip off an unwanted concatenated postcode" in {
+      // Given
+      val inputFormattedAddress = "University Of Exeter, Devonshire House, Stocker Road, Exeter, EX4 4PZ EX44PZ"
+      val expectedFormattedAddress ="University Of Exeter, Devonshire House, Stocker Road, Exeter, EX4 4PZ"
+
+      // When
+      val result = AddressResponseAddress.removeConcatenatedPostcode(inputFormattedAddress)
+
+      // Then
+      result shouldBe expectedFormattedAddress
+
+    }
+
+    "remove em tags from string" in {
+      // Given
+      val inputFormattedAddress = "<em>University</em> <em>Of</em> <em>Exeter</em>, Devonshire House, Stocker Road, <em>Exeter</em>, EX4 4PZ"
+      val expectedFormattedAddress ="University Of Exeter, Devonshire House, Stocker Road, Exeter, EX4 4PZ"
+
+      // When
+      val result = AddressResponseAddress.removeEms(inputFormattedAddress)
+
+      // Then
+      result shouldBe expectedFormattedAddress
+
+    }
+
   }
     "create AddressResponseAddressEQ from Hybrid ES response" in {
       // Given

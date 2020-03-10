@@ -211,9 +211,9 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: fromsource
 #      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
-#    - name: highverbose
-#      description: include detailed highlighting infomatch
-#      default: true
+#    - name: highlight
+#      description: include detailed highlighting info, options are off, on or debug
+#      default: on
 #    - name: favourpaf
 #      description: paf beats nag on draw for best match
 #      default: true
@@ -234,7 +234,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highverbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
 
 ###
 #  summary: Custom EQ UPRN endpoint. Gets an address by UPRN.

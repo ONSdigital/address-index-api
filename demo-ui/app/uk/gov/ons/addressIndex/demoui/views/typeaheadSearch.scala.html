@@ -52,7 +52,7 @@ version: DemoUIAddressIndexVersionModule
       var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&limit=20";
       var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20";
 
-      if (addressPart.length > 4) {
+      if (addressPart.trim().length > 4) {
         if (@{conf.config.gcp}) {
           getJSONResponse(singleUrlGcp)
         } else {
@@ -105,7 +105,7 @@ version: DemoUIAddressIndexVersionModule
           document.getElementById("response-text").innerHTML = "No results from API"
           try {
             for (i = 0; i < response.response.addresses.length; i++) {
-              resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
+              resultString = resultString + response.response.addresses[i].highlights.bestMatchAddress + "<br>";
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.addresses.length == 0) {

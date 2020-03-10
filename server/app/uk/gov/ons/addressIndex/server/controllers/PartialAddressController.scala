@@ -71,7 +71,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     // values are off, on and debug - off will be the default later (eQ set to on)
     val highVal = highlight.getOrElse("on")
-    val highVerbose: Boolean = highVal == "debug"
+    val highVerbose: Boolean = (highVal == "debug")
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}

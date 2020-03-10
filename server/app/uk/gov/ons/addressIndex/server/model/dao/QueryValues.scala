@@ -17,7 +17,7 @@ case class QueryValues(input: Option[String] = None,
                        longitude: Option[String] = None,
                        matchThreshold: Option[Float] = None,
                        fromsource: Option[String] = None,
-                       highverbose: Option[Boolean] = None,
+                       highlight: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
                        addressType: Option[String] = None)
@@ -56,7 +56,7 @@ case class QueryValues(input: Option[String] = None,
 
   def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
 
-  def highVerboseOrDefault: Boolean = this.highverbose.getOrElse(false)
+  def highlightOrDefault: String = this.highlight.getOrElse("on")
 
   def favourParOrDefault: Boolean = this.favourpaf.getOrElse(false)
 

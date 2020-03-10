@@ -639,7 +639,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           fromsource = "all",
-          highverbose = true,
+          highlight = "on",
           favourpaf = true,
           favourwelsh = true
         ),

@@ -1,10 +1,12 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
+import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.requests.script.Script
+import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.FunctionScoreQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchBodyBuilderFn, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -97,7 +99,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-    val slopVal = 4
+    val slopVal = 8
     val niFactor = args.fromsource match {
       case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
       case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
@@ -169,20 +171,50 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
-  //  val fieldsToSearch = Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial")
-
-    val hFields = Seq(HighlightField("lpi.mixedNag.partial"),
+      val hFields = if (args.highlight == "off") Seq() else
+        Seq(HighlightField("lpi.mixedNag.partial"),
       HighlightField("lpi.mixedWelshNag.partial"),
       HighlightField("paf.mixedPaf.partial"),
       HighlightField("paf.mixedWelshPaf.partial"),
       HighlightField("nisra.mixedNisra.partial"))
 
+    val scriptText: String =  "Math.round((_score " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
+
+
+    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").take(6))
+    val partialScript: Script = new Script(script = scriptText, params = scriptParams )
 
     search(source + args.epochParam)
-      .query(query).highlighting(hFields)
+      .query(
+          functionScoreQuery(query).functions(
+          scriptScore(partialScript))
+            .boostMode("replace")
+      )
+      .highlighting(hFields)
+      .sortBy(
+        FieldSort("_score").order(SortOrder.DESC),
+        FieldSort("lpi.postcodeLocator.keyword").asc(),
+        FieldSort("lpi.streetDescriptor.keyword").asc(),
+        FieldSort("lpi.paoStartNumber").asc(),
+        FieldSort("lpi.paoStartSuffix.keyword").asc(),
+        FieldSort("lpi.secondarySort").asc(),
+        FieldSort("nisra.thoroughfare.keyword").asc(),
+        FieldSort("nisra.paoStartNumber").asc(),
+        FieldSort("nisra.secondarySort").asc(),
+        FieldSort("uprn").asc())
       .start(args.start)
       .limit(args.limit)
   }
+
+  def confidenceSort(score: Float): Int =
+    {
+      (math.round(score/4)*10).min(100)
+    }
 
   private def makePostcodeQuery(args: PostcodeArgs): SearchRequest = {
     val postcodeFormatted: String = if (!args.postcode.contains(" ")) {
@@ -208,17 +240,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
-      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
-        FieldSort("lpi.paoStartNumber").asc(),
-        FieldSort("lpi.paoStartSuffix.keyword").asc(),
-        FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
-        FieldSort("nisra.paoStartNumber").asc(),
-        FieldSort("nisra.secondarySort").asc(),
-        FieldSort("uprn").asc())
-      .start(args.start)
-      .limit(args.limit)
-  }
+    .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
+      FieldSort("lpi.paoStartNumber").asc(),
+      FieldSort("lpi.paoStartSuffix.keyword").asc(),
+      FieldSort("lpi.secondarySort").asc(),
+      FieldSort("nisra.thoroughfare.keyword").asc(),
+      FieldSort("nisra.paoStartNumber").asc(),
+      FieldSort("nisra.secondarySort").asc(),
+      FieldSort("uprn").asc())
+    .start(args.start)
+    .limit(args.limit)
+}
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
     val timestamp: Long = System.currentTimeMillis
@@ -910,7 +942,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
  // uncomment to see generated query
  //    val searchString = SearchBodyBuilderFn(query).string()
- //    println(searchString)
+  //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
