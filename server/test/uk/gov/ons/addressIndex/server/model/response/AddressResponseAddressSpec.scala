@@ -195,7 +195,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
     lpiStartDate = "lpiStartDate",
-    mixedNag = "Office for National Statistics, Segensworth, Titchfield, Mount Doom, Mordor, Fareham PO15 5RR",
+    mixedNag = "Office for National Statistics - Fareham, Segensworth, Titchfield, Mount Doom, Mordor, Fareham PO15 5RR",
     mixedWelshNag = "mixedWelshNag"
   )
 
@@ -643,7 +643,6 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     }
 
-  }
     "create AddressResponseAddressEQ from Hybrid ES response" in {
       // Given
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validPafHighlights )
@@ -651,7 +650,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = givenPaf.uprn,
         formattedAddress = "mixedNag",
         underlyingScore = 1,
-        highlights = Some(AddressResponseHighlight("formattedAddress", Some(List(AddressResponseHighlightHit("P","E",0,"6 Long Lane Liverpool"), AddressResponseHighlightHit("P","E",0,"6 Longish Lane Liverpool")))))
+        confidenceScore = 100D,
+        highlights = Some(AddressResponseHighlight("formattedAddress", "P", "E", Some(List(AddressResponseHighlightHit("P","E",0,"6 Long Lane Liverpool"), AddressResponseHighlightHit("P","E",0,"6 Longish Lane Liverpool")))))
       )
 
       // When
@@ -773,8 +773,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       val expected = AddressResponseAddressUPRNEQ(
         uprn = givenNagEq.uprn,
-        formattedAddress = "Office for National Statistics, Segensworth, Titchfield, Mount Doom, Mordor, Fareham PO15 5RR",
-        addressLine1 = "Office for National Statistics",
+        formattedAddress = "Office for National Statistics - Fareham, Segensworth, Titchfield, Mount Doom, Mordor, Fareham PO15 5RR",
+        addressLine1 = "Office for National Statistics - Fareham",
         addressLine2 = "Segensworth",
         addressLine3 = "Titchfield, Mount Doom, Mordor",
         townName = "Fareham",

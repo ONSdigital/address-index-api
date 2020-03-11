@@ -5,7 +5,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
+import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
@@ -71,53 +72,12 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     // values are off, on and debug - off will be the default later (eQ set to on)
     val highVal = highlight.getOrElse("on")
-    val highVerbose: Boolean = (highVal == "debug")
+    val highVerbose: Boolean = highVal == "debug"
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
-//    val sboost = conf.config.elasticSearch.defaultStartBoost
-
-//    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-//      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-//      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
-//    }
-//
-//    def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
-//      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-//        add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-//        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-//          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-//      } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-//        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-//          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-//    }
-    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses
-    }
-
-    def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
-      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(
-          confidenceScore = (math.round(add.underlyingScore)*5).min(100),
-          underlyingScore = add.underlyingScore,
-          highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-          source = getSource(add.highlights, favourPaf, favourWelsh),
-          lang = getLang(add.highlights, favourPaf, favourWelsh),
-          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-      } else add.copy(
-        confidenceScore = (math.round(add.underlyingScore)*5).min(100),
-        underlyingScore = add.underlyingScore,
-        highlights = if (add.highlights == None) None else Option(add.highlights.get.copy(
-        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-          source = getSource(add.highlights, favourPaf, favourWelsh),
-          lang = getLang(add.highlights, favourPaf, favourWelsh),
-          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-    }
-
-      def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
       val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
@@ -287,12 +247,13 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
   def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
   {
-    favourPaf match {
-      case true => if (favourWelsh)
+    if (favourPaf) {
+      if (favourWelsh)
         hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
       else
         hits.sortBy(_.source)(Ordering[String].reverse).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
-      case false => if (favourWelsh)
+    } else {
+      if (favourWelsh)
         hits.sortBy(_.source).sortBy(_.lang)(Ordering[String].reverse).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
       else
         hits.sortBy(_.source).sortBy(_.lang).sortBy(_.distinctHitCount)(Ordering[Int].reverse)
@@ -300,17 +261,26 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   }
 
   def boostAtStart(inAddresses: Seq[AddressResponseAddress], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddress] = {
-    val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
-    boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
+    inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
   }
 
   def boostAddress(add: AddressResponseAddress, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddress = {
     if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-      add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
+      add.copy(
+        confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+        underlyingScore = add.underlyingScore,
+        highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
+          bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
+    } else add.copy(
+      confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+      underlyingScore = add.underlyingScore,
+      highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+        source = getSource(add.highlights, favourPaf, favourWelsh),
+        lang = getLang(add.highlights, favourPaf, favourWelsh),
         hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-    } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
-      bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-      hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
   }
 }

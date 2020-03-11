@@ -23,14 +23,11 @@ object AddressResponseAddressCustomEQ {
     }
 
     val bestMatchAddressType: String = address.highlights match {
-      case Some(highlight) => highlight.hits match {
-        case Some(hit) if hit(0).source == "P" && hit(0).lang == "E" => "PAF"
-        case Some(hit) if hit(0).source == "P" && hit(0).lang == "W"=> "WELSHPAF"
-        case Some(hit) if hit(0).source == "L" && hit(0).lang == "E" => "NAG"
-        case Some(hit) if hit(0).source == "L" && hit(0).lang == "W" => "WELSHNAG"
-        case Some(hit) if hit(0).source == "N" => "NISRA"
-        case None => ""
-      }
+      case Some(highlight) if highlight.source == "P" && highlight.lang == "E" => "PAF"
+      case Some(highlight) if highlight.source == "P" && highlight.lang == "W" => "WELSHPAF"
+      case Some(highlight) if highlight.source == "L" && highlight.lang == "E" => "NAG"
+      case Some(highlight) if highlight.source == "L" && highlight.lang == "W" => "WELSHNAG"
+      case Some(highlight) if highlight.source == "N" => "NISRA"
       case None => ""
     }
 

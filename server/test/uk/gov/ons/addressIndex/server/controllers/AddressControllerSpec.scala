@@ -581,7 +581,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
 
-     val sortAddresses = if (sboost > 0) partialAddressController.boostAtStart(addresses, "some query", true, true, true) else addresses
+     val sortAddresses = if (sboost > 0) partialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
 
      // Given
       val expected = Json.toJson(AddressByPartialAddressResponseContainer(
@@ -592,7 +592,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = sortAddresses,
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 20,
           offset = 0,
           total = 1,
@@ -620,7 +620,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, verbose = false))
 
-      val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, "some query", true, true, true) else addresses
+      val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
 
       // Given
       val expected = Json.toJson(AddressByEQPartialAddressResponseContainer(

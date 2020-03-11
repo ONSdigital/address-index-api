@@ -20,7 +20,7 @@ case class AddressByEQPartialAddressResponse(input: String,
                                              maxScore: Double,
                                              verbose: Boolean,
                                              fromsource: String,
-                                             highverbose: Boolean,
+                                             highlight: String,
                                              favourpaf: Boolean,
                                              favourwelsh: Boolean)
 

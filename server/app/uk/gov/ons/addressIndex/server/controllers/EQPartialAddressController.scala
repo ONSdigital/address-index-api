@@ -46,7 +46,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
                           fromsource: Option[String] = None,
-                          highverbose: Option[String] = None,
+                          highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
@@ -70,7 +70,8 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val highVerbose = highverbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val highVal = highlight.getOrElse("on")
+    val highVerbose: Boolean = highVal == "debug"
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
@@ -104,7 +105,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
       offset = Some(offsetInt),
       verbose = Some(verb),
       fromsource = Some(fromsourceVal),
-      highverbose = Some(highVerbose),
+      highlight = Some(highVal),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh)
     )
@@ -136,7 +137,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
           epoch = epochVal,
           skinny = !verb,
           fromsource = fromsourceVal,
-          highverbose = highVerbose,
+          highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh
         )
@@ -173,7 +174,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
                   maxScore = maxScore,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  highverbose = highVerbose,
+                  highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh
                 ),
@@ -200,8 +201,27 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
 
   def getBestMatchAddress(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
   {
+
     highlights match {
-      case Some(value) => determineBestMatchAddress(value, favourPaf, favourWelsh)
+      case Some(value) => AddressResponseAddressEQ.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineBestMatchAddress(value, favourPaf, favourWelsh)))
+      case None => ""
+    }
+  }
+
+  def getSource(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => AddressResponseAddressEQ.removeConcatenatedPostcode(AddressResponseAddressEQ.removeEms(determineSource(value, favourPaf, favourWelsh)))
+      case None => ""
+    }
+  }
+
+  def getLang(highlights: Option[AddressResponseHighlight], favourPaf: Boolean = true, favourWelsh: Boolean = false): String =
+  {
+
+    highlights match {
+      case Some(value) => AddressResponseAddressEQ.removeConcatenatedPostcode(AddressResponseAddressEQ.removeEms(determineLang(value, favourPaf, favourWelsh)))
       case None => ""
     }
   }
@@ -210,6 +230,18 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
   {
     val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
     highs.headOption.map(_.highLightedText).getOrElse("")
+  }
+
+  def determineSource(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.source).getOrElse("")
+  }
+
+  def determineLang(highlight: AddressResponseHighlight, favourPaf: Boolean, favourWelsh: Boolean): String =
+  {
+    val highs = sortHighs(highlight.hits.getOrElse(Seq()), favourPaf, favourWelsh)
+    highs.headOption.map(_.lang).getOrElse("")
   }
 
   def sortHighs(hits: Seq[AddressResponseHighlightHit], favourPaf: Boolean, favourWelsh: Boolean): Seq[AddressResponseHighlightHit] =
@@ -228,17 +260,26 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
   }
 
   def boostAtStart(inAddresses: Seq[AddressResponseAddressEQ], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddressEQ] = {
-    val boostedAddresses: Seq[AddressResponseAddressEQ] = inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
-    boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
+    inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
   }
 
   def boostAddress(add: AddressResponseAddressEQ, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddressEQ = {
     if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-      add.copy(underlyingScore = add.underlyingScore + sboost, highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
+      add.copy(
+        confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+        underlyingScore = add.underlyingScore,
+        highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
+          bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
+    } else add.copy(
+      confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+      underlyingScore = add.underlyingScore,
+      highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
         bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+        source = getSource(add.highlights, favourPaf, favourWelsh),
+        lang = getLang(add.highlights, favourPaf, favourWelsh),
         hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
-    } else add.copy(underlyingScore = add.underlyingScore, highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
-      bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
-      hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
   }
 }

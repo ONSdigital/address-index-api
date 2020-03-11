@@ -43,11 +43,11 @@ object AddressByEqUprnResponse {
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
     val formattedAddress = addressType match {
-      case "PAF" => formattedAddressPaf
-      case "WELSHPAF" => welshFormattedAddressPaf
-      case "NAG" => formattedAddressNag
-      case "WELSHNAG" => welshFormattedAddressNag
-      case "NISRA" => if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra
+      case "PAF" => removeConcatenatedPostcode(formattedAddressPaf)
+      case "WELSHPAF" => removeConcatenatedPostcode(welshFormattedAddressPaf)
+      case "NAG" => removeConcatenatedPostcode(formattedAddressNag)
+      case "WELSHNAG" => removeConcatenatedPostcode(welshFormattedAddressNag)
+      case "NISRA" => if (chosenNisra.isEmpty) removeConcatenatedPostcode(formattedAddressNag) else removeConcatenatedPostcode(formattedAddressNisra)
     }
 
     val townName = addressType match {
@@ -116,11 +116,12 @@ object AddressByEqUprnResponse {
   def splitFormattedAddress(formattedAddress: String, townName: String, postcode: String): Map[String, String] = {
 
     // Split the formattedAddress by comma and remove townName and postcode as they have their own attribute
-    val split: Seq[String] = formattedAddress.replace(townName, "")
+    val split: Seq[String] = formattedAddress
       .replace(postcode, "")
       .split(",")
       .map(_.trim)
       .filter(_.nonEmpty)
+      .filter(p => !p.contentEquals(townName)) // Filter out exact townName entries as these are likely to be the townName and not part of the address that includes the town name
 
     // addressLine1 and addressLine2
     val part1: Seq[String] = split.take(2)
@@ -135,10 +136,25 @@ object AddressByEqUprnResponse {
     val addressMap: Map[Int, String] = (1 to addressLines.size).zip(addressLines).toMap
 
     // Return a map with appropriately named keys
-    addressMap.map { newMap: (Int, String) => newMap match {
+    addressMap.map { newMap: (Int, String) =>
+      newMap match {
         case (key, value) => (s"addressLine$key", value)
       }
     }
+  }
+
+  def removeConcatenatedPostcode(formattedAddress: String): String = {
+    // if last token = last but two + last but one then remove last token
+    val faTokens = formattedAddress.split(" ")
+    val concatPostcode = faTokens.takeRight(1).headOption.getOrElse("")
+    val faTokensTemp1 = faTokens.dropRight(1)
+    val incode = faTokensTemp1.takeRight(1).headOption.getOrElse("")
+    val faTokensTemp2 = faTokensTemp1.dropRight(1)
+    val outcode = faTokensTemp2.takeRight(1).headOption.getOrElse("")
+    val testCode = outcode + incode
+    if (testCode.equals(concatPostcode))
+      formattedAddress.replaceAll(concatPostcode, "").trim()
+    else formattedAddress
   }
 }
 

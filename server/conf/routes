@@ -238,7 +238,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 
 ###
 #  summary: Custom EQ UPRN endpoint. Gets an address by UPRN.
-#  description: Returns a single address, identified by its UPRN.
+#  description: Returns a single address, identified by its UPRN in the custom EQ format.
 #  parameters:
 #    - name: uprn
 #      description: Specifies the address UPRN.
@@ -269,7 +269,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQuery(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 ###
-#  summary: Custom EQ endpoint that will pass the request on to either the EQ partial endpoint or the postcode endpoint depending on what input string is submitted.
+#  summary: Custom EQ endpoint that will pass the request to either the EQ partial endpoint or the postcode endpoint depending on what input string is submitted.
 #  description: Returns a list of addresses, from either a partial or postcode match on the input string
 #  parameters:
 #    - name: input
@@ -297,9 +297,9 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #    - name: fromsource
 #      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
-#    - name: highverbose
-#      description: include detailed highlighting info
-#      default: true
+#    - name: highlight
+#      description: include detailed highlighting info, options are off, on or debug
+#      default: on
 #    - name: favourpaf
 #      description: paf beats nag on draw for best match
 #      default: true
@@ -320,7 +320,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highverbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
+GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
