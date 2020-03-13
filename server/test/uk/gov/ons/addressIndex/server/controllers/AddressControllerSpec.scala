@@ -1921,7 +1921,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           fromsource="all",
           highlight = "on",
           favourpaf = true,
-          favourwelsh = true
+          favourwelsh = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -1958,7 +1958,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           fromsource="all",
           highlight = "on",
           favourpaf = true,
-          favourwelsh = true
+          favourwelsh = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -2398,7 +2398,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           fromsource="all",
           highlight = "on",
           favourpaf = true,
-          favourwelsh = true
+          favourwelsh = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
