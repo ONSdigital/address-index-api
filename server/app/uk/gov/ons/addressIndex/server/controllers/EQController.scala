@@ -24,19 +24,39 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               verbose: Option[String] = None,
               epoch: Option[String] = None,
               fromsource: Option[String] = None,
-              highverbose: Option[String] = None,
+              highlight: Option[String] = None,
               favourpaf: Option[String] = None,
               favourwelsh: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
     if (isPostCode(input)) {
       logger.info("Input is postcode")
-      eqPostcodeController.postcodeQuery(input, offset, limit, classificationfilter,historical, verbose, favourpaf, favourwelsh, epoch) (req)
+      eqPostcodeController.postcodeQuery(
+        postcode=input,
+        offset= offset,
+        limit=limit,
+        classificationfilter=classificationfilter,
+        historical=historical,
+        verbose=verbose,
+        favourpaf=favourpaf,
+        favourwelsh=favourwelsh,
+        epoch=epoch) (req)
     } else {
       logger.info("input is partial address")
-      eqPartialAddressController.partialAddressQuery(input,
-        fallback, offset, limit, classificationfilter, historical,
-        verbose, epoch, fromsource)(req)
+      eqPartialAddressController.partialAddressQuery(
+        input = input,
+        fallback = fallback,
+        offset = offset,
+        limit = limit,
+        classificationfilter = classificationfilter,
+        historical = historical,
+        verbose = verbose,
+        epoch = epoch,
+        fromsource= fromsource,
+        highlight=highlight,
+        favourpaf = favourpaf,
+        favourwelsh = favourwelsh
+  )(req)
     }
   }
 

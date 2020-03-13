@@ -93,7 +93,7 @@ trait PartialAddressControllerResponse extends AddressResponse {
       verbose = queryValues.verboseOrDefault,
       fromsource = queryValues.fromSourceOrDefault,
       highlight = queryValues.highlightOrDefault,
-      favourpaf = queryValues.favourParOrDefault,
+      favourpaf = queryValues.favourPafOrDefault,
       favourwelsh = queryValues.favourWelshOrDefault
     )
   }

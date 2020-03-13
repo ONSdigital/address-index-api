@@ -202,7 +202,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
 #      description: Include historical addresses
-#      default: true
+#      default: false
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
@@ -219,7 +219,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: true
 #    - name: favourwelsh
 #      description: Welsh beats English on draw for best match
-#      default: true
+#      default: false
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -288,7 +288,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
 #      description: Include historical addresses
-#      default: true
+#      default: false
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
@@ -305,7 +305,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #      default: true
 #    - name: favourwelsh
 #      description: Welsh beats English on draw for best match
-#      default: true
+#      default: false
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
