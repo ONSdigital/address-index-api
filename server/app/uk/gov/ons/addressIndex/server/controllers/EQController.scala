@@ -32,14 +32,14 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     if (isPostCode(input)) {
       logger.info("Input is postcode")
       eqPostcodeController.postcodeQuery(
-        postcode=input,
-        offset= offset,
-        limit=limit,
-        classificationfilter=classificationfilter,
-        historical=historical,
-        verbose=verbose,
-        favourpaf=favourpaf,
-        favourwelsh=favourwelsh,
+        postcode = input,
+        offset = offset,
+        limit = limit,
+        classificationfilter = classificationfilter,
+        historical = historical,
+        verbose = verbose,
+        favourpaf = favourpaf,
+        favourwelsh = favourwelsh,
         epoch=epoch) (req)
     } else {
       logger.info("input is partial address")
@@ -52,11 +52,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         historical = historical,
         verbose = verbose,
         epoch = epoch,
-        fromsource= fromsource,
-        highlight=highlight,
+        fromsource = fromsource,
+        highlight = highlight,
         favourpaf = favourpaf,
-        favourwelsh = favourwelsh
-  )(req)
+        favourwelsh = favourwelsh) (req)
     }
   }
 
