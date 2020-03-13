@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
@@ -17,7 +17,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class PartialAddressController @Inject()(val controllerComponents: ControllerComponents,
+class EQPartialAddressController @Inject()(val controllerComponents: ControllerComponents,
                                          esRepo: ElasticsearchRepository,
                                          conf: ConfigModule,
                                          versionProvider: VersionModule,
@@ -26,12 +26,12 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                                         )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
-  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PartialAddressController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQPartialAddressController")
 
   val sboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
-    * PartialAddress query API
+    * EQ PartialAddress query API
     *
     * @param input input for the address to be fetched
     * @return Json response with addresses information
@@ -66,11 +66,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    // values are off, on and debug - off will be the default later (eQ set to on)
+    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val highVal = highlight.getOrElse("on")
     val highVerbose: Boolean = highVal == "debug"
 
@@ -150,21 +149,21 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verb)
+            val addresses: Seq[AddressResponseAddressEQ] = hybridAddresses.map(
+              AddressResponseAddressEQ.fromHybridAddress(_, favourPaf, favourWelsh, verb)
             )
 
             val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses
 
-            writeLog(activity = "partial_request")
+            writeLog(activity = "eq_partial_request")
 
             jsonOk(
-              AddressByPartialAddressResponseContainer(
+              AddressByEQPartialAddressResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByPartialAddressResponse(
+                response = AddressByEQPartialAddressResponse(
                   input = input,
-                  addresses = sortAddresses,
+                  addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
                   filter = filterString,
                   fallback = fall,
                   historical = hist,
@@ -191,10 +190,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               logger.warn(s"Elasticsearch is overloaded or down (partialAddress input). Circuit breaker is Open: ${exception.getMessage}")
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
             } else {
-                // Circuit Breaker is closed. Some other problem
-                writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
-                logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
-                InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
+              // Circuit Breaker is closed. Some other problem
+              writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+              logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
+              InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
             }
         }
     }
@@ -260,11 +259,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     }
   }
 
-  def boostAtStart(inAddresses: Seq[AddressResponseAddress], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddress] = {
+  def boostAtStart(inAddresses: Seq[AddressResponseAddressEQ], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddressEQ] = {
     inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
   }
 
-  def boostAddress(add: AddressResponseAddress, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddress = {
+  def boostAddress(add: AddressResponseAddressEQ, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddressEQ = {
     if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
       add.copy(
         confidenceScore = (math.round(add.underlyingScore)*5).min(100),
