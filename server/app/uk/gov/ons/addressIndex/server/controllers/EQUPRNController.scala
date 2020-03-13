@@ -48,6 +48,15 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
+    val addressType = bestMatchAddressType match {
+      case "paf" => AddressResponseAddress.AddressTypes.paf
+      case "welshpaf" => AddressResponseAddress.AddressTypes.welshPaf
+      case "nag" => AddressResponseAddress.AddressTypes.nag
+      case "welshnag" => AddressResponseAddress.AddressTypes.welshNag
+      case "nisra" => AddressResponseAddress.AddressTypes.nisra
+      case _ => bestMatchAddressType
+    }
+
     val epochVal = epoch.getOrElse("")
 
     val startingTime = System.currentTimeMillis()
@@ -61,7 +70,6 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
@@ -103,7 +111,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressByEqUprnResponse.fromHybridAddress(hybridAddress, verb, bestMatchAddressType)
+            val address = AddressByEqUprnResponse.fromHybridAddress(hybridAddress, verb, addressType)
 
             writeLog(
               formattedOutput = AddressResponseAddress.fromHybridAddress(hybridAddress, verb).formattedAddressNag, numOfResults = "1",
@@ -116,7 +124,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
                 dataVersion = dataVersion,
                 response = AddressByEqUprnResponse(
                   address = Some(address),
-                  addressType = bestMatchAddressType,
+                  addressType = addressType,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb

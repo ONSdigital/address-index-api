@@ -41,6 +41,16 @@ case class AddressResponseAddress(uprn: String,
 object AddressResponseAddress {
   implicit lazy val addressResponseAddressFormat: Format[AddressResponseAddress] = Json.format[AddressResponseAddress]
 
+  object AddressTypes extends Enumeration {
+    type AddressType = String
+
+    val paf = "PAF"
+    val welshPaf = "WELSHPAF"
+    val nag = "NAG"
+    val welshNag = "WELSHNAG"
+    val nisra = "NISRA"
+  }
+
   /**
     * Transforms hybrid object returned by ES into an Address that will be in the json response
     *
@@ -63,7 +73,7 @@ object AddressResponseAddress {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
-    val testHigh = (other.highlights.headOption.getOrElse(Map()) == Map())
+    val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
     AddressResponseAddress(
       uprn = other.uprn,

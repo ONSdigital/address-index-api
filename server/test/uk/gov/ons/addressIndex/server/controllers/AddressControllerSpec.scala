@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEqPostcodeResponse, AddressByEqPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
@@ -397,11 +397,12 @@ class AddressControllerSpec extends PlaySpec with Results {
   val eqPartialAddressController = new EQPartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
 
   val postcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+  val eqPostcodeController = new EQPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
 
-  val eqController = new EQController(components, eqPartialAddressController, versions, postcodeController)
+  val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController)
 
   "Address controller" should {
 
@@ -618,7 +619,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a found address in eq format when a partial is supplied to EQController" in {
 
-      val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, verbose = false))
+      val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true, verbose = false))
 
       val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
 
@@ -659,12 +660,12 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = eqController
 
-      val expected = Json.toJson(AddressByPostcodeResponseContainer(
+      val expected = Json.toJson(AddressByEqPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        response = AddressByPostcodeResponse(
+        response = AddressByEqPostcodeResponse(
           postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false, verbose = false)),
           filter = "",
           historical = true,
           limit = 100,
@@ -678,7 +679,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("Po155Rr", verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

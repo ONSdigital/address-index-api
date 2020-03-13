@@ -232,6 +232,8 @@ final case class PostcodeArgs(postcode: String,
                               filters: String,
                               verbose: Boolean = true,
                               skinny: Boolean = false,
+                              favourpaf: Boolean = true,
+                              favourwelsh: Boolean = true
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 

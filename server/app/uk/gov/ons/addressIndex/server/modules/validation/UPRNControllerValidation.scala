@@ -19,7 +19,7 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
   val validEpochs: String = conf.config.elasticSearch.validEpochs
   val validEpochsMessage: String = validEpochs.replace("|test", "").replace("|", ", ")
   val validEpochsRegex: String = """\b(""" + validEpochs + """)\b.*"""
-  val validAddressTypes: Seq[String] = Seq("PAF", "WELSHPAF", "NAG", "WELSHNAG", "NISRA")
+  val validAddressTypes: Seq[String] = Seq("paf", "welshpaf", "nag", "welshnag", "nisra")
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(

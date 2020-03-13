@@ -4,9 +4,10 @@ import play.api.libs.json.{Format, Json}
 
 /**
   * Contains address information retrieved in ES (PAF, NAG or NISRA)
+  *
   * @param uprn the UPRN
   * @param bestMatchAddress the bestMatchAddress
-  * @param bestMatchAddressType type of address
+  * @param bestMatchAddressType the type of address (PAF, WELSHPAF, NAG, WELSHNAG & NISRA)
   */
 case class AddressResponseAddressCustomEQ(uprn: String,
                                     bestMatchAddress: String,
@@ -23,11 +24,11 @@ object AddressResponseAddressCustomEQ {
     }
 
     val bestMatchAddressType: String = address.highlights match {
-      case Some(highlight) if highlight.source == "P" && highlight.lang == "E" => "PAF"
-      case Some(highlight) if highlight.source == "P" && highlight.lang == "W" => "WELSHPAF"
-      case Some(highlight) if highlight.source == "L" && highlight.lang == "E" => "NAG"
-      case Some(highlight) if highlight.source == "L" && highlight.lang == "W" => "WELSHNAG"
-      case Some(highlight) if highlight.source == "N" => "NISRA"
+      case Some(highlight) if highlight.source == "P" && highlight.lang == "E" => AddressResponseAddress.AddressTypes.paf
+      case Some(highlight) if highlight.source == "P" && highlight.lang == "W" => AddressResponseAddress.AddressTypes.welshPaf
+      case Some(highlight) if highlight.source == "L" && highlight.lang == "E" => AddressResponseAddress.AddressTypes.nag
+      case Some(highlight) if highlight.source == "L" && highlight.lang == "W" => AddressResponseAddress.AddressTypes.welshNag
+      case Some(highlight) if highlight.source == "N" => AddressResponseAddress.AddressTypes.nisra
       case None => ""
     }
 

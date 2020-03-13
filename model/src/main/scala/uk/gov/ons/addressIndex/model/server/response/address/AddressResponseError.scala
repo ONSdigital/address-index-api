@@ -205,5 +205,5 @@ object EmptyRadiusQueryAddressResponseError extends AddressResponseError(
 
 object InvalidAddressTypeAddressResponseError extends AddressResponseError(
   code = 39,
-  message = "AddressType must be of type PAF, NAG or NISRA."
+  message = "AddressType must be of type paf, welshpaf, nag, welshnag or nisra."
 )

@@ -643,19 +643,91 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     }
 
-    "create AddressResponseAddressEQ from Hybrid ES response" in {
+    "create AddressResponseAddressEQ from Hybrid ES response for PAF and English" in {
       // Given
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validPafHighlights )
       val expected = AddressResponseAddressEQ(
         uprn = givenPaf.uprn,
-        formattedAddress = "mixedNag",
+        formattedAddress = "mixedPaf",
         underlyingScore = 1,
         confidenceScore = 100D,
         highlights = Some(AddressResponseHighlight("formattedAddress", "P", "E", Some(List(AddressResponseHighlightHit("P","E",0,"6 Long Lane Liverpool"), AddressResponseHighlightHit("P","E",0,"6 Longish Lane Liverpool")))))
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, verbose = true)
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressEQ from Hybrid ES response for PAF and Welsh" in {
+      // Given
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validPafHighlightsWelsh )
+      val expected = AddressResponseAddressEQ(
+        uprn = givenPaf.uprn,
+        formattedAddress = "mixedWelshPaf",
+        underlyingScore = 1,
+        confidenceScore = 100D,
+        highlights = Some(AddressResponseHighlight("formattedAddress", "P", "W", Some(List(AddressResponseHighlightHit("P","W",0,"6 Long Lane Liverpoolhjy"), AddressResponseHighlightHit("P","W",0,"6 Longish Lane Liverpoolhjy")))))
+      )
+
+      // When
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressEQ from Hybrid ES response for NAG and English" in {
+      // Given
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlights )
+      val expected = AddressResponseAddressEQ(
+        uprn = givenPaf.uprn,
+        formattedAddress = "mixedNag",
+        underlyingScore = 1,
+        confidenceScore = 100D,
+        highlights = Some(AddressResponseHighlight("formattedAddress", "L", "E", Some(List(AddressResponseHighlightHit("L","E",0,"A Nag Address"), AddressResponseHighlightHit("L","E",0,"A Nagish Address")))))
+      )
+
+      // When
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressEQ from Hybrid ES response for NAG and Welsh" in {
+      // Given
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validNagHighlightsWelsh )
+      val expected = AddressResponseAddressEQ(
+        uprn = givenPaf.uprn,
+        formattedAddress = "mixedWelshNag",
+        underlyingScore = 1,
+        confidenceScore = 100D,
+        highlights = Some(AddressResponseHighlight("formattedAddress", "L", "W", Some(List(AddressResponseHighlightHit("L","W",0,"A Naggly Address"), AddressResponseHighlightHit("L","W",0,"A Nagglyish Address")))))
+      )
+
+      // When
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressEQ from Hybrid ES response for NISRA" in {
+      // Given
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlightsWelsh )
+      val expected = AddressResponseAddressEQ(
+        uprn = givenPaf.uprn,
+        formattedAddress = "mixedNisra",
+        underlyingScore = 1,
+        confidenceScore = 100D,
+        highlights = Some(AddressResponseHighlight("formattedAddress", "L", "W", Some(List(AddressResponseHighlightHit("L","W",0,"A Naggly Address"), AddressResponseHighlightHit("L","W",0,"A Nagglyish Address")))))
+      )
+
+      // When
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
 
       // Then
       result shouldBe expected
@@ -671,7 +743,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
      )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
 
       // Then
       result shouldBe expected
@@ -687,7 +759,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
 
       // Then
       result shouldBe expected
@@ -703,7 +775,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
 
       // Then
       result shouldBe expected
@@ -719,7 +791,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
 
       // Then
       result shouldBe expected
@@ -825,6 +897,108 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
       // When
       val result = AddressByEqUprnResponse.fromHybridAddress(hybrid, verbose = true, "NISRA")
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressPostcodeEQ from Hybrid ES response for NISRA" in {
+      // Given
+      val hybrid = HybridAddress(givenNisraEq.uprn, givenNisraEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(givenNisraEq), 1, "classificationCode", "NA", "NA", "NI", "E", 0D, Seq() )
+
+      val expected = AddressResponseAddressPostcodeEQ(
+        uprn = givenNisraEq.uprn,
+        formattedAddress = "Government Of Northern Ireland, Castle Buildings, Upper Newtownards Rd, Stormont, Belfast BT4 3PP",
+        addressType = "NISRA"
+      )
+
+      // When
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = false)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressPostcodeEQ from Hybrid ES response for PAF" in {
+      // Given
+      val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(givenNisraEq), 1, "classificationCode", "NA", "NA", "NI", "E", 0D, Seq() )
+
+      val expected = AddressResponseAddressPostcodeEQ(
+        uprn = givenPafEq.uprn,
+        formattedAddress = "Office for National Statistics, Government Buildings, Cardiff Rd, Duffryn, Shire, Newport NP10 8XG",
+        addressType = "PAF"
+      )
+
+      // When
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressPostcodeEQ from Hybrid ES response for WELSHPAF" in {
+      // Given
+      val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(givenNisraEq), 1, "classificationCode", "NA", "NA", "NI", "E", 0D, Seq() )
+
+      val expected = AddressResponseAddressPostcodeEQ(
+        uprn = givenPafEq.uprn,
+        formattedAddress = "Swyddfa Ystadegau Gwladol, Adeiladau'r Llywodraeth, Caerdydd Rd, Duffryn, Rhanbarth, Casnewydd NP10 8XG",
+        addressType = "WELSHPAF"
+      )
+
+      // When
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressPostcodeEQ from Hybrid ES response for NAG" in {
+      // Given
+      val hybrid = HybridAddress(givenNagEq.uprn, givenNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNagEq), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "NI", "E", 0D, Seq() )
+
+      val expected = AddressResponseAddressPostcodeEQ(
+        uprn = givenNagEq.uprn,
+        formattedAddress = "Office for National Statistics - Fareham, Segensworth, Titchfield, Mount Doom, Mordor, Fareham PO15 5RR",
+        addressType = "NAG"
+      )
+
+      // When
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressPostcodeEQ from Hybrid ES response for WELSHNAG" in {
+      // Given
+      val hybrid = HybridAddress(givenWelshNagEq.uprn, givenWelshNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "NI", "E", 0D, Seq() )
+
+      val expected = AddressResponseAddressPostcodeEQ(
+        uprn = givenWelshNagEq.uprn,
+        formattedAddress = "Swyddfa Ystadegau Gwladol, Adeiladau'r Llywodraeth, Caerdydd Rd, Duffryn, Rhanbarth, Casnewydd NP10 8XG",
+        addressType = "WELSHNAG"
+      )
+
+      // When
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = true)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddressPostcodeEQ from Hybrid ES response for WELSHNAG when favouring PAF and Welsh when no PAF exists" in {
+      // Given
+      val hybrid = HybridAddress(givenWelshNagEq.uprn, givenWelshNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "NI", "E", 0D, Seq() )
+
+      val expected = AddressResponseAddressPostcodeEQ(
+        uprn = givenWelshNagEq.uprn,
+        formattedAddress = "Swyddfa Ystadegau Gwladol, Adeiladau'r Llywodraeth, Caerdydd Rd, Duffryn, Rhanbarth, Casnewydd NP10 8XG",
+        addressType = "WELSHNAG"
+      )
+
+      // When
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
 
       // Then
       result shouldBe expected

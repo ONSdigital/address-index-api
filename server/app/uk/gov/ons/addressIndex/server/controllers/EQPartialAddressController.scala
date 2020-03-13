@@ -31,7 +31,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
   val sboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
-    * PartialAddress query API
+    * EQ PartialAddress query API
     *
     * @param input input for the address to be fetched
     * @return Json response with addresses information
@@ -150,7 +150,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
             val addresses: Seq[AddressResponseAddressEQ] = hybridAddresses.map(
-              AddressResponseAddressEQ.fromHybridAddress(_, verb)
+              AddressResponseAddressEQ.fromHybridAddress(_, favourPaf, favourWelsh, verb)
             )
 
             val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses
@@ -203,7 +203,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
   {
 
     highlights match {
-      case Some(value) => AddressResponseAddressEQ.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineBestMatchAddress(value, favourPaf, favourWelsh)))
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineBestMatchAddress(value, favourPaf, favourWelsh)))
       case None => ""
     }
   }
@@ -212,7 +212,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
   {
 
     highlights match {
-      case Some(value) => AddressResponseAddressEQ.removeConcatenatedPostcode(AddressResponseAddressEQ.removeEms(determineSource(value, favourPaf, favourWelsh)))
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineSource(value, favourPaf, favourWelsh)))
       case None => ""
     }
   }
@@ -221,7 +221,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
   {
 
     highlights match {
-      case Some(value) => AddressResponseAddressEQ.removeConcatenatedPostcode(AddressResponseAddressEQ.removeEms(determineLang(value, favourPaf, favourWelsh)))
+      case Some(value) => AddressResponseAddress.removeConcatenatedPostcode(AddressResponseAddress.removeEms(determineLang(value, favourPaf, favourWelsh)))
       case None => ""
     }
   }

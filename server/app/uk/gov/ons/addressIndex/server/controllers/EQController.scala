@@ -11,11 +11,10 @@ import scala.util.matching.Regex
 class EQController @Inject () (val controllerComponents: ControllerComponents,
                                eqPartialAddressController: EQPartialAddressController,
                                versionProvider: VersionModule,
-                               postcodeController: PostcodeController) extends PlayHelperController(versionProvider) {
+                               eqPostcodeController: EQPostcodeController) extends PlayHelperController(versionProvider) {
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQController")
-  // Decide which endpoint
-  //
+
   def eqQuery(input: String,
               fallback: Option[String] = None,
               offset: Option[String] = None,
@@ -31,17 +30,25 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
              ): Action[AnyContent] = Action async { implicit req =>
 
     if (isPostCode(input)) {
-      postcodeController.postcodeQuery(input, offset, limit, classificationfilter,historical, verbose, epoch) (req)
+      logger.info("Input is postcode")
+      eqPostcodeController.postcodeQuery(input, offset, limit, classificationfilter,historical, verbose, favourpaf, favourwelsh, epoch) (req)
     } else {
+      logger.info("input is partial address")
       eqPartialAddressController.partialAddressQuery(input,
         fallback, offset, limit, classificationfilter, historical,
         verbose, epoch, fromsource)(req)
     }
   }
 
+  /**
+    * Determine if input is a postcode. Regex expression found here:
+    * https://stackoverflow.com/questions/164979/regex-for-matching-uk-postcodes
+    *
+    * @param input the input string
+    * @return
+    */
   def isPostCode(input : String): Boolean = {
 
-    //https://stackoverflow.com/questions/164979/regex-for-matching-uk-postcodes
     val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$".r
 
     postCodePattern.findFirstMatchIn(input) match {

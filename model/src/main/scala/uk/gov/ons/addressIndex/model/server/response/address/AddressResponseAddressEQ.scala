@@ -2,14 +2,16 @@ package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress.chooseMostRecentNag
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress.{chooseMostRecentNag, removeConcatenatedPostcode}
 
 /**
-  * Contains address information retrieved in ES (PAF or NAG)
+  * Contains address information retrieved in ES relevant to EQ - initial result, actual result is extracted from this
   *
-  * @param uprn             uprn
-  * @param formattedAddress cannonical address form
-  *
+  * @param uprn address UPRN
+  * @param formattedAddress the chosen formatted address
+  * @param highlights matching hightlights if on
+  * @param confidenceScore the confidence score
+  * @param underlyingScore the underlying score
   */
 case class AddressResponseAddressEQ(uprn: String,
                                     formattedAddress: String,
@@ -26,42 +28,57 @@ object AddressResponseAddressEQ {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddressEQ = {
+  def fromHybridAddress(other: HybridAddress, favourPaf: Boolean, favourWelsh: Boolean, verbose: Boolean): AddressResponseAddressEQ = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
+
+    val chosenWelshNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.welsh)
+    val welshFormattedAddressNag = chosenWelshNag.map(_.mixedWelshNag).getOrElse("")
+
+    val chosenPaf = other.paf.headOption
+    val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
+    val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
+    //Rules: PAF may not exist, NAG always exists but not necessarily WELSHNAG, if chosenNisra is not empty return that
+    val formattedAddress =
+      if (favourPaf) {
+        if (favourWelsh) {
+          if (welshFormattedAddressPaf.isEmpty) {
+            if (welshFormattedAddressNag.isEmpty) formattedAddressNag else welshFormattedAddressNag
+          } else {
+            welshFormattedAddressPaf
+          }
+        } else {
+          if (formattedAddressPaf.isEmpty) {
+            formattedAddressNag
+          } else {
+            formattedAddressPaf
+          }
+        }
+      } else {
+        if (favourWelsh) {
+          if (chosenNisra.isEmpty) {
+            if (welshFormattedAddressNag.isEmpty) formattedAddressNag else welshFormattedAddressNag
+          } else {
+            formattedAddressNisra
+          }
+        } else {
+          if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra
+        }
+      }
+
     AddressResponseAddressEQ(
       uprn = other.uprn,
-      formattedAddress = {
-        if (chosenNisra.isEmpty) removeConcatenatedPostcode(formattedAddressNag) else removeConcatenatedPostcode(formattedAddressNisra)
-      },
+      formattedAddress = removeConcatenatedPostcode(formattedAddress),
       highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress", other.highlights.headOption.getOrElse(Map())),
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance / 1000).toFloat
     )
-  }
-
-  def removeConcatenatedPostcode(formattedAddress: String) : String = {
-    // if last token = last but two + last but one then remove last token
-    val faTokens = formattedAddress.split(" ")
-    val concatPostcode = faTokens.takeRight(1).headOption.getOrElse("")
-    val faTokensTemp1 = faTokens.dropRight(1)
-    val incode = faTokensTemp1.takeRight(1).headOption.getOrElse("")
-    val faTokensTemp2 =  faTokensTemp1.dropRight(1)
-    val outcode = faTokensTemp2.takeRight(1).headOption.getOrElse("")
-    val testCode = outcode + incode
-    if (testCode.equals(concatPostcode))
-      formattedAddress.replaceAll(concatPostcode,"").trim()
-    else formattedAddress
-  }
-
-  def removeEms(formattedAddress: String) : String = {
-    formattedAddress.replaceAll("<em>","").replaceAll("</em>","")
   }
 }
