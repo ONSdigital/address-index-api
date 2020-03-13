@@ -632,7 +632,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 20,
           offset = 0,
           total = 1,
@@ -642,7 +642,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           fromsource = "all",
           highlight = "on",
           favourpaf = true,
-          favourwelsh = true
+          favourwelsh = false
         ),
         OkAddressResponseStatus
       ))

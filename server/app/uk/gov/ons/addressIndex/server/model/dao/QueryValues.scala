@@ -58,7 +58,7 @@ case class QueryValues(input: Option[String] = None,
 
   def highlightOrDefault: String = this.highlight.getOrElse("on")
 
-  def favourParOrDefault: Boolean = this.favourpaf.getOrElse(false)
+  def favourPafOrDefault: Boolean = this.favourpaf.getOrElse(false)
 
   def favourWelshOrDefault: Boolean = this.favourpaf.getOrElse(false)
 
