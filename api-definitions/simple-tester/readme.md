@@ -13,10 +13,10 @@ The Tester has 8 functions:
 <li><strong>Single Match:</strong> Returns a ranked list of addresses matching the search query in the specified format.</li>
 <li><strong>Partial:</strong> Returns addresses matching an incomplete address string (For typeahead).</li>
 <li><strong>Random:</strong> Returns a random address.</li>
+<li><strong>Postcode:</strong> Returns a sorted list of addresses in a postcode.</li>
 <li><strong>UPRN:</strong> Returns a single address, identified by its UPRN.</li>
+<li><strong>EQ:</strong> Custom endpoint for EQ combines postcode and partial.</li>
 <li><strong>Bulk:</strong> Will process all BulkQuery items in the BulkBody returns reduced information on found addresses (UPRN, formatted address).</li>
-<li><strong>Bulk Full:</strong> Will process all BulkQuery items in the BulkBody this version is slower and more memory-consuming since all the information on found addresses is returned.</li>
-<li><strong>Bulk Debug:</strong> Bulk end point that accepts tokens instead of input texts for each address.</li>
 </ol>
 
 <h2>Using the Simple Tester</h2>
