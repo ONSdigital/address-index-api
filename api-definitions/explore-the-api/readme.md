@@ -46,6 +46,13 @@
             Gets an address by UPRN.
         </td>
     </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="eq/readme.md">/addresses/eq</a></td>
+        <td class="table--cell">
+            Custom endpoint for Electronic Questionnaire.
+        </td>
+    </tr>
 
    </tbody>
 </table>

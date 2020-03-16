@@ -155,203 +155,218 @@
 
    <h2 class="saturn">Sample Output (Concise)</h2>
 
-   <pre><code>{
-    &quot;apiVersion&quot;: &quot;1.0.0&quot;,
-    &quot;dataVersion&quot;: &quot;39&quot;,
-    &quot;errors&quot;: [],
-    &quot;response&quot;: {
-        &quot;addresses&quot;: [
-            {
-                &quot;classificationCode&quot;: &quot;RD&quot;,
-                &quot;confidenceScore&quot;: 0.9997,
-                &quot;formattedAddress&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
-                &quot;formattedAddressNag&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
-                &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                &quot;formattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;,
-                &quot;fromSource&quot;: &quot;EW&quot;,
-                &quot;geo&quot;: {
-                    &quot;easting&quot;: 293535,
-                    &quot;latitude&quot;: 50.705948,
-                    &quot;longitude&quot;: -3.5091076,
-                    &quot;northing&quot;: 90677
-                },
-                &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                &quot;parentUprn&quot;: &quot;0&quot;,
-                &quot;underlyingScore&quot;: 2.4958550930023193,
-                &quot;uprn&quot;: &quot;10023122457&quot;,
-                &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                &quot;welshFormattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;
-            }
-        ],
-        &quot;epoch&quot;: &quot;&quot;,
-        &quot;filter&quot;: &quot;&quot;,
-        &quot;fromsource&quot;: &quot;all&quot;,
-        &quot;historical&quot;: true,
-        &quot;latitude&quot;: &quot;&quot;,
-        &quot;limit&quot;: 10,
-        &quot;longitude&quot;: &quot;&quot;,
-        &quot;matchthreshold&quot;: 5,
-        &quot;maxScore&quot;: 2.495855,
-        &quot;offset&quot;: 0,
-        &quot;rangekm&quot;: &quot;&quot;,
-        &quot;sampleSize&quot;: 20,
-        &quot;tokens&quot;: {
-            &quot;BuildingNumber&quot;: &quot;7&quot;,
-            &quot;PaoStartNumber&quot;: &quot;7&quot;,
-            &quot;StreetName&quot;: &quot;GATE REACH&quot;
-        },
-        &quot;total&quot;: 1,
-        &quot;verbose&quot;: false
+   <pre><code>
+{
+  "apiVersion": "1.0.0-SNAPSHOT",
+  "dataVersion": "NA",
+  "response": {
+    "tokens": {
+      "StreetName": "GATE REACH",
+      "PostcodeOut": "EX2",
+      "BuildingNumber": "7",
+      "PostcodeIn": "6GA",
+      "TownName": "EXETER",
+      "Postcode": "EX2 6GA",
+      "PaoStartNumber": "7"
     },
-    &quot;status&quot;: {
-        &quot;code&quot;: 200,
-        &quot;message&quot;: &quot;Ok&quot;
-    }
+    "addresses": [
+      {
+        "uprn": "10023122457",
+        "parentUprn": "0",
+        "formattedAddress": "7 Gate Reach, Exeter, EX2 6GA",
+        "formattedAddressNag": "7 Gate Reach, Exeter, EX2 6GA",
+        "formattedAddressPaf": "7 Gate Reach, Exeter, EX2 6GA",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "7 Gate Reach, Exeter, EX2 6GA",
+        "geo": {
+          "latitude": 50.705948,
+          "longitude": -3.5091076,
+          "easting": 293535,
+          "northing": 90677
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 98.0764,
+        "underlyingScore": 27.280841827392578
+      }
+    ],
+    "filter": "",
+    "historical": true,
+    "epoch": "",
+    "rangekm": "",
+    "latitude": "",
+    "longitude": "",
+    "limit": 10,
+    "offset": 0,
+    "total": 1,
+    "sampleSize": 20,
+    "maxScore": 27.280842,
+    "matchthreshold": 5,
+    "verbose": false,
+    "fromsource": "all"
+  },
+  "status": {
+    "code": 200,
+    "message": "Ok"
+  },
+  "errors": []
 }</code></pre>
 
    <h2 class="saturn">Sample Output (Verbose)</h2>
-   <pre><code>{
-         &quot;apiVersion&quot;: &quot;1.0.0&quot;,
-         &quot;dataVersion&quot;: &quot;39&quot;,
-         &quot;errors&quot;: [],
-         &quot;response&quot;: {
-             &quot;addresses&quot;: [
-                 {
-                     &quot;classificationCode&quot;: &quot;RD&quot;,
-                     &quot;confidenceScore&quot;: 0.9997,
-                     &quot;crossRefs&quot;: [
-                         {
-                             &quot;crossReference&quot;: &quot;osgb5000005114135395&quot;,
-                             &quot;source&quot;: &quot;7666MI&quot;
-                         },
-                         {
-                             &quot;crossReference&quot;: &quot;osgb5000005112135238&quot;,
-                             &quot;source&quot;: &quot;7666MA&quot;
-                         },
-                         {
-                             &quot;crossReference&quot;: &quot;E05003501&quot;,
-                             &quot;source&quot;: &quot;7666OW&quot;
-                         },
-                         {
-                             &quot;crossReference&quot;: &quot;osgb5000005112092595&quot;,
-                             &quot;source&quot;: &quot;7666MT&quot;
-                         },
-                         {
-                             &quot;crossReference&quot;: &quot;8933413000&quot;,
-                             &quot;source&quot;: &quot;7666VC&quot;
-                         }
-                     ],
-                     &quot;formattedAddress&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
-                     &quot;formattedAddressNag&quot;: &quot;7 Gate Reach, Exeter, EX2 6GA&quot;,
-                     &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                     &quot;formattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;,
-                     &quot;fromSource&quot;: &quot;EW&quot;,
-                     &quot;geo&quot;: {
-                         &quot;easting&quot;: 293535,
-                         &quot;latitude&quot;: 50.705948,
-                         &quot;longitude&quot;: -3.5091076,
-                         &quot;northing&quot;: 90677
-                     },
-                     &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                     &quot;nag&quot;: [
-                         {
-                             &quot;addressBasePostal&quot;: &quot;D&quot;,
-                             &quot;legalName&quot;: &quot;&quot;,
-                             &quot;level&quot;: &quot;&quot;,
-                             &quot;localCustodianCode&quot;: &quot;1110&quot;,
-                             &quot;localCustodianGeogCode&quot;: &quot;E07000041&quot;,
-                             &quot;localCustodianName&quot;: &quot;Exeter&quot;,
-                             &quot;locality&quot;: &quot;&quot;,
-                             &quot;logicalStatus&quot;: &quot;1&quot;,
-                             &quot;lpiEndDate&quot;: &quot;&quot;,
-                             &quot;lpiKey&quot;: &quot;1110L000168890&quot;,
-                             &quot;lpiStartDate&quot;: &quot;2013-06-30T00:00:00+01:00&quot;,
-                             &quot;officialFlag&quot;: &quot;Y&quot;,
-                             &quot;organisation&quot;: &quot;&quot;,
-                             &quot;pao&quot;: {
-                                 &quot;paoEndNumber&quot;: &quot;&quot;,
-                                 &quot;paoEndSuffix&quot;: &quot;&quot;,
-                                 &quot;paoStartNumber&quot;: &quot;7&quot;,
-                                 &quot;paoStartSuffix&quot;: &quot;&quot;,
-                                 &quot;paoText&quot;: &quot;&quot;
-                             },
-                             &quot;postcodeLocator&quot;: &quot;EX2 6GA&quot;,
-                             &quot;sao&quot;: {
-                                 &quot;saoEndNumber&quot;: &quot;&quot;,
-                                 &quot;saoEndSuffix&quot;: &quot;&quot;,
-                                 &quot;saoStartNumber&quot;: &quot;&quot;,
-                                 &quot;saoStartSuffix&quot;: &quot;&quot;,
-                                 &quot;saoText&quot;: &quot;&quot;
-                             },
-                             &quot;streetDescriptor&quot;: &quot;Gate Reach&quot;,
-                             &quot;townName&quot;: &quot;Exeter&quot;,
-                             &quot;uprn&quot;: &quot;10023122457&quot;,
-                             &quot;usrn&quot;: &quot;14203041&quot;
-                         }
-                     ],
-                     &quot;paf&quot;: {
-                         &quot;buildingName&quot;: &quot;&quot;,
-                         &quot;buildingNumber&quot;: &quot;7&quot;,
-                         &quot;deliveryPointSuffix&quot;: &quot;1H&quot;,
-                         &quot;departmentName&quot;: &quot;&quot;,
-                         &quot;dependentLocality&quot;: &quot;&quot;,
-                         &quot;dependentThoroughfare&quot;: &quot;&quot;,
-                         &quot;doubleDependentLocality&quot;: &quot;&quot;,
-                         &quot;endDate&quot;: &quot;&quot;,
-                         &quot;organisationName&quot;: &quot;&quot;,
-                         &quot;poBoxNumber&quot;: &quot;&quot;,
-                         &quot;postTown&quot;: &quot;Exeter&quot;,
-                         &quot;postcode&quot;: &quot;EX2 6GA&quot;,
-                         &quot;postcodeType&quot;: &quot;S&quot;,
-                         &quot;startDate&quot;: &quot;2013-07-29T00:00:00+01:00&quot;,
-                         &quot;subBuildingName&quot;: &quot;&quot;,
-                         &quot;thoroughfare&quot;: &quot;Gate Reach&quot;,
-                         &quot;udprn&quot;: &quot;52995192&quot;,
-                         &quot;welshDependentLocality&quot;: &quot;&quot;,
-                         &quot;welshDependentThoroughfare&quot;: &quot;&quot;,
-                         &quot;welshDoubleDependentLocality&quot;: &quot;&quot;,
-                         &quot;welshPostTown&quot;: &quot;Exeter&quot;,
-                         &quot;welshThoroughfare&quot;: &quot;Gate Reach&quot;
-                     },
-                     &quot;parentUprn&quot;: &quot;0&quot;,
-                     &quot;relatives&quot;: [
-                         {
-                             &quot;level&quot;: 1,
-                             &quot;parents&quot;: [],
-                             &quot;siblings&quot;: [
-                                 10023122457
-                             ]
-                         }
-                     ],
-                     &quot;underlyingScore&quot;: 2.4958550930023193,
-                     &quot;uprn&quot;: &quot;10023122457&quot;,
-                     &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                     &quot;welshFormattedAddressPaf&quot;: &quot;7, Gate Reach, Exeter, EX2 6GA&quot;
-                 }
-             ],
-             &quot;epoch&quot;: &quot;&quot;,
-             &quot;filter&quot;: &quot;&quot;,
-             &quot;fromsource&quot;: &quot;all&quot;,
-             &quot;historical&quot;: true,
-             &quot;latitude&quot;: &quot;&quot;,
-             &quot;limit&quot;: 10,
-             &quot;longitude&quot;: &quot;&quot;,
-             &quot;matchthreshold&quot;: 5,
-             &quot;maxScore&quot;: 2.495855,
-             &quot;offset&quot;: 0,
-             &quot;rangekm&quot;: &quot;&quot;,
-             &quot;sampleSize&quot;: 20,
-             &quot;tokens&quot;: {
-                 &quot;BuildingNumber&quot;: &quot;7&quot;,
-                 &quot;PaoStartNumber&quot;: &quot;7&quot;,
-                 &quot;StreetName&quot;: &quot;GATE REACH&quot;
-             },
-             &quot;total&quot;: 1,
-             &quot;verbose&quot;: true
-         },
-         &quot;status&quot;: {
-             &quot;code&quot;: 200,
-             &quot;message&quot;: &quot;Ok&quot;
-         } 
-   }</code></pre>
+   <pre><code>
+  {
+    "apiVersion": "1.0.0-SNAPSHOT",
+    "dataVersion": "NA",
+    "response": {
+      "tokens": {
+        "StreetName": "GATE REACH",
+        "PostcodeOut": "EX2",
+        "BuildingNumber": "7",
+        "PostcodeIn": "6GA",
+        "TownName": "EXETER",
+        "Postcode": "EX2 6GA",
+        "PaoStartNumber": "7"
+      },
+      "addresses": [
+        {
+          "uprn": "10023122457",
+          "parentUprn": "0",
+          "relatives": [
+            {
+              "level": 1,
+              "siblings": [
+                10023122457
+              ],
+              "parents": []
+            }
+          ],
+          "crossRefs": [
+            {
+              "crossReference": "osgb5000005114135395",
+              "source": "7666MI"
+            },
+            {
+              "crossReference": "osgb5000005112135238",
+              "source": "7666MA"
+            },
+            {
+              "crossReference": "E05003501",
+              "source": "7666OW"
+            },
+            {
+              "crossReference": "osgb5000005112092595",
+              "source": "7666MT"
+            },
+            {
+              "crossReference": "8933413000",
+              "source": "7666VC"
+            }
+          ],
+          "formattedAddress": "7 Gate Reach, Exeter, EX2 6GA",
+          "formattedAddressNag": "7 Gate Reach, Exeter, EX2 6GA",
+          "formattedAddressPaf": "7 Gate Reach, Exeter, EX2 6GA",
+          "formattedAddressNisra": "",
+          "welshFormattedAddressNag": "",
+          "welshFormattedAddressPaf": "7 Gate Reach, Exeter, EX2 6GA",
+          "paf": {
+            "udprn": "52995192",
+            "organisationName": "",
+            "departmentName": "",
+            "subBuildingName": "",
+            "buildingName": "",
+            "buildingNumber": "7",
+            "dependentThoroughfare": "",
+            "thoroughfare": "Gate Reach",
+            "doubleDependentLocality": "",
+            "dependentLocality": "",
+            "postTown": "Exeter",
+            "postcode": "EX2 6GA",
+            "postcodeType": "S",
+            "deliveryPointSuffix": "1H",
+            "welshDependentThoroughfare": "",
+            "welshThoroughfare": "Gate Reach",
+            "welshDoubleDependentLocality": "",
+            "welshDependentLocality": "",
+            "welshPostTown": "Exeter",
+            "poBoxNumber": "",
+            "startDate": "2013-07-29T00:00:00+01:00",
+            "endDate": ""
+          },
+          "nag": [
+            {
+              "uprn": "10023122457",
+              "postcodeLocator": "EX2 6GA",
+              "addressBasePostal": "D",
+              "usrn": "14203041",
+              "lpiKey": "1110L000168890",
+              "pao": {
+                "paoText": "",
+                "paoStartNumber": "7",
+                "paoStartSuffix": "",
+                "paoEndNumber": "",
+                "paoEndSuffix": ""
+              },
+              "sao": {
+                "saoText": "",
+                "saoStartNumber": "",
+                "saoStartSuffix": "",
+                "saoEndNumber": "",
+                "saoEndSuffix": ""
+              },
+              "level": "",
+              "officialFlag": "Y",
+              "logicalStatus": "1",
+              "streetDescriptor": "Gate Reach",
+              "townName": "Exeter",
+              "locality": "",
+              "organisation": "",
+              "legalName": "",
+              "localCustodianCode": "1110",
+              "localCustodianName": "Exeter",
+              "localCustodianGeogCode": "E07000041",
+              "lpiEndDate": "",
+              "lpiStartDate": "2013-06-30T00:00:00+01:00"
+            }
+          ],
+          "geo": {
+            "latitude": 50.705948,
+            "longitude": -3.5091076,
+            "easting": 293535,
+            "northing": 90677
+          },
+          "classificationCode": "RD",
+          "censusAddressType": "HH",
+          "censusEstabType": "Household",
+          "countryCode": "E",
+          "lpiLogicalStatus": "1",
+          "confidenceScore": 98.0764,
+          "underlyingScore": 27.280841827392578
+        }
+      ],
+      "filter": "",
+      "historical": true,
+      "epoch": "",
+      "rangekm": "",
+      "latitude": "",
+      "longitude": "",
+      "limit": 10,
+      "offset": 0,
+      "total": 1,
+      "sampleSize": 20,
+      "maxScore": 27.280842,
+      "matchthreshold": 5,
+      "verbose": true,
+      "fromsource": "all"
+    },
+    "status": {
+      "code": 200,
+      "message": "Ok"
+    },
+    "errors": []
+  }
+   </code></pre>
    

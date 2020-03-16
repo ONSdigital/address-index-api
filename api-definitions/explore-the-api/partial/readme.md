@@ -34,6 +34,7 @@
             <td class="table--cell">Specifies whether a slow fallback query is used in the event of the main query returning no results.</td>
             <td class="table--cell">
                 Optional
+                <br>Default: True
             </td>
         </tr>
          <tr class="table--row">
@@ -70,7 +71,7 @@
             <td class="table--cell">Include historical addresses</td>
             <td class="table--cell">
                 Optional
-                <br>Default: True
+                <br>Default: False
             </td>
         </tr>
          <tr class="table--row">
@@ -99,10 +100,36 @@
                 <br>Default: all
             </td>
         </tr>
+        <tr class="table--row">
+            <td class="table--cell">highlight</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">include detailed highlighting info, options are off, on or debug</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: on
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">favourpaf</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">paf beats nag on draw for best match</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: True
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">favourwelsh</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Welsh beats English on draw for best match</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: False
+            </td>
+        </tr>
      </tbody>
   </table>
 
-    
 
 <h2>Responses</h2>
 
@@ -136,237 +163,592 @@
 
 
 
-   <pre><code>{
-      &quot;apiVersion&quot;: &quot;1.0.0&quot;,
-     &quot;dataVersion&quot;: &quot;39&quot;,
-     &quot;errors&quot;: [],
-     &quot;response&quot;: {
-         &quot;addresses&quot;: [
-             {
-                 &quot;classificationCode&quot;: &quot;CO01&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;Exeter Corn Exchange, Market Street, Exeter, EX1 1BW&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;Exeter Corn Exchange, Market Street, Exeter, EX1 1BW&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;Exeter Corn Exchange, Market Street, Exeter, EX1 1BW&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291904,
-                     &quot;latitude&quot;: 50.72167,
-                     &quot;longitude&quot;: -3.5327232,
-                     &quot;northing&quot;: 92460
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.805861473083496,
-                 &quot;uprn&quot;: &quot;100041124274&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;Exeter Corn Exchange, Market Street, Exeter, EX1 1BW&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;CO01&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;Exeter Corn Exchange Office, 1 George Street, Exeter, EX1 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;Exeter Corn Exchange Office, 1 George Street, Exeter, EX1 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;Corn Exchange Office, 1, George Street, Exeter, EX1 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291923,
-                     &quot;latitude&quot;: 50.721687,
-                     &quot;longitude&quot;: -3.5324543,
-                     &quot;northing&quot;: 92461
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.37599515914917,
-                 &quot;uprn&quot;: &quot;10013049665&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;Corn Exchange Office, 1, George Street, Exeter, EX1 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;8 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;8 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;8, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291075,
-                     &quot;latitude&quot;: 50.71888,
-                     &quot;longitude&quot;: -3.5443764,
-                     &quot;northing&quot;: 92167
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.074005603790283,
-                 &quot;uprn&quot;: &quot;100040209181&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;8, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;5 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;5 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;5, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291085,
-                     &quot;latitude&quot;: 50.719124,
-                     &quot;longitude&quot;: -3.5442426,
-                     &quot;northing&quot;: 92194
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.0491113662719727,
-                 &quot;uprn&quot;: &quot;100040209178&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;5, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;12 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;12 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;12, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291067,
-                     &quot;latitude&quot;: 50.718887,
-                     &quot;longitude&quot;: -3.5444899,
-                     &quot;northing&quot;: 92168
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.0491113662719727,
-                 &quot;uprn&quot;: &quot;100040209185&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;12, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;6 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;6 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;6, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291080,
-                     &quot;latitude&quot;: 50.71886,
-                     &quot;longitude&quot;: -3.544305,
-                     &quot;northing&quot;: 92165
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.0491113662719727,
-                 &quot;uprn&quot;: &quot;100040209179&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;6, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;10 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;10 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;10, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291072,
-                     &quot;latitude&quot;: 50.71888,
-                     &quot;longitude&quot;: -3.5444188,
-                     &quot;northing&quot;: 92167
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.026644229888916,
-                 &quot;uprn&quot;: &quot;100040209183&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;10, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;2 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;2 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;2, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291088,
-                     &quot;latitude&quot;: 50.718845,
-                     &quot;longitude&quot;: -3.5441911,
-                     &quot;northing&quot;: 92163
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.026644229888916,
-                 &quot;uprn&quot;: &quot;100040209175&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;2, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;9 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;9 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;9, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291077,
-                     &quot;latitude&quot;: 50.719093,
-                     &quot;longitude&quot;: -3.5443552,
-                     &quot;northing&quot;: 92191
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.026644229888916,
-                 &quot;uprn&quot;: &quot;100040209182&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;9, Cornwall Street, Exeter, EX4 1BU&quot;
-             },
-             {
-                 &quot;classificationCode&quot;: &quot;RD&quot;,
-                 &quot;confidenceScore&quot;: 1,
-                 &quot;formattedAddress&quot;: &quot;7 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNag&quot;: &quot;7 Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;formattedAddressNisra&quot;: &quot;&quot;,
-                 &quot;formattedAddressPaf&quot;: &quot;7, Cornwall Street, Exeter, EX4 1BU&quot;,
-                 &quot;fromSource&quot;: &quot;EW&quot;,
-                 &quot;geo&quot;: {
-                     &quot;easting&quot;: 291081,
-                     &quot;latitude&quot;: 50.719097,
-                     &quot;longitude&quot;: -3.5442984,
-                     &quot;northing&quot;: 92191
-                 },
-                 &quot;lpiLogicalStatus&quot;: &quot;1&quot;,
-                 &quot;parentUprn&quot;: &quot;0&quot;,
-                 &quot;underlyingScore&quot;: 2.026644229888916,
-                 &quot;uprn&quot;: &quot;100040209180&quot;,
-                 &quot;welshFormattedAddressNag&quot;: &quot;&quot;,
-                 &quot;welshFormattedAddressPaf&quot;: &quot;7, Cornwall Street, Exeter, EX4 1BU&quot;
-             }
-         ],
-         &quot;epoch&quot;: &quot;&quot;,
-         &quot;fallback&quot;: true,
-         &quot;filter&quot;: &quot;&quot;,
-         &quot;fromsource&quot;: &quot;all&quot;,
-         &quot;historical&quot;: true,
-         &quot;input&quot;: &quot;corn ex&quot;,
-         &quot;limit&quot;: 10,
-         &quot;maxScore&quot;: 2.8058615,
-         &quot;offset&quot;: 0,
-         &quot;total&quot;: 154,
-         &quot;verbose&quot;: false
-     },
-     &quot;status&quot;: {
-         &quot;code&quot;: 200,
-         &quot;message&quot;: &quot;Ok&quot;
-     }
-}</code></pre>
+   <pre><code>
+{
+  "apiVersion": "1.0.0-SNAPSHOT",
+  "dataVersion": "NA",
+  "response": {
+    "input": "CORN EX",
+    "addresses": [
+      {
+        "uprn": "10013049665",
+        "parentUprn": "0",
+        "formattedAddress": "Exeter Corn Exchange Office, 1 George Street, Exeter, EX1 1BU",
+        "formattedAddressNag": "Exeter Corn Exchange Office, 1 George Street, Exeter, EX1 1BU",
+        "formattedAddressPaf": "Corn Exchange Office, 1 George Street, Exeter, EX1 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Corn Exchange Office, 1 George Street, Exeter, EX1 1BU",
+        "highlights": {
+          "bestMatchAddress": "Corn Exchange Office, 1 George Street, Exeter, EX1 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.721687,
+          "longitude": -3.5324543,
+          "easting": 291923,
+          "northing": 92461
+        },
+        "classificationCode": "CO01",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 25,
+        "underlyingScore": 5
+      },
+      {
+        "uprn": "10023121714",
+        "parentUprn": "0",
+        "formattedAddress": "Cornerstone House, Western Way, St Davids, Exeter, EX1 1AL",
+        "formattedAddressNag": "Cornerstone House, Western Way, St Davids, Exeter, EX1 1AL",
+        "formattedAddressPaf": "Cornerstone Housing LTD, Cornerstone House, Western Way, Exeter, EX1 1AL",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Cornerstone Housing LTD, Cornerstone House, Western Way, Exeter, EX1 1AL",
+        "highlights": {
+          "bestMatchAddress": "Cornerstone Housing LTD, Cornerstone House, Western Way, Exeter, EX1 1AL",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.72007,
+          "longitude": -3.5316205,
+          "easting": 291978,
+          "northing": 92280
+        },
+        "classificationCode": "CO01",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100041124274",
+        "parentUprn": "0",
+        "formattedAddress": "Exeter Corn Exchange, Market Street, Exeter, EX1 1BW",
+        "formattedAddressNag": "Exeter Corn Exchange, Market Street, Exeter, EX1 1BW",
+        "formattedAddressPaf": "Exeter Corn Exchange, Market Street, Exeter, EX1 1BW",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Exeter Corn Exchange, Market Street, Exeter, EX1 1BW",
+        "highlights": {
+          "bestMatchAddress": "Exeter Corn Exchange, Market Street, Exeter, EX1 1BW",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.72167,
+          "longitude": -3.5327232,
+          "easting": 291904,
+          "northing": 92460
+        },
+        "classificationCode": "CO01",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "10013038377",
+        "parentUprn": "0",
+        "formattedAddress": "The Real Cornish Pasty, 11 Martins Lane, Exeter, EX1 1EY",
+        "formattedAddressNag": "The Real Cornish Pasty, 11 Martins Lane, Exeter, EX1 1EY",
+        "formattedAddressPaf": "The Real Cornish Pasty CO, 11 Martins Lane, Exeter, EX1 1EY",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "The Real Cornish Pasty CO, 11 Martins Lane, Exeter, EX1 1EY",
+        "highlights": {
+          "bestMatchAddress": "The Real Cornish Pasty CO, 11 Martins Lane, Exeter, EX1 1EY",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.72355,
+          "longitude": -3.530532,
+          "easting": 292063,
+          "northing": 92666
+        },
+        "classificationCode": "CR08",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100041124355",
+        "parentUprn": "0",
+        "formattedAddress": "Devon And Cornwall Constabulary, Heavitree Road, Exeter, EX1 2LR",
+        "formattedAddressNag": "Devon And Cornwall Constabulary, Heavitree Road, Exeter, EX1 2LR",
+        "formattedAddressPaf": "Devon & Cornwall Constabulary, Heavitree Road, Exeter, EX1 2LR",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Devon & Cornwall Constabulary, Heavitree Road, Exeter, EX1 2LR",
+        "highlights": {
+          "bestMatchAddress": "Devon & Cornwall Constabulary, Heavitree Road, Exeter, EX1 2LR",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.72412,
+          "longitude": -3.517176,
+          "easting": 293007,
+          "northing": 92710
+        },
+        "classificationCode": "CX01PT",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "10023121744",
+        "parentUprn": "0",
+        "formattedAddress": "Cornerstone, 12A Wykes Road, Exeter, EX1 2UG",
+        "formattedAddressNag": "Cornerstone, 12A Wykes Road, Exeter, EX1 2UG",
+        "formattedAddressPaf": "Cornerstone Housing LTD, 12A Wykes Road, Exeter, EX1 2UG",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Cornerstone Housing LTD, 12A Wykes Road, Exeter, EX1 2UG",
+        "highlights": {
+          "bestMatchAddress": "Cornerstone Housing LTD, 12A Wykes Road, Exeter, EX1 2UG",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.72921,
+          "longitude": -3.5074413,
+          "easting": 293705,
+          "northing": 93261
+        },
+        "classificationCode": "CR08",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "10013041300",
+        "parentUprn": "10023119580",
+        "formattedAddress": "Devon And Cornwall Constabulary Police Federation, Unit 2, River Court, EX2 5JL",
+        "formattedAddressNag": "Devon And Cornwall Constabulary Police Federation, Unit 2, River Court, EX2 5JL",
+        "formattedAddressPaf": "Police Federation, Devon & Cornwall Constabulary, Unit 2, River Court, Pynes Hill, Exeter, EX2 5JL",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Police Federation, Devon & Cornwall Constabulary, Unit 2, River Court, Pynes Hill, Exeter, EX2 5JL",
+        "highlights": {
+          "bestMatchAddress": "Police Federation, Devon & Cornwall Constabulary, Unit 2, River Court, Pynes Hill, Exeter, EX2 5JL",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.708397,
+          "longitude": -3.4901402,
+          "easting": 294880,
+          "northing": 90923
+        },
+        "classificationCode": "CX01PT",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "10013041308",
+        "parentUprn": "10013050589",
+        "formattedAddress": "Devon And Cornwall Police Authority, Endeavour House, EX2 5WH",
+        "formattedAddressNag": "Devon And Cornwall Police Authority, Endeavour House, EX2 5WH",
+        "formattedAddressPaf": "",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "",
+        "highlights": {
+          "bestMatchAddress": "Devon And Cornwall Police Authority, Endeavour House, EX2 5WH",
+          "source": "L",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.706276,
+          "longitude": -3.489223,
+          "easting": 294940,
+          "northing": 90686
+        },
+        "classificationCode": "C",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "10013040774",
+        "parentUprn": "100041225283",
+        "formattedAddress": "Devon And Cornwall Police, Gilbert House, Grace Road West, Exeter, EX2 8PU",
+        "formattedAddressNag": "Devon And Cornwall Police, Gilbert House, Grace Road West, Exeter, EX2 8PU",
+        "formattedAddressPaf": "Scribblez Day Nursery, Gilbert House, Grace Road West, Marsh Barton Trading Estate, Exeter, EX2 8PU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "Scribblez Day Nursery, Gilbert House, Grace Road West, Marsh Barton Trading Estate, Exeter, EX2 8PU",
+        "highlights": {
+          "bestMatchAddress": "Devon And Cornwall Police, Gilbert House, Grace Road West, Exeter, EX2 8PU",
+          "source": "L",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.705193,
+          "longitude": -3.531612,
+          "easting": 291944,
+          "northing": 90626
+        },
+        "classificationCode": "CE02",
+        "censusAddressType": "NA",
+        "censusEstabType": "NA",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209174",
+        "parentUprn": "0",
+        "formattedAddress": "1 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "1 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "1 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "1 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "1 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.719097,
+          "longitude": -3.5441144,
+          "easting": 291094,
+          "northing": 92191
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209175",
+        "parentUprn": "0",
+        "formattedAddress": "2 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "2 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "2 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "2 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "2 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.718845,
+          "longitude": -3.5441911,
+          "easting": 291088,
+          "northing": 92163
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209176",
+        "parentUprn": "0",
+        "formattedAddress": "3 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "3 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "3 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "3 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "3 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.719105,
+          "longitude": -3.5441713,
+          "easting": 291090,
+          "northing": 92192
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209177",
+        "parentUprn": "0",
+        "formattedAddress": "4 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "4 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "4 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "4 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "4 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.718853,
+          "longitude": -3.544248,
+          "easting": 291084,
+          "northing": 92164
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209178",
+        "parentUprn": "0",
+        "formattedAddress": "5 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "5 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "5 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "5 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "5 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.719124,
+          "longitude": -3.5442426,
+          "easting": 291085,
+          "northing": 92194
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209179",
+        "parentUprn": "0",
+        "formattedAddress": "6 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "6 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "6 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "6 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "6 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.71886,
+          "longitude": -3.544305,
+          "easting": 291080,
+          "northing": 92165
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209180",
+        "parentUprn": "0",
+        "formattedAddress": "7 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "7 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "7 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "7 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "7 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.719097,
+          "longitude": -3.5442984,
+          "easting": 291081,
+          "northing": 92191
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209181",
+        "parentUprn": "0",
+        "formattedAddress": "8 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "8 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "8 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "8 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "8 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.71888,
+          "longitude": -3.5443764,
+          "easting": 291075,
+          "northing": 92167
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209182",
+        "parentUprn": "0",
+        "formattedAddress": "9 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "9 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "9 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "9 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "9 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.719093,
+          "longitude": -3.5443552,
+          "easting": 291077,
+          "northing": 92191
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209183",
+        "parentUprn": "0",
+        "formattedAddress": "10 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "10 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "10 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "10 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "10 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.71888,
+          "longitude": -3.5444188,
+          "easting": 291072,
+          "northing": 92167
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      },
+      {
+        "uprn": "100040209184",
+        "parentUprn": "0",
+        "formattedAddress": "11 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNag": "11 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressPaf": "11 Cornwall Street, Exeter, EX4 1BU",
+        "formattedAddressNisra": "",
+        "welshFormattedAddressNag": "",
+        "welshFormattedAddressPaf": "11 Cornwall Street, Exeter, EX4 1BU",
+        "highlights": {
+          "bestMatchAddress": "11 Cornwall Street, Exeter, EX4 1BU",
+          "source": "P",
+          "lang": "E"
+        },
+        "geo": {
+          "latitude": 50.719105,
+          "longitude": -3.5444262,
+          "easting": 291072,
+          "northing": 92192
+        },
+        "classificationCode": "RD",
+        "censusAddressType": "HH",
+        "censusEstabType": "Household",
+        "countryCode": "E",
+        "lpiLogicalStatus": "1",
+        "confidenceScore": 15,
+        "underlyingScore": 3
+      }
+    ],
+    "filter": "",
+    "fallback": true,
+    "historical": false,
+    "epoch": "",
+    "limit": 20,
+    "offset": 0,
+    "total": 161,
+    "maxScore": 0,
+    "verbose": false,
+    "fromsource": "all",
+    "highlight": "on",
+    "favourpaf": true,
+    "favourwelsh": false
+  },
+  "status": {
+    "code": 200,
+    "message": "Ok"
+  },
+  "errors": []
+}
+</code></pre>

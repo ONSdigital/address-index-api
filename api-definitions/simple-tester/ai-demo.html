@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
-<title>Address Index Simple Tester - Office for National Statistics</title>
-<style>
+    <meta charset="ISO-8859-1">
+    <title>Address Index Simple Tester - Office for National Statistics</title>
+    <style>
 @CHARSET "ISO-8859-1";
 
 /* Reset */
@@ -242,86 +242,100 @@ div#banner h1 {
 	background-color: #323132;
 }
 </style>
-<script src="http://code.jquery.com/jquery-1.11.2.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.2.js"></script>
 </head>
 <body>
-	
-	<header>
-		<div class="content-container">
-			<div id="banner">
-				<div class="banner-logo"><img class="logo" alt="Office for National Statistics" src="https://cdn.ons.gov.uk/assets/images/ons-logo/v2/ons-logo.svg"></div>
-				<h1>Address Index Simple Tester</h1>
-				<div class="banner-title">
-                    <label for="apiurl">API Url: </label><br><input type="text" name="apiurl" id="apiurl" value="http://localhost:9001" placeholder="host and port" />
-				</div>
-			</div>
-		</div>
-	</header>
-	<nav>
-		<div class="content-container">
-			<ul class="tab">
-				<li><button class="tablinks" onclick="openTab(event, 'version-tab')">Version</button></li>
-			<!--	<li><button class="tablinks" onclick="openTab(event, 'swagger-tab')">Swagger</button></li>-->
-				<li><button class="tablinks" onclick="openTab(event, 'single-match-tab')" id="defaultOpen">Single Match</button></li>
-                <li><button class="tablinks" onclick="openTab(event, 'partial-tab')">Partial</button></li>
-                <li><button class="tablinks" onclick="openTab(event, 'random-tab')">Random</button></li>
-                <li><button class="tablinks" onclick="openTab(event, 'uprn-tab')">UPRN</button></li>
+
+<header>
+    <div class="content-container">
+        <div id="banner">
+            <div class="banner-logo"><img class="logo" alt="Office for National Statistics" src="https://cdn.ons.gov.uk/assets/images/ons-logo/v2/ons-logo.svg"></div>
+            <h1>Address Index Simple Tester</h1>
+            <div class="banner-title">
+                <label for="apiurl">API Url: </label><br><input type="text" name="apiurl" id="apiurl" value="http://localhost:9001" placeholder="host and port" />
+            </div>
+        </div>
+    </div>
+</header>
+<nav>
+    <div class="content-container">
+        <ul class="tab">
+            <li><button class="tablinks" onclick="openTab(event, 'version-tab')">Version</button></li>
+            <!--	<li><button class="tablinks" onclick="openTab(event, 'swagger-tab')">Swagger</button></li>-->
+            <li><button class="tablinks" onclick="openTab(event, 'single-match-tab')" id="defaultOpen">Single Match</button></li>
+            <li><button class="tablinks" onclick="openTab(event, 'partial-tab')">Partial</button></li>
+            <li><button class="tablinks" onclick="openTab(event, 'random-tab')">Random</button></li>
+            <li><button class="tablinks" onclick="openTab(event, 'postcode-tab')">Postcode</button></li>
+            <li><button class="tablinks" onclick="openTab(event, 'uprn-tab')">UPRN</button></li>
+            <li><button class="tablinks" onclick="openTab(event, 'eq-tab')">EQ</button></li>
             <!-- <li><button class="tablinks" onclick="openTab(event, 'debug-tab')">Debug</button></li>-->
-				<li><button class="tablinks" onclick="openTab(event, 'bulk-tab')">Bulk</button></li>
-				<li><button class="tablinks" onclick="openTab(event, 'bulk-full-tab')">Bulk Full</button></li>
-				<li><button class="tablinks" onclick="openTab(event, 'bulk-debug-tab')">Bulk Debug</button></li>
-			</ul>
-		</div>
-	</nav>
-	<section id="request">
-		<div class="content-container">
-			
-			<div id="version-tab" class="tab-content">
-				<h2>Version:</h2>
-				<p>Returns version information for the api and the data (AddressBase).</p>
-				<div class="fields"><button class="tablinks" onclick="getVersion()">Get Version</button></div>
-			</div>
-			
-			<div id="swagger-tab" class="tab-content">
-				<h2>Swagger:</h2>
-				<p>Returns the swagger definition.</p>
-				<div class="fields"><button class="tablinks" onclick="getSwagger()">Get Swagger</button></div>
-			</div>
+            <li><button class="tablinks" onclick="openTab(event, 'bulk-tab')">Bulk</button></li>
+            <!--	<li><button class="tablinks" onclick="openTab(event, 'bulk-full-tab')">Bulk Full</button></li>-->
+            <!--	<li><button class="tablinks" onclick="openTab(event, 'bulk-debug-tab')">Bulk Debug</button></li>-->
+        </ul>
+    </div>
+</nav>
+<section id="request">
+    <div class="content-container">
 
-            <div id="single-match-tab" class="tab-content">
-                <h2>Single Match:</h2>
-                <p>Returns a ranked list of addresses matching the search query in the specified format.</p>
-                <div class="fields"><label for="address">Address: </label><input type="text" name="address" id="address" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter">Filter: </label><input type="text" name="filter" id="filter" value="" placeholder="Optional" /><button onclick="getSingle()">Get Response</button></div>
-            </div>
+        <div id="version-tab" class="tab-content">
+            <h2>Version:</h2>
+            <p>Returns version information for the api and the data (AddressBase).</p>
+            <div class="fields"><button class="tablinks" onclick="getVersion()">Get Version</button></div>
+        </div>
 
-            <div id="partial-tab" class="tab-content">
-                <h2>Partial:</h2>
-                <p>Returns a list of addresses matching an incomplete string (for typeahead).</p>
-                <div class="fields"><label for="uprn">String: </label><input type="text" name="typeahead" id="typeahead" value="7 GAT" /><label for="partfilter">Filter: </label><input type="text" name="partfilter" id="partfilter" value="" placeholder="Optional" /><button onclick="getPartial()">Get Response</button></div>
-            </div>
+        <div id="swagger-tab" class="tab-content">
+            <h2>Swagger:</h2>
+            <p>Returns the swagger definition.</p>
+            <div class="fields"><button class="tablinks" onclick="getSwagger()">Get Swagger</button></div>
+        </div>
 
-            <div id="random-tab" class="tab-content">
-                <h2>Random:</h2>
-                <p>Returns a random address, optionally fitlered by classification.</p>
-                <div class="fields"><label for="randomfilter">Filter: </label><input type="text" name="randomfilter" id="randomfilter" value="" placeholder="Optional" /><button onclick="getRandom()">Get Response</button></div>
-            </div>
-			
-			<div id="uprn-tab" class="tab-content">
-				<h2>UPRN:</h2>
-				<p>Returns a single address, identified by its UPRN.</p>
-				<div class="fields"><label for="uprn">UPRN: </label><input type="text" name="uprn" id="uprn" value="10023122457" /><button onclick="getUPRN()">Get Response</button></div>
-			</div>
+        <div id="single-match-tab" class="tab-content">
+            <h2>Single Match:</h2>
+            <p>Returns a ranked list of addresses matching the search query in the specified format.</p>
+            <div class="fields"><label for="address">Address: </label><input type="text" name="address" id="address" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter">Filter: </label><input type="text" name="filter" id="filter" value="" placeholder="Optional" /><button onclick="getSingle()">Get Response</button></div>
+        </div>
 
-            <div id="debug-tab" class="tab-content">
-                <h2>Debug:</h2>
-                <p>Returns query that is sent to Elastic (for debug purposes).</p>
-                <div class="fields"><label for="address-debug">Debug: </label><input type="text" name="address-debug" id="address-debug" size="95" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter-debug">Filter: </label><input type="text" name="filter-debug" id="filter-debug" value="" placeholder="Optional" /><button onclick="getDebug()">Get Response</button></div>
-            </div>
+        <div id="partial-tab" class="tab-content">
+            <h2>Partial:</h2>
+            <p>Returns a list of addresses matching an incomplete string (for typeahead).</p>
+            <div class="fields"><label for="uprn">String: </label><input type="text" name="typeahead" id="typeahead" value="7 GAT" /><label for="partfilter">Filter: </label><input type="text" name="partfilter" id="partfilter" value="" placeholder="Optional" /><button onclick="getPartial()">Get Response</button></div>
+        </div>
 
-			<div id="bulk-tab" class="tab-content">
-				<h2>Bulk:</h2>
-				<p>Will process all BulkQuery items in the BulkBody returns reduced information on found addresses (uprn, formatted address).</p>
-				<div class="fields"><label for="simplebulk">Simple Bulk: </label><textarea id="simplebulk" rows=9 cols=100>
+        <div id="random-tab" class="tab-content">
+            <h2>Random:</h2>
+            <p>Returns a random address, optionally fitlered by classification.</p>
+            <div class="fields"><label for="randomfilter">Filter: </label><input type="text" name="randomfilter" id="randomfilter" value="" placeholder="Optional" /><button onclick="getRandom()">Get Response</button></div>
+        </div>
+
+        <div id="postcode-tab" class="tab-content">
+            <h2>Postcode:</h2>
+            <p>Returns a sorted list of addresses in a postcode.</p>
+            <div class="fields"><label for="uprn">Postcode: </label><input type="text" name="postcode" id="postcode" value="EX43ET" /><button onclick="getPostcode()">Get Response</button></div>
+        </div>
+
+        <div id="uprn-tab" class="tab-content">
+            <h2>UPRN:</h2>
+            <p>Returns a single address, identified by its UPRN.</p>
+            <div class="fields"><label for="uprn">UPRN: </label><input type="text" name="uprn" id="uprn" value="10023122457" /><button onclick="getUPRN()">Get Response</button></div>
+        </div>
+
+        <div id="eq-tab" class="tab-content">
+            <h2>EQ:</h2>
+            <p>Combined partial and postcode, restricted output.</p>
+            <div class="fields"><label for="uprn">EQ: </label><input type="text" name="eq" id="eq" value="3 EX26GA" /><button onclick="getEQ()">Get Response</button></div>
+        </div>
+
+        <div id="debug-tab" class="tab-content">
+            <h2>Debug:</h2>
+            <p>Returns query that is sent to Elastic (for debug purposes).</p>
+            <div class="fields"><label for="address-debug">Debug: </label><input type="text" name="address-debug" id="address-debug" size="95" value="7 GATE REACH EXETER EX2 6GA" /><label for="filter-debug">Filter: </label><input type="text" name="filter-debug" id="filter-debug" value="" placeholder="Optional" /><button onclick="getDebug()">Get Response</button></div>
+        </div>
+
+        <div id="bulk-tab" class="tab-content">
+            <h2>Bulk:</h2>
+            <p>Will process all BulkQuery items in the BulkBody returns reduced information on found addresses (uprn, formatted address).</p>
+            <div class="fields"><label for="simplebulk">Simple Bulk: </label><textarea id="simplebulk" rows=9 cols=100>
 {
     "addresses": [{
         "id": "1",
@@ -332,13 +346,13 @@ div#banner h1 {
     }]
 }
 					</textarea><button onclick="getBulk()">Get Response</button>
-				</div>
-			</div>
-			
-			<div id="bulk-full-tab" class="tab-content">
-				<h2>Bulk Full:</h2>
-				<p>Will process all BulkQuery items in the BulkBody this version is slower and more memory-consuming since all the information on found addresses is returned.</p>
-				<div class="fields"><label for="simplebulkfull">Full Bulk: </label><textarea id="simplebulkfull" rows=9 cols=100>
+            </div>
+        </div>
+
+        <div id="bulk-full-tab" class="tab-content">
+            <h2>Bulk Full:</h2>
+            <p>Will process all BulkQuery items in the BulkBody this version is slower and more memory-consuming since all the information on found addresses is returned.</p>
+            <div class="fields"><label for="simplebulkfull">Full Bulk: </label><textarea id="simplebulkfull" rows=9 cols=100>
 {
     "addresses": [{
         "id": "1",
@@ -349,13 +363,13 @@ div#banner h1 {
     }]
 }
 					</textarea><button onclick="getBulkFull()">Get Response</button>
-				</div>
-			</div>
-			
-			<div id="bulk-debug-tab" class="tab-content">
-				<h2>Bulk Debug:</h2>
-				<p>Bulk endpoint that accepts tokens instead of input texts for each address.</p>
-				<div class="fields"><label for="debugbulk">Debug Bulk: </label><textarea id="debugbulk" rows=20 cols=100>
+            </div>
+        </div>
+
+        <div id="bulk-debug-tab" class="tab-content">
+            <h2>Bulk Debug:</h2>
+            <p>Bulk endpoint that accepts tokens instead of input texts for each address.</p>
+            <div class="fields"><label for="debugbulk">Debug Bulk: </label><textarea id="debugbulk" rows=20 cols=100>
 {
    "addresses":[
       {
@@ -397,7 +411,7 @@ div#banner h1 {
       "buildingName":{
 	     "lpiPaoStartSuffixBoost":3.5,
 	     "pafBuildingNameBoost":2.5,
-         "lpiPaoTextBoost":2.5,			 
+         "lpiPaoTextBoost":2.5,
          "lpiPaoStartNumberBoost":2.5,
          "lpiSaoPaoStartSuffixBoost": 0.5
       },
@@ -412,7 +426,7 @@ div#banner h1 {
 		 "lpiPaoEndNumberBoost":2.5,
          "lpiPaoEndSuffixBoost":2.5,
          "pafBuildingNumberBoost":2.0,
-         "lpiPaoStartEndBoost":0.1			 
+         "lpiPaoStartEndBoost":0.1
       },
       "streetName":{
          "pafThoroughfareBoost":2.0,
@@ -484,38 +498,46 @@ div#banner h1 {
    }
 }
 					</textarea><button onclick="getBulkDebug()">Get Response</button>
-				</div>
-			</div>
-		</div>
-	</section>
-	<section id="response">
-		<div class="content-container">
-			<h2>Response:</h2>
-			<div contentEditable="true" id="response-text">Response will appear here</div>
-		</div>
-	</section>
-	<footer>
-		<div class="content-container">
-		
-		</div>
-	</footer>
-	
-    <script>
-        
+            </div>
+        </div>
+    </div>
+</section>
+<section id="response">
+    <div class="content-container">
+        <h2>Response:</h2>
+        <div contentEditable="true" id="response-text">Response will appear here</div>
+    </div>
+</section>
+<footer>
+    <div class="content-container">
+
+    </div>
+</footer>
+
+<script>
+
         var apikey = "putyourkeyhere"
-        var verbose = "true" // change to false for concise response
+        var verbose = "false" // change to false for concise response
         var apiURL = document.getElementById("apiurl").value
 
 		function getVersion() {
             getJSONResponse(apiURL + "/version")
         }
-		
+
         function getSwagger() {
 		   getJSONResponseWithKey(apiURL + "/docs/swagger.json")
         }
 
         function getUPRN() {
             getJSONResponseWithKey(apiURL + "/addresses/uprn/" + document.getElementById("uprn").value + "?verbose=" + verbose)
+        }
+
+		function getEQ() {
+            getJSONResponseWithKey(apiURL + "/addresses/eq?input=" + document.getElementById("eq").value)
+        }
+
+		function getPostcode() {
+            getJSONResponseWithKey(apiURL + "/addresses/postcode/" + document.getElementById("postcode").value + "?verbose=" + verbose + "&limit=10")
         }
 
         function getPartial() {
@@ -685,6 +707,6 @@ div#banner h1 {
         
         document.getElementById("defaultOpen").click();
         
-    </script>	
+    </script>
 </body>
 </html>
