@@ -35,7 +35,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @return
     */
   def uprnQuery(uprn: String,
-                bestMatchAddressType: String,
+                bestMatchAddressType: Option[String] = None,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None
@@ -48,13 +48,13 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
-    val addressType = bestMatchAddressType match {
+    val addressType:String = bestMatchAddressType.getOrElse("paf") match {
       case "paf" => AddressResponseAddress.AddressTypes.paf
       case "welshpaf" => AddressResponseAddress.AddressTypes.welshPaf
       case "nag" => AddressResponseAddress.AddressTypes.nag
       case "welshnag" => AddressResponseAddress.AddressTypes.welshNag
       case "nisra" => AddressResponseAddress.AddressTypes.nisra
-      case _ => bestMatchAddressType
+      case _ => bestMatchAddressType.getOrElse("")
     }
 
     val epochVal = epoch.getOrElse("")
@@ -77,7 +77,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val queryValues = QueryValues(
       uprn = Some(uprn),
-      addressType = Some(bestMatchAddressType),
+      addressType = bestMatchAddressType,
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
@@ -85,7 +85,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Future[Result]] =
       uprnValidation.validateUprn(uprn, queryValues)
-        .orElse(uprnValidation.validateAddressType(bestMatchAddressType, queryValues))
+        .orElse(uprnValidation.validateAddressType(bestMatchAddressType.getOrElse("paf"), queryValues))
         .orElse(uprnValidation.validateSource(queryValues))
         .orElse(uprnValidation.validateKeyStatus(queryValues))
         .orElse(uprnValidation.validateEpoch(queryValues))

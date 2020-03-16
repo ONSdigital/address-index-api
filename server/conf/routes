@@ -266,7 +266,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQuery(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQuery(uprn, addresstype: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 ###
 #  summary: Custom EQ endpoint that will pass the request to either the EQ partial endpoint or the postcode endpoint depending on what input string is submitted.
