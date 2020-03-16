@@ -6,7 +6,7 @@ import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.FunctionScoreQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, SearchBodyBuilderFn, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -188,6 +188,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").take(6))
     val partialScript: Script = new Script(script = scriptText, params = scriptParams )
+    val hOpts = new HighlightOptions(numOfFragments=Some(0))
+
 
     search(source + args.epochParam)
       .query(
@@ -195,7 +197,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           scriptScore(partialScript))
             .boostMode("replace")
       )
-      .highlighting(hFields)
+      .highlighting(hOpts,hFields)
       .sortBy(
         FieldSort("_score").order(SortOrder.DESC),
         FieldSort("lpi.postcodeLocator.keyword").asc(),
