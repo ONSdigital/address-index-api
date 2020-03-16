@@ -130,54 +130,6 @@
      </tbody>
   </table>
 
-    
-					{
-
-						"in": "query",
-
-						"name": "highlight",
-
-						"type": "string",
-
-						"required": false,
-
-						"description": "include detailed highlighting info, options are off, on or debug",
-
-						"default": true
-
-					},
-
-					{
-
-						"in": "query",
-
-						"name": "favourpaf",
-
-						"type": "string",
-
-						"required": false,
-
-						"description": "paf beats nag on draw for best match",
-
-						"default": true
-
-					},
-
-					{
-
-						"in": "query",
-
-						"name": "favourwelsh",
-
-						"type": "string",
-
-						"required": false,
-
-						"description": "Welsh beats English on draw for best match",
-
-						"default": false
-
-					}
 
 <h2>Responses</h2>
 

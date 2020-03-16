@@ -1,4 +1,4 @@
-<h1 class="jupiter">/addresses/partial</h1>
+<h1 class="jupiter">/addresses/eq</h1>
 
 
 
