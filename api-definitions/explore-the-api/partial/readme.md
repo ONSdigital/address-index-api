@@ -34,6 +34,7 @@
             <td class="table--cell">Specifies whether a slow fallback query is used in the event of the main query returning no results.</td>
             <td class="table--cell">
                 Optional
+                <br>Default: True
             </td>
         </tr>
          <tr class="table--row">
@@ -70,7 +71,7 @@
             <td class="table--cell">Include historical addresses</td>
             <td class="table--cell">
                 Optional
-                <br>Default: True
+                <br>Default: False
             </td>
         </tr>
          <tr class="table--row">
@@ -99,10 +100,84 @@
                 <br>Default: all
             </td>
         </tr>
+        <tr class="table--row">
+            <td class="table--cell">highlight</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">include detailed highlighting info, options are off, on or debug</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: on
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">favourpaf</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">paf beats nag on draw for best match</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: True
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">favourwelsh</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Welsh beats English on draw for best match</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: False
+            </td>
+        </tr>
      </tbody>
   </table>
 
     
+					{
+
+						"in": "query",
+
+						"name": "highlight",
+
+						"type": "string",
+
+						"required": false,
+
+						"description": "include detailed highlighting info, options are off, on or debug",
+
+						"default": true
+
+					},
+
+					{
+
+						"in": "query",
+
+						"name": "favourpaf",
+
+						"type": "string",
+
+						"required": false,
+
+						"description": "paf beats nag on draw for best match",
+
+						"default": true
+
+					},
+
+					{
+
+						"in": "query",
+
+						"name": "favourwelsh",
+
+						"type": "string",
+
+						"required": false,
+
+						"description": "Welsh beats English on draw for best match",
+
+						"default": false
+
+					}
 
 <h2>Responses</h2>
 
