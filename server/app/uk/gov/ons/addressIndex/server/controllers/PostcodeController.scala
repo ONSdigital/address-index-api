@@ -56,7 +56,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "postcode"
 
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")

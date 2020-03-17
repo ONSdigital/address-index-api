@@ -23,7 +23,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
                                  versionProvider: VersionModule,
                                  overloadProtection: APIThrottle,
                                  uprnValidation: UPRNControllerValidation
-                              )(implicit ec: ExecutionContext)
+                                )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:UPRNController")
