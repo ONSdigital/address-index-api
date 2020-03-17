@@ -47,14 +47,15 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val bestMatchAddressTypeVal = bestMatchAddressType.getOrElse("paf")
 
-    val addressType:String = bestMatchAddressType.getOrElse("paf") match {
+    val addressType:String =  bestMatchAddressTypeVal match {
       case "paf" => AddressResponseAddress.AddressTypes.paf
       case "welshpaf" => AddressResponseAddress.AddressTypes.welshPaf
       case "nag" => AddressResponseAddress.AddressTypes.nag
       case "welshnag" => AddressResponseAddress.AddressTypes.welshNag
       case "nisra" => AddressResponseAddress.AddressTypes.nisra
-      case _ => bestMatchAddressType.getOrElse("")
+      case _ => bestMatchAddressTypeVal
     }
 
     val epochVal = epoch.getOrElse("")
@@ -77,7 +78,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val queryValues = QueryValues(
       uprn = Some(uprn),
-      addressType = bestMatchAddressType,
+      addressType = Some(bestMatchAddressTypeVal),
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
@@ -85,7 +86,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val result: Option[Future[Result]] =
       uprnValidation.validateUprn(uprn, queryValues)
-        .orElse(uprnValidation.validateAddressType(bestMatchAddressType.getOrElse("paf"), queryValues))
+        .orElse(uprnValidation.validateAddressType(bestMatchAddressTypeVal, queryValues))
         .orElse(uprnValidation.validateSource(queryValues))
         .orElse(uprnValidation.validateKeyStatus(queryValues))
         .orElse(uprnValidation.validateEpoch(queryValues))
