@@ -667,7 +667,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "Po155Rr",
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false, verbose = false)),
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
