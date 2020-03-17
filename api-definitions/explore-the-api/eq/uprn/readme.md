@@ -10,8 +10,6 @@
 
 <h3>Query parameters</h3>
 
-<h3>Query parameters</h3>
-
 <table class="table">
     <thead class="table--head">
         <th scope="col" class="table--header--cell">Parameter name</th>
@@ -26,7 +24,6 @@
             <td class="table--cell">Version of the address to return - paf, welshpaf, nag, welshnag, nisra</td>
             <td class="table--cell">
                Required
-               <br>Default: None Set                
             </td>
         </tr>
         <tr class="table--row">
@@ -82,54 +79,28 @@
 
 <h2>Sample Queries</h2>
 
-<p><pre>corn ex</pre></p>
-<p><pre>4 EX26GA</pre></p>
+<p><pre>/10013049457?addresstype=nag</pre></p>
 
-   <h2>Sample Output</h2>
+<h2>Sample Output</h2>
 
-
-
-   <pre><code>
+<pre><code>
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "NA",
   "response": {
-    "input": "3 EX26GA",
-    "addresses": [
-      {
-        "uprn": "10023122453",
-        "bestMatchAddress": "3 Gate Reach, Exeter, EX2 6GA",
-        "bestMatchAddressType": "PAF"
-      },
-      {
-        "uprn": "10023122474",
-        "bestMatchAddress": "30 Gate Reach, Exeter, EX2 6GA",
-        "bestMatchAddressType": "PAF"
-      },
-      {
-        "uprn": "10023122475",
-        "bestMatchAddress": "32 Gate Reach, Exeter, EX2 6GA",
-        "bestMatchAddressType": "PAF"
-      },
-      {
-        "uprn": "10023122476",
-        "bestMatchAddress": "34 Gate Reach, Exeter, EX2 6GA",
-        "bestMatchAddressType": "PAF"
-      }
-    ],
-    "filter": "",
-    "fallback": true,
-    "historical": false,
+    "address": {
+      "uprn": "10013049457",
+      "formattedAddress": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL",
+      "addressLine1": "Costa Coffee",
+      "addressLine2": "12 Bedford Street",
+      "addressLine3": "",
+      "townName": "Exeter",
+      "postcode": "EX1 1LL"
+    },
+    "addressType": "NAG",
+    "historical": true,
     "epoch": "",
-    "limit": 20,
-    "offset": 0,
-    "total": 4,
-    "maxScore": 0,
-    "verbose": false,
-    "fromsource": "all",
-    "highlight": "on",
-    "favourpaf": true,
-    "favourwelsh": false
+    "verbose": false
   },
   "status": {
     "code": 200,
