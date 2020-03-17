@@ -1,14 +1,29 @@
 <h1 class="jupiter">/addresses/eq</h1>
 
-
-
 <p>Search by partial address or postcode (custom output for EQ).</p>
+
+<h3>Subordinate Endpoints</h3>
+
+<table class="table">
+    <thead class="table--head">
+    <th scope="col" class="table--header--cell">Method</th>
+    <th scope="col" class="table--header--cell">Endpoint</th>
+    <th scope="col" class="table--header--cell">Description</th>
+    </thead>
+    <tbody>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="uprn/readme.md">addresses/eq/uprn/{uprn}</a></td>
+        <td class="table--cell">
+            Fetch single address by uprn with chosen address type.
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 <h2>Request</h2>
 
 <p><code>GET /addresses/eq</code></p>
-
-
 
 <h3>Query parameters</h3>
 
