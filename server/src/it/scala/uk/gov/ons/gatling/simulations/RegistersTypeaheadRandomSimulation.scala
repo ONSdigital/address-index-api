@@ -18,8 +18,8 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
   val requestRelPath = ConfigLoader("request_rel_path")
   val requestType = ConfigLoader("request_type")
   val requestName: String = ConfigLoader("request_name_prefix").stripSuffix(" ") + ": " + baseUrl + requestRelPath
-  val randomPath = "random"
-  val typeaheadPath = "partial?input="
+  val randomPath = "random?historical=false"
+  val typeaheadPath = "partial?fallback=false&input="
 
   println(s"Running test with duration: $duration, " +
     s"baseUrl : $baseUrl, $requestType Request : $requestRelPath")
@@ -62,22 +62,38 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
                 println(uprnString)
                 val testAddress = foundaddress("add").as[String]
                 val chars = testAddress.toArray
-                val part1 = testAddress.take(5)
-                val part2 = testAddress.take(5) + chars(5)
-                val part3 = testAddress.take(6) + chars(6)
-                val part4 = testAddress.take(7) + chars(7)
-                val part5 = testAddress.take(8) + chars(8)
-                val part6 = testAddress.take(9) + chars(9)
-                val part7 = testAddress.take(10) + chars(10)
-                val part8 = testAddress.take(11) + chars(11)
-                val part9 = testAddress.take(12) + chars(12)
-                val part10 = testAddress.take(13) + chars(13)
-                val part11 = testAddress.take(14) + chars(14)
-                val part12 = testAddress.take(15) + chars(15)
-                val part13 = testAddress.take(16) + chars(16)
-                val part14 = testAddress.take(17) + chars(17)
-                val part15 = testAddress.take(18) + chars(18)
-                val part16 = testAddress.take(19) + chars(19)
+                //                val part1 = testAddress.take(5)
+                //                val part2 = testAddress.take(5) + chars(5)
+                //                val part3 = testAddress.take(6) + chars(6)
+                //                val part4 = testAddress.take(7) + chars(7)
+                //                val part5 = testAddress.take(8) + chars(8)
+                //                val part6 = testAddress.take(9) + chars(9)
+                //                val part7 = testAddress.take(10) + chars(10)
+                //                val part8 = testAddress.take(11) + chars(11)
+                //                val part9 = testAddress.take(12) + chars(12)
+                //                val part10 = testAddress.take(13) + chars(13)
+                //                val part11 = testAddress.take(14) + chars(14)
+                //                val part12 = testAddress.take(15) + chars(15)
+                //                val part13 = testAddress.take(16) + chars(16)
+                //                val part14 = testAddress.take(17) + chars(17)
+                //                val part15 = testAddress.take(18) + chars(18)
+                //                val part16 = testAddress.take(19) + chars(19)
+                val part1 = testAddress.take(5) + chars(5)
+                val part2 = testAddress.take(6) + chars(6)
+                val part3 = testAddress.take(7) + chars(7)
+                val part4 = testAddress.take(8) + chars(8)
+                val part5 = testAddress.take(9) + chars(9)
+                val part6 = testAddress.take(10) + chars(10)
+                val part7 = testAddress.take(11) + chars(11)
+                val part8 = testAddress.take(12) + chars(12)
+                val part9 = testAddress.take(13) + chars(13)
+                val part10 = testAddress.take(14) + chars(14)
+                val part11 = testAddress.take(15) + chars(15)
+                val part12 = testAddress.take(16) + chars(16)
+                val part13 = testAddress.take(17) + chars(17)
+                val part14 = testAddress.take(18) + chars(18)
+                val part15 = testAddress.take(19) + chars(19)
+                val part16 = testAddress.take(20) + chars(20)
                 val newsession = foundaddress
                   .set("part1", part1)
                   .set("part2", part2)
@@ -106,43 +122,43 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
     )
     // .foreach can't be used here so each part-address is a separate chain
     .exec(
-    pause(300 millis)
-      .exec(http("Typeahead")
-        .get(typeaheadPath + "${part1}" + "&limit=" + limit)
-        .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
-      .foreach("${uprns2}", "uprn2") {
-        exec(newsession => {
-          println(newsession("part1").as[String])
-          val uprnString1 = newsession("uprn").as[String]
-          val uprnString2 = newsession("uprn2").as[String]
-          val hit = if (uprnString1 == uprnString2) " => HIT (5 chars)" else "x"
-          val newsession2 = if (hit == "x") newsession else newsession.set("match", hit)
-          println(uprnString1 + ":" + uprnString2 + hit)
-          newsession2
-        })
-      }
-  )
-
-    // only execute the chain if no match has been found
-    .doIfEquals("${match}", "x") {
-    exec(
       pause(300 millis)
         .exec(http("Typeahead")
-          .get(typeaheadPath + "${part2}" + "&limit=" + limit)
+          .get(typeaheadPath + "${part1}" + "&limit=" + limit)
           .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
         .foreach("${uprns2}", "uprn2") {
           exec(newsession => {
-            println(newsession("part2").as[String])
+            println(newsession("part1").as[String])
             val uprnString1 = newsession("uprn").as[String]
             val uprnString2 = newsession("uprn2").as[String]
-            val hit = if (uprnString1 == uprnString2) " => HIT (6 chars)" else "x"
-            val newsession3 = if (hit == "x") newsession else newsession.set("match", hit)
+            val hit = if (uprnString1 == uprnString2) " => HIT (5 chars)" else "x"
+            val newsession2 = if (hit == "x") newsession else newsession.set("match", hit)
             println(uprnString1 + ":" + uprnString2 + hit)
-            newsession3
+            newsession2
           })
         }
     )
-  }
+
+    // only execute the chain if no match has been found
+    .doIfEquals("${match}", "x") {
+      exec(
+        pause(300 millis)
+          .exec(http("Typeahead")
+            .get(typeaheadPath + "${part2}" + "&limit=" + limit)
+            .check(jsonPath("$..uprn").findAll.saveAs("uprns2")))
+          .foreach("${uprns2}", "uprn2") {
+            exec(newsession => {
+              println(newsession("part2").as[String])
+              val uprnString1 = newsession("uprn").as[String]
+              val uprnString2 = newsession("uprn2").as[String]
+              val hit = if (uprnString1 == uprnString2) " => HIT (6 chars)" else "x"
+              val newsession3 = if (hit == "x") newsession else newsession.set("match", hit)
+              println(uprnString1 + ":" + uprnString2 + hit)
+              newsession3
+            })
+          }
+      )
+    }
     .doIfEquals("${match}", "x") {
       exec(
         pause(300 millis)
@@ -437,5 +453,4 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
     atOnceUsers(1), nothingFor(10 seconds))).protocols(httpProtocol).maxDuration(duration minutes)
 
 }
-
 

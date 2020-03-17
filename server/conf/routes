@@ -242,6 +242,8 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #  parameters:
 #    - name: uprn
 #      description: Specifies the address UPRN.
+#    - name: addresstype
+#      description: Version of the address to return - paf, welshpaf, nag, welshnag, nisra
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
