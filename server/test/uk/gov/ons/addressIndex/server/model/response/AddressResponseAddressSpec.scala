@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.model.response
 import org.scalatest.{Matchers, WordSpec}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.model.server.response.eq.AddressByEqUprnResponse
+import uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponse
 
 /**
   * Test conversion between ES reply and the model that will be send in the response
@@ -812,7 +812,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressByEqUprnResponse.fromHybridAddress(hybrid, verbose = true, "PAF")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "PAF")
 
       // Then
       result shouldBe expected
@@ -833,7 +833,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressByEqUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHPAF")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHPAF")
 
       // Then
       result shouldBe expected
@@ -854,7 +854,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressByEqUprnResponse.fromHybridAddress(hybrid, verbose = true, "NAG")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "NAG")
 
       // Then
       result shouldBe expected
@@ -875,7 +875,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressByEqUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHNAG")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHNAG")
 
       // Then
       result shouldBe expected
@@ -896,7 +896,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressByEqUprnResponse.fromHybridAddress(hybrid, verbose = true, "NISRA")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "NISRA")
 
       // Then
       result shouldBe expected

@@ -14,14 +14,14 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param epoch AB Epoch
   * @param verbose output verbosity
   */
-case class AddressByEqUprnResponse(address: Option[AddressResponseAddressUPRNEQ],
+case class AddressByEQUprnResponse(address: Option[AddressResponseAddressUPRNEQ],
                                    addressType: String,
                                    historical: Boolean,
                                    epoch: String,
                                    verbose: Boolean)
 
-object AddressByEqUprnResponse {
-  implicit lazy val addressByEqUprnResponseFormat: Format[AddressByEqUprnResponse] = Json.format[AddressByEqUprnResponse]
+object AddressByEQUprnResponse {
+  implicit lazy val addressByEqUprnResponseFormat: Format[AddressByEQUprnResponse] = Json.format[AddressByEQUprnResponse]
 
   /**
     * Transforms hybrid object returned by ES into an Address that will be in the json response

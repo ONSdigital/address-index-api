@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEqUprnResponse, AddressByEqUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQUprnResponse, AddressByEQUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
@@ -111,7 +111,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressByEqUprnResponse.fromHybridAddress(hybridAddress, verb, addressType)
+            val address = AddressByEQUprnResponse.fromHybridAddress(hybridAddress, verb, addressType)
 
             writeLog(
               formattedOutput = AddressResponseAddress.fromHybridAddress(hybridAddress, verb).formattedAddressNag, numOfResults = "1",
@@ -119,10 +119,10 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
             )
 
             jsonOk(
-              AddressByEqUprnResponseContainer(
+              AddressByEQUprnResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByEqUprnResponse(
+                response = AddressByEQUprnResponse(
                   address = Some(address),
                   addressType = addressType,
                   historical = hist,

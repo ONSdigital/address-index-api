@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEqPostcodeResponse, AddressByEqPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
@@ -660,10 +660,10 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = eqController
 
-      val expected = Json.toJson(AddressByEqPostcodeResponseContainer(
+      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        response = AddressByEqPostcodeResponse(
+        response = AddressByEQPostcodeResponse(
           postcode = "Po155Rr",
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false, verbose = false)),
           filter = "",

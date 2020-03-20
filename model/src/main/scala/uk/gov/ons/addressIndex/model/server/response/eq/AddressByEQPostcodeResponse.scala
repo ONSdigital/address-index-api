@@ -17,7 +17,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param maxScore the max score
   * @param verbose output type
   */
-case class AddressByEqPostcodeResponse(postcode: String,
+case class AddressByEQPostcodeResponse(postcode: String,
                                        addresses: Seq[AddressResponseAddressPostcodeEQ],
                                        filter: String,
                                        historical: Boolean,
@@ -28,6 +28,6 @@ case class AddressByEqPostcodeResponse(postcode: String,
                                        maxScore: Double,
                                        verbose: Boolean)
 
-object AddressByEqPostcodeResponse {
-  implicit lazy val addressByEqPostcodeResponseFormat: Format[AddressByEqPostcodeResponse] = Json.format[AddressByEqPostcodeResponse]
+object AddressByEQPostcodeResponse {
+  implicit lazy val addressByEqPostcodeResponseFormat: Format[AddressByEQPostcodeResponse] = Json.format[AddressByEQPostcodeResponse]
 }

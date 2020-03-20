@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressPostcodeEQ, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEqPostcodeResponse, AddressByEqPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
@@ -139,10 +139,10 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
             writeLog(activity = "eq_postcode_request")
 
             jsonOk(
-              AddressByEqPostcodeResponseContainer(
+              AddressByEQPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByEqPostcodeResponse(
+                response = AddressByEQPostcodeResponse(
                   postcode = postcode,
                   addresses = addresses,
                   filter = filterString,
