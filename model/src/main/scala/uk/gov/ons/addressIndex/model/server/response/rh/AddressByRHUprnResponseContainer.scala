@@ -1,5 +1,6 @@
 package uk.gov.ons.addressIndex.model.server.response.rh
 
+import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseError, AddressResponseStatus}
 
 /**
@@ -11,10 +12,14 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseErr
   * @param status      response status / message
   * @param errors      encountered errors (or an empty list if there is no errors)
   */
-case class AddressByEQUprnResponseContainer(apiVersion: String,
+case class AddressByRHUprnResponseContainer(apiVersion: String,
                                             dataVersion: String,
-                                            response: AddressByEQUprnResponse,
+                                            response: AddressByRHUprnResponse,
                                             status: AddressResponseStatus,
                                             errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])
 
 
+object AddressByRHUprnResponseContainer {
+  implicit val addressByRHUprnResponseContainerFormat: Format[AddressByRHUprnResponseContainer] =
+    Json.format[AddressByRHUprnResponseContainer]
+}

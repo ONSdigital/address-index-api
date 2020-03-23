@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.rh
 
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomEQ
+import play.api.libs.json.{Format, Json}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressCustomRH, AddressResponseAddressRH}
 
 /**
   * Contains relevant, to the address request, data
@@ -21,8 +22,8 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param favourpaf paf switch
   * @param favourwelsh welsh switch
   */
-case class AddressByEQPartialAddressResponse(input: String,
-                                             addresses: Seq[AddressResponseAddressCustomEQ],
+case class AddressByRHPartialAddressResponse(input: String,
+                                             addresses: Seq[AddressResponseAddressCustomRH],
                                              filter: String,
                                              fallback: Boolean,
                                              historical: Boolean,
@@ -37,4 +38,13 @@ case class AddressByEQPartialAddressResponse(input: String,
                                              favourpaf: Boolean,
                                              favourwelsh: Boolean)
 
+object AddressByRHPartialAddressResponse {
+  implicit lazy val addressByPartialRHAddressResponseFormat: Format[AddressByRHPartialAddressResponse] = Json.format[AddressByRHPartialAddressResponse]
 
+  def toRHAddressByPartialResponse(sortedAddresses: Seq[AddressResponseAddressRH]): Seq[AddressResponseAddressCustomRH] = {
+
+    sortedAddresses.map(
+      address => AddressResponseAddressCustomRH.fromAddressResponseAddressRH(address)
+    )
+  }
+}

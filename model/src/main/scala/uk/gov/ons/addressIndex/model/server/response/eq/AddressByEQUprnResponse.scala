@@ -21,7 +21,7 @@ case class AddressByEQUprnResponse(address: Option[AddressResponseAddressUPRNEQ]
                                    verbose: Boolean)
 
 object AddressByEQUprnResponse {
-  implicit lazy val addressByEqUprnResponseFormat: Format[AddressByEQUprnResponse] = Json.format[AddressByEQUprnResponse]
+  implicit lazy val addressByEQUprnResponseFormat: Format[AddressByEQUprnResponse] = Json.format[AddressByEQUprnResponse]
 
   /**
     * Transforms hybrid object returned by ES into an Address that will be in the json response

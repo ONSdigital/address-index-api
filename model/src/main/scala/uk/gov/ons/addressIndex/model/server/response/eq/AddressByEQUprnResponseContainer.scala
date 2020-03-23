@@ -19,6 +19,6 @@ case class AddressByEQUprnResponseContainer(apiVersion: String,
                                             errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])
 
 object AddressByEQUprnResponseContainer {
-  implicit val addressByEqUprnResponseContainerFormat: Format[AddressByEQUprnResponseContainer] =
+  implicit val addressByEQUprnResponseContainerFormat: Format[AddressByEQUprnResponseContainer] =
     Json.format[AddressByEQUprnResponseContainer]
 }

@@ -1,6 +1,6 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressEQ, AddressResponseHighlight, AddressResponseHighlightHit}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressEQ, AddressResponseAddressRH, AddressResponseHighlight, AddressResponseHighlightHit}
 
 object HighlightFuncs {
 
@@ -86,6 +86,26 @@ object HighlightFuncs {
 
 
   def boostAddress(add: AddressResponseAddressEQ, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddressEQ = {
+    if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
+      add.copy(
+        confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+        underlyingScore = add.underlyingScore,
+        highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
+          bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+          source = getSource(add.highlights, favourPaf, favourWelsh),
+          lang = getLang(add.highlights, favourPaf, favourWelsh),
+          hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
+    } else add.copy(
+      confidenceScore = (math.round(add.underlyingScore)*5).min(100),
+      underlyingScore = add.underlyingScore,
+      highlights = if (add.highlights.isEmpty) None else Option(add.highlights.get.copy(
+        bestMatchAddress = getBestMatchAddress(add.highlights, favourPaf, favourWelsh),
+        source = getSource(add.highlights, favourPaf, favourWelsh),
+        lang = getLang(add.highlights, favourPaf, favourWelsh),
+        hits = if (highVerbose) Option(sortHighs(add.highlights.get.hits.getOrElse(Seq()), favourPaf, favourWelsh)) else None)))
+  }
+
+  def boostAddress(add: AddressResponseAddressRH, input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): AddressResponseAddressRH = {
     if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
       add.copy(
         confidenceScore = (math.round(add.underlyingScore)*5).min(100),

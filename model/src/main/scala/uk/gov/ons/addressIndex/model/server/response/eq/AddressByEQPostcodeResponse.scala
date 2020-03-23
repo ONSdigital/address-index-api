@@ -29,5 +29,5 @@ case class AddressByEQPostcodeResponse(postcode: String,
                                        verbose: Boolean)
 
 object AddressByEQPostcodeResponse {
-  implicit lazy val addressByEqPostcodeResponseFormat: Format[AddressByEQPostcodeResponse] = Json.format[AddressByEQPostcodeResponse]
+  implicit lazy val addressByEQPostcodeResponseFormat: Format[AddressByEQPostcodeResponse] = Json.format[AddressByEQPostcodeResponse]
 }

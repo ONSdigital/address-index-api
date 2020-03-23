@@ -17,7 +17,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
+class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
                                  esRepo: ElasticsearchRepository,
                                  conf: ConfigModule,
                                  versionProvider: VersionModule,
@@ -26,7 +26,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
                                 )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
-  lazy val logger = new AddressAPILogger("address-index-server:EQUPRNController")
+  lazy val logger = new AddressAPILogger("address-index-server:RHUPRNController")
 
   /**
     * UPRN query API
