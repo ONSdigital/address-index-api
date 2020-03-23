@@ -16,6 +16,9 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
 case class AddressResponseAddressRH(uprn: String,
                                     formattedAddress: String,
                                     highlights: Option[AddressResponseHighlight],
+                                    censusAddressType: String,
+                                    censusEstabType: String,
+                                    countryCode:String,
                                     confidenceScore: Double,
                                     underlyingScore: Float)
 
@@ -77,6 +80,9 @@ object AddressResponseAddressRH {
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress", other.highlights.headOption.getOrElse(Map())),
+      censusAddressType = other.censusAddressType,
+      censusEstabType = other.censusEstabType,
+      countryCode = other.countryCode,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance / 1000).toFloat
     )

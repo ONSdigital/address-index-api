@@ -11,7 +11,11 @@ import play.api.libs.json.{Format, Json}
   */
 case class AddressResponseAddressCustomRH(uprn: String,
                                           bestMatchAddress: String,
-                                          bestMatchAddressType: String)
+                                          bestMatchAddressType: String,
+                                          censusAddressType: String,
+                                          censusEstabType: String,
+                                          countryCode:String
+                                         )
 
 object AddressResponseAddressCustomRH {
   implicit lazy val addressResponseAddressRHFormat: Format[AddressResponseAddressCustomRH] = Json.format[AddressResponseAddressCustomRH]
@@ -35,7 +39,10 @@ object AddressResponseAddressCustomRH {
     AddressResponseAddressCustomRH(
       uprn = address.uprn,
       bestMatchAddress = bestMatchAddress,
-      bestMatchAddressType = bestMatchAddressType
+      bestMatchAddressType = bestMatchAddressType,
+      censusAddressType = address.censusAddressType,
+      censusEstabType = address.censusEstabType,
+      countryCode = address.countryCode
     )
   }
 }

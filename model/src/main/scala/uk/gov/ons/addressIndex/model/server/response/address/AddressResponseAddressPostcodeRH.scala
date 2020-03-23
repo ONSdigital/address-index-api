@@ -13,7 +13,10 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   */
 case class AddressResponseAddressPostcodeRH(uprn: String,
                                             formattedAddress: String,
-                                            addressType: String)
+                                            addressType: String,
+                                            censusAddressType: String,
+                                            censusEstabType: String,
+                                            countryCode:String)
 
 object AddressResponseAddressPostcodeRH {
   implicit lazy val addressResponseAddressRHFormat: Format[AddressResponseAddressPostcodeRH] = Json.format[AddressResponseAddressPostcodeRH]
@@ -70,7 +73,10 @@ object AddressResponseAddressPostcodeRH {
     AddressResponseAddressPostcodeRH(
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
-      addressType = addressType
+      addressType = addressType,
+      censusAddressType = other.censusAddressType,
+      censusEstabType = other.censusEstabType,
+      countryCode = other.countryCode
     )
   }
 }
