@@ -104,7 +104,10 @@ object AddressByRHUprnResponse {
       addressLine2 = addressLines.getOrElse("addressLine2", ""),
       addressLine3 = addressLines.getOrElse("addressLine3", ""),
       townName = townName,
-      postcode = postcode
+      postcode = postcode,
+      censusAddressType = other.censusAddressType,
+      censusEstabType = other.censusEstabType,
+      countryCode = other.countryCode
     )
   }
 

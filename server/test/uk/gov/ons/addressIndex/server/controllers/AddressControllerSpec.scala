@@ -19,7 +19,7 @@ import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResp
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper,HighlightFuncs}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -2630,7 +2630,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val high3 = new AddressResponseHighlightHit( source = "P", lang = "W",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
       val high4 = new AddressResponseHighlightHit( source = "N", lang = "E",distinctHitCount = 4, highLightedText ="6 Long Lane Belfast")
 
-      val result = controller.sortHighs(Seq(high1,high2,high3,high4),true,true)
+      val result = HighlightFuncs.sortHighs(Seq(high1,high2,high3,high4),true,true)
       val expected = Seq(high4,high3,high2,high1)
 
       // Then

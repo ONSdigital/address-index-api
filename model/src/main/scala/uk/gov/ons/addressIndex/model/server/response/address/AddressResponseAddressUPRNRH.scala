@@ -19,7 +19,10 @@ case class AddressResponseAddressUPRNRH(uprn: String,
                                         addressLine2: String,
                                         addressLine3: String,
                                         townName: String,
-                                        postcode: String)
+                                        postcode: String,
+                                        censusAddressType: String,
+                                        censusEstabType: String,
+                                        countryCode:String)
 
 object AddressResponseAddressUPRNRH {
   implicit lazy val addressResponseAddressUPRNRHFormat: Format[AddressResponseAddressUPRNRH] = Json.format[AddressResponseAddressUPRNRH]

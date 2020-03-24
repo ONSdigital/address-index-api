@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQUprnResponse, AddressByEQUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHUprnResponse, AddressByRHUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
@@ -43,7 +43,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
-    val endpointType = "equprn"
+    val endpointType = "rhuprn"
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
@@ -111,7 +111,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressByEQUprnResponse.fromHybridAddress(hybridAddress, verb, addressType)
+            val address = AddressByRHUprnResponse.fromHybridAddress(hybridAddress, verb, addressType)
 
             writeLog(
               formattedOutput = AddressResponseAddress.fromHybridAddress(hybridAddress, verb).formattedAddressNag, numOfResults = "1",
@@ -119,10 +119,10 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
             )
 
             jsonOk(
-              AddressByEQUprnResponseContainer(
+              AddressByRHUprnResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByEQUprnResponse(
+                response = AddressByRHUprnResponse(
                   address = Some(address),
                   addressType = addressType,
                   historical = hist,
