@@ -16,10 +16,11 @@ import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddre
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPartialAddressResponse, AddressByRHPartialAddressResponseContainer, AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper,HighlightFuncs}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HighlightFuncs, HopperScoreHelper}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -395,9 +396,11 @@ class AddressControllerSpec extends PlaySpec with Results {
   val partialAddressController = new PartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
 
   val eqPartialAddressController = new EQPartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+  val rhPartialAddressController = new RHPartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
 
   val postcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val eqPostcodeController = new EQPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+  val rhPostcodeController = new RHPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
@@ -686,6 +689,77 @@ class AddressControllerSpec extends PlaySpec with Results {
       status(result) mustBe OK
       actual mustBe expected
     }
+
+    "reply with a found address in rh format when a partial is supplied to RH Partial Controller" in {
+
+      val addresses = Seq(AddressResponseAddressRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true, verbose = false))
+
+      val sortAddresses = if (sboost > 0) rhPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
+
+      // Given
+      val expected = Json.toJson(AddressByRHPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByRHPartialAddressResponse(
+          input = "some query",
+          addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
+          filter = "",
+          fallback = true,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = "",
+          fromsource = "all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = rhPartialAddressController.partialAddressQuery(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with an rh postcode response when a postcode is supplied to RH Postcode Controller" in {
+      // Given
+
+      val expected = Json.toJson(AddressByRHPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByRHPostcodeResponse(
+          postcode = "Po155Rr",
+          addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false, verbose = false)),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = rhPostcodeController.postcodeQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+
 
     "reply on a found address in verbose format (by partial)" in {
       // Given
