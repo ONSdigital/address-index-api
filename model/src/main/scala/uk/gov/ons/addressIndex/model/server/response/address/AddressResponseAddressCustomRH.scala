@@ -8,6 +8,9 @@ import play.api.libs.json.{Format, Json}
   * @param uprn the UPRN
   * @param bestMatchAddress the bestMatchAddress
   * @param bestMatchAddressType the type of address (PAF, WELSHPAF, NAG, WELSHNAG & NISRA)
+  * @param censusAddressType census bespoke address type derived from ABP code
+  * @param censusEstabType census bespoke establishment type derived from ABP code
+  * @param countryCode E="England" W="Wales" S="Scotland" N="Northern Ireland"
   */
 case class AddressResponseAddressCustomRH(uprn: String,
                                           bestMatchAddress: String,

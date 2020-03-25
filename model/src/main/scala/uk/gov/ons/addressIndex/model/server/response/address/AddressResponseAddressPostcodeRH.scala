@@ -10,6 +10,9 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param uprn address UPRN
   * @param formattedAddress the chosen formatted address
   * @param addressType the type of address (PAF, WELSHPAF, NAG, WELSHNAG & NISRA)
+  * @param censusAddressType census bespoke address type derived from ABP code
+  * @param censusEstabType census bespoke establishment type derived from ABP code
+  * @param countryCode E="England" W="Wales" S="Scotland" N="Northern Ireland"
   */
 case class AddressResponseAddressPostcodeRH(uprn: String,
                                             formattedAddress: String,

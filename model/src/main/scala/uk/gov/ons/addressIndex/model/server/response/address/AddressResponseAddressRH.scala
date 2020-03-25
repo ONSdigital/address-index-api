@@ -5,11 +5,14 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGaz
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress.{chooseMostRecentNag, removeConcatenatedPostcode}
 
 /**
-  * Contains address information retrieved in ES relevant to EQ - initial result, actual result is extracted from this
+  * Contains address information retrieved in ES relevant to RH - initial result, actual result is extracted from this
   *
   * @param uprn address UPRN
   * @param formattedAddress the chosen formatted address
   * @param highlights matching hightlights if on
+  * @param censusAddressType census bespoke address type derived from ABP code
+  * @param censusEstabType census bespoke establishment type derived from ABP code
+  * @param countryCode E="England" W="Wales" S="Scotland" N="Northern Ireland"
   * @param confidenceScore the confidence score
   * @param underlyingScore the underlying score
   */
