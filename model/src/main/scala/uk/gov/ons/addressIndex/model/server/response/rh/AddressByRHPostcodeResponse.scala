@@ -1,7 +1,7 @@
-package uk.gov.ons.addressIndex.model.server.response.eq
+package uk.gov.ons.addressIndex.model.server.response.rh
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressPostcodeEQ
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressPostcodeRH
 
 /**
   * Contains relevant, to the address request, data
@@ -17,8 +17,8 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param maxScore the max score
   * @param verbose output type
   */
-case class AddressByEqPostcodeResponse(postcode: String,
-                                       addresses: Seq[AddressResponseAddressPostcodeEQ],
+case class AddressByRHPostcodeResponse(postcode: String,
+                                       addresses: Seq[AddressResponseAddressPostcodeRH],
                                        filter: String,
                                        historical: Boolean,
                                        epoch: String,
@@ -28,6 +28,6 @@ case class AddressByEqPostcodeResponse(postcode: String,
                                        maxScore: Double,
                                        verbose: Boolean)
 
-object AddressByEqPostcodeResponse {
-  implicit lazy val addressByEqPostcodeResponseFormat: Format[AddressByEqPostcodeResponse] = Json.format[AddressByEqPostcodeResponse]
+object AddressByRHPostcodeResponse {
+  implicit lazy val addressByRHPostcodeResponseFormat: Format[AddressByRHPostcodeResponse] = Json.format[AddressByRHPostcodeResponse]
 }

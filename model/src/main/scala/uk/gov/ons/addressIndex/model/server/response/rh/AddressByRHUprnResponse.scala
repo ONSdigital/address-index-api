@@ -1,9 +1,9 @@
-package uk.gov.ons.addressIndex.model.server.response.eq
+package uk.gov.ons.addressIndex.model.server.response.rh
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGazetteerAddress}
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress.{AddressTypes, chooseMostRecentNag, removeConcatenatedPostcode}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNEQ
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNRH
 
 /**
   * Contains relevant information to the requested address
@@ -14,14 +14,15 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param epoch AB Epoch
   * @param verbose output verbosity
   */
-case class AddressByEqUprnResponse(address: Option[AddressResponseAddressUPRNEQ],
+case class AddressByRHUprnResponse(address: Option[AddressResponseAddressUPRNRH],
                                    addressType: String,
                                    historical: Boolean,
                                    epoch: String,
                                    verbose: Boolean)
 
-object AddressByEqUprnResponse {
-  implicit lazy val addressByEqUprnResponseFormat: Format[AddressByEqUprnResponse] = Json.format[AddressByEqUprnResponse]
+
+object AddressByRHUprnResponse {
+  implicit lazy val addressByRHUprnResponseFormat: Format[AddressByRHUprnResponse] = Json.format[AddressByRHUprnResponse]
 
   /**
     * Transforms hybrid object returned by ES into an Address that will be in the json response
@@ -29,7 +30,7 @@ object AddressByEqUprnResponse {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddress(other: HybridAddress, verbose: Boolean, addressType: String): AddressResponseAddressUPRNEQ = {
+  def fromHybridAddress(other: HybridAddress, verbose: Boolean, addressType: String): AddressResponseAddressUPRNRH = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
@@ -96,14 +97,17 @@ object AddressByEqUprnResponse {
 
     val addressLines = splitFormattedAddress(removeConcatenatedPostcode(formattedAddress), townName, postcode)
 
-    AddressResponseAddressUPRNEQ(
+    AddressResponseAddressUPRNRH(
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       addressLine1 = addressLines.getOrElse("addressLine1", ""),
       addressLine2 = addressLines.getOrElse("addressLine2", ""),
       addressLine3 = addressLines.getOrElse("addressLine3", ""),
       townName = townName,
-      postcode = postcode
+      postcode = postcode,
+      censusAddressType = other.censusAddressType,
+      censusEstabType = other.censusEstabType,
+      countryCode = other.countryCode
     )
   }
 
@@ -145,5 +149,4 @@ object AddressByEqUprnResponse {
     }
   }
 }
-
 

@@ -4,8 +4,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressPostcodeEQ, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressPostcodeRH, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
@@ -17,7 +17,7 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class EQPostcodeController @Inject()(val controllerComponents: ControllerComponents,
+class RHPostcodeController @Inject()(val controllerComponents: ControllerComponents,
                                      esRepo: ElasticsearchRepository,
                                      conf: ConfigModule,
                                      versionProvider: VersionModule,
@@ -26,10 +26,10 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                                   )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PostcodeControllerResponse {
 
-  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQPostcodeController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:RHPostcodeController")
 
   /**
-    * EQ POSTCODE query API
+    * RH POSTCODE query API
     *
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
@@ -132,17 +132,17 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
 
-            val addresses: Seq[AddressResponseAddressPostcodeEQ] = hybridAddresses.map(
-              AddressResponseAddressPostcodeEQ.fromHybridAddress(_, favourPaf, favourWelsh, verb)
+            val addresses: Seq[AddressResponseAddressPostcodeRH] = hybridAddresses.map(
+              AddressResponseAddressPostcodeRH.fromHybridAddress(_, favourPaf, favourWelsh, verb)
             )
 
             writeLog(activity = "eq_postcode_request")
 
             jsonOk(
-              AddressByEQPostcodeResponseContainer(
+              AddressByRHPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByEQPostcodeResponse(
+                response = AddressByRHPostcodeResponse(
                   postcode = postcode,
                   addresses = addresses,
                   filter = filterString,

@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPartialAddressResponse, AddressByRHPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
@@ -18,21 +18,21 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class EQPartialAddressController @Inject()(val controllerComponents: ControllerComponents,
-                                         esRepo: ElasticsearchRepository,
-                                         conf: ConfigModule,
-                                         versionProvider: VersionModule,
-                                         overloadProtection: APIThrottle,
-                                         partialAddressValidation: PartialAddressControllerValidation
+class RHPartialAddressController @Inject()(val controllerComponents: ControllerComponents,
+                                           esRepo: ElasticsearchRepository,
+                                           conf: ConfigModule,
+                                           versionProvider: VersionModule,
+                                           overloadProtection: APIThrottle,
+                                           partialAddressValidation: PartialAddressControllerValidation
                                         )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
-  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQPartialAddressController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:RHPartialAddressController")
 
   val sboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
-    * EQ PartialAddress query API
+    * RH PartialAddress query API
     *
     * @param input input for the address to be fetched
     * @return Json response with addresses information
@@ -150,21 +150,21 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
 
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
-            val addresses: Seq[AddressResponseAddressEQ] = hybridAddresses.map(
-              AddressResponseAddressEQ.fromHybridAddress(_, favourPaf, favourWelsh, verb)
+            val addresses: Seq[AddressResponseAddressRH] = hybridAddresses.map(
+              AddressResponseAddressRH.fromHybridAddress(_, favourPaf, favourWelsh, verb)
             )
 
             val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses
 
-            writeLog(activity = "eq_partial_request")
+            writeLog(activity = "rh_partial_request")
 
             jsonOk(
-              AddressByEQPartialAddressResponseContainer(
+              AddressByRHPartialAddressResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByEQPartialAddressResponse(
+                response = AddressByRHPartialAddressResponse(
                   input = input,
-                  addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
+                  addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
                   filter = filterString,
                   fallback = fall,
                   historical = hist,
@@ -200,7 +200,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     }
   }
 
-  def boostAtStart(inAddresses: Seq[AddressResponseAddressEQ], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddressEQ] = {
+  def boostAtStart(inAddresses: Seq[AddressResponseAddressRH], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddressRH] = {
     inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
   }
 }
