@@ -465,9 +465,135 @@
 				}
 			}
 		},
+		"/addresses/rh/partial": {
+			"get": {
+				"operationId": "partialAddressQueryRH",
+				"tags": [
+					"routes"
+				],
+				"summary": "Search by partial address (for type ahead). RH version",
+				"description": "Returns a list addresses, from a partial match on the input string",
+				"parameters": [
+					{
+						"in": "query",
+						"name": "input",
+						"type": "string",
+						"required": true,
+						"description": "Specifies the address input."
+					},
+					{
+						"in": "query",
+						"name": "fallback",
+						"type": "string",
+						"required": false,
+						"description": "Specifies whether a slow fallback query is used in the event of the main query returning no results."
+					},
+					{
+						"in": "query",
+						"name": "offset",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the offset from zero, used for pagination.",
+						"default": 0,
+						"maximum": 250
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the number of addresses to return.",
+						"default": 10,
+						"maximum": 100
+					},
+					{
+						"in": "query",
+						"name": "classificationfilter",
+						"type": "string",
+						"required": false,
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial"
+					},
+					{
+						"in": "query",
+						"name": "historical",
+						"type": "string",
+						"required": false,
+						"description": "Include historical addresses",
+						"default": false
+					},
+					{
+						"in": "query",
+						"name": "verbose",
+						"type": "string",
+						"required": false,
+						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
+						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
+					},
+					{
+						"in": "query",
+						"name": "fromsource",
+						"type": "string",
+						"required": false,
+						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
+						"default": "all"
+					},
+					{
+						"in": "query",
+						"name": "highlight",
+						"type": "string",
+						"required": false,
+						"description": "include detailed highlighting info, options are off, on or debug",
+						"default": true
+					},
+					{
+						"in": "query",
+						"name": "favourpaf",
+						"type": "string",
+						"required": false,
+						"description": "paf beats nag on draw for best match",
+						"default": true
+					},
+					{
+						"in": "query",
+						"name": "favourwelsh",
+						"type": "string",
+						"required": false,
+						"description": "Welsh beats English on draw for best match",
+						"default": false
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success. A json return of matched addresses.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
 		"/addresses/eq/uprn/{uprn}": {
 			"get": {
-				"operationId": "uprnQuery",
+				"operationId": "uprnQueryEQ",
 				"tags": [
 					"routes"
 				],
@@ -485,7 +611,80 @@
 						"in": "query",
 						"name": "addresstype",
 						"type": "string",
-						"required": true
+						"required": true,
+						"description": "Version of the address to return - paf, welshpaf, nag, welshnag, nisra"
+					},
+					{
+						"in": "query",
+						"name": "historical",
+						"type": "string",
+						"required": false,
+						"description": "Include historical addresses",
+						"default": true
+					},
+					{
+						"in": "query",
+						"name": "verbose",
+						"type": "string",
+						"required": false,
+						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
+						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success. A json return of matched addresses.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"404": {
+						"description": "Not found. The requested UPRN was not found in the index."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/addresses/rh/uprn/{uprn}": {
+			"get": {
+				"operationId": "uprnQueryRH",
+				"tags": [
+					"routes"
+				],
+				"summary": "Custom RH UPRN endpoint. Gets an address by UPRN.",
+				"description": "Returns a single address, identified by its UPRN in the custom EQ format.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uprn",
+						"type": "string",
+						"required": true,
+						"description": "Specifies the address UPRN."
+					},
+					{
+						"in": "query",
+						"name": "addresstype",
+						"type": "string",
+						"required": true,
+						"description": "Version of the address to return - paf, welshpaf, nag, welshnag, nisra"
 					},
 					{
 						"in": "query",
@@ -718,6 +917,105 @@
 						"required": false,
 						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "epoch",
+						"type": "string",
+						"required": false,
+						"description": "Select a specific AddressBase Epoch to search."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success. A json return of matched addresses.",
+						"schema": {
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
+						}
+					},
+					"400": {
+						"description": "Bad request. Indicates an issue with the request. Further details are provided in the response."
+					},
+					"401": {
+						"description": "Unauthorised. The API key provided with the request is invalid."
+					},
+					"429": {
+						"description": "Server too busy. The Address Index API is experiencing exceptional load."
+					},
+					"500": {
+						"description": "Internal server error. Failed to process the request due to an internal error."
+					}
+				}
+			}
+		},
+		"/addresses/rh/postcode/{postcode}": {
+			"get": {
+				"operationId": "postcodeQueryRH",
+				"tags": [
+					"routes"
+				],
+				"summary": "Search for an address by postcode. RH version",
+				"description": "Returns a alpha-numeric ordered list of addresses matching the postcode query.",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "postcode",
+						"type": "string",
+						"required": true,
+						"description": "Specifies the postcode search string (e.g. 'HA4 8RG')."
+					},
+					{
+						"in": "query",
+						"name": "offset",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the offset from zero, used for pagination.",
+						"default": 0,
+						"maximum": 1000
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"type": "string",
+						"required": false,
+						"description": "Specifies the number of addresses to return.",
+						"default": 10,
+						"maximum": 100
+					},
+					{
+						"in": "query",
+						"name": "classificationfilter",
+						"type": "string",
+						"required": false,
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial"
+					},
+					{
+						"in": "query",
+						"name": "historical",
+						"type": "string",
+						"required": false,
+						"description": "Include historical addresses",
+						"default": true
+					},
+					{
+						"in": "query",
+						"name": "verbose",
+						"type": "string",
+						"required": false,
+						"description": "Include the full address details in the response (including relatives, crossRefs, paf and nag).",
+						"default": false
+					},
+					{
+						"in": "query",
+						"name": "favourpaf",
+						"type": "string",
+						"required": false
+					},
+					{
+						"in": "query",
+						"name": "favourwelsh",
+						"type": "string",
+						"required": false
 					},
 					{
 						"in": "query",
@@ -1078,56 +1376,6 @@
 				"codelists"
 			]
 		},
-		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse": {
-			"properties": {
-				"address": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
-				},
-				"historical": {
-					"type": "boolean"
-				},
-				"epoch": {
-					"type": "string"
-				},
-				"verbose": {
-					"type": "boolean"
-				}
-			},
-			"required": [
-				"historical",
-				"epoch",
-				"verbose"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer": {
-			"properties": {
-				"apiVersion": {
-					"type": "string"
-				},
-				"dataVersion": {
-					"type": "string"
-				},
-				"response": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse"
-				},
-				"status": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
-				},
-				"errors": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
-					}
-				}
-			},
-			"required": [
-				"apiVersion",
-				"dataVersion",
-				"response",
-				"status",
-				"errors"
-			]
-		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatus": {
 			"properties": {
 				"code": {
@@ -1153,108 +1401,6 @@
 			},
 			"required": [
 				"logicalStatuses"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse": {
-			"properties": {
-				"input": {
-					"type": "string"
-				},
-				"addresses": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
-					}
-				},
-				"filter": {
-					"type": "string"
-				},
-				"fallback": {
-					"type": "boolean"
-				},
-				"historical": {
-					"type": "boolean"
-				},
-				"epoch": {
-					"type": "string"
-				},
-				"limit": {
-					"type": "integer",
-					"format": "int32"
-				},
-				"offset": {
-					"type": "integer",
-					"format": "int32"
-				},
-				"total": {
-					"type": "integer",
-					"format": "int64"
-				},
-				"maxScore": {
-					"type": "number",
-					"format": "double"
-				},
-				"verbose": {
-					"type": "boolean"
-				},
-				"fromsource": {
-					"type": "string"
-				},
-				"highlight": {
-					"type": "string"
-				},
-				"favourpaf": {
-					"type": "boolean"
-				},
-				"favourwelsh": {
-					"type": "boolean"
-				}
-			},
-			"required": [
-				"input",
-				"addresses",
-				"filter",
-				"fallback",
-				"historical",
-				"epoch",
-				"limit",
-				"offset",
-				"total",
-				"maxScore",
-				"verbose",
-				"fromsource",
-				"highlight",
-				"favourpaf",
-				"favourwelsh"
-			]
-		},
-		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
-			"properties": {
-				"apiVersion": {
-					"type": "string"
-				},
-				"dataVersion": {
-					"type": "string"
-				},
-				"response": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse"
-				},
-				"status": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
-				},
-				"errors": {
-					"type": "array",
-					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
-					}
-				}
-			},
-			"required": [
-				"apiVersion",
-				"dataVersion",
-				"response",
-				"status",
-				"errors"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress": {
@@ -1481,6 +1627,158 @@
 			"required": [
 				"apiVersion",
 				"dataVersion"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse": {
+			"properties": {
+				"address": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"verbose": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"historical",
+				"epoch",
+				"verbose"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse": {
+			"properties": {
+				"input": {
+					"type": "string"
+				},
+				"addresses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+					}
+				},
+				"filter": {
+					"type": "string"
+				},
+				"fallback": {
+					"type": "boolean"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"limit": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"offset": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"total": {
+					"type": "integer",
+					"format": "int64"
+				},
+				"maxScore": {
+					"type": "number",
+					"format": "double"
+				},
+				"verbose": {
+					"type": "boolean"
+				},
+				"fromsource": {
+					"type": "string"
+				},
+				"highlight": {
+					"type": "string"
+				},
+				"favourpaf": {
+					"type": "boolean"
+				},
+				"favourwelsh": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"input",
+				"addresses",
+				"filter",
+				"fallback",
+				"historical",
+				"epoch",
+				"limit",
+				"offset",
+				"total",
+				"maxScore",
+				"verbose",
+				"fromsource",
+				"highlight",
+				"favourpaf",
+				"favourwelsh"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError": {
