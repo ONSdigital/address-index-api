@@ -46,27 +46,6 @@
             Gets an address by UPRN.
         </td>
     </tr>
-    <tr class="table--row">
-        <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="eq/readme.md">/addresses/eq</a></td>
-        <td class="table--cell">
-            Custom endpoint for Electronic Questionnaire.
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="rh/partial/readme.md">/addresses/rh/partial</a></td>
-        <td class="table--cell">
-            Search by partial address (for type ahead).
-        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="rh/postcode/readme.md">/addresses/rh/postcode/{postcode}</a></td>
-        <td class="table--cell">
-            Search for an address by postcode.
-        </td>
-    </tr>
    </tbody>
 </table>
 
@@ -109,7 +88,7 @@
     </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
-        <td class="table--cell"><a href="eq/uprn/readme.md">/addresses/eq/uprn/{uprn}</a></td>
+        <td class="table--cell"><a href="rh/uprn/readme.md">/addresses/rh/uprn/{uprn}</a></td>
         <td class="table--cell">
             Gets an address by UPRN (RH version).
         </td>
