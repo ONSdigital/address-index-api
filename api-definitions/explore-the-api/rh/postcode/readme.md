@@ -55,6 +55,24 @@
         </td>
     </tr>
     <tr class="table--row">
+       <td class="table--cell">favourpaf</td>
+       <td class="table--cell">string</td>
+       <td class="table--cell">paf beats nag on draw for best match</td>
+       <td class="table--cell">
+            Optional
+       <br>Default: True
+       </td>
+    </tr>
+    <tr class="table--row">
+       <td class="table--cell">favourwelsh</td>
+       <td class="table--cell">string</td>
+       <td class="table--cell">Welsh beats English on draw for best match</td>
+       <td class="table--cell">
+          Optional
+          <br>Default: False
+       </td>
+    </tr>
+    <tr class="table--row">
         <td class="table--cell">verbose</td>
         <td class="table--cell">string</td>
         <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
