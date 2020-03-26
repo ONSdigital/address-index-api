@@ -53,9 +53,70 @@
             Custom endpoint for Electronic Questionnaire.
         </td>
     </tr>
-
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="rh/partial/readme.md">/addresses/rh/partial</a></td>
+        <td class="table--cell">
+            Search by partial address (for type ahead).
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="rh/postcode/readme.md">/addresses/rh/postcode/{postcode}</a></td>
+        <td class="table--cell">
+            Search for an address by postcode.
+        </td>
+    </tr>
    </tbody>
 </table>
+
+<h2>Custom Endpoints</h2>
+
+<table class="table">
+    <thead class="table--head">
+    <th scope="col" class="table--header--cell">Method</th>
+    <th scope="col" class="table--header--cell">Endpoint</th>
+    <th scope="col" class="table--header--cell">Description</th>
+    </thead>
+    <tbody>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="eq/readme.md">/addresses/eq</a></td>
+        <td class="table--cell">
+            Custom endpoint for Electronic Questionnaire.
+        </td>
+    </tr>
+         <tr class="table--row">
+            <td class="table--cell">GET</td>
+            <td class="table--cell"><a href="eq/uprn/readme.md">/addresses/eq/uprn/{uprn}</a></td>
+            <td class="table--cell">
+                Gets an address by UPRN (EQ version).
+            </td>
+        </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="rh/partial/readme.md">/addresses/rh/partial</a></td>
+        <td class="table--cell">
+            Search by partial address for type ahead (RH Version).
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="rh/postcode/readme.md">/addresses/rh/postcode/{postcode}</a></td>
+        <td class="table--cell">
+            Search for an address by postcode (RH version).
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="eq/uprn/readme.md">/addresses/eq/uprn/{uprn}</a></td>
+        <td class="table--cell">
+            Gets an address by UPRN (RH version).
+        </td>
+    </tr>
+  </tbody>
+</table>
+
 
 <h2>Supplementary Endpoints</h2>
 
