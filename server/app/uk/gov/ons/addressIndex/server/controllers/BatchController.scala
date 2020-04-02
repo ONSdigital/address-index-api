@@ -387,8 +387,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     // TODO this quantity needs to be explained and given a better name
     val authHasPlus = authVal.indexOf("+") > 0
-    val networkId = if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)
-    val organisation = if (authHasPlus) networkId.split("_")(1) else "not set"
+    val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+    val organisation = Try(if (authHasPlus) networkId.split("_")(1) else "not set").getOrElse("")
 
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
