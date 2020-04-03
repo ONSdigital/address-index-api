@@ -658,7 +658,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false, verbose = true)
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
 
       // Then
       result shouldBe expected
@@ -676,7 +676,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
 
       // Then
       result shouldBe expected
@@ -694,7 +694,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
 
       // Then
       result shouldBe expected
@@ -712,7 +712,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = true)
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
 
       // Then
       result shouldBe expected
@@ -730,7 +730,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
 
       // Then
       result shouldBe expected
@@ -746,7 +746,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
      )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
       // Then
       result shouldBe expected
@@ -762,7 +762,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
       // Then
       result shouldBe expected
@@ -778,7 +778,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
       // Then
       result shouldBe expected
@@ -794,7 +794,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
       // Then
       result shouldBe expected
@@ -811,11 +811,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         addressLine2 = "Government Buildings",
         addressLine3 = "Cardiff Rd, Duffryn, Shire",
         townName = "Newport",
-        postcode = "NP10 8XG"
+        postcode = "NP10 8XG",
+        foundAddressType="PAF"
       )
 
       // When
-      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "PAF")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, "PAF")
 
       // Then
       result shouldBe expected
@@ -832,11 +833,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         addressLine2 = "Adeiladau'r Llywodraeth",
         addressLine3 = "Caerdydd Rd, Duffryn, Rhanbarth",
         townName = "Casnewydd",
-        postcode = "NP10 8XG"
+        postcode = "NP10 8XG",
+        foundAddressType="WELSHPAF"
       )
 
       // When
-      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHPAF")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, "WELSHPAF")
 
       // Then
       result shouldBe expected
@@ -853,11 +855,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         addressLine2 = "Segensworth",
         addressLine3 = "Titchfield, Mount Doom, Mordor",
         townName = "Fareham",
-        postcode = "PO15 5RR"
+        postcode = "PO15 5RR",
+        foundAddressType="NAG"
       )
 
       // When
-      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "NAG")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, "NAG")
 
       // Then
       result shouldBe expected
@@ -874,11 +877,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         addressLine2 = "Adeiladau'r Llywodraeth",
         addressLine3 = "Caerdydd Rd, Duffryn, Rhanbarth",
         townName = "Casnewydd",
-        postcode = "NP10 8XG"
+        postcode = "NP10 8XG",
+        foundAddressType="WELSHNAG"
       )
 
       // When
-      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHNAG")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, "WELSHNAG")
 
       // Then
       result shouldBe expected
@@ -895,11 +899,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         addressLine2 = "Castle Buildings",
         addressLine3 = "Upper Newtownards Rd, Stormont",
         townName = "Belfast",
-        postcode = "BT4 3PP"
+        postcode = "BT4 3PP",
+        foundAddressType="NISRA"
       )
 
       // When
-      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, verbose = true, "NISRA")
+      val result = AddressByEQUprnResponse.fromHybridAddress(hybrid, "NISRA")
 
       // Then
       result shouldBe expected
@@ -916,7 +921,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = false)
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
 
       // Then
       result shouldBe expected
@@ -933,7 +938,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false, verbose = true)
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
 
       // Then
       result shouldBe expected
@@ -950,7 +955,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
 
       // Then
       result shouldBe expected
@@ -967,7 +972,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
 
       // Then
       result shouldBe expected
@@ -984,7 +989,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = true)
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
 
       // Then
       result shouldBe expected
@@ -1001,7 +1006,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       )
 
       // When
-      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+      val result = AddressResponseAddressPostcodeEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
 
       // Then
       result shouldBe expected
@@ -1025,7 +1030,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false, verbose = true)
+    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
 
     // Then
     result shouldBe expected
@@ -1046,7 +1051,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
 
     // Then
     result shouldBe expected
@@ -1067,7 +1072,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
 
     // Then
     result shouldBe expected
@@ -1088,7 +1093,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = true)
+    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
 
     // Then
     result shouldBe expected
@@ -1109,7 +1114,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
 
     // Then
     result shouldBe expected
@@ -1128,7 +1133,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
     // Then
     result shouldBe expected
@@ -1147,7 +1152,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
     // Then
     result shouldBe expected
@@ -1166,7 +1171,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
     // Then
     result shouldBe expected
@@ -1185,7 +1190,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
 
     // Then
     result shouldBe expected
@@ -1203,13 +1208,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       addressLine3 = "Cardiff Rd, Duffryn, Shire",
       townName = "Newport",
       postcode = "NP10 8XG",
+      foundAddressType="PAF",
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "E"
     )
 
     // When
-    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, verbose = true, "PAF")
+    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, "PAF")
 
     // Then
     result shouldBe expected
@@ -1227,13 +1233,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       addressLine3 = "Caerdydd Rd, Duffryn, Rhanbarth",
       townName = "Casnewydd",
       postcode = "NP10 8XG",
+      foundAddressType="WELSHPAF",
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "W"
     )
 
     // When
-    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHPAF")
+    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, "WELSHPAF")
 
     // Then
     result shouldBe expected
@@ -1251,13 +1258,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       addressLine3 = "Titchfield, Mount Doom, Mordor",
       townName = "Fareham",
       postcode = "PO15 5RR",
+      foundAddressType = "NAG",
       censusAddressType = "NA",
-      censusEstabType="NA",
+      censusEstabType = "NA",
       countryCode = "E"
     )
 
     // When
-    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, verbose = true, "NAG")
+    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, "NAG")
 
     // Then
     result shouldBe expected
@@ -1275,13 +1283,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       addressLine3 = "Caerdydd Rd, Duffryn, Rhanbarth",
       townName = "Casnewydd",
       postcode = "NP10 8XG",
+      foundAddressType="WELSHNAG",
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "W"
     )
 
     // When
-    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, verbose = true, "WELSHNAG")
+    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, "WELSHNAG")
 
     // Then
     result shouldBe expected
@@ -1299,13 +1308,14 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       addressLine3 = "Upper Newtownards Rd, Stormont",
       townName = "Belfast",
       postcode = "BT4 3PP",
+      foundAddressType="NISRA",
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "E"
     )
 
     // When
-    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, verbose = true, "NISRA")
+    val result = AddressByRHUprnResponse.fromHybridAddress(hybrid, "NISRA")
 
     // Then
     result shouldBe expected
@@ -1325,7 +1335,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = false)
+    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
 
     // Then
     result shouldBe expected
@@ -1345,7 +1355,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false, verbose = true)
+    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
 
     // Then
     result shouldBe expected
@@ -1365,7 +1375,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
 
     // Then
     result shouldBe expected
@@ -1385,7 +1395,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false, verbose = true)
+    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
 
     // Then
     result shouldBe expected
@@ -1405,7 +1415,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true, verbose = true)
+    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
 
     // Then
     result shouldBe expected
@@ -1425,7 +1435,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true, verbose = true)
+    val result = AddressResponseAddressPostcodeRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
 
     // Then
     result shouldBe expected

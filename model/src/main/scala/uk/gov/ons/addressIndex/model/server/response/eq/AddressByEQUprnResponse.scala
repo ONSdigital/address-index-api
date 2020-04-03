@@ -47,7 +47,7 @@ object AddressByEQUprnResponse {
       case AddressTypes.welshPaf => if (welshFormattedAddressPaf.isEmpty)
       {if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag}
       else AddressTypes.welshPaf
-      case AddressTypes.nag => formattedAddressNag
+      case AddressTypes.nag => AddressTypes.nag
       case AddressTypes.welshNag => if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag
       case AddressTypes.nisra => if (formattedAddressNisra.isEmpty) AddressTypes.nag else AddressTypes.nisra
     }
