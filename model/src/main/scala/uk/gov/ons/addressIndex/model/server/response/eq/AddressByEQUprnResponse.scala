@@ -12,13 +12,11 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param addressType the type of address (PAF, WELSHPAF, NAG, WELSHNAG & NISRA)
   * @param historical ES index choice
   * @param epoch AB Epoch
-  * @param verbose output verbosity
   */
 case class AddressByEQUprnResponse(address: Option[AddressResponseAddressUPRNEQ],
                                    addressType: String,
                                    historical: Boolean,
-                                   epoch: String,
-                                   verbose: Boolean)
+                                   epoch: String)
 
 object AddressByEQUprnResponse {
   implicit lazy val addressByEQUprnResponseFormat: Format[AddressByEQUprnResponse] = Json.format[AddressByEQUprnResponse]
@@ -29,7 +27,7 @@ object AddressByEQUprnResponse {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddress(other: HybridAddress, verbose: Boolean, addressType: String): AddressResponseAddressUPRNEQ = {
+  def fromHybridAddress(other: HybridAddress, addressType: String): AddressResponseAddressUPRNEQ = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
@@ -44,15 +42,25 @@ object AddressByEQUprnResponse {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
-    val formattedAddress = addressType match {
+    val foundAddressType = addressType match {
+      case AddressTypes.paf => if (formattedAddressPaf.isEmpty) AddressTypes.nag else AddressTypes.paf
+      case AddressTypes.welshPaf => if (welshFormattedAddressPaf.isEmpty)
+      {if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag}
+      else AddressTypes.welshPaf
+      case AddressTypes.nag => AddressTypes.nag
+      case AddressTypes.welshNag => if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag
+      case AddressTypes.nisra => if (formattedAddressNisra.isEmpty) AddressTypes.nag else AddressTypes.nisra
+    }
+
+    val formattedAddress = foundAddressType match {
       case AddressTypes.paf => formattedAddressPaf
       case AddressTypes.welshPaf => welshFormattedAddressPaf
       case AddressTypes.nag => formattedAddressNag
       case AddressTypes.welshNag => welshFormattedAddressNag
-      case AddressTypes.nisra => if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra
+      case AddressTypes.nisra => formattedAddressNisra
     }
 
-    val townName = addressType match {
+    val townName = foundAddressType match {
       case AddressTypes.paf => chosenPaf match {
         case Some(pafAddress) => pafAddress.postTown
         case None => ""
@@ -75,7 +83,7 @@ object AddressByEQUprnResponse {
       }
     }
 
-    val postcode = addressType match {
+    val postcode = foundAddressType match {
       case AddressTypes.paf | AddressTypes.welshPaf => chosenPaf match {
         case Some(pafAddress) => pafAddress.postcode
         case None => ""
@@ -103,7 +111,8 @@ object AddressByEQUprnResponse {
       addressLine2 = addressLines.getOrElse("addressLine2", ""),
       addressLine3 = addressLines.getOrElse("addressLine3", ""),
       townName = townName,
-      postcode = postcode
+      postcode = postcode,
+      foundAddressType = foundAddressType
     )
   }
 

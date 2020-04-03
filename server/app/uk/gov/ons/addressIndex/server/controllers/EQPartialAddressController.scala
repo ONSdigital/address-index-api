@@ -151,7 +151,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         request.map {
           case HybridAddressCollection(hybridAddresses, maxScore, total) =>
             val addresses: Seq[AddressResponseAddressEQ] = hybridAddresses.map(
-              AddressResponseAddressEQ.fromHybridAddress(_, favourPaf, favourWelsh, verb)
+              AddressResponseAddressEQ.fromHybridAddress(_, favourPaf, favourWelsh)
             )
 
             val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses

@@ -19,7 +19,8 @@ case class AddressResponseAddressUPRNEQ(uprn: String,
                                         addressLine2: String,
                                         addressLine3: String,
                                         townName: String,
-                                        postcode: String)
+                                        postcode: String,
+                                        foundAddressType: String)
 
 object AddressResponseAddressUPRNEQ {
   implicit lazy val addressResponseAddressUPRNEQFormat: Format[AddressResponseAddressUPRNEQ] = Json.format[AddressResponseAddressUPRNEQ]

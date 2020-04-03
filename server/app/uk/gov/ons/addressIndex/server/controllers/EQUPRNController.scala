@@ -111,7 +111,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressByEQUprnResponse.fromHybridAddress(hybridAddress, verb, addressType)
+            val address = AddressByEQUprnResponse.fromHybridAddress(hybridAddress, addressType)
 
             writeLog(
               formattedOutput = AddressResponseAddress.fromHybridAddress(hybridAddress, verb).formattedAddressNag, numOfResults = "1",
@@ -126,8 +126,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
                   address = Some(address),
                   addressType = addressType,
                   historical = hist,
-                  epoch = epochVal,
-                  verbose = verb
+                  epoch = epochVal
                 ),
                 status = OkAddressResponseStatus
               )

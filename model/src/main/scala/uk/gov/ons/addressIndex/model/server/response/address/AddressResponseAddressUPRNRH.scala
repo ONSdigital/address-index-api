@@ -23,6 +23,7 @@ case class AddressResponseAddressUPRNRH(uprn: String,
                                         addressLine3: String,
                                         townName: String,
                                         postcode: String,
+                                        foundAddressType: String,
                                         censusAddressType: String,
                                         censusEstabType: String,
                                         countryCode:String)

@@ -622,7 +622,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a found address in eq format when a partial is supplied to EQController" in {
 
-      val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true, verbose = false))
+      val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))
 
       val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
 
@@ -668,7 +668,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByEQPostcodeResponse(
           postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false, verbose = false)),
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           filter = "",
           historical = false,
           limit = 100,
@@ -692,7 +692,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a found address in rh format when a partial is supplied to RH Partial Controller" in {
 
-      val addresses = Seq(AddressResponseAddressRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true, verbose = false))
+      val addresses = Seq(AddressResponseAddressRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))
 
       val sortAddresses = if (sboost > 0) rhPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
 
@@ -737,7 +737,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByRHPostcodeResponse(
           postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false, verbose = false)),
+          addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           filter = "",
           historical = false,
           limit = 100,
