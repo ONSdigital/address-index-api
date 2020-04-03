@@ -138,8 +138,7 @@ trait UPRNControllerResponse extends Response {
         address = None,
         addressType = queryValues.addressTypeOrDefault,
         historical = queryValues.historicalOrDefault,
-        epoch = queryValues.epochOrDefault,
-        verbose = queryValues.verboseOrDefault
+        epoch = queryValues.epochOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(InvalidAddressTypeAddressResponseError)

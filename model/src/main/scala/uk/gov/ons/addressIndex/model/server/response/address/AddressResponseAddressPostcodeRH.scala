@@ -30,7 +30,7 @@ object AddressResponseAddressPostcodeRH {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddress(other: HybridAddress, favourPaf: Boolean, favourWelsh: Boolean, verbose: Boolean): AddressResponseAddressPostcodeRH = {
+  def fromHybridAddress(other: HybridAddress, favourPaf: Boolean, favourWelsh: Boolean): AddressResponseAddressPostcodeRH = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
