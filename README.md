@@ -20,7 +20,7 @@ Plans to deploy the application as a service available to all members of the Pub
 
 ### How do I get a sneek peak of the API? ###
 
-Two Docker images have been created which give a feel for the API. The Docker images include an Elasticsearch cluster prebuilt with the required Address Index indices. The indices are a subset of AddressBase (the Exeter subset).
+Two Docker images have been created which give a feel for the API. The Docker images include an Elasticsearch 7.3.1 cluster prebuilt with the required Address Index indices. The indices are a subset of AddressBase (the Exeter subset).
 The other Docker image contains a version of the API that will work with the Elasticsearch indices. The ```docker-compose.yml``` file also contains a Kibana and Cerebro service to view the cluster. To get started:
 
 1) Run ```docker-compose up``` on https://github.com/ONSdigital/address-index-api/blob/develop/docker-compse.yml
