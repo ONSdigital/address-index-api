@@ -2,8 +2,6 @@ package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.NisraAddress
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponsePao
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSao
 
 /**
   * NISRA data on the address
@@ -46,6 +44,7 @@ case class AddressResponseNisra(
                                  archivedDate: String,
                                  addressStatus: String,
                                  buildingStatus: String,
+                                 localCouncil: String,
                                  mixedNisra: String
                                )
 
@@ -86,6 +85,7 @@ object AddressResponseNisra {
       other.archivedDate,
       other.addressStatus,
       other.buildingStatus,
+      other.localCouncil,
       other.mixedNisra
     )
 }

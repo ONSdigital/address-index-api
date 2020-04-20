@@ -1,10 +1,12 @@
 package uk.gov.ons.addressIndex.server.modules
 
-import com.sksamuel.elastic4s.ElasticDsl.{geoDistanceQuery, _}
+import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.requests.script.Script
+import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.FunctionScoreQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, SearchBodyBuilderFn, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -25,48 +27,39 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   private val esConf = conf.config.elasticSearch
 
-  private def prefixPolicy(str: String): String = str match {
-    case "" => "";
-    case _ => "_c" + str
-  }
+  // cluster number 1 = bulk cluster
+  // cluster number 2 (or blank) = general cluster
+  // full match cluster on gcp and bulk cluster on prem both use esConf.urifullmatch
+  private val uprnFull: Boolean = esConf.clusterPolicies.uprn == "1"
+  private val partialFull: Boolean = esConf.clusterPolicies.partial == "1"
+  private val postcodeFull: Boolean = esConf.clusterPolicies.postcode == "1"
+  private val addressFull: Boolean = esConf.clusterPolicies.address == "1"
+  private val bulkFull: Boolean = esConf.clusterPolicies.bulk == "1"
+  private val randomFull: Boolean = esConf.clusterPolicies.random == "1"
 
-  private val gatewayES = esConf.gatewayForES
-  private val clusterPolicyUprn = prefixPolicy(esConf.clusterPolicies.uprn)
-  private val uprnFull: Boolean = !gatewayES && clusterPolicyUprn == "_c1"
-  private val clusterPolicyPartial = prefixPolicy(esConf.clusterPolicies.partial)
-  private val partialFull: Boolean = !gatewayES && clusterPolicyPartial == "_c1"
-  private val clusterPolicyPostcode = prefixPolicy(esConf.clusterPolicies.postcode)
-  private val postcodeFull: Boolean = !gatewayES && clusterPolicyPostcode == "_c1"
-  private val clusterPolicyAddress = prefixPolicy(esConf.clusterPolicies.address)
-  private val addressFull : Boolean = !gatewayES && clusterPolicyAddress == "_c1"
-  private val clusterPolicyBulk = prefixPolicy(esConf.clusterPolicies.bulk)
-  private val bulkFull : Boolean = !gatewayES && clusterPolicyBulk == "_c1"
-  private val clusterPolicyRandom = prefixPolicy(esConf.clusterPolicies.random)
-  private val randomFull : Boolean = !gatewayES && clusterPolicyRandom == "_c1"
+  private val hybridIndexUprn = esConf.indexes.hybridIndex
+  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical
 
-  private val hybridIndexUprn = esConf.indexes.hybridIndex + {if (gatewayES) clusterPolicyUprn else ""}
-  private val hybridIndexHistoricalUprn = esConf.indexes.hybridIndexHistorical + {if (gatewayES) clusterPolicyUprn else ""}
+  private val hybridIndexPartial = esConf.indexes.hybridIndex
+  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical
+  private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny
+  private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny
 
-  private val hybridIndexPartial = esConf.indexes.hybridIndex + {if (gatewayES) clusterPolicyPartial else ""}
-  private val hybridIndexHistoricalPartial = esConf.indexes.hybridIndexHistorical + {if (gatewayES) clusterPolicyPartial else ""}
-  private val hybridIndexSkinnyPartial = esConf.indexes.hybridIndexSkinny + {if (gatewayES) clusterPolicyPartial else ""}
-  private val hybridIndexHistoricalSkinnyPartial = esConf.indexes.hybridIndexHistoricalSkinny + {if (gatewayES) clusterPolicyPartial else ""}
+  private val hybridIndexPostcode = esConf.indexes.hybridIndex
+  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical
+  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny
+  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny
 
-  private val hybridIndexPostcode = esConf.indexes.hybridIndex + {if (gatewayES) clusterPolicyPostcode else ""}
-  private val hybridIndexHistoricalPostcode = esConf.indexes.hybridIndexHistorical + {if (gatewayES) clusterPolicyPostcode else ""}
-  private val hybridIndexSkinnyPostcode = esConf.indexes.hybridIndexSkinny + {if (gatewayES) clusterPolicyPostcode else ""}
-  private val hybridIndexHistoricalSkinnyPostcode = esConf.indexes.hybridIndexHistoricalSkinny + {if (gatewayES) clusterPolicyPostcode else ""}
+  private val hybridIndexAddress = esConf.indexes.hybridIndex
+  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical
 
-  private val hybridIndexAddress = esConf.indexes.hybridIndex + {if (gatewayES) clusterPolicyAddress else ""}
-  private val hybridIndexHistoricalAddress = esConf.indexes.hybridIndexHistorical + {if (gatewayES) clusterPolicyAddress else ""}
+  private val hybridIndexBulk = esConf.indexes.hybridIndex
+  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical
 
-  private val hybridIndexBulk = esConf.indexes.hybridIndex + {if (gatewayES) clusterPolicyBulk else ""}
-  private val hybridIndexHistoricalBulk = esConf.indexes.hybridIndexHistorical + {if (gatewayES) clusterPolicyBulk else ""}
-
-  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny + {if (gatewayES) clusterPolicyRandom else ""}
-  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny + {if (gatewayES) clusterPolicyRandom else ""}
-  private val hybridIndexRandom = esConf.indexes.hybridIndex + {if (gatewayES) clusterPolicyRandom else ""}
-  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical + {if (gatewayES) clusterPolicyRandom else ""}
+  private val hybridIndexSkinnyRandom = esConf.indexes.hybridIndexSkinny
+  private val hybridIndexHistoricalSkinnyRandom = esConf.indexes.hybridIndexHistoricalSkinny
+  private val hybridIndexRandom = esConf.indexes.hybridIndex
+  private val hybridIndexHistoricalRandom = esConf.indexes.hybridIndexHistorical
 
   private val gcp : Boolean = Try(esConf.gcp.toBoolean).getOrElse(false)
 
@@ -74,7 +67,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 // clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
   val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
   lazy val logger: GenericLogger = GenericLogger("AddressIndexRepository")
-
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
@@ -107,14 +99,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-    val slopVal = 4
+    val slopVal = 8
     val niFactor = args.fromsource match {
       case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
       case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
       case _ => "^" + esConf.queryParams.nisra.partialAllBoost
     }
 
-    val fieldsToSearch =  Seq("lpi.nagAll.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+    val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
@@ -179,11 +171,52 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
+      val hFields = if (args.highlight == "off") Seq() else
+        Seq(HighlightField("lpi.mixedNag.partial"),
+      HighlightField("lpi.mixedWelshNag.partial"),
+      HighlightField("paf.mixedPaf.partial"),
+      HighlightField("paf.mixedWelshPaf.partial"),
+      HighlightField("nisra.mixedNisra.partial"))
+
+    val scriptText: String =  "Math.round((_score " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
+
+
+    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").take(6))
+    val partialScript: Script = new Script(script = scriptText, params = scriptParams )
+    val hOpts = new HighlightOptions(numOfFragments=Some(0))
+
+
     search(source + args.epochParam)
-      .query(query)
+      .query(
+          functionScoreQuery(query).functions(
+          scriptScore(partialScript))
+            .boostMode("replace")
+      )
+      .highlighting(hOpts,hFields)
+      .sortBy(
+        FieldSort("_score").order(SortOrder.DESC),
+        FieldSort("lpi.postcodeLocator.keyword").asc(),
+        FieldSort("lpi.streetDescriptor.keyword").asc(),
+        FieldSort("lpi.paoStartNumber").asc(),
+        FieldSort("lpi.paoStartSuffix.keyword").asc(),
+        FieldSort("lpi.secondarySort").asc(),
+        FieldSort("nisra.thoroughfare.keyword").asc(),
+        FieldSort("nisra.paoStartNumber").asc(),
+        FieldSort("nisra.secondarySort").asc(),
+        FieldSort("uprn").asc())
       .start(args.start)
       .limit(args.limit)
   }
+
+  def confidenceSort(score: Float): Int =
+    {
+      (math.round(score/4)*10).min(100)
+    }
 
   private def makePostcodeQuery(args: PostcodeArgs): SearchRequest = {
     val postcodeFormatted: String = if (!args.postcode.contains(" ")) {
@@ -209,17 +242,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
-      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
-        FieldSort("lpi.paoStartNumber").asc(),
-        FieldSort("lpi.paoStartSuffix.keyword").asc(),
-        FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
-        FieldSort("nisra.paoStartNumber").asc(),
-        FieldSort("nisra.secondarySort").asc(),
-        FieldSort("uprn").asc())
-      .start(args.start)
-      .limit(args.limit)
-  }
+    .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
+      FieldSort("lpi.paoStartNumber").asc(),
+      FieldSort("lpi.paoStartSuffix.keyword").asc(),
+      FieldSort("lpi.secondarySort").asc(),
+      FieldSort("nisra.thoroughfare.keyword").asc(),
+      FieldSort("nisra.paoStartNumber").asc(),
+      FieldSort("nisra.secondarySort").asc(),
+      FieldSort("uprn").asc())
+    .start(args.start)
+    .limit(args.limit)
+}
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
     val timestamp: Long = System.currentTimeMillis
@@ -911,7 +944,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
  // uncomment to see generated query
  //    val searchString = SearchBodyBuilderFn(query).string()
- //    println(searchString)
+  //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
@@ -938,7 +971,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         if ((gcp && args.verboseOrDefault) || randomFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _ =>
-        if ((gcp && args.verboseOrDefault)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        if (gcp && args.verboseOrDefault) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
         // catchall for any other endpoint
         client.execute(query).map(HybridAddressCollection.fromResponse)
     }

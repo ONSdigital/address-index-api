@@ -56,16 +56,15 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "postcode"
 
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
-      val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
-
+      val networkId = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)).getOrElse("")
+      val organisation = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set").getOrElse("")
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         postcode = postcode, isNotFound = notFound, offset = offVal,

@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import org.scalatest.BeforeAndAfterAll
-import com.sksamuel.elastic4s.{Indexes, IndexesAndTypes}
+import com.sksamuel.elastic4s.Indexes
 import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
@@ -13,13 +12,15 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPartialAddressResponse, AddressByRHPartialAddressResponseContainer, AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HighlightFuncs, HopperScoreHelper}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -27,7 +28,7 @@ import scala.concurrent.{Await, Future}
 
 class AddressControllerSpec extends PlaySpec with Results {
 
-  val validPafAddress = PostcodeAddressFileAddress(
+  val validPafAddress: PostcodeAddressFileAddress = PostcodeAddressFileAddress(
     recordIdentifier = "1",
     changeType = "2",
     proOrder = "3",
@@ -62,7 +63,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     mixedWelshPaf = "32"
   )
 
-  val validNagAddress = NationalAddressGazetteerAddress(
+  val validNagAddress: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
     uprn = "1",
     postcodeLocator = "B16 8TH",
     addressBasePostal = "3",
@@ -103,10 +104,11 @@ class AddressControllerSpec extends PlaySpec with Results {
     nagAll = "nagAll",
     lpiEndDate = "lpiEndDate",
     lpiStartDate = "lpiStartDate",
-    mixedNag = "mixedNag"
+    mixedNag = "mixedNag",
+    mixedWelshNag = "mixedWelshNag"
   )
 
-  val validNisraAddress = NisraAddress(
+  val validNisraAddress: NisraAddress = NisraAddress(
     organisationName = "1",
     subBuildingName = "2",
     buildingName = "3",
@@ -140,21 +142,40 @@ class AddressControllerSpec extends PlaySpec with Results {
     longitude = "21",
     addressStatus = "APPROVED",
     buildingStatus = "DEMOLISHED",
+    localCouncil = "BELFAST",
+    LGDCode = "N09000003",
     mixedNisra = "mixedNisra"
  )
 
-  val validRelative = Relative(
+  val validRelative: Relative = Relative(
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
 
-  val validCrossRef = CrossRef(
+  val validCrossRef: CrossRef = CrossRef(
     crossReference = "E05011011",
     source = "7666OW"
   )
 
-  val validHybridAddress = HybridAddress(
+  val validHighlightHit = Map("source" -> "L",
+                              "lang" -> "E",
+                              "distinctHitCount" -> "3",
+                              "highLightedText" -> "6 Long Lane Liverpool")
+
+  val validHighlight = Map(
+    "paf.mixedPaf.partial" -> Seq("6 Long Lane Liverpool", "6 Longish Lane Liverpool")
+  )
+
+  val validHighlightWelsh = Map(
+    "paf.mixedWelshPaf.partial" -> Seq("6 Long Lane Liverpoolhjy", "6 Longish Lane Liverpoolhjy")
+  )
+
+  val validHighlights = Seq(validHighlight,validHighlightWelsh)
+
+  // todo add test highlighting
+
+  val validHybridAddress: HybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = Some(Seq(validRelative)),
@@ -166,10 +187,14 @@ class AddressControllerSpec extends PlaySpec with Results {
     nisra = Seq(),
     score = 1f,
     classificationCode = "29",
-    fromSource = "47"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "47",
+    countryCode = "E",
+    highlights = Seq()
   )
 
-  val validHybridAddressSkinny = HybridAddress(
+  val validHybridAddressSkinny: HybridAddress = HybridAddress(
     uprn = "1",
     parentUprn = "4",
     relatives = None,
@@ -181,7 +206,11 @@ class AddressControllerSpec extends PlaySpec with Results {
     nisra = Seq(validNisraAddress),
     score = 1f,
     classificationCode = "29",
-    fromSource = "47"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "47",
+    countryCode = "E",
+    highlights = validHighlights
   )
 
   val validCodelistList: String = "{\"codelists\"" +
@@ -342,6 +371,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     )
   }
 
+  val sboost: Int = testConfig.config.elasticSearch.defaultStartBoost
+
   val apiVersionExpected = "testApi"
   val dataVersionExpected = "testData"
 
@@ -364,10 +395,17 @@ class AddressControllerSpec extends PlaySpec with Results {
   val addressController = new AddressController(components, elasticRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
   val partialAddressController = new PartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
 
+  val eqPartialAddressController = new EQPartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+  val rhPartialAddressController = new RHPartialAddressController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+
   val postcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+  val eqPostcodeController = new EQPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+  val rhPostcodeController = new RHPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
+
+  val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController)
 
   "Address controller" should {
 
@@ -432,7 +470,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "ab123cd",
           addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false)),
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
@@ -464,7 +502,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "ab123cd",
           addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
@@ -544,23 +582,31 @@ class AddressControllerSpec extends PlaySpec with Results {
     }
 
    "reply on a found address in concise format (by partial)" in {
-      // Given
+
+     val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
+
+     val sortAddresses = if (sboost > 0) partialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
+
+     // Given
       val expected = Json.toJson(AddressByPartialAddressResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false)),
+          addresses = sortAddresses,
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 20,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource = "all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
         ),
         OkAddressResponseStatus
       ))
@@ -574,6 +620,147 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a found address in eq format when a partial is supplied to EQController" in {
+
+      val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))
+
+      val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
+
+      // Given
+      val expected = Json.toJson(AddressByEQPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQPartialAddressResponse(
+          input = "some query",
+          addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
+          filter = "",
+          fallback = true,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = "",
+          fromsource = "all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = eqController.eqQuery(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a postcode search when a postcode is supplied to EQController" in {
+      // Given
+      val controller = eqController
+
+      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQPostcodeResponse(
+          postcode = "Po155Rr",
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.eqQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a found address in rh format when a partial is supplied to RH Partial Controller" in {
+
+      val addresses = Seq(AddressResponseAddressRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))
+
+      val sortAddresses = if (sboost > 0) rhPartialAddressController.boostAtStart(addresses, "some query", true, true, false) else addresses
+
+      // Given
+      val expected = Json.toJson(AddressByRHPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByRHPartialAddressResponse(
+          input = "some query",
+          addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
+          filter = "",
+          fallback = true,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = "",
+          fromsource = "all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = rhPartialAddressController.partialAddressQuery(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with an rh postcode response when a postcode is supplied to RH Postcode Controller" in {
+      // Given
+
+      val expected = Json.toJson(AddressByRHPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByRHPostcodeResponse(
+          postcode = "Po155Rr",
+          addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = rhPostcodeController.postcodeQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+
+
     "reply on a found address in verbose format (by partial)" in {
       // Given
       val expected = Json.toJson(AddressByPartialAddressResponseContainer(
@@ -581,17 +768,20 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true).copy(confidenceScore=5)),
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 20,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
           verbose = true,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highlight= "on",
+          favourpaf = true,
+          favourwelsh = false
         ),
         OkAddressResponseStatus
       ))
@@ -954,7 +1144,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "some query",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 1,
           offset = 0,
           total = 0,
@@ -1024,7 +1214,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "some query",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 0,
           total = 0,
@@ -1161,7 +1351,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "some query",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = -1,
           total = 0,
@@ -1231,7 +1421,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "some query",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 0,
           offset = 0,
           total = 0,
@@ -1330,7 +1520,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "some query",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 9999999,
           total = 0,
@@ -1400,7 +1590,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "some query",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 999999,
           offset = 0,
           total = 0,
@@ -1795,14 +1985,17 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 20,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -1829,14 +2022,17 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 20,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           verbose = false,
           epoch = "epoch",
-          fromsource="all"
+          fromsource="all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -1862,7 +2058,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 0,
           total = 0,
@@ -1894,7 +2090,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "ab123cd",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 100,
           offset = 0,
           total = 0,
@@ -2191,7 +2387,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "ab123cd",
           addresses = Seq.empty,
           filter = "",
-          historical = true,
+          historical = false,
           limit = 10,
           offset = 0,
           total = 0,
@@ -2266,14 +2462,17 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq.empty,
           filter = "",
           fallback = true,
-          historical = true,
+          historical = false,
           limit = 10,
           offset = 0,
           total = 0,
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all"
+          fromsource="all",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2494,6 +2693,22 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // Then
       actual.toString().substring(0, expectedCodelist.length) mustBe expectedCodelist
+    }
+
+    "sort highlights correctly in partial controller" in {
+     //Given
+     val controller = new PartialAddressController(components, failingRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+     //When
+      val high1 = new AddressResponseHighlightHit( source = "L", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high2 = new AddressResponseHighlightHit( source = "P", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high3 = new AddressResponseHighlightHit( source = "P", lang = "W",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
+      val high4 = new AddressResponseHighlightHit( source = "N", lang = "E",distinctHitCount = 4, highLightedText ="6 Long Lane Belfast")
+
+      val result = HighlightFuncs.sortHighs(Seq(high1,high2,high3,high4),true,true)
+      val expected = Seq(high4,high3,high2,high1)
+
+      // Then
+      result mustBe expected
     }
   }
 }

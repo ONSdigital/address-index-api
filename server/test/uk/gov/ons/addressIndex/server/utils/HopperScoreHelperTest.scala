@@ -195,11 +195,14 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     nag = Some(Seq(mockNagAddress1)),
     nisra = None,
     geo = None,
-    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA",
+    highlights = None
   )
 
 
@@ -218,11 +221,14 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     nag = Some(Seq(mockNagAddress2)),
     nisra = None,
     geo = None,
-    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA",
+    highlights = None
   )
 
 
@@ -241,11 +247,14 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     nag = Some(Seq(mockNagAddress1)),
     nisra = None,
     geo = None,
-    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA",
+    highlights = None
   )
 
   val mockLocalityParams: Seq[(String, String)] =

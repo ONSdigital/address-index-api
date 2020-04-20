@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQUprnResponse, AddressByEQUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
@@ -122,6 +123,25 @@ trait UPRNControllerResponse extends Response {
       response = ErrorUprn(queryValues),
       status = TooManyRequestsResponseStatus,
       errors = Seq(enhancedError)
+    )
+  }
+
+  def AddressTypeInvalid(queryValues: QueryValues): AddressByEQUprnResponseContainer = {
+    BadRequestInvalidAddressType(queryValues)
+  }
+
+  def BadRequestInvalidAddressType(queryValues: QueryValues): AddressByEQUprnResponseContainer = {
+    AddressByEQUprnResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = AddressByEQUprnResponse(
+        address = None,
+        addressType = queryValues.addressTypeOrDefault,
+        historical = queryValues.historicalOrDefault,
+        epoch = queryValues.epochOrDefault
+      ),
+      status = BadRequestAddressResponseStatus,
+      errors = Seq(InvalidAddressTypeAddressResponseError)
     )
   }
 

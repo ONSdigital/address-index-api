@@ -4,12 +4,13 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPartialAddressError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
+import uk.gov.ons.addressIndex.server.utils.HighlightFuncs.boostAddress
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,6 +29,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PartialAddressController")
 
+  val sboost: Int = conf.config.elasticSearch.defaultStartBoost
+
   /**
     * PartialAddress query API
     *
@@ -43,7 +46,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          fromsource: Option[String] = None
+                          fromsource: Option[String] = None,
+                          highlight: Option[String] = None,
+                          favourpaf: Option[String] = None,
+                          favourwelsh: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -61,30 +67,21 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    // values are off, on and debug - off will be the default later (eQ set to on)
+    val highVal = highlight.getOrElse("on")
+    val highVerbose: Boolean = highVal == "debug"
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
-    val sboost = conf.config.elasticSearch.defaultStartBoost
-
-    def boostAtStart(inAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      val boostedAddresses: Seq[AddressResponseAddress] = inAddresses.map { add => boostAddress(add) }
-      boostedAddresses.sortBy(_.underlyingScore)(Ordering[Float].reverse)
-    }
-
-    def boostAddress(add: AddressResponseAddress): AddressResponseAddress = {
-      if (add.formattedAddress.toUpperCase().replaceAll("[,]", "").startsWith(input.toUpperCase().replaceAll("[,]", ""))) {
-        add.copy(underlyingScore = add.underlyingScore + sboost)
-      } else add.copy(underlyingScore = add.underlyingScore)
-    }
-
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
-      val networkId = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)
-      val organisation = if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set"
-
+      val networkId = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)).getOrElse("")
+      val organisation = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set").getOrElse("")
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         partialAddress = input, isNotFound = notFound, offset = offval,
@@ -108,7 +105,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      fromsource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal),
+      highlight = Some(highVal),
+      favourpaf = Some(favourPaf),
+      favourwelsh = Some(favourWelsh)
     )
 
     val result: Option[Future[Result]] =
@@ -137,7 +137,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal
+          fromsource = fromsourceVal,
+          highlight = highVal,
+          favourpaf = favourPaf,
+          favourwelsh = favourWelsh
         )
 
         val request: Future[HybridAddressCollection] =
@@ -151,7 +154,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               AddressResponseAddress.fromHybridAddress(_, verb)
             )
 
-            val sortAddresses = if (sboost > 0) boostAtStart(addresses) else addresses
+            val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses
 
             writeLog(activity = "partial_request")
 
@@ -171,7 +174,10 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  fromsource = fromsourceVal
+                  fromsource = fromsourceVal,
+                  highlight = highVal,
+                  favourpaf = favourPaf,
+                  favourwelsh = favourWelsh
                 ),
                 status = OkAddressResponseStatus
               )
@@ -192,5 +198,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
             }
         }
     }
+  }
+
+  def boostAtStart(inAddresses: Seq[AddressResponseAddress], input: String, favourPaf: Boolean, favourWelsh: Boolean, highVerbose: Boolean): Seq[AddressResponseAddress] = {
+    inAddresses.map { add => boostAddress(add, input, favourPaf, favourWelsh, highVerbose) }
   }
 }

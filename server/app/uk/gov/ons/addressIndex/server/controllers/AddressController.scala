@@ -86,8 +86,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val authVal = req.headers.get("authorization").getOrElse("Anon")
       val authHasPlus = authVal.indexOf("+") > 0
-      val networkId = if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)
-      val organisation = if (authHasPlus) networkId.split("_")(1) else "not set"
+      val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+      val organisation = Try(if (authHasPlus) networkId.split("_")(1) else "not set").getOrElse("")
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offVal, limit = limVal, filter = filterString,

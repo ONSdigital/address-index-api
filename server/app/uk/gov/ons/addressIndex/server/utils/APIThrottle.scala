@@ -32,15 +32,12 @@ class APIThrottle @Inject()(conf: ConfigModule)(implicit ec: ExecutionContext) {
       exponentialBackoffFactor = circuitBreakerExponentialBackoffFactor)
       .onOpen({
         logger.info("Circuit breaker is now open")
-        // System.out.println("Open")
       })
       .onHalfOpen({
         logger.info("Circuit breaker is now half-open")
-        // System.out.println("Half-Open")
       })
       .onClose({
         logger.info("Circuit Breaker is now closed")
-        // System.out.println("Closed")
       })
   }
 }

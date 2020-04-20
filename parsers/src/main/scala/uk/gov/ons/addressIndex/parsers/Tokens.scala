@@ -54,7 +54,7 @@ object Tokens {
     * @param input input to be normalized
     * @return normalized input
     */
-  private def normalizeInput(input: String): String = {
+  def normalizeInput(input: String): String = {
     val upperInput = input.toUpperCase()
 
     val inputWithoutAccents = StringUtils.stripAccents(upperInput)
@@ -86,13 +86,13 @@ object Tokens {
     removeCounties(replaceSynonyms(tokens).filter(_.nonEmpty).mkString(" "))
   }
 
-  private def removeCounties(input: String): String = {
+  def removeCounties(input: String): String = {
     val separatedCounties = county.mkString("|")
 
     val countiesRegex = s"\\b($separatedCounties)\\b"
 
     // ONSAI-531
-    val exceptRegex = s"(?<!\\bON\\s)(?<!\\bDINAS\\s)(?<!\\bUPON\\s)(?<!\\b[0-9]\\s)"
+    val exceptRegex = s"(?<!\\bON\\s)(?<!\\bDINAS\\s)(?<!\\bUPON\\s)(?!\\A)(?<!\\b[0-9]\\s)"
 
     val lookBehindRegex = s"$exceptRegex$countiesRegex"
 
@@ -108,7 +108,7 @@ object Tokens {
     regexp.replaceAllIn(input, " ").replaceAll("\\s+", " ").trim
   }
 
-  private def replaceSynonyms(tokens: Array[String]): Array[String] =
+  def replaceSynonyms(tokens: Array[String]): Array[String] =
     tokens.map(token => synonym.getOrElse(token, token))
 
   /**

@@ -16,7 +16,11 @@ case class QueryValues(input: Option[String] = None,
                        latitude: Option[String] = None,
                        longitude: Option[String] = None,
                        matchThreshold: Option[Float] = None,
-                       fromsource: Option[String] = None)
+                       fromsource: Option[String] = None,
+                       highlight: Option[String] = None,
+                       favourpaf: Option[Boolean] = None,
+                       favourwelsh: Option[Boolean] = None,
+                       addressType: Option[String] = None)
 {
   def inputOrDefault: String = this.input.getOrElse("")
 
@@ -51,4 +55,12 @@ case class QueryValues(input: Option[String] = None,
   def matchThresholdOrDefault: Float = this.matchThreshold.getOrElse(0f)
 
   def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
+
+  def highlightOrDefault: String = this.highlight.getOrElse("on")
+
+  def favourPafOrDefault: Boolean = this.favourpaf.getOrElse(true)
+
+  def favourWelshOrDefault: Boolean = this.favourwelsh.getOrElse(false)
+
+  def addressTypeOrDefault: String = this.addressType.getOrElse("")
 }

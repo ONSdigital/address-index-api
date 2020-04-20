@@ -194,14 +194,17 @@ sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filt
 final case class PartialArgs(input: String,
                              fallback: Boolean = false,
                              epoch: String = "",
-                             historical: Boolean = true,
+                             historical: Boolean = false,
                              limit: Int,
                              start: Int = 0,
                              filters: String,
                              filterDateRange: DateRange = DateRange(),
-                             verbose: Boolean = true,
+                             verbose: Boolean = false,
                              skinny: Boolean = false,
-                             fromsource: String
+                             fromsource: String,
+                             highlight: String = "on",
+                             favourpaf: Boolean = true,
+                             favourwelsh: Boolean = true
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -213,7 +216,7 @@ final case class PartialArgs(input: String,
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 
-  def inputNumbers: List[String] = input.split("\\D+").filter(_.nonEmpty).toList
+  def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.nonEmpty).toList
 }
 
 /**
@@ -229,6 +232,8 @@ final case class PostcodeArgs(postcode: String,
                               filters: String,
                               verbose: Boolean = true,
                               skinny: Boolean = false,
+                              favourpaf: Boolean = true,
+                              favourwelsh: Boolean = true
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 

@@ -77,38 +77,42 @@
 
 <h2>Sample Output</h2>
 
-<pre><code>{
-    &#34;apiVersion&#34;: &#34;v_3d37d4ca49a9f451284fca57185aa5df7ba30658&#34;,
-    &#34;dataVersion&#34;: &#34;39&#34;,
-    &#34;errors&#34;: [],
-    &#34;response&#34;: {
-        &#34;address&#34;: {
-            &#34;classificationCode&#34;: &#34;RD&#34;,
-            &#34;confidenceScore&#34;: 1,
-            &#34;formattedAddress&#34;: &#34;1 Gate Reach, Exeter, EX2 6GA&#34;,
-            &#34;formattedAddressNag&#34;: &#34;1 Gate Reach, Exeter, EX2 6GA&#34;,
-            &#34;formattedAddressPaf&#34;: &#34;1 Gate Reach, Exeter, EX2 6GA&#34;,
-            &#34;geo&#34;: {
-                &#34;easting&#34;: 293545,
-                &#34;latitude&#34;: 50.706085,
-                &#34;longitude&#34;: -3.5089686,
-                &#34;northing&#34;: 90692
-            },
-            &#34;lpiLogicalStatus&#34;: &#34;1&#34;,
-            &#34;parentUprn&#34;: &#34;0&#34;,
-            &#34;underlyingScore&#34;: 1,
-            &#34;uprn&#34;: &#34;10023122451&#34;,
-            &#34;welshFormattedAddressNag&#34;: &#34;1 Gate Reach, Exeter, EX2 6GA&#34;,
-            &#34;welshFormattedAddressPaf&#34;: &#34;1 Gate Reach, Exeter, EX2 6GA&#34;
-        },
-        &#34;endDate&#34;: &#34;&#34;,
-        &#34;epoch&#34;: &#34;&#34;,
-        &#34;historical&#34;: true,
-        &#34;startDate&#34;: &#34;&#34;,
-        &#34;verbose&#34;: false
+<pre><code>
+{
+  "apiVersion": "1.0.0-SNAPSHOT",
+  "dataVersion": "NA",
+  "response": {
+    "address": {
+      "uprn": "10013049457",
+      "parentUprn": "0",
+      "formattedAddress": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL",
+      "formattedAddressNag": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL",
+      "formattedAddressPaf": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL",
+      "formattedAddressNisra": "",
+      "welshFormattedAddressNag": "",
+      "welshFormattedAddressPaf": "Costa Coffee, 12 Bedford Street, Exeter, EX1 1LL",
+      "geo": {
+        "latitude": 50.723785,
+        "longitude": -3.5288017,
+        "easting": 292185,
+        "northing": 92689
+      },
+      "classificationCode": "CR07",
+      "censusAddressType": "NA",
+      "censusEstabType": "NA",
+      "countryCode": "E",
+      "lpiLogicalStatus": "1",
+      "confidenceScore": 100,
+      "underlyingScore": 1
     },
-    &#34;status&#34;: {
-        &#34;code&#34;: 200,
-        &#34;message&#34;: &#34;Ok&#34;
-    }
-}</code></pre>
+    "historical": true,
+    "epoch": "",
+    "verbose": false
+  },
+  "status": {
+    "code": 200,
+    "message": "Ok"
+  },
+  "errors": []
+}
+</code></pre>

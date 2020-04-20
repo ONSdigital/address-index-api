@@ -110,8 +110,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridMixedPaf = "mixedPaf"
   val hybridMixedWelshPaf = "MixedWelshPaf"
   val hybridMixedNag = "mixedNag"
-
+  val hybridCensusAddressType = "NA"
+  val hybridCensusEstabType = "NA"
   val hybridFromSource = "EW"
+  val hybridCountryCode = "E"
 
   // Fields that are not in this list are not used for search
   val hybridNagUprn: Long = hybridPafUprn
@@ -156,6 +158,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   val hybridNisraNorthing = "h22"
   val hybridNisraLatitude = "h23"
   val hybridNisraLongitude = "h24"
+  val hybridNisraLocalCouncil = "BELFAST"
+  val hybridNisraLGDCode = "N09000003"
 
   val hybridNagCustGeogCode = "E07000041"
   val hybridStartDate = "2013-01-01"
@@ -407,7 +411,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(firstHybridPafEs),
     "lpi" -> Seq(firstHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
-    "fromSource" -> hybridFromSource
+    "censusAddressType" -> hybridCensusAddressType,
+    "censusEstabType" -> hybridCensusEstabType,
+    "fromSource" -> hybridFromSource,
+    "countryCode" -> hybridCountryCode
   )
 
   val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
@@ -423,7 +430,10 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(secondHybridPafEs),
     "lpi" -> Seq(secondHybridNagEs),
     "classificationCode" -> hybridFirstClassificationCode,
-    "fromSource" -> hybridFromSource
+    "censusAddressType" -> hybridCensusAddressType,
+    "censusEstabType" -> hybridCensusEstabType,
+    "fromSource" -> hybridFromSource,
+    "countryCode" -> hybridCountryCode
   )
 
   val thirdHybridEs: Map[String, Any] = firstHybridEs + (
@@ -442,7 +452,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "paf" -> Seq(fourthHybridPafEs))
 
   // new analysis object, doesn't seem to work
-  val customAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
+  val customAnalyzer: CustomAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
   val testAnalysis: Analysis = Analysis(
     List(customAnalyzer))
 
@@ -509,7 +519,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     updateIndexLevelSettings(hybridIndexHistoricalName).numberOfReplicas(0)
   }.await
 
-  val expectedPaf = PostcodeAddressFileAddress(
+  val expectedPaf: PostcodeAddressFileAddress = PostcodeAddressFileAddress(
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
@@ -556,7 +566,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     endDate = hybridCurrentEndDate
   )
 
-  val expectedNag = NationalAddressGazetteerAddress(
+  val expectedNag: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
     hybridNagUprn.toString,
     hybridNagPostcodeLocator,
     hybridNotUsed,
@@ -597,10 +607,12 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridAll,
     hybridNotUsed,
     hybridNotUsed,
-    hybridMixedNag
+    hybridMixedNag,
+    hybridNotUsed
+
   )
 
-  val expectedNisra = NisraAddress(
+  val expectedNisra: NisraAddress = NisraAddress(
     hybridNisraOrganisationName,
     hybridNisraSubBuildingName,
     hybridNisraBuildingName,
@@ -634,6 +646,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNisraLongitude,
     hybridNotUsed,
     hybridNotUsed,
+    hybridNisraLocalCouncil,
+    hybridNisraLGDCode,
     hybridMixedNisra
   )
 
@@ -655,23 +669,23 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpiEndDate = hybridEndDate
   )
 
-  val expectedRelative = Relative(
+  val expectedRelative: Relative = Relative(
     level = hybridRelLevel,
     siblings = hybridRelSibArray,
     parents = hybridRelParArray
   )
 
-  val expectedCrossRef = CrossRef(
+  val expectedCrossRef: CrossRef = CrossRef(
     crossReference = hybridCrossRefReference,
     source = hybridCrossRefSource
   )
 
-  val expectedCrossRef2 = CrossRef(
+  val expectedCrossRef2: CrossRef = CrossRef(
     crossReference = hybridCrossRefReference2,
     source = hybridCrossRefSource2
   )
 
-  val expectedHybrid = HybridAddress(
+  val expectedHybrid: HybridAddress = HybridAddress(
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -683,10 +697,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode ="E",
+    highlights = Seq(Map())
   )
 
-  val expectedDateHybrid = HybridAddress(
+  val expectedDateHybrid: HybridAddress = HybridAddress(
     uprn = hybridFirstDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -698,10 +716,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode ="E",
+    highlights = Seq()
   )
 
-  val expectedSecondDateHybrid = HybridAddress(
+  val expectedSecondDateHybrid: HybridAddress = HybridAddress(
     uprn = hybridSecondDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -713,10 +735,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode = "E",
+    highlights = Seq()
   )
 
-  val expectedThirdDateHybrid = HybridAddress(
+  val expectedThirdDateHybrid: HybridAddress = HybridAddress(
     uprn = hybridThirdDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -728,7 +754,11 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     nisra = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
-    fromSource = "EW"
+    censusAddressType = "NA",
+    censusEstabType = "NA",
+    fromSource = "EW",
+    countryCode ="E",
+    highlights = Seq()
   )
 
   val expectedHybridHist: HybridAddress = expectedHybrid.copy(uprn = hybridFirstUprnHist.toString)
@@ -791,92 +821,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-           {
-
-              "query":{
-                 "bool":{
-                    "must":[
-                       {
-                          "multi_match":{
-                             "query":"h4",
-                             "fields":[
-                                "lpi.nagAll.partial",
-                                "paf.mixedPaf.partial",
-                                "paf.mixedWelshPaf.partial",
-                                "nisra.mixedNisra.partial^0.8"
-                             ],
-                             "type":"phrase",
-                             "slop":4
-                          }
-                       }
-                    ],
-                    "should":[
-                       {
-                          "dis_max":{
-                             "queries":[
-                                {
-                                   "match":{
-                                      "lpi.paoStartNumber":{
-                                         "query":"4",
-                                         "boost":2,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                },
-                                {
-                                   "match":{
-                                      "lpi.saoStartNumber":{
-                                         "query":"4",
-                                         "boost":1,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                },
-                                {
-                                   "match":{
-                                      "nisra.paoStartNumber":{
-                                         "query":"4",
-                                         "boost":2,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                },
-                                {
-                                   "match":{
-                                      "nisra.saoStartNumber":{
-                                         "query":"4",
-                                         "boost":1,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                }
-                             ]
-                          }
-                       }
-                    ],
-                    "filter":[
-                       {
-                          "prefix":{
-                             "classificationCode":{
-                                "value":"R"
-                             }
-                          }
-                       }
-                    ]
-                 }
-              },
-              "from":0,
-              "size":1
-           }
-         """.stripMargin
+         {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"h4","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"h4"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+        """.stripMargin
       )
 
       // When
@@ -898,91 +844,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-           {
-
-              "query":{
-                 "bool":{
-                    "must":[
-                       {
-                          "multi_match":{
-                             "query":"h4",
-                             "fields":[
-                                "lpi.nagAll.partial",
-                                "paf.mixedPaf.partial",
-                                "paf.mixedWelshPaf.partial",
-                                "nisra.mixedNisra.partial^0.8"
-                             ],
-                             "type":"best_fields"
-                          }
-                       }
-                    ],
-                    "should":[
-                       {
-                          "dis_max":{
-                             "queries":[
-                                {
-                                   "match":{
-                                      "lpi.paoStartNumber":{
-                                         "query":"4",
-                                         "boost":2,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                },
-                                {
-                                   "match":{
-                                      "lpi.saoStartNumber":{
-                                         "query":"4",
-                                         "boost":1,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                },
-                                {
-                                   "match":{
-                                      "nisra.paoStartNumber":{
-                                         "query":"4",
-                                         "boost":2,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                },
-                                {
-                                   "match":{
-                                      "nisra.saoStartNumber":{
-                                         "query":"4",
-                                         "boost":1,
-                                         "fuzzy_transpositions":false,
-                                         "max_expansions":10,
-                                         "prefix_length":"1"
-                                      }
-                                   }
-                                }
-                             ]
-                          }
-                       }
-                    ],
-                    "filter":[
-                       {
-                          "prefix":{
-                             "classificationCode":{
-                                "value":"R"
-                             }
-                          }
-                       }
-                    ]
-                 }
-              },
-              "from":0,
-              "size":1
-           }
-         """.stripMargin
+         {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"h4","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"h4"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+        """.stripMargin
       )
 
       // When
@@ -3233,82 +3096,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-    {
-
-    "query":{
-       "bool":{
-          "must":[
-             {
-                "multi_match":{
-                   "query":"7 Gate Re",
-                   "fields":[
-                      "lpi.nagAll.partial",
-                      "paf.mixedPaf.partial",
-                      "paf.mixedWelshPaf.partial",
-                      "nisra.mixedNisra.partial^0.8"
-                   ],
-                   "type":"phrase",
-                   "slop":4
-                }
-             }
-          ],
-          "should":[
-             {
-                "dis_max":{
-                   "queries":[
-                      {
-                         "match":{
-                            "lpi.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "lpi.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      }
-                   ]
-                }
-             }
-          ]
-       }
-    },
-    "from":0,
-    "size":1
- }
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
          """
       )
 
@@ -3331,82 +3119,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-  {
-
-    "query":{
-       "bool":{
-          "must":[
-             {
-                "multi_match":{
-                   "query":"7 Gate Ret",
-                   "fields":[
-                      "lpi.nagAll.partial",
-                      "paf.mixedPaf.partial",
-                      "paf.mixedWelshPaf.partial",
-                      "nisra.mixedNisra.partial^0.8"
-                   ],
-                   "type":"best_fields"
-                }
-             }
-          ],
-          "should":[
-             {
-                "dis_max":{
-                   "queries":[
-                      {
-                         "match":{
-                            "lpi.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "lpi.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      }
-                   ]
-                }
-             }
-          ]
-       }
-    },
-    "from":0,
-    "size":1
-  }
-        """
+         {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           """
       )
 
       // When
@@ -3429,23 +3143,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-
-          "query" : {
-            "bool" : {
-              "must" : [{
-                "multi_match":{
-                  "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
-                  "type":"phrase",
-                  "slop":4
-                }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -3468,22 +3166,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-
-          "query" : {
-            "bool" : {
-              "must" : [{
-                "multi_match":{
-                  "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
-                  "type":"best_fields"
-                }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -3508,91 +3191,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-
-    "query":{
-       "bool":{
-          "must":[
-             {
-                "multi_match":{
-                   "query":"7 Gate Re",
-                   "fields":[
-                      "lpi.nagAll.partial",
-                      "paf.mixedPaf.partial",
-                      "paf.mixedWelshPaf.partial",
-                      "nisra.mixedNisra.partial^0.8"
-                   ],
-                   "type":"phrase",
-                   "slop":4
-                }
-             }
-          ],
-          "should":[
-             {
-                "dis_max":{
-                   "queries":[
-                      {
-                         "match":{
-                            "lpi.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "lpi.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      }
-                   ]
-                }
-             }
-          ],
-          "filter":[
-             {
-                "terms":{
-                   "classificationCode":[
-                      "RD"
-                   ]
-                }
-             }
-          ]
-       }
-    },
-    "from":0,
-    "size":1
-   }
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -3616,90 +3215,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-    {
-
-    "query":{
-       "bool":{
-          "must":[
-             {
-                "multi_match":{
-                   "query":"7 Gate Ret",
-                   "fields":[
-                      "lpi.nagAll.partial",
-                      "paf.mixedPaf.partial",
-                      "paf.mixedWelshPaf.partial",
-                      "nisra.mixedNisra.partial^0.8"
-                   ],
-                   "type":"best_fields"
-                }
-             }
-          ],
-          "should":[
-             {
-                "dis_max":{
-                   "queries":[
-                      {
-                         "match":{
-                            "lpi.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "lpi.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      }
-                   ]
-                }
-             }
-          ],
-          "filter":[
-             {
-                "terms":{
-                   "classificationCode":[
-                      "RD"
-                   ]
-                }
-             }
-          ]
-       }
-    },
-    "from":0,
-    "size":1
-   }
+         {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -3723,92 +3239,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-{
-
-    "query":{
-       "bool":{
-          "must":[
-             {
-                "multi_match":{
-                   "query":"7 Gate Re",
-                   "fields":[
-                      "lpi.nagAll.partial",
-                      "paf.mixedPaf.partial",
-                      "paf.mixedWelshPaf.partial",
-                      "nisra.mixedNisra.partial^0.8"
-                   ],
-                   "type":"phrase",
-                   "slop":4
-                }
-             }
-          ],
-          "should":[
-             {
-                "dis_max":{
-                   "queries":[
-                      {
-                         "match":{
-                            "lpi.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "lpi.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      }
-                   ]
-                }
-             }
-          ],
-          "filter":[
-             {
-                "prefix":{
-                   "classificationCode":{
-                      "value":"R"
-                   }
-                }
-             }
-          ]
-       }
-    },
-    "from":0,
-    "size":1
- }
-        """
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}        """
       )
 
       // When
@@ -3830,90 +3261,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-{
-
-    "query":{
-       "bool":{
-          "must":[
-             {
-                "multi_match":{
-                   "query":"7 Gate Ret",
-                   "fields":[
-                      "lpi.nagAll.partial",
-                      "paf.mixedPaf.partial",
-                      "paf.mixedWelshPaf.partial",
-                      "nisra.mixedNisra.partial^0.8"
-                   ],
-                   "type":"best_fields"
-                }
-             }
-          ],
-          "should":[
-             {
-                "dis_max":{
-                   "queries":[
-                      {
-                         "match":{
-                            "lpi.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "lpi.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.paoStartNumber":{
-                               "query":"7",
-                               "boost":2,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      },
-                      {
-                         "match":{
-                            "nisra.saoStartNumber":{
-                               "query":"7",
-                               "boost":1,
-                               "fuzzy_transpositions":false,
-                               "max_expansions":10,
-                               "prefix_length":"1"
-                            }
-                         }
-                      }
-                   ]
-                }
-             }
-          ],
-          "filter":[
-             {
-                "prefix":{
-                   "classificationCode":{
-                      "value":"R"
-                   }
-                }
-             }
-          ]
-       }
-    },
-    "from":0,
-    "size":1
- }
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -3937,27 +3285,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-          "query" : {
-            "bool" : {
-              "must" : [{
-                "multi_match":{
-                  "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
-                  "type":"phrase",
-                  "slop":4
-                }
-              }],
-              "filter":[{
-                "terms":{
-                  "classificationCode":["RD"]
-                }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+         {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -3980,28 +3308,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-
-          "query" : {
-            "bool" : {
-              "must" : [{
-                "multi_match":{
-                  "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
-                  "type":"best_fields"
-                }
-              }],
-              "filter":[{
-                "terms":{
-                  "classificationCode": ["RD"]
-                }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
-        """
+         {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+         """
       )
 
       // When
@@ -4024,30 +3332,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-
-          "query" : {
-            "bool" : {
-              "must" : [{
-                "multi_match":{
-                  "query":"Gate Re",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
-                  "type":"phrase",
-                  "slop":4
-                }
-              }],
-              "filter":[{
-                "prefix":{
-                  "classificationCode":{
-                    "value":"R"
-                  }
-                }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":8}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
         """
       )
 
@@ -4070,30 +3355,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-        {
-
-          "query" : {
-            "bool" : {
-              "must" : [{
-                "multi_match":{
-                  "query":"Gate Ret",
-                  "fields":["lpi.nagAll.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],
-                  "type":"best_fields"
-                }
-              }],
-              "filter":[{
-                "prefix":{
-                  "classificationCode":{
-                    "value":"R"
-                  }
-                }
-              }]
-            }
-          },
-          "from": 0,
-          "size": 1
-        }
-        """
+       {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+         """
       )
 
       // When

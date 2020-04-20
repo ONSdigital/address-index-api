@@ -48,7 +48,8 @@ case class NationalAddressGazetteerAddress(uprn: String,
                                            nagAll: String,
                                            lpiEndDate: String,
                                            lpiStartDate: String,
-                                           mixedNag: String)
+                                           mixedNag: String,
+                                           mixedWelshNag: String)
 
 /**
   * NAF Address DTO companion object that also contains implicits needed for Elastic4s
@@ -98,6 +99,7 @@ object NationalAddressGazetteerAddress {
     val lpiEndDate: String = "lpiEndDate"
     val lpiStartDate: String = "lpiStartDate"
     val mixedNag: String = "mixedNag"
+    val mixedWelshNag: String = "mixedWelshNag"
   }
 
   object Languages {
@@ -152,7 +154,8 @@ object NationalAddressGazetteerAddress {
       nagAll = filteredNag.getOrElse(Fields.nagAll, "").toString,
       lpiEndDate = filteredNag.getOrElse(Fields.lpiEndDate, "").toString,
       lpiStartDate = filteredNag.getOrElse(Fields.lpiStartDate, "").toString,
-      mixedNag = filteredNag.getOrElse(Fields.mixedNag, "").toString
+      mixedNag = filteredNag.getOrElse(Fields.mixedNag, "").toString,
+      mixedWelshNag = filteredNag.getOrElse(Fields.mixedWelshNag, "").toString
     )
   }
 }

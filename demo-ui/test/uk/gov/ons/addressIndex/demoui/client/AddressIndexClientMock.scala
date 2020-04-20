@@ -29,7 +29,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
 
   val mockPostcode = ""
 
-  val mockAddressBySearchResponse = AddressBySearchResponse(
+  val mockAddressBySearchResponse: AddressBySearchResponse = AddressBySearchResponse(
     tokens = mockAddressTokens,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,
@@ -48,7 +48,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     fromsource = "EW"
   )
 
-  val mockAddressByPostcodeResponse = AddressByPostcodeResponse(
+  val mockAddressByPostcodeResponse: AddressByPostcodeResponse = AddressByPostcodeResponse(
     postcode = mockPostcode,
     addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
     limit = 1,
@@ -61,7 +61,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     epoch = ""
   )
 
-  val mockSearchResponseContainer = AddressBySearchResponseContainer(
+  val mockSearchResponseContainer: AddressBySearchResponseContainer = AddressBySearchResponseContainer(
     apiVersion = "mockApi",
     dataVersion = "mockData",
     response = mockAddressBySearchResponse,
@@ -69,7 +69,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     errors = Seq.empty[AddressResponseError]
   )
 
-  val mockPostcodeResponseContainer = AddressByPostcodeResponseContainer(
+  val mockPostcodeResponseContainer: AddressByPostcodeResponseContainer = AddressByPostcodeResponseContainer(
     apiVersion = "mockApi",
     dataVersion = "mockData",
     response = mockAddressByPostcodeResponse,
@@ -77,7 +77,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     errors = Seq.empty[AddressResponseError]
   )
 
-  val mockUprnResponseContainer = AddressByUprnResponseContainer(
+  val mockUprnResponseContainer: AddressByUprnResponseContainer = AddressByUprnResponseContainer(
     apiVersion = "mockApi",
     dataVersion = "mockData",
     response = mockAddressByUprnResponse,
@@ -96,18 +96,18 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
 }
 
 object AddressIndexClientMock {
-  val mockAddressResponseStatus = AddressResponseStatus(
+  val mockAddressResponseStatus: AddressResponseStatus = AddressResponseStatus(
     code = 200,
     message = "OK"
   )
 
-  val mockRelative = Relative(
+  val mockRelative: Relative = Relative(
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
   )
 
-  val mockCrossRef = CrossRef(
+  val mockCrossRef: CrossRef = CrossRef(
     crossReference = "osgb1000000347959147",
     source = "7666MT"
   )
@@ -115,7 +115,7 @@ object AddressIndexClientMock {
   val mockRelativeResponse: AddressResponseRelative = AddressResponseRelative.fromRelative(mockRelative)
   val mockCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(mockCrossRef)
 
-  val mockPafAddress1 = AddressResponsePaf(
+  val mockPafAddress1: AddressResponsePaf = AddressResponsePaf(
     udprn = "",
     organisationName = "",
     departmentName = "",
@@ -140,7 +140,7 @@ object AddressIndexClientMock {
     endDate = ""
   )
 
-  val mockNagAddress1 = AddressResponseNag(
+  val mockNagAddress1: AddressResponseNag = AddressResponseNag(
     uprn = "",
     postcodeLocator = "PO7 6GA",
     addressBasePostal = "",
@@ -175,7 +175,7 @@ object AddressIndexClientMock {
     lpiStartDate = ""
   )
 
-  val mockNisraAddress1 = AddressResponseNisra(
+  val mockNisraAddress1: AddressResponseNisra = AddressResponseNisra(
     organisationName = "",
     subBuildingName = "",
     buildingName = "",
@@ -209,10 +209,10 @@ object AddressIndexClientMock {
     mixedNisra = "",
     addressStatus = "APPROVED",
     buildingStatus = "",
-
+    localCouncil = "BELFAST"
   )
 
-  val mockBespokeScore = AddressResponseScore(
+  val mockBespokeScore: AddressResponseScore = AddressResponseScore(
     objectScore = 0d,
     structuralScore = 0d,
     buildingScore = 0d,
@@ -223,7 +223,7 @@ object AddressIndexClientMock {
     unitScoreDebug = "0",
     ambiguityPenalty = 1d)
 
-  val mockAddressResponseAddress = AddressResponseAddress(
+  val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -238,14 +238,17 @@ object AddressIndexClientMock {
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),
     geo = None,
-    fromSource = "EW",
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 100f,
-    underlyingScore = 1.0f
+    underlyingScore = 1.0f,
+    countryCode = "E",
+    censusAddressType = "TBA",
+    censusEstabType = "TBA",
+    highlights = None
   )
 
-  val mockAddressByUprnResponse = AddressByUprnResponse(
+  val mockAddressByUprnResponse: AddressByUprnResponse = AddressByUprnResponse(
     address = Some(mockAddressResponseAddress: AddressResponseAddress),
     historical = true,
     verbose = true,

@@ -16,8 +16,12 @@ case class HybridAddress(uprn: String,
                          nisra: Seq[NisraAddress],
                          score: Float,
                          classificationCode: String,
+                         censusAddressType: String,
+                         censusEstabType: String,
                          fromSource: String,
-                         distance: Double = 0D)
+                         countryCode: String,
+                         distance: Double = 0D,
+                         highlights: Seq[Map[String,Seq[String]]])
 
 object HybridAddress {
   /**
@@ -35,8 +39,12 @@ object HybridAddress {
     nisra = Seq.empty,
     score = 0,
     classificationCode = "",
+    censusAddressType = "",
+    censusEstabType = "",
     fromSource = "",
-    distance = 0D
+    countryCode = "",
+    distance = 0D,
+    highlights = Seq.empty
   )
 
   // this `implicit` is needed for the library (elastic4s) to work
@@ -73,14 +81,16 @@ object HybridAddress {
       val slist = sorts.getOrElse(Seq())
       val centimetre = if (slist.isEmpty) 0 else 0.01
       val eWDistance = Try(slist.lift(0).get.toString.toDouble).getOrElse(0D)
+      val isPartial = (eWDistance == hit.score)
       val niDistance = Try(slist.lift(1).get.toString.toDouble).getOrElse(0D)
       val testUPRN = Try(slist.lift(1).get.toString.toLong).getOrElse(0L)
-      val bestDistance = if (testUPRN != 0) 0D
+      val bestDistance = if (isPartial || testUPRN != 0) 0D
                         else if (eWDistance > 0 && niDistance == 0) eWDistance
                           else if (eWDistance == 0 && niDistance > 0 && !niDistance.isInfinite) niDistance
                             else if (eWDistance > niDistance) niDistance
                               else (eWDistance + centimetre)
 
+      val highlights = hit.asInstanceOf[SearchHit].highlight
 
       Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
@@ -94,8 +104,12 @@ object HybridAddress {
         nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
+        censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString).getOrElse(""),
+        censusEstabType = Try(hit.sourceAsMap("censusEstabType").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
-        distance = bestDistance
+        countryCode = Try(hit.sourceAsMap("countryCode").toString).getOrElse("E"),
+        distance = bestDistance,
+        highlights = if (highlights == null) Seq() else Seq(highlights)
       ))
     }
   }
