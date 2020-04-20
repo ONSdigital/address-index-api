@@ -1,0 +1,41 @@
+version: '3'
+services:
+  es:
+    image: "thornsj/address-index-es:190420"
+    container_name: elasticsearch
+    environment:
+      - cluster.name=docker-cluster-ai
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      # - "ELASTIC_PASSWORD=elastic"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  cerebro:
+    image: "lmenezes/cerebro"
+    ports:
+      - "1234:9000"
+    depends_on:
+      - es
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.3.1
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      # - ELASTICSEARCH_USERNAME=elastic
+      # - ELASTICSEARCH_PASSWORD=elastic
+    ports:
+      - 5601:5601
+    depends_on:
+      - es
+  address-index-api:
+    image: "thornsj/address-index-api:190420"
+    ports:
+      - "9001:9000"
+    depends_on:
+      - es
+    environment:
+      - ONS_AI_API_ES_CLUSTER_NAME=docker-cluster-ai
+      - ONS_AI_API_ES_URI=es
+      - ONS_AI_API_ES_PORT=9200
