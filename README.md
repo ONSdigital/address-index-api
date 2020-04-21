@@ -23,7 +23,7 @@ Plans to deploy the application as a service available to all members of the Pub
 Two Docker images have been created which give a feel for the API. The Docker images include an Elasticsearch 7.3.1 cluster prebuilt with the required Address Index indices. The indices are a subset of AddressBase (the Exeter subset).
 The other Docker image contains a version of the API that will work with the Elasticsearch indices. The ```docker-compose.yml``` file also contains a Kibana and Cerebro service to view the cluster. To get started:
 
-1) Run ```docker-compose up``` on https://github.com/ONSdigital/address-index-api/blob/develop/docker-compse.yml
+1) Run ```docker-compose up``` on https://github.com/ONSdigital/address-index-api/blob/master/docker-compse.yml
 
 2) The cluster status can be viewed with either Cerebro or Kibana:
 
@@ -38,7 +38,7 @@ The other Docker image contains a version of the API that will work with the Ela
         
     Endpoints can be found in the Swagger documentation which is not set to run from the API currently. View the Swagger documentation here: 
     
-    https://github.com/ONSdigital/address-index-api/blob/develop/api-definitions/ai-swagger.json
+    https://github.com/ONSdigital/address-index-api/blob/master/api-definitions/ai-swagger.json
     
     The ```ai-swagger.json``` can be copied into the Swagger Editor to view it: 
     
