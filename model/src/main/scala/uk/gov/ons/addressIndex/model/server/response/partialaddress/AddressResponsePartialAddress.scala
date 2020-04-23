@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.model.server.response.partialaddress
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.NationalAddressGazetteerAddress
 
 object AddressResponsePartialAddress {
   implicit lazy val addressResponsePartialAddressFormat: Format[AddressResponsePartialAddress] = Json.format[AddressResponsePartialAddress]

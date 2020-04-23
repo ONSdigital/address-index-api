@@ -38,7 +38,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
     * @return Json response with addresses information
     */
 
-  def partialAddressQuery(input: String,
+  def partialAddressQueryRH(input: String,
                           fallback: Option[String] = None,
                           offset: Option[String] = None,
                           limit: Option[String] = None,
