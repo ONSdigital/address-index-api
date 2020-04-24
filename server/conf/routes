@@ -288,7 +288,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
+GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
 
 
 
@@ -324,7 +324,7 @@ GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPa
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQuery(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQueryEQ(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 ###
 #  summary: Custom RH UPRN endpoint. Gets an address by UPRN.
@@ -358,7 +358,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.RHUPRNController.uprnQuery(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.RHUPRNController.uprnQueryRH(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
 
 ###
 #  summary: Custom EQ endpoint that will pass the request to either the EQ partial endpoint or the postcode endpoint depending on what input string is submitted.
@@ -492,7 +492,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
+GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
 
 ###
 #  summary: Search for a random address.

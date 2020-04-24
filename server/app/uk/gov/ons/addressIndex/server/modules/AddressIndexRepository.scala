@@ -3,7 +3,6 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.script.Script
-import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.FunctionScoreQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
@@ -889,7 +888,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
 
     val radiusSort = args.region match {
-      case Some(Region(range, lat, lon)) =>
+      case Some(Region(_, lat, lon)) =>
             Seq(GeoDistanceSort(field="lpi.location", points= Seq(GeoPoint(lat, lon))),
               GeoDistanceSort(field="nisra.location", points= Seq(GeoPoint(lat, lon))))
       case None => Seq.empty

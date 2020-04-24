@@ -34,7 +34,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @param uprn uprn of the address to be fetched
     * @return
     */
-  def uprnQuery(uprn: String,
+  def uprnQueryRH(uprn: String,
                 bestMatchAddressType: String,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
