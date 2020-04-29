@@ -346,6 +346,43 @@ class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
     actual shouldBe expected
   }
 
+  it should "not generate suffixes from single characters following single quotes" in {
+    // Given
+    val input = Map(
+      Tokens.subBuildingName -> "",
+      Tokens.buildingName -> "ST AIDEN'S COTTAGE"
+    )
+
+    val expected = Map(
+      Tokens.subBuildingName -> "",
+      Tokens.buildingName -> "ST AIDEN'S COTTAGE",
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
+  it should "not generate suffixes from single characters following a forward slash" in {
+    // Given
+    val input = Map(
+      Tokens.subBuildingName -> "",
+      Tokens.buildingName -> "T/A THE BANYAN TREE"
+    )
+    val expected = Map(
+      Tokens.subBuildingName -> "",
+      Tokens.buildingName -> "T/A THE BANYAN TREE",
+    )
+
+    // When
+    val actual = Tokens.postTokenizeTreatmentBuildingName(input)
+
+    // Then
+    actual shouldBe expected
+  }
+
   it should "transform building name with 2 ranges and some siffixes" in {
     // Given
     val input = Map(

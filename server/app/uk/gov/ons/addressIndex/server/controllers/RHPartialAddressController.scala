@@ -73,7 +73,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val highVal = highlight.getOrElse("on")
     val highVerbose: Boolean = highVal == "debug"
-
+    val inputVal = input.replaceAll("'","")
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
@@ -83,7 +83,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
       val organisation = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set").getOrElse("")
       logger.systemLog(
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
-        partialAddress = input, isNotFound = notFound, offset = offval,
+        partialAddress = inputVal, isNotFound = notFound, offset = offval,
         fallback = fall,
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
@@ -96,7 +96,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
     val queryValues = QueryValues(
-      input = Some(input),
+      input = Some(inputVal),
       fallback = Some(fall),
       epoch = Some(epochVal),
       filter = Some(filterString),
@@ -115,7 +115,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
         .orElse(partialAddressValidation.validateSource(queryValues))
         .orElse(partialAddressValidation.validateKeyStatus(queryValues))
-        .orElse(partialAddressValidation.validateInput(input, queryValues))
+        .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
         .orElse(partialAddressValidation.validateFromSource(queryValues))
@@ -127,7 +127,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
 
       case _ =>
         val args = PartialArgs(
-          input = input,
+          input = inputVal,
           fallback = fall,
           start = offsetInt,
           limit = limitInt,
@@ -153,7 +153,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
               AddressResponseAddressRH.fromHybridAddress(_, favourPaf, favourWelsh)
             )
 
-            val sortAddresses = if (sboost > 0) boostAtStart(addresses, input, favourPaf, favourWelsh, highVerbose) else addresses
+            val sortAddresses = if (sboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
 
             writeLog(activity = "rh_partial_request")
 
@@ -162,7 +162,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByRHPartialAddressResponse(
-                  input = input,
+                  input = inputVal,
                   addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
                   filter = filterString,
                   fallback = fall,
