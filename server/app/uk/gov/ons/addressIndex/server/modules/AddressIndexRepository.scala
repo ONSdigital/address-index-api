@@ -254,10 +254,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 }
 
   private def makeGroupedPostcodeQuery(args: GroupedPostcodeArgs): SearchRequest = {
-    val postcodeFormatted: String = if (!args.postcode.contains(" ")) {
-      val (postcodeStart, postcodeEnd) = args.postcode.splitAt(args.postcode.length() - 3)
-      (postcodeStart + " " + postcodeEnd).toUpperCase
-    } else args.postcode.toUpperCase
+
+    val postcodeFormatted: String = args.postcode.toUpperCase
 
     val queryFilter = if (args.filters.isEmpty) {
       Seq.empty
@@ -266,7 +264,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
     }
 
-    val query = must(termQuery("postcode", postcodeFormatted)).filter(queryFilter.flatten)
+    val query = must(prefixQuery("postcode", postcodeFormatted)).
+      filter(queryFilter.flatten)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -277,16 +276,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
-      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
-        FieldSort("lpi.paoStartNumber").asc(),
-        FieldSort("lpi.paoStartSuffix.keyword").asc(),
-        FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
-        FieldSort("nisra.paoStartNumber").asc(),
-        FieldSort("nisra.secondarySort").asc(),
-        FieldSort("uprn").asc())
-      .start(args.start)
-      .limit(args.limit)
+      .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword").size(args.limit))
+      .start(0)
+      .limit(1)
   }
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
@@ -980,8 +972,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //    val searchString = SearchBodyBuilderFn(query).string()
-  //   println(searchString)
+     val searchString = SearchBodyBuilderFn(query).string()
+     println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
