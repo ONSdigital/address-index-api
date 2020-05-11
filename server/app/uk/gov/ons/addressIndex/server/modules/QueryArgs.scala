@@ -243,6 +243,29 @@ final case class PostcodeArgs(postcode: String,
 }
 
 /**
+  * Search by partial postcode and group results
+  *
+  * @param postcode the postcode to search by
+  */
+final case class GroupedPostcodeArgs(postcode: String,
+                              epoch: String = "",
+                              historical: Boolean = true,
+                              limit: Int,
+                              start: Int = 0,
+                              filters: String,
+                              verbose: Boolean = true,
+                              skinny: Boolean = false,
+                              favourpaf: Boolean = true,
+                              favourwelsh: Boolean = true
+                             ) extends MultiResultArgs with StartAtOffset with Skinnyable {
+  override def postcodeOpt: Option[String] = Some(postcode)
+
+  override def startOpt: Option[Int] = Some(start)
+
+  override def skinnyOpt: Option[Boolean] = Some(skinny)
+}
+
+/**
   * Search at random
   */
 final case class RandomArgs(epoch: String = "",
