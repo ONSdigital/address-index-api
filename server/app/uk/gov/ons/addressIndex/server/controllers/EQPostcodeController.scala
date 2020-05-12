@@ -129,7 +129,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
           )
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+          case HybridAddressCollection(hybridAddresses, aggregations, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddressPostcodeEQ] = hybridAddresses.map(
               AddressResponseAddressPostcodeEQ.fromHybridAddress(_, favourPaf, favourWelsh)

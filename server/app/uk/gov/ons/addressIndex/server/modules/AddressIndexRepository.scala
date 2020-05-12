@@ -1027,7 +1027,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         fromsource = "all"
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>
+        runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result

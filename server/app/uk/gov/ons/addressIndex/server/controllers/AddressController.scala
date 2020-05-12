@@ -173,7 +173,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           overloadProtection.breaker.withCircuitBreaker(esRepo.runMultiResultQuery(finalArgs))
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, maxScore, total@_) =>
+          case HybridAddressCollection(hybridAddresses, aggregations, maxScore, total@_) =>
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
