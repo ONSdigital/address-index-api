@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.script.Script
+import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
@@ -276,7 +277,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
-      .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword").size(args.limit))
+      .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword")
+        .size(10000)
+        .order(TermsOrder("_key",true)))
       .start(0)
       .limit(1)
   }
