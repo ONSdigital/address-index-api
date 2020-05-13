@@ -3,6 +3,9 @@ package uk.gov.ons.addressIndex.model.db.index
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
 
+import scala.util.Try
+
+
 /**
   * Contains the result of an ES query
   *
@@ -12,7 +15,7 @@ import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
   * @param total     total number of all of the addresses regardless of the limit
   */
 case class HybridAddressCollection(addresses: Seq[HybridAddress],
-                                   aggregations: Map[String,Any],
+                                   aggregations: Seq[PostcodeGroup],
                                    maxScore: Double,
                                    total: Long)
 
@@ -44,22 +47,16 @@ object HybridAddressCollection {
     val total = response.totalHits
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
     val maxScore = if (total == 0) 0 else response.maxScore
-    val buckets = response.aggregationsAsMap.head._2.asInstanceOf[Map[String,Any]]
-    val aggs =   buckets.tail.tail.head._2.asInstanceOf[List[Map[Any,Any]]]
-    aggs.map(_.get("key"))
-    val postcodeList = aggs.flatMap(_.get("key"))
-    val postcodeCounts = aggs.flatMap(_.get("doc_count"))
-//    val postcodeList = aggs.
- //     .takeRight(1).head._2
-    val stophere = "thingy"
-  // val aggs =   buckets.get("uniquepostcodes").map {}
- //   val aggs = buckets.map{uniquepostcodes => uniquepostcodes._2  }
-//    val aggs2 = buckets.head._2.t
-  //    takeRight(1).head._2
-    val stop2 = "wotsit"
+    val aggs = Try(response.aggregationsAsMap.head._2.asInstanceOf[Map[String,Any]]).getOrElse(Map.empty[String,Any])
+    val buckets = Try(aggs.last._2.asInstanceOf[List[Map[Any,Any]]]).getOrElse(List.empty[Map[Any,Any]])
+
+    val pcList = buckets.map{bucket =>
+      PostcodeGroup(bucket.head._2.toString,bucket.last._2.toString.toInt)
+    }.toSeq
+
     HybridAddressCollection(
       addresses = response.to[HybridAddress],
-      aggregations = buckets,
+      aggregations = pcList,
       maxScore = maxScore,
       total = total
     )
