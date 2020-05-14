@@ -59,7 +59,7 @@ object HybridAddressCollection {
       addresses = response.to[HybridAddress],
       aggregations = pcList,
       maxScore = maxScore,
-      total = total
+      total = pcList.size
     )
   }
 }
