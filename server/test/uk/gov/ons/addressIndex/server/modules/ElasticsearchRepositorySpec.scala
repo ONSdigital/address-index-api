@@ -970,6 +970,29 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       result shouldBe expected
     }
 
+    "return aggregration query for partial postcode" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+         {"query":{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"lpi.postcodeLocator.keyword","size":10000,"order":{"_key":"asc"}}}}}
+         """.stripMargin
+      )
+
+      // When
+      val args = GroupedPostcodeArgs(
+        postcode = "h4",
+        limit = 1,
+        filters = "residential",
+      )
+      val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+
+
     "find Hybrid addresses by building number, postcode, locality and organisation name" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)

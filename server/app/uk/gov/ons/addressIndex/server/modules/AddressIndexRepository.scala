@@ -279,7 +279,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     searchBase.query(query)
       .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword")
         .size(10000)
-        .order(TermsOrder("_key",true)))
+        .order(TermsOrder("_key",asc = true)))
       .start(0)
       .limit(1)
   }
