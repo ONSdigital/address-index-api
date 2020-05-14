@@ -991,7 +991,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         limit = 10,
         verbose = false,
       )
-      val HybridAddressCollection(results, maxScore, total) = repository.runMultiResultQuery(args).await
+      val HybridAddressCollection(results, aggregations, maxScore, total) = repository.runMultiResultQuery(args).await
 
       // Then
       results.length should be > 0 // it MAY return more than 1 addresses, but the top one should remain the same
@@ -1022,7 +1022,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         limit = 10,
         verbose = false,
       )
-      val HybridAddressCollection(results, maxScore, total) = repository.runMultiResultQuery(args).await
+      val HybridAddressCollection(results, aggregations, maxScore, total) = repository.runMultiResultQuery(args).await
 
       // Then
       results.length shouldBe 0

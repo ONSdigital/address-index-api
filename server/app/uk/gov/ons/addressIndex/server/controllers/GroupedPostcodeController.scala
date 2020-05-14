@@ -4,8 +4,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByGroupedPostcodeResponse, AddressByGroupedPostcodeResponseContainer, AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.address.{FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByGroupedPostcodeResponse, AddressByGroupedPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
@@ -96,7 +96,8 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
         .orElse(postcodeValidation.validateSource(queryValues))
         .orElse(postcodeValidation.validateKeyStatus(queryValues))
         .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues))
-   //     .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
+        // postcode validation will be reinstated when the regex for ticket 2133 is decided
+        // .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
         .orElse(postcodeValidation.validateEpoch(queryValues))
         .orElse(None)
 
@@ -122,11 +123,7 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
           )
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, aggregations, maxScore, total) =>
-
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verb)
-            )
+          case HybridAddressCollection(hybridAddresses@_, aggregations, maxScore, total) =>
 
             val pagedAggregations = aggregations.slice(offsetInt, offsetInt + limitInt)
 

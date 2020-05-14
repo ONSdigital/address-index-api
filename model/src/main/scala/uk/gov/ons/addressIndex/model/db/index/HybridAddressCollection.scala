@@ -55,11 +55,14 @@ object HybridAddressCollection {
       PostcodeGroup(bucket.head._2.toString,bucket.last._2.toString.toInt)
     }).getOrElse(List.empty[PostcodeGroup])
 
+    // returned total will be number of hits unless we are doing grouped postcode
+    val totalOrBuckets = if (pcList.size > 0) pcList.size else total
+
     HybridAddressCollection(
       addresses = response.to[HybridAddress],
       aggregations = pcList,
       maxScore = maxScore,
-      total = pcList.size
+      total = totalOrBuckets
     )
   }
 }
