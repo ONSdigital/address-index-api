@@ -690,6 +690,136 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a part postcode list when an outcode is supplied to EQController" in {
+      // Given
+      val controller = eqController
+
+      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQPostcodeResponse(
+          postcode = "Po155Rr",
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.eqQuery("SO3", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a part postcode list when an outcode and sector is supplied to EQController" in {
+      // Given
+      val controller = eqController
+
+      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQPostcodeResponse(
+          postcode = "Po155Rr",
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.eqQuery("SO3 3", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a part postcode list when an outcode and sector and first half of unit is supplied to EQController" in {
+      // Given
+      val controller = eqController
+
+      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQPostcodeResponse(
+          postcode = "Po155Rr",
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.eqQuery("SO3 3A", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+//    SO3
+//    SO32
+//    SO32 2
+//    SO32 2R
+//      2 SO32
+//      2 SO32 2
+//    2 SO32 2R
+//      EC1
+//    EC1A
+//    EC1A 1
+//    EC1A 1B
+//      1 EC1
+//      1 EC1A
+//      1 EC1A 1
+//    1 EC1A 1B
+//      W1A
+//    W1A 0
+//    W1A 0A
+//      1 W1A
+//      1 W1A 0
+//    1 W1A 0A
+//      M1 1
+//    M1 1A
+//      1 M1 1
+//    1 M1 1A
+//      B33 8
+//    B33 8T
+//      1 B33
+//      1 B33 8
+//    1 B33 8T
+//      CR2
+//    CR2 6
+//    CR2 6X
+//      1 CR2
+//      1 CR2 6
+//    1 CR2 6X
+
     "reply with a found address in rh format when a partial is supplied to RH Partial Controller" in {
 
       val addresses = Seq(AddressResponseAddressRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))

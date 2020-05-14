@@ -30,7 +30,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
              ): Action[AnyContent] = Action async { implicit req =>
 
     if (isPostCode(input)) {
-      logger.info("Input is postcode")
+      logger.warn("Input is postcode")
       eqPostcodeController.postcodeQuery(
         postcode = input,
         offset = offset,
@@ -40,9 +40,45 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         favourpaf = favourpaf,
         favourwelsh = favourwelsh,
-        epoch=epoch) (req)
+        epoch = epoch)(req)
+    } else if (isOutCode(input)){
+      logger.warn("Input is the outcode part of a postcode")
+      eqPostcodeController.postcodeQuery(
+        postcode = input,
+        offset = offset,
+        limit = limit,
+        classificationfilter = classificationfilter,
+        historical = historical,
+        verbose = verbose,
+        favourpaf = favourpaf,
+        favourwelsh = favourwelsh,
+        epoch = epoch)(req)
+    } else if (isOutCodeAndSector(input)){
+      logger.warn("Input is the outcode and sector parts of a postcode")
+      eqPostcodeController.postcodeQuery(
+        postcode = input,
+        offset = offset,
+        limit = limit,
+        classificationfilter = classificationfilter,
+        historical = historical,
+        verbose = verbose,
+        favourpaf = favourpaf,
+        favourwelsh = favourwelsh,
+        epoch = epoch)(req)
+    } else if (isOutCodeAndSectorAndHalfUnit(input)){
+      logger.warn("Input is the outcode and most of incode parts of a postcode")
+      eqPostcodeController.postcodeQuery(
+        postcode = input,
+        offset = offset,
+        limit = limit,
+        classificationfilter = classificationfilter,
+        historical = historical,
+        verbose = verbose,
+        favourpaf = favourpaf,
+        favourwelsh = favourwelsh,
+        epoch = epoch)(req)
     } else {
-      logger.info("input is partial address")
+      logger.warn("input is partial address")
       eqPartialAddressController.partialAddressQuery(
         input = input,
         fallback = fallback,
@@ -57,6 +93,37 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         favourpaf = favourpaf,
         favourwelsh = favourwelsh) (req)
     }
+  }
+
+  def isOutCode(input : String): Boolean = {
+
+    val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?)$".r
+
+    postCodePattern.findFirstMatchIn(input) match {
+      case Some(_) => true
+      case None => false
+    }
+  }
+
+  def isOutCodeAndSector(input : String): Boolean = {
+
+    val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9])$".r
+
+    postCodePattern.findFirstMatchIn(input) match {
+      case Some(_) => true
+      case None => false
+    }
+  }
+
+  def isOutCodeAndSectorAndHalfUnit(input : String): Boolean = {
+
+    val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{1})$".r
+
+    postCodePattern.findFirstMatchIn(input) match {
+      case Some(_) => true
+      case None => false
+    }
+
   }
 
   /**
@@ -75,4 +142,15 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
       case None => false
     }
   }
+
+  def stripSpaces(expr: String): String = {
+    ""
+  }
+
+  def addSpaces(expr: String): String = {
+    ""
+  }
+
+
+
 }
