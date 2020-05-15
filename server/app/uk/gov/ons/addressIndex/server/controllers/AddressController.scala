@@ -173,7 +173,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           overloadProtection.breaker.withCircuitBreaker(esRepo.runMultiResultQuery(finalArgs))
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, maxScore, total@_) =>
+          case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total@_) =>
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
@@ -186,7 +186,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
 
             // work out the threshold for accepting matches (default 5% -> 0.05)
-            val threshold = Try((thresholdFloat).toDouble).getOrElse(5.0D)
+            val threshold = Try(thresholdFloat.toDouble).getOrElse(5.0D)
 
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses =

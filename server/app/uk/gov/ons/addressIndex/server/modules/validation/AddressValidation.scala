@@ -15,9 +15,9 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
 
   val defaultLimit: Int = conf.config.elasticSearch.defaultLimit
   // get maxima length from config
-  val maximumLimit: Int = conf.config.elasticSearch.maximumLimit
+  val maximumLimit: Int = conf.config.elasticSearch.maximumLimitPostcode
   val defaultOffset: Int = conf.config.elasticSearch.defaultOffset
-  val maximumOffset: Int = conf.config.elasticSearch.maximumOffset
+  val maximumOffset: Int = conf.config.elasticSearch.maximumOffsetPostcode
 
   // set minimum string length from config
   val validEpochs: String = conf.config.elasticSearch.validEpochs

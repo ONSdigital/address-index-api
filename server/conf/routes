@@ -415,6 +415,46 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
 
 ###
+#  summary: Search for an address by a partial postcode, with grouped results.
+#  description: Returns full postcodes that match a partial postcode with a count of the number of addresses in each (or address if 1)
+#  parameters:
+#    - name: postcode
+#      description: Specifies the postcode search string (e.g. 'HA4 8RG').
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination.
+#      default: 0
+#      maximum: 1000
+#    - name: limit
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
+#    - name: historical
+#      description: Include historical addresses
+#      default: true
+#    - name: verbose
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String])
+
+###
 #  summary: Search for an address by postcode.
 #  description: Returns a alpha-numeric ordered list of addresses matching the postcode query.
 #  parameters:

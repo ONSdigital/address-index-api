@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, _}
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.script.Script
+import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
@@ -252,6 +253,36 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     .start(args.start)
     .limit(args.limit)
 }
+
+  private def makeGroupedPostcodeQuery(args: GroupedPostcodeArgs): SearchRequest = {
+
+    val postcodeFormatted: String = args.postcode.toUpperCase
+
+    val queryFilter = if (args.filters.isEmpty) {
+      Seq.empty
+    } else {
+      if (args.filtersType == "prefix") Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
+      else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
+    }
+
+    val query = must(prefixQuery("postcode", postcodeFormatted)).
+      filter(queryFilter.flatten)
+
+    val source = if (args.historical) {
+      if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
+    } else {
+      if (args.verbose) hybridIndexPostcode else hybridIndexSkinnyPostcode
+    }
+
+    val searchBase = search(source + args.epochParam)
+
+    searchBase.query(query)
+      .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword")
+        .size(10000)
+        .order(TermsOrder("_key",asc = true)))
+      .start(0)
+      .limit(1)
+  }
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
     val timestamp: Long = System.currentTimeMillis
@@ -924,6 +955,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       makePartialSearch(partialArgs, fallback = false)
     case postcodeArgs: PostcodeArgs =>
       makePostcodeQuery(postcodeArgs)
+    case groupedPostcodeArgs: GroupedPostcodeArgs =>
+      makeGroupedPostcodeQuery(groupedPostcodeArgs)
     case randomArgs: RandomArgs =>
       makeRandomQuery(randomArgs)
     case addressArgs: AddressArgs =>
@@ -943,7 +976,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
  // uncomment to see generated query
  //    val searchString = SearchBodyBuilderFn(query).string()
-  //   println(searchString)
+ //    println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
@@ -964,6 +997,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: PostcodeArgs =>
+        if ((gcp && args.verboseOrDefault) || postcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+          client.execute(query).map(HybridAddressCollection.fromResponse)
+      case _: GroupedPostcodeArgs =>
         if ((gcp && args.verboseOrDefault) || postcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: RandomArgs =>
@@ -994,7 +1030,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         fromsource = "all"
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _) =>
+        runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
