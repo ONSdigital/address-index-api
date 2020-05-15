@@ -59,7 +59,7 @@
             <td class="table--cell">
                 Optional
                 <br>Default: 0
-                <br>Maximum: 250
+                <br>Maximum: 250 partials or 5000 postcodes
             </td>
         </tr>
         <tr class="table--row">
@@ -68,8 +68,8 @@
             <td class="table--cell">Specifies the number of addresses to return.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: 10
-                <br>Maximum: 100
+                <br>Default: 20 partials or 100 postcodes
+                <br>Maximum: 100 partials or 5000 postcodes
             </td>
         </tr>
          <tr class="table--row">

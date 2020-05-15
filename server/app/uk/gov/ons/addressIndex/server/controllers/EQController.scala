@@ -35,7 +35,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     val normalizedInput: String = stripSpaces(input.toUpperCase)
 
     if (isPostCode(normalizedInput)) {
-      logger.warn("Input is postcode")
+      logger.info("Input is postcode")
       eqPostcodeController.postcodeQuery(
         postcode = normalizedInput,
         offset = offset,
@@ -47,7 +47,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         favourwelsh = favourwelsh,
         epoch = epoch)(req)
     } else if (isOutCodeAndSectorAndHalfUnitWithSpace(input)){
-      logger.warn("Input is the outcode and most of incode parts of a postcode")
+      logger.info("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = if (input.contains(" ")) input else addSpaces(input,2),
         offset = offset,
@@ -57,7 +57,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCodeAndSectorWithSpace(input)){
-      logger.warn("Input is the outcode and sector parts of a postcode")
+      logger.info("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = if (input.contains(" ")) input else addSpaces(input,1),
         offset = offset,
@@ -67,7 +67,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCode(input)){
-      logger.warn("Input is the outcode part of a postcode")
+      logger.info("Input is the outcode part of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = input,
         offset = offset,
@@ -77,7 +77,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCodeAndSectorAndHalfUnit(normalizedInput)){
-      logger.warn("Input is the outcode and most of incode parts of a postcode")
+      logger.info("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = addSpaces(normalizedInput,2),
         offset = offset,
@@ -87,7 +87,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCodeAndSector(normalizedInput)){
-      logger.warn("Input is the outcode and sector parts of a postcode")
+      logger.info("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = addSpaces(normalizedInput,1),
         offset = offset,
@@ -97,7 +97,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCode(normalizedInput)){
-      logger.warn("Input is the outcode part of a postcode")
+      logger.info("Input is the outcode part of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = normalizedInput,
         offset = offset,
@@ -107,7 +107,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         verbose = verbose,
         epoch = epoch)(req)
     } else {
-      logger.warn("input is partial address")
+      logger.info("input is partial address")
       eqPartialAddressController.partialAddressQuery(
         input = input,
         fallback = fallback,

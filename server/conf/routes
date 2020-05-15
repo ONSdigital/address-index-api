@@ -371,11 +371,11 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
-#      maximum: 250
+#      maximum: 5000
 #    - name: limit
 #      description: Specifies the number of addresses to return.
-#      default: 10
-#      maximum: 100
+#      default: 100
+#      maximum: 5000
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
@@ -416,18 +416,18 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 
 ###
 #  summary: Search for an address by a partial postcode, with grouped results.
-#  description: Returns full postcodes that match a partial postcode with a count of the number of addresses in each (or address if 1)
+#  description: Returns full postcodes that match a partial postcode with a count of the number of addresses in each
 #  parameters:
 #    - name: postcode
-#      description: Specifies the postcode search string (e.g. 'HA4 8RG').
+#      description: Specifies the partial postcode search string (e.g. 'HA4 8').
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
-#      maximum: 1000
+#      maximum: 5000
 #    - name: limit
 #      description: Specifies the number of addresses to return.
-#      default: 10
-#      maximum: 100
+#      default: 100
+#      maximum: 5000
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical
@@ -442,7 +442,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByGroupedPostcodeResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
@@ -463,11 +463,11 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
-#      maximum: 1000
+#      maximum: 5000
 #    - name: limit
 #      description: Specifies the number of addresses to return.
-#      default: 10
-#      maximum: 100
+#      default: 100
+#      maximum: 5000
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
 #    - name: historical

@@ -406,7 +406,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
 
-  val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController)
+  val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController, groupedPostcodeController)
 
   "Address controller" should {
 
@@ -701,7 +701,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByEQPostcodeResponse(
-          postcode = "Po155Rr",
+          postcode = "PO155RR",
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           filter = "",
           historical = false,
@@ -728,12 +728,12 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = eqController
 
-      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+      val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        response = AddressByEQPostcodeResponse(
-          postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+        response = AddressByGroupedPostcodeResponse(
+          partpostcode = "EX4",
+          postcodes = Seq(PostcodeGroup("EX4 1AA",47)),
           filter = "",
           historical = false,
           limit = 100,
@@ -747,7 +747,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("SO3", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -759,12 +759,12 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = eqController
 
-      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+      val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        response = AddressByEQPostcodeResponse(
-          postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+        response = AddressByGroupedPostcodeResponse(
+          partpostcode = "EX4 1",
+          postcodes = Seq(PostcodeGroup("EX4 1AA",47)),
           filter = "",
           historical = false,
           limit = 100,
@@ -778,7 +778,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("SO3 3", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -790,12 +790,12 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = eqController
 
-      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+      val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
-        response = AddressByEQPostcodeResponse(
-          postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+        response = AddressByGroupedPostcodeResponse(
+          partpostcode = "EX4 1A",
+          postcodes = Seq(PostcodeGroup("EX4 1AA",47)),
           filter = "",
           historical = false,
           limit = 100,
@@ -809,50 +809,13 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("SO3 3A", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1A", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
       status(result) mustBe OK
       actual mustBe expected
     }
-
-//    SO3
-//    SO32
-//    SO32 2
-//    SO32 2R
-//      2 SO32
-//      2 SO32 2
-//    2 SO32 2R
-//      EC1
-//    EC1A
-//    EC1A 1
-//    EC1A 1B
-//      1 EC1
-//      1 EC1A
-//      1 EC1A 1
-//    1 EC1A 1B
-//      W1A
-//    W1A 0
-//    W1A 0A
-//      1 W1A
-//      1 W1A 0
-//    1 W1A 0A
-//      M1 1
-//    M1 1A
-//      1 M1 1
-//    1 M1 1A
-//      B33 8
-//    B33 8T
-//      1 B33
-//      1 B33 8
-//    1 B33 8T
-//      CR2
-//    CR2 6
-//    CR2 6X
-//      1 CR2
-//      1 CR2 6
-//    1 CR2 6X
 
     "reply with a found address in rh format when a partial is supplied to RH Partial Controller" in {
 
@@ -2860,14 +2823,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     }
 
     "sort highlights correctly in partial controller" in {
-     //Given
-     val controller = new PartialAddressController(components, failingRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
-     //When
+      //Given
       val high1 = new AddressResponseHighlightHit( source = "L", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
       val high2 = new AddressResponseHighlightHit( source = "P", lang = "E",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
       val high3 = new AddressResponseHighlightHit( source = "P", lang = "W",distinctHitCount = 3, highLightedText ="6 Long Lane Liverpool")
       val high4 = new AddressResponseHighlightHit( source = "N", lang = "E",distinctHitCount = 4, highLightedText ="6 Long Lane Belfast")
 
+      //When
       val result = HighlightFuncs.sortHighs(Seq(high1,high2,high3,high4),favourPaf = true,favourWelsh = true)
       val expected = Seq(high4,high3,high2,high1)
 
