@@ -46,7 +46,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         favourpaf = favourpaf,
         favourwelsh = favourwelsh,
         epoch = epoch)(req)
-    } else if (isOutCodeAndSectorAndHalfUnit(input)){
+    } else if (isOutCodeAndSectorAndHalfUnitWithSpace(input)){
       logger.warn("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = if (input.contains(" ")) input else addSpaces(input,2),
@@ -56,7 +56,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         historical = historical,
         verbose = verbose,
         epoch = epoch)(req)
-    } else if (isOutCodeAndSector(input)){
+    } else if (isOutCodeAndSectorWithSpace(input)){
       logger.warn("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
         postcode = if (input.contains(" ")) input else addSpaces(input,1),
@@ -124,6 +124,13 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     }
   }
 
+  /**
+    * Determine if input is an outcode
+    * trailing space optional
+    *
+    * @param input the input string
+    * @return
+    */
   def isOutCode(input : String): Boolean = {
 
     val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?)$".r
@@ -134,6 +141,13 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     }
   }
 
+  /**
+    * Determine if input is an outcode and a sector
+    * space optional
+    *
+    * @param input the input string
+    * @return
+    */
   def isOutCodeAndSector(input : String): Boolean = {
 
     val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9])$".r
@@ -144,9 +158,51 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     }
   }
 
+  /**
+    * Determine if input is an outcode and a sector
+    * space mandatory
+    *
+    * @param input the input string
+    * @return
+    */
+  def isOutCodeAndSectorWithSpace(input : String): Boolean = {
+
+    val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? [0-9])$".r
+
+    postCodePattern.findFirstMatchIn(input) match {
+      case Some(_) => true
+      case None => false
+    }
+  }
+
+  /**
+    * Determine if input is a postcode apart from final character of incode
+    * space optional
+    *
+    * @param input the input string
+    * @return
+    */
   def isOutCodeAndSectorAndHalfUnit(input : String): Boolean = {
 
     val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z])$".r
+
+    postCodePattern.findFirstMatchIn(input) match {
+      case Some(_) => true
+      case None => false
+    }
+
+  }
+
+  /**
+    * Determine if input is a postcode apart from final character of incode
+    * space mandatory
+    *
+    * @param input the input string
+    * @return
+    */
+  def isOutCodeAndSectorAndHalfUnitWithSpace(input : String): Boolean = {
+
+    val postCodePattern: Regex = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? [0-9][A-Za-z])$".r
 
     postCodePattern.findFirstMatchIn(input) match {
       case Some(_) => true
