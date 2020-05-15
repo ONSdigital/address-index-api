@@ -49,7 +49,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     } else if (isOutCodeAndSectorAndHalfUnit(input)){
       logger.warn("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
-        postcode = input,
+        postcode = if (input.contains(" ")) input else addSpaces(input,2),
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
@@ -59,7 +59,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
     } else if (isOutCodeAndSector(input)){
       logger.warn("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
-        postcode = input,
+        postcode = if (input.contains(" ")) input else addSpaces(input,1),
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
