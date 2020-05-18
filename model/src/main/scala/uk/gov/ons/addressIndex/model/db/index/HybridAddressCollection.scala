@@ -3,6 +3,9 @@ package uk.gov.ons.addressIndex.model.db.index
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
 
+import scala.util.Try
+
+
 /**
   * Contains the result of an ES query
   *
@@ -12,6 +15,7 @@ import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
   * @param total     total number of all of the addresses regardless of the limit
   */
 case class HybridAddressCollection(addresses: Seq[HybridAddress],
+                                   aggregations: Seq[PostcodeGroup],
                                    maxScore: Double,
                                    total: Long)
 
@@ -44,10 +48,21 @@ object HybridAddressCollection {
     // if the query doesn't find anything, the score is `Nan` that messes up with Json converter
     val maxScore = if (total == 0) 0 else response.maxScore
 
+    // capture the aggregration and create postcode group opjects from the buckets
+    val aggs = Try(response.aggregationsAsMap.head._2.asInstanceOf[Map[String,Any]]).getOrElse(Map.empty[String,Any])
+    val buckets = Try(aggs.last._2.asInstanceOf[List[Map[Any,Any]]]).getOrElse(List.empty[Map[Any,Any]])
+    val pcList = Try(buckets.map{bucket =>
+      PostcodeGroup(bucket.head._2.toString,bucket.last._2.toString.toInt)
+    }).getOrElse(List.empty[PostcodeGroup])
+
+    // returned total will be number of hits unless we are doing grouped postcode
+    val totalOrBuckets = if (pcList.size > 0) pcList.size else total
+
     HybridAddressCollection(
       addresses = response.to[HybridAddress],
+      aggregations = pcList,
       maxScore = maxScore,
-      total = total
+      total = totalOrBuckets
     )
   }
 }

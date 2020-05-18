@@ -4,8 +4,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressPostcodeRH, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.address.{FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByGroupedPostcodeResponse, AddressByGroupedPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
@@ -17,31 +17,29 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class RHPostcodeController @Inject()(val controllerComponents: ControllerComponents,
-                                     esRepo: ElasticsearchRepository,
-                                     conf: ConfigModule,
-                                     versionProvider: VersionModule,
-                                     overloadProtection: APIThrottle,
-                                     postcodeValidation: PostcodeControllerValidation
+class GroupedPostcodeController @Inject()(val controllerComponents: ControllerComponents,
+                                          esRepo: ElasticsearchRepository,
+                                          conf: ConfigModule,
+                                          versionProvider: VersionModule,
+                                          overloadProtection: APIThrottle,
+                                          postcodeValidation: PostcodeControllerValidation
                                   )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with PostcodeControllerResponse {
 
-  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:RHPostcodeController")
+  lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PostcodeController")
 
   /**
-    * RH POSTCODE query API
+    * POSTCODE query API
     *
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQueryRH(postcode: String,
+  def groupedPostcodeQuery(postcode: String,
                     offset: Option[String] = None,
                     limit: Option[String] = None,
                     classificationfilter: Option[String] = None,
                     historical: Option[String] = None,
                     verbose: Option[String] = None,
-                    favourpaf: Option[String] = None,
-                    favourwelsh: Option[String] = None,
                     epoch: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
@@ -60,8 +58,6 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
@@ -83,6 +79,7 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
 
+    // add grouping query values
     val queryValues = QueryValues(
       postcode = Some(postcode),
       epoch = Some(epochVal),
@@ -91,8 +88,6 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      favourpaf = Some(favourPaf),
-      favourwelsh = Some(favourWelsh)
     )
 
     val result: Option[Future[Result]] =
@@ -101,7 +96,8 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
         .orElse(postcodeValidation.validateSource(queryValues))
         .orElse(postcodeValidation.validateKeyStatus(queryValues))
         .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues))
-        .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
+        // postcode validation will be reinstated when the regex for ticket 2133 is decided
+        // .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
         .orElse(postcodeValidation.validateEpoch(queryValues))
         .orElse(None)
 
@@ -110,7 +106,7 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
         res // a validation error
 
       case _ =>
-        val args = PostcodeArgs(
+        val args = GroupedPostcodeArgs(
           postcode = postcode,
           start = offsetInt,
           limit = limitInt,
@@ -119,8 +115,6 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          favourpaf = favourPaf,
-          favourwelsh = favourWelsh
         )
 
         val request: Future[HybridAddressCollection] =
@@ -129,21 +123,19 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
           )
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
+          case HybridAddressCollection(hybridAddresses@_, aggregations, maxScore, total) =>
 
-            val addresses: Seq[AddressResponseAddressPostcodeRH] = hybridAddresses.map(
-              AddressResponseAddressPostcodeRH.fromHybridAddress(_, favourPaf, favourWelsh)
-            )
+            val pagedAggregations = aggregations.slice(offsetInt, offsetInt + limitInt)
 
-            writeLog(activity = "eq_postcode_request")
+            writeLog(activity = "postcode_request")
 
             jsonOk(
-              AddressByRHPostcodeResponseContainer(
+              AddressByGroupedPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByRHPostcodeResponse(
-                  postcode = postcode,
-                  addresses = addresses,
+                response = AddressByGroupedPostcodeResponse(
+                  partpostcode = postcode,
+                  postcodes = pagedAggregations,
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,
