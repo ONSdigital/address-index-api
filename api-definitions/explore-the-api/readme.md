@@ -32,6 +32,13 @@
             Search for an address by postcode.
         </td>
     </tr>
+        <tr class="table--row">
+            <td class="table--cell">GET</td>
+            <td class="table--cell"><a href="groupedpostcode/readme.md">/addresses/groupedpostcode/{postcode}</a></td>
+            <td class="table--cell">
+                Search for postcodes matching a part postcode pattern.
+            </td>
+        </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
         <td class="table--cell"><a href="random/readme.md">/addresses/random</a></td>
