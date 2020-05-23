@@ -277,7 +277,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(source + args.epochParam)
 
     searchBase.query(query)
-      .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword")
+      .aggs(termsAgg("uniquepostcodes","postcodeStreetTown")
         .size(10000)
         .order(TermsOrder("_key",asc = true)))
       .start(0)

@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
+import uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup
 
 import scala.util.Try
 
@@ -15,7 +16,7 @@ import scala.util.Try
   * @param total     total number of all of the addresses regardless of the limit
   */
 case class HybridAddressCollection(addresses: Seq[HybridAddress],
-                                   aggregations: Seq[PostcodeGroup],
+                                   aggregations: Seq[AddressResponsePostcodeGroup],
                                    maxScore: Double,
                                    total: Long)
 
@@ -52,8 +53,13 @@ object HybridAddressCollection {
     val aggs = Try(response.aggregationsAsMap.head._2.asInstanceOf[Map[String,Any]]).getOrElse(Map.empty[String,Any])
     val buckets = Try(aggs.last._2.asInstanceOf[List[Map[Any,Any]]]).getOrElse(List.empty[Map[Any,Any]])
     val pcList = Try(buckets.map{bucket =>
-      PostcodeGroup(bucket.head._2.toString,bucket.last._2.toString.toInt)
-    }).getOrElse(List.empty[PostcodeGroup])
+      val bucketParts = bucket.head._2.toString.split("_")
+      val bucketCode: String = bucketParts(0)
+      val bucketStreet: String = Try(bucketParts(1)).getOrElse("")
+      val bucketTown: String = Try(bucketParts(2)).getOrElse("")
+      val bucketCount: Int = bucket.last._2.toString.toInt
+      AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount)
+    }).getOrElse(List.empty[AddressResponsePostcodeGroup])
 
     // returned total will be number of hits unless we are doing grouped postcode
     val totalOrBuckets = if (pcList.size > 0) pcList.size else total

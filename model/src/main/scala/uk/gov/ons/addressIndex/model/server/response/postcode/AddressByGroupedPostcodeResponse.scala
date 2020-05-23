@@ -13,7 +13,7 @@ import uk.gov.ons.addressIndex.model.db.index._
   * @param total     total number of found addresses
   */
 case class AddressByGroupedPostcodeResponse(partpostcode: String,
-                                            postcodes: Seq[PostcodeGroup],
+                                            postcodes: Seq[AddressResponsePostcodeGroup],
                                             filter: String,
                                             historical: Boolean,
                                             epoch: String,
