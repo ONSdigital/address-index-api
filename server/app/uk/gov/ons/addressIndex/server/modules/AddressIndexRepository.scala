@@ -180,13 +180,13 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val scriptText: String =  "Math.round((_score " +
       "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
-      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
       "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
       "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
       "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
 
 
-    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").take(6))
+    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").replaceAll("'","").take(12))
     val partialScript: Script = new Script(script = scriptText, params = scriptParams )
     val hOpts = new HighlightOptions(numOfFragments=Some(0))
 
