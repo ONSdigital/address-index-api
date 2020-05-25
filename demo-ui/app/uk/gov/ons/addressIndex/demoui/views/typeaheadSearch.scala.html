@@ -49,10 +49,10 @@ version: DemoUIAddressIndexVersionModule
 
     function getSingle() {
       var addressPart = document.getElementById("address").value;
-      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/partial?input=" + addressPart + "&limit=20";
+      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/eq?input=" + addressPart + "&limit=20";
       var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20";
 
-      if (addressPart.trim().length > 4) {
+      if (addressPart.trim().length > 1) {
         if (@{conf.config.gcp}) {
           getJSONResponse(singleUrlGcp)
         } else {
@@ -105,18 +105,41 @@ version: DemoUIAddressIndexVersionModule
           document.getElementById("response-text").innerHTML = "No results from API"
           try {
             for (i = 0; i < response.response.addresses.length; i++) {
-              resultString = resultString + response.response.addresses[i].highlights.bestMatchAddress + "<br>";
+             if (response.response.addresses[i].bestMatchAddress) {
+              resultString = resultString + response.response.addresses[i].bestMatchAddress + "<br>";
+              } else {
+                  resultString = resultString + response.response.addresses[i].formattedAddress + "<br>";
+              }
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.addresses.length == 0) {
               document.getElementById("response-text").innerHTML = "No results from API"
             }
           } catch (err) {
+          try {
+             for (i = 0; i < response.response.postcodes.length; i++) {
+              resultString = resultString
+              + response.response.postcodes[i].postcode + " "
+              + response.response.postcodes[i].streetName + " "
+              + response.response.postcodes[i].townName + " "
+              + response.response.postcodes[i].addressCount
+              + "<br>";
+            }
+            document.getElementById("response-text").innerHTML = resultString;
+            if (response.response.postcodes.length == 0) {
+              document.getElementById("response-text").innerHTML = "No results from API"
+            }
+          } catch (err) {
             document.getElementById("response-text").innerHTML = "No results from API"
+          }
           }
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-          alert("API call failed:" + errorThrown);
+          if (jqXHR.status == 400) {
+            console.log("API call failed:" + errorThrown);
+          } else {
+            alert("API call failed:" + errorThrown);
+          }
         })
         .always(function() {
           $("body").css("cursor", "default");
