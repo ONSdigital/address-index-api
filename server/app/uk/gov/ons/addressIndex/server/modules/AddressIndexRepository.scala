@@ -258,6 +258,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val postcodeFormatted: String = args.postcode.toUpperCase
 
+    val isNotJustOutcode: Boolean = (postcodeFormatted.contains(" "))
+
     val queryFilter = if (args.filters.isEmpty) {
       Seq.empty
     } else {
@@ -276,14 +278,23 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val searchBase = search(source + args.epochParam)
 
-    searchBase.query(query)
-      .aggs(termsAgg("uniquepostcodes","postcodeStreetTown")
-        .size(10000)
-        .order(TermsOrder("_key",asc = true))
-          .subaggs(termsAgg("uprns","uprn")
-      .size(1)))
-      .start(0)
-      .limit(1)
+    if (isNotJustOutcode) {
+      searchBase.query(query)
+        .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
+          .size(10000)
+          .order(TermsOrder("_key", asc = true))
+          .subaggs(termsAgg("uprns", "uprn")
+            .size(1)))
+        .start(0)
+        .limit(1)
+    } else {
+      searchBase.query(query)
+        .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
+          .size(10000)
+          .order(TermsOrder("_key", asc = true)))
+        .start(0)
+        .limit(1)
+    }
   }
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
