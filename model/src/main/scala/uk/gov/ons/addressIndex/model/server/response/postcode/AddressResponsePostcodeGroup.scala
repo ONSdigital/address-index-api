@@ -9,7 +9,8 @@ import play.api.libs.json.{Format, Json}
 case class AddressResponsePostcodeGroup(postcode: String,
                                         streetName: String,
                                         townName: String,
-                                        addressCount: Int)
+                                        addressCount: Int,
+                                        firstUprn: Long)
 
 object AddressResponsePostcodeGroup {
   implicit lazy val addressResponsePostcodeGroupFormat: Format[AddressResponsePostcodeGroup] = Json.format[AddressResponsePostcodeGroup]

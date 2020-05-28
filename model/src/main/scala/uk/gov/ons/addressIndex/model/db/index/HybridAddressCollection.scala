@@ -53,15 +53,17 @@ object HybridAddressCollection {
     val aggs = Try(response.aggregationsAsMap.head._2.asInstanceOf[Map[String,Any]]).getOrElse(Map.empty[String,Any])
     val buckets = Try(aggs.last._2.asInstanceOf[List[Map[Any,Any]]]).getOrElse(List.empty[Map[Any,Any]])
     val pcList = Try(buckets.map{bucket =>
-      val bucketParts = bucket.head._2.toString.split("_")
+      val bucketParts = bucket.getOrElse("key","").toString.split("_")
       val bucketCode: String = bucketParts(0)
       val bucketStreet: String = Try(bucketParts(1)).getOrElse("")
       val bucketTown: String = Try(bucketParts(2)).getOrElse("")
-      val bucketCount: Int = bucket.last._2.toString.toInt
-      AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount)
+      val bucketCount: Int = bucket.getOrElse("doc_count",0).asInstanceOf[Int]
+      val uprnaggs = bucket.getOrElse("uprns",Map.empty[Any,Any]).asInstanceOf[Map[Any,Any]]
+      val firstUprn = (Try(uprnaggs.last._2.asInstanceOf[List[Map[Any,Any]]].head.head._2).getOrElse(0L)).asInstanceOf[Long]
+      AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount,firstUprn)
     }).getOrElse(List.empty[AddressResponsePostcodeGroup])
 
-    // returned total will be number of hits unless we are doing grouped postcode
+    // returned total will be number of hits unless we are doing grfirstUprn.last._2.head.head._2ouped postcode
     val totalOrBuckets = if (pcList.size > 0) pcList.size else total
 
     HybridAddressCollection(
