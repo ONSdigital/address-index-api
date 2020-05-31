@@ -115,19 +115,109 @@
     "postcodes": [
       {
         "postcode": "EX4 3AA",
-        "addressCount": 11
+        "streetName": "Bonhay Road",
+        "townName": "Exeter",
+        "addressCount": 11,
+        "firstUprn": 100040203926
       },
       {
         "postcode": "EX4 3AB",
-        "addressCount": 5
+        "streetName": "Bonhay Road",
+        "townName": "Exeter",
+        "addressCount": 5,
+        "firstUprn": 10013046878
+      },
+      {
+        "postcode": "EX4 3AD",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 75,
+        "firstUprn": 10013047777
+      },
+      {
+        "postcode": "EX4 3AE",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 50,
+        "firstUprn": 10013040310
+      },
+      {
+        "postcode": "EX4 3AG",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 7,
+        "firstUprn": 10013044374
+      },
+      {
+        "postcode": "EX4 3AH",
+        "streetName": "New Bridge Street",
+        "townName": "Exeter",
+        "addressCount": 53,
+        "firstUprn": 10013038581
+      },
+      {
+        "postcode": "EX4 3AJ",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 44,
+        "firstUprn": 10013036107
+      },
+      {
+        "postcode": "EX4 3AL",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 49,
+        "firstUprn": 100040202198
+      },
+      {
+        "postcode": "EX4 3AN",
+        "streetName": "Fore Street",
+        "townName": "Exeter",
+        "addressCount": 106,
+        "firstUprn": 10013036993
+      },
+      {
+        "postcode": "EX4 3AP",
+        "streetName": "Friernhay Street",
+        "townName": "Exeter",
+        "addressCount": 8,
+        "firstUprn": 100040214144
+      },
+      {
+        "postcode": "EX4 3AQ",
+        "streetName": "New Bridge Street",
+        "townName": "Exeter",
+        "addressCount": 6,
+        "firstUprn": 10091470006
+      },
+      {
+        "postcode": "EX4 3AR",
+        "streetName": "Friernhay Street",
+        "townName": "Exeter",
+        "addressCount": 24,
+        "firstUprn": 10013046959
+      },
+      {
+        "postcode": "EX4 3AT",
+        "streetName": "Fore Street",
+        "townName": "Exeter",
+        "addressCount": 34,
+        "firstUprn": 10013042151
+      },
+      {
+        "postcode": "EX4 3AT",
+        "streetName": "St Olaves Close",
+        "townName": "Exeter",
+        "addressCount": 1,
+        "firstUprn": 100041142118
       }
     ],
     "filter": "",
     "historical": false,
     "epoch": "",
-    "limit": 2,
+    "limit": 14,
     "offset": 0,
-    "total": 134,
+    "total": 143,
     "maxScore": 1,
     "verbose": false
   },
@@ -135,6 +225,8 @@
     "code": 200,
     "message": "Ok"
   },
-  "errors": []
+  "errors": [
+    
+  ]
 }
 </code></pre>

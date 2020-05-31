@@ -1766,6 +1766,34 @@
 				"errors"
 			]
 		},
+		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup": {
+			"properties": {
+				"postcode": {
+					"type": "string"
+				},
+				"streetName": {
+					"type": "string"
+				},
+				"townName": {
+					"type": "string"
+				},
+				"addressCount": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"firstUprn": {
+					"type": "integer",
+					"format": "int64"
+				}
+			},
+			"required": [
+				"postcode",
+				"streetName",
+				"townName",
+				"addressCount",
+				"firstUprn"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressByGroupedPostcodeResponse": {
 			"properties": {
 				"partpostcode": {
@@ -1774,7 +1802,7 @@
 				"postcodes": {
 					"type": "array",
 					"items": {
-						"type": "uk.gov.ons.addressIndex.model.db.index.PostcodeGroup"
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup"
 					}
 				},
 				"filter": {
