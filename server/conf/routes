@@ -278,7 +278,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
@@ -312,7 +312,7 @@ GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPa
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
@@ -346,7 +346,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
@@ -402,7 +402,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
@@ -522,7 +522,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
