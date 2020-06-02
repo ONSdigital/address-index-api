@@ -573,7 +573,7 @@
 					"200": {
 						"description": "Success. A json return of matched addresses.",
 						"schema": {
-							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponseContainer"
 						}
 					},
 					"400": {
@@ -642,7 +642,7 @@
 					"200": {
 						"description": "Success. A json return of matched addresses.",
 						"schema": {
-							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponseContainer"
 						}
 					},
 					"400": {
@@ -714,7 +714,7 @@
 					"200": {
 						"description": "Success. A json return of matched addresses.",
 						"schema": {
-							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponseContainer"
 						}
 					},
 					"400": {
@@ -843,7 +843,7 @@
 					"200": {
 						"description": "Success. A json return of matched addresses.",
 						"schema": {
-							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer"
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponseContainer"
 						}
 					},
 					"400": {
@@ -1116,7 +1116,7 @@
 					"200": {
 						"description": "Success. A json return of matched addresses.",
 						"schema": {
-							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
+							"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponseContainer"
 						}
 					},
 					"400": {
@@ -1369,6 +1369,238 @@
 		}
 	},
 	"definitions": {
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomEQ": {
+			"properties": {
+				"uprn": {
+					"type": "string"
+				},
+				"bestMatchAddress": {
+					"type": "string"
+				},
+				"bestMatchAddressType": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"uprn",
+				"bestMatchAddress",
+				"bestMatchAddressType"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponse": {
+			"properties": {
+				"input": {
+					"type": "string"
+				},
+				"addresses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomEQ"
+					}
+				},
+				"filter": {
+					"type": "string"
+				},
+				"fallback": {
+					"type": "boolean"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"limit": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"offset": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"total": {
+					"type": "integer",
+					"format": "int64"
+				},
+				"maxScore": {
+					"type": "number",
+					"format": "double"
+				},
+				"verbose": {
+					"type": "boolean"
+				},
+				"fromsource": {
+					"type": "string"
+				},
+				"highlight": {
+					"type": "string"
+				},
+				"favourpaf": {
+					"type": "boolean"
+				},
+				"favourwelsh": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"input",
+				"addresses",
+				"filter",
+				"fallback",
+				"historical",
+				"epoch",
+				"limit",
+				"offset",
+				"total",
+				"maxScore",
+				"verbose",
+				"fromsource",
+				"highlight",
+				"favourpaf",
+				"favourwelsh"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressPostcodeRH": {
+			"properties": {
+				"uprn": {
+					"type": "string"
+				},
+				"formattedAddress": {
+					"type": "string"
+				},
+				"addressType": {
+					"type": "string"
+				},
+				"censusAddressType": {
+					"type": "string"
+				},
+				"censusEstabType": {
+					"type": "string"
+				},
+				"countryCode": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"uprn",
+				"formattedAddress",
+				"addressType",
+				"censusAddressType",
+				"censusEstabType",
+				"countryCode"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponse": {
+			"properties": {
+				"postcode": {
+					"type": "string"
+				},
+				"addresses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressPostcodeRH"
+					}
+				},
+				"filter": {
+					"type": "string"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"limit": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"offset": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"total": {
+					"type": "integer",
+					"format": "int64"
+				},
+				"maxScore": {
+					"type": "number",
+					"format": "double"
+				},
+				"verbose": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"postcode",
+				"addresses",
+				"filter",
+				"historical",
+				"epoch",
+				"limit",
+				"offset",
+				"total",
+				"maxScore",
+				"verbose"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponse": {
 			"properties": {
 				"addresses": {
@@ -1463,6 +1695,144 @@
 				"codelists"
 			]
 		},
+		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse": {
+			"properties": {
+				"address": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"verbose": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"historical",
+				"epoch",
+				"verbose"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNEQ": {
+			"properties": {
+				"uprn": {
+					"type": "string"
+				},
+				"formattedAddress": {
+					"type": "string"
+				},
+				"addressLine1": {
+					"type": "string"
+				},
+				"addressLine2": {
+					"type": "string"
+				},
+				"addressLine3": {
+					"type": "string"
+				},
+				"townName": {
+					"type": "string"
+				},
+				"postcode": {
+					"type": "string"
+				},
+				"foundAddressType": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"uprn",
+				"formattedAddress",
+				"addressLine1",
+				"addressLine2",
+				"addressLine3",
+				"townName",
+				"postcode",
+				"foundAddressType"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponse": {
+			"properties": {
+				"address": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNEQ"
+				},
+				"addressType": {
+					"type": "string"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"addressType",
+				"historical",
+				"epoch"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseLogicalStatus": {
 			"properties": {
 				"code": {
@@ -1488,6 +1858,108 @@
 			},
 			"required": [
 				"logicalStatuses"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse": {
+			"properties": {
+				"input": {
+					"type": "string"
+				},
+				"addresses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+					}
+				},
+				"filter": {
+					"type": "string"
+				},
+				"fallback": {
+					"type": "boolean"
+				},
+				"historical": {
+					"type": "boolean"
+				},
+				"epoch": {
+					"type": "string"
+				},
+				"limit": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"offset": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"total": {
+					"type": "integer",
+					"format": "int64"
+				},
+				"maxScore": {
+					"type": "number",
+					"format": "double"
+				},
+				"verbose": {
+					"type": "boolean"
+				},
+				"fromsource": {
+					"type": "string"
+				},
+				"highlight": {
+					"type": "string"
+				},
+				"favourpaf": {
+					"type": "boolean"
+				},
+				"favourwelsh": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"input",
+				"addresses",
+				"filter",
+				"fallback",
+				"historical",
+				"epoch",
+				"limit",
+				"offset",
+				"total",
+				"maxScore",
+				"verbose",
+				"fromsource",
+				"highlight",
+				"favourpaf",
+				"favourwelsh"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
+			"properties": {
+				"apiVersion": {
+					"type": "string"
+				},
+				"dataVersion": {
+					"type": "string"
+				},
+				"response": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse"
+				},
+				"status": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
+				},
+				"errors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseError"
+					}
+				}
+			},
+			"required": [
+				"apiVersion",
+				"dataVersion",
+				"response",
+				"status",
+				"errors"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress": {
@@ -1716,28 +2188,78 @@
 				"dataVersion"
 			]
 		},
-		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse": {
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNRH": {
+			"properties": {
+				"uprn": {
+					"type": "string"
+				},
+				"formattedAddress": {
+					"type": "string"
+				},
+				"addressLine1": {
+					"type": "string"
+				},
+				"addressLine2": {
+					"type": "string"
+				},
+				"addressLine3": {
+					"type": "string"
+				},
+				"townName": {
+					"type": "string"
+				},
+				"postcode": {
+					"type": "string"
+				},
+				"foundAddressType": {
+					"type": "string"
+				},
+				"censusAddressType": {
+					"type": "string"
+				},
+				"censusEstabType": {
+					"type": "string"
+				},
+				"countryCode": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"uprn",
+				"formattedAddress",
+				"addressLine1",
+				"addressLine2",
+				"addressLine3",
+				"townName",
+				"postcode",
+				"foundAddressType",
+				"censusAddressType",
+				"censusEstabType",
+				"countryCode"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponse": {
 			"properties": {
 				"address": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNRH"
+				},
+				"addressType": {
+					"type": "string"
 				},
 				"historical": {
 					"type": "boolean"
 				},
 				"epoch": {
 					"type": "string"
-				},
-				"verbose": {
-					"type": "boolean"
 				}
 			},
 			"required": [
+				"addressType",
 				"historical",
-				"epoch",
-				"verbose"
+				"epoch"
 			]
 		},
-		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer": {
+		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponseContainer": {
 			"properties": {
 				"apiVersion": {
 					"type": "string"
@@ -1746,7 +2268,7 @@
 					"type": "string"
 				},
 				"response": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse"
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponse"
 				},
 				"status": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"
@@ -1766,6 +2288,34 @@
 				"errors"
 			]
 		},
+		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup": {
+			"properties": {
+				"postcode": {
+					"type": "string"
+				},
+				"streetName": {
+					"type": "string"
+				},
+				"townName": {
+					"type": "string"
+				},
+				"addressCount": {
+					"type": "integer",
+					"format": "int32"
+				},
+				"firstUprn": {
+					"type": "integer",
+					"format": "int64"
+				}
+			},
+			"required": [
+				"postcode",
+				"streetName",
+				"townName",
+				"addressCount",
+				"firstUprn"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressByGroupedPostcodeResponse": {
 			"properties": {
 				"partpostcode": {
@@ -1774,7 +2324,7 @@
 				"postcodes": {
 					"type": "array",
 					"items": {
-						"type": "uk.gov.ons.addressIndex.model.db.index.PostcodeGroup"
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup"
 					}
 				},
 				"filter": {
@@ -1848,7 +2398,37 @@
 				"errors"
 			]
 		},
-		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse": {
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomRH": {
+			"properties": {
+				"uprn": {
+					"type": "string"
+				},
+				"bestMatchAddress": {
+					"type": "string"
+				},
+				"bestMatchAddressType": {
+					"type": "string"
+				},
+				"censusAddressType": {
+					"type": "string"
+				},
+				"censusEstabType": {
+					"type": "string"
+				},
+				"countryCode": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"uprn",
+				"bestMatchAddress",
+				"bestMatchAddressType",
+				"censusAddressType",
+				"censusEstabType",
+				"countryCode"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponse": {
 			"properties": {
 				"input": {
 					"type": "string"
@@ -1856,7 +2436,7 @@
 				"addresses": {
 					"type": "array",
 					"items": {
-						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomRH"
 					}
 				},
 				"filter": {
@@ -1921,7 +2501,7 @@
 				"favourwelsh"
 			]
 		},
-		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
+		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponseContainer": {
 			"properties": {
 				"apiVersion": {
 					"type": "string"
@@ -1930,7 +2510,7 @@
 					"type": "string"
 				},
 				"response": {
-					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponse"
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponse"
 				},
 				"status": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus"

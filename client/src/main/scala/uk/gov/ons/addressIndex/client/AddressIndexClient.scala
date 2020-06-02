@@ -278,8 +278,8 @@ object AddressIndexClientHelper {
     method = ""
   ) {
     def apply(): AddressIndexPath = {
-      val fullRoute = "/addresses/partial"
-  //   val fullRoute = s"$initialRoute/$partial"
+     val fullRoute = "/addresses/partial"
+   //   val fullRoute = "/addresses/eq"
       new AddressIndexPath(
         path = fullRoute,
         method = "GET"

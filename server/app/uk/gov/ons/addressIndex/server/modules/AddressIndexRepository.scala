@@ -99,7 +99,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-    val slopVal = 8
+    val slopVal = 12
     val niFactor = args.fromsource match {
       case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
       case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
@@ -180,13 +180,13 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val scriptText: String =  "Math.round((_score " +
       "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
-      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
+      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
       "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
       "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
       "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
 
 
-    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").take(6))
+    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").replaceAll("'","").take(12))
     val partialScript: Script = new Script(script = scriptText, params = scriptParams )
     val hOpts = new HighlightOptions(numOfFragments=Some(0))
 
@@ -258,6 +258,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val postcodeFormatted: String = args.postcode.toUpperCase
 
+    val isNotJustOutcode: Boolean = (postcodeFormatted.contains(" "))
+
     val queryFilter = if (args.filters.isEmpty) {
       Seq.empty
     } else {
@@ -276,12 +278,23 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val searchBase = search(source + args.epochParam)
 
-    searchBase.query(query)
-      .aggs(termsAgg("uniquepostcodes","lpi.postcodeLocator.keyword")
-        .size(10000)
-        .order(TermsOrder("_key",asc = true)))
-      .start(0)
-      .limit(1)
+    if (isNotJustOutcode) {
+      searchBase.query(query)
+        .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
+          .size(10000)
+          .order(TermsOrder("_key", asc = true))
+          .subaggs(termsAgg("uprns", "uprn")
+            .size(1)))
+        .start(0)
+        .limit(1)
+    } else {
+      searchBase.query(query)
+        .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
+          .size(10000)
+          .order(TermsOrder("_key", asc = true)))
+        .start(0)
+        .limit(1)
+    }
   }
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
@@ -976,7 +989,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
  // uncomment to see generated query
  //    val searchString = SearchBodyBuilderFn(query).string()
- //    println(searchString)
+  //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
