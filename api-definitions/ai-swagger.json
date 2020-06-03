@@ -2222,6 +2222,9 @@
 				},
 				"countryCode": {
 					"type": "string"
+				},
+				"organisationName": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -2235,7 +2238,8 @@
 				"foundAddressType",
 				"censusAddressType",
 				"censusEstabType",
-				"countryCode"
+				"countryCode",
+				"organisationName"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponse": {
