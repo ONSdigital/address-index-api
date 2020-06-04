@@ -1211,7 +1211,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="PAF",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "E"
+      countryCode = "E",
+      organisationName = "6"
     )
 
     // When
@@ -1236,7 +1237,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="WELSHPAF",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "W"
+      countryCode = "W",
+      organisationName = "6"
     )
 
     // When
@@ -1261,7 +1263,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType = "NAG",
       censusAddressType = "NA",
       censusEstabType = "NA",
-      countryCode = "E"
+      countryCode = "E",
+      organisationName = "n22"
     )
 
     // When
@@ -1286,7 +1289,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="WELSHNAG",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "W"
+      countryCode = "W",
+      organisationName = "n22"
     )
 
     // When
@@ -1311,7 +1315,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="NISRA",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "E"
+      countryCode = "E",
+      organisationName = "1"
     )
 
     // When

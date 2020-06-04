@@ -84,6 +84,29 @@ object AddressByRHUprnResponse {
       }
     }
 
+    val organisationName = foundAddressType match {
+      case AddressTypes.paf => chosenPaf match {
+        case Some(pafAddress) => pafAddress.organisationName
+        case None => ""
+      }
+      case AddressTypes.welshPaf => chosenPaf match {
+        case Some(pafAddress) => pafAddress.organisationName
+        case None => ""
+      }
+      case AddressTypes.nag => chosenNag match {
+        case Some(nagAddress) => nagAddress.organisation
+        case None => ""
+      }
+      case AddressTypes.welshNag => chosenWelshNag match {
+        case Some(nagAddress) => nagAddress.organisation
+        case None => ""
+      }
+      case AddressTypes.nisra => chosenNisra match {
+        case Some(nisraAddress) => nisraAddress.organisationName
+        case None => ""
+      }
+    }
+
     val postcode = foundAddressType match {
       case AddressTypes.paf | AddressTypes.welshPaf => chosenPaf match {
         case Some(pafAddress) => pafAddress.postcode
@@ -116,7 +139,8 @@ object AddressByRHUprnResponse {
       foundAddressType = foundAddressType,
       censusAddressType = other.censusAddressType,
       censusEstabType = other.censusEstabType,
-      countryCode = other.countryCode
+      countryCode = other.countryCode,
+      organisationName = organisationName
     )
   }
 
