@@ -59,7 +59,7 @@ object HybridAddressCollection {
       val bucketTown: String = Try(bucketParts(2)).getOrElse("")
       val bucketCount: Int = bucket.getOrElse("doc_count",0).asInstanceOf[Int]
       val uprnaggs = bucket.getOrElse("uprns",Map.empty[Any,Any]).asInstanceOf[Map[Any,Any]]
-      val firstUprn = (Try(uprnaggs.last._2.asInstanceOf[List[Map[Any,Any]]].head.head._2).getOrElse(0L)).asInstanceOf[Long]
+      val firstUprn = (Try(uprnaggs.last._2.asInstanceOf[List[Map[Any,Any]]].head.head._2).getOrElse(0)).toString().toLong
       AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount,firstUprn)
     }).getOrElse(List.empty[AddressResponsePostcodeGroup])
 
