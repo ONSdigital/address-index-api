@@ -258,7 +258,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val postcodeFormatted: String = args.postcode.toUpperCase
 
-    val isNotJustOutcode: Boolean = (postcodeFormatted.contains(" "))
+    val isNotJustOutcode: Boolean = (postcodeFormatted.trim.contains(" "))
 
     val queryFilter = if (args.filters.isEmpty) {
       Seq.empty
