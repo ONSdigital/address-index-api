@@ -178,15 +178,40 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       HighlightField("paf.mixedWelshPaf.partial"),
       HighlightField("nisra.mixedNisra.partial"))
 
+    val welshBoost: Int = if (args.favourwelsh) 1 else 0
+    val englishBoost: Int = if (args.favourwelsh) 0 else 1
+    val pafBoost: Int = if (args.favourpaf) 1 else 0
+    val nagBoost: Int = if (args.favourpaf) 0 else 1
+    
+    val welshNagScore: Int = 1 + welshBoost + nagBoost
+    val englishNagScore: Int = 1 + englishBoost + nagBoost
+    val englishPafScore: Int = 1 + englishBoost + pafBoost
+    val welshPafScore: Int = 1 + welshBoost + pafBoost
+
     val scriptText: String =  "Math.round((_score " +
-      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
-      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
-      "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
-      "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0) " +
-      "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)) /2)"
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
+      englishNagScore + " : 0) " +
+      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
+      welshNagScore + " : 0) " +
+      "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
+      englishPafScore + " : 0) " +
+      "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
+      welshPafScore + " : 0) " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
+      englishNagScore + " : 0) " +
+      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
+      welshNagScore + " : 0) " +
+      "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
+      englishPafScore + " : 0) " +
+      "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
+      welshPafScore + " : 0) " +
+      "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)" +
+      "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)"
 
-
-    val scriptParams: Map[String,Any] = Map("input" -> args.input.replaceAll(",","").replaceAll("'","").take(12))
+    val scriptParams: Map[String,Any] = Map(
+      "input" -> args.input.replaceAll(",","").replaceAll("'","").take(12),
+      "inputshort" -> args.input.replaceAll(",","").replaceAll("'","").take(6),
+    )
     val partialScript: Script = new Script(script = scriptText, params = scriptParams )
     val hOpts = new HighlightOptions(numOfFragments=Some(0))
 
@@ -988,8 +1013,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //    val searchString = SearchBodyBuilderFn(query).string()
-  //   println(searchString)
+ //   val searchString = SearchBodyBuilderFn(query).string()
+ //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
