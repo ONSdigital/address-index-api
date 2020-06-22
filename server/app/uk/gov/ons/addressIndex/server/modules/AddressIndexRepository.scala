@@ -189,24 +189,29 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val welshPafScore: Int = 1 + welshBoost + pafBoost
 
     val scriptText: String =  "Math.round((_score " +
-      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
-      englishNagScore + " : 0) " +
-      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
-      welshNagScore + " : 0) " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) " +
+    "|| doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? " +
+    englishNagScore + " : 0) " +
+      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) " +
+    "|| doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? " +
+    welshNagScore + " : 0) " +
       "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
       englishPafScore + " : 0) " +
       "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? " +
       welshPafScore + " : 0) " +
-      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
-      englishNagScore + " : 0) " +
-      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
-      welshNagScore + " : 0) " +
+      "+ ((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) " +
+    "|| doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
+    englishNagScore + " : 0) " +
+      "+ ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) " +
+    "|| doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
+    welshNagScore + " : 0) " +
       "+ ((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
       englishPafScore + " : 0) " +
       "+ ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? " +
       welshPafScore + " : 0) " +
       "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)" +
       "+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)"
+
 
     val scriptParams: Map[String,Any] = Map(
       "input" -> args.input.replaceAll(",","").replaceAll("'","").take(12),
@@ -1013,8 +1018,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //   val searchString = SearchBodyBuilderFn(query).string()
- //   println(searchString)
+//    val searchString = SearchBodyBuilderFn(query).string()
+//    println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
