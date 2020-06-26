@@ -42,7 +42,7 @@ object AddressByEQUprnResponse {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
-    val foundAddressType = addressType match {
+    val foundAddressTypeTemp = addressType match {
       case AddressTypes.paf => if (formattedAddressPaf.isEmpty) AddressTypes.nag else AddressTypes.paf
       case AddressTypes.welshPaf => if (welshFormattedAddressPaf.isEmpty)
       {if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag}
@@ -51,6 +51,8 @@ object AddressByEQUprnResponse {
       case AddressTypes.welshNag => if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag
       case AddressTypes.nisra => if (formattedAddressNisra.isEmpty) AddressTypes.nag else AddressTypes.nisra
     }
+
+    val foundAddressType = if (formattedAddressNisra.isEmpty) foundAddressTypeTemp else AddressTypes.nisra
 
     val formattedAddress = foundAddressType match {
       case AddressTypes.paf => formattedAddressPaf
