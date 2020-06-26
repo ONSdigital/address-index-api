@@ -78,7 +78,7 @@ object AddressByEQUprnResponse {
         case None => ""
       }
       case AddressTypes.nisra => chosenNisra match {
-        case Some(nisraAddress) => nisraAddress.postTown
+        case Some(nisraAddress) => nisraAddress.townName
         case None => ""
       }
     }
