@@ -4,8 +4,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressPostcodeEQ, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressBucketEQ, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQBucketResponse, AddressByEQBucketResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
@@ -141,19 +141,20 @@ class EQBucketController @Inject()(val controllerComponents: ControllerComponent
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
 
-            val addresses: Seq[AddressResponseAddressPostcodeEQ] = hybridAddresses.map(
-              AddressResponseAddressPostcodeEQ.fromHybridAddress(_, favourPaf, favourWelsh)
+            val addresses: Seq[AddressResponseAddressBucketEQ] = hybridAddresses.map(
+              AddressResponseAddressBucketEQ.fromHybridAddress(_, favourPaf, favourWelsh)
             )
 
-            writeLog(activity = "eq_postcode_request")
+            writeLog(activity = "eq_bucket_request")
 
             jsonOk(
-              AddressByEQPostcodeResponseContainer(
+              AddressByEQBucketResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-      // replace with EQBucketResponse
-                response = AddressByEQPostcodeResponse(
+                response = AddressByEQBucketResponse(
                   postcode = postcodeVal,
+                  streetname = streetNameVal,
+                  townname = townNameVal,
                   addresses = addresses,
                   filter = filterString,
                   historical = hist,

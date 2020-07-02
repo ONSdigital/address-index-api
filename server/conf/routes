@@ -569,7 +569,7 @@ GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server
 #    200:
 #      description: Success. A json return of matched addresses.
 #      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponseContainer"
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQBucketResponseContainer"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
