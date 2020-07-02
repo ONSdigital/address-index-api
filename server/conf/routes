@@ -535,6 +535,56 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
 
 ###
+#  summary: Search for addresses in a postcode_street_town grouping (called a bucket)
+#  description: Performs a wildcard search using postcode, street and town concatenated. Asterisk symbols can be used for wildcarding.
+#  parameters:
+#    - name: postcode
+#      description: Specifies the postcode part of the bucket (e.g. 'HA4 8RG').
+#      default: \*
+#    - name: streetname
+#      description: Specifies the street part of the bucket (e.g. 'Acacia Avenue').
+#      default: \*
+#    - name: townName
+#      description: Specifies the town part of the bucket (e.g. 'Ruislip').
+#      default: \*
+#    - name: offset
+#      description: Specifies the offset from zero, used for pagination.
+#      default: 0
+#      maximum: 1000
+#    - name: limit
+#      description: Specifies the number of addresses to return.
+#      default: 10
+#      maximum: 100
+#    - name: classificationfilter
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial
+#    - name: historical
+#      description: Include historical addresses
+#      default: true
+#    - name: verbose
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#      default: false
+#    - name: epoch
+#      description: Select a specific AddressBase Epoch to search.
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      schema:
+#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers.EQBucketController.bucketQueryEQ(postcode: Option[String], streetname: Option[String], townname: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
+
+
+
+
+###
 #  summary: Search for a random address.
 #  description: Returns a random address.
 #  parameters:

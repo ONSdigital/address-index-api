@@ -116,6 +116,8 @@ sealed abstract class QueryArgs {
 
   def postcodeOpt: Option[String] = None
 
+  def bucketPatternOpt: Option[String] = None
+
   // other address fields
 
   def tokensOpt: Option[Map[String, String]] = None
@@ -259,6 +261,29 @@ final case class GroupedPostcodeArgs(postcode: String,
                               favourwelsh: Boolean = true
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
+
+  override def startOpt: Option[Int] = Some(start)
+
+  override def skinnyOpt: Option[Boolean] = Some(skinny)
+}
+
+/**
+  * Search by bucket
+  *
+  * @param bucketPattern bucket string with possible wilcards
+  */
+final case class BucketArgs(bucketpattern: String,
+                              epoch: String = "",
+                              historical: Boolean = true,
+                              limit: Int,
+                              start: Int = 0,
+                              filters: String,
+                              verbose: Boolean = true,
+                              skinny: Boolean = false,
+                              favourpaf: Boolean = true,
+                              favourwelsh: Boolean = true
+                             ) extends MultiResultArgs with StartAtOffset with Skinnyable {
+  override def bucketPatternOpt: Option[String] = Some(bucketpattern)
 
   override def startOpt: Option[Int] = Some(start)
 
