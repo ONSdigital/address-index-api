@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQBucketResponse, AddressByEQBucketResponseContainer, AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByGroupedPostcodeResponse, AddressByGroupedPostcodeResponseContainer, AddressByPostcodeResponse, AddressByPostcodeResponseContainer, AddressResponsePostcodeGroup}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
@@ -401,6 +401,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val postcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val groupedPostcodeController = new GroupedPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val eqPostcodeController = new EQPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+  val eqBucketController = new EQBucketController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val rhPostcodeController = new RHPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
@@ -786,6 +787,39 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a filtered list of postcode results via eq bucket endpoint" in {
+      // Given
+      val controller = eqBucketController
+
+      val expected = Json.toJson(AddressByEQBucketResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQBucketResponse(
+          postcode = "EX4 1A*",
+          streetname = "Aardvark Avenue",
+          townname = "Exeter",
+          addresses = Seq(AddressResponseAddressBucketEQ("1","31","PAF")),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("EX4 1A*"),streetname = Some("Aardvark Avenue"), townname = Some("Exeter"), favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
     "reply with a part postcode list when an outcode and sector and first half of unit is supplied to EQController" in {
       // Given
       val controller = eqController
@@ -816,6 +850,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       status(result) mustBe OK
       actual mustBe expected
     }
+
 
     "reply with a found address in rh format when a partial is supplied to RH Partial Controller" in {
 
