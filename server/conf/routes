@@ -540,13 +540,13 @@ GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server
 #  parameters:
 #    - name: postcode
 #      description: Specifies the postcode part of the bucket (e.g. 'HA4 8RG').
-#      default: \*
+#      default: "*"
 #    - name: streetname
 #      description: Specifies the street part of the bucket (e.g. 'Acacia Avenue').
-#      default: \*
-#    - name: townName
+#      default: "*"
+#    - name: townname
 #      description: Specifies the town part of the bucket (e.g. 'Ruislip').
-#      default: \*
+#      default: "*"
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0

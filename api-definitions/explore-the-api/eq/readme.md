@@ -18,6 +18,13 @@
             Fetch single address by uprn with chosen address type.
         </td>
     </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="bucket/readme.md">addresses/eq/bucket</a></td>
+        <td class="table--cell">
+            Fetch addresses matching postcode / street / town combination.
+        </td>
+    </tr>
     </tbody>
 </table>
 
