@@ -110,8 +110,7 @@ class EQBucketController @Inject()(val controllerComponents: ControllerComponent
         .orElse(postcodeValidation.validateSource(queryValues))
         .orElse(postcodeValidation.validateKeyStatus(queryValues))
         .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues))
- //       .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
- // replace this with bucket validation
+        .orElse(postcodeValidation.validateBucketPattern(bucketPattern, queryValues))
         .orElse(postcodeValidation.validateEpoch(queryValues))
         .orElse(None)
 

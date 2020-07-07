@@ -798,7 +798,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "EX4 1A*",
           streetname = "Aardvark Avenue",
           townname = "Exeter",
-          addresses = Seq(AddressResponseAddressBucketEQ("1","31","PAF")),
+          addresses = Seq(AddressResponseAddressBucketEQ("1", "31", "PAF")),
           filter = "",
           historical = false,
           limit = 100,
@@ -810,13 +810,38 @@ class AddressControllerSpec extends PlaySpec with Results {
         ),
         OkAddressResponseStatus
       ))
+    }
+      "reply with a 400 error for invalid call to eq bucket endpoint" in {
+        // Given
+        val controller = eqBucketController
+
+        val expected = Json.toJson(AddressByEQBucketResponseContainer(
+          apiVersion = apiVersionExpected,
+          dataVersion = dataVersionExpected,
+          response = AddressByEQBucketResponse(
+            postcode = "*",
+            streetname = "*",
+            townname = "*",
+            addresses = Seq(),
+            filter = "",
+            historical = false,
+            limit = 100,
+            offset = 0,
+            total = 0,
+            maxScore = 0,
+            verbose = false,
+            epoch = ""
+          ),
+          BadRequestAddressResponseStatus,
+          errors = Seq(InvalidEQBucketError)
+        ))
 
       // When
-      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("EX4 1A*"),streetname = Some("Aardvark Avenue"), townname = Some("Exeter"), favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("*"),streetname = Some("*"), townname = Some("*"), favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
-      status(result) mustBe OK
+      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
 

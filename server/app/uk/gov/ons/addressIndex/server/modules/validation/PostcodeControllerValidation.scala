@@ -71,6 +71,14 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
+  def validateBucketPattern(bucketPattern: String, queryValues: QueryValues): Option[Future[Result]] = {
+    bucketPattern match {
+    case "*_*_*" => logger.systemLog(badRequestMessage = InvalidEQBucketError.message)
+      Some(futureJsonBadRequest(EQBucketInvalid(queryValues)))
+    case _ => None
+    }
+  }
+
   def validatePostcodeOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case l if l < 0 =>

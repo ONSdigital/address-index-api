@@ -207,3 +207,8 @@ object InvalidAddressTypeAddressResponseError extends AddressResponseError(
   code = 39,
   message = "AddressType must be of type paf, welshpaf, nag, welshnag or nisra."
 )
+
+object InvalidEQBucketError extends AddressResponseError(
+  code = 40,
+  message = "At least one of postcode, streetname and townname must be supplied and not wildcarded (use all three for best results)"
+)
