@@ -284,6 +284,38 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     .limit(args.limit)
 }
 
+  private def makeBucketQuery(args: BucketArgs): SearchRequest = {
+
+    val queryFilter = if (args.filters.isEmpty) {
+      Seq.empty
+    } else {
+      if (args.filtersType == "prefix") Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
+      else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
+    }
+
+    val query = must(wildcardQuery("postcodeStreetTown", args.bucketpattern)).filter(queryFilter.flatten)
+
+    val source = if (args.historical) {
+      if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
+    } else {
+      if (args.verbose) hybridIndexPostcode else hybridIndexSkinnyPostcode
+    }
+
+    val searchBase = search(source + args.epochParam)
+
+    searchBase.query(query)
+      .sortBy(FieldSort("lpi.streetDescriptor.keyword").asc(),
+        FieldSort("lpi.paoStartNumber").asc(),
+        FieldSort("lpi.paoStartSuffix.keyword").asc(),
+        FieldSort("lpi.secondarySort").asc(),
+        FieldSort("nisra.thoroughfare.keyword").asc(),
+        FieldSort("nisra.paoStartNumber").asc(),
+        FieldSort("nisra.secondarySort").asc(),
+        FieldSort("uprn").asc())
+      .start(args.start)
+      .limit(args.limit)
+  }
+
   private def makeGroupedPostcodeQuery(args: GroupedPostcodeArgs): SearchRequest = {
 
     val postcodeFormatted: String = args.postcode.toUpperCase
@@ -1000,6 +1032,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       makePostcodeQuery(postcodeArgs)
     case groupedPostcodeArgs: GroupedPostcodeArgs =>
       makeGroupedPostcodeQuery(groupedPostcodeArgs)
+    case bucketArgs: BucketArgs =>
+      makeBucketQuery(bucketArgs)
     case randomArgs: RandomArgs =>
       makeRandomQuery(randomArgs)
     case addressArgs: AddressArgs =>
@@ -1040,6 +1074,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: PostcodeArgs =>
+        if ((gcp && args.verboseOrDefault) || postcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+          client.execute(query).map(HybridAddressCollection.fromResponse)
+      case _: BucketArgs =>
         if ((gcp && args.verboseOrDefault) || postcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: GroupedPostcodeArgs =>

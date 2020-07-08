@@ -1,6 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules.response
 
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQBucketResponse, AddressByEQBucketResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 
@@ -33,6 +34,10 @@ trait PostcodeControllerResponse extends Response {
 
   def PostcodeMixedFilter(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(queryValues, MixedFilterError)
+  }
+
+  def EQBucketInvalid(queryValues: QueryValues): AddressByEQBucketResponseContainer = {
+    BadRequestBucketTemplate(queryValues, InvalidEQBucketError)
   }
 
   def PostcodeEpochInvalid(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
@@ -76,6 +81,23 @@ trait PostcodeControllerResponse extends Response {
     )
   }
 
+  def ErrorBucket(queryValues: QueryValues): AddressByEQBucketResponse = {
+    AddressByEQBucketResponse(
+      postcode = queryValues.postcodeOrDefault,
+      streetname = queryValues.streetnameOrDefault,
+      townname = queryValues.townnameOrDefault,
+      addresses = Seq.empty,
+      filter = queryValues.filterOrDefault,
+      historical = queryValues.historicalOrDefault,
+      epoch = queryValues.epochOrDefault,
+      limit = queryValues.limitOrDefault,
+      offset = queryValues.offsetOrDefault,
+      total = 0,
+      maxScore = 0f,
+      verbose = queryValues.verboseOrDefault
+    )
+  }
+
   def OffsetNotNumericPostcode(queryValues: QueryValues): AddressByPostcodeResponseContainer = {
     BadRequestPostcodeTemplate(queryValues, OffsetNotNumericAddressResponseError)
   }
@@ -85,6 +107,16 @@ trait PostcodeControllerResponse extends Response {
       apiVersion = apiVersion,
       dataVersion = dataVersion,
       response = ErrorPostcode(queryValues),
+      status = BadRequestAddressResponseStatus,
+      errors = errors
+    )
+  }
+
+  def BadRequestBucketTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressByEQBucketResponseContainer = {
+    AddressByEQBucketResponseContainer(
+      apiVersion = apiVersion,
+      dataVersion = dataVersion,
+      response = ErrorBucket(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors
     )
