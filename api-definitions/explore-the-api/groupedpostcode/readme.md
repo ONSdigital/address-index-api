@@ -4,7 +4,7 @@
 
 <h2>Request</h2>
 
-<p><code>GET /addresses/postcode/{postcode}</code></p>
+<p><code>GET /addresses/groupedpostcode/{postcode}</code></p>
    
 
 <h3>Query parameters</h3>

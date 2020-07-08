@@ -285,10 +285,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 }
 
   private def makeBucketQuery(args: BucketArgs): SearchRequest = {
-//    val postcodeFormatted: String = if (!args.postcode.contains(" ")) {
-//      val (postcodeStart, postcodeEnd) = args.postcode.splitAt(args.postcode.length() - 3)
-//      (postcodeStart + " " + postcodeEnd).toUpperCase
-//    } else args.postcode.toUpperCase
 
     val queryFilter = if (args.filters.isEmpty) {
       Seq.empty
