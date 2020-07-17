@@ -124,12 +124,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
-    val filterSeq = Seq(
-      if (args.filters.isEmpty) None
-      else if (args.filtersType == "prefix") Some(prefixQuery("classificationCode", args.filtersValuePrefix))
-      else Some(termsQuery("classificationCode", args.filtersValueTerm))
-    ).flatten
-
     // if there is only one number, give boost for pao or sao not both.
     // if there are two or more numbers, boost for either matching pao and first matching sao
     // the usual order is (sao pao) and a higher score is given for this match
@@ -163,7 +157,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
-    val query = must(queryWithMatchType).filter(filterSeq ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
+    val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPartial else hybridIndexHistoricalSkinnyPartial
@@ -254,14 +248,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       (postcodeStart + " " + postcodeEnd).toUpperCase
     } else args.postcode.toUpperCase
 
-    val queryFilter = if (args.filters.isEmpty) {
-      Seq.empty
-    } else {
-      if (args.filtersType == "prefix") Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
-      else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
-    }
-
-    val query = must(termQuery("postcode", postcodeFormatted)).filter(queryFilter.flatten)
+    val query = must(termQuery("postcode", postcodeFormatted)).filter(args.queryFilter)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -286,14 +273,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   private def makeBucketQuery(args: BucketArgs): SearchRequest = {
 
-    val queryFilter = if (args.filters.isEmpty) {
-      Seq.empty
-    } else {
-      if (args.filtersType == "prefix") Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
-      else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
-    }
-
-    val query = must(wildcardQuery("postcodeStreetTown", args.bucketpattern)).filter(queryFilter.flatten)
+    val query = must(wildcardQuery("postcodeStreetTown", args.bucketpattern)).filter(args.queryFilter)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -322,15 +302,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val isNotJustOutcode: Boolean = (postcodeFormatted.trim.contains(" "))
 
-    val queryFilter = if (args.filters.isEmpty) {
-      Seq.empty
-    } else {
-      if (args.filtersType == "prefix") Seq(Option(prefixQuery("classificationCode", args.filtersValuePrefix)))
-      else Seq(Option(termsQuery("classificationCode", args.filtersValueTerm)))
-    }
-
-    val query = must(prefixQuery("postcode", postcodeFormatted)).
-      filter(queryFilter.flatten)
+    val query = must(prefixQuery("postcode", postcodeFormatted)).filter(args.queryFilter)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -362,13 +334,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
     val timestamp: Long = System.currentTimeMillis
 
-    val queryInner = if (args.filters.isEmpty)
-      None
-    else args.filtersType match {
-      case "prefix" => Option(prefixQuery("classificationCode", args.filtersValuePrefix))
-      case _ => Option(termsQuery("classificationCode", args.filtersValueTerm))
-    }
-
     val fromSourceQuery = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
       case "nionly" => Seq(termsQuery("fromSource","NI"))
@@ -379,7 +344,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(Seq(queryInner).flatten ++ fromSourceQuery))
+      .query(boolQuery().filter(args.queryFilter ++ fromSourceQuery))
       .boostMode("replace")
 
     val source = if (args.historical) {
@@ -885,9 +850,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
-    val prefixWithGeo = Seq(prefixQuery("classificationCode", args.filtersValuePrefix)) ++ radiusQuery
-    val termWithGeo = Seq(termsQuery("classificationCode", args.filtersValueTerm)) ++ radiusQuery
-
     val fallbackQueryStart: BoolQuery = bool(
       Seq(dismax(
         matchQuery("lpi.nagAll", normalizedInput)
@@ -916,12 +878,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         .tieBreaker(0.0)),
       Seq.empty).boost(queryParams.fallback.fallbackQueryBoost)
 
-    val fallbackQueryFilter = if (args.filters.isEmpty)
-      radiusQuery ++ fromSourceQuery2
-    else args.filtersType match {
-      case "prefix" => prefixWithGeo ++ fromSourceQuery2
-      case _ => termWithGeo ++ fromSourceQuery2
-    }
+    val fallbackQueryFilter = args.queryFilter ++ radiusQuery ++ fromSourceQuery2
 
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
 
@@ -968,10 +925,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     // add extra dismax after bestOfTheLot
     val shouldQuery = bestOfTheLotQueries ++ everythingMattersQueries
 
-    val queryFilter = if (args.filters.isEmpty) radiusQuery ++ fromSourceQuery1
-    else if (args.filtersType == "prefix") prefixWithGeo ++ fromSourceQuery1
-    else termWithGeo ++ fromSourceQuery1
-
     val query = if (isBlank)
       blankQuery
      else {
@@ -981,7 +934,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
          dismax(
            should(shouldQuery.asInstanceOf[Iterable[Query]])
              .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
-             .filter(queryFilter)
+             .filter(args.queryFilter ++ radiusQuery ++ fromSourceQuery1)
            , fallbackQuery)
            .tieBreaker(queryParams.topDisMaxTieBreaker)
        }
