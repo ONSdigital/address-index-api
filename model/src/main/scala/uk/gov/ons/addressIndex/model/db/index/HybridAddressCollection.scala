@@ -65,16 +65,16 @@ object HybridAddressCollection {
       AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount,firstUprn,postTown)
     }).getOrElse(List.empty[AddressResponsePostcodeGroup])
 
-    val pcList2 = pcList.zip(pcList.tail).map{
+    val pcList2 = if (pcList.size > 0) pcList.zip(pcList.tail).map{
       case(previous,current) =>
       {if (current.postTown == "N")
         current.copy(postTown=previous.postTown)
       else current.copy()}
-    }
+    } else List.empty[AddressResponsePostcodeGroup]
 
     val pcList3 = if (pcList.size > 0) pcList.head :: pcList2
     else List.empty[AddressResponsePostcodeGroup]
-      
+
     // returned total will be number of hits unless we are doing grfirstUprn.last._2.head.head._2ouped postcode
     val totalOrBuckets = if (pcList.size > 0) pcList.size else total
 
