@@ -56,7 +56,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val postcodeFilterRegex: String = """\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
+    val postcodeFilterRegex: String = """\b(residential|commercial|workplace|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
     val filterString: String = classificationFilter.getOrElse("")
 
     filterString match {
