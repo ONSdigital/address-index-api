@@ -391,6 +391,10 @@ object Tokens {
     */
   lazy val custodianList: Seq[String] = Tokens.fileToArray(s"custodianList")
 
+  /**
+   * List of workplace classifications to be removed from the search
+   */
+  lazy val workplaceExclusionClassificationList: Seq[String] = fileToArray(s"workplaceExclusionClassificationList")
 
   /**
     * Convert external file into list

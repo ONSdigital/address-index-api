@@ -1,14 +1,14 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
-import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.analysis.{Analysis, CustomAnalyzer}
+import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
-import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import com.sksamuel.elastic4s.testkit._
-import org.testcontainers.elasticsearch.ElasticsearchContainer
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import org.joda.time.DateTime
 import org.scalatest.WordSpec
+import org.testcontainers.elasticsearch.ElasticsearchContainer
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
