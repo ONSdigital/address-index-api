@@ -87,7 +87,7 @@ object SourceInvalidError extends AddressResponseError(
 
 object FilterInvalidError extends AddressResponseError(
   code = 15,
-  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /classifications) or use a pattern match such as RD*. There are also two presets residential and commercial."
+  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /classifications) or use a pattern match such as RD*. There are also three presets residential, commercial and workplace."
 )
 
 //  this error is currently logged only, not returned
