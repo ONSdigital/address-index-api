@@ -173,7 +173,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val validHighlights = Seq(validHighlight,validHighlightWelsh)
 
-  val validBuckets = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1))
+  val validBuckets = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter"))
 
   val validHybridAddress: HybridAddress = HybridAddress(
     uprn = "1",
@@ -734,7 +734,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4",
-          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1)),
+          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
           filter = "",
           historical = false,
           limit = 100,
@@ -765,7 +765,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4 1",
-          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1)),
+          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
           filter = "",
           historical = false,
           limit = 100,
@@ -854,7 +854,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4 1A",
-          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1)),
+          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
           filter = "",
           historical = false,
           limit = 100,
