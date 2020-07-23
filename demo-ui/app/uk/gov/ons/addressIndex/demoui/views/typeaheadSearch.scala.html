@@ -30,7 +30,7 @@ version: DemoUIAddressIndexVersionModule
                     <div class="fields">
                         <dl>
                             <dt><label for="address" class="venus">Address </label></dt>
-                            <dd><input type="text" name="address" id="address" placeholder="Start typing an address here. Results will be shown after 5 or more characters." value="" onkeyup="getSingle();" class="form-control mars" /></dd>
+                            <dd><input type="text" name="address" id="address" placeholder="Start typing an address here. Results will be shown after 5 or more characters (or less for part postcode)." value="" onkeyup="getSingle();" class="form-control mars" /></dd>
                         </dl>
                     </div>
                 </div>
@@ -118,12 +118,22 @@ version: DemoUIAddressIndexVersionModule
           } catch (err) {
           try {
              for (i = 0; i < response.response.postcodes.length; i++) {
-              resultString = resultString
-              + response.response.postcodes[i].postcode + " "
-              + response.response.postcodes[i].streetName + " "
-              + response.response.postcodes[i].townName + " "
-              + response.response.postcodes[i].addressCount
-              + "<br>";
+              if ((response.response.postcodes[i].townName == response.response.postcodes[i].postTown) || response.response.postcodes[i].postTown == "N") {
+                resultString = resultString
+                + response.response.postcodes[i].postcode + " "
+                + response.response.postcodes[i].streetName + " "
+                + response.response.postcodes[i].townName + " "
+                + response.response.postcodes[i].addressCount
+                + "<br>";
+              } else {
+                resultString = resultString
+                + response.response.postcodes[i].postcode + " "
+                + response.response.postcodes[i].streetName + " "
+                + response.response.postcodes[i].townName + " "
+                + response.response.postcodes[i].postTown + " "
+                + response.response.postcodes[i].addressCount
+                + "<br>";
+              }
             }
             document.getElementById("response-text").innerHTML = resultString;
             if (response.response.postcodes.length == 0) {
