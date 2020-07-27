@@ -22,7 +22,9 @@ case class QueryValues(input: Option[String] = None,
                        highlight: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
-                       addressType: Option[String] = None)
+                       addressType: Option[String] = None,
+                       includeAuxiliarySearch: Option[Boolean] = None
+                      )
 {
   def inputOrDefault: String = this.input.getOrElse("")
 
@@ -69,4 +71,6 @@ case class QueryValues(input: Option[String] = None,
   def favourWelshOrDefault: Boolean = this.favourwelsh.getOrElse(false)
 
   def addressTypeOrDefault: String = this.addressType.getOrElse("")
+
+  def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearch.getOrElse(false)
 }

@@ -40,7 +40,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     classificationfilter: Option[String] = None,
                     historical: Option[String] = None,
                     verbose: Option[String] = None,
-                    epoch: Option[String] = None
+                    epoch: Option[String] = None,
+                    includeAuxiliarySearch: Boolean = false
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -72,7 +73,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
-        endpoint = endpointType, activity = activity, clusterid = clusterId
+        endpoint = endpointType, activity = activity, clusterid = clusterId,
+        includeAuxiliary = includeAuxiliarySearch
       )
     }
 
@@ -87,6 +89,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
+      includeAuxiliarySearch = Some(includeAuxiliarySearch)
     )
 
     val result: Option[Future[Result]] =
@@ -113,6 +116,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          includeAuxiliarySearch = includeAuxiliarySearch
         )
 
         val request: Future[HybridAddressCollection] =
@@ -143,7 +147,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb
+                  verbose = verb,
+                  includeAuxiliarySearch = includeAuxiliarySearch
                 ),
                 status = OkAddressResponseStatus
               )

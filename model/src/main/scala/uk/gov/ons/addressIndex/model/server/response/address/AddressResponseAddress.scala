@@ -28,7 +28,8 @@ case class AddressResponseAddress(uprn: String,
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
                                   nisra: Option[AddressResponseNisra],
-                                  geo: Option[AddressResponseGeo],
+                                  auxiliary: Option[AuxiliaryAddress],
+                                  //geo: Option[AddressResponseGeo],
                                   classificationCode: String,
                                   censusAddressType: String,
                                   censusEstabType: String,
@@ -102,9 +103,10 @@ object AddressResponseAddress {
       nisra = {
         if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None
       },
-      geo = {
-        if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
-      },
+      auxiliary = other.auxiliary,
+//      geo = {
+//        if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
+//      },
       classificationCode = other.classificationCode,
       censusAddressType = other.censusAddressType,
       censusEstabType = other.censusEstabType,
