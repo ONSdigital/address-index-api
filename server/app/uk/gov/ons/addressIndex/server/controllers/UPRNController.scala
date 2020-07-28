@@ -38,7 +38,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None,
-                includeAuxiliarySearch: Boolean = false
+                includeauxiliarysearch: Boolean = false
                ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
@@ -64,7 +64,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid,
-        includeAuxiliary = includeAuxiliarySearch
+        includeAuxiliary = includeauxiliarysearch
       )
     }
 
@@ -73,7 +73,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(includeAuxiliarySearch)
+      includeAuxiliarySearch = Some(includeauxiliarysearch)
     )
 
     val result: Option[Future[Result]] =
@@ -94,7 +94,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           uprn = uprn,
           historical = hist,
           epoch = epochVal,
-          includeAuxiliarySearch = includeAuxiliarySearch
+          includeAuxiliarySearch = includeauxiliarysearch
         )
 
         val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
@@ -120,7 +120,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
-                  includeAuxiliarySearch = includeAuxiliarySearch
+                  includeAuxiliarySearch = includeauxiliarysearch
                 ),
                 status = OkAddressResponseStatus
               )

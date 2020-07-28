@@ -41,7 +41,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     historical: Option[String] = None,
                     verbose: Option[String] = None,
                     epoch: Option[String] = None,
-                    includeAuxiliarySearch: Boolean = false
+                    includeauxiliarysearch: Boolean = false
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -74,7 +74,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterId,
-        includeAuxiliary = includeAuxiliarySearch
+        includeAuxiliary = includeauxiliarysearch
       )
     }
 
@@ -89,7 +89,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(includeAuxiliarySearch)
+      includeAuxiliarySearch = Some(includeauxiliarysearch)
     )
 
     val result: Option[Future[Result]] =
@@ -116,7 +116,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          includeAuxiliarySearch = includeAuxiliarySearch
+          includeAuxiliarySearch = includeauxiliarysearch
         )
 
         val request: Future[HybridAddressCollection] =
@@ -148,7 +148,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  includeAuxiliarySearch = includeAuxiliarySearch
+                  includeAuxiliarySearch = includeauxiliarysearch
                 ),
                 status = OkAddressResponseStatus
               )

@@ -10,6 +10,19 @@ case class AuxiliaryAddressLocation(
   lon: String
 )
 
+object AuxiliaryAddressLocation {
+
+  implicit lazy val auxiliaryAddressLocationFormat: Format[AuxiliaryAddressLocation] = Json.format[AuxiliaryAddressLocation]
+
+  object Fields {
+    /**
+     * Document Fields
+     */
+    val lat: String = "lat"
+    val lon: String = "lon"
+  }
+}
+
 /**
   * Auxiliary Address DTO
   */
@@ -37,7 +50,6 @@ case class AuxiliaryAddress(
 
 object AuxiliaryAddress {
 
-  implicit lazy val auxiliaryAddressLocationFormat: Format[AuxiliaryAddressLocation] = Json.format[AuxiliaryAddressLocation]
   implicit lazy val auxiliaryAddressFormat: Format[AuxiliaryAddress] = Json.format[AuxiliaryAddress]
 
   object Fields {
@@ -58,8 +70,6 @@ object AuxiliaryAddress {
     val locality: String = "locality"
     val townName: String = "townName"
     val location: String = "location"
-    val lat: String = "lat"
-    val lon: String = "lon"
     val addressLevel: String = "addressLevel"
     val addressAll: String = "addressAll"
     val addressLine1: String = "addressLine1"
@@ -88,8 +98,8 @@ object AuxiliaryAddress {
       locality = filteredAux.getOrElse(Fields.locality, "").toString,
       townName = filteredAux.getOrElse(Fields.townName, "").toString,
       location =  AuxiliaryAddressLocation(
-        location.getOrElse(Fields.lat, "").toString,
-        location.getOrElse(Fields.lon, "").toString
+        location.getOrElse(AuxiliaryAddressLocation.Fields.lat, "").toString,
+        location.getOrElse(AuxiliaryAddressLocation.Fields.lon, "").toString
       ),
       addressLevel = filteredAux.getOrElse(Fields.addressLevel, "").toString,
       addressAll = filteredAux.getOrElse(Fields.addressAll, "").toString,

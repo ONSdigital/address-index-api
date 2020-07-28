@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.address
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.db.index.{NationalAddressGazetteerAddress, NisraAddress}
+import uk.gov.ons.addressIndex.model.db.index.{AuxiliaryAddress, NationalAddressGazetteerAddress, NisraAddress}
 
 import scala.util.Try
 
@@ -42,4 +42,14 @@ object AddressResponseGeo {
     easting <- Try(other.easting.split("\\.").headOption.map(_.toInt).get)
     northing <- Try(other.northing.split("\\.").headOption.map(_.toInt).get)
   } yield AddressResponseGeo(latitude, longitude, easting, northing)).toOption
+
+  /**
+   * Creates GEO information from AUXILIARY elastic search object
+   * @param other AUXILIARY elastic search
+   * @return
+   */
+  def fromAuxiliaryAddress(other: AuxiliaryAddress): Option[AddressResponseGeo] = (for {
+    latitude <- Try(BigDecimal(other.location.lat))
+    longitude <- Try(BigDecimal(other.location.lon))
+  } yield AddressResponseGeo(latitude, longitude, 0, 0)).toOption
 }

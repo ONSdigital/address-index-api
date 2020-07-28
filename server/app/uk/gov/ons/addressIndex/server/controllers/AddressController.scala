@@ -52,7 +52,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
                    fromsource: Option[String] = None,
-                   includeAuxiliarySearch: Boolean = false
+                   includeauxiliarysearch: Boolean = false
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -96,7 +96,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterId,
-        includeAuxiliary = includeAuxiliarySearch)
+        includeAuxiliary = includeauxiliarysearch)
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
@@ -119,7 +119,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
       fromsource = Some(fromsourceVal),
-      includeAuxiliarySearch = Some(includeAuxiliarySearch)
+      includeAuxiliarySearch = Some(includeauxiliarysearch)
     )
 
     val args = AddressArgs(
@@ -134,7 +134,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
       fromsource = fromsourceVal,
-      includeAuxiliarySearch = includeAuxiliarySearch
+      includeAuxiliarySearch = includeauxiliarysearch
     )
 
     val result: Option[Future[Result]] =
@@ -231,7 +231,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   matchthreshold = thresholdFloat,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  includeAuxiliarySearch = includeAuxiliarySearch
+                  includeAuxiliarySearch = includeauxiliarysearch
                 ),
                 status = OkAddressResponseStatus
               )
