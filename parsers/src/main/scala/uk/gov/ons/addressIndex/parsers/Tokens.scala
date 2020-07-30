@@ -295,7 +295,7 @@ object Tokens {
 
     val rangeRegex = """.*?\b(\d+)([A-Z]?)-(\d+)([A-Z]?)\b.*?""".r
     val numberRegex = """.*?\b(\d+) *([A-Z]?)\b.*?""".r
-    val letterRegex = """.*?\b([A-Z])\b.*?""".r
+    val letterRegex = """.*?[^\w/']([A-Z])\b.*?""".r
 
     def opt(s: String): Option[String] = if (s.isEmpty) None else Some(s)
 
@@ -391,6 +391,10 @@ object Tokens {
     */
   lazy val custodianList: Seq[String] = Tokens.fileToArray(s"custodianList")
 
+  /**
+   * List of workplace classifications to be removed from the search
+   */
+  lazy val workplaceExclusionClassificationList: Seq[String] = fileToArray(s"workplaceExclusionClassificationList")
 
   /**
     * Convert external file into list

@@ -87,7 +87,7 @@ object SourceInvalidError extends AddressResponseError(
 
 object FilterInvalidError extends AddressResponseError(
   code = 15,
-  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /classifications) or use a pattern match such as RD*. There are also two presets residential and commercial."
+  message = "Invalid classification filter value provided. Filters must exactly match a classification code (see /classifications) or use a pattern match such as RD*. There are also three presets residential, commercial and workplace."
 )
 
 //  this error is currently logged only, not returned
@@ -206,4 +206,9 @@ object EmptyRadiusQueryAddressResponseError extends AddressResponseError(
 object InvalidAddressTypeAddressResponseError extends AddressResponseError(
   code = 39,
   message = "AddressType must be of type paf, welshpaf, nag, welshnag or nisra."
+)
+
+object InvalidEQBucketError extends AddressResponseError(
+  code = 40,
+  message = "At least one of postcode, streetname and townname must be supplied and not wildcarded (use all three for best results)"
 )

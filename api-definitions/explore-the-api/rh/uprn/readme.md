@@ -98,7 +98,8 @@
       "postcode": "EX1 1LL",
       "censusAddressType": "NA",
       "censusEstabType": "NA",
-      "countryCode": "E"
+      "countryCode": "E",
+      "organisationName: "Costa Coffee"
     },
     "addressType": "NAG",
     "historical": true,

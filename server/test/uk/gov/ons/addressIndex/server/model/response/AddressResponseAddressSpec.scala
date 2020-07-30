@@ -802,7 +802,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "create AddressByEqUprnResponse from Hybrid ES response for PAF" in {
       // Given
-      val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+      val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
 
       val expected = AddressResponseAddressUPRNEQ(
         uprn = givenPafEq.uprn,
@@ -824,7 +824,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "create AddressByEqUprnResponse from Hybrid ES response for WELSHPAF" in {
       // Given
-      val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
+      val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
 
       val expected = AddressResponseAddressUPRNEQ(
         uprn = givenPafEq.uprn,
@@ -846,7 +846,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "create AddressByEqUprnResponse from Hybrid ES response for NAG" in {
       // Given
-      val hybrid = HybridAddress(givenNagEq.uprn, givenNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNagEq), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+      val hybrid = HybridAddress(givenNagEq.uprn, givenNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNagEq), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
 
       val expected = AddressResponseAddressUPRNEQ(
         uprn = givenNagEq.uprn,
@@ -868,7 +868,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "create AddressByEqUprnResponse from Hybrid ES response for WELSHNAG" in {
       // Given
-      val hybrid = HybridAddress(givenWelshNagEq.uprn, givenWelshNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
+      val hybrid = HybridAddress(givenWelshNagEq.uprn, givenWelshNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
 
       val expected = AddressResponseAddressUPRNEQ(
         uprn = givenWelshNagEq.uprn,
@@ -1198,7 +1198,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   "create AddressByEqUprnResponse from Hybrid ES response for PAF" in {
     // Given
-    val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+    val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
 
     val expected = AddressResponseAddressUPRNRH(
       uprn = givenPafEq.uprn,
@@ -1211,7 +1211,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="PAF",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "E"
+      countryCode = "E",
+      organisationName = "6"
     )
 
     // When
@@ -1223,7 +1224,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   "create AddressByEqUprnResponse from Hybrid ES response for WELSHPAF" in {
     // Given
-    val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
+    val hybrid = HybridAddress(givenPafEq.uprn, givenPafEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
 
     val expected = AddressResponseAddressUPRNRH(
       uprn = givenPafEq.uprn,
@@ -1236,7 +1237,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="WELSHPAF",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "W"
+      countryCode = "W",
+      organisationName = "6"
     )
 
     // When
@@ -1248,7 +1250,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   "create AddressByEqUprnResponse from Hybrid ES response for NAG" in {
     // Given
-    val hybrid = HybridAddress(givenNagEq.uprn, givenNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNagEq), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+    val hybrid = HybridAddress(givenNagEq.uprn, givenNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNagEq), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
 
     val expected = AddressResponseAddressUPRNRH(
       uprn = givenNagEq.uprn,
@@ -1261,7 +1263,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType = "NAG",
       censusAddressType = "NA",
       censusEstabType = "NA",
-      countryCode = "E"
+      countryCode = "E",
+      organisationName = "n22"
     )
 
     // When
@@ -1273,7 +1276,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   "create AddressByEqUprnResponse from Hybrid ES response for WELSHNAG" in {
     // Given
-    val hybrid = HybridAddress(givenWelshNagEq.uprn, givenWelshNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
+    val hybrid = HybridAddress(givenWelshNagEq.uprn, givenWelshNagEq.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenWelshNagEq), Seq(givenPafEq), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, Seq() )
 
     val expected = AddressResponseAddressUPRNRH(
       uprn = givenWelshNagEq.uprn,
@@ -1286,7 +1289,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="WELSHNAG",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "W"
+      countryCode = "W",
+      organisationName = "n22"
     )
 
     // When
@@ -1311,7 +1315,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       foundAddressType="NISRA",
       censusAddressType = "NA",
       censusEstabType="NA",
-      countryCode = "E"
+      countryCode = "E",
+      organisationName = "1"
     )
 
     // When

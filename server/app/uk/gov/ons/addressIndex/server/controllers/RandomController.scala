@@ -114,7 +114,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           )
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, _, _) =>
+          case HybridAddressCollection(hybridAddresses, _, _, _) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verb)

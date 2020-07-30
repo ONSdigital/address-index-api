@@ -34,7 +34,7 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
     * @param postcode postcode of the address to be fetched
     * @return Json response with addresses information
     */
-  def postcodeQuery(postcode: String,
+  def postcodeQueryRH(postcode: String,
                     offset: Option[String] = None,
                     limit: Option[String] = None,
                     classificationfilter: Option[String] = None,
@@ -129,7 +129,7 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
           )
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, maxScore, total) =>
+          case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddressPostcodeRH] = hybridAddresses.map(
               AddressResponseAddressPostcodeRH.fromHybridAddress(_, favourPaf, favourWelsh)

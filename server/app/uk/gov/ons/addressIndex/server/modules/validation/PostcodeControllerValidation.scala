@@ -56,7 +56,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
-    val postcodeFilterRegex: String = """\b(residential|commercial|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
+    val postcodeFilterRegex: String = """\b(residential|commercial|workplace|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
     val filterString: String = classificationFilter.getOrElse("")
 
     filterString match {
@@ -68,6 +68,14 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
         logger.systemLog(badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(PostcodeFilterInvalid(queryValues)))
       case _ => None
+    }
+  }
+
+  def validateBucketPattern(bucketPattern: String, queryValues: QueryValues): Option[Future[Result]] = {
+    bucketPattern match {
+    case "*_*_*" => logger.systemLog(badRequestMessage = InvalidEQBucketError.message)
+      Some(futureJsonBadRequest(EQBucketInvalid(queryValues)))
+    case _ => None
     }
   }
 

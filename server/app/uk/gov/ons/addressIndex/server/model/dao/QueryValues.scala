@@ -3,6 +3,8 @@ package uk.gov.ons.addressIndex.server.model.dao
 case class QueryValues(input: Option[String] = None,
                        fallback: Option[Boolean] = None,
                        postcode: Option[String] = None,
+                       streetname: Option[String] = None,
+                       townname: Option[String] = None,
                        uprn: Option[String] = None,
                        epoch: Option[String] = None,
                        filter: Option[String] = None,
@@ -27,6 +29,10 @@ case class QueryValues(input: Option[String] = None,
   def fallbackOrDefault: Boolean = this.fallback.getOrElse(true)
 
   def postcodeOrDefault: String = this.postcode.getOrElse("")
+
+  def streetnameOrDefault: String = this.streetname.getOrElse("")
+
+  def townnameOrDefault: String = this.townname.getOrElse("")
 
   def uprnOrDefault: String = this.uprn.getOrElse("")
 

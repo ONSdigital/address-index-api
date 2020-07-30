@@ -1,7 +1,10 @@
 package uk.gov.ons.addressIndex.server.modules
 
+import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
+import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
+import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters.{CommercialClassificationFilter, ResidentialClassificationFilter, WorkplaceClassificationFilter}
 
 import scala.util.Try
 
@@ -32,20 +35,27 @@ trait Filterable {
   /** */
   val filters: String
 
+  private val presetClassificationFilters = Map(
+    "residential" -> ResidentialClassificationFilter,
+    "commercial" -> CommercialClassificationFilter,
+    "workplace" -> WorkplaceClassificationFilter
+  )
+
   def filtersType: String = filters match {
-    case "residential" | "commercial" => "prefix"
+    case "residential" | "commercial" | "workplace" => "preset"
     case f if f.endsWith("*") => "prefix"
     case _ => "term"
   }
 
-  def filtersValuePrefix: String = filters match {
-    case "residential" => "R"
-    case "commercial" => "C"
+  val queryFilter: Seq[Query] = if (filters.isEmpty) Seq.empty
+    else if (filtersType == "preset") presetClassificationFilters(filters).queryFilter
+    else if (filtersType == "prefix") Seq(PrefixQuery("classificationCode", filtersValuePrefix))
+    else Seq(TermsQuery("classificationCode",  filters.toUpperCase.split(",")))
+
+  private def filtersValuePrefix: String = filters match {
     case f if f.endsWith("*") => filters.substring(0, filters.length - 1).toUpperCase
     case f => f.toUpperCase()
   }
-
-  def filtersValueTerm: Seq[String] = filters.toUpperCase.split(",")
 }
 
 /** the query can be filtered by date */
@@ -115,6 +125,8 @@ sealed abstract class QueryArgs {
   // other postcode fields
 
   def postcodeOpt: Option[String] = None
+
+  def bucketPatternOpt: Option[String] = None
 
   // other address fields
 
@@ -236,6 +248,52 @@ final case class PostcodeArgs(postcode: String,
                               favourwelsh: Boolean = true
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
+
+  override def startOpt: Option[Int] = Some(start)
+
+  override def skinnyOpt: Option[Boolean] = Some(skinny)
+}
+
+/**
+  * Search by partial postcode and group results
+  *
+  * @param postcode the postcode to search by
+  */
+final case class GroupedPostcodeArgs(postcode: String,
+                              epoch: String = "",
+                              historical: Boolean = true,
+                              limit: Int,
+                              start: Int = 0,
+                              filters: String,
+                              verbose: Boolean = true,
+                              skinny: Boolean = false,
+                              favourpaf: Boolean = true,
+                              favourwelsh: Boolean = true
+                             ) extends MultiResultArgs with StartAtOffset with Skinnyable {
+  override def postcodeOpt: Option[String] = Some(postcode)
+
+  override def startOpt: Option[Int] = Some(start)
+
+  override def skinnyOpt: Option[Boolean] = Some(skinny)
+}
+
+/**
+  * Search by bucket
+  *
+  * @param bucketPattern bucket string with possible wilcards
+  */
+final case class BucketArgs(bucketpattern: String,
+                              epoch: String = "",
+                              historical: Boolean = true,
+                              limit: Int,
+                              start: Int = 0,
+                              filters: String,
+                              verbose: Boolean = true,
+                              skinny: Boolean = false,
+                              favourpaf: Boolean = true,
+                              favourwelsh: Boolean = true
+                             ) extends MultiResultArgs with StartAtOffset with Skinnyable {
+  override def bucketPatternOpt: Option[String] = Some(bucketpattern)
 
   override def startOpt: Option[Int] = Some(start)
 

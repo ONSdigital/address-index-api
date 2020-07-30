@@ -44,13 +44,16 @@ object AddressResponseAddressPostcodeEQ {
       if (favourPaf) {
         if (favourWelsh) {
           if (welshFormattedAddressPaf.isEmpty) {
-            if (welshFormattedAddressNag.isEmpty) (formattedAddressNag, AddressTypes.nag) else (welshFormattedAddressNag, AddressTypes.welshNag)
+            if (welshFormattedAddressNag.isEmpty) {
+              if (chosenNisra.isEmpty) (formattedAddressNag, AddressTypes.nag) else (formattedAddressNisra, AddressTypes.nisra)
+            }
+            else (welshFormattedAddressNag, AddressTypes.welshNag)
           } else {
             (welshFormattedAddressPaf, AddressTypes.welshPaf)
           }
         } else {
           if (formattedAddressPaf.isEmpty) {
-            (formattedAddressNag, AddressTypes.nag)
+            if (chosenNisra.isEmpty) (formattedAddressNag, AddressTypes.nag) else (formattedAddressNisra, AddressTypes.nisra)
           } else {
             (formattedAddressPaf, AddressTypes.paf)
           }

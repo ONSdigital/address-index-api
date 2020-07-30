@@ -18,6 +18,13 @@
             Fetch single address by uprn with chosen address type.
         </td>
     </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="bucket/readme.md">addresses/eq/bucket</a></td>
+        <td class="table--cell">
+            Fetch addresses matching postcode / street / town combination.
+        </td>
+    </tr>
     </tbody>
 </table>
 
@@ -59,7 +66,7 @@
             <td class="table--cell">
                 Optional
                 <br>Default: 0
-                <br>Maximum: 250
+                <br>Maximum: 250 partials or 5000 postcodes
             </td>
         </tr>
         <tr class="table--row">
@@ -68,14 +75,14 @@
             <td class="table--cell">Specifies the number of addresses to return.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: 10
-                <br>Maximum: 100
+                <br>Default: 20 partials or 100 postcodes
+                <br>Maximum: 100 partials or 5000 postcodes
             </td>
         </tr>
          <tr class="table--row">
             <td class="table--cell">classificationfilter</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial</td>
+            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace</td>
             <td class="table--cell">
                 Optional
             </td>
@@ -172,13 +179,53 @@
 
 <h2>Sample Queries</h2>
 
-<p><pre>corn ex</pre></p>
-<p><pre>4 EX26GA</pre></p>
+<p><pre>corn exc</pre></p>
+<p><pre>3 EX26GA</pre></p>
+<p><pre>EX4 3</pre></p>
 
    <h2>Sample Output</h2>
-
-
-
+   
+   <pre><code>
+{
+  "apiVersion": "1.0.0-SNAPSHOT",
+  "dataVersion": "NA",
+  "response": {
+    "input": "Corn Exc",
+    "addresses": [
+      {
+        "uprn": "10013049665",
+        "bestMatchAddress": "Corn Exchange Office, 1 George Street, Exeter, EX1 1BU",
+        "bestMatchAddressType": "PAF"
+      },
+      {
+        "uprn": "100041124274",
+        "bestMatchAddress": "Exeter Corn Exchange, Market Street, Exeter, EX1 1BW",
+        "bestMatchAddressType": "PAF"
+      }
+    ],
+    "filter": "",
+    "fallback": true,
+    "historical": false,
+    "epoch": "",
+    "limit": 20,
+    "offset": 0,
+    "total": 2,
+    "maxScore": 0,
+    "verbose": false,
+    "fromsource": "all",
+    "highlight": "on",
+    "favourpaf": true,
+    "favourwelsh": false
+  },
+  "status": {
+    "code": 200,
+    "message": "Ok"
+  },
+  "errors": [
+    
+  ]
+}
+</code></pre>
    <pre><code>
 {
   "apiVersion": "1.0.0-SNAPSHOT",
@@ -226,5 +273,74 @@
     "message": "Ok"
   },
   "errors": []
+}
+</code></pre>
+
+   <pre><code>
+{
+  "apiVersion": "1.0.0-SNAPSHOT",
+  "dataVersion": "NA",
+  "response": {
+    "partpostcode": "EX4 3",
+    "postcodes": [
+      {
+        "postcode": "EX4 3AA",
+        "streetName": "Bonhay Road",
+        "townName": "Exeter",
+        "addressCount": 11,
+        "firstUprn": 100040203926
+      },
+      {
+        "postcode": "EX4 3AB",
+        "streetName": "Bonhay Road",
+        "townName": "Exeter",
+        "addressCount": 5,
+        "firstUprn": 10013046878
+      },
+      {
+        "postcode": "EX4 3AD",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 75,
+        "firstUprn": 10013047777
+      },
+      {
+        "postcode": "EX4 3AE",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 50,
+        "firstUprn": 10013040310
+      },
+      {
+        "postcode": "EX4 3AG",
+        "streetName": "Bartholomew Street West",
+        "townName": "Exeter",
+        "addressCount": 7,
+        "firstUprn": 10013044374
+      },
+      {
+        "postcode": "EX4 3AH",
+        "streetName": "New Bridge Street",
+        "townName": "Exeter",
+        "addressCount": 53,
+        "firstUprn": 10013038581
+      }
+     ],
+    "filter": "",
+    "historical": false,
+    "epoch": "",
+    "limit": 6,
+    "offset": 0,
+    "total": 143,
+    "maxScore": 1,
+    "verbose": false
+  },
+  "status": {
+    "code": 200,
+    "message": "Ok"
+  },
+  "errors": [
+    
+  ]
 }
 </code></pre>

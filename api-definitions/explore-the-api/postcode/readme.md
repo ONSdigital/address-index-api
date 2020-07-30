@@ -24,7 +24,7 @@
         <td class="table--cell">
             Optional
             <br>Default: 0
-            <br>Maximum: 1000
+            <br>Maximum: 5000
         </td>
     </tr>
     <tr class="table--row">
@@ -33,14 +33,14 @@
         <td class="table--cell">Specifies the number of addresses to return.</td>
         <td class="table--cell">
             Optional
-            <br>Default: 10
-            <br>Maximum: 100
+            <br>Default: 100
+            <br>Maximum: 5000
         </td>
     </tr>
     <tr class="table--row">
         <td class="table--cell">classificationfilter</td>
         <td class="table--cell">string</td>
-        <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential or commercial</td>
+        <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace</td>
         <td class="table--cell">
             Optional
         </td>
