@@ -10,7 +10,8 @@ case class AddressResponsePostcodeGroup(postcode: String,
                                         streetName: String,
                                         townName: String,
                                         addressCount: Int,
-                                        firstUprn: Long)
+                                        firstUprn: Long,
+                                        postTown: String)
 
 object AddressResponsePostcodeGroup {
   implicit lazy val addressResponsePostcodeGroupFormat: Format[AddressResponsePostcodeGroup] = Json.format[AddressResponsePostcodeGroup]

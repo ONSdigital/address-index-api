@@ -979,7 +979,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-         {"query":{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"postcodeStreetTown","size":10000,"order":{"_key":"asc"}}}}}
+         {"query":{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"postcodeStreetTown","size":1000,"order":{"_key":"asc"}},"aggs":{"uprns":{"terms":{"field":"uprn","size":1}},"paftowns":{"terms":{"field":"postTown","size":1}}}}}}
          """.stripMargin
       )
 

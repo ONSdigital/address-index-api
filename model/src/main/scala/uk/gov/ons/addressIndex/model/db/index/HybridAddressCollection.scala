@@ -59,16 +59,28 @@ object HybridAddressCollection {
       val bucketTown: String = Try(bucketParts(2)).getOrElse("")
       val bucketCount: Int = bucket.getOrElse("doc_count",0).asInstanceOf[Int]
       val uprnaggs = bucket.getOrElse("uprns",Map.empty[Any,Any]).asInstanceOf[Map[Any,Any]]
+      val postTownAggs = bucket.getOrElse("paftowns",Map.empty[Any,Any]).asInstanceOf[Map[Any,Any]]
+      val postTown = (Try(postTownAggs.last._2.asInstanceOf[List[Map[Any,Any]]].head.head._2).getOrElse("N")).toString()
       val firstUprn = (Try(uprnaggs.last._2.asInstanceOf[List[Map[Any,Any]]].head.head._2).getOrElse(0)).toString().toLong
-      AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount,firstUprn)
+      AddressResponsePostcodeGroup(bucketCode,bucketStreet,bucketTown,bucketCount,firstUprn,postTown)
     }).getOrElse(List.empty[AddressResponsePostcodeGroup])
+
+    val pcList2 = if (pcList.size > 0) pcList.zip(pcList.tail).map{
+      case(previous,current) =>
+      {if (current.postTown == "N")
+        current.copy(postTown=previous.postTown)
+      else current.copy()}
+    } else List.empty[AddressResponsePostcodeGroup]
+
+    val pcList3 = if (pcList.size > 0) pcList.head :: pcList2
+    else List.empty[AddressResponsePostcodeGroup]
 
     // returned total will be number of hits unless we are doing grfirstUprn.last._2.head.head._2ouped postcode
     val totalOrBuckets = if (pcList.size > 0) pcList.size else total
 
     HybridAddressCollection(
       addresses = response.to[HybridAddress],
-      aggregations = pcList,
+      aggregations = pcList3,
       maxScore = maxScore,
       total = totalOrBuckets
     )

@@ -309,8 +309,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val postcodeFormatted: String = args.postcode.toUpperCase
 
-    val isNotJustOutcode: Boolean = (postcodeFormatted.trim.contains(" "))
-
+  //  val isNotJustOutcode: Boolean = (postcodeFormatted.trim.contains(" "))
+    val isNotJustOutcode: Boolean = true
     val query = must(prefixQuery("postcode", postcodeFormatted)).filter(args.queryFilter)
 
     val source = if (args.historical) {
@@ -324,16 +324,18 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     if (isNotJustOutcode) {
       searchBase.query(query)
         .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
-          .size(10000)
+          .size(1000)
           .order(TermsOrder("_key", asc = true))
           .subaggs(termsAgg("uprns", "uprn")
+            .size(1),
+          termsAgg("paftowns", "postTown")
             .size(1)))
         .start(0)
         .limit(1)
     } else {
       searchBase.query(query)
         .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
-          .size(10000)
+          .size(1000)
           .order(TermsOrder("_key", asc = true)))
         .start(0)
         .limit(1)
