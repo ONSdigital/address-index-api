@@ -67,6 +67,7 @@ object AuxiliaryAddress {
     val saoStartSuffix: String = "saoStartSuffix"
     val saoEndSuffix: String = "saoEndSuffix"
     val streetName: String = "streetName"
+    val postcode: String = "postcode"
     val locality: String = "locality"
     val townName: String = "townName"
     val location: String = "location"

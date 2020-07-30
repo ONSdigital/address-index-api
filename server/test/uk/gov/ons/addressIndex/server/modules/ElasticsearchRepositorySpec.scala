@@ -695,6 +695,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(expectedNag),
     paf = Seq(expectedPaf),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -714,6 +715,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(expectedDateNag),
     paf = Seq(),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -733,6 +735,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
     paf = Seq(expectedDatePaf),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -752,6 +755,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(),
     paf = Seq(expectedSecondDatePaf),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -1070,6 +1074,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -1160,6 +1173,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     }
 
     "generate valid query for search by tokens" in {
+
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val tokens: Map[String, String] = Map(
@@ -1199,7 +1213,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 {
 "dis_max":{
 "tie_breaker":0,
-"queries":[
+"queries":[{
+  "constant_score":{
+    "filter":{
+      "match":{
+        "tokens.subBuildingName":{
+          "query":"h4","minimum_should_match":"-45%"
+        }
+      }
+    },"boost":1
+  }
+},
 {
 "constant_score":{
 "filter":{
@@ -1225,6 +1249,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 },
 "boost":1.5
 }
+},{
+  "constant_score":{
+    "filter":{
+      "match":{
+        "tokens.saoStartSuffix":{
+          "query":"h16"
+        }
+      }
+    },"boost":1
+  }
 },
 {
 "constant_score":{
@@ -1242,7 +1276,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 {
 "dis_max":{
 "tie_breaker":0.5,
-"queries":[
+"queries":[{
+  "constant_score":{
+    "filter":{
+      "match":{
+        "tokens.streetName":{
+          "query":"h7","fuzziness":"1"
+        }
+      }
+    },"boost":2
+  }
+},
 {
 "constant_score":{
 "filter":{
@@ -1533,7 +1577,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 {
 "dis_max":{
 "tie_breaker":0,
-"queries":[
+"queries":[{
+  "constant_score":{
+    "filter":{
+      "match":{
+        "tokens.buildingName":{
+          "query":"h5","fuzziness":"1"
+        }
+      }
+    },"boost":2.5
+  }
+},
 {
 "constant_score":{
 "filter":{
@@ -1610,7 +1664,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 "dis_max":{
 "tie_breaker":0,
 "boost":0.5,
-"queries":[
+"queries":[{
+  "constant_score":{
+    "filter":{
+      "match":{
+        "tokens.buildingName":{
+          "query":"h5","minimum_should_match":"-45%"
+        }
+      }
+    },"boost":1
+  }
+},
 {
 "constant_score":{
 "filter":{
@@ -2346,8 +2410,16 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 {
 "dis_max":{
 "tie_breaker":0,
-"queries":[
-{
+"queries":[{
+  "match":{
+    "tokens.addressAll":{
+      "query":"",
+      "analyzer":"welsh_split_synonyms_analyzer",
+      "boost":${queryParams.fallback.fallbackLpiBoost},
+      "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+    }
+  }
+},{
 "match":{
 "lpi.nagAll":{
 "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
@@ -2553,6 +2625,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2669,6 +2750,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
                     "match":{
                       "lpi.nagAll":{
                         "query":"",
@@ -2787,6 +2877,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2902,6 +3001,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -3016,6 +3124,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackLpiBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
                     "match":{
                       "lpi.nagAll":{
                         "query":"",
@@ -3440,6 +3557,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            "dis_max":{
             "tie_breaker":0,
             "queries":[
+            {
+              "constant_score": {
+                  "filter": {
+                    "match": {
+                      "tokens.subBuildingName":
+                      {
+                        "query":"h4","minimum_should_match":"-45%"
+                      }
+                    }
+                  },
+                  "boost":1
+              }
+            },
            {
             "constant_score":{
            "filter":{
@@ -3482,8 +3612,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            {
             "dis_max":{
            "tie_breaker":0.5,
-           "queries":[
-            {
+           "queries":[{
+            "constant_score":{
+              "filter":{
+                "match":{
+                  "tokens.subBuildingName":{
+                    "query":"15"
+                  }
+                }
+              },
+              "boost":1
+            }
+          },
+          {
            "constant_score":{
             "filter":{
            "match":{
@@ -3530,6 +3671,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             },
             "boost":1
            }
+            },
+            {
+            "constant_score":{
+              "filter":{
+                "match":{
+                  "tokens.saoStartSuffix":{"query":"h16"}
+                }
+              },"boost":1}
             },
             {
            "constant_score":{
@@ -3589,6 +3738,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
            "dis_max":{
             "tie_breaker":0,
             "queries":[
+            {"constant_score":{
+                "filter":{
+                    "match":{
+                      "tokens.streetName":{
+                        "query":"h7","fuzziness":"1"
+                      }
+                    }
+                },"boost":2}
+            },
            {
             "constant_score":{
            "filter":{
@@ -3774,6 +3932,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             "dis_max":{
            "tie_breaker":0,
            "queries":[
+            {"constant_score":{
+              "filter":{
+                "match":{
+                  "tokens.buildingName":{
+                    "query":"h5","fuzziness":"1"
+                  }
+                }
+              },"boost":2.5}
+            },
             {
            "constant_score":{
             "filter":{
@@ -3851,6 +4018,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
             "tie_breaker":0,
             "boost":0.5,
             "queries":[
+            {"constant_score":{
+              "filter":{
+                "match":{
+                  "tokens.buildingName":{
+                    "query":"h5","minimum_should_match":"-45%"
+                  }
+                }
+              },"boost":1}
+            },
            {
             "constant_score":{
            "filter":{
