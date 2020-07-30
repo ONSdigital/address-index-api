@@ -51,7 +51,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
-                   fromsource: Option[String] = None
+                   fromsource: Option[String] = None,
+                   includeauxiliarysearch: Boolean = false
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -94,11 +95,12 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
-        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterId)
+        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterId,
+        includeAuxiliary = includeauxiliarysearch)
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
+      fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None, auxiliary = None) }
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
@@ -116,7 +118,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       latitude = Some(latVal),
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
-      fromsource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal),
+      includeAuxiliarySearch = Some(includeauxiliarysearch)
     )
 
     val args = AddressArgs(
@@ -130,7 +133,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
-      fromsource = fromsourceVal
+      fromsource = fromsourceVal,
+      includeAuxiliarySearch = includeauxiliarysearch
     )
 
     val result: Option[Future[Result]] =
@@ -226,7 +230,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
                   verbose = verb,
-                  fromsource = fromsourceVal
+                  fromsource = fromsourceVal,
+                  includeAuxiliarySearch = includeauxiliarysearch
                 ),
                 status = OkAddressResponseStatus
               )

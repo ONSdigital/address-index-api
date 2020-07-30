@@ -185,6 +185,7 @@ sealed abstract class QueryArgs {
 final case class UPRNArgs(uprn: String,
                           historical: Boolean = true,
                           epoch: String = "",
+                          includeAuxiliarySearch: Boolean = false
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
 }
@@ -245,7 +246,8 @@ final case class PostcodeArgs(postcode: String,
                               verbose: Boolean = true,
                               skinny: Boolean = false,
                               favourpaf: Boolean = true,
-                              favourwelsh: Boolean = true
+                              favourwelsh: Boolean = true,
+                              includeAuxiliarySearch: Boolean = false
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
@@ -332,7 +334,8 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                             fromsource: String = "all"
+                             fromsource: String = "all",
+                             includeAuxiliarySearch: Boolean = false
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 

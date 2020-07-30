@@ -37,7 +37,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
   def uprnQuery(uprn: String,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
-                epoch: Option[String] = None
+                epoch: Option[String] = None,
+                includeauxiliarysearch: Boolean = false
                ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
@@ -62,7 +63,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
-        endpoint = endpointType, activity = activity, clusterid = clusterid
+        endpoint = endpointType, activity = activity, clusterid = clusterid,
+        includeAuxiliary = includeauxiliarysearch
       )
     }
 
@@ -71,6 +73,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
+      includeAuxiliarySearch = Some(includeauxiliarysearch)
     )
 
     val result: Option[Future[Result]] =
@@ -91,6 +94,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           uprn = uprn,
           historical = hist,
           epoch = epochVal,
+          includeAuxiliarySearch = includeauxiliarysearch
         )
 
         val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
@@ -115,7 +119,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   address = Some(address),
                   historical = hist,
                   epoch = epochVal,
-                  verbose = verb
+                  verbose = verb,
+                  includeAuxiliarySearch = includeauxiliarysearch
                 ),
                 status = OkAddressResponseStatus
               )

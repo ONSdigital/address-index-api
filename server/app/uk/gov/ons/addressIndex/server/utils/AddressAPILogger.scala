@@ -23,7 +23,8 @@ class AddressAPILogger(log: String) extends APILogger {
                 batchSize: String = "", badRequestMessage: String = "", isNotFound: Boolean = false,
                 formattedOutput: String = "", numOfResults: String = "", score: String = "",
                 endpoint: String = "", activity: String = "", uuid: String = "",
-                networkid: String = "", organisation: String = "", clusterid: String = ""): Unit = {
+                networkid: String = "", organisation: String = "", clusterid: String = "",
+                includeAuxiliary: Boolean = false): Unit = {
 
     // Note we are using the info level for Splunk
     super.logMessage(splunk.info, AddressLoggerMessage(
@@ -41,7 +42,7 @@ class AddressAPILogger(log: String) extends APILogger {
         s"formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score endpoint=$endpoint " +
         s"activity=$activity uuid=$uuid networkid=$networkid organisation=$organisation " +
-        s"clusterid=$clusterid "))
+        s"clusterid=$clusterid includeAuxiliary=$includeAuxiliary "))
   }
 
   def systemLogNew(args: Option[QueryArgs] = None,

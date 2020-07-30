@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.WSClient
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
+import uk.gov.ons.addressIndex.model.db.index.{AuxiliaryAddress, AuxiliaryAddressLocation, CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
@@ -212,6 +212,28 @@ object AddressIndexClientMock {
     localCouncil = "BELFAST"
   )
 
+  val mockAuxiliaryAddress = AddressResponseAuxiliary(
+    uprn = "1",
+    organisationName = "2",
+    subBuildingName = "3",
+    buildingName = "4",
+    buildingNumber = "5",
+    paoStartNumber = "6",
+    paoStartSuffix = "7",
+    paoEndNumber = "8",
+    saoStartSuffix = "9",
+    saoEndSuffix = "10",
+    streetName = "11",
+    locality = "12",
+    townName = "13",
+    location = AuxiliaryAddressLocation("14", "15"),
+    addressLevel = "16",
+    addressAll = "mixedAuxiliary",
+    addressLine1 = "17",
+    addressLine2 = "18",
+    addressLine3 = "19"
+  )
+
   val mockBespokeScore: AddressResponseScore = AddressResponseScore(
     objectScore = 0d,
     structuralScore = 0d,
@@ -234,17 +256,17 @@ object AddressIndexClientMock {
     formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressAuxiliary = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),
+    auxiliary = Some(mockAuxiliaryAddress),
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 100f,
     underlyingScore = 1.0f,
-    countryCode = "E",
-    censusAddressType = "TBA",
-    censusEstabType = "TBA",
+    census = AddressResponseCensus("TBA", "TBA", "E"),
     highlights = None
   )
 

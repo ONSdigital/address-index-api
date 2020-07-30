@@ -21,7 +21,8 @@ trait PostcodeControllerResponse extends Response {
         offset = queryValues.offsetOrDefault,
         total = 0,
         maxScore = 0f,
-        verbose = queryValues.verboseOrDefault
+        verbose = queryValues.verboseOrDefault,
+        includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -77,7 +78,8 @@ trait PostcodeControllerResponse extends Response {
       offset = queryValues.offsetOrDefault,
       total = 0,
       maxScore = 0f,
-      verbose = queryValues.verboseOrDefault
+      verbose = queryValues.verboseOrDefault,
+      includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
     )
   }
 
