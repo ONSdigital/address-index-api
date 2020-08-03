@@ -495,7 +495,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         aux.streetName,
         aux.locality,
         aux.townName,
-        aux.location,
+        AddressResponseAuxiliaryAddressLocation.fromAuxiliaryAddressLocation(aux.location),
         aux.addressLevel,
         aux.addressAll,
         aux.addressLine1,

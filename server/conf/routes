@@ -37,6 +37,8 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #    - name: fromsource
 #      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
+#    - name: includeauxiliarysearch
+#      description: Include search of Auxiliary index.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -52,60 +54,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], includeauxiliarysearch: Boolean = false)
-
-###
-#  summary: Custom Census Address endpoint. Search for an address.
-#  description: Returns a ranked list of addresses matching the search query in the specified format.
-#  parameters:
-#    - name: input
-#      description: Specifies the address search string (e.g. '14 Acacia Avenue, Ruislip, HA4 8RG'). Can only be blank if rangekm, lat, lon and classificationfilter are supplied in which case the underlyingScore returned is the distance in km.
-#    - name: offset
-#      description: Specifies the offset from zero, used for pagination.
-#      default: 0
-#      maximum: 250
-#    - name: limit
-#      description: Specifies the number of addresses to return.
-#      default: 10
-#      maximum: 100
-#    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
-#    - name: rangekm
-#      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
-#    - name: lat
-#      description: Latitude of point in decimal format (e.g. 50.705948).
-#    - name: lon
-#      description: Longitude of point in decimal format (e.g. -3.5091076).
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: matchthreshold
-#      description: Minimum confidence score (percentage) for match to be included in results.
-#      default: 5.0
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
-#    - name: epoch
-#      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
-#      default: all
-#  responses:
-#    200:
-#      description: Success. A json return of matched addresses.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-#
-###
-GET     /addresses/census          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], includeauxiliarysearch: Boolean = true)
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], includeauxiliarysearch: Option[String])
 
 ###
 #  summary: Return a list of codelists supported by the API
@@ -217,6 +166,8 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: includeauxiliarysearch
+#      description: Include search of Auxiliary index.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -233,7 +184,7 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Boolean = false)
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead).
@@ -342,39 +293,6 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
 GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
-
-###
-#  summary: Custom Census UPRN endpoint. Gets an address by UPRN.
-#  description: Returns a single address, identified by its UPRN.
-#  parameters:
-#    - name: uprn
-#      description: Specifies the address UPRN.
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
-#    - name: epoch
-#      description: Select a specific AddressBase Epoch to search.
-#  responses:
-#    200:
-#      description: Success. A json return of matched addresses.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    404:
-#      description: Not found. The requested UPRN was not found in the index.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /addresses/census/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Boolean = true)
-
 
 ###
 #  summary: Custom EQ UPRN endpoint. Gets an address by UPRN.
@@ -562,6 +480,8 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: includeauxiliarysearch
+#      description: Include search of Auxiliary index.
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -576,47 +496,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Boolean = false)
-
-###
-#  summary: Custom Census UPRN endpoint. Search for an address by postcode.
-#  description: Returns a alpha-numeric ordered list of addresses matching the postcode query.
-#  parameters:
-#    - name: postcode
-#      description: Specifies the postcode search string (e.g. 'HA4 8RG').
-#    - name: offset
-#      description: Specifies the offset from zero, used for pagination.
-#      default: 0
-#      maximum: 5000
-#    - name: limit
-#      description: Specifies the number of addresses to return.
-#      default: 100
-#      maximum: 5000
-#    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
-#    - name: epoch
-#      description: Select a specific AddressBase Epoch to search.
-#  responses:
-#    200:
-#      description: Success. A json return of matched addresses.
-#      schema:
-#        $ref: "#/definitions/uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer"
-#    400:
-#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
-#    401:
-#      description: Unauthorised. The API key provided with the request is invalid.
-#    429:
-#      description: Server too busy. The Address Index API is experiencing exceptional load.
-#    500:
-#      description: Internal server error. Failed to process the request due to an internal error.
-###
-GET     /addresses/census/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Boolean = true)
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
 
 ###
 #  summary: Search for an address by postcode. RH version
