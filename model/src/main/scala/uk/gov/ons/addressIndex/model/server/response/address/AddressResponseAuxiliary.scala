@@ -4,7 +4,7 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{AuxiliaryAddress, AuxiliaryAddressLocation}
 
 /**
- * Auxiliary data on the address
+ * Auxiliary data on the address location
  *
  * @param lat             lat
  * @param lon             lon
