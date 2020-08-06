@@ -4,6 +4,26 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.index.{AuxiliaryAddress, AuxiliaryAddressLocation}
 
 /**
+ * Auxiliary data on the address location
+ *
+ * @param lat             lat
+ * @param lon             lon
+ *
+ */
+case class AddressResponseAuxiliaryAddressLocation(lat: String, lon: String)
+
+object AddressResponseAuxiliaryAddressLocation {
+
+  implicit lazy val addressResponseAuxiliaryAddressLocationFormat: Format[AddressResponseAuxiliaryAddressLocation] = Json.format[AddressResponseAuxiliaryAddressLocation]
+
+  def fromAuxiliaryAddressLocation(other: AuxiliaryAddressLocation): AddressResponseAuxiliaryAddressLocation =
+    AddressResponseAuxiliaryAddressLocation(
+      other.lat,
+      other.lon
+    )
+}
+
+/**
   * Auxiliary data on the address
   *
   * @param uprn                         uprn
@@ -40,7 +60,7 @@ case class AddressResponseAuxiliary(
                                      streetName: String,
                                      locality: String,
                                      townName: String,
-                                     location: AuxiliaryAddressLocation,
+                                     location: AddressResponseAuxiliaryAddressLocation,
                                      addressLevel: String,
                                      addressAll: String,
                                      addressLine1: String,
@@ -67,7 +87,7 @@ object AddressResponseAuxiliary {
       other.streetName,
       other.locality,
       other.townName,
-      other.location,
+      AddressResponseAuxiliaryAddressLocation.fromAuxiliaryAddressLocation(other.location),
       other.addressLevel,
       other.addressAll,
       other.addressLine1,

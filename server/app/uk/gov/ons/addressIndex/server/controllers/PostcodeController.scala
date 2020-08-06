@@ -41,7 +41,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     historical: Option[String] = None,
                     verbose: Option[String] = None,
                     epoch: Option[String] = None,
-                    includeauxiliarysearch: Boolean = false
+                    includeauxiliarysearch: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -59,6 +59,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
@@ -74,7 +75,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterId,
-        includeAuxiliary = includeauxiliarysearch
+        includeAuxiliary = auxiliary
       )
     }
 
@@ -89,7 +90,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(includeauxiliarysearch)
+      includeAuxiliarySearch = Some(auxiliary)
     )
 
     val result: Option[Future[Result]] =
@@ -116,7 +117,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          includeAuxiliarySearch = includeauxiliarysearch
+          includeAuxiliarySearch = auxiliary
         )
 
         val request: Future[HybridAddressCollection] =
@@ -148,7 +149,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  includeAuxiliarySearch = includeauxiliarysearch
+                  includeAuxiliarySearch = auxiliary
                 ),
                 status = OkAddressResponseStatus
               )

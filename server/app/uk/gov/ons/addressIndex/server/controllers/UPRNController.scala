@@ -38,7 +38,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None,
-                includeauxiliarysearch: Boolean = false
+                includeauxiliarysearch: Option[String] = None
                ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
@@ -47,6 +47,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
@@ -64,7 +65,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid,
-        includeAuxiliary = includeauxiliarysearch
+        includeAuxiliary = auxiliary
       )
     }
 
@@ -73,7 +74,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(includeauxiliarysearch)
+      includeAuxiliarySearch = Some(auxiliary)
     )
 
     val result: Option[Future[Result]] =
@@ -94,7 +95,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           uprn = uprn,
           historical = hist,
           epoch = epochVal,
-          includeAuxiliarySearch = includeauxiliarysearch
+          includeAuxiliarySearch = auxiliary
         )
 
         val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
@@ -120,7 +121,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
-                  includeAuxiliarySearch = includeauxiliarysearch
+                  includeAuxiliarySearch = auxiliary
                 ),
                 status = OkAddressResponseStatus
               )

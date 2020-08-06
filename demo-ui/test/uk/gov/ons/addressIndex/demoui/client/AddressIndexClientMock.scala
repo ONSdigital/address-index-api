@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.WSClient
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock._
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
-import uk.gov.ons.addressIndex.model.db.index.{AuxiliaryAddress, AuxiliaryAddressLocation, CrossRef, Relative}
+import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
@@ -226,7 +226,7 @@ object AddressIndexClientMock {
     streetName = "11",
     locality = "12",
     townName = "13",
-    location = AuxiliaryAddressLocation("14", "15"),
+    location = AddressResponseAuxiliaryAddressLocation("14", "15"),
     addressLevel = "16",
     addressAll = "mixedAuxiliary",
     addressLine1 = "17",
