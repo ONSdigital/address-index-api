@@ -100,6 +100,13 @@
 						"required": false,
 						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
 						"default": "all"
+					},
+					{
+						"in": "query",
+						"name": "includeauxiliarysearch",
+						"type": "string",
+						"required": false,
+						"description": "Include search of Auxiliary index."
 					}
 				],
 				"responses": {
@@ -312,6 +319,13 @@
 						"type": "string",
 						"required": false,
 						"description": "Select a specific AddressBase Epoch to search."
+					},
+					{
+						"in": "query",
+						"name": "includeauxiliarysearch",
+						"type": "string",
+						"required": false,
+						"description": "Include search of Auxiliary index."
 					}
 				],
 				"responses": {
@@ -1011,6 +1025,13 @@
 						"type": "string",
 						"required": false,
 						"description": "Select a specific AddressBase Epoch to search."
+					},
+					{
+						"in": "query",
+						"name": "includeauxiliarysearch",
+						"type": "string",
+						"required": false,
+						"description": "Include search of Auxiliary index."
 					}
 				],
 				"responses": {
@@ -1824,12 +1845,16 @@
 				},
 				"verbose": {
 					"type": "boolean"
+				},
+				"includeAuxiliarySearch": {
+					"type": "boolean"
 				}
 			},
 			"required": [
 				"historical",
 				"epoch",
-				"verbose"
+				"verbose",
+				"includeAuxiliarySearch"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer": {
@@ -2213,6 +2238,9 @@
 				},
 				"fromsource": {
 					"type": "string"
+				},
+				"includeAuxiliarySearch": {
+					"type": "boolean"
 				}
 			},
 			"required": [
@@ -2231,7 +2259,8 @@
 				"maxScore",
 				"matchthreshold",
 				"verbose",
-				"fromsource"
+				"fromsource",
+				"includeAuxiliarySearch"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer": {
@@ -2426,6 +2455,9 @@
 				"firstUprn": {
 					"type": "integer",
 					"format": "int64"
+				},
+				"postTown": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -2433,7 +2465,8 @@
 				"streetName",
 				"townName",
 				"addressCount",
-				"firstUprn"
+				"firstUprn",
+				"postTown"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressByGroupedPostcodeResponse": {
@@ -2650,6 +2683,24 @@
 				"errors"
 			]
 		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCensus": {
+			"properties": {
+				"addressType": {
+					"type": "string"
+				},
+				"estabType": {
+					"type": "string"
+				},
+				"countryCode": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"addressType",
+				"estabType",
+				"countryCode"
+			]
+		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseGeo": {
 			"properties": {
 				"latitude": {
@@ -2674,6 +2725,102 @@
 				"longitude",
 				"easting",
 				"northing"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAuxiliaryAddressLocation": {
+			"properties": {
+				"lat": {
+					"type": "string"
+				},
+				"lon": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"lat",
+				"lon"
+			]
+		},
+		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAuxiliary": {
+			"properties": {
+				"uprn": {
+					"type": "string"
+				},
+				"organisationName": {
+					"type": "string"
+				},
+				"subBuildingName": {
+					"type": "string"
+				},
+				"buildingName": {
+					"type": "string"
+				},
+				"buildingNumber": {
+					"type": "string"
+				},
+				"paoStartNumber": {
+					"type": "string"
+				},
+				"paoStartSuffix": {
+					"type": "string"
+				},
+				"paoEndNumber": {
+					"type": "string"
+				},
+				"saoStartSuffix": {
+					"type": "string"
+				},
+				"saoEndSuffix": {
+					"type": "string"
+				},
+				"streetName": {
+					"type": "string"
+				},
+				"locality": {
+					"type": "string"
+				},
+				"townName": {
+					"type": "string"
+				},
+				"location": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAuxiliaryAddressLocation"
+				},
+				"addressLevel": {
+					"type": "string"
+				},
+				"addressAll": {
+					"type": "string"
+				},
+				"addressLine1": {
+					"type": "string"
+				},
+				"addressLine2": {
+					"type": "string"
+				},
+				"addressLine3": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"uprn",
+				"organisationName",
+				"subBuildingName",
+				"buildingName",
+				"buildingNumber",
+				"paoStartNumber",
+				"paoStartSuffix",
+				"paoEndNumber",
+				"saoStartSuffix",
+				"saoEndSuffix",
+				"streetName",
+				"locality",
+				"townName",
+				"location",
+				"addressLevel",
+				"addressAll",
+				"addressLine1",
+				"addressLine2",
+				"addressLine3"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNisra": {
@@ -3128,6 +3275,9 @@
 				"welshFormattedAddressPaf": {
 					"type": "string"
 				},
+				"formattedAddressAuxiliary": {
+					"type": "string"
+				},
 				"highlights": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseHighlight"
 				},
@@ -3143,20 +3293,17 @@
 				"nisra": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNisra"
 				},
+				"auxiliary": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAuxiliary"
+				},
 				"geo": {
 					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseGeo"
 				},
 				"classificationCode": {
 					"type": "string"
 				},
-				"censusAddressType": {
-					"type": "string"
-				},
-				"censusEstabType": {
-					"type": "string"
-				},
-				"countryCode": {
-					"type": "string"
+				"census": {
+					"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCensus"
 				},
 				"lpiLogicalStatus": {
 					"type": "string"
@@ -3179,10 +3326,9 @@
 				"formattedAddressNisra",
 				"welshFormattedAddressNag",
 				"welshFormattedAddressPaf",
+				"formattedAddressAuxiliary",
 				"classificationCode",
-				"censusAddressType",
-				"censusEstabType",
-				"countryCode",
+				"census",
 				"lpiLogicalStatus",
 				"confidenceScore",
 				"underlyingScore"
@@ -3226,6 +3372,9 @@
 				},
 				"verbose": {
 					"type": "boolean"
+				},
+				"includeAuxiliarySearch": {
+					"type": "boolean"
 				}
 			},
 			"required": [
@@ -3238,7 +3387,8 @@
 				"offset",
 				"total",
 				"maxScore",
-				"verbose"
+				"verbose",
+				"includeAuxiliarySearch"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer": {

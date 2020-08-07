@@ -16,7 +16,7 @@
 
 <p>Each end point and its basic purpose are available from the <a href="explore-the-api/readme.md">Explore the API readme</a>.</p>
  
-<p>A <a href="ai-swagger.json">full swagger definition</a> is also provided.</p>
+<p>A <a href="ai-swagger.json">swagger 2.0 definition</a> and an <a href="ai-openapi.json">openAPI 3.0.0 definition</a> are also provided.</p>
 
 <h2>Address Index Simple Tester</h2>
 

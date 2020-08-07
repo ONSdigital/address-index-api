@@ -121,6 +121,15 @@
                 <br>Default: all
             </td>
         </tr>
+        <tr class="table--row">
+            <td class="table--cell">includeauxiliarysearch</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Search in the auxiliary index, if available</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: false
+            </td>
+        </tr>
      </tbody>
   </table>
     
