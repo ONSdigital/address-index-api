@@ -15,7 +15,7 @@ import scala.util.{Failure, Success, Try}
 @Singleton
 class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with RandomControllerResponse {
-  val randomFilterRegex: Regex = raw"""\b(residential|commercial|workplace|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
+  val randomFilterRegex: Regex = raw"""\b(residential|commercial|workplace|educational|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
 
  //  override error message with named valid epochs
   object EpochNotAvailableErrorCustom extends AddressResponseError(

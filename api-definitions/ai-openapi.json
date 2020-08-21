@@ -47,7 +47,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
           },
           {
             "in": "query",
@@ -461,7 +461,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
           },
           {
             "in": "query",

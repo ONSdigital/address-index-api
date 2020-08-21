@@ -14,7 +14,7 @@ import scala.util.{Failure, Success, Try}
 class AddressControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with AddressControllerResponse {
   val matchThreshold: Float = conf.config.elasticSearch.matchThreshold
-  private val addressFilterRegex = raw"""\b(residential|commercial|workplace|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
+  private val addressFilterRegex = raw"""\b(residential|commercial|workplace|educational|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(

@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
 import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
-import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters.{CommercialClassificationFilter, ResidentialClassificationFilter, WorkplaceClassificationFilter}
+import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters._
 
 import scala.util.Try
 
@@ -38,11 +38,12 @@ trait Filterable {
   private val presetClassificationFilters = Map(
     "residential" -> ResidentialClassificationFilter,
     "commercial" -> CommercialClassificationFilter,
-    "workplace" -> WorkplaceClassificationFilter
+    "workplace" -> WorkplaceClassificationFilter,
+    "educational"  -> EducationalClassificationFilter
   )
 
   def filtersType: String = filters match {
-    case "residential" | "commercial" | "workplace" => "preset"
+    case "residential" | "commercial" | "workplace" | "educational" => "preset"
     case f if f.endsWith("*") => "prefix"
     case _ => "term"
   }
