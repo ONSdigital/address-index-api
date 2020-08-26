@@ -117,9 +117,11 @@
           "northing": 93540
         },
         "classificationCode": "RD06",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 100,
         "underlyingScore": 0.999169111251831

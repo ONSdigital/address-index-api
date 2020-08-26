@@ -107,9 +107,11 @@
         "northing": 92689
       },
       "classificationCode": "CR07",
-      "censusAddressType": "NA",
-      "censusEstabType": "NA",
-      "countryCode": "E",
+      "census": {
+        "addressType": "HH",
+        "estabType": "Household",
+        "countryCode": "E"
+      },
       "lpiLogicalStatus": "1",
       "confidenceScore": 100,
       "underlyingScore": 1

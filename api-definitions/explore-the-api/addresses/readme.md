@@ -195,9 +195,11 @@
           "northing": 90677
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 98.0764,
         "underlyingScore": 27.280841827392578
@@ -348,9 +350,11 @@
             "northing": 90677
           },
           "classificationCode": "RD",
-          "censusAddressType": "HH",
-          "censusEstabType": "Household",
-          "countryCode": "E",
+          "census": {
+            "addressType": "HH",
+            "estabType": "Household",
+            "countryCode": "E"
+          },
           "lpiLogicalStatus": "1",
           "confidenceScore": 98.0764,
           "underlyingScore": 27.280841827392578

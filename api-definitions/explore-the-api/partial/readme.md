@@ -200,9 +200,11 @@
           "northing": 92461
         },
         "classificationCode": "CO01",
-        "censusAddressType": "NA",
-        "censusEstabType": "NA",
-        "countryCode": "E",
+        "census": {
+          "addressType": "NA",
+          "estabType": "NA",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 25,
         "underlyingScore": 5
@@ -312,9 +314,11 @@
           "northing": 92710
         },
         "classificationCode": "CX01PT",
-        "censusAddressType": "NA",
-        "censusEstabType": "NA",
-        "countryCode": "E",
+        "census": {
+          "addressType": "NA",
+          "estabType": "NA",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -340,9 +344,11 @@
           "northing": 93261
         },
         "classificationCode": "CR08",
-        "censusAddressType": "NA",
-        "censusEstabType": "NA",
-        "countryCode": "E",
+        "census": {
+          "addressType": "NA",
+          "estabType": "NA",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -368,9 +374,11 @@
           "northing": 90923
         },
         "classificationCode": "CX01PT",
-        "censusAddressType": "NA",
-        "censusEstabType": "NA",
-        "countryCode": "E",
+        "census": {
+          "addressType": "NA",
+          "estabType": "NA",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -396,9 +404,11 @@
           "northing": 90686
         },
         "classificationCode": "C",
-        "censusAddressType": "NA",
-        "censusEstabType": "NA",
-        "countryCode": "E",
+        "census": {
+          "addressType": "NA",
+          "estabType": "NA",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -424,9 +434,11 @@
           "northing": 90626
         },
         "classificationCode": "CE02",
-        "censusAddressType": "NA",
-        "censusEstabType": "NA",
-        "countryCode": "E",
+        "census": {
+          "addressType": "NA",
+          "estabType": "NA",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -452,9 +464,11 @@
           "northing": 92191
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -480,9 +494,11 @@
           "northing": 92163
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -536,9 +552,11 @@
           "northing": 92164
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -564,9 +582,11 @@
           "northing": 92194
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -592,9 +612,11 @@
           "northing": 92165
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -620,9 +642,11 @@
           "northing": 92191
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -648,9 +672,11 @@
           "northing": 92167
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -676,9 +702,11 @@
           "northing": 92191
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -704,9 +732,11 @@
           "northing": 92167
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
@@ -732,9 +762,11 @@
           "northing": 92192
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 15,
         "underlyingScore": 3
