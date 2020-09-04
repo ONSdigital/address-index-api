@@ -121,7 +121,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
-                  includeAuxiliarySearch = auxiliary
+                  includeauxiliarysearch = auxiliary
                 ),
                 status = OkAddressResponseStatus
               )

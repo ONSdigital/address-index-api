@@ -22,7 +22,7 @@ case class AddressByPostcodeResponse(postcode: String,
                                      total: Long,
                                      maxScore: Double,
                                      verbose: Boolean,
-                                     includeAuxiliarySearch: Boolean = false)
+                                     includeauxiliarysearch: Boolean = false)
 
 object AddressByPostcodeResponse {
   implicit lazy val addressByPostcodeResponseFormat: Format[AddressByPostcodeResponse] = Json.format[AddressByPostcodeResponse]

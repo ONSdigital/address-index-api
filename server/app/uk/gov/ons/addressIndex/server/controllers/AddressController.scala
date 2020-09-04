@@ -232,7 +232,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   matchthreshold = thresholdFloat,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  includeAuxiliarySearch = auxiliary
+                  includeauxiliarysearch = auxiliary
                 ),
                 status = OkAddressResponseStatus
               )

@@ -92,7 +92,7 @@ trait Response {
       matchthreshold = 5f,
       verbose = queryValues.verboseOrDefault,
       fromsource = queryValues.fromSourceOrDefault,
-      includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
     )
   }
 

@@ -149,7 +149,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  includeAuxiliarySearch = auxiliary
+                  includeauxiliarysearch = auxiliary
                 ),
                 status = OkAddressResponseStatus
               )
