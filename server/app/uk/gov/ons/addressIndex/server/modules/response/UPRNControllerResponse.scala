@@ -20,7 +20,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(UprnNotNumericAddressResponseError)
@@ -33,7 +33,7 @@ trait UPRNControllerResponse extends Response {
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       verbose = queryValues.verboseOrDefault,
-      includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
     )
   }
 
@@ -56,7 +56,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
       ),
       status = OkAddressResponseStatus
     )
@@ -71,7 +71,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -87,7 +87,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(FormatNotSupportedAddressResponseError)
@@ -103,7 +103,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeAuxiliarySearch = queryValues.includeAuxiliarySearchOrDefault
+        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
       ),
       status = BadRequestAddressResponseStatus,
       errors = Seq(EpochNotAvailableError)

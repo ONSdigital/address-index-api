@@ -12,7 +12,7 @@ case class AddressByUprnResponse(address: Option[AddressResponseAddress],
                                  historical: Boolean,
                                  epoch: String,
                                  verbose: Boolean,
-                                 includeAuxiliarySearch: Boolean = false)
+                                 includeauxiliarysearch: Boolean = false)
 
 object AddressByUprnResponse {
   implicit lazy val addressByUprnResponseFormat: Format[AddressByUprnResponse] = Json.format[AddressByUprnResponse]

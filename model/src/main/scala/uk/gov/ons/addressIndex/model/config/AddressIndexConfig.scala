@@ -203,8 +203,10 @@ case class FallbackConfig(fallbackQueryBoost: Double,
                           fallbackMinimumShouldMatch: String,
                           fallbackPafBoost: Double,
                           fallbackLpiBoost: Double,
+                          fallbackAuxBoost: Double,
                           fallbackPafBigramBoost: Double,
                           fallbackLpiBigramBoost: Double,
+                          fallbackAuxBigramBoost: Double,
                           bigramFuzziness: String)
 
 object FallbackConfig {

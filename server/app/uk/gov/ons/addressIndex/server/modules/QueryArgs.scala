@@ -145,6 +145,9 @@ sealed abstract class QueryArgs {
 
   def includeFullAddressOpt: Option[Boolean] = None
 
+  //def includeAuxiliarySearch: Boolean
+
+  def includeAuxiliarySearchOpt: Option[Boolean] = None
   // used when assembling error reports
 
   def inputOrDefault: String = this.inputOpt.getOrElse("")
@@ -176,6 +179,8 @@ sealed abstract class QueryArgs {
   def longitudeOrDefault: String = this.regionOpt.map(_.lon.toString).getOrElse("")
 
   def matchThresholdOrDefault: Float = this.matchThresholdOpt.getOrElse(0f)
+
+  def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearchOpt.getOrElse(false)
 }
 
 /**
@@ -189,6 +194,8 @@ final case class UPRNArgs(uprn: String,
                           includeAuxiliarySearch: Boolean = false
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable with Verboseable {
@@ -255,6 +262,8 @@ final case class PostcodeArgs(postcode: String,
   override def startOpt: Option[Int] = Some(start)
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 /**
@@ -283,7 +292,7 @@ final case class GroupedPostcodeArgs(postcode: String,
 /**
   * Search by bucket
   *
-  * @param bucketPattern bucket string with possible wilcards
+  * @param bucketpattern bucket string with possible wilcards
   */
 final case class BucketArgs(bucketpattern: String,
                               epoch: String = "",
@@ -351,6 +360,8 @@ final case class AddressArgs(input: String,
   override def filterDateRangeOpt: Option[DateRange] = Some(filterDateRange)
 
   override def queryParamsConfigOpt: Option[QueryParamsConfig] = queryParamsConfig
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 /**
