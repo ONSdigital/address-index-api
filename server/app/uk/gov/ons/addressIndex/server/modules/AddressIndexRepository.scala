@@ -943,7 +943,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         matchQuery("tokens.addressAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer("welsh_split_synonyms_analyzer")
-          .boost(queryParams.fallback.fallbackLpiBoost),
+          .boost(queryParams.fallback.fallbackAuxBoost),
         matchQuery("lpi.nagAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer("welsh_split_synonyms_analyzer")
@@ -958,6 +958,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           .boost(queryParams.fallback.fallbackPafBoost))
         .tieBreaker(0.0)),
       Seq(dismax(
+        matchQuery("tokens.addressAll.bigram", normalizedInput)
+          .fuzziness(queryParams.fallback.bigramFuzziness)
+          .boost(queryParams.fallback.fallbackAuxBigramBoost),
         matchQuery("lpi.nagAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackLpiBigramBoost),
