@@ -104,29 +104,50 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
 
     val slopVal = 12
-    val niFactor = args.fromsource match {
-      case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
-      case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
-      case _ => "^" + esConf.queryParams.nisra.partialAllBoost
-    }
+
+    val eboost = 1.0
+    val nboost = 1.0
+    val sboost = 1.0
+    val wboost = 1.0
+
+    //val aboost = 8.5
+
+//    val niFactor = args.fromsource match {
+//      case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
+//      case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
+//      case _ => "^" + esConf.queryParams.nisra.partialAllBoost
+//    }
+
+//    val eFactor = "^" + eboost
+//    val nFactor = "^" + nboost
+//    val sFactor = "^" + sboost
+//    val wFactor = "^" + wboost
+
+    val niFactor = "^" + esConf.queryParams.nisra.partialAllBoost
 
     val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
-    val fromSourceQueryMust = args.fromsource match {
-      case "ewonly" => Seq(termsQuery("fromSource","EW"))
-      case "nionly" => Seq(termsQuery("fromSource","NI"))
-      case _ => Seq.empty
-    }
+//    val fromSourceQueryMust = args.fromsource match {
+//      case "ewonly" => Seq(termsQuery("fromSource","EW"))
+//      case "nionly" => Seq(termsQuery("fromSource","NI"))
+//      case _ => Seq.empty
+//    }
 
-    // test with and without this - probably better not to have it was we have boost numbers
-    val fromSourceQueryShould = args.fromsource match {
-    //  case "niboost" => Seq(termsQuery("fromSource","NI"))
-     // case "ewboost" => Seq(termsQuery("fromSource","EW"))
-      case _ => Seq.empty
-    }
+    val fromSourceQueryShould = Seq(
+       termsQuery("countryCode","E").boost(eboost),
+       termsQuery("countryCode","N").boost(nboost),
+       termsQuery("countryCode","S").boost(sboost),
+       termsQuery("countryCode","W").boost(wboost))
+
+//    // test with and without this - probably better not to have it was we have boost numbers
+//    val fromSourceQueryShould = args.fromsource match {
+//    //  case "niboost" => Seq(termsQuery("fromSource","NI"))
+//     // case "ewboost" => Seq(termsQuery("fromSource","EW"))
+//      case _ => Seq.empty
+//    }
 
     // if there is only one number, give boost for pao or sao not both.
     // if there are two or more numbers, boost for either matching pao and first matching sao
@@ -161,7 +182,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
-    val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
+  //  val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
+    val query = must(queryWithMatchType).filter(args.queryFilter).should(numberQuery ++ fromSourceQueryShould)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPartial else hybridIndexHistoricalSkinnyPartial
@@ -1103,8 +1125,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
-//    val searchString = SearchBodyBuilderFn(query).string()
-//    println(searchString)
+    val searchString = SearchBodyBuilderFn(query).string()
+    println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
