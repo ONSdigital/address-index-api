@@ -225,7 +225,11 @@ final case class PartialArgs(input: String,
                              fromsource: String,
                              highlight: String = "on",
                              favourpaf: Boolean = true,
-                             favourwelsh: Boolean = true
+                             favourwelsh: Boolean = true,
+                             eboost: Double,
+                             nboost: Double,
+                             sboost: Double,
+                             wboost: Double
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 

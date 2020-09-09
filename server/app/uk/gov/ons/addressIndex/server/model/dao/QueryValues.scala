@@ -23,7 +23,11 @@ case class QueryValues(input: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
                        addressType: Option[String] = None,
-                       includeAuxiliarySearch: Option[Boolean] = None
+                       includeAuxiliarySearch: Option[Boolean] = None,
+                       eboost: Option[Double] = None,
+                       nboost: Option[Double] = None,
+                       sboost: Option[Double] = None,
+                       wboost: Option[Double] = None
                       )
 {
   def inputOrDefault: String = this.input.getOrElse("")
@@ -63,6 +67,14 @@ case class QueryValues(input: Option[String] = None,
   def matchThresholdOrDefault: Float = this.matchThreshold.getOrElse(0f)
 
   def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
+
+  def eboostOrDefault: Double = this.eboost.getOrElse(1.0D)
+
+  def nboostOrDefault: Double = this.nboost.getOrElse(1.0D)
+
+  def sboostOrDefault: Double = this.sboost.getOrElse(1.0D)
+
+  def wboostOrDefault: Double = this.wboost.getOrElse(1.0D)
 
   def highlightOrDefault: String = this.highlight.getOrElse("on")
 

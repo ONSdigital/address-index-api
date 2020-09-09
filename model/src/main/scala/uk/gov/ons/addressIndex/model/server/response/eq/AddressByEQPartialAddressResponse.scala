@@ -36,7 +36,11 @@ case class AddressByEQPartialAddressResponse(input: String,
                                              fromsource: String,
                                              highlight: String,
                                              favourpaf: Boolean,
-                                             favourwelsh: Boolean)
+                                             favourwelsh: Boolean,
+                                             eboost: Double,
+                                             nboost: Double,
+                                             sboost: Double,
+                                             wboost: Double)
 
 
 object AddressByEQPartialAddressResponse {
