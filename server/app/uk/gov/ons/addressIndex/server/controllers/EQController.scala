@@ -27,7 +27,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               fromsource: Option[String] = None,
               highlight: Option[String] = None,
               favourpaf: Option[String] = None,
-              favourwelsh: Option[String] = None
+              favourwelsh: Option[String] = None,
+              eboost: Option[String] = None,
+              nboost: Option[String] = None,
+              sboost: Option[String] = None,
+              wboost: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
   // we want to test the string with spaces as supplied by the user first
@@ -120,7 +124,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         fromsource = fromsource,
         highlight = highlight,
         favourpaf = favourpaf,
-        favourwelsh = favourwelsh) (req)
+        favourwelsh = favourwelsh,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost) (req)
     }
   }
 

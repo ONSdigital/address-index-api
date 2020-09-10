@@ -213,7 +213,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
 #    - name: fromsource
-#      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
+#      description: (Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
 #    - name: highlight
 #      description: include detailed highlighting info, options are off, on or debug
@@ -224,6 +224,18 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: favourwelsh
 #      description: Welsh beats English on draw for best match
 #      default: false
+#    - name: eboost
+#      description: Weighting for addresses in England as a decimal from 0 to 1
+#      default: 1.0
+#    - name: nboost
+#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 1
+#      default: 1.0
+#    - name: sboost
+#      description: Weighting for addresses in Scotland as a decimal from 0 to 1
+#      default: 1.0
+#    - name: wboost
+#      description: Weighting for addresses in Wales as a decimal from 0 to 1
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -238,7 +250,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead). RH version
@@ -267,7 +279,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
 #    - name: fromsource
-#      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
+#      description: (Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
 #    - name: highlight
 #      description: include detailed highlighting info, options are off, on or debug
@@ -278,6 +290,18 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    - name: favourwelsh
 #      description: Welsh beats English on draw for best match
 #      default: false
+#    - name: eboost
+#      description: Weighting for addresses in England as a decimal from 0 to 1
+#      default: 1.0
+#    - name: nboost
+#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 1
+#      default: 1.0
+#    - name: sboost
+#      description: Weighting for addresses in Scotland as a decimal from 0 to 1
+#      default: 1.0
+#    - name: wboost
+#      description: Weighting for addresses in Wales as a decimal from 0 to 1
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -292,7 +316,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
+GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Custom EQ UPRN endpoint. Gets an address by UPRN.
@@ -389,7 +413,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
 #    - name: fromsource
-#      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
+#      description: (Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
 #      default: all
 #    - name: highlight
 #      description: include detailed highlighting info, options are off, on or debug
@@ -400,6 +424,18 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    - name: favourwelsh
 #      description: Welsh beats English on draw for best match
 #      default: false
+#    - name: eboost
+#      description: Weighting for addresses in England as a decimal from 0 to 1
+#      default: 1.0
+#    - name: nboost
+#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 1
+#      default: 1.0
+#    - name: sboost
+#      description: Weighting for addresses in Scotland as a decimal from 0 to 1
+#      default: 1.0
+#    - name: wboost
+#      description: Weighting for addresses in Wales as a decimal from 0 to 1
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -414,7 +450,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String])
+GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for an address by a partial postcode, with grouped results.
