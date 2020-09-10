@@ -103,22 +103,19 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-    val slopVal = 12
+  //  val slopVal = 12
+    val slopVal = 16
 
-    val eboost = 1.0
-    val nboost = 1.0
-    val sboost = 1.0
-    val wboost = 1.0
-
-    //val aboost = 8.5
+    val eboost = args.eboost
+    val nboost = args.nboost
+    val sboost = args.sboost
+    val wboost = args.wboost
 
     val niFactor = args.fromsource match {
       case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
       case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
       case _ => "^" + esConf.queryParams.nisra.partialAllBoost
     }
-
-//    val niFactor = "^" + esConf.queryParams.nisra.partialAllBoost
 
     val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 

@@ -126,10 +126,10 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
      val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
      val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
 
-     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
-     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
-     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
-     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(99D)
+     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(99D)
+     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(99D)
+     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
 
      val deprecationError: Boolean = ((eboostDouble !=1 || nboostDouble !=1 || sboostDouble !=1 || wboostDouble !=1) && queryValues.fromsource != Some("all"))
 
@@ -137,7 +137,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
        logger.systemLog(badRequestMessage = CountryDeprecationError.message)
        Some(futureJsonBadRequest(PartialCountryDeprecation(queryValues)))
      }
-     else if (eboostDouble > 1 || nboostDouble > 1 || sboostDouble > 1 || wboostDouble > 1) {
+     else if (eboostDouble > 1 || nboostDouble > 1 || sboostDouble > 1 || wboostDouble > 1 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
        logger.systemLog(badRequestMessage = CountryBoostsInvalidError.message)
        Some(futureJsonBadRequest(PartialCountryBoostsInvalid(queryValues)))
      } else None
