@@ -138,6 +138,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
         .orElse(partialAddressValidation.validateFromSource(queryValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -196,7 +197,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  fromsource = fromsourceVal,
+                  fromsource = fromsourceVal + " (deprecated)",
                   highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh,

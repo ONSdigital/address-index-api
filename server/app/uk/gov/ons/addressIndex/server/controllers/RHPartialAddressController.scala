@@ -137,6 +137,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
         .orElse(partialAddressValidation.validateFromSource(queryValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -154,7 +155,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal,
+          fromsource = fromsourceVal + " (deprecated)",
           highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh,
