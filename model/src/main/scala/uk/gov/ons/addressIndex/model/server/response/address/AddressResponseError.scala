@@ -215,7 +215,7 @@ object InvalidEQBucketError extends AddressResponseError(
 
 object CountryBoostsInvalidError extends AddressResponseError(
   code = 41,
-  message = "Query string parameters eboost, nboost, sboost and wboost must be decimals in the range 0 to 1.0, default is 1.0"
+  message = "Query string parameters eboost, nboost, sboost and wboost must be decimals in the range 0 to 10.0, default is 1.0"
 )
 
 object CountryDeprecationError extends AddressResponseError(

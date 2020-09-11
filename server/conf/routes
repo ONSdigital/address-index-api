@@ -225,16 +225,16 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: Welsh beats English on draw for best match
 #      default: false
 #    - name: eboost
-#      description: Weighting for addresses in England as a decimal from 0 to 1
+#      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
 #    - name: nboost
-#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 1
+#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 10
 #      default: 1.0
 #    - name: sboost
-#      description: Weighting for addresses in Scotland as a decimal from 0 to 1
+#      description: Weighting for addresses in Scotland as a decimal from 0 to 10
 #      default: 1.0
 #    - name: wboost
-#      description: Weighting for addresses in Wales as a decimal from 0 to 1
+#      description: Weighting for addresses in Wales as a decimal from 0 to 10
 #      default: 1.0
 #  responses:
 #    200:
@@ -291,16 +291,16 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      description: Welsh beats English on draw for best match
 #      default: false
 #    - name: eboost
-#      description: Weighting for addresses in England as a decimal from 0 to 1
+#      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
 #    - name: nboost
-#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 1
+#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 10
 #      default: 1.0
 #    - name: sboost
-#      description: Weighting for addresses in Scotland as a decimal from 0 to 1
+#      description: Weighting for addresses in Scotland as a decimal from 0 to 10
 #      default: 1.0
 #    - name: wboost
-#      description: Weighting for addresses in Wales as a decimal from 0 to 1
+#      description: Weighting for addresses in Wales as a decimal from 0 to 10
 #      default: 1.0
 #  responses:
 #    200:
@@ -425,16 +425,16 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #      description: Welsh beats English on draw for best match
 #      default: false
 #    - name: eboost
-#      description: Weighting for addresses in England as a decimal from 0 to 1
+#      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
 #    - name: nboost
-#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 1
+#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 10
 #      default: 1.0
 #    - name: sboost
-#      description: Weighting for addresses in Scotland as a decimal from 0 to 1
+#      description: Weighting for addresses in Scotland as a decimal from 0 to 10
 #      default: 1.0
 #    - name: wboost
-#      description: Weighting for addresses in Wales as a decimal from 0 to 1
+#      description: Weighting for addresses in Wales as a decimal from 0 to 10
 #      default: 1.0
 #  responses:
 #    200:

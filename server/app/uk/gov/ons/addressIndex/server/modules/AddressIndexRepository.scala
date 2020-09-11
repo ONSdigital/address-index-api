@@ -4,6 +4,7 @@ import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, 
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
+import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
@@ -128,6 +129,18 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
+    val eTerms = termsQuery("countryCode","E")
+    val nTerms = termsQuery("countryCode","N")
+    val sTerms = termsQuery("countryCode","S")
+    val wTerms = termsQuery("countryCode","W")
+
+    // this is inelegant but we mustn't end up with a Seq(empty)
+    val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
+    val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
+    val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
+    val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
+    val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+
     val fromSourceQueryShould =
       if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
       else Seq(
@@ -169,7 +182,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
-    val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust).should(numberQuery ++ fromSourceQueryShould)
+    val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust)
+      .not(fromSourceQueryMustNot5)
+      .should(numberQuery ++ fromSourceQueryShould)
   //  val query = must(queryWithMatchType).filter(args.queryFilter).should(numberQuery ++ fromSourceQueryShould)
 
     val source = if (args.historical) {
