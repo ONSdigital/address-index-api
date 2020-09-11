@@ -135,7 +135,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
       fromsource = fromsourceVal,
-      includeAuxiliarySearch = auxiliary
+      includeAuxiliarySearch = auxiliary,
+      eboost = 1.0,
+      nboost = 1.0,
+      sboost = 1.0,
+      wboost = 1.0
     )
 
     val result: Option[Future[Result]] =

@@ -325,7 +325,11 @@ final case class RandomArgs(epoch: String = "",
                             limit: Int,
                             verbose: Boolean = true,
                             skinny: Boolean = false,
-                            fromsource: String = "all"
+                            fromsource: String = "all",
+                            eboost: Double,
+                            nboost: Double,
+                            sboost: Double,
+                            wboost: Double
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }
@@ -349,7 +353,11 @@ final case class AddressArgs(input: String,
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
                              fromsource: String = "all",
-                             includeAuxiliarySearch: Boolean = false
+                             includeAuxiliarySearch: Boolean = false,
+                             eboost: Double,
+                             nboost: Double,
+                             sboost: Double,
+                             wboost: Double
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 

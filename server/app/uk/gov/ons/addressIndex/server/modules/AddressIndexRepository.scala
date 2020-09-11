@@ -377,9 +377,35 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
+    val eboost = args.eboost
+    val nboost = args.nboost
+    val sboost = args.sboost
+    val wboost = args.wboost
+
+    val eTerms = termsQuery("countryCode","E")
+    val nTerms = termsQuery("countryCode","N")
+    val sTerms = termsQuery("countryCode","S")
+    val wTerms = termsQuery("countryCode","W")
+
+    // this is inelegant but we mustn't end up with a Seq(empty)
+    val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
+    val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
+    val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
+    val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
+    val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+
+//    val fromSourceQueryShould =
+//      if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
+//      else Seq(
+//        termsQuery("countryCode","E").boost(eboost),
+//        termsQuery("countryCode","N").boost(nboost),
+//        termsQuery("countryCode","S").boost(sboost),
+//        termsQuery("countryCode","W").boost(wboost))
+
+
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(args.queryFilter ++ fromSourceQuery))
+      .query(boolQuery().filter(args.queryFilter ++ fromSourceQuery).not(fromSourceQueryMustNot5))
       .boostMode("replace")
 
     val source = if (args.historical) {
@@ -1183,6 +1209,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         isBulk = true,
         epoch = args.epoch,
         fromsource = "all",
+        eboost = 1.0,
+        nboost = 1.0,
+        sboost = 1.0,
+        wboost = 1.0
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>

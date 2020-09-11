@@ -228,7 +228,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
 #    - name: nboost
-#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 10
+#      description: Weighting for addresses in Northern Ireland as a decimal from 0 to 10
 #      default: 1.0
 #    - name: sboost
 #      description: Weighting for addresses in Scotland as a decimal from 0 to 10
@@ -294,7 +294,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
 #    - name: nboost
-#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 10
+#      description: Weighting for addresses in Northern Ireland as a decimal from 0 to 10
 #      default: 1.0
 #    - name: sboost
 #      description: Weighting for addresses in Scotland as a decimal from 0 to 10
@@ -428,7 +428,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
 #    - name: nboost
-#      description: Weighting for addresses in Northern Irelan as a decimal from 0 to 10
+#      description: Weighting for addresses in Northern Ireland as a decimal from 0 to 10
 #      default: 1.0
 #    - name: sboost
 #      description: Weighting for addresses in Scotland as a decimal from 0 to 10
@@ -645,6 +645,18 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #    - name: fromsource
 #      description: Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)
 #      default: all
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -659,7 +671,7 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String])
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Get version information.

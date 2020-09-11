@@ -74,7 +74,11 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
       filterDateRange = DateRange(startDateVal, endDateVal),
       limit = 0,
       queryParamsConfig = None,
-      fromsource = fromsourceVal
+      fromsource = fromsourceVal,
+      eboost = 1.0,
+      nboost = 1.0,
+      sboost = 1.0,
+      wboost = 1.0
     )
 
     val query = esRepo.makeQuery(args)
