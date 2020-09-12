@@ -17,7 +17,11 @@ trait RandomControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        fromsource = queryValues.fromSourceOrDefault
+        fromsource = queryValues.fromSourceOrDefault,
+        eboost = queryValues.eboostOrDefault,
+        nboost = queryValues.nboostOrDefault,
+        sboost = queryValues.sboostOrDefault,
+        wboost = queryValues.wboostOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -62,7 +66,11 @@ trait RandomControllerResponse extends Response {
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       verbose = queryValues.verboseOrDefault,
-      fromsource = queryValues.fromSourceOrDefault
+      fromsource = queryValues.fromSourceOrDefault,
+      eboost = queryValues.eboostOrDefault,
+      nboost = queryValues.nboostOrDefault,
+      sboost = queryValues.sboostOrDefault,
+      wboost = queryValues.wboostOrDefault
     )
   }
 
@@ -94,6 +102,14 @@ trait RandomControllerResponse extends Response {
 
   def RandomFromSourceInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
     BadRequestRandomTemplate(queryValues, FromSourceInvalidError)
+  }
+
+  def RandomCountryBoostsInvalid(queryValues: QueryValues): AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(queryValues, CountryBoostsInvalidError)
+  }
+
+  def RandomCountryDeprecation(queryValues: QueryValues): AddressByRandomResponseContainer = {
+    BadRequestRandomTemplate(queryValues, CountryDeprecationError)
   }
 
 }

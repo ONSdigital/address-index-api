@@ -105,7 +105,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
 
   //  val slopVal = 12
-    val slopVal = 16
+    val slopVal = 25
 
     val eboost = args.eboost
     val nboost = args.nboost
@@ -134,7 +134,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
 
-    // this is inelegant but we mustn't end up with a Seq(empty)
+    // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
     val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
@@ -387,7 +387,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
 
-    // this is inelegant but we mustn't end up with a Seq(empty)
+    // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
     val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
@@ -988,6 +988,24 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case _ => Seq.empty
     }
 
+    val eboost = args.eboost
+    val nboost = args.nboost
+    val sboost = args.sboost
+    val wboost = args.wboost
+
+    val eTerms = termsQuery("countryCode","E")
+    val nTerms = termsQuery("countryCode","N")
+    val sTerms = termsQuery("countryCode","S")
+    val wTerms = termsQuery("countryCode","W")
+
+    // this is inelegant but we mustn't end up with a Seq(Any)
+    val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
+    val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
+    val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
+    val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
+    val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+
+
     val fallbackQueryStart: BoolQuery = bool(
       Seq(dismax(
         matchQuery("tokens.addressAll", normalizedInput)
@@ -1025,10 +1043,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val fallbackQueryFilter = args.queryFilter ++ radiusQuery ++ fromSourceQuery2
 
-    val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter)
+    val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter).not(fromSourceQueryMustNot5)
 
     val blankQuery : BoolQuery = bool(
-    Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter)
+    Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter).not(fromSourceQueryMustNot5)
 
     val bestOfTheLotQueries = Seq(
 
@@ -1079,6 +1097,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
            should(shouldQuery.asInstanceOf[Iterable[Query]])
              .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
              .filter(args.queryFilter ++ radiusQuery ++ fromSourceQuery1)
+             .not(fromSourceQueryMustNot5)
            , fallbackQuery)
            .tieBreaker(queryParams.topDisMaxTieBreaker)
        }

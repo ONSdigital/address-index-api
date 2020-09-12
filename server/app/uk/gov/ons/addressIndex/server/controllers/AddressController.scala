@@ -52,7 +52,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
                    fromsource: Option[String] = None,
-                   includeauxiliarysearch: Option[String] = None
+                   includeauxiliarysearch: Option[String] = None,
+                   eboost: Option[String] = None,
+                   nboost: Option[String] = None,
+                   sboost: Option[String] = None,
+                   wboost: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -84,6 +88,16 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val authVal = req.headers.get("authorization").getOrElse("Anon")
@@ -120,7 +134,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
       fromsource = Some(fromsourceVal),
-      includeAuxiliarySearch = Some(auxiliary)
+      includeAuxiliarySearch = Some(auxiliary),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val args = AddressArgs(
@@ -136,10 +154,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       queryParamsConfig = None,
       fromsource = fromsourceVal,
       includeAuxiliarySearch = auxiliary,
-      eboost = 1.0,
-      nboost = 1.0,
-      sboost = 1.0,
-      wboost = 1.0
+      eboost = eboostDouble,
+      nboost = nboostDouble,
+      sboost = sboostDouble,
+      wboost = wboostDouble
     )
 
     val result: Option[Future[Result]] =
@@ -154,6 +172,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
         .orElse(addressValidation.validateFromSource(queryValues))
+        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -236,7 +255,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   matchthreshold = thresholdFloat,
                   verbose = verb,
                   fromsource = fromsourceVal,
-                  includeauxiliarysearch = auxiliary
+                  includeauxiliarysearch = auxiliary,
+                  eboost = eboostDouble,
+                  nboost = nboostDouble,
+                  sboost = sboostDouble,
+                  wboost = wboostDouble
                 ),
                 status = OkAddressResponseStatus
               )

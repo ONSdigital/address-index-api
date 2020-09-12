@@ -65,4 +65,12 @@ trait AddressControllerResponse extends AddressResponse {
     BadRequestTemplate(queryValues, EpochNotAvailableError)
   }
 
+  def CountryBoostsInvalid(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues, CountryBoostsInvalidError)
+  }
+
+  def CountryDeprecation(queryValues: QueryValues): AddressBySearchResponseContainer = {
+    BadRequestTemplate(queryValues, CountryDeprecationError)
+  }
+
 }

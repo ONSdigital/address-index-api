@@ -53,7 +53,11 @@ def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): Ad
       maxScore = partResponse.maxScore,
       matchthreshold = 0F,
       verbose = partResponse.verbose,
-      fromsource = partResponse.fromsource
+      fromsource = partResponse.fromsource,
+      eboost = partResponse.eboost,
+      nboost = partResponse.nboost,
+      sboost = partResponse.sboost,
+      wboost = partResponse.wboost
   )
 
 }

@@ -39,6 +39,18 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      default: all
 #    - name: includeauxiliarysearch
 #      description: Include search of Auxiliary index.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -54,7 +66,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], includeauxiliarysearch: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Return a list of codelists supported by the API
