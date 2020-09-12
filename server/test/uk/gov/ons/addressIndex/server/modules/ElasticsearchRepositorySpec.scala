@@ -834,7 +834,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = "h4",
         filters = "residential",
         limit = 1,
-        fromsource = "all"
+        fromsource = "all",
       )
       val query = repository.makeQuery(args)
       val result = Json.parse(SearchBodyBuilderFn(query).string())
