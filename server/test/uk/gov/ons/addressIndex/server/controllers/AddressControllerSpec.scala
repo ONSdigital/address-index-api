@@ -1255,6 +1255,133 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if fromsource and country boosts are supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "RD02",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 1,
+          offset = 1,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="nionly",
+          eboost = 1,
+          nboost = 10,
+          sboost = 1,
+          wboost = 1
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(CountryDeprecationError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("nionly"), nboost=Some("10")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a non-numeric country boost value is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "RD02",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 1,
+          offset = 1,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all",
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(CountryBoostsInvalidError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), sboost=Some("single malt")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if an out of range country boost value is supplied" in {
+      // Given
+      val controller = addressController
+
+      val expected = Json.toJson(AddressBySearchResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressBySearchResponse(
+          tokens = Map.empty,
+          addresses = Seq.empty,
+          filter = "RD02",
+          historical = true,
+          rangekm = "",
+          latitude = "",
+          longitude = "",
+          limit = 1,
+          offset = 1,
+          total = 0,
+          sampleSize = 20,
+          maxScore = 0.0f,
+          matchthreshold = 5f,
+          verbose = false,
+          epoch = "",
+          fromsource="all",
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 42
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(CountryBoostsInvalidError)
+      ))
+
+      // When
+      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), wboost=Some("42")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+
     "reply with a 400 error if an invalid filter value is supplied" in {
       // Given
       val controller = addressController
