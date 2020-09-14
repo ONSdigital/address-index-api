@@ -394,15 +394,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
-//    val fromSourceQueryShould =
-//      if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
-//      else Seq(
-//        termsQuery("countryCode","E").boost(eboost),
-//        termsQuery("countryCode","N").boost(nboost),
-//        termsQuery("countryCode","S").boost(sboost),
-//        termsQuery("countryCode","W").boost(wboost))
-
-
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
       .query(boolQuery().filter(args.queryFilter ++ fromSourceQuery).not(fromSourceQueryMustNot5))
@@ -1172,8 +1163,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
-    val searchString = SearchBodyBuilderFn(query).string()
-    println(searchString)
+ //   val searchString = SearchBodyBuilderFn(query).string()
+ //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
