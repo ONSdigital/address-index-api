@@ -103,7 +103,9 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
-        historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
+        historical = hist, epoch = epochVal, verbose = verb,
+        eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
+        endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 

@@ -82,6 +82,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         limit = limval, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
+        eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
