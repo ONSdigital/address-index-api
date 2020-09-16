@@ -128,7 +128,9 @@ val serverDeps = Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
-  "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test"
+  "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
+  "io.kamon" %% "kamon-bundle" % "2.1.0",
+  "io.kamon" %% "kamon-prometheus" % "2.1.4"
 ) ++ commonDeps
 
 val uiDeps = Seq(
@@ -248,7 +250,8 @@ lazy val `address-index-server` = project.in(file("server"))
     JavaAppPackaging,
     GitVersioning,
     SwaggerPlugin,
-    DockerPlugin
+    DockerPlugin,
+    JavaAgent
   )
 
 lazy val `address-index-parsers` = project.in(file("parsers"))
