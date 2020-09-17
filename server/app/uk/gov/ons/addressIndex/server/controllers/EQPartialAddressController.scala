@@ -29,7 +29,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQPartialAddressController")
 
-  val sboost: Int = conf.config.elasticSearch.defaultStartBoost
+  val startboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
     * EQ PartialAddress query API
@@ -49,7 +49,11 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
                           fromsource: Option[String] = None,
                           highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
-                          favourwelsh: Option[String] = None
+                          favourwelsh: Option[String] = None,
+                          eboost: Option[String] = None,
+                          nboost: Option[String] = None,
+                          sboost: Option[String] = None,
+                          wboost: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -77,6 +81,16 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkId = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)).getOrElse("")
@@ -89,7 +103,9 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         limit = limval, filter = filterString, badRequestMessage = badRequestErrorMessage,
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
-        historical = hist, epoch = epochVal, verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterid
+        historical = hist, epoch = epochVal, verbose = verb,
+        eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
+        endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
@@ -108,7 +124,11 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
       fromsource = Some(fromsourceVal),
       highlight = Some(highVal),
       favourpaf = Some(favourPaf),
-      favourwelsh = Some(favourWelsh)
+      favourwelsh = Some(favourWelsh),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -120,6 +140,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
         .orElse(partialAddressValidation.validateFromSource(queryValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -140,7 +161,11 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
           fromsource = fromsourceVal,
           highlight = highVal,
           favourpaf = favourPaf,
-          favourwelsh = favourWelsh
+          favourwelsh = favourWelsh,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =
@@ -154,7 +179,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
               AddressResponseAddressEQ.fromHybridAddress(_, favourPaf, favourWelsh)
             )
 
-            val sortAddresses = if (sboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
+            val sortAddresses = if (startboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
 
             writeLog(activity = "eq_partial_request")
 
@@ -174,10 +199,14 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
                   total = total,
                   maxScore = maxScore,
                   verbose = verb,
-                  fromsource = fromsourceVal,
+                  fromsource = fromsourceVal + " (deprecated)",
                   highlight = highVal,
                   favourpaf = favourPaf,
-                  favourwelsh = favourWelsh
+                  favourwelsh = favourWelsh,
+                  eboost = eboostDouble,
+                  nboost = nboostDouble,
+                  sboost = sboostDouble,
+                  wboost = wboostDouble
                 ),
                 status = OkAddressResponseStatus
               )

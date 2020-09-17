@@ -225,7 +225,11 @@ final case class PartialArgs(input: String,
                              fromsource: String,
                              highlight: String = "on",
                              favourpaf: Boolean = true,
-                             favourwelsh: Boolean = true
+                             favourwelsh: Boolean = true,
+                             eboost: Double = 1.0,
+                             nboost: Double = 1.0,
+                             sboost: Double = 1.0,
+                             wboost: Double = 1.0
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -321,7 +325,11 @@ final case class RandomArgs(epoch: String = "",
                             limit: Int,
                             verbose: Boolean = true,
                             skinny: Boolean = false,
-                            fromsource: String = "all"
+                            fromsource: String = "all",
+                            eboost: Double = 1.0,
+                            nboost: Double = 1.0,
+                            sboost: Double = 1.0,
+                            wboost: Double = 1.0
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }
@@ -345,7 +353,11 @@ final case class AddressArgs(input: String,
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
                              fromsource: String = "all",
-                             includeAuxiliarySearch: Boolean = false
+                             includeAuxiliarySearch: Boolean = false,
+                             eboost: Double = 1.0,
+                             nboost: Double = 1.0,
+                             sboost: Double = 1.0,
+                             wboost: Double = 1.0
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 

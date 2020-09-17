@@ -136,9 +136,53 @@
                 <br>Default: false
             </td>
         </tr>
+        <tr class="table--row">
+            <td class="table--cell">includeauxiliarysearch</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Search in the auxiliary index, if available</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: false
+            </td>
+        </tr>
+        <tr class="table--row">
+           <td class="table--cell">eboost</td>
+           <td class="table--cell">string</td>
+           <td class="table--cell">Weighting for addresses in England as a decimal from 0 to 10</td>
+           <td class="table--cell">
+                Optional
+                <br>Default: 1.0
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">nboost</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Weighting for addresses in Northern Ireland as a decimal from 0 to 10</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 1.0
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">sboost</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Weighting for addresses in Scotland as a decimal from 0 to 10</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 1.0
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">wboost</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Weighting for addresses in Wales as a decimal from 0 to 10</td>
+            <td class="table--cell">
+                 Optional
+                <br>Default: 1.0
+            </td>
+        </tr>                     
      </tbody>
   </table>
-
 
 <h2>Responses</h2>
 

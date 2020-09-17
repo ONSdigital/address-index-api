@@ -38,7 +38,11 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   historical: Option[String] = None,
                   verbose: Option[String] = None,
                   epoch: Option[String] = None,
-                  fromsource: Option[String] = None
+                  fromsource: Option[String] = None,
+                  eboost: Option[String] = None,
+                  nboost: Option[String] = None,
+                  sboost: Option[String] = None,
+                  wboost: Option[String] = None
                  ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -57,6 +61,16 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val epochVal = epoch.getOrElse("")
     val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       val networkid = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)).getOrElse("")
@@ -68,6 +82,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         limit = limval, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
+        eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
         endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
@@ -80,7 +95,11 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       historical = Some(hist),
       limit = Some(limitInt),
       verbose = Some(verb),
-      fromsource = Some(fromsourceVal)
+      fromsource = Some(fromsourceVal),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -90,6 +109,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
         .orElse(randomValidation.validateEpoch(queryValues))
         .orElse(randomValidation.validateFromSource(queryValues))
+        .orElse(randomValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -105,7 +125,11 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal
+          fromsource = fromsourceVal,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =
@@ -133,7 +157,11 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   epoch = epochVal,
                   limit = limitInt,
                   verbose = verb,
-                  fromsource = fromsourceVal
+                  fromsource = fromsourceVal,
+                  eboost = eboostDouble,
+                  nboost = nboostDouble,
+                  sboost = sboostDouble,
+                  wboost = wboostDouble
                 ),
                 status = OkAddressResponseStatus
               )

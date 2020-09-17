@@ -212,3 +212,13 @@ object InvalidEQBucketError extends AddressResponseError(
   code = 40,
   message = "At least one of postcode, streetname and townname must be supplied and not wildcarded (use all three for best results)"
 )
+
+object CountryBoostsInvalidError extends AddressResponseError(
+  code = 41,
+  message = "Query string parameters eboost, nboost, sboost and wboost must be decimals in the range 0 to 10.0, default is 1.0"
+)
+
+object CountryDeprecationError extends AddressResponseError(
+  code = 42,
+  message = "The use of fromsource is deprecated and cannot be used in conjuction with eboost, nboost, sboost and wboost."
+)

@@ -26,7 +26,11 @@ case class AddressByPartialAddressResponse(input: String,
                                            fromsource: String,
                                            highlight: String,
                                            favourpaf: Boolean,
-                                           favourwelsh: Boolean)
+                                           favourwelsh: Boolean,
+                                           eboost: Double,
+                                           nboost: Double,
+                                           sboost: Double,
+                                           wboost: Double)
 
 object AddressByPartialAddressResponse {
   implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]
@@ -49,7 +53,11 @@ def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): Ad
       maxScore = partResponse.maxScore,
       matchthreshold = 0F,
       verbose = partResponse.verbose,
-      fromsource = partResponse.fromsource
+      fromsource = partResponse.fromsource,
+      eboost = partResponse.eboost,
+      nboost = partResponse.nboost,
+      sboost = partResponse.sboost,
+      wboost = partResponse.wboost
   )
 
 }

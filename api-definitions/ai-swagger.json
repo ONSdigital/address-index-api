@@ -39,7 +39,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
 					},
 					{
 						"in": "query",
@@ -107,6 +107,38 @@
 						"type": "string",
 						"required": false,
 						"description": "Include search of Auxiliary index."
+					},
+					{
+						"in": "query",
+						"name": "eboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in England",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "nboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in Northern Ireland",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "sboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in Scotland",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "wboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in Wales",
+						"default": 1
 					}
 				],
 				"responses": {
@@ -399,7 +431,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
 					},
 					{
 						"in": "query",
@@ -429,7 +461,7 @@
 						"name": "fromsource",
 						"type": "string",
 						"required": false,
-						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
+						"description": "(Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
 						"default": "all"
 					},
 					{
@@ -455,6 +487,38 @@
 						"required": false,
 						"description": "Welsh beats English on draw for best match",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "eboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in England as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "nboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Northern Ireland as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "sboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Scotland as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "wboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Wales as a decimal from 0 to 10",
+						"default": 1
 					}
 				],
 				"responses": {
@@ -525,7 +589,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
 					},
 					{
 						"in": "query",
@@ -555,7 +619,7 @@
 						"name": "fromsource",
 						"type": "string",
 						"required": false,
-						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
+						"description": "(Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
 						"default": "all"
 					},
 					{
@@ -581,6 +645,38 @@
 						"required": false,
 						"description": "Welsh beats English on draw for best match",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "eboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in England as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "nboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Northern Ireland as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "sboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Scotland as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "wboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Wales as a decimal from 0 to 10",
+						"default": 1
 					}
 				],
 				"responses": {
@@ -795,7 +891,7 @@
 						"name": "classificationfilter",
 						"type": "string",
 						"required": false,
-						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
+						"description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
 					},
 					{
 						"in": "query",
@@ -825,7 +921,7 @@
 						"name": "fromsource",
 						"type": "string",
 						"required": false,
-						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
+						"description": "(Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
 						"default": "all"
 					},
 					{
@@ -851,6 +947,38 @@
 						"required": false,
 						"description": "Welsh beats English on draw for best match",
 						"default": false
+					},
+					{
+						"in": "query",
+						"name": "eboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in England as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "nboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Northern Ireland as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "sboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Scotland as a decimal from 0 to 10",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "wboost",
+						"type": "string",
+						"required": false,
+						"description": "Weighting for addresses in Wales as a decimal from 0 to 10",
+						"default": 1
 					}
 				],
 				"responses": {
@@ -1326,6 +1454,38 @@
 						"required": false,
 						"description": "Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)",
 						"default": "all"
+					},
+					{
+						"in": "query",
+						"name": "eboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in England",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "nboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in Northern Ireland",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "sboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in Scotland",
+						"default": 1
+					},
+					{
+						"in": "query",
+						"name": "wboost",
+						"type": "string",
+						"required": false,
+						"description": "Set to 0 to exclude addresses in Wales",
+						"default": 1
 					}
 				],
 				"responses": {
@@ -1577,6 +1737,22 @@
 				},
 				"favourwelsh": {
 					"type": "boolean"
+				},
+				"eboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"nboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"sboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"wboost": {
+					"type": "number",
+					"format": "double"
 				}
 			},
 			"required": [
@@ -1594,7 +1770,11 @@
 				"fromsource",
 				"highlight",
 				"favourpaf",
-				"favourwelsh"
+				"favourwelsh",
+				"eboost",
+				"nboost",
+				"sboost",
+				"wboost"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponseContainer": {
@@ -1764,6 +1944,22 @@
 				},
 				"fromsource": {
 					"type": "string"
+				},
+				"eboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"nboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"sboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"wboost": {
+					"type": "number",
+					"format": "double"
 				}
 			},
 			"required": [
@@ -1773,7 +1969,11 @@
 				"epoch",
 				"limit",
 				"verbose",
-				"fromsource"
+				"fromsource",
+				"eboost",
+				"nboost",
+				"sboost",
+				"wboost"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer": {
@@ -1846,7 +2046,7 @@
 				"verbose": {
 					"type": "boolean"
 				},
-				"includeAuxiliarySearch": {
+				"includeauxiliarysearch": {
 					"type": "boolean"
 				}
 			},
@@ -1854,7 +2054,7 @@
 				"historical",
 				"epoch",
 				"verbose",
-				"includeAuxiliarySearch"
+				"includeauxiliarysearch"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer": {
@@ -2054,6 +2254,22 @@
 				},
 				"favourwelsh": {
 					"type": "boolean"
+				},
+				"eboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"nboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"sboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"wboost": {
+					"type": "number",
+					"format": "double"
 				}
 			},
 			"required": [
@@ -2071,7 +2287,11 @@
 				"fromsource",
 				"highlight",
 				"favourpaf",
-				"favourwelsh"
+				"favourwelsh",
+				"eboost",
+				"nboost",
+				"sboost",
+				"wboost"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
@@ -2239,8 +2459,24 @@
 				"fromsource": {
 					"type": "string"
 				},
-				"includeAuxiliarySearch": {
+				"includeauxiliarysearch": {
 					"type": "boolean"
+				},
+				"eboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"nboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"sboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"wboost": {
+					"type": "number",
+					"format": "double"
 				}
 			},
 			"required": [
@@ -2260,7 +2496,11 @@
 				"matchthreshold",
 				"verbose",
 				"fromsource",
-				"includeAuxiliarySearch"
+				"includeauxiliarysearch",
+				"eboost",
+				"nboost",
+				"sboost",
+				"wboost"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer": {
@@ -2634,6 +2874,22 @@
 				},
 				"favourwelsh": {
 					"type": "boolean"
+				},
+				"eboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"nboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"sboost": {
+					"type": "number",
+					"format": "double"
+				},
+				"wboost": {
+					"type": "number",
+					"format": "double"
 				}
 			},
 			"required": [
@@ -2651,7 +2907,11 @@
 				"fromsource",
 				"highlight",
 				"favourpaf",
-				"favourwelsh"
+				"favourwelsh",
+				"eboost",
+				"nboost",
+				"sboost",
+				"wboost"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponseContainer": {
@@ -3373,7 +3633,7 @@
 				"verbose": {
 					"type": "boolean"
 				},
-				"includeAuxiliarySearch": {
+				"includeauxiliarysearch": {
 					"type": "boolean"
 				}
 			},
@@ -3388,7 +3648,7 @@
 				"total",
 				"maxScore",
 				"verbose",
-				"includeAuxiliarySearch"
+				"includeauxiliarysearch"
 			]
 		},
 		"uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer": {

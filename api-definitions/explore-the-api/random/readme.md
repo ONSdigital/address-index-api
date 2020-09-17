@@ -66,7 +66,43 @@
               Optional
               <br>Default: all
           </td>
-     /tr>
+    </tr>
+            <tr class="table--row">
+               <td class="table--cell">eboost</td>
+               <td class="table--cell">string</td>
+               <td class="table--cell">Set to 0 to exclude addresses in England</td>
+               <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">nboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Northern Ireland</td>
+                <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">sboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Scotland</td>
+                <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">wboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Wales</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
   </tbody>
 </table>
 
