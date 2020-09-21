@@ -5,6 +5,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.server.modules.VersionModule
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
+import scala.util.Try
 import scala.util.matching.Regex
 
 @Singleton
@@ -31,25 +32,44 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               eboost: Option[String] = None,
               nboost: Option[String] = None,
               sboost: Option[String] = None,
-              wboost: Option[String] = None
+              wboost: Option[String] = None,
+              groupfullpostcodes: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
-  // we want to test the string with spaces as supplied by the user first
+    val groupFullPostcodesVal: Boolean = Try(groupfullpostcodes.getOrElse("false").toBoolean).toOption.getOrElse(false)
+
+    // we want to test the string with spaces as supplied by the user first
   // if no match try again with spaces removed.
     val normalizedInput: String = stripSpaces(input.toUpperCase)
-
     if (isPostCode(normalizedInput)) {
-      logger.info("Input is postcode")
-      eqPostcodeController.postcodeQuery(
-        postcode = normalizedInput,
-        offset = offset,
-        limit = limit,
-        classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        favourpaf = favourpaf,
-        favourwelsh = favourwelsh,
-        epoch = epoch)(req)
+      if (groupFullPostcodesVal == false) {
+        logger.info("Input is postcode")
+        eqPostcodeController.postcodeQuery(
+          postcode = normalizedInput,
+          offset = offset,
+          limit = limit,
+          classificationfilter = classificationfilter,
+          historical = historical,
+          verbose = verbose,
+          favourpaf = favourpaf,
+          favourwelsh = favourwelsh,
+          epoch = epoch)(req)
+      } else {
+        val postcodeFormatted: String = if (!input.contains(" ")) {
+          val (postcodeStart, postcodeEnd) = input.splitAt(input.length() - 3)
+          (postcodeStart + " " + postcodeEnd).toUpperCase
+        } else input.toUpperCase
+        logger.info("Input is a postcode but grouping is requested")
+        groupedPostcodeController.groupedPostcodeQuery(
+          postcode = postcodeFormatted,
+          offset = offset,
+          limit = limit,
+          classificationfilter = classificationfilter,
+          historical = historical,
+          verbose = verbose,
+          epoch = epoch)(req)
+      }
+
     } else if (isOutCodeAndSectorAndHalfUnitWithSpace(input)){
       logger.info("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(

@@ -712,7 +712,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
-    "reply with a postcode search when a postcode is supplied to EQController" in {
+    "reply with a postcode list when a postcode is supplied to EQController" in {
       // Given
       val controller = eqController
 
@@ -742,6 +742,39 @@ class AddressControllerSpec extends PlaySpec with Results {
       status(result) mustBe OK
       actual mustBe expected
     }
+
+    "reply with a postcode group list when a postcode is supplied to EQController and groupfullpostcodes flag is true" in {
+      // Given
+      val controller = eqController
+
+      val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByGroupedPostcodeResponse(
+          partpostcode = "EX4 1AA",
+          postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"), groupfullpostcodes = Some("true")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+
 
     "reply with a part postcode list when an outcode is supplied to EQController" in {
       // Given
