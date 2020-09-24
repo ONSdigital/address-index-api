@@ -617,6 +617,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNisraSubBuildingName,
     hybridNisraBuildingName,
     hybridNisraBuildingNumber,
+    Nil,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,

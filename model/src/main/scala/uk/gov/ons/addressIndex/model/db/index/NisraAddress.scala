@@ -10,6 +10,7 @@ case class NisraAddress(
   subBuildingName: String,
   buildingName: String,
   buildingNumber: String,
+  addressLines: Seq[String],
   paoText: String,
   paoStartNumber: String,
   paoStartSuffix: String,
@@ -42,7 +43,7 @@ case class NisraAddress(
   localCouncil: String,
   LGDCode: String,
   mixedNisra: String
-  )
+)
 
 /**
   * NISRA Address DTO companion object that also contains implicits needed for Elastic4s
@@ -58,6 +59,9 @@ object NisraAddress {
     val subBuildingName: String = "subBuildingName"
     val buildingName: String = "buildingName"
     val buildingNumber: String = "buildingNumber"
+    val addressLine1: String = "addressLine1"
+    val addressLine2: String = "addressLine2"
+    val addressLine3: String = "addressLine3"
     val paoText: String = "paoText"
     val paoStartNumber: String = "paoStartNumber"
     val paoStartSuffix: String = "paoStartSuffix"
@@ -103,6 +107,11 @@ object NisraAddress {
       subBuildingName = filteredNisra.getOrElse(Fields.subBuildingName, "").toString,
       buildingName = filteredNisra.getOrElse(Fields.buildingName, "").toString,
       buildingNumber = filteredNisra.getOrElse(Fields.buildingNumber, "").toString,
+      addressLines = Seq[String](
+        filteredNisra.getOrElse(Fields.addressLine1, "").toString,
+        filteredNisra.getOrElse(Fields.addressLine2, "").toString,
+        filteredNisra.getOrElse(Fields.addressLine3, "").toString
+      ),
       paoText = filteredNisra.getOrElse(Fields.paoText, "").toString,
       paoStartNumber = filteredNisra.getOrElse(Fields.paoStartNumber, "").toString,
       paoStartSuffix = filteredNisra.getOrElse(Fields.paoStartSuffix, "").toString,

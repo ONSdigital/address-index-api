@@ -113,6 +113,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     subBuildingName = "2",
     buildingName = "3",
     buildingNumber = "4",
+    addressLines = Nil,
     paoText = "",
     paoStartNumber = "4",
     paoStartSuffix = "",

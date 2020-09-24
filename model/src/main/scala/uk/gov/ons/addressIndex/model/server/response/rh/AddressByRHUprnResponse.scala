@@ -55,14 +55,6 @@ object AddressByRHUprnResponse {
 
     val foundAddressType = if (formattedAddressNisra.isEmpty) foundAddressTypeTemp else AddressTypes.nisra
 
-    val formattedAddress = foundAddressType match {
-      case AddressTypes.paf => formattedAddressPaf
-      case AddressTypes.welshPaf => welshFormattedAddressPaf
-      case AddressTypes.nag => formattedAddressNag
-      case AddressTypes.welshNag => welshFormattedAddressNag
-      case AddressTypes.nisra => formattedAddressNisra
-    }
-
     val townName = foundAddressType match {
       case AddressTypes.paf => chosenPaf match {
         case Some(pafAddress) => pafAddress.postTown
@@ -128,7 +120,19 @@ object AddressByRHUprnResponse {
       }
     }
 
-    val addressLines = splitFormattedAddress(removeConcatenatedPostcode(formattedAddress), townName, postcode)
+    val formattedAddress = foundAddressType match {
+      case AddressTypes.paf => formattedAddressPaf
+      case AddressTypes.welshPaf => welshFormattedAddressPaf
+      case AddressTypes.nag => formattedAddressNag
+      case AddressTypes.welshNag => welshFormattedAddressNag
+      case AddressTypes.nisra => formattedAddressNisra
+    }
+
+    val addressLines = foundAddressType match {
+      case AddressTypes.nisra => formatAddressLines(chosenNisra.map(_.addressLines).getOrElse(Nil),
+        removeConcatenatedPostcode(formattedAddress), townName, postcode)
+      case _ => formatAddressLines(Nil, removeConcatenatedPostcode(formattedAddress), townName, postcode)
+    }
 
     AddressResponseAddressUPRNRH(
       uprn = other.uprn,
@@ -149,17 +153,21 @@ object AddressByRHUprnResponse {
   /**
     * A temporary best endeavour approach until Neil H's magic algorithm is revealed.
     *
+    * @param addressLines previously determined address lines if available
     * @param formattedAddress formattedAddress
     * @param townName previously determined town name
     * @param postcode previously determined postcode
     * @return a Map of addressLines
     */
-  def splitFormattedAddress(formattedAddress: String, townName: String, postcode: String): Map[String, String] = {
+  def formatAddressLines(addressLines: Seq[String], formattedAddress: String, townName: String, postcode: String): Map[String, String] = {
 
-    // Split the formattedAddress by comma and remove townName and postcode as they have their own attribute
-    val split: Seq[String] = formattedAddress
-      .replace(postcode, "")
-      .split(",")
+    val extractedAddressLines: Seq[String] = if (addressLines.isEmpty)
+      // Split the formattedAddress by comma and remove postcode as it has its own attribute
+      formattedAddress.replace(postcode, "").split(",")
+      else addressLines
+
+    // Remove townName as it has its own attribute
+    val split: Seq[String] = extractedAddressLines
       .map(_.trim)
       .filter(_.nonEmpty)
       .filter(p => !p.contentEquals(townName)) // Filter out exact townName entries as these are likely to be the townName and not part of the address that includes the town name
@@ -171,10 +179,10 @@ object AddressByRHUprnResponse {
 
     // As addressLine3 is the last one combine the rest of the address parts
     val addressLine3: Seq[String] = if (part2.nonEmpty) Seq(part2.mkString(", ").trim) else Seq()
-    val addressLines: Seq[String] = Seq(part1, addressLine3).flatten
+    val formattedAddressLines: Seq[String] = Seq(part1, addressLine3).flatten
 
     // Create a map of address parts (Integer key)
-    val addressMap: Map[Int, String] = (1 to addressLines.size).zip(addressLines).toMap
+    val addressMap: Map[Int, String] = (1 to formattedAddressLines.size).zip(formattedAddressLines).toMap
 
     // Return a map with appropriately named keys
     addressMap.map { newMap: (Int, String) =>

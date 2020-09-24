@@ -250,6 +250,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     subBuildingName = "2",
     buildingName = "3",
     buildingNumber = "4",
+    addressLines = Nil,
     thoroughfare = "5",
     altThoroughfare = "6",
     dependentThoroughfare = "7",
@@ -289,6 +290,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     subBuildingName = "2",
     buildingName = "3",
     buildingNumber = "4",
+    addressLines = Nil,
     thoroughfare = "5",
     altThoroughfare = "6",
     dependentThoroughfare = "7",
@@ -1501,5 +1503,137 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     // Then
     result shouldBe expected
+  }
+
+  "AddressByRHUprnResponse formatAddressLines" should {
+
+    val townName = "town-name"
+    val postcode = "AB1 2CD"
+
+    "return a Map for address line 1,2 and 3 when only address lines are provided" in {
+
+      // Given
+      val addressLines = List("address line 1", "address line 2", "address line 3")
+
+      // When
+      val result = AddressByRHUprnResponse.formatAddressLines(addressLines, "", townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 2", "addressLine3" -> "address line 3")
+    }
+
+    "return a Map for address line 1,2 and 3 when only formatted address is provided" in {
+
+      // Given
+      val formattedAddress = "formatted line 1, formatted line 2, formatted line 3, town-name, AB1 2CD"
+
+      // When
+      val result = AddressByRHUprnResponse.formatAddressLines(Nil, formattedAddress, townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "formatted line 1", "addressLine2" -> "formatted line 2", "addressLine3" -> "formatted line 3")
+    }
+
+    "return a Map for address line 1,2 and 3 with town name supplied as line 3 using address lines only" in {
+
+      // Given
+      val formattedAddressWithTownName = "formatted line 1, formatted line 2, town-name"
+
+      // When
+      val result = AddressByRHUprnResponse.formatAddressLines(Nil, formattedAddressWithTownName, townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "formatted line 1", "addressLine2" -> "formatted line 2")
+    }
+
+    "return a Map for address line 1,2 and 3 with town name supplied as line 2 using formatted address only" in {
+
+      // Given
+      val addressLines = List("address line 1", "town-name", "address line 3")
+
+      // When
+      val result = AddressByEQUprnResponse.formatAddressLines(addressLines, "", townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 3")
+    }
+
+    "return a Map for address line 1,2 and 3 with town name supplied as line 3 using formatted address only" in {
+
+      // Given
+      val addressLines = List("address line 1", "address line 2", "town-name")
+
+      // When
+      val result = AddressByRHUprnResponse.formatAddressLines(addressLines, "", townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 2")
+    }
+  }
+
+  "AddressByEQUprnResponse formatAddressLines" should {
+
+    val townName = "town-name"
+    val postcode = "AB1 2CD"
+
+    "return a Map for address line 1,2 and 3 when only address lines are provided" in {
+
+      // Given
+      val addressLines = List("address line 1", "address line 2", "address line 3")
+
+      // When
+      val result = AddressByEQUprnResponse.formatAddressLines(addressLines, "", townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 2", "addressLine3" -> "address line 3")
+    }
+
+    "return a Map for address line 1,2 and 3 when only a formatted address is provided" in {
+
+      // Given
+      val formattedAddress = "formatted line 1, formatted line 2, formatted line 3, town-name, AB1 2CD"
+
+      // When
+      val result = AddressByEQUprnResponse.formatAddressLines(Nil, formattedAddress, townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "formatted line 1", "addressLine2" -> "formatted line 2", "addressLine3" -> "formatted line 3")
+    }
+
+    "return a Map for address line 1,2 and 3 with town name supplied as line 3 using address lines only" in {
+
+      // Given
+      val formattedAddressWithTownName = "formatted line 1, formatted line 2, town-name"
+
+      // When
+      val result = AddressByEQUprnResponse.formatAddressLines(Nil, formattedAddressWithTownName, townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "formatted line 1", "addressLine2" -> "formatted line 2")
+    }
+
+    "return a Map for address line 1,2 and 3 with town name supplied as line 2 using formatted address only" in {
+
+      // Given
+      val addressLines = List("address line 1", "town-name", "address line 3")
+
+      // When
+      val result = AddressByEQUprnResponse.formatAddressLines(addressLines, "", townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 3")
+    }
+
+    "return a Map for address line 1,2 and 3 with town name supplied as line 3 using formatted address only" in {
+
+      // Given
+      val addressLines = List("address line 1", "address line 2", "town-name")
+
+      // When
+      val result = AddressByEQUprnResponse.formatAddressLines(addressLines, "", townName, postcode)
+
+      // Then
+      result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 2")
+    }
   }
 }
