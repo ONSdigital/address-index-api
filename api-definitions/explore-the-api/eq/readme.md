@@ -188,7 +188,7 @@
         <tr class="table--row">
             <td class="table--cell">groupfullpostcodes</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Welsh beats English on draw for best match</td>
+            <td class="table--cell">Group full postcode output</td>
             <td class="table--cell">
                 Optional
                 <br>Default: False
