@@ -111,7 +111,7 @@ object HybridAddress {
         auxiliary = if (auxiliary.isEmpty) Seq.empty else Seq(AuxiliaryAddress.fromEsMap(auxiliary)),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
-        censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString).getOrElse(""),
+        censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString.trim).getOrElse(""),
         censusEstabType = Try(hit.sourceAsMap("censusEstabType").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
         countryCode = Try(hit.sourceAsMap("countryCode").toString).getOrElse("E"),

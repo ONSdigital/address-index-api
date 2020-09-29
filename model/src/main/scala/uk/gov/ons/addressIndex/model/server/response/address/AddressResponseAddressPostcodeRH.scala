@@ -80,7 +80,7 @@ object AddressResponseAddressPostcodeRH {
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       addressType = addressType,
-      censusAddressType = other.censusAddressType,
+      censusAddressType = other.censusAddressType.trim,
       censusEstabType = other.censusEstabType,
       countryCode = other.countryCode
     )

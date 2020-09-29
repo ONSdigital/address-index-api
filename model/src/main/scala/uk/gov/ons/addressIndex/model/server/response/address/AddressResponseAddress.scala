@@ -117,7 +117,7 @@ object AddressResponseAddress {
       },
       geo = geo,
       classificationCode = other.classificationCode,
-      census = AddressResponseCensus(other.censusAddressType,other.censusEstabType, other.countryCode),
+      census = AddressResponseCensus(other.censusAddressType.trim,other.censusEstabType, other.countryCode),
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat
