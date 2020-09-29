@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.Indexes
 import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{ControllerComponents, RequestHeader, Result, Results}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
@@ -12,12 +12,13 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
-import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQBucketResponse, AddressByEQBucketResponseContainer, AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer, AddressByEQPostcodeResponse, AddressByEQPostcodeResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.eq._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
-import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByGroupedPostcodeResponse, AddressByGroupedPostcodeResponseContainer, AddressByPostcodeResponse, AddressByPostcodeResponseContainer, AddressResponsePostcodeGroup}
+import uk.gov.ons.addressIndex.model.server.response.postcode._
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPartialAddressResponse, AddressByRHPartialAddressResponseContainer, AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.server.controllers.general.ApplicationController
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, HighlightFuncs, HopperScoreHelper}
@@ -412,7 +413,69 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController, groupedPostcodeController)
 
+  val applicationController = new ApplicationController(components, postcodeController, uprnController)
+
+  val UPRNControllerKaput : UPRNController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation) {
+    override def uprnQuery(uprn: String, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String]): Action[AnyContent] = Action {
+      ImATeapot
+    }
+  }
+
+  val postcodeControllerKaput : PostcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation) {
+    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String]): Action[AnyContent] = Action {
+      ImATeapot
+    }
+  }
+
   "Address controller" should {
+
+    "reply with hello world" in {
+      // Given
+      val controller = applicationController
+
+      val expected = "hello world"
+
+      // When
+      val result: Future[Result] = controller.index().apply(FakeRequest())
+      val actual: String = contentAsString(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with healthy status" in {
+      // Given
+      val controller = applicationController
+
+      // When
+      val result: Future[Result] = controller.healthz().apply(FakeRequest())
+
+      // Then
+      status(result) mustBe OK
+    }
+
+    "reply with unhealthy status - fat cluster" in {
+      // Given
+      val controller = new ApplicationController(components, postcodeController, UPRNControllerKaput)
+
+      // When
+      val result: Future[Result] = controller.healthz().apply(FakeRequest())
+
+      // Then
+      status(result) mustBe IM_A_TEAPOT
+    }
+
+    "reply with unhealthy status - skinny cluster" in {
+      // Given
+      val controller = new ApplicationController(components, postcodeControllerKaput, uprnController)
+
+      // When
+      val result: Future[Result] = controller.healthz().apply(FakeRequest())
+
+      // Then
+      status(result) mustBe IM_A_TEAPOT
+    }
 
     "reply with a found address in concise format (by uprn)" in {
       // Given
