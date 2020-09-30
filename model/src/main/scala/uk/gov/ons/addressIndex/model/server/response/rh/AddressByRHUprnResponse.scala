@@ -143,7 +143,7 @@ object AddressByRHUprnResponse {
       townName = townName,
       postcode = postcode,
       foundAddressType = foundAddressType,
-      censusAddressType = other.censusAddressType,
+      censusAddressType = other.censusAddressType.trim,
       censusEstabType = other.censusEstabType,
       countryCode = other.countryCode,
       organisationName = organisationName
