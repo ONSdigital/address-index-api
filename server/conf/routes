@@ -847,3 +847,13 @@ GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/l
 
 ### NoDocs ###
 GET   /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
+
+### NoDocs ###
+###
+#  summary: Used in cloud deployments to check the API is up and running correctly.
+#           This includes keeping alive channels between the API and Elasticsearch.
+#  responses:
+#    200:
+#      description: success
+###
+GET     /healthz            uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.healthz
