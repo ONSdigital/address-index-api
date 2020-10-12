@@ -27,7 +27,8 @@ case class QueryValues(input: Option[String] = None,
                        eboost: Option[Double] = None,
                        nboost: Option[Double] = None,
                        sboost: Option[Double] = None,
-                       wboost: Option[Double] = None
+                       wboost: Option[Double] = None,
+                       groupFullPostcodes: Option[String] = None
                       )
 {
   def inputOrDefault: String = this.input.getOrElse("")
@@ -85,4 +86,6 @@ case class QueryValues(input: Option[String] = None,
   def addressTypeOrDefault: String = this.addressType.getOrElse("")
 
   def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearch.getOrElse(false)
+
+  def groupFullPostcodesOrDefault: String = this.groupFullPostcodes.getOrElse("no")
 }

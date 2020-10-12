@@ -181,6 +181,7 @@ sealed abstract class QueryArgs {
   def matchThresholdOrDefault: Float = this.matchThresholdOpt.getOrElse(0f)
 
   def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearchOpt.getOrElse(false)
+
 }
 
 /**
@@ -259,7 +260,8 @@ final case class PostcodeArgs(postcode: String,
                               skinny: Boolean = false,
                               favourpaf: Boolean = true,
                               favourwelsh: Boolean = true,
-                              includeAuxiliarySearch: Boolean = false
+                              includeAuxiliarySearch: Boolean = false,
+                              groupfullpostcodes: String = "no"
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 

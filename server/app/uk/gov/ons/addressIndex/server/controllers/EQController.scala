@@ -36,25 +36,14 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               groupfullpostcodes: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
-    val groupFullPostcodesVal: Boolean = Try(groupfullpostcodes.getOrElse("false").toBoolean).toOption.getOrElse(false)
+ // groupfullpostocdes = yes, no, combo
+    val groupFullPostcodesVal: String = groupfullpostcodes.getOrElse("no")
 
     // we want to test the string with spaces as supplied by the user first
   // if no match try again with spaces removed.
     val normalizedInput: String = stripSpaces(input.toUpperCase)
     if (isPostCode(normalizedInput)) {
-      if (groupFullPostcodesVal == false) {
-        logger.info("Input is postcode")
-        eqPostcodeController.postcodeQuery(
-          postcode = normalizedInput,
-          offset = offset,
-          limit = limit,
-          classificationfilter = classificationfilter,
-          historical = historical,
-          verbose = verbose,
-          favourpaf = favourpaf,
-          favourwelsh = favourwelsh,
-          epoch = epoch)(req)
-      } else {
+      if (groupFullPostcodesVal.equals("yes")) {
         val postcodeFormatted: String = if (!input.contains(" ")) {
           val (postcodeStart, postcodeEnd) = input.splitAt(input.length() - 3)
           (postcodeStart + " " + postcodeEnd).toUpperCase
@@ -68,6 +57,20 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
           historical = historical,
           verbose = verbose,
           epoch = epoch)(req)
+      } else {
+        logger.info("Input is postcode, groupfullpostcode setting = "  + groupFullPostcodesVal)
+        eqPostcodeController.postcodeQuery(
+          postcode = normalizedInput,
+          offset = offset,
+          limit = limit,
+          classificationfilter = classificationfilter,
+          historical = historical,
+          verbose = verbose,
+          favourpaf = favourpaf,
+          favourwelsh = favourwelsh,
+          epoch = epoch,
+          groupfullpostcodes = Some(groupFullPostcodesVal)
+        )(req)
       }
 
     } else if (isOutCodeAndSectorAndHalfUnitWithSpace(input)){

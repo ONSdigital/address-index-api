@@ -20,7 +20,7 @@ import uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePos
   */
 case class AddressByEQPostcodeResponse(postcode: String,
                                        addresses: Seq[AddressResponseAddressPostcodeEQ],
-                                       postcodes: Seq[AddressResponsePostcodeGroup],
+                                       postcodes: Option[Seq[AddressResponsePostcodeGroup]],
                                        filter: String,
                                        historical: Boolean,
                                        epoch: String,
@@ -28,7 +28,8 @@ case class AddressByEQPostcodeResponse(postcode: String,
                                        offset: Int,
                                        total: Long,
                                        maxScore: Double,
-                                       verbose: Boolean)
+                                       verbose: Boolean,
+                                       groupfullpostcodes: String)
 
 object AddressByEQPostcodeResponse {
   implicit lazy val addressByEQPostcodeResponseFormat: Format[AddressByEQPostcodeResponse] = Json.format[AddressByEQPostcodeResponse]
