@@ -246,7 +246,15 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
-    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1))
+    override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
+    println(args.groupFullPostcodesOrDefault)
+      args.groupFullPostcodesOrDefault match {
+        case "no" =>    Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), Seq(), 1.0f, 1))
+        case "yes" =>   Future.successful(HybridAddressCollection(Seq(), validBuckets, 1.0f, 1))
+        case "combo" => Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1))
+        case _ =>       Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1))
+      }
+    }
 
     override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
       Future.successful {
@@ -785,6 +793,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByEQPostcodeResponse(
           postcode = "PO155RR",
+          postcodes = None,
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           filter = "",
           historical = false,
@@ -793,7 +802,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 1,
           maxScore = 1.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          groupfullpostcodes = "no"
         ),
         OkAddressResponseStatus
       ))
@@ -830,7 +840,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"), groupfullpostcodes = Some("true")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"), groupfullpostcodes = Some("yes")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -984,6 +994,39 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result: Future[Result] = controller.eqQuery("EX4 1A", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with a combined list from a full postcode with groupedfullpostcodes = combo in EQController" in {
+      // Given
+      val controller = eqController
+
+      val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByEQPostcodeResponse(
+          postcode = "EX41AA",
+          addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          postcodes = Some(Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter"))),
+          filter = "",
+          historical = false,
+          limit = 100,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = "",
+          groupfullpostcodes = "combo"
+          ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"),groupfullpostcodes = Some("combo")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then

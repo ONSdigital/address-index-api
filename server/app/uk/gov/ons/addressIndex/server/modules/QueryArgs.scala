@@ -105,6 +105,8 @@ sealed abstract class QueryArgs {
 
   def filtersOpt: Option[String] = None
 
+  def groupFullPostcodesOpt: Option[String] = None
+
   def filterDateRangeOpt: Option[DateRange] = None
 
   def verboseOpt: Option[Boolean] = None
@@ -181,6 +183,9 @@ sealed abstract class QueryArgs {
   def matchThresholdOrDefault: Float = this.matchThresholdOpt.getOrElse(0f)
 
   def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearchOpt.getOrElse(false)
+
+  def groupFullPostcodesOrDefault: String = this.groupFullPostcodesOpt.getOrElse("")
+
 
 }
 
@@ -270,6 +275,8 @@ final case class PostcodeArgs(postcode: String,
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 
   override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+
+  override def groupFullPostcodesOpt: Option[String] = Some(groupfullpostcodes)
 }
 
 /**
