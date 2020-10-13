@@ -247,7 +247,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
-    println(args.groupFullPostcodesOrDefault)
       args.groupFullPostcodesOrDefault match {
         case "no" =>    Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), Seq(), 1.0f, 1))
         case "yes" =>   Future.successful(HybridAddressCollection(Seq(), validBuckets, 1.0f, 1))
