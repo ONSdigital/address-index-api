@@ -11,6 +11,7 @@ import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerRespons
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
+import uk.gov.ons.addressIndex.server.utils.GroupOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -66,7 +67,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
 
     val epochVal = epoch.getOrElse("")
 
-    val groupFullPostcodes = groupfullpostcodes.getOrElse("no")
+    val groupFullPostcodes: String = groupfullpostcodes.getOrElse(GroupOptions.NO.toString)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""

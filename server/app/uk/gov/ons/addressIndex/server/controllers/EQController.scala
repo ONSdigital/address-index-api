@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.server.modules.VersionModule
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.GroupOptions
 
 import scala.util.Try
 import scala.util.matching.Regex
@@ -36,14 +37,13 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               groupfullpostcodes: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
- // groupfullpostocdes = yes, no, combo
-    val groupFullPostcodesVal: String = groupfullpostcodes.getOrElse("no")
+    val groupFullPostcodesVal: String = groupfullpostcodes.getOrElse(GroupOptions.NO.toString)
 
     // we want to test the string with spaces as supplied by the user first
   // if no match try again with spaces removed.
     val normalizedInput: String = stripSpaces(input.toUpperCase)
     if (isPostCode(normalizedInput)) {
-      if (groupFullPostcodesVal.equals("yes")) {
+      if (groupFullPostcodesVal.equals(GroupOptions.YES.toString)) {
         val postcodeFormatted: String = if (!input.contains(" ")) {
           val (postcodeStart, postcodeEnd) = input.splitAt(input.length() - 3)
           (postcodeStart + " " + postcodeEnd).toUpperCase
