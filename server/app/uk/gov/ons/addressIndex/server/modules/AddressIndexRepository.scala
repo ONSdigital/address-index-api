@@ -298,10 +298,27 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       FieldSort("nisra.secondarySort").asc(),
       FieldSort("uprn").asc())
 
+    if (args.groupfullpostcodes.equals("combo"))
     searchBase.query(query)
+      .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
+        .size(100)
+        .order(TermsOrder("_key", asc = true))
+        .subaggs(termsAgg("uprns", "uprn")
+          .size(1),
+          termsAgg("paftowns", "postTown")
+            .size(1)))
+      .start(0)
+      .limit(1)
     .sortBy(sortFields)
     .start(args.start)
     .limit(args.limit)
+    else
+      searchBase.query(query)
+        .start(0)
+        .limit(1)
+        .sortBy(sortFields)
+        .start(args.start)
+        .limit(args.limit)
 }
 
   private def makeBucketQuery(args: BucketArgs): SearchRequest = {

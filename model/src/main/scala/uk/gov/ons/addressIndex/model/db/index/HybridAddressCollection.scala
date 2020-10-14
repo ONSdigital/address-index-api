@@ -75,7 +75,7 @@ object HybridAddressCollection {
     val pcList3 = if (pcList.size > 0) pcList.head :: pcList2
     else List.empty[AddressResponsePostcodeGroup]
 
-    // returned total will be number of hits unless we are doing grfirstUprn.last._2.head.head._2ouped postcode
+    // returned total will be number of hits unless we are doing grouped postcode
     val totalOrBuckets = if (pcList.size > 0) pcList.size else total
 
     HybridAddressCollection(

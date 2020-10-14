@@ -82,7 +82,7 @@
          <tr class="table--row">
             <td class="table--cell">classificationfilter</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace</td>
+            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace</td>
             <td class="table--cell">
                 Optional
             </td>
@@ -188,10 +188,10 @@
         <tr class="table--row">
             <td class="table--cell">groupfullpostcodes</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Group full postcode output</td>
+            <td class="table--cell">Group full postcode output, yes, no or combo (combined response, slower)</td>
             <td class="table--cell">
                 Optional
-                <br>Default: False
+                <br>Default: no
             </td>
         </tr>        
      </tbody>

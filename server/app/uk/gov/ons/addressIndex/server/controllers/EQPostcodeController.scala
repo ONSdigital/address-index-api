@@ -11,6 +11,7 @@ import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerRespons
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
+import uk.gov.ons.addressIndex.server.utils.GroupOptions
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -42,7 +43,8 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     verbose: Option[String] = None,
                     favourpaf: Option[String] = None,
                     favourwelsh: Option[String] = None,
-                    epoch: Option[String] = None
+                    epoch: Option[String] = None,
+                    groupfullpostcodes: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -64,6 +66,8 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+
+    val groupFullPostcodes: String = groupfullpostcodes.getOrElse(GroupOptions.NO.toString)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -92,7 +96,8 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
       offset = Some(offsetInt),
       verbose = Some(verb),
       favourpaf = Some(favourPaf),
-      favourwelsh = Some(favourWelsh)
+      favourwelsh = Some(favourWelsh),
+      groupFullPostcodes = Some(groupFullPostcodes)
     )
 
     val result: Option[Future[Result]] =
@@ -120,7 +125,8 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
           epoch = epochVal,
           skinny = !verb,
           favourpaf = favourPaf,
-          favourwelsh = favourWelsh
+          favourwelsh = favourWelsh,
+          groupfullpostcodes = groupFullPostcodes
         )
 
         val request: Future[HybridAddressCollection] =
@@ -129,11 +135,12 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
           )
 
         request.map {
-          case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
+          case HybridAddressCollection(hybridAddresses, aggregations, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddressPostcodeEQ] = hybridAddresses.map(
               AddressResponseAddressPostcodeEQ.fromHybridAddress(_, favourPaf, favourWelsh)
             )
+            val aggsOrEmpty = if (aggregations.isEmpty) None else Some(aggregations)
 
             writeLog(activity = "eq_postcode_request")
 
@@ -143,6 +150,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                 dataVersion = dataVersion,
                 response = AddressByEQPostcodeResponse(
                   postcode = postcode,
+                  postcodes = aggsOrEmpty,
                   addresses = addresses,
                   filter = filterString,
                   historical = hist,
@@ -151,7 +159,8 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb
+                  verbose = verb,
+                  groupfullpostcodes = groupFullPostcodes
                 ),
                 status = OkAddressResponseStatus
               )
