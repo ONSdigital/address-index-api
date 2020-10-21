@@ -141,7 +141,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
-    // this value could be supplied as environment variable or just keep as a tuned constant
     val boostExponent = 1.2
 
     val fromSourceQueryShould =
@@ -255,12 +254,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       .sortBy(
         FieldSort("_score").order(SortOrder.DESC),
         FieldSort("postcodeStreetTown").asc(),
- //       FieldSort("lpi.postcodeLocator.keyword").asc(),
- //       FieldSort("lpi.streetDescriptor.keyword").asc(),
         FieldSort("lpi.paoStartNumber").asc(),
         FieldSort("lpi.paoStartSuffix.keyword").asc(),
         FieldSort("lpi.secondarySort").asc(),
- //       FieldSort("nisra.thoroughfare.keyword").asc(),
         FieldSort("nisra.paoStartNumber").asc(),
         FieldSort("nisra.secondarySort").asc(),
         FieldSort("uprn").asc())
