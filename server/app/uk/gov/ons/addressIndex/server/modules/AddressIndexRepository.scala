@@ -142,7 +142,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
     // this value could be supplied as environment variable or just keep as a tuned constant
-    val boostExponent = 1.25
+    val boostExponent = 1.2
 
     val fromSourceQueryShould =
       if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
