@@ -141,13 +141,16 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
+    // this value could be supplied as environment variable or just keep as a tuned constant
+    val boostExponent = 1.25
+
     val fromSourceQueryShould =
       if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
       else Seq(
-       termsQuery("countryCode","E").boost(eboost*eboost),
-       termsQuery("countryCode","N").boost(nboost*nboost),
-       termsQuery("countryCode","S").boost(sboost*sboost),
-       termsQuery("countryCode","W").boost(wboost*wboost))
+       termsQuery("countryCode","E").boost(eboost*boostExponent),
+       termsQuery("countryCode","N").boost(nboost*boostExponent),
+       termsQuery("countryCode","S").boost(sboost*boostExponent),
+       termsQuery("countryCode","W").boost(wboost*boostExponent))
 
     // if there is only one number, give boost for pao or sao not both.
     // if there are two or more numbers, boost for either matching pao and first matching sao
