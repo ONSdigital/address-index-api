@@ -141,13 +141,15 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
+    val boostExponent = 1.2
+
     val fromSourceQueryShould =
       if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
       else Seq(
-       termsQuery("countryCode","E").boost(eboost),
-       termsQuery("countryCode","N").boost(nboost),
-       termsQuery("countryCode","S").boost(sboost),
-       termsQuery("countryCode","W").boost(wboost))
+       termsQuery("countryCode","E").boost(eboost*boostExponent),
+       termsQuery("countryCode","N").boost(nboost*boostExponent),
+       termsQuery("countryCode","S").boost(sboost*boostExponent),
+       termsQuery("countryCode","W").boost(wboost*boostExponent))
 
     // if there is only one number, give boost for pao or sao not both.
     // if there are two or more numbers, boost for either matching pao and first matching sao
@@ -251,12 +253,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       .highlighting(hOpts,hFields)
       .sortBy(
         FieldSort("_score").order(SortOrder.DESC),
-        FieldSort("lpi.postcodeLocator.keyword").asc(),
-        FieldSort("lpi.streetDescriptor.keyword").asc(),
+        FieldSort("postcodeStreetTown").asc(),
         FieldSort("lpi.paoStartNumber").asc(),
         FieldSort("lpi.paoStartSuffix.keyword").asc(),
         FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
         FieldSort("nisra.paoStartNumber").asc(),
         FieldSort("nisra.secondarySort").asc(),
         FieldSort("uprn").asc())
