@@ -52,7 +52,7 @@ GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.c
 GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], partial: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String])
 
 # ONS-Address Index Partial Search Request for GCP
-GET         /addresses/partial/:input           uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchPartial(input: String, filter: Option[String])
+GET         /addresses/partial/:input           uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchPartial(input: String, filter: Option[String], fallback: Option[String])
 
 # ONS-Address Index Typeahead View
 GET         /typeahead                          uk.gov.ons.addressIndex.demoui.controllers.TypeaheadController.showMatchPartialPage

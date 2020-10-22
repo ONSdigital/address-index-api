@@ -31,6 +31,8 @@ version: DemoUIAddressIndexVersionModule
                         <dl>
                             <dt><label for="address" class="venus">Address </label></dt>
                             <dd><input type="text" name="address" id="address" placeholder="Start typing an address here. Results will be shown after 5 or more characters (or less for part postcode)." value="" onkeyup="getSingle();" class="form-control mars" /></dd>
+                            <dt><label for="fallback" class="venus">Fallback on/off </label></dt>
+                            <dd><input type="checkbox" name="fallback" id="fallback" checked></dd>
                         </dl>
                     </div>
                 </div>
@@ -49,9 +51,9 @@ version: DemoUIAddressIndexVersionModule
 
     function getSingle() {
       var addressPart = document.getElementById("address").value;
-      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/eq?input=" + addressPart + "&limit=20";
-      var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20";
-
+      var fallback = document.getElementById("fallback").checked;
+      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
+      var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20" + "&fallback="+fallback;
       if (addressPart.trim().length > 1) {
         if (@{conf.config.gcp}) {
           getJSONResponse(singleUrlGcp)
