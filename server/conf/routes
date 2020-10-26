@@ -206,6 +206,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      description: Specifies the address input.
 #    - name: fallback
 #      description: Specifies whether a slow fallback query is used in the event of the main query returning no results.
+#      default: false
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
@@ -272,6 +273,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      description: Specifies the address input.
 #    - name: fallback
 #      description: Specifies whether a slow fallback query is used in the event of the main query returning no results.
+#      default: false
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
@@ -406,6 +408,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #      description: Specifies the address input.
 #    - name: fallback
 #      description: Specifies whether a slow fallback query is used in the event of the main query returning no results.
+#      default: false
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0

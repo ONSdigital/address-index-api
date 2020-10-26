@@ -179,7 +179,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
               verbose = true,
               epoch = epochVal,
               fromsource = fromSourceValue,
-              fallback = true,
+              fallback = false,
               id = UUID.randomUUID,
               apiKey = apiKey
             )
@@ -336,7 +336,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
     val addressText = StringUtils.stripAccents(input)
     val filterText = StringUtils.stripAccents(filter.getOrElse(""))
     val limit = pageSize.toString
-    val fallbackOrDefault = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val fallbackOrDefault = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     apiClient.gcpPartialQueryWSRequest(
       AddressIndexPartialRequestGcp (

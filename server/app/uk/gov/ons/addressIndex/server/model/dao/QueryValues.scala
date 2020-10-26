@@ -33,7 +33,7 @@ case class QueryValues(input: Option[String] = None,
 {
   def inputOrDefault: String = this.input.getOrElse("")
 
-  def fallbackOrDefault: Boolean = this.fallback.getOrElse(true)
+  def fallbackOrDefault: Boolean = this.fallback.getOrElse(false)
 
   def postcodeOrDefault: String = this.postcode.getOrElse("")
 

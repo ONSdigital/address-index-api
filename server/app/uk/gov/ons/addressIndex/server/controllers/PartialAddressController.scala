@@ -70,7 +70,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
-    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
+    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
