@@ -104,7 +104,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       logger.warn("best fields fallback query invoked for input string " + args.input)
     }
 
-  //  val slopVal = 12
     val slopVal = 25
 
     val eboost = args.eboost
@@ -187,7 +186,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust)
       .not(fromSourceQueryMustNot5)
       .should(numberQuery ++ fromSourceQueryShould)
-  //  val query = must(queryWithMatchType).filter(args.queryFilter).should(numberQuery ++ fromSourceQueryShould)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPartial else hybridIndexHistoricalSkinnyPartial
@@ -1185,14 +1183,16 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
+        val tokenCount = args.inputOrDefault.split(" ").length
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
         val partResult = if ((gcp && args.verboseOrDefault) || partialFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
-          if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback)) {
+          if (adds.addresses.isEmpty && partialArgs.fallback && (args.inputOpt.nonEmpty && args.inputOpt.get.length >= minimumFallback && tokenCount > 2)) {
             logger.info(s"minimumFallback: $minimumFallback")
+            logger.info(s"tokenCount: $tokenCount")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
             if ((gcp && args.verboseOrDefault) || partialFull) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromResponse) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}

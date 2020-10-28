@@ -60,17 +60,19 @@ class TypeaheadController @Inject()(val controllerComponents: ControllerComponen
     }
   }
 
-  def doMatchPartial(input: String, filter: Option[String] = None): Action[AnyContent] = Action.async {
+  def doMatchPartial(input: String, filter: Option[String] = None, fallback: Option[String] = None ): Action[AnyContent] = Action.async {
 
     val addressText = StringUtils.stripAccents(input)
     val filterText = StringUtils.stripAccents(filter.getOrElse(""))
     val limit = pageSize.toString
+    val fallbackOrDefault = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     apiClient.gcpPartialQueryWSRequest(
       AddressIndexPartialRequestGcp (
         partial = addressText,
         filter = filterText,
-        limit = limit
+        limit = limit,
+        fallback = fallbackOrDefault
       )
     ).get.map(_.json) map { resp =>
       Ok(resp).as("application/json")
