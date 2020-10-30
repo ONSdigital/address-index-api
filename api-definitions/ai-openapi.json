@@ -128,6 +128,55 @@
             },
             "required": false,
             "description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)"
+          },
+          {
+            "in": "query",
+            "name": "includeauxiliarysearch",
+            "description": "Include search of Auxiliary index.",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -427,7 +476,7 @@
             "name": "fallback",
             "schema": {
               "type": "boolean",
-              "default": true
+              "default": false
             },
             "required": false,
             "description": "Specifies whether a slow fallback query is used in the event of the main query returning no results."
@@ -531,6 +580,46 @@
             },
             "required": false,
             "description": "Welsh beats English on draw for best match"
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -582,7 +671,7 @@
             "name": "fallback",
             "schema": {
               "type": "boolean",
-              "default": true
+              "default": false
             },
             "required": false,
             "description": "Specifies whether a slow fallback query is used in the event of the main query returning no results."
@@ -686,6 +775,46 @@
             },
             "required": false,
             "description": "Welsh beats English on draw for best match"
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1015,6 +1144,56 @@
             },
             "required": false,
             "description": "Welsh beats English on draw for best match"
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "groupfullpostcodes",
+            "description": "Group full postcode output - yes, no or combo (combined response, slower)",
+            "schema": {
+              "type": "string",
+              "default": "no"
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1879,6 +2058,22 @@
           },
           "favourwelsh": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -1896,7 +2091,11 @@
           "fromsource",
           "highlight",
           "favourpaf",
-          "favourwelsh"
+          "favourwelsh",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponseContainer": {
@@ -2456,6 +2655,22 @@
           },
           "favourwelsh": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -2473,7 +2688,11 @@
           "fromsource",
           "highlight",
           "favourpaf",
-          "favourwelsh"
+          "favourwelsh",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
@@ -2643,6 +2862,22 @@
           },
           "includeAuxiliarySearch": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -2662,7 +2897,11 @@
           "matchthreshold",
           "verbose",
           "fromsource",
-          "includeAuxiliarySearch"
+          "includeAuxiliarySearch",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer": {
@@ -3036,6 +3275,22 @@
           },
           "favourwelsh": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -3053,7 +3308,11 @@
           "fromsource",
           "highlight",
           "favourpaf",
-          "favourwelsh"
+          "favourwelsh",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponseContainer": {
