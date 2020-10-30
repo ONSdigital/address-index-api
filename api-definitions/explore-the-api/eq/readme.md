@@ -56,7 +56,7 @@
             <td class="table--cell">Specifies whether a slow fallback query is used in the event of the main query returning no results.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: True
+                <br>Default: False
             </td>
         </tr>
          <tr class="table--row">
@@ -249,7 +249,7 @@
       }
     ],
     "filter": "",
-    "fallback": true,
+    "fallback": false,
     "historical": false,
     "epoch": "",
     "limit": 20,
@@ -257,10 +257,14 @@
     "total": 2,
     "maxScore": 0,
     "verbose": false,
-    "fromsource": "all",
+    "fromsource": "all (deprecated)",
     "highlight": "on",
     "favourpaf": true,
-    "favourwelsh": false
+    "favourwelsh": false,
+    "eboost": 1,
+    "nboost": 1,
+    "sboost": 1,
+    "wboost": 1
   },
   "status": {
     "code": 200,
@@ -300,7 +304,7 @@
       }
     ],
     "filter": "",
-    "fallback": true,
+    "fallback": false,
     "historical": false,
     "epoch": "",
     "limit": 20,
@@ -308,10 +312,14 @@
     "total": 4,
     "maxScore": 0,
     "verbose": false,
-    "fromsource": "all",
+    "fromsource": "all (deprecated)",
     "highlight": "on",
     "favourpaf": true,
-    "favourwelsh": false
+    "favourwelsh": false,
+    "eboost": 1,
+    "nboost": 1,
+    "sboost": 1,
+    "wboost": 1
   },
   "status": {
     "code": 200,

@@ -249,7 +249,7 @@
       }
     ],
     "filter": "",
-    "fallback": true,
+    "fallback": false,
     "historical": false,
     "epoch": "",
     "limit": 5,
@@ -260,7 +260,11 @@
     "fromsource": "all",
     "highlight": "on",
     "favourpaf": true,
-    "favourwelsh": false
+    "favourwelsh": false,
+    "eboost": 1,
+    "nboost": 1,
+    "sboost": 1,
+    "wboost": 1
   },
   "status": {
     "code": 200,
