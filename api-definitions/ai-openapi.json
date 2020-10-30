@@ -476,7 +476,7 @@
             "name": "fallback",
             "schema": {
               "type": "boolean",
-              "default": true
+              "default": false
             },
             "required": false,
             "description": "Specifies whether a slow fallback query is used in the event of the main query returning no results."
@@ -671,7 +671,7 @@
             "name": "fallback",
             "schema": {
               "type": "boolean",
-              "default": true
+              "default": false
             },
             "required": false,
             "description": "Specifies whether a slow fallback query is used in the event of the main query returning no results."
@@ -2058,6 +2058,22 @@
           },
           "favourwelsh": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -2075,7 +2091,11 @@
           "fromsource",
           "highlight",
           "favourpaf",
-          "favourwelsh"
+          "favourwelsh",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPartialAddressResponseContainer": {
@@ -2635,6 +2655,22 @@
           },
           "favourwelsh": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -2652,7 +2688,11 @@
           "fromsource",
           "highlight",
           "favourpaf",
-          "favourwelsh"
+          "favourwelsh",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer": {
@@ -2822,6 +2862,22 @@
           },
           "includeAuxiliarySearch": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -2841,7 +2897,11 @@
           "matchthreshold",
           "verbose",
           "fromsource",
-          "includeAuxiliarySearch"
+          "includeAuxiliarySearch",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer": {
@@ -3215,6 +3275,22 @@
           },
           "favourwelsh": {
             "type": "boolean"
+          },
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
           }
         },
         "required": [
@@ -3232,7 +3308,11 @@
           "fromsource",
           "highlight",
           "favourpaf",
-          "favourwelsh"
+          "favourwelsh",
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPartialAddressResponseContainer": {
