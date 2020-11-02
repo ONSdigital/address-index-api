@@ -35,7 +35,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     * @return
     */
   def uprnQueryEQ(uprn: String,
-                bestMatchAddressType: String,
+                addresstype: Option[String] = None,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None
@@ -47,6 +47,8 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+
+    val bestMatchAddressType: String = addresstype.getOrElse("paf")
 
     val addressType = bestMatchAddressType match {
       case "paf" => AddressResponseAddress.AddressTypes.paf

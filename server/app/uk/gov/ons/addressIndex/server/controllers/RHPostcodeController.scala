@@ -38,8 +38,6 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     offset: Option[String] = None,
                     limit: Option[String] = None,
                     classificationfilter: Option[String] = None,
-                    historical: Option[String] = None,
-                    verbose: Option[String] = None,
                     favourpaf: Option[String] = None,
                     favourwelsh: Option[String] = None,
                     epoch: Option[String] = None
@@ -58,8 +56,8 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "postcode"
 
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = false
+    val verb = false
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 

@@ -284,20 +284,8 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
-#    - name: historical
-#      description: Include historical addresses
-#      default: false
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: (Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
-#      default: all
-#    - name: highlight
-#      description: include detailed highlighting info, options are off, on or debug
-#      default: on
 #    - name: favourpaf
 #      description: paf beats nag on draw for best match
 #      default: true
@@ -330,7 +318,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], epoch: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Custom EQ UPRN endpoint. Gets an address by UPRN.
@@ -340,12 +328,7 @@ GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPa
 #      description: Specifies the address UPRN.
 #    - name: addresstype
 #      description: Version of the address to return - paf, welshpaf, nag, welshnag, nisra
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
+#      default: paf
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
 #  responses:
@@ -364,7 +347,7 @@ GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPa
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQueryEQ(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.EQUPRNController.uprnQueryEQ(uprn, addresstype : Option[String], epoch: Option[String])
 
 ###
 #  summary: Custom RH UPRN endpoint. Gets an address by UPRN.
@@ -374,12 +357,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #      description: Specifies the address UPRN.
 #    - name: addresstype
 #      description: Version of the address to return - paf, welshpaf, nag, welshnag, nisra
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
+#      default: paf
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
 #  responses:
@@ -398,7 +376,7 @@ GET     /addresses/eq/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.E
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.RHUPRNController.uprnQueryRH(uprn, addresstype, historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.RHUPRNController.uprnQueryRH(uprn, addresstype : Option[String], epoch: Option[String])
 
 ###
 #  summary: Custom EQ endpoint that will pass the request to either the EQ partial endpoint or the postcode endpoint depending on what input string is submitted.
@@ -419,20 +397,8 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #      maximum: 5000
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
-#    - name: historical
-#      description: Include historical addresses
-#      default: false
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: (Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
-#      default: all
-#    - name: highlight
-#      description: include detailed highlighting info, options are off, on or debug
-#      default: on
 #    - name: favourpaf
 #      description: paf beats nag on draw for best match
 #      default: true
@@ -468,7 +434,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], groupfullpostcodes: Option[String])
+GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], epoch: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], groupfullpostcodes: Option[String])
 
 ###
 #  summary: Search for an address by a partial postcode, with grouped results.
@@ -488,7 +454,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
 #    - name: historical
 #      description: Include historical addresses
-#      default: true
+#      default: false
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
@@ -528,7 +494,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
 #    - name: historical
 #      description: Include historical addresses
-#      default: true
+#      default: false
 #    - name: verbose
 #      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
 #      default: false
@@ -568,14 +534,14 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: favourpaf
+#      description: paf beats nag on draw for best match
+#      default: true
+#    - name: favourwelsh
+#      description: Welsh beats English on draw for best match
+#      default: false
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -590,7 +556,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
+GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
 
 ###
 #  summary: Search for addresses in a postcode_street_town grouping (called a bucket)
@@ -615,13 +581,13 @@ GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server
 #      maximum: 100
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
-#    - name: historical
-#      description: Include historical addresses
-#      default: true
-#    - name: verbose
-#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
-#      default: false
 #    - name: epoch
+#    - name: favourpaf
+#      description: paf beats nag on draw for best match
+#      default: true
+#    - name: favourwelsh
+#      description: Welsh beats English on draw for best match
+#      default: false
 #      description: Select a specific AddressBase Epoch to search.
 #  responses:
 #    200:
@@ -637,7 +603,7 @@ GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers.EQBucketController.bucketQueryEQ(postcode: Option[String], streetname: Option[String], townname: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
+GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers.EQBucketController.bucketQueryEQ(postcode: Option[String], streetname: Option[String], townname: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
 
 
 

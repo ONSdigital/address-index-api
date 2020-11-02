@@ -23,11 +23,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               offset: Option[String] = None,
               limit: Option[String] = None,
               classificationfilter: Option[String] = None,
-              historical: Option[String] = None,
-              verbose: Option[String] = None,
               epoch: Option[String] = None,
-              fromsource: Option[String] = None,
-              highlight: Option[String] = None,
               favourpaf: Option[String] = None,
               favourwelsh: Option[String] = None,
               eboost: Option[String] = None,
@@ -54,8 +50,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
           offset = offset,
           limit = limit,
           classificationfilter = classificationfilter,
-          historical = historical,
-          verbose = verbose,
           epoch = epoch)(req)
       } else {
         logger.info("Input is postcode, groupfullpostcode setting = "  + groupFullPostcodesVal)
@@ -64,8 +58,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
           offset = offset,
           limit = limit,
           classificationfilter = classificationfilter,
-          historical = historical,
-          verbose = verbose,
           favourpaf = favourpaf,
           favourwelsh = favourwelsh,
           epoch = epoch,
@@ -80,8 +72,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCodeAndSectorWithSpace(input)){
       logger.info("Input is the outcode and sector parts of a postcode")
@@ -90,8 +80,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCode(input)){
       logger.info("Input is the outcode part of a postcode")
@@ -100,8 +88,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCodeAndSectorAndHalfUnit(normalizedInput)){
       logger.info("Input is the outcode and most of incode parts of a postcode")
@@ -110,8 +96,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCodeAndSector(normalizedInput)){
       logger.info("Input is the outcode and sector parts of a postcode")
@@ -120,8 +104,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch)(req)
     } else if (isOutCode(normalizedInput)){
       logger.info("Input is the outcode part of a postcode")
@@ -130,8 +112,6 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch)(req)
     } else {
       logger.info("input is partial address")
@@ -141,11 +121,7 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch,
-        fromsource = fromsource,
-        highlight = highlight,
         favourpaf = favourpaf,
         favourwelsh = favourwelsh,
         eboost = eboost,
