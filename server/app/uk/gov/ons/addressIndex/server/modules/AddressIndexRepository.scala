@@ -120,7 +120,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
-    val queryWithMatchType = if (fallback) queryBase.matchType("best_fields").slop(slopVal) else queryBase.matchType("phrase").slop(slopVal)
+    val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
 
     val fromSourceQueryMust = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
@@ -210,7 +210,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val englishPafScore: Int = 1 + englishBoost + pafBoost
     val welshPafScore: Int = 1 + welshBoost + pafBoost
 
-    val scriptText: String =  "Math.round((_score " +
+    val scriptText: String =  "(score < 10)? 0: Math.round((_score " +
       "+ Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) " +
     "|| doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? " +
     englishNagScore + " : 0), " +
@@ -239,14 +239,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       "input" -> args.input.replaceAll(",","").replaceAll("'","").take(12),
       "inputshort" -> args.input.replaceAll(",","").replaceAll("'","").take(6),
     )
-    val partialScript: Script = new Script(script = scriptText, params = scriptParams )
+    val partialScript: Script = new Script(script = scriptText, params = scriptParams)
     val hOpts = new HighlightOptions(numOfFragments=Some(0))
 
     search(source + args.epochParam)
       .query(
           functionScoreQuery(query).functions(
           scriptScore(partialScript))
-            .boostMode("replace")
+            .boostMode("replace").minScore(5)
       )
       .highlighting(hOpts,hFields)
       .sortBy(
@@ -1178,7 +1178,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //   val searchString = SearchBodyBuilderFn(query).string()
+//    val searchString = SearchBodyBuilderFn(query).string()
  //   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
@@ -1186,6 +1186,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         val tokenCount = args.inputOrDefault.split(" ").length
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
+        val searchString = SearchBodyBuilderFn(fallbackQuery).string()
+        println(searchString)
         val partResult = if ((gcp && args.verboseOrDefault) || partialFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
