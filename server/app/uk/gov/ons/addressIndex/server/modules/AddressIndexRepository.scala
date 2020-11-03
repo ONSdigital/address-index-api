@@ -120,7 +120,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
-    val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
+    val queryWithMatchType = if (fallback) queryBase.matchType("best_fields").slop(slopVal) else queryBase.matchType("phrase").slop(slopVal)
 
     val fromSourceQueryMust = args.fromsource match {
       case "ewonly" => Seq(termsQuery("fromSource","EW"))
