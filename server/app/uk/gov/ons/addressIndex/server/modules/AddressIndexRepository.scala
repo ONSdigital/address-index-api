@@ -210,7 +210,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val englishPafScore: Int = 1 + englishBoost + pafBoost
     val welshPafScore: Int = 1 + welshBoost + pafBoost
 
-    val scriptText: String =  "(score < 10)? 0: Math.round((_score " +
+    val scriptText: String =  "(_score < 10)? 0: Math.round((_score " +
       "+ Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) " +
     "|| doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? " +
     englishNagScore + " : 0), " +
@@ -1186,8 +1186,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         val tokenCount = args.inputOrDefault.split(" ").length
         // generate a slow, fuzzy fallback query for later
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
-        val searchString = SearchBodyBuilderFn(fallbackQuery).string()
-        println(searchString)
+ //       val searchString = SearchBodyBuilderFn(fallbackQuery).string()
+  //      println(searchString)
         val partResult = if ((gcp && args.verboseOrDefault) || partialFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
