@@ -775,7 +775,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = eqController.eqQuery(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = eqController.eqQuery(input = "some query").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -808,7 +808,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -839,7 +839,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"), groupfullpostcodes = Some("yes")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), groupfullpostcodes = Some("yes")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -872,7 +872,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -903,7 +903,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -961,7 +961,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         ))
 
       // When
-      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("*"),streetname = Some("*"), townname = Some("*"), favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("*"),streetname = Some("*"), townname = Some("*"), favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -992,7 +992,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1A", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1A", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1025,7 +1025,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"),groupfullpostcodes = Some("combo")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"),groupfullpostcodes = Some("combo")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1069,7 +1069,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = rhPartialAddressController.partialAddressQueryRH(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = rhPartialAddressController.partialAddressQueryRH(input = "some query").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1099,7 +1099,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = rhPostcodeController.postcodeQueryRH("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = rhPostcodeController.postcodeQueryRH("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
