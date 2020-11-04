@@ -143,13 +143,11 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                   postcode = postcode,
                   addresses = addresses,
                   filter = filterString,
-                  historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = total,
-                  maxScore = maxScore,
-                  verbose = verb
+                  maxScore = maxScore
                 ),
                 status = OkAddressResponseStatus
               )

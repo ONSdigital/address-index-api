@@ -127,7 +127,6 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
                 response = AddressByRHUprnResponse(
                   address = Some(address),
                   addressType = addressType,
-                  historical = hist,
                   epoch = epochVal
                 ),
                 status = OkAddressResponseStatus

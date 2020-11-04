@@ -154,14 +154,11 @@ class EQBucketController @Inject()(val controllerComponents: ControllerComponent
                   townname = townNameVal,
                   addresses = addresses,
                   filter = filterString,
-                  historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = total,
-                  maxScore = maxScore,
-                  verbose = verb
-                ),
+                  maxScore = maxScore),
                 status = OkAddressResponseStatus
               )
             )

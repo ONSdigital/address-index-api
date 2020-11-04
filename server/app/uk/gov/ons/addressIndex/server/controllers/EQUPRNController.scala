@@ -127,7 +127,6 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
                 response = AddressByEQUprnResponse(
                   address = Some(address),
                   addressType = addressType,
-                  historical = hist,
                   epoch = epochVal
                 ),
                 status = OkAddressResponseStatus
