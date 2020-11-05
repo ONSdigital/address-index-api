@@ -210,7 +210,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val englishPafScore: Int = 1 + englishBoost + pafBoost
     val welshPafScore: Int = 1 + welshBoost + pafBoost
 
-    val scriptText: String =  "(_score < 10)? 0: Math.round((_score " +
+    val scriptText: String =  "(_score < 5)? 0: Math.round((_score " +
       "+ Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) " +
     "|| doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? " +
     englishNagScore + " : 0), " +
