@@ -186,12 +186,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     // Note that the mixedNagStart and similar fields should be changed to text from keyword for case insensitivity (this will also reduce the size of the index)
     val shortInput = args.input.take(12).toLowerCase.split(" ").map(_.capitalize).mkString(" ")
 
-    val startQuery = Seq(
-      prefixQuery("lpi.mixedNagStart",shortInput).boost(1),
-      prefixQuery("lpi.mixedWelshNagStart",shortInput).boost(1),
-      prefixQuery("paf.mixedPafStart",shortInput).boost(0.5),
-      prefixQuery("paf.mixedWelshPafStart",shortInput).boost(0.5),
-      prefixQuery("nisra.mixedNisraStart",shortInput).boost(2))
+    val startQuery = Seq(dismax(Seq(
+      prefixQuery("lpi.mixedNagStart",shortInput).boost(1.5),
+      prefixQuery("lpi.mixedWelshNagStart",shortInput).boost(1.5),
+      prefixQuery("paf.mixedPafStart",shortInput).boost(1.5),
+      prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.5),
+      prefixQuery("nisra.mixedNisraStart",shortInput).boost(1.5))))
 
     val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust)
       .not(fromSourceQueryMustNot5)
@@ -1151,8 +1151,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //   val searchString = SearchBodyBuilderFn(query).string()
- //   println(searchString)
+    val searchString = SearchBodyBuilderFn(query).string()
+    println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
