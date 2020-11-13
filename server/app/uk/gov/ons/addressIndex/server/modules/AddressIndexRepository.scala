@@ -187,11 +187,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val shortInput = args.input.take(12).toLowerCase.split(" ").map(_.capitalize).mkString(" ")
 
     val startQuery = Seq(dismax(Seq(
-      prefixQuery("lpi.mixedNagStart",shortInput).boost(1.5),
-      prefixQuery("lpi.mixedWelshNagStart",shortInput).boost(1.5),
-      prefixQuery("paf.mixedPafStart",shortInput).boost(1.5),
-      prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.5),
-      prefixQuery("nisra.mixedNisraStart",shortInput).boost(1.5))))
+      prefixQuery("lpi.mixedNagStart",shortInput).boost(1.25),
+      prefixQuery("lpi.mixedWelshNagStart",shortInput).boost(1.25),
+      prefixQuery("paf.mixedPafStart",shortInput).boost(1.25),
+      prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.25),
+      prefixQuery("nisra.mixedNisraStart",shortInput).boost(1.25))))
 
     val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust)
       .not(fromSourceQueryMustNot5)
