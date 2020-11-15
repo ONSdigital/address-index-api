@@ -145,10 +145,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryShould =
       if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
       else Seq(
-       termsQuery("countryCode","E").boost(eboost*boostExponent),
-       termsQuery("countryCode","N").boost(nboost*boostExponent),
-       termsQuery("countryCode","S").boost(sboost*boostExponent),
-       termsQuery("countryCode","W").boost(wboost*boostExponent))
+       termsQuery("countryCode","E").boost(math.pow(eboost,boostExponent)),
+       termsQuery("countryCode","N").boost(math.pow(nboost,boostExponent)),
+       termsQuery("countryCode","S").boost(math.pow(sboost,boostExponent)),
+       termsQuery("countryCode","W").boost(math.pow(wboost,boostExponent)))
 
     // if there is only one number, give boost for pao or sao not both.
     // if there are two or more numbers, boost for either matching pao and first matching sao
@@ -1152,7 +1152,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
  // uncomment to see generated query
  //   val searchString = SearchBodyBuilderFn(query).string()
- //   println(searchString)
+ //  println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
