@@ -494,6 +494,18 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -508,7 +520,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -536,6 +548,18 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      description: Select a specific AddressBase Epoch to search.
 #    - name: includeauxiliarysearch
 #      description: Include search of Auxiliary index.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -550,7 +574,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String],eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode. RH version
@@ -576,6 +600,18 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -590,7 +626,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
+GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for addresses in a postcode_street_town grouping (called a bucket)

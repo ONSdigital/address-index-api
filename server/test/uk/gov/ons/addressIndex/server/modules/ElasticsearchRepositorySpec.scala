@@ -891,7 +891,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-            {"query":{"bool":{"must":[{"term":{"postcode":{"value":" H4"}}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"from":0,"size":1,"sort":[{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}]}
+          {"query":{"bool":{"must":[{"bool":{"must":[{"term":{"postcode":{"value":" H4"}}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}}]}},"from":0,"size":1,"sort":[{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}]}
          """.stripMargin
       )
 
@@ -912,7 +912,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {"query":{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"postcodeStreetTown","size":1000,"order":{"_key":"asc"}},"aggs":{"uprns":{"terms":{"field":"uprn","size":1}},"paftowns":{"terms":{"field":"postTown","size":1}}}}}}
+          {"query":{"bool":{"must":[{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"postcodeStreetTown","size":1000,"order":{"_key":"asc"}},"aggs":{"uprns":{"terms":{"field":"uprn","size":1}},"paftowns":{"terms":{"field":"postTown","size":1}}}}}}
          """.stripMargin
       )
 
