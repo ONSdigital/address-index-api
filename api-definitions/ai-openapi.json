@@ -1309,6 +1309,46 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1414,6 +1454,46 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1535,6 +1615,46 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
