@@ -143,7 +143,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val boostExponent = 1.2
 
     val fromSourceQueryShould =
-      if (eboost == 1 && sboost == 1 && nboost == 1 & wboost ==1) Seq.empty
+      if ((eboost == 1 || eboost == 0) && (sboost == 1 || sboost == 0) && (nboost == 1 || nboost == 0) && (wboost == 1 || wboost == 0)) Seq.empty
       else Seq(
        termsQuery("countryCode","E").boost(math.pow(eboost,boostExponent)),
        termsQuery("countryCode","N").boost(math.pow(nboost,boostExponent)),
