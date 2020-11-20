@@ -429,7 +429,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   }
 
   val postcodeControllerKaput : PostcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation) {
-    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String]): Action[AnyContent] = Action {
+    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String]): Action[AnyContent] = Action {
       ImATeapot
     }
   }

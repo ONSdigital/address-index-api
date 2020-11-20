@@ -266,7 +266,11 @@ final case class PostcodeArgs(postcode: String,
                               favourpaf: Boolean = true,
                               favourwelsh: Boolean = true,
                               includeAuxiliarySearch: Boolean = false,
-                              groupfullpostcodes: String = "no"
+                              groupfullpostcodes: String = "no",
+                              eboost: Double = 1.0,
+                              nboost: Double = 1.0,
+                              sboost: Double = 1.0,
+                              wboost: Double = 1.0
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
@@ -293,7 +297,11 @@ final case class GroupedPostcodeArgs(postcode: String,
                               verbose: Boolean = true,
                               skinny: Boolean = false,
                               favourpaf: Boolean = true,
-                              favourwelsh: Boolean = true
+                              favourwelsh: Boolean = true,
+                              eboost: Double = 1.0,
+                              nboost: Double = 1.0,
+                              sboost: Double = 1.0,
+                              wboost: Double = 1.0
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 

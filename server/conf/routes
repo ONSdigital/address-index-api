@@ -16,7 +16,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: rangekm
 #      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
 #    - name: lat
@@ -216,7 +216,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: false
@@ -283,7 +283,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: false
@@ -418,7 +418,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #      default: 100
 #      maximum: 5000
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: false
@@ -485,7 +485,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #      default: 100
 #      maximum: 5000
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -494,6 +494,18 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -508,7 +520,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String])
+GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -525,7 +537,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      default: 100
 #      maximum: 5000
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -536,6 +548,18 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      description: Select a specific AddressBase Epoch to search.
 #    - name: includeauxiliarysearch
 #      description: Include search of Auxiliary index.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -550,7 +574,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String],eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode. RH version
@@ -567,7 +591,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -576,6 +600,18 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
+#    - name: eboost
+#      description: Set to 0 to exclude addresses in England
+#      default: 1.0
+#    - name: nboost
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#      default: 1.0
+#    - name: sboost
+#      description: Set to 0 to exclude addresses in Scotland
+#      default: 1.0
+#    - name: wboost
+#      description: Set to 0 to exclude addresses in Wales
+#      default: 1.0
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -590,7 +626,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String])
+GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for addresses in a postcode_street_town grouping (called a bucket)
@@ -614,7 +650,7 @@ GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -647,7 +683,7 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #  description: Returns a random address.
 #  parameters:
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: limit
 #      description: Specifies the number of addresses to return.
 #      default: 1
@@ -786,7 +822,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: input
 #      description: Specifies the input for which the query should be generated.
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: rangekm
 #      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
 #    - name: lat

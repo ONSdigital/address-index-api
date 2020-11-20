@@ -44,7 +44,11 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     favourpaf: Option[String] = None,
                     favourwelsh: Option[String] = None,
                     epoch: Option[String] = None,
-                    groupfullpostcodes: Option[String] = None
+                    groupfullpostcodes: Option[String] = None,
+                    eboost: Option[String] = None,
+                    nboost: Option[String] = None,
+                    sboost: Option[String] = None,
+                    wboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -68,6 +72,16 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
     val epochVal = epoch.getOrElse("")
 
     val groupFullPostcodes: String = groupfullpostcodes.getOrElse(GroupOptions.NO.toString)
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -97,7 +111,11 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
       verbose = Some(verb),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh),
-      groupFullPostcodes = Some(groupFullPostcodes)
+      groupFullPostcodes = Some(groupFullPostcodes),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -126,7 +144,11 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
           skinny = !verb,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh,
-          groupfullpostcodes = groupFullPostcodes
+          groupfullpostcodes = groupFullPostcodes,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =

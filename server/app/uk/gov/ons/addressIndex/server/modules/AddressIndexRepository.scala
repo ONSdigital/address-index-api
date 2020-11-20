@@ -246,7 +246,24 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       (postcodeStart + " " + postcodeEnd).toUpperCase
     } else args.postcode.toUpperCase
 
-    val query = must(termQuery("postcode", postcodeFormatted)).filter(args.queryFilter)
+    val eboost = args.eboost
+    val nboost = args.nboost
+    val sboost = args.sboost
+    val wboost = args.wboost
+
+    val eTerms = termsQuery("countryCode","E")
+    val nTerms = termsQuery("countryCode","N")
+    val sTerms = termsQuery("countryCode","S")
+    val wTerms = termsQuery("countryCode","W")
+
+    // this is inelegant but we mustn't end up with a Seq(Any)
+    val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
+    val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
+    val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
+    val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
+    val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+
+    val query = bool(mustQueries=Seq(must(termQuery("postcode", postcodeFormatted)).filter(args.queryFilter)),shouldQueries=Seq.empty,notQueries =fromSourceQueryMustNot5)
 
     val source = (if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -321,9 +338,24 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val postcodeFormatted: String = args.postcode.toUpperCase
 
-  //  val isNotJustOutcode: Boolean = (postcodeFormatted.trim.contains(" "))
-    val isNotJustOutcode: Boolean = true
-    val query = must(prefixQuery("postcode", postcodeFormatted)).filter(args.queryFilter)
+    val eboost = args.eboost
+    val nboost = args.nboost
+    val sboost = args.sboost
+    val wboost = args.wboost
+
+    val eTerms = termsQuery("countryCode","E")
+    val nTerms = termsQuery("countryCode","N")
+    val sTerms = termsQuery("countryCode","S")
+    val wTerms = termsQuery("countryCode","W")
+
+    // this is inelegant but we mustn't end up with a Seq(Any)
+    val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
+    val fromSourceQueryMustNot2 = if (eboost == 0) fromSourceQueryMustNot1 :+ eTerms else fromSourceQueryMustNot1
+    val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
+    val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
+    val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+
+    val query = bool(mustQueries=Seq(must(prefixQuery("postcode", postcodeFormatted)).filter(args.queryFilter)),shouldQueries=Seq.empty,notQueries =fromSourceQueryMustNot5)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -333,7 +365,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val searchBase = search(source + args.epochParam)
 
-    if (isNotJustOutcode) {
       searchBase.query(query)
         .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
           .size(1000)
@@ -344,14 +375,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             .size(1)))
         .start(0)
         .limit(1)
-    } else {
-      searchBase.query(query)
-        .aggs(termsAgg("uniquepostcodes", "postcodeStreetTown")
-          .size(1000)
-          .order(TermsOrder("_key", asc = true)))
-        .start(0)
-        .limit(1)
-    }
   }
 
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
