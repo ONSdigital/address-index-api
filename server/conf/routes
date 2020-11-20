@@ -16,7 +16,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: rangekm
 #      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
 #    - name: lat
@@ -216,7 +216,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: false
@@ -283,7 +283,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: false
@@ -418,7 +418,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #      default: 100
 #      maximum: 5000
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: false
@@ -485,7 +485,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #      default: 100
 #      maximum: 5000
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -537,7 +537,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      default: 100
 #      maximum: 5000
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -591,7 +591,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -650,7 +650,7 @@ GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server
 #      default: 10
 #      maximum: 100
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: historical
 #      description: Include historical addresses
 #      default: true
@@ -683,7 +683,7 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #  description: Returns a random address.
 #  parameters:
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: limit
 #      description: Specifies the number of addresses to return.
 #      default: 1
@@ -822,7 +822,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: input
 #      description: Specifies the input for which the query should be generated.
 #    - name: classificationfilter
-#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: rangekm
 #      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
 #    - name: lat
