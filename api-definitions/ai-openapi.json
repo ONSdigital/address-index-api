@@ -510,7 +510,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -705,7 +705,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -1074,7 +1074,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -1279,7 +1279,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -1309,6 +1309,46 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1384,7 +1424,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -1414,6 +1454,46 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1489,7 +1569,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -1535,6 +1615,46 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
+          },
+          {
+            "in": "query",
+            "name": "eboost",
+            "description": "Set to 0 to exclude addresses in England",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nboost",
+            "description": "Set to 0 to exclude addresses in Northern Ireland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sboost",
+            "description": "Set to 0 to exclude addresses in Scotland",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "wboost",
+            "description": "Set to 0 to exclude addresses in Wales",
+            "schema": {
+              "type": "string",
+              "default": 1
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1631,7 +1751,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
@@ -1721,7 +1841,7 @@
               "type": "string"
             },
             "required": false,
-            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace"
+            "description": "Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace"
           },
           {
             "in": "query",
