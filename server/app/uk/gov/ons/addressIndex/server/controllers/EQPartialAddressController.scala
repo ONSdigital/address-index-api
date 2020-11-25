@@ -46,7 +46,6 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
                           historical: Option[String] = None,
                           verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          fromsource: Option[String] = None,
                           highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None,
@@ -79,7 +78,6 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     val highVerbose: Boolean = highVal == "debug"
     val inputVal = input.replaceAll("'","")
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
@@ -121,7 +119,6 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
-      fromsource = Some(fromsourceVal),
       highlight = Some(highVal),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh),
@@ -139,7 +136,6 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
-        .orElse(partialAddressValidation.validateFromSource(queryValues))
         .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
@@ -158,7 +154,6 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal,
           highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh,

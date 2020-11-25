@@ -34,9 +34,6 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
-#      default: all
 #    - name: includeauxiliarysearch
 #      description: Include search of Auxiliary index.
 #    - name: eboost
@@ -66,7 +63,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Return a list of codelists supported by the API
@@ -225,9 +222,6 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: (Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
-#      default: all
 #    - name: highlight
 #      description: include detailed highlighting info, options are off, on or debug
 #      default: on
@@ -263,7 +257,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead). RH version
@@ -664,9 +658,6 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #      default: false
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)
-#      default: all
 #    - name: eboost
 #      description: Set to 0 to exclude addresses in England
 #      default: 1.0
@@ -693,7 +684,7 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], fromsource: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Get version information.
@@ -802,9 +793,6 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #      default: true
 #    - name: epoch
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: fromsource
-#      description: Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)
-#      default: all
 #  responses:
 #    200:
 #      description: Success. A json return of the elasticsearch query.
@@ -817,7 +805,7 @@ GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], epoch: Option[String], fromsource: Option[String])
+GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugController.queryDebug(input, classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], epoch: Option[String])
 
 ### NoDocs ###
 ###

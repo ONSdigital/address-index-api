@@ -46,7 +46,6 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
                  lon: Option[String] = None,
                  historical: Option[String] = None,
                  epoch: Option[String],
-                 fromsource: Option[String],
                  eboost: Option[String] = None,
                  nboost: Option[String] = None,
                  sboost: Option[String] = None,
@@ -65,7 +64,6 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = fromsource.getOrElse("")
 
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
@@ -88,7 +86,6 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
       filterDateRange = DateRange(startDateVal, endDateVal),
       limit = 0,
       queryParamsConfig = None,
-      fromsource = fromsourceVal,
       eboost = eboostDouble,
       nboost = nboostDouble,
       sboost = sboostDouble,

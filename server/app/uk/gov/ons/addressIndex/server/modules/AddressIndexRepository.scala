@@ -111,22 +111,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val sboost = args.sboost
     val wboost = args.wboost
 
-    val niFactor = args.fromsource match {
-      case "niboost" => "^" + esConf.queryParams.nisra.partialNiBoostBoost
-      case "ewboost" => "^" + esConf.queryParams.nisra.partialEwBoostBoost
-      case _ => "^" + esConf.queryParams.nisra.partialAllBoost
-    }
+    val niFactor = esConf.queryParams.nisra.partialAllBoost
 
     val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
-
-    val fromSourceQueryMust = args.fromsource match {
-      case "ewonly" => Seq(termsQuery("fromSource","EW"))
-      case "nionly" => Seq(termsQuery("fromSource","NI"))
-      case _ => Seq.empty
-    }
 
     val eTerms = termsQuery("countryCode","E")
     val nTerms = termsQuery("countryCode","N")
@@ -193,7 +183,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.25),
       prefixQuery("nisra.mixedNisraStart",shortInput).boost(1.25))))
 
-    val query = must(queryWithMatchType).filter(args.queryFilter ++ fromSourceQueryMust)
+    val query = must(queryWithMatchType).filter(args.queryFilter)
       .not(fromSourceQueryMustNot5)
       .should(numberQuery ++ fromSourceQueryShould ++ startQuery)
 
@@ -380,14 +370,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   private def makeRandomQuery(args: RandomArgs): SearchRequest = {
     val timestamp: Long = System.currentTimeMillis
 
-    val fromSourceQuery = args.fromsource match {
-      case "ewonly" => Seq(termsQuery("fromSource","EW"))
-      case "nionly" => Seq(termsQuery("fromSource","NI"))
-      case "niboost" => Seq(termsQuery("fromSource","NI"))
-      case "ewboost" => Seq(termsQuery("fromSource","EW"))
-      case _ => Seq.empty
-    }
-
     val eboost = args.eboost
     val nboost = args.nboost
     val sboost = args.sboost
@@ -407,7 +389,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(args.queryFilter ++ fromSourceQuery).not(fromSourceQueryMustNot5))
+      .query(boolQuery().filter(args.queryFilter).not(fromSourceQueryMustNot5))
       .boostMode("replace")
 
     val source = if (args.historical) {

@@ -38,7 +38,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   historical: Option[String] = None,
                   verbose: Option[String] = None,
                   epoch: Option[String] = None,
-                  fromsource: Option[String] = None,
                   eboost: Option[String] = None,
                   nboost: Option[String] = None,
                   sboost: Option[String] = None,
@@ -59,7 +58,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
@@ -95,7 +93,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       historical = Some(hist),
       limit = Some(limitInt),
       verbose = Some(verb),
-      fromsource = Some(fromsourceVal),
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
@@ -108,7 +105,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         .orElse(randomValidation.validateKeyStatus(queryValues))
         .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
         .orElse(randomValidation.validateEpoch(queryValues))
-        .orElse(randomValidation.validateFromSource(queryValues))
         .orElse(randomValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
@@ -125,7 +121,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal,
           eboost = eboostDouble,
           nboost = nboostDouble,
           sboost = sboostDouble,
@@ -157,7 +152,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   epoch = epochVal,
                   limit = limitInt,
                   verbose = verb,
-                  fromsource = fromsourceVal,
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,

@@ -64,7 +64,7 @@ trait AddressIndexClient {
         "lon" -> request.lon,
         "limit" -> request.limit,
         "offset" -> request.offset,
-        "fromsource" -> request.fromsource,
+ //       "fromsource" -> request.fromsource,
         "verbose" -> request.verbose.toString,
         "epoch" -> request.epoch.toString
       )
@@ -138,7 +138,7 @@ trait AddressIndexClient {
         "limit" -> request.limit,
         "offset" -> request.offset,
         "verbose" -> request.verbose.toString,
-        "fromsource" -> request.fromsource.toString,
+//        "fromsource" -> request.fromsource.toString,
         "epoch" -> request.epoch.toString,
         "fallback" -> request.fallback.toString
       )
