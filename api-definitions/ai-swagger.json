@@ -305,14 +305,6 @@
 						"required": false
 					},
 					{
-						"default": "all",
-						"in": "query",
-						"name": "fromsource",
-						"description": "(Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
-						"type": "string",
-						"required": false
-					},
-					{
 						"default": true,
 						"in": "query",
 						"name": "highlight",
@@ -598,14 +590,6 @@
 						"required": false
 					},
 					{
-						"default": "all",
-						"in": "query",
-						"name": "fromsource",
-						"description": "(Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
-						"type": "string",
-						"required": false
-					},
-					{
 						"default": true,
 						"in": "query",
 						"name": "highlight",
@@ -849,14 +833,6 @@
 						"required": false
 					},
 					{
-						"default": "all",
-						"in": "query",
-						"name": "fromsource",
-						"description": "(Deprecated in favour of eboost, nboost, sboost and wboost) Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
-						"type": "string",
-						"required": false
-					},
-					{
 						"default": true,
 						"in": "query",
 						"name": "highlight",
@@ -988,14 +964,6 @@
 						"in": "query",
 						"name": "epoch",
 						"description": "Select a specific AddressBase Epoch to search.",
-						"type": "string",
-						"required": false
-					},
-					{
-						"default": "all",
-						"in": "query",
-						"name": "fromsource",
-						"description": "Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)",
 						"type": "string",
 						"required": false
 					},
@@ -1261,14 +1229,6 @@
 						"in": "query",
 						"name": "epoch",
 						"description": "Select a specific AddressBase Epoch to search.",
-						"type": "string",
-						"required": false
-					},
-					{
-						"default": "all",
-						"in": "query",
-						"name": "fromsource",
-						"description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)",
 						"type": "string",
 						"required": false
 					},
@@ -1733,9 +1693,6 @@
 					"format": "int64",
 					"type": "integer"
 				},
-				"fromsource": {
-					"type": "string"
-				},
 				"limit": {
 					"format": "int32",
 					"type": "integer"
@@ -1763,7 +1720,6 @@
 				"total",
 				"maxScore",
 				"verbose",
-				"fromsource",
 				"highlight",
 				"favourpaf",
 				"favourwelsh",
@@ -1827,9 +1783,6 @@
 					"format": "int64",
 					"type": "integer"
 				},
-				"fromsource": {
-					"type": "string"
-				},
 				"rangekm": {
 					"type": "string"
 				},
@@ -1871,7 +1824,6 @@
 				"maxScore",
 				"matchthreshold",
 				"verbose",
-				"fromsource",
 				"includeauxiliarysearch",
 				"eboost",
 				"nboost",
@@ -2328,9 +2280,6 @@
 						"$ref": "#/definitions/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
 					}
 				},
-				"fromsource": {
-					"type": "string"
-				},
 				"wboost": {
 					"format": "double",
 					"type": "number"
@@ -2368,7 +2317,6 @@
 				"epoch",
 				"limit",
 				"verbose",
-				"fromsource",
 				"eboost",
 				"nboost",
 				"sboost",
@@ -2787,9 +2735,6 @@
 					"format": "int64",
 					"type": "integer"
 				},
-				"fromsource": {
-					"type": "string"
-				},
 				"limit": {
 					"format": "int32",
 					"type": "integer"
@@ -2817,7 +2762,6 @@
 				"total",
 				"maxScore",
 				"verbose",
-				"fromsource",
 				"highlight",
 				"favourpaf",
 				"favourwelsh",
@@ -3869,9 +3813,6 @@
 					"format": "int64",
 					"type": "integer"
 				},
-				"fromsource": {
-					"type": "string"
-				},
 				"limit": {
 					"format": "int32",
 					"type": "integer"
@@ -3899,7 +3840,6 @@
 				"total",
 				"maxScore",
 				"verbose",
-				"fromsource",
 				"highlight",
 				"favourpaf",
 				"favourwelsh",

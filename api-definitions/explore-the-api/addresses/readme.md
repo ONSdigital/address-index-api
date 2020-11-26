@@ -112,15 +112,6 @@
                 Optional
             </td>
         </tr>
-         <tr class="table--row">
-            <td class="table--cell">fromsource</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: all
-            </td>
-        </tr>
         <tr class="table--row">
             <td class="table--cell">includeauxiliarysearch</td>
             <td class="table--cell">string</td>
@@ -254,7 +245,6 @@
     "maxScore": 27.280842,
     "matchthreshold": 5,
     "verbose": false,
-    "fromsource": "all"
   },
   "status": {
     "code": 200,
@@ -409,7 +399,6 @@
       "maxScore": 27.280842,
       "matchthreshold": 5,
       "verbose": true,
-      "fromsource": "all"
     },
     "status": {
       "code": 200,

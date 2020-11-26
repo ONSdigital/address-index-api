@@ -121,16 +121,6 @@
           },
           {
             "in": "query",
-            "name": "fromsource",
-            "schema": {
-              "type": "string",
-              "default": "all"
-            },
-            "required": false,
-            "description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)"
-          },
-          {
-            "in": "query",
             "name": "includeauxiliarysearch",
             "description": "Include search of Auxiliary index.",
             "schema": {
@@ -543,16 +533,6 @@
           },
           {
             "in": "query",
-            "name": "fromsource",
-            "schema": {
-              "type": "string",
-              "default": "all"
-            },
-            "required": false,
-            "description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)"
-          },
-          {
-            "in": "query",
             "name": "highlight",
             "schema": {
               "type": "string",
@@ -735,16 +715,6 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
-          },
-          {
-            "in": "query",
-            "name": "fromsource",
-            "schema": {
-              "type": "string",
-              "default": "all"
-            },
-            "required": false,
-            "description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)"
           },
           {
             "in": "query",
@@ -1104,16 +1074,6 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
-          },
-          {
-            "in": "query",
-            "name": "fromsource",
-            "schema": {
-              "type": "string",
-              "default": "all"
-            },
-            "required": false,
-            "description": "Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)"
           },
           {
             "in": "query",
@@ -1882,16 +1842,6 @@
             },
             "required": false,
             "description": "Select a specific AddressBase Epoch to search."
-          },
-          {
-            "in": "query",
-            "name": "fromsource",
-            "schema": {
-              "type": "string",
-              "default": "all"
-            },
-            "required": false,
-            "description": "Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)"
           }
         ],
         "responses": {
@@ -2167,9 +2117,6 @@
           "verbose": {
             "type": "boolean"
           },
-          "fromsource": {
-            "type": "string"
-          },
           "highlight": {
             "type": "string"
           },
@@ -2208,7 +2155,6 @@
           "total",
           "maxScore",
           "verbose",
-          "fromsource",
           "highlight",
           "favourpaf",
           "favourwelsh",
@@ -2482,9 +2428,6 @@
           },
           "verbose": {
             "type": "boolean"
-          },
-          "fromsource": {
-            "type": "string"
           }
         },
         "required": [
@@ -2493,9 +2436,8 @@
           "historical",
           "epoch",
           "limit",
-          "verbose",
-          "fromsource"
-        ]
+          "verbose"
+          ]
       },
       "uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer": {
         "properties": {
@@ -2764,9 +2706,6 @@
           "verbose": {
             "type": "boolean"
           },
-          "fromsource": {
-            "type": "string"
-          },
           "highlight": {
             "type": "string"
           },
@@ -2805,7 +2744,6 @@
           "total",
           "maxScore",
           "verbose",
-          "fromsource",
           "highlight",
           "favourpaf",
           "favourwelsh",
@@ -2977,9 +2915,6 @@
           "verbose": {
             "type": "boolean"
           },
-          "fromsource": {
-            "type": "string"
-          },
           "includeAuxiliarySearch": {
             "type": "boolean"
           },
@@ -3016,7 +2951,6 @@
           "maxScore",
           "matchthreshold",
           "verbose",
-          "fromsource",
           "includeAuxiliarySearch",
           "eboost",
           "nboost",
@@ -3384,9 +3318,6 @@
           "verbose": {
             "type": "boolean"
           },
-          "fromsource": {
-            "type": "string"
-          },
           "highlight": {
             "type": "string"
           },
@@ -3425,7 +3356,6 @@
           "total",
           "maxScore",
           "verbose",
-          "fromsource",
           "highlight",
           "favourpaf",
           "favourwelsh",
