@@ -111,7 +111,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val sboost = args.sboost
     val wboost = args.wboost
 
-    val niFactor = esConf.queryParams.nisra.partialAllBoost
+    val niFactor = "^" + esConf.queryParams.nisra.partialAllBoost
 
     val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
 

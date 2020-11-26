@@ -645,7 +645,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          fromsource = "all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -678,7 +677,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = true,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -719,7 +717,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = false,
           epoch = "",
-          fromsource = "all (deprecated)",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
@@ -1108,7 +1105,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = true,
           epoch = "",
-          fromsource="all (deprecated)",
           highlight= "on",
           favourpaf = true,
           favourwelsh = false,
@@ -1152,7 +1148,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1193,7 +1188,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = true,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1234,7 +1228,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1275,7 +1268,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1316,7 +1308,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = true,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1331,90 +1322,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // Then
       status(result) mustBe OK
-      actual mustBe expected
-    }
-
-    "reply with a 400 error if an invalid fromsource value is supplied" in {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "RD02",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 1,
-          offset = 1,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          verbose = false,
-          epoch = "",
-          fromsource="twitter",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(FromSourceInvalidError)
-      ))
-
-      // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("twitter")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply with a 400 error if fromsource and country boosts are supplied" in {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "RD02",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 1,
-          offset = 1,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          verbose = false,
-          epoch = "",
-          fromsource="nionly",
-          eboost = 1,
-          nboost = 10,
-          sboost = 1,
-          wboost = 1
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(CountryDeprecationError)
-      ))
-
-      // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("nionly"), nboost=Some("10")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
 
@@ -1441,7 +1348,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1483,7 +1389,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1526,7 +1431,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1568,7 +1472,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1611,7 +1514,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1685,7 +1587,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1750,7 +1651,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1792,7 +1692,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1834,7 +1733,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1908,7 +1806,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1973,7 +1870,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 0,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2015,7 +1911,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2089,7 +1984,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2154,7 +2048,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 999999,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2187,7 +2080,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "epoch",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2229,7 +2121,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2271,7 +2162,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2313,7 +2203,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2355,7 +2244,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2397,7 +2285,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2439,7 +2326,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2481,7 +2367,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2523,7 +2408,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2561,7 +2445,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
@@ -2602,7 +2485,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "epoch",
-          fromsource="all",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
@@ -2732,7 +2614,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2760,7 +2641,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2789,7 +2669,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2818,7 +2697,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2948,7 +2826,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -3025,7 +2902,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -3070,7 +2946,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
