@@ -51,7 +51,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
-                   fromsource: Option[String] = None,
                    includeauxiliarysearch: Option[String] = None,
                    eboost: Option[String] = None,
                    nboost: Option[String] = None,
@@ -87,7 +86,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val lonVal = lon.getOrElse("")
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
 
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
@@ -133,7 +131,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       latitude = Some(latVal),
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
-      fromsource = Some(fromsourceVal),
       includeAuxiliarySearch = Some(auxiliary),
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
@@ -152,7 +149,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
-      fromsource = fromsourceVal,
       includeAuxiliarySearch = auxiliary,
       eboost = eboostDouble,
       nboost = nboostDouble,
@@ -171,7 +167,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateInput(input, queryValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
-        .orElse(addressValidation.validateFromSource(queryValues))
         .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
@@ -254,7 +249,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
                   verbose = verb,
-                  fromsource = fromsourceVal,
                   includeauxiliarysearch = auxiliary,
                   eboost = eboostDouble,
                   nboost = nboostDouble,

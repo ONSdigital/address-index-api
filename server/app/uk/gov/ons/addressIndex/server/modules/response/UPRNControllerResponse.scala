@@ -143,7 +143,6 @@ trait UPRNControllerResponse extends Response {
       response = AddressByEQUprnResponse(
         address = None,
         addressType = queryValues.addressTypeOrDefault,
-        historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault
       ),
       status = BadRequestAddressResponseStatus,

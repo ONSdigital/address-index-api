@@ -58,15 +58,6 @@
             Optional
         </td>
     </tr>
-    <tr class="table--row">
-          <td class="table--cell">fromsource</td>
-          <td class="table--cell">string</td>
-          <td class="table--cell">Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)</td>
-          <td class="table--cell">
-              Optional
-              <br>Default: all
-          </td>
-    </tr>
             <tr class="table--row">
                <td class="table--cell">eboost</td>
                <td class="table--cell">string</td>
@@ -167,8 +158,7 @@
     "historical": true,
     "epoch": "",
     "limit": 1,
-    "verbose": false,
-    "fromsource": "all"
+    "verbose": false
   },
   "status": {
     "code": 200,

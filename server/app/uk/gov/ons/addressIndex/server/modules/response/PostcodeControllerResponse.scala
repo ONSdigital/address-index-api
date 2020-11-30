@@ -90,13 +90,11 @@ trait PostcodeControllerResponse extends Response {
       townname = queryValues.townnameOrDefault,
       addresses = Seq.empty,
       filter = queryValues.filterOrDefault,
-      historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       limit = queryValues.limitOrDefault,
       offset = queryValues.offsetOrDefault,
       total = 0,
-      maxScore = 0f,
-      verbose = queryValues.verboseOrDefault
+      maxScore = 0f
     )
   }
 

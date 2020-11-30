@@ -43,11 +43,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
                           offset: Option[String] = None,
                           limit: Option[String] = None,
                           classificationfilter: Option[String] = None,
-                          historical: Option[String] = None,
-                          verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          fromsource: Option[String] = None,
-                          highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None,
                           eboost: Option[String] = None,
@@ -71,16 +67,16 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
     val endpointType = "partial"
 
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = false
+    val verb = false
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val highVal = highlight.getOrElse("on")
-    val highVerbose: Boolean = highVal == "debug"
+    val highVal = "on"
+    val highVerbose: Boolean = (highVal == "debug")
     val inputVal = input.replaceAll("'","")
     val epochVal = epoch.getOrElse("")
 
-    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
+    val fromsourceVal = "all"
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
@@ -136,7 +132,6 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
-        .orElse(partialAddressValidation.validateFromSource(queryValues))
         .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
@@ -155,7 +150,6 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal + " (deprecated)",
           highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh,
@@ -189,15 +183,11 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
                   addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
                   filter = filterString,
                   fallback = fall,
-                  historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb,
-                  fromsource = fromsourceVal,
-                  highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh,
                   eboost = eboostDouble,

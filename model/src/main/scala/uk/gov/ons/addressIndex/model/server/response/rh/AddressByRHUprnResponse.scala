@@ -10,12 +10,10 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   *
   * @param address found address
   * @param addressType the type of address (PAF, WELSHPAF, NAG, WELSHNAG & NISRA)
-  * @param historical ES index choice
   * @param epoch AB Epoch
   */
 case class AddressByRHUprnResponse(address: Option[AddressResponseAddressUPRNRH],
                                    addressType: String,
-                                   historical: Boolean,
                                    epoch: String)
 
 

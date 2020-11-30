@@ -645,7 +645,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          fromsource = "all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -678,7 +677,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = true,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -719,7 +717,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = false,
           epoch = "",
-          fromsource = "all (deprecated)",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
@@ -755,15 +752,11 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
           filter = "",
           fallback = false,
-          historical = false,
           limit = 20,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          verbose = false,
           epoch = "",
-          fromsource = "all (deprecated)",
-          highlight = "on",
           favourpaf = true,
           favourwelsh = false,
           eboost = 1,
@@ -775,7 +768,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = eqController.eqQuery(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = eqController.eqQuery(input = "some query").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -795,12 +788,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcodes = None,
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           filter = "",
-          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          verbose = false,
           epoch = "",
           groupfullpostcodes = "no"
         ),
@@ -808,7 +799,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -839,7 +830,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"), groupfullpostcodes = Some("yes")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), groupfullpostcodes = Some("yes")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -872,7 +863,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -903,7 +894,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -924,12 +915,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           townname = "Exeter",
           addresses = Seq(AddressResponseAddressBucketEQ("1", "31", "PAF")),
           filter = "",
-          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          verbose = false,
           epoch = ""
         ),
         OkAddressResponseStatus
@@ -948,12 +937,10 @@ class AddressControllerSpec extends PlaySpec with Results {
             townname = "*",
             addresses = Seq(),
             filter = "",
-            historical = false,
             limit = 100,
             offset = 0,
             total = 0,
             maxScore = 0,
-            verbose = false,
             epoch = ""
           ),
           BadRequestAddressResponseStatus,
@@ -961,7 +948,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         ))
 
       // When
-      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("*"),streetname = Some("*"), townname = Some("*"), favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.bucketQueryEQ(postcode= Some("*"),streetname = Some("*"), townname = Some("*"), favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -992,7 +979,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1A", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1A", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1012,12 +999,10 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           postcodes = Some(Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter"))),
           filter = "",
-          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          verbose = false,
           epoch = "",
           groupfullpostcodes = "combo"
           ),
@@ -1025,7 +1010,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false"),groupfullpostcodes = Some("combo")).apply(FakeRequest())
+      val result: Future[Result] = controller.eqQuery("EX4 1AA", favourpaf = Some("true"), favourwelsh = Some("false"),groupfullpostcodes = Some("combo")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1049,15 +1034,11 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
           filter = "",
           fallback = false,
-          historical = false,
           limit = 20,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          verbose = false,
           epoch = "",
-          fromsource = "all",
-          highlight = "on",
           favourpaf = true,
           favourwelsh = false,
           eboost = 1,
@@ -1069,7 +1050,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       ))
 
       // When
-      val result: Future[Result] = rhPartialAddressController.partialAddressQueryRH(input = "some query", verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = rhPartialAddressController.partialAddressQueryRH(input = "some query").apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1087,19 +1068,17 @@ class AddressControllerSpec extends PlaySpec with Results {
           postcode = "Po155Rr",
           addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
           filter = "",
-          historical = false,
           limit = 100,
           offset = 0,
           total = 1,
           maxScore = 1.0f,
-          verbose = false,
           epoch = ""
         ),
         OkAddressResponseStatus
       ))
 
       // When
-      val result: Future[Result] = rhPostcodeController.postcodeQueryRH("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false"), verbose = Some("false")).apply(FakeRequest())
+      val result: Future[Result] = rhPostcodeController.postcodeQueryRH("Po155Rr", favourpaf = Some("true"), favourwelsh = Some("false")).apply(FakeRequest())
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -1126,7 +1105,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 1.0f,
           verbose = true,
           epoch = "",
-          fromsource="all (deprecated)",
           highlight= "on",
           favourpaf = true,
           favourwelsh = false,
@@ -1170,7 +1148,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1211,7 +1188,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = true,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1252,7 +1228,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1293,7 +1268,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1334,7 +1308,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = true,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1349,90 +1322,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // Then
       status(result) mustBe OK
-      actual mustBe expected
-    }
-
-    "reply with a 400 error if an invalid fromsource value is supplied" in {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "RD02",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 1,
-          offset = 1,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          verbose = false,
-          epoch = "",
-          fromsource="twitter",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(FromSourceInvalidError)
-      ))
-
-      // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("twitter")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
-      actual mustBe expected
-    }
-
-    "reply with a 400 error if fromsource and country boosts are supplied" in {
-      // Given
-      val controller = addressController
-
-      val expected = Json.toJson(AddressBySearchResponseContainer(
-        apiVersion = apiVersionExpected,
-        dataVersion = dataVersionExpected,
-        AddressBySearchResponse(
-          tokens = Map.empty,
-          addresses = Seq.empty,
-          filter = "RD02",
-          historical = true,
-          rangekm = "",
-          latitude = "",
-          longitude = "",
-          limit = 1,
-          offset = 1,
-          total = 0,
-          sampleSize = 20,
-          maxScore = 0.0f,
-          matchthreshold = 5f,
-          verbose = false,
-          epoch = "",
-          fromsource="nionly",
-          eboost = 1,
-          nboost = 10,
-          sboost = 1,
-          wboost = 1
-        ),
-        BadRequestAddressResponseStatus,
-        errors = Seq(CountryDeprecationError)
-      ))
-
-      // When
-      val result = controller.addressQuery("some query", Some("1"), Some("1"), Some("RD02"), fromsource=Some("nionly"), nboost=Some("10")).apply(FakeRequest())
-      val actual: JsValue = contentAsJson(result)
-
-      // Then
-      status(result) mustBe BAD_REQUEST
       actual mustBe expected
     }
 
@@ -1459,7 +1348,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1501,7 +1389,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1544,7 +1431,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1586,7 +1472,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1629,7 +1514,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1703,7 +1587,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1768,7 +1651,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1810,7 +1692,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1852,7 +1733,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1926,7 +1806,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -1991,7 +1870,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 0,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2033,7 +1911,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2107,7 +1984,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2172,7 +2048,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 999999,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2205,7 +2080,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "epoch",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2247,7 +2121,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2289,7 +2162,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2331,7 +2203,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2373,7 +2244,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2415,7 +2285,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2457,7 +2326,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2499,7 +2367,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2541,7 +2408,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2579,7 +2445,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
@@ -2620,7 +2485,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "epoch",
-          fromsource="all",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
@@ -2750,7 +2614,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2778,7 +2641,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2807,7 +2669,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2836,7 +2697,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -2966,7 +2826,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -3043,7 +2902,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          fromsource="all",
           eboost = 1,
           nboost = 1,
           sboost = 1,
@@ -3088,7 +2946,6 @@ class AddressControllerSpec extends PlaySpec with Results {
           maxScore = 0.0f,
           verbose = false,
           epoch = "",
-          fromsource="all",
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,

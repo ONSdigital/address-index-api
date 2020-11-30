@@ -175,13 +175,11 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                   postcodes = aggsOrEmpty,
                   addresses = addresses,
                   filter = filterString,
-                  historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb,
                   groupfullpostcodes = groupFullPostcodes
                 ),
                 status = OkAddressResponseStatus
