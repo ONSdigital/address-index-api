@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
-import com.sksamuel.elastic4s.requests.analysis.{Analysis, CustomAnalyzer}
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
@@ -450,11 +449,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "uprn" -> hybridThirdDateUprn,
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
-
-  // new analysis object, doesn't seem to work
-  val customAnalyzer: CustomAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
-  val testAnalysis: Analysis = Analysis(
-    List(customAnalyzer))
 
   // todo get it to work with new analysis package
   testClient.execute {
