@@ -465,7 +465,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  blockUntilCount(1, hybridIndexName)
+ // blockUntilCount(1, hybridIndexName)
 
   // todo get it to work with new analysis package
   testClient.execute {
@@ -484,7 +484,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  blockUntilCount(2, hybridIndexHistoricalName)
+  // blockUntilCount(2, hybridIndexHistoricalName)
 
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
   testClient.execute {
@@ -495,7 +495,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  blockUntilCount(3, hybridIndexHistoricalName)
+  // blockUntilCount(3, hybridIndexHistoricalName)
 
   testClient.execute{
     addAlias("index_full_nohist_current",hybridIndexName)

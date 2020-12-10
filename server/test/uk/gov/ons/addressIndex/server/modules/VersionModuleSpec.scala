@@ -55,9 +55,9 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
     )
   ).await
 
-  blockUntilCount(1, hybridIndex1)
-  blockUntilCount(1, hybridIndex2)
-  blockUntilCount(1, hybridIndex3)
+//  blockUntilCount(1, hybridIndex1)
+//  blockUntilCount(1, hybridIndex2)
+ // blockUntilCount(1, hybridIndex3)
 
   testClient.execute {
     addAlias(hybridAlias, hybridIndex2)
