@@ -453,11 +453,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
   // todo get it to work with new analysis package
   testClient.execute {
     createIndex(hybridIndexName)
-//      .analysis(testAnalysis)
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
      ))
   }.await
+
+  def blockUntilCountLocal(expected: Long, index: String): Unit = {
+    blockUntil(s"Expected count of $expected") { () =>
+      val result = testClient.execute {
+        search(index).matchAllQuery().size(0)
+      }.await
+      expected <= result.toOption.getOrElse(null).totalHits
+    }
+  }
 
   testClient.execute {
     bulk(
@@ -465,7 +473,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
- // blockUntilCount(1, hybridIndexName)
+  blockUntilCountLocal(1, hybridIndexName)
 
   // todo get it to work with new analysis package
   testClient.execute {
@@ -484,7 +492,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  // blockUntilCount(2, hybridIndexHistoricalName)
+  blockUntilCountLocal(2, hybridIndexHistoricalName)
 
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
   testClient.execute {
@@ -495,7 +503,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  // blockUntilCount(3, hybridIndexHistoricalName)
+  blockUntilCountLocal(3, hybridIndexHistoricalName)
 
   testClient.execute{
     addAlias("index_full_nohist_current",hybridIndexName)

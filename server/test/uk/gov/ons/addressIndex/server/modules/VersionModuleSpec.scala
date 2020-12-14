@@ -47,6 +47,16 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
   val hybridIndex3 = "hybrid_35_202020"
   val hybridAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_current"
 
+  def blockUntilCountLocal(expected: Long, index: String): Unit = {
+    blockUntil(s"Expected count of $expected") { () =>
+      val result = testClient.execute {
+        search(index).matchAllQuery().size(0)
+      }.await
+      expected <= result.toOption.getOrElse(null).totalHits
+    }
+  }
+
+
   testClient.execute(
     bulk(
       indexInto(hybridIndex1) id "11" fields ("name" -> "test1"),
@@ -55,9 +65,9 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
     )
   ).await
 
-//  blockUntilCount(1, hybridIndex1)
-//  blockUntilCount(1, hybridIndex2)
- // blockUntilCount(1, hybridIndex3)
+  blockUntilCountLocal(1, hybridIndex1)
+  blockUntilCountLocal(1, hybridIndex2)
+  blockUntilCountLocal(1, hybridIndex3)
 
   testClient.execute {
     addAlias(hybridAlias, hybridIndex2)
@@ -102,5 +112,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
     }
 
   }
+
+
 }
 
