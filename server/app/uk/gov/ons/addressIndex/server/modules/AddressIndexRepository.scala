@@ -989,13 +989,28 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
+    val startingAuxBoost = queryParams.fallback.fallbackAuxBoost
+    val modifiedAuxBoost = args.tokens.size match {
+      case 1 => startingAuxBoost / 4
+      case 2 => startingAuxBoost / 3
+      case 3 => startingAuxBoost / 2
+      case _ => startingAuxBoost
+   }
+
+    val startingAuxBigramBoost = queryParams.fallback.fallbackAuxBoost
+    val modifiedAuxBigramBoost = args.tokens.size match {
+      case 1 => startingAuxBigramBoost / 4
+      case 2 => startingAuxBigramBoost / 3
+      case 3 => startingAuxBigramBoost / 2
+      case _ => startingAuxBigramBoost
+    }
 
     val fallbackQueryStart: BoolQuery = bool(
       Seq(dismax(
         matchQuery("tokens.addressAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer("welsh_split_synonyms_analyzer")
-          .boost(queryParams.fallback.fallbackAuxBoost),
+          .boost(modifiedAuxBoost),
         matchQuery("lpi.nagAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer("welsh_split_synonyms_analyzer")
@@ -1012,7 +1027,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       Seq(dismax(
         matchQuery("tokens.addressAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
-          .boost(queryParams.fallback.fallbackAuxBigramBoost),
+          .boost(modifiedAuxBigramBoost),
         matchQuery("lpi.nagAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackLpiBigramBoost),
