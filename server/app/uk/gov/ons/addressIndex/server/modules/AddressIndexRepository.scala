@@ -991,17 +991,19 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val startingAuxBoost = queryParams.fallback.fallbackAuxBoost
     val modifiedAuxBoost = args.tokens.size match {
-      case 1 => startingAuxBoost / 4
-      case 2 => startingAuxBoost / 3
-      case 3 => startingAuxBoost / 2
+      case 1 => startingAuxBoost / 6
+      case 2 => startingAuxBoost / 4
+      case 3 => startingAuxBoost / 3
+      case 4 => startingAuxBoost / 2
       case _ => startingAuxBoost
    }
 
-    val startingAuxBigramBoost = queryParams.fallback.fallbackAuxBoost
+    val startingAuxBigramBoost = queryParams.fallback.fallbackAuxBigramBoost
     val modifiedAuxBigramBoost = args.tokens.size match {
-      case 1 => startingAuxBigramBoost / 4
-      case 2 => startingAuxBigramBoost / 3
-      case 3 => startingAuxBigramBoost / 2
+      case 1 => startingAuxBigramBoost / 6
+      case 2 => startingAuxBigramBoost / 4
+      case 3 => startingAuxBigramBoost / 3
+      case 4 => startingAuxBigramBoost / 2
       case _ => startingAuxBigramBoost
     }
 
