@@ -34,7 +34,7 @@
             <td class="table--cell">Specifies whether a slow fallback query is used in the event of the main query returning no results.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: True
+                <br>Default: False
             </td>
         </tr>
          <tr class="table--row">

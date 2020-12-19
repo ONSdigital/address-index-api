@@ -87,39 +87,12 @@
                 Optional
             </td>
         </tr>
-        <tr>
-            <td class="table--cell">historical</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include historical addresses</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">verbose</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
-            </td>
-        </tr>
         <tr class="table--row">
             <td class="table--cell">epoch</td>
             <td class="table--cell">string</td>
             <td class="table--cell">Select a specific AddressBase Epoch to search.</td>
             <td class="table--cell">
                 Optional
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">highlight</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">include detailed highlighting info, options are off, on or debug</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: on
             </td>
         </tr>
         <tr class="table--row">
@@ -247,7 +220,6 @@
     "offset": 0,
     "total": 2,
     "maxScore": 0,
-    "verbose": false,
     "highlight": "on",
     "favourpaf": true,
     "favourwelsh": false,
@@ -295,14 +267,11 @@
     ],
     "filter": "",
     "fallback": false,
-    "historical": false,
     "epoch": "",
     "limit": 20,
     "offset": 0,
     "total": 4,
     "maxScore": 0,
-    "verbose": false,
-    "highlight": "on",
     "favourpaf": true,
     "favourwelsh": false,
     "eboost": 1,
@@ -369,13 +338,11 @@
       }
      ],
     "filter": "",
-    "historical": false,
     "epoch": "",
     "limit": 6,
     "offset": 0,
     "total": 143,
     "maxScore": 1,
-    "verbose": false
   },
   "status": {
     "code": 200,
