@@ -23,25 +23,8 @@
             <td class="table--cell">string</td>
             <td class="table--cell">Version of the address to return - paf, welshpaf, nag, welshnag, nisra</td>
             <td class="table--cell">
-               Required
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">historical</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include historical addresses</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: True                
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">verbose</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
+                 Optional
+                <br>Default: paf
             </td>
         </tr>
         <tr class="table--row">
@@ -102,9 +85,7 @@
       "organisationName: "Costa Coffee"
     },
     "addressType": "NAG",
-    "historical": true,
-    "epoch": "",
-    "verbose": false
+    "epoch": ""
   },
   "status": {
     "code": 200,

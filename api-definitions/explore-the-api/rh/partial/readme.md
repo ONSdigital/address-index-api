@@ -34,7 +34,7 @@
             <td class="table--cell">Specifies whether a slow fallback query is used in the event of the main query returning no results.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: True
+                <br>Default: False
             </td>
         </tr>
          <tr class="table--row">
@@ -65,39 +65,12 @@
                 Optional
             </td>
         </tr>
-        <tr>
-            <td class="table--cell">historical</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include historical addresses</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
-            </td>
-        </tr>
-         <tr class="table--row">
-            <td class="table--cell">verbose</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
-            </td>
-        </tr>
         <tr class="table--row">
             <td class="table--cell">epoch</td>
             <td class="table--cell">string</td>
             <td class="table--cell">Select a specific AddressBase Epoch to search.</td>
             <td class="table--cell">
                 Optional
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">highlight</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">include detailed highlighting info, options are off, on or debug</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: on
             </td>
         </tr>
         <tr class="table--row">
@@ -241,14 +214,11 @@
     ],
     "filter": "",
     "fallback": false,
-    "historical": false,
     "epoch": "",
     "limit": 5,
     "offset": 0,
     "total": 161,
     "maxScore": 0,
-    "verbose": false,
-    "highlight": "on",
     "favourpaf": true,
     "favourwelsh": false,
     "eboost": 1,

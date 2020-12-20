@@ -46,15 +46,6 @@
         </td>
     </tr>
     <tr class="table--row">
-        <td class="table--cell">historical</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Include historical addresses</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: False
-        </td>
-    </tr>
-    <tr class="table--row">
        <td class="table--cell">favourpaf</td>
        <td class="table--cell">string</td>
        <td class="table--cell">paf beats nag on draw for best match</td>
@@ -71,15 +62,6 @@
           Optional
           <br>Default: False
        </td>
-    </tr>
-    <tr class="table--row">
-        <td class="table--cell">verbose</td>
-        <td class="table--cell">string</td>
-        <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
-        <td class="table--cell">
-            Optional
-            <br>Default: False
-        </td>
     </tr>
     <tr class="table--row">
         <td class="table--cell">epoch</td>
@@ -209,13 +191,11 @@
        }
      ],
      "filter": "",
-     "historical": false,
      "epoch": "",
      "limit": 5,
      "offset": 0,
      "total": 74,
-     "maxScore": 0,
-     "verbose": false
+     "maxScore": 0
    },
    "status": {
      "code": 200,
