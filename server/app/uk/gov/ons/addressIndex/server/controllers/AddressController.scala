@@ -116,6 +116,12 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None, auxiliary = None) }
     }
 
+    def adjustWithAuxiliaryResults(sourceResults: Seq[AddressResponseAddress], limitedSortedAddresses: Seq[AddressResponseAddress], limit: Int) =  {
+      val extractedAuxiliaryAddresses = sourceResults.filter(_.auxiliary.isDefined)
+      if (extractedAuxiliaryAddresses.isEmpty) limitedSortedAddresses
+      else limitedSortedAddresses.filter(_.auxiliary.isEmpty).take(round(limit * 0.8).toInt) ++ extractedAuxiliaryAddresses.take(round(limit * 0.2).toInt)
+    }
+
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshVal.toFloat).toOption.getOrElse(defThreshold)
@@ -223,9 +229,15 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
+            // ensure a percentage of auxiliary index results are present in limited sorted addresses
+            val limitedSortedAddressesAdjustedForAux = adjustWithAuxiliaryResults(
+              if (finalArgs.isBlank) addresses else scoredAddresses,
+              limitedSortedAddresses,
+              limitInt)
+
             // if verbose is false, strip out full address details (these are needed for score so must be
             // removed retrospectively)
-            val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
+            val finalAddresses = if (verb) limitedSortedAddressesAdjustedForAux else trimAddresses(limitedSortedAddressesAdjustedForAux)
 
             writeLog(activity = "address_request")
 
