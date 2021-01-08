@@ -113,7 +113,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val niFactor = "^" + esConf.queryParams.nisra.partialAllBoost
 
-    val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+  //  val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
+    val fieldsToSearch =  Seq("mixedPartial")
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
     val queryWithMatchType = if (fallback) queryBase.matchType("best_fields") else queryBase.matchType("phrase").slop(slopVal)
@@ -194,11 +195,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
 
       val hFields = if (args.highlight == "off") Seq() else
-        Seq(HighlightField("lpi.mixedNag.partial"),
-      HighlightField("lpi.mixedWelshNag.partial"),
-      HighlightField("paf.mixedPaf.partial"),
-      HighlightField("paf.mixedWelshPaf.partial"),
-      HighlightField("nisra.mixedNisra.partial"))
+        Seq(HighlightField("mixedPartial"))
+//        Seq(HighlightField("lpi.mixedNag.partial"),
+//      HighlightField("lpi.mixedWelshNag.partial"),
+//      HighlightField("paf.mixedPaf.partial"),
+//      HighlightField("paf.mixedWelshPaf.partial"),
+//      HighlightField("nisra.mixedNisra.partial"))
 
     val scriptText: String = "Math.round(_score/1.8)"
 
@@ -1173,8 +1175,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
- //   val searchString = SearchBodyBuilderFn(query).string()
- //  println(searchString)
+    val searchString = SearchBodyBuilderFn(query).string()
+   println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
