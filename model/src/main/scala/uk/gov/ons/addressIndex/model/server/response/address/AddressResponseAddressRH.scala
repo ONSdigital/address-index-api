@@ -82,7 +82,6 @@ object AddressResponseAddressRH {
     AddressResponseAddressRH(
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
-     // highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress", other.highlights.headOption.getOrElse(Map())),
       highlights = if (testHigh) None
       else
         AddressResponseHighlight.fromCombinedHighlight("formattedAddress",

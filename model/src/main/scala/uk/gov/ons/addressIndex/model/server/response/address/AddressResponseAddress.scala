@@ -102,7 +102,6 @@ object AddressResponseAddress {
       welshFormattedAddressNag = removeConcatenatedPostcode(welshFormattedAddressNag),
       welshFormattedAddressPaf = removeConcatenatedPostcode(welshFormattedAddressPaf),
       formattedAddressAuxiliary = removeConcatenatedPostcode(formattedAddressAuxiliary),
-    //  highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.headOption.getOrElse(Map())),
       highlights = if (testHigh) None
       else
         AddressResponseHighlight.fromCombinedHighlight("formattedAddress",
