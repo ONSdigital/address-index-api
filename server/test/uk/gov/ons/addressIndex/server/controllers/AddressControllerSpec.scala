@@ -165,15 +165,19 @@ class AddressControllerSpec extends PlaySpec with Results {
                               "distinctHitCount" -> "3",
                               "highLightedText" -> "6 Long Lane Liverpool")
 
-  val validHighlight = Map(
-    "paf.mixedPaf.partial" -> Seq("6 Long Lane Liverpool", "6 Longish Lane Liverpool")
+  val validHighlight= Map(
+    "mixedPartial" -> Seq("<em>mixedPaf</em>")
   )
 
   val validHighlightWelsh = Map(
-    "paf.mixedWelshPaf.partial" -> Seq("6 Long Lane Liverpoolhjy", "6 Longish Lane Liverpoolhjy")
+    "mixedPartial" -> Seq("<em>mixedWelshPaf</em>")
   )
 
-  val validHighlights = Seq(validHighlight,validHighlightWelsh)
+  val validHighlightBoth = Map(
+    "mixedPartial" -> Seq("<em>mixedPaf</em>, <em>mixedWelshPaf</em>")
+  )
+
+  val validHighlights = Seq(validHighlightBoth)
 
   val validBuckets = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter"))
 

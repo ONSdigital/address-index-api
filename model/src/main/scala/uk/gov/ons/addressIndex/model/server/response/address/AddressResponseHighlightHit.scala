@@ -27,7 +27,7 @@ object AddressResponseHighlightHit {
     val highlightedTextIn = if (overrideText != "") overrideText else hit._2.mkString
     val highlightedTextOut = highlightSingleFromCombined(testFieldVal,highlightedTextIn)
     val searchField = testFieldName
-    val lang = if (searchField.contains("welsh")) "W" else "E"
+    val lang = if (searchField.contains("elsh")) "W" else "E"
     val source = if (searchField.contains("Nag")) "L" else if (searchField.contains("Nisra")) "N" else "P"
     val distinctHitCount = Math.round(highlightedTextOut.mkString.replace(",","").split(" ").distinct.mkString.count(_ == '<') / 2)
 
