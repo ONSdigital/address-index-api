@@ -113,7 +113,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val niFactor = "^" + esConf.queryParams.nisra.partialAllBoost
 
-  //  val fieldsToSearch =  Seq("lpi.mixedNag.partial", "lpi.mixedWelshNag.partial", "paf.mixedPaf.partial", "paf.mixedWelshPaf.partial", "nisra.mixedNisra.partial" + niFactor)
     val fieldsToSearch =  Seq("mixedPartial")
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
@@ -194,13 +193,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
     }
 
-      val hFields = if (args.highlight == "off") Seq() else
+    val hFields = if (args.highlight == "off") Seq() else
         Seq(HighlightField("mixedPartial"))
-//        Seq(HighlightField("lpi.mixedNag.partial"),
-//      HighlightField("lpi.mixedWelshNag.partial"),
-//      HighlightField("paf.mixedPaf.partial"),
-//      HighlightField("paf.mixedWelshPaf.partial"),
-//      HighlightField("nisra.mixedNisra.partial"))
 
     val scriptText: String = "Math.round(_score/1.8)"
 
