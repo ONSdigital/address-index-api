@@ -116,10 +116,18 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None, auxiliary = None) }
     }
 
-    def adjustWithAuxiliaryResults(sourceResults: Seq[AddressResponseAddress], limitedSortedAddresses: Seq[AddressResponseAddress], limit: Int) =  {
-      val extractedAuxiliaryAddresses = sourceResults.filter(_.auxiliary.isDefined)
-      if (extractedAuxiliaryAddresses.isEmpty) limitedSortedAddresses
-      else limitedSortedAddresses.filter(_.auxiliary.isEmpty).take(round(limit * 0.8).toInt) ++ extractedAuxiliaryAddresses.take(round(limit * 0.2).toInt)
+    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress], limit: Int) =  {
+      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
+      if (extractedAuxiliaryAddresses.isEmpty) addresses
+      else {
+        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
+        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
+        else {
+          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
+          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map(_.copy(underlyingScore = mainIndexMaxUnderlyingScore + 0.01f))
+          extractedMainAddresses.take(round(limit * 0.8).toInt) ++ adjustedAuxAddresses.take(round(limit * 0.2).toInt)
+        }
+      }
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
@@ -207,12 +215,16 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
 
+            // ensure that auxiliary index results are scored appropriately
+            // and included in an 80/20 split with main index results
+            val auxAdjustedAddresses = adjustWithAuxiliaryResults(addresses, limitInt)
+
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator =
-              Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
+              Try(ConfidenceScoreHelper.calculateElasticDenominator(auxAdjustedAddresses.map(_.underlyingScore))).getOrElse(1D)
 
             // calculate the Hopper and hybrid scores for each  address
-            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
+            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(auxAdjustedAddresses, tokens, elasticDenominator)
 
             // work out the threshold for accepting matches (default 5% -> 0.05)
             val threshold = Try(thresholdFloat.toDouble).getOrElse(5.0D)
@@ -220,7 +232,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses =
                // for range / classification only filter sort by nearest first (underlying score contains distance) and set confidence score to 1
-              if (finalArgs.isBlank) addresses.filter(_.confidenceScore >= threshold).sortBy(_.underlyingScore)(Ordering[Float])
+              if (finalArgs.isBlank) auxAdjustedAddresses.filter(_.confidenceScore >= threshold).sortBy(_.underlyingScore)(Ordering[Float])
               else scoredAddresses.filter(_.confidenceScore >= threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
             // capture the number of matches before applying offset and limit
@@ -229,15 +241,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
-            // ensure a percentage of auxiliary index results are present in limited sorted addresses
-            val limitedSortedAddressesAdjustedForAux = adjustWithAuxiliaryResults(
-              if (finalArgs.isBlank) addresses else scoredAddresses,
-              limitedSortedAddresses,
-              limitInt)
-
             // if verbose is false, strip out full address details (these are needed for score so must be
             // removed retrospectively)
-            val finalAddresses = if (verb) limitedSortedAddressesAdjustedForAux else trimAddresses(limitedSortedAddressesAdjustedForAux)
+            val finalAddresses = if (verb) limitedSortedAddresses else trimAddresses(limitedSortedAddresses)
 
             writeLog(activity = "address_request")
 
