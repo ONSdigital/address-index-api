@@ -60,8 +60,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     lastUpdateDate = "28",
     entryDate = "29",
     pafAll = "30",
-    mixedPaf = "31",
-    mixedWelshPaf = "32"
+    mixedPaf = "mixedPaf",
+    mixedWelshPaf = "mixedWelshPaf"
   )
 
   val validNagAddress: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
@@ -160,11 +160,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     source = "7666OW"
   )
 
-  val validHighlightHit = Map("source" -> "L",
-                              "lang" -> "E",
-                              "distinctHitCount" -> "3",
-                              "highLightedText" -> "6 Long Lane Liverpool")
-
   val validHighlight= Map(
     "mixedPartial" -> Seq("<em>mixedPaf</em>")
   )
@@ -174,7 +169,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   )
 
   val validHighlightBoth = Map(
-    "mixedPartial" -> Seq("<em>mixedPaf</em>, <em>mixedWelshPaf</em>")
+    "mixedPartial" -> Seq("<em>mixedPaf</em> <em>mixedWelshPaf</em>")
   )
 
   val validHighlights = Seq(validHighlightBoth)
@@ -703,7 +698,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
 
-     val sortAddresses = if (sboost > 0) partialAddressController.boostAtStart(addresses, input="some query", favourPaf = true, favourWelsh = true, highVerbose = false) else addresses
+     val sortAddresses = partialAddressController.boostAtStart(addresses, input="some query", favourPaf = true, favourWelsh = false, highVerbose = false)
 
      // Given
       val expected = Json.toJson(AddressByPartialAddressResponseContainer(
@@ -745,7 +740,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val addresses = Seq(AddressResponseAddressEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))
 
-      val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, input="some query", favourPaf = true, favourWelsh = true, highVerbose = false) else addresses
+      val sortAddresses = if (sboost > 0) eqPartialAddressController.boostAtStart(addresses, input="some query", favourPaf = true, favourWelsh = false, highVerbose = false) else addresses
 
       // Given
       val expected = Json.toJson(AddressByEQPartialAddressResponseContainer(
@@ -1027,7 +1022,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       val addresses = Seq(AddressResponseAddressRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = true))
 
-      val sortAddresses = if (sboost > 0) rhPartialAddressController.boostAtStart(addresses, input="some query", favourPaf=true, favourWelsh = true, highVerbose = false) else addresses
+      val sortAddresses = if (sboost > 0) rhPartialAddressController.boostAtStart(addresses, input="some query", favourPaf=true, favourWelsh = false, highVerbose = false) else addresses
 
       // Given
       val expected = Json.toJson(AddressByRHPartialAddressResponseContainer(
