@@ -76,7 +76,16 @@ object AddressResponseAddressEQ {
     AddressResponseAddressEQ(
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
-      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress", other.highlights.headOption.getOrElse(Map())),
+      highlights = if (testHigh) None
+      else
+        AddressResponseHighlight.fromCombinedHighlight("formattedAddress",
+          other.highlights.headOption.getOrElse(Map()),
+          formattedAddressPaf,
+          welshFormattedAddressPaf,
+          formattedAddressNag,
+          welshFormattedAddressNag,
+          formattedAddressNisra
+        ),
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance / 1000).toFloat
     )
