@@ -36,8 +36,6 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     */
   def uprnQueryEQ(uprn: String,
                 addresstype: Option[String] = None,
-                historical: Option[String] = None,
-                verbose: Option[String] = None,
                 epoch: Option[String] = None
                ): Action[AnyContent] = Action async { implicit req =>
 
@@ -45,8 +43,8 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val endpointType = "equprn"
 
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = true
+    val verb = false
 
     val bestMatchAddressType: String = addresstype.getOrElse("paf")
 
@@ -99,7 +97,6 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
         res // a validation error
 
       case _ =>
-        // TODO do we even need `verbose` any more? Is it still used?
         val args = UPRNArgs(
           uprn = uprn,
           historical = hist,
