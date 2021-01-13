@@ -5,6 +5,7 @@ import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponse
 import uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHUprnResponse
+import uk.gov.ons.addressIndex.server.utils.HighlightFuncs
 
 /**
   * Test conversion between ES reply and the model that will be send in the response
@@ -374,25 +375,30 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
   val givenCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(givenCrossRef)
 
   val validPafHighlight = Map(
-    "paf.mixedPaf.partial" -> Seq("6 Long Lane Liverpool", "6 Longish Lane Liverpool")
+    "mixedPartial" -> Seq("<em>mixedPaf</em>")
   )
 
   val validPafHighlightWelsh = Map(
-    "paf.mixedWelshPaf.partial" -> Seq("6 Long Lane Liverpoolhjy", "6 Longish Lane Liverpoolhjy")
+    "mixedPartial" -> Seq("<em>mixedWelshPaf</em>")
   )
 
   val validNagHighlight = Map(
-    "nag.mixedNag.partial" -> Seq("A Nag Address", "A Nagish Address")
+    "mixedPartial" -> Seq("<em>mixedNag</em>")
   )
 
   val validNagHighlightWelsh = Map(
-    "nag.mixedWelshNag.partial" -> Seq("A Naggly Address", "A Nagglyish Address")
+    "mixedPartial" -> Seq("<em>mixedWelshNag</em>")
   )
 
-  val validPafHighlights = Seq(validPafHighlight,validPafHighlightWelsh)
-  val validPafHighlightsWelsh = Seq(validPafHighlightWelsh, validPafHighlight)
-  val validNagHighlights = Seq(validNagHighlight,validNagHighlightWelsh)
-  val validNagHighlightsWelsh = Seq(validNagHighlightWelsh, validNagHighlight)
+  val validNagHighlightNisra = Map(
+    "mixedPartial" -> Seq("<em>mixedNisra</em>")
+  )
+
+  val validPafHighlights = Seq(validPafHighlight)
+  val validPafHighlightsWelsh = Seq(validPafHighlightWelsh)
+  val validNagHighlights = Seq(validNagHighlight)
+  val validNagHighlightsWelsh = Seq(validNagHighlightWelsh)
+  val validNagHighlightsNisra = Seq(validNagHighlightNisra)
 
   "Address response Address model" should {
 
@@ -712,13 +718,13 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = givenPaf.uprn,
         formattedAddress = "mixedPaf",
         underlyingScore = 1,
-        confidenceScore = 100D,
-        highlights = Some(AddressResponseHighlight("formattedAddress", "P", "E", Some(List(AddressResponseHighlightHit("P","E",0,"6 Long Lane Liverpool"), AddressResponseHighlightHit("P","E",0,"6 Longish Lane Liverpool")))))
+        confidenceScore = 5D,
+        highlights = Some(AddressResponseHighlight("mixedPaf", "P", "E", Some(List(AddressResponseHighlightHit("P","E",1,"<em>mixedPaf</em>"), AddressResponseHighlightHit("L","E",0,"mixedNag"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf")))))
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
-
+      val result1 = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
+      val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=true, favourWelsh=false, highVerbose=true)
       // Then
       result shouldBe expected
     }
@@ -730,13 +736,13 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = givenPaf.uprn,
         formattedAddress = "mixedWelshPaf",
         underlyingScore = 1,
-        confidenceScore = 100D,
-        highlights = Some(AddressResponseHighlight("formattedAddress", "P", "W", Some(List(AddressResponseHighlightHit("P","W",0,"6 Long Lane Liverpoolhjy"), AddressResponseHighlightHit("P","W",0,"6 Longish Lane Liverpoolhjy")))))
+        confidenceScore = 5D,
+        highlights = Some(AddressResponseHighlight("mixedWelshPaf", "P", "W", Some(List(AddressResponseHighlightHit("P","W",1,"<em>mixedWelshPaf</em>"), AddressResponseHighlightHit("P","E",0,"mixedPaf"), AddressResponseHighlightHit("L","E",0,"mixedNag")))))
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
-
+      val result1: AddressResponseAddressEQ = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
+      val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=true, favourWelsh=true, highVerbose=true)
       // Then
       result shouldBe expected
     }
@@ -748,13 +754,13 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = givenPaf.uprn,
         formattedAddress = "mixedNag",
         underlyingScore = 1,
-        confidenceScore = 100D,
-        highlights = Some(AddressResponseHighlight("formattedAddress", "L", "E", Some(List(AddressResponseHighlightHit("L","E",0,"A Nag Address"), AddressResponseHighlightHit("L","E",0,"A Nagish Address")))))
+        confidenceScore = 5D,
+        highlights = Some(AddressResponseHighlight("mixedNag", "L", "E", Some(List(AddressResponseHighlightHit("L","E",1,"<em>mixedNag</em>"), AddressResponseHighlightHit("P","E",0,"mixedPaf"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf")))))
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
-
+      val result1 = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
+      val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=false, favourWelsh=false, highVerbose=true)
       // Then
       result shouldBe expected
     }
@@ -766,31 +772,31 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         uprn = givenPaf.uprn,
         formattedAddress = "mixedWelshNag",
         underlyingScore = 1,
-        confidenceScore = 100D,
-        highlights = Some(AddressResponseHighlight("formattedAddress", "L", "W", Some(List(AddressResponseHighlightHit("L","W",0,"A Naggly Address"), AddressResponseHighlightHit("L","W",0,"A Nagglyish Address")))))
+        confidenceScore = 5D,
+        highlights = Some(AddressResponseHighlight("mixedWelshNag", "L", "W", Some(List(AddressResponseHighlightHit("L","W",1,"<em>mixedWelshNag</em>"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf"), AddressResponseHighlightHit("P","E",0,"mixedPaf")))))
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
-
+      val result1 = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
+      val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=false, favourWelsh=true, highVerbose=true)
       // Then
       result shouldBe expected
     }
 
     "create AddressResponseAddressEQ from Hybrid ES response for NISRA" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(givenNisra), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlightsWelsh )
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(givenNisra), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlightsNisra )
       val expected = AddressResponseAddressEQ(
         uprn = givenPaf.uprn,
         formattedAddress = "mixedNisra",
         underlyingScore = 1,
-        confidenceScore = 100D,
-        highlights = Some(AddressResponseHighlight("formattedAddress", "L", "W", Some(List(AddressResponseHighlightHit("L","W",0,"A Naggly Address"), AddressResponseHighlightHit("L","W",0,"A Nagglyish Address")))))
+        confidenceScore = 5D,
+        highlights = Some(AddressResponseHighlight("mixedNisra", "N", "E", Some(List(AddressResponseHighlightHit("N","E",1,"<em>mixedNisra</em>"),AddressResponseHighlightHit("P","E",0,"mixedPaf"), AddressResponseHighlightHit("L","W",0,"mixedWelshNag"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf")))))
       )
 
       // When
-      val result = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
-
+      val result1 = AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
+      val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=false, favourWelsh=false, highVerbose=true)
       // Then
       result shouldBe expected
     }
@@ -800,12 +806,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validPafHighlights )
       val expected = AddressResponseAddressCustomEQ(
         uprn = givenPaf.uprn,
-        bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+        bestMatchAddress = "mixedPaf", // This is determined by some controller logic
         bestMatchAddressType = "PAF"
      )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(HighlightFuncs.boostAddress(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false), input="", favourPaf=true, favourWelsh=false, highVerbose=true))
 
       // Then
       result shouldBe expected
@@ -816,12 +822,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validPafHighlightsWelsh )
       val expected = AddressResponseAddressCustomEQ(
         uprn = givenPaf.uprn,
-        bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+        bestMatchAddress = "mixedWelshPaf", // This is determined by some controller logic
         bestMatchAddressType = "WELSHPAF"
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(HighlightFuncs.boostAddress(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true), input="", favourPaf=true, favourWelsh=false, highVerbose=true))
 
       // Then
       result shouldBe expected
@@ -832,12 +838,12 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlights )
       val expected = AddressResponseAddressCustomEQ(
         uprn = givenPaf.uprn,
-        bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+        bestMatchAddress = "mixedNag", // This is determined by some controller logic
         bestMatchAddressType = "NAG"
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(HighlightFuncs.boostAddress(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true), input="", favourPaf=true, favourWelsh=true, highVerbose=true))
 
       // Then
       result shouldBe expected
@@ -845,15 +851,16 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
     "create Welsh AddressResponseAddressCustomEQ from Hybrid ES response for Welsh NAG" in {
       // Given
-      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validNagHighlightsWelsh )
+      val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validNagHighlightsWelsh )
+
       val expected = AddressResponseAddressCustomEQ(
         uprn = givenPaf.uprn,
-        bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+        bestMatchAddress = "mixedWelshNag", // This is determined by some controller logic
         bestMatchAddressType = "WELSHNAG"
       )
 
       // When
-      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+      val result = AddressResponseAddressCustomEQ.fromAddressResponseAddressEQ(HighlightFuncs.boostAddress(AddressResponseAddressEQ.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true), input="", favourPaf=false, favourWelsh=true, highVerbose=true))
 
       // Then
       result shouldBe expected
@@ -1081,15 +1088,16 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       uprn = givenPaf.uprn,
       formattedAddress = "mixedPaf",
       underlyingScore = 1,
-      confidenceScore = 100D,
-      highlights = Some(AddressResponseHighlight("formattedAddress", "P", "E", Some(List(AddressResponseHighlightHit("P","E",0,"6 Long Lane Liverpool"), AddressResponseHighlightHit("P","E",0,"6 Longish Lane Liverpool"))))),
+      confidenceScore = 5D,
+      highlights = Some(AddressResponseHighlight("mixedPaf", "P", "E", Some(List(AddressResponseHighlightHit("P","E",1,"<em>mixedPaf</em>"), AddressResponseHighlightHit("L","E",0,"mixedNag"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf"))))),
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "E"
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
+    val result1 = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false)
+    val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=true, favourWelsh=false, highVerbose=true)
 
     // Then
     result shouldBe expected
@@ -1102,15 +1110,16 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       uprn = givenPaf.uprn,
       formattedAddress = "mixedWelshPaf",
       underlyingScore = 1,
-      confidenceScore = 100D,
-      highlights = Some(AddressResponseHighlight("formattedAddress", "P", "W", Some(List(AddressResponseHighlightHit("P","W",0,"6 Long Lane Liverpoolhjy"), AddressResponseHighlightHit("P","W",0,"6 Longish Lane Liverpoolhjy"))))),
+      confidenceScore = 5D,
+      highlights = Some(AddressResponseHighlight("mixedWelshPaf", "P", "W", Some(List(AddressResponseHighlightHit("P","W",1,"<em>mixedWelshPaf</em>"), AddressResponseHighlightHit("P","E",0,"mixedPaf"), AddressResponseHighlightHit("L","E",0,"mixedNag"))))),
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "W"
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
+    val result1: AddressResponseAddressRH = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true)
+    val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=true, favourWelsh=true, highVerbose=true)
 
     // Then
     result shouldBe expected
@@ -1123,15 +1132,16 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       uprn = givenPaf.uprn,
       formattedAddress = "mixedNag",
       underlyingScore = 1,
-      confidenceScore = 100D,
-      highlights = Some(AddressResponseHighlight("formattedAddress", "L", "E", Some(List(AddressResponseHighlightHit("L","E",0,"A Nag Address"), AddressResponseHighlightHit("L","E",0,"A Nagish Address"))))),
+      confidenceScore = 5D,
+      highlights = Some(AddressResponseHighlight("mixedNag", "L", "E", Some(List(AddressResponseHighlightHit("L","E",1,"<em>mixedNag</em>"), AddressResponseHighlightHit("P","E",0,"mixedPaf"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf"))))),
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "E"
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
+    val result1 = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
+    val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=false, favourWelsh=false, highVerbose=true)
 
     // Then
     result shouldBe expected
@@ -1144,15 +1154,16 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
       uprn = givenPaf.uprn,
       formattedAddress = "mixedWelshNag",
       underlyingScore = 1,
-      confidenceScore = 100D,
-      highlights = Some(AddressResponseHighlight("formattedAddress", "L", "W", Some(List(AddressResponseHighlightHit("L","W",0,"A Naggly Address"), AddressResponseHighlightHit("L","W",0,"A Nagglyish Address"))))),
+      confidenceScore = 5D,
+      highlights = Some(AddressResponseHighlight("mixedWelshNag", "L", "W", Some(List(AddressResponseHighlightHit("L","W",1,"<em>mixedWelshNag</em>"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf"), AddressResponseHighlightHit("P","E",0,"mixedPaf"))))),
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "W"
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
+    val result1 = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true)
+    val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=false, favourWelsh=true, highVerbose=true)
 
     // Then
     result shouldBe expected
@@ -1160,20 +1171,22 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   "create AddressResponseAddressRH from Hybrid ES response for NISRA" in {
     // Given
-    val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(givenNisra), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlightsWelsh )
+    val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(givenNisra), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlightsNisra )
     val expected = AddressResponseAddressRH(
       uprn = givenPaf.uprn,
       formattedAddress = "mixedNisra",
       underlyingScore = 1,
-      confidenceScore = 100D,
-      highlights = Some(AddressResponseHighlight("formattedAddress", "L", "W", Some(List(AddressResponseHighlightHit("L","W",0,"A Naggly Address"), AddressResponseHighlightHit("L","W",0,"A Nagglyish Address"))))),
+      confidenceScore = 5D,
+      highlights = Some(AddressResponseHighlight("mixedNisra", "N", "E", Some(List(AddressResponseHighlightHit("N","E",1,"<em>mixedNisra</em>"),AddressResponseHighlightHit("P","E",0,"mixedPaf"), AddressResponseHighlightHit("L","W",0,"mixedWelshNag"), AddressResponseHighlightHit("P","W",0,"mixedWelshPaf"))))),
       censusAddressType = "NA",
       censusEstabType="NA",
       countryCode = "E"
     )
 
     // When
-    val result = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
+    val result1 = AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = false)
+    val result = HighlightFuncs.boostAddress(result1, input="", favourPaf=false, favourWelsh=false, highVerbose=true)
+
 
     // Then
     result shouldBe expected
@@ -1203,7 +1216,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validPafHighlightsWelsh )
     val expected = AddressResponseAddressCustomRH(
       uprn = givenPaf.uprn,
-      bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+      bestMatchAddress = "mixedWelshPaf", // This is determined by some controller logic
       bestMatchAddressType = "WELSHPAF",
       censusAddressType = "NA",
       censusEstabType="NA",
@@ -1211,7 +1224,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(HighlightFuncs.boostAddress(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = false), input="", favourPaf=true, favourWelsh=false, highVerbose=true))
 
     // Then
     result shouldBe expected
@@ -1222,7 +1235,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, validNagHighlights )
     val expected = AddressResponseAddressCustomRH(
       uprn = givenPaf.uprn,
-      bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+      bestMatchAddress = "mixedNag", // This is determined by some controller logic
       bestMatchAddressType = "NAG",
       censusAddressType = "NA",
       censusEstabType="NA",
@@ -1230,7 +1243,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(HighlightFuncs.boostAddress(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true), input="", favourPaf=true, favourWelsh=true, highVerbose=true))
 
     // Then
     result shouldBe expected
@@ -1238,10 +1251,10 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
 
   "create Welsh AddressResponseAddressCustomRH from Hybrid ES response for Welsh NAG" in {
     // Given
-    val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validNagHighlightsWelsh )
+    val hybrid = HybridAddress(givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag.copy(language = NationalAddressGazetteerAddress.Languages.welsh)), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "W", 0D, validNagHighlightsWelsh )
     val expected = AddressResponseAddressCustomRH(
       uprn = givenPaf.uprn,
-      bestMatchAddress = "formattedAddress", // This is determined by some controller logic
+      bestMatchAddress = "mixedWelshNag", // This is determined by some controller logic
       bestMatchAddressType = "WELSHNAG",
       censusAddressType = "NA",
       censusEstabType="NA",
@@ -1249,7 +1262,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     )
 
     // When
-    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = true, favourWelsh = true))
+    val result = AddressResponseAddressCustomRH.fromAddressResponseAddressRH(HighlightFuncs.boostAddress(AddressResponseAddressRH.fromHybridAddress(hybrid, favourPaf = false, favourWelsh = true), input="", favourPaf=false, favourWelsh=true, highVerbose=true))
 
     // Then
     result shouldBe expected
