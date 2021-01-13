@@ -245,8 +245,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val limitedSortedAddresses = if (!auxiliary) {
               sortedAddresses.slice(offsetInt, offsetInt + limitInt)
             } else {
-              sortedAddresses.filter(_.auxiliary.isEmpty).slice(offsetInt, offsetInt + round(limitInt * 0.8).toInt) ++
-                sortedAddresses.filter(_.auxiliary.isDefined).take(round(limitInt * 0.2).toInt)
+              sortedAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
+                sortedAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
             }
 
             // if verbose is false, strip out full address details (these are needed for score so must be
