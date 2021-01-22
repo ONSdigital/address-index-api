@@ -254,16 +254,18 @@ class AddressControllerSpec extends PlaySpec with Results {
       }
     }
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+      val scaleFactor = testConfig.config.bulk.scaleFactor
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D, scaleFactor)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
         })
       }
+    }
   }
 
   val slowElasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
@@ -289,17 +291,20 @@ class AddressControllerSpec extends PlaySpec with Results {
       HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1)
     }
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
-      Future {
-        Thread.sleep(500)
-        args.requestsData.map(requestData => {
-          val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
-          val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
 
-          Right(Seq(filledBulkAddress))
-        })
-      }
+    val scaleFactor = testConfig.config.bulk.scaleFactor
+    Future {
+      Thread.sleep(500)
+      args.requestsData.map(requestData => {
+        val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
+        val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D,scaleFactor)
+        val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
+
+        Right(Seq(filledBulkAddress))
+      })
+    }
+  }
   }
 
   // mock that won't return any addresses
@@ -317,16 +322,18 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+      val scaleFactor = testConfig.config.bulk.scaleFactor
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D,scaleFactor)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
         })
       }
+    }
   }
 
   val sometimesFailingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
@@ -338,18 +345,20 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] =
+    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+      val scaleFactor = testConfig.config.bulk.scaleFactor
       Future.successful {
         args.requestsData.map {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
           case requestData =>
             val emptyBulk = BulkAddress.empty(requestData)
-            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), requestData.tokens, 1D)
+            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), requestData.tokens, 1D, scaleFactor)
             val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
 
             Right(Seq(emptyBulkAddress))
         }
       }
+    }
   }
 
   val failingRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
@@ -1127,13 +1136,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a found address in concise format (by address query)" in {
       // Given
       val controller = addressController
-
+      val scaleFactor = testConfig.config.elasticSearch.scaleFactor
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1167,13 +1176,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a found address in verbose format (by address query)" in {
       // Given
       val controller = addressController
-
+      val scaleFactor = testConfig.config.elasticSearch.scaleFactor
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1207,13 +1216,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a list of addresses when given a range/lat/lon/filter but with no input (by address query)" in {
       // Given
       val controller = addressController
-
+      val scaleFactor = testConfig.config.elasticSearch.scaleFactor
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
           filter = "commercial",
           historical = true,
           rangekm = "20",
@@ -1247,13 +1256,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a found address in concise format (by address query with radius)" in {
       // Given
       val controller = addressController
-
+      val scaleFactor = testConfig.config.elasticSearch.scaleFactor
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1287,13 +1296,13 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a found address in verbose (by address query with radius)" in {
       // Given
       val controller = addressController
-
+      val scaleFactor = testConfig.config.elasticSearch.scaleFactor
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -2593,13 +2602,13 @@ class AddressControllerSpec extends PlaySpec with Results {
       val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
       val cbError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "Circuit Breaker is open; calls are failing fast"))
       val cbTimeoutError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "Circuit Breaker Timed out."))
-
+      val scaleFactor = testConfig.config.elasticSearch.scaleFactor
       val expected = Json.toJson(AddressBySearchResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "",

@@ -80,6 +80,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
+    val sigmoidScaleFactor = conf.config.elasticSearch.scaleFactor
+
     // validate radius parameters
     val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("")
@@ -227,7 +229,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               Try(ConfidenceScoreHelper.calculateElasticDenominator(auxAdjustedAddresses.map(_.underlyingScore))).getOrElse(1D)
 
             // calculate the Hopper and hybrid scores for each  address
-            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(auxAdjustedAddresses, tokens, elasticDenominator)
+            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(auxAdjustedAddresses, tokens, elasticDenominator,sigmoidScaleFactor)
 
             // work out the threshold for accepting matches (default 5% -> 0.05)
             val threshold = Try(thresholdFloat.toDouble).getOrElse(5.0D)
