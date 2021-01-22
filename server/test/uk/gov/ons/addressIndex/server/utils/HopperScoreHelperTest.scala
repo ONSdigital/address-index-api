@@ -545,9 +545,9 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   it should "get the scores for a address " in {
     // Given
     val expected = Seq(mockAddressResponseAddressWithScores)
-
+    val scaleFactor = 23
     // When
-    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress), mockAddressTokens, 1D)
+    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress), mockAddressTokens, 1D, scaleFactor)
 
     // Then
     actual shouldBe expected
@@ -556,9 +556,9 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   it should "add the scores for addresses to the response object " in {
     // Given
     val expected = mockAddressResponseAddressWithScores
-
+    val scaleFactor = 23
     // When
-    val actual = HopperScoreHelper.addScoresToAddress(0, mockAddressResponseAddress, mockAddressTokens, mockLocalityParams, 1D)
+    val actual = HopperScoreHelper.addScoresToAddress(0, mockAddressResponseAddress, mockAddressTokens, mockLocalityParams, 1D, scaleFactor)
 
     // Then
     actual shouldBe expected
