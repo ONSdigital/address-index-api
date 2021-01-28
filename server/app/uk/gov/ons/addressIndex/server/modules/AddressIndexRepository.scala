@@ -262,8 +262,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchBase = search(searchIndicies)
 
     val sortFields: Seq[FieldSort] =
-      if (args.includeAuxiliarySearch) Seq(FieldSort("uprn").asc())
-      else Seq(FieldSort("lpi.streetDescriptor.keyword").asc(),
+      Seq(FieldSort("lpi.streetDescriptor.keyword").asc(),
       FieldSort("lpi.paoStartNumber").asc(),
       FieldSort("lpi.paoStartSuffix.keyword").asc(),
       FieldSort("lpi.secondarySort").asc(),
