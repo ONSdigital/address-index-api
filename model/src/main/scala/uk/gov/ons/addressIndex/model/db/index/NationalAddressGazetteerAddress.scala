@@ -3,8 +3,6 @@ package uk.gov.ons.addressIndex.model.db.index
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCustodian
 import uk.gov.ons.addressIndex.parsers.Tokens
 
-import scala.util.Try
-
 /**
   * NAG Address DTO
   */
@@ -111,7 +109,8 @@ object NationalAddressGazetteerAddress {
     val filteredNag = nag.filter { case (_, value) => value != null }
     val matchLocationRegex = """-?\d+(?:\.\d*)?(?:[E][+\-]?\d+)?""".r
     val location = filteredNag.getOrElse(Fields.location, "").toString
-    val Array(longitude, latitude) = Try(matchLocationRegex.findAllIn(location).toArray).getOrElse(Array("0", "0"))
+    val locationMatchIterator = matchLocationRegex.findAllIn(location)
+    val Array(longitude, latitude) = if (locationMatchIterator.isEmpty) Array("0", "0") else locationMatchIterator.toArray
 
     NationalAddressGazetteerAddress(
       uprn = filteredNag.getOrElse(Fields.uprn, "").toString,
