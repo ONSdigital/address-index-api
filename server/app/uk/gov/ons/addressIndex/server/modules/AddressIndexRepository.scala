@@ -187,11 +187,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       .not(fromSourceQueryMustNot5)
       .should(numberQuery ++ fromSourceQueryShould ++ startQuery)
 
-    val source = if (args.historical) {
+    val source = (if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPartial else hybridIndexHistoricalSkinnyPartial
     } else {
       if (args.verbose) hybridIndexPartial else hybridIndexSkinnyPartial
-    }
+    }) + args.epochParam
 
     val hFields = if (args.highlight == "off") Seq() else
         Seq(HighlightField("mixedPartial"))
@@ -201,11 +201,13 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val partialScript: Script = new Script(script = scriptText)
     val hOpts = new HighlightOptions(numOfFragments=Some(0))
 
-    search(source + args.epochParam)
+    val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
+
+    search(searchIndicies)
       .query(
           functionScoreQuery(query).functions(
           scriptScore(partialScript))
-            .boostMode("replace").minScore(1)
+            .boostMode("replace").minScore(0)
       )
       .highlighting(hOpts,hFields)
       .sortBy(

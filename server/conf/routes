@@ -231,6 +231,8 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    - name: favourwelsh
 #      description: Welsh beats English on draw for best match
 #      default: false
+#    - name: includeauxiliarysearch
+#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      description: Weighting for addresses in England as a decimal from 0 to 10
 #      default: 1.0
@@ -257,7 +259,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead). RH version

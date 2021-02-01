@@ -14,6 +14,7 @@ import uk.gov.ons.addressIndex.server.utils.HighlightFuncs.boostAddress
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.math.round
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -49,6 +50,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None,
+                          includeauxiliarysearch: Option[String] = None,
                           eboost: Option[String] = None,
                           nboost: Option[String] = None,
                           sboost: Option[String] = None,
@@ -72,6 +74,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     // values are off, on and debug - off will be the default later (eQ set to on)
@@ -106,6 +109,24 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       )
     }
 
+    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
+      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
+      if (extractedAuxiliaryAddresses.isEmpty) addresses
+      else {
+        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
+        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
+        else {
+          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
+          val auxIndexMinUnderlyingScore = extractedAuxiliaryAddresses.minBy(_.underlyingScore).underlyingScore.toInt
+          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map { auxAddress =>
+            val increase = ((mainIndexMaxUnderlyingScore + auxAddress.underlyingScore) - auxIndexMinUnderlyingScore) / 1000
+            auxAddress.copy(underlyingScore = mainIndexMaxUnderlyingScore + increase)
+          }
+          extractedMainAddresses ++ adjustedAuxAddresses
+        }
+      }
+    }
+
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
 
@@ -121,6 +142,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       highlight = Some(highVal),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh),
+      includeAuxiliarySearch = Some(auxiliary),
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
@@ -156,6 +178,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh,
+          includeAuxiliarySearch = auxiliary,
           eboost = eboostDouble,
           nboost = nboostDouble,
           sboost = sboostDouble,
@@ -173,7 +196,18 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               AddressResponseAddress.fromHybridAddress(_, verb)
             )
 
-            val sortAddresses = if (startboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
+            // ensure that auxiliary index results are scored appropriately
+            val auxAdjustedAddresses =  adjustWithAuxiliaryResults(addresses)
+
+            val sortAddresses = if (startboost > 0) boostAtStart(auxAdjustedAddresses, inputVal, favourPaf, favourWelsh, highVerbose) else auxAdjustedAddresses
+
+            // trim the result list according to offset and limit paramters
+            val auxAdjustedSortedAddresses = if (!auxiliary) {
+              sortAddresses
+            } else {
+              sortAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
+                sortAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
+            }
 
             writeLog(activity = "partial_request")
 
@@ -183,7 +217,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 dataVersion = dataVersion,
                 response = AddressByPartialAddressResponse(
                   input = inputVal,
-                  addresses = sortAddresses,
+                  addresses = auxAdjustedSortedAddresses,
                   filter = filterString,
                   fallback = fall,
                   historical = hist,
@@ -196,6 +230,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh,
+                  includeauxiliarysearch = auxiliary,
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,
