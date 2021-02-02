@@ -40,7 +40,7 @@
     <tr class="table--row">
         <td class="table--cell">classificationfilter</td>
         <td class="table--cell">string</td>
-        <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace</td>
+        <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational</td>
         <td class="table--cell">
             Optional
         </td>
@@ -71,6 +71,51 @@
             Optional
         </td>
     </tr>
+    <tr class="table--row">
+        <td class="table--cell">includeauxiliarysearch</td>
+        <td class="table--cell">string</td>
+        <td class="table--cell">Search in the auxiliary index, if available</td>
+        <td class="table--cell">
+            Optional
+            <br>Default: false
+        </td>
+    </tr> 
+               <tr class="table--row">
+                   <td class="table--cell">eboost</td>
+                   <td class="table--cell">string</td>
+                   <td class="table--cell">Set to 0 to exclude addresses in England</td>
+                   <td class="table--cell">
+                        Optional
+                        <br>Default: 1.0
+                    </td>
+                </tr>
+                <tr class="table--row">
+                    <td class="table--cell">nboost</td>
+                    <td class="table--cell">string</td>
+                    <td class="table--cell">Set to 0 to exclude addresses in Northern Ireland</td>
+                    <td class="table--cell">
+                        Optional
+                        <br>Default: 1.0
+                    </td>
+                </tr>
+                <tr class="table--row">
+                    <td class="table--cell">sboost</td>
+                    <td class="table--cell">string</td>
+                    <td class="table--cell">Set to 0 to exclude addresses in Scotland</td>
+                    <td class="table--cell">
+                        Optional
+                        <br>Default: 1.0
+                    </td>
+                </tr>
+                <tr class="table--row">
+                    <td class="table--cell">wboost</td>
+                    <td class="table--cell">string</td>
+                    <td class="table--cell">Set to 0 to exclude addresses in Wales</td>
+                    <td class="table--cell">
+                         Optional
+                        <br>Default: 1.0
+                    </td>
+                </tr>        
     </tbody>
 </table>
 
@@ -129,9 +174,11 @@
            "northing": 92717
          },
          "classificationCode": "CR08",
-         "censusAddressType": "NA",
-         "censusEstabType": "NA",
-         "countryCode": "E",
+         "census": {
+           "addressType": "NA",
+           "estabType": "NA",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -152,9 +199,11 @@
            "northing": 92717
          },
          "classificationCode": "RD06",
-         "censusAddressType": "HH",
-         "censusEstabType": "Household",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -175,9 +224,11 @@
            "northing": 92721
          },
          "classificationCode": "C",
-         "censusAddressType": "NA",
-         "censusEstabType": "NA",
-         "countryCode": "E",
+         "census": {
+           "addressType": "NA",
+           "estabType": "NA",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -198,9 +249,11 @@
            "northing": 92721
          },
          "classificationCode": "RD",
-         "censusAddressType": "HH",
-         "censusEstabType": "Household",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -221,9 +274,11 @@
            "northing": 92721
          },
          "classificationCode": "RD",
-         "censusAddressType": "HH",
-         "censusEstabType": "Household",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -244,9 +299,11 @@
            "northing": 92727
          },
          "classificationCode": "RD",
-         "censusAddressType": "HH",
-         "censusEstabType": "Household",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -267,9 +324,11 @@
            "northing": 92727
          },
          "classificationCode": "RD06",
-         "censusAddressType": "HH",
-         "censusEstabType": "Household",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -290,9 +349,11 @@
            "northing": 92729
          },
          "classificationCode": "CR08",
-         "censusAddressType": "NA",
-         "censusEstabType": "NA",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -313,9 +374,11 @@
            "northing": 92727
          },
          "classificationCode": "RD04",
-         "censusAddressType": "HH",
-         "censusEstabType": "Household",
-         "countryCode": "E",
+         "census": {
+           "addressType": "HH",
+           "estabType": "Household",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -336,9 +399,11 @@
            "northing": 92733
          },
          "classificationCode": "CI",
-         "censusAddressType": "NA",
-         "censusEstabType": "NA",
-         "countryCode": "E",
+         "census": {
+           "addressType": "NA",
+           "estabType": "NA",
+           "countryCode": "E"
+         },
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0

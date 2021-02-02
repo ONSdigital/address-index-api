@@ -48,7 +48,8 @@ case class ElasticSearchConfig(local: Boolean,
                                minimumPartial: Int,
                                minimumFallback: Int,
                                defaultStartBoost: Int,
-                               validEpochs: String)
+                               validEpochs: String,
+                               scaleFactor: Int)
 
 case class QueryParamsConfig(// the number of cases has to be at most 22
                              subBuildingName: SubBuildingNameConfig,
@@ -88,7 +89,8 @@ case class ClusterPoliciesConfig(bulk: String,
 case class IndexesConfig(hybridIndexHistorical: String,
                          hybridIndex: String,
                          hybridIndexHistoricalSkinny: String,
-                         hybridIndexSkinny: String)
+                         hybridIndexSkinny: String,
+                         auxiliaryIndex: String)
 
 case class SubBuildingNameConfig(pafSubBuildingNameBoost: Double,
                                  lpiSaoTextBoost: Double,
@@ -202,8 +204,10 @@ case class FallbackConfig(fallbackQueryBoost: Double,
                           fallbackMinimumShouldMatch: String,
                           fallbackPafBoost: Double,
                           fallbackLpiBoost: Double,
+                          fallbackAuxBoost: Double,
                           fallbackPafBigramBoost: Double,
                           fallbackLpiBigramBoost: Double,
+                          fallbackAuxBigramBoost: Double,
                           bigramFuzziness: String)
 
 object FallbackConfig {
@@ -225,7 +229,8 @@ case class BulkConfig(batch: BatchConfig,
                       limitperaddress: Int,
                       maxLimitperaddress: Int,
                       matchThreshold: Float,
-                      minimumSample: Int)
+                      minimumSample: Int,
+                      scaleFactor: Int)
 
 case class BatchConfig(perBatch: Int,
                        upscale: Float,

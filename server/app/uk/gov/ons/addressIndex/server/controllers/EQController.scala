@@ -4,7 +4,9 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.ons.addressIndex.server.modules.VersionModule
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
+import uk.gov.ons.addressIndex.server.utils.GroupOptions
 
+import scala.util.Try
 import scala.util.matching.Regex
 
 @Singleton
@@ -21,31 +23,56 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               offset: Option[String] = None,
               limit: Option[String] = None,
               classificationfilter: Option[String] = None,
-              historical: Option[String] = None,
-              verbose: Option[String] = None,
               epoch: Option[String] = None,
-              fromsource: Option[String] = None,
-              highlight: Option[String] = None,
               favourpaf: Option[String] = None,
-              favourwelsh: Option[String] = None
+              favourwelsh: Option[String] = None,
+              eboost: Option[String] = None,
+              nboost: Option[String] = None,
+              sboost: Option[String] = None,
+              wboost: Option[String] = None,
+              groupfullpostcodes: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
-  // we want to test the string with spaces as supplied by the user first
+    val groupFullPostcodesVal: String = groupfullpostcodes.getOrElse(GroupOptions.NO.toString)
+
+    // we want to test the string with spaces as supplied by the user first
   // if no match try again with spaces removed.
     val normalizedInput: String = stripSpaces(input.toUpperCase)
-
     if (isPostCode(normalizedInput)) {
-      logger.info("Input is postcode")
-      eqPostcodeController.postcodeQuery(
-        postcode = normalizedInput,
-        offset = offset,
-        limit = limit,
-        classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        favourpaf = favourpaf,
-        favourwelsh = favourwelsh,
-        epoch = epoch)(req)
+      if (groupFullPostcodesVal.equals(GroupOptions.YES.toString)) {
+        val postcodeFormatted: String = if (!input.contains(" ")) {
+          val (postcodeStart, postcodeEnd) = input.splitAt(input.length() - 3)
+          (postcodeStart + " " + postcodeEnd).toUpperCase
+        } else input.toUpperCase
+        logger.info("Input is a postcode but grouping is requested")
+        groupedPostcodeController.groupedPostcodeQuery(
+          postcode = postcodeFormatted,
+          offset = offset,
+          limit = limit,
+          classificationfilter = classificationfilter,
+          epoch = epoch,
+          eboost = eboost,
+          nboost = nboost,
+          sboost = sboost,
+          wboost = wboost)(req)
+      } else {
+        logger.info("Input is postcode, groupfullpostcode setting = "  + groupFullPostcodesVal)
+        eqPostcodeController.postcodeQuery(
+          postcode = normalizedInput,
+          offset = offset,
+          limit = limit,
+          classificationfilter = classificationfilter,
+          favourpaf = favourpaf,
+          favourwelsh = favourwelsh,
+          epoch = epoch,
+          groupfullpostcodes = Some(groupFullPostcodesVal),
+          eboost = eboost,
+          nboost = nboost,
+          sboost = sboost,
+          wboost = wboost
+        )(req)
+      }
+
     } else if (isOutCodeAndSectorAndHalfUnitWithSpace(input)){
       logger.info("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -53,9 +80,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        epoch = epoch)(req)
+        epoch = epoch,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost)(req)
     } else if (isOutCodeAndSectorWithSpace(input)){
       logger.info("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -63,9 +92,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        epoch = epoch)(req)
+        epoch = epoch,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost)(req)
     } else if (isOutCode(input)){
       logger.info("Input is the outcode part of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -73,9 +104,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        epoch = epoch)(req)
+        epoch = epoch,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost)(req)
     } else if (isOutCodeAndSectorAndHalfUnit(normalizedInput)){
       logger.info("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -83,9 +116,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        epoch = epoch)(req)
+        epoch = epoch,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost)(req)
     } else if (isOutCodeAndSector(normalizedInput)){
       logger.info("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -93,9 +128,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        epoch = epoch)(req)
+        epoch = epoch,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost)(req)
     } else if (isOutCode(normalizedInput)){
       logger.info("Input is the outcode part of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -103,9 +140,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
-        epoch = epoch)(req)
+        epoch = epoch,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost)(req)
     } else {
       logger.info("input is partial address")
       eqPartialAddressController.partialAddressQuery(
@@ -114,13 +153,13 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         offset = offset,
         limit = limit,
         classificationfilter = classificationfilter,
-        historical = historical,
-        verbose = verbose,
         epoch = epoch,
-        fromsource = fromsource,
-        highlight = highlight,
         favourpaf = favourpaf,
-        favourwelsh = favourwelsh) (req)
+        favourwelsh = favourwelsh,
+        eboost = eboost,
+        nboost = nboost,
+        sboost = sboost,
+        wboost = wboost) (req)
     }
   }
 

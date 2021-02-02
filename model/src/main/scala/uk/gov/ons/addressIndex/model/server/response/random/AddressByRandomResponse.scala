@@ -15,7 +15,10 @@ case class AddressByRandomResponse(addresses: Seq[AddressResponseAddress],
                                    epoch: String,
                                    limit: Int,
                                    verbose: Boolean,
-                                   fromsource: String)
+                                   eboost: Double,
+                                   nboost: Double,
+                                   sboost: Double,
+                                   wboost: Double)
 
 object AddressByRandomResponse {
   implicit lazy val addressByRandomResponseFormat: Format[AddressByRandomResponse] = Json.format[AddressByRandomResponse]

@@ -29,7 +29,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:RHPartialAddressController")
 
-  val sboost: Int = conf.config.elasticSearch.defaultStartBoost
+  val startboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
     * RH PartialAddress query API
@@ -43,13 +43,13 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
                           offset: Option[String] = None,
                           limit: Option[String] = None,
                           classificationfilter: Option[String] = None,
-                          historical: Option[String] = None,
-                          verbose: Option[String] = None,
                           epoch: Option[String] = None,
-                          fromsource: Option[String] = None,
-                          highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
-                          favourwelsh: Option[String] = None
+                          favourwelsh: Option[String] = None,
+                          eboost: Option[String] = None,
+                          nboost: Option[String] = None,
+                          sboost: Option[String] = None,
+                          wboost: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -66,16 +66,26 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
-    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = false
+    val verb = false
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val highVal = highlight.getOrElse("on")
-    val highVerbose: Boolean = highVal == "debug"
+    val highVal = "on"
+    val highVerbose: Boolean = (highVal == "debug")
     val inputVal = input.replaceAll("'","")
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
+
+    val fromsourceVal = "all"
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -107,7 +117,11 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
       fromsource = Some(fromsourceVal),
       highlight = Some(highVal),
       favourpaf = Some(favourPaf),
-      favourwelsh = Some(favourWelsh)
+      favourwelsh = Some(favourWelsh),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -118,7 +132,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues))
-        .orElse(partialAddressValidation.validateFromSource(queryValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -136,10 +150,13 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
-          fromsource = fromsourceVal,
           highlight = highVal,
           favourpaf = favourPaf,
-          favourwelsh = favourWelsh
+          favourwelsh = favourWelsh,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =
@@ -153,7 +170,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
               AddressResponseAddressRH.fromHybridAddress(_, favourPaf, favourWelsh)
             )
 
-            val sortAddresses = if (sboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
+            val sortAddresses = if (startboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
 
             writeLog(activity = "rh_partial_request")
 
@@ -166,17 +183,17 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
                   addresses = AddressByRHPartialAddressResponse.toRHAddressByPartialResponse(sortAddresses),
                   filter = filterString,
                   fallback = fall,
-                  historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb,
-                  fromsource = fromsourceVal,
-                  highlight = highVal,
                   favourpaf = favourPaf,
-                  favourwelsh = favourWelsh
+                  favourwelsh = favourWelsh,
+                  eboost = eboostDouble,
+                  nboost = nboostDouble,
+                  sboost = sboostDouble,
+                  wboost = wboostDouble
                 ),
                 status = OkAddressResponseStatus
               )

@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
+import play.api.Logger
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup
 
 import scala.util.Try
@@ -21,6 +22,9 @@ case class HybridAddressCollection(addresses: Seq[HybridAddress],
                                    total: Long)
 
 object HybridAddressCollection {
+
+  val logger: Logger = Logger("address-index-server:HybridAddressCollection")
+
   def fromEither(resp: Either[RequestFailure, RequestSuccess[SearchResponse]]): HybridAddressCollection = {
     resp match {
       case Left(l) => throw new Exception("search failed - " + l.error.reason)
@@ -29,7 +33,12 @@ object HybridAddressCollection {
   }
 
   def fromResponse(resp: Response[SearchResponse]): HybridAddressCollection = {
-    if (resp.isError) throw new Exception("search failed - " + resp.error.reason)
+    if (resp.isError) {
+      val err = s"${resp.status} - ${resp.error.`type`}, ${resp.error.reason}"
+      val rootCauseErr = resp.error.rootCause.map(rc => s"${rc.`type`}, ${rc.reason}" ).mkString
+      logger.error(s"Elasticsearch Error: ${err} with root cause: ${rootCauseErr}")
+      throw new Exception("search failed - " + resp.error.reason)
+    }
     else fromSearchResponse(resp.result)
   }
   /**
@@ -75,7 +84,7 @@ object HybridAddressCollection {
     val pcList3 = if (pcList.size > 0) pcList.head :: pcList2
     else List.empty[AddressResponsePostcodeGroup]
 
-    // returned total will be number of hits unless we are doing grfirstUprn.last._2.head.head._2ouped postcode
+    // returned total will be number of hits unless we are doing grouped postcode
     val totalOrBuckets = if (pcList.size > 0) pcList.size else total
 
     HybridAddressCollection(

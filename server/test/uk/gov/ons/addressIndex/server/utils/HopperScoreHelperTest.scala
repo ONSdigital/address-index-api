@@ -191,17 +191,17 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressAuxiliary = "",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = None,
+    auxiliary = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
     underlyingScore = 1.0f,
-    countryCode = "E",
-    censusAddressType = "TBA",
-    censusEstabType = "TBA",
+    census = AddressResponseCensus("TBA", "TBA", "E"),
     highlights = None
   )
 
@@ -217,17 +217,17 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, PO7 PO7",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, PO7 PO7",
+    formattedAddressAuxiliary = "",
     paf = Some(mockPafAddress2),
     nag = Some(Seq(mockNagAddress2)),
     nisra = None,
+    auxiliary = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
     underlyingScore = 1.0f,
-    countryCode = "E",
-    censusAddressType = "TBA",
-    censusEstabType = "TBA",
+    census = AddressResponseCensus("TBA", "TBA", "E"),
     highlights = None
   )
 
@@ -243,17 +243,17 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
     formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressAuxiliary = "",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = None,
+    auxiliary = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
     underlyingScore = 1.0f,
-    countryCode = "E",
-    censusAddressType = "TBA",
-    censusEstabType = "TBA",
+    census = AddressResponseCensus("TBA", "TBA", "E"),
     highlights = None
   )
 
@@ -545,9 +545,9 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   it should "get the scores for a address " in {
     // Given
     val expected = Seq(mockAddressResponseAddressWithScores)
-
+    val scaleFactor = 23
     // When
-    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress), mockAddressTokens, 1D)
+    val actual = HopperScoreHelper.getScoresForAddresses(Seq(mockAddressResponseAddress), mockAddressTokens, 1D, scaleFactor)
 
     // Then
     actual shouldBe expected
@@ -556,9 +556,9 @@ class HopperScoreHelperTest extends FlatSpec with Matchers {
   it should "add the scores for addresses to the response object " in {
     // Given
     val expected = mockAddressResponseAddressWithScores
-
+    val scaleFactor = 23
     // When
-    val actual = HopperScoreHelper.addScoresToAddress(0, mockAddressResponseAddress, mockAddressTokens, mockLocalityParams, 1D)
+    val actual = HopperScoreHelper.addScoresToAddress(0, mockAddressResponseAddress, mockAddressTokens, mockLocalityParams, 1D, scaleFactor)
 
     // Then
     actual shouldBe expected

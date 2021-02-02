@@ -53,12 +53,14 @@ case class AddressIndexPartialRequest(partial: String,
                                       limit: String,
                                       offset: String,
                                       verbose: Boolean,
+                                      fallback: Boolean,
                                       id: UUID,
                                       apiKey: String)
 
 case class AddressIndexPartialRequestGcp(partial: String,
                                          filter: String,
-                                         limit: String)
+                                         limit: String,
+                                         fallback: Boolean)
 
 /**
   * The body of the request that is sent to the bulk api endpoint

@@ -30,23 +30,23 @@ object HopperScoreHelper {
     * @param tokens    matching input tokens created by parser
     * @return scored addresses
     */
-  def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
+  def getScoresForAddresses(addresses: Seq[AddressResponseAddress], tokens: Map[String, String], elasticDenominator: Double,sigmoidScaleFactor: Int): Seq[AddressResponseAddress] = {
     val startingTime = System.currentTimeMillis()
     val localityParams = addresses.map(address => getLocalityParams(address, tokens))
-    val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, address, tokens, localityParams, elasticDenominator) }
+    val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, address, tokens, localityParams, elasticDenominator,sigmoidScaleFactor) }
     val endingTime = System.currentTimeMillis()
     logger.trace("Hopper Score calculation time = " + (endingTime - startingTime) + " milliseconds")
     scoredAddresses
   }
 
-  def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
-    val startingTime = System.currentTimeMillis()
-    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens))
-    val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens, localityParams, elasticDenominator) }
-    val endingTime = System.currentTimeMillis()
-    logger.trace("Hopper Score calculation time = " + (endingTime - startingTime) + " milliseconds")
-    scoredAddresses
-  }
+//  def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
+//    val startingTime = System.currentTimeMillis()
+//    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens))
+//    val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens, localityParams, elasticDenominator) }
+//    val endingTime = System.currentTimeMillis()
+//    logger.trace("Hopper Score calculation time = " + (endingTime - startingTime) + " milliseconds")
+//    scoredAddresses
+//  }
 
   def getLocalityParams(address: AddressResponseAddress, tokens: Map[String, String]): (String, String) = {
 
@@ -88,7 +88,8 @@ object HopperScoreHelper {
                          address: AddressResponseAddress,
                          tokens: Map[String, String],
                          localityParams: Seq[(String, String)],
-                         elasticDenominator: Double
+                         elasticDenominator: Double,
+                         sigmoidScaleFactor: Int
                         ): AddressResponseAddress = {
 
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)
@@ -135,7 +136,7 @@ object HopperScoreHelper {
     val structuralScore = calculateStructuralScore(buildingScore, localityScore)
     val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
     val elasticRatio = if (elasticDenominator == -1D) 1.2D else Try(address.underlyingScore).getOrElse(1F) / safeDenominator
-    val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio)
+    val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio,sigmoidScaleFactor)
 
     address.copy(confidenceScore = confidenceScore)
   }
@@ -188,7 +189,7 @@ object HopperScoreHelper {
                              paoEndSuffix: String,
                              organisationName: String): String = {
 
-    val fromSource = address.countryCode
+    val fromSource = address.census.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
@@ -505,7 +506,7 @@ object HopperScoreHelper {
                              organisationName: String,
                              buildingName: String): String = {
 
-    val fromSource = address.countryCode
+    val fromSource = address.census.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
@@ -1084,7 +1085,7 @@ object HopperScoreHelper {
                          saoEndSuffix: String,
                          organisationName: String): String = {
 
-    val fromSource = address.countryCode
+    val fromSource = address.census.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")

@@ -15,22 +15,6 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   // validEpochs is inherited from AddressControllerValidation
   val epochRegex: String = """\b(""" + validEpochs + """)\b.*"""
 
-  // The batch does not use Futures for the validation so we have to override the address ones to return the
-  // error without a Future wrapping.
-
-  //  def validateBatchStartDate(startDate: String) : Option[Result] = {
-  //    if (super.invalidDate(startDate)) {
-  //      logger.systemLog(badRequestMessage = StartDateInvalidResponseError.message)
-  //      Some(jsonBadRequest(StartDateInvalid))
-  //    } else None
-  //  }
-  //
-  //  def validateBatchEndDate(endDate: String) : Option[Result] = {
-  //    if (super.invalidDate(endDate)) {
-  //      logger.systemLog(badRequestMessage = EndDateInvalidResponseError.message)
-  //      Some(jsonBadRequest(EndDateInvalid))
-  //    } else None
-  //  }
 
   def validateBatchSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
     val source = request.headers.get("Source").getOrElse(missing)

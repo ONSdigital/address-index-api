@@ -82,8 +82,17 @@ object AddressResponseAddressRH {
     AddressResponseAddressRH(
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
-      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress", other.highlights.headOption.getOrElse(Map())),
-      censusAddressType = other.censusAddressType,
+      highlights = if (testHigh) None
+      else
+        AddressResponseHighlight.fromCombinedHighlight("formattedAddress",
+          other.highlights.headOption.getOrElse(Map()),
+          formattedAddressPaf,
+          welshFormattedAddressPaf,
+          formattedAddressNag,
+          welshFormattedAddressNag,
+          formattedAddressNisra
+        ),
+      censusAddressType = other.censusAddressType.trim,
       censusEstabType = other.censusEstabType,
       countryCode = other.countryCode,
       confidenceScore = 100D,

@@ -34,7 +34,7 @@
             <td class="table--cell">Specifies whether a slow fallback query is used in the event of the main query returning no results.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: True
+                <br>Default: False
             </td>
         </tr>
          <tr class="table--row">
@@ -60,27 +60,9 @@
          <tr class="table--row">
             <td class="table--cell">classificationfilter</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace</td>
+            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational</td>
             <td class="table--cell">
                 Optional
-            </td>
-        </tr>
-        <tr>
-            <td class="table--cell">historical</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include historical addresses</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
-            </td>
-        </tr>
-         <tr class="table--row">
-            <td class="table--cell">verbose</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Include the full address details in the response (including relatives, crossRefs, paf and nag).</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: False
             </td>
         </tr>
         <tr class="table--row">
@@ -89,24 +71,6 @@
             <td class="table--cell">Select a specific AddressBase Epoch to search.</td>
             <td class="table--cell">
                 Optional
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">fromsource</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: all
-            </td>
-        </tr>
-        <tr class="table--row">
-            <td class="table--cell">highlight</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">include detailed highlighting info, options are off, on or debug</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: on
             </td>
         </tr>
         <tr class="table--row">
@@ -127,6 +91,42 @@
                 <br>Default: False
             </td>
         </tr>
+        <tr class="table--row">
+           <td class="table--cell">eboost</td>
+           <td class="table--cell">string</td>
+           <td class="table--cell">Weighting for addresses in England as a decimal from 0 to 10</td>
+           <td class="table--cell">
+                Optional
+                <br>Default: 1.0
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">nboost</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Weighting for addresses in Northern Ireland as a decimal from 0 to 10</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 1.0
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">sboost</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Weighting for addresses in Scotland as a decimal from 0 to 10</td>
+            <td class="table--cell">
+                Optional
+                <br>Default: 1.0
+            </td>
+        </tr>
+        <tr class="table--row">
+            <td class="table--cell">wboost</td>
+            <td class="table--cell">string</td>
+            <td class="table--cell">Weighting for addresses in Wales as a decimal from 0 to 10</td>
+            <td class="table--cell">
+                 Optional
+                <br>Default: 1.0
+            </td>
+        </tr>        
      </tbody>
   </table>
 
@@ -213,18 +213,18 @@
       }
     ],
     "filter": "",
-    "fallback": true,
-    "historical": false,
+    "fallback": false,
     "epoch": "",
     "limit": 5,
     "offset": 0,
     "total": 161,
     "maxScore": 0,
-    "verbose": false,
-    "fromsource": "all",
-    "highlight": "on",
     "favourpaf": true,
-    "favourwelsh": false
+    "favourwelsh": false,
+    "eboost": 1,
+    "nboost": 1,
+    "sboost": 1,
+    "wboost": 1
   },
   "status": {
     "code": 200,

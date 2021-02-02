@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
 import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
-import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters.{CommercialClassificationFilter, ResidentialClassificationFilter, WorkplaceClassificationFilter}
+import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters._
 
 import scala.util.Try
 
@@ -38,11 +38,12 @@ trait Filterable {
   private val presetClassificationFilters = Map(
     "residential" -> ResidentialClassificationFilter,
     "commercial" -> CommercialClassificationFilter,
-    "workplace" -> WorkplaceClassificationFilter
+    "workplace" -> WorkplaceClassificationFilter,
+    "educational"  -> EducationalClassificationFilter
   )
 
   def filtersType: String = filters match {
-    case "residential" | "commercial" | "workplace" => "preset"
+    case "residential" | "commercial" | "workplace" | "educational" => "preset"
     case f if f.endsWith("*") => "prefix"
     case _ => "term"
   }
@@ -104,6 +105,8 @@ sealed abstract class QueryArgs {
 
   def filtersOpt: Option[String] = None
 
+  def groupFullPostcodesOpt: Option[String] = None
+
   def filterDateRangeOpt: Option[DateRange] = None
 
   def verboseOpt: Option[Boolean] = None
@@ -144,6 +147,9 @@ sealed abstract class QueryArgs {
 
   def includeFullAddressOpt: Option[Boolean] = None
 
+  //def includeAuxiliarySearch: Boolean
+
+  def includeAuxiliarySearchOpt: Option[Boolean] = None
   // used when assembling error reports
 
   def inputOrDefault: String = this.inputOpt.getOrElse("")
@@ -175,6 +181,12 @@ sealed abstract class QueryArgs {
   def longitudeOrDefault: String = this.regionOpt.map(_.lon.toString).getOrElse("")
 
   def matchThresholdOrDefault: Float = this.matchThresholdOpt.getOrElse(0f)
+
+  def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearchOpt.getOrElse(false)
+
+  def groupFullPostcodesOrDefault: String = this.groupFullPostcodesOpt.getOrElse("")
+
+
 }
 
 /**
@@ -185,8 +197,11 @@ sealed abstract class QueryArgs {
 final case class UPRNArgs(uprn: String,
                           historical: Boolean = true,
                           epoch: String = "",
+                          includeAuxiliarySearch: Boolean = false
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable with Verboseable {
@@ -213,10 +228,13 @@ final case class PartialArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean = false,
                              skinny: Boolean = false,
-                             fromsource: String,
                              highlight: String = "on",
                              favourpaf: Boolean = true,
-                             favourwelsh: Boolean = true
+                             favourwelsh: Boolean = true,
+                             eboost: Double = 1.0,
+                             nboost: Double = 1.0,
+                             sboost: Double = 1.0,
+                             wboost: Double = 1.0
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -245,13 +263,23 @@ final case class PostcodeArgs(postcode: String,
                               verbose: Boolean = true,
                               skinny: Boolean = false,
                               favourpaf: Boolean = true,
-                              favourwelsh: Boolean = true
+                              favourwelsh: Boolean = true,
+                              includeAuxiliarySearch: Boolean = false,
+                              groupfullpostcodes: String = "no",
+                              eboost: Double = 1.0,
+                              nboost: Double = 1.0,
+                              sboost: Double = 1.0,
+                              wboost: Double = 1.0
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
   override def startOpt: Option[Int] = Some(start)
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+
+  override def groupFullPostcodesOpt: Option[String] = Some(groupfullpostcodes)
 }
 
 /**
@@ -268,7 +296,11 @@ final case class GroupedPostcodeArgs(postcode: String,
                               verbose: Boolean = true,
                               skinny: Boolean = false,
                               favourpaf: Boolean = true,
-                              favourwelsh: Boolean = true
+                              favourwelsh: Boolean = true,
+                              eboost: Double = 1.0,
+                              nboost: Double = 1.0,
+                              sboost: Double = 1.0,
+                              wboost: Double = 1.0
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
@@ -280,7 +312,7 @@ final case class GroupedPostcodeArgs(postcode: String,
 /**
   * Search by bucket
   *
-  * @param bucketPattern bucket string with possible wilcards
+  * @param bucketpattern bucket string with possible wilcards
   */
 final case class BucketArgs(bucketpattern: String,
                               epoch: String = "",
@@ -309,7 +341,11 @@ final case class RandomArgs(epoch: String = "",
                             limit: Int,
                             verbose: Boolean = true,
                             skinny: Boolean = false,
-                            fromsource: String = "all"
+                            fromsource: String = "all",
+                            eboost: Double = 1.0,
+                            nboost: Double = 1.0,
+                            sboost: Double = 1.0,
+                            wboost: Double = 1.0
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }
@@ -332,7 +368,12 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                             fromsource: String = "all"
+                             fromsource: String = "all",
+                             includeAuxiliarySearch: Boolean = false,
+                             eboost: Double = 1.0,
+                             nboost: Double = 1.0,
+                             sboost: Double = 1.0,
+                             wboost: Double = 1.0
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -347,6 +388,8 @@ final case class AddressArgs(input: String,
   override def filterDateRangeOpt: Option[DateRange] = Some(filterDateRange)
 
   override def queryParamsConfigOpt: Option[QueryParamsConfig] = queryParamsConfig
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 /**

@@ -45,7 +45,10 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     matchthreshold = 5f,
     verbose = true,
     epoch = "",
-    fromsource = "EW"
+    eboost = 1,
+    nboost = 1,
+    sboost = 1,
+    wboost = 1
   )
 
   val mockAddressByPostcodeResponse: AddressByPostcodeResponse = AddressByPostcodeResponse(
@@ -212,6 +215,28 @@ object AddressIndexClientMock {
     localCouncil = "BELFAST"
   )
 
+  val mockAuxiliaryAddress = AddressResponseAuxiliary(
+    uprn = "1",
+    organisationName = "2",
+    subBuildingName = "3",
+    buildingName = "4",
+    buildingNumber = "5",
+    paoStartNumber = "6",
+    paoStartSuffix = "7",
+    paoEndNumber = "8",
+    saoStartSuffix = "9",
+    saoEndSuffix = "10",
+    streetName = "11",
+    locality = "12",
+    townName = "13",
+    location = AddressResponseAuxiliaryAddressLocation("14", "15"),
+    addressLevel = "16",
+    addressAll = "mixedAuxiliary",
+    addressLine1 = "17",
+    addressLine2 = "18",
+    addressLine3 = "19"
+  )
+
   val mockBespokeScore: AddressResponseScore = AddressResponseScore(
     objectScore = 0d,
     structuralScore = 0d,
@@ -234,17 +259,17 @@ object AddressIndexClientMock {
     formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
+    formattedAddressAuxiliary = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),
+    auxiliary = Some(mockAuxiliaryAddress),
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
     confidenceScore = 100f,
     underlyingScore = 1.0f,
-    countryCode = "E",
-    censusAddressType = "TBA",
-    censusEstabType = "TBA",
+    census = AddressResponseCensus("TBA", "TBA", "E"),
     highlights = None
   )
 

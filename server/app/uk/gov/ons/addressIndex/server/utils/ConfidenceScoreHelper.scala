@@ -17,7 +17,7 @@ object ConfidenceScoreHelper {
     * @param elasticRatio    elastic score devided by previously calculated mean of first and second scores
     * @return confidence score as double
     */
-  def calculateConfidenceScore(tokens: Map[String, String], structuralScore: Double, unitScore: Double, elasticRatio: Double): Double = {
+  def calculateConfidenceScore(tokens: Map[String, String], structuralScore: Double, unitScore: Double, elasticRatio: Double,scaleFactor:Int): Double = {
     val unitScoreReplaced = if (unitScore == -1D) 0.3D else unitScore
     val alpha = if (tokens.contains(Tokens.organisationName) ||
       tokens.contains(Tokens.subBuildingName) ||
@@ -25,7 +25,7 @@ object ConfidenceScoreHelper {
       tokens.contains(Tokens.saoStartSuffix)) 0.8D else 0.9D
     val hScore = structuralScore * (alpha + (0.99 - alpha) * unitScoreReplaced)
     val hScoreScaled = pow(hScore, 6)
-    val elasticRatioScaled = 1 / (1 + exp(23 * (0.99 - elasticRatio)))
+    val elasticRatioScaled = 1 / (1 + exp(scaleFactor * (0.99 - elasticRatio)))
     //   confidence = (99* max (  sigmoid(e_ratio) ,  h_score^6 ) + sigmoid(e_ratio) )/100
     BigDecimal(99 * max(hScoreScaled, elasticRatioScaled) + elasticRatioScaled).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
   }

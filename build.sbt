@@ -20,7 +20,7 @@ publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.on
 credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
 
 lazy val Versions = new {
-  val elastic4s = "7.3.1"
+  val elastic4s = "7.9.2"
   val scala = "2.12.4"
   val gatlingVersion = "2.3.1"
   val scapegoatVersion = "1.3.8"
@@ -105,13 +105,14 @@ val commonDeps = Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // testing
-  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
+  //"com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
+  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % "7.3.1" % "test",
   "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
   "org.apache.commons" % "commons-lang3" % "3.3.2",
   "org.apache.httpcomponents" % "httpcore" % "4.4.11",
   "org.apache.httpcomponents" % "httpclient" % "4.5.7",
-  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.3.1",
+  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.2",
   "org.testcontainers" % "elasticsearch" % "1.12.2" % "test",
   guice
 )
@@ -128,7 +129,9 @@ val serverDeps = Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
-  "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test"
+  "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
+  "io.kamon" %% "kamon-bundle" % "2.1.0",
+  "io.kamon" %% "kamon-prometheus" % "2.1.4"
 ) ++ commonDeps
 
 val uiDeps = Seq(
@@ -248,7 +251,8 @@ lazy val `address-index-server` = project.in(file("server"))
     JavaAppPackaging,
     GitVersioning,
     SwaggerPlugin,
-    DockerPlugin
+    DockerPlugin,
+    JavaAgent
   )
 
 lazy val `address-index-parsers` = project.in(file("parsers"))

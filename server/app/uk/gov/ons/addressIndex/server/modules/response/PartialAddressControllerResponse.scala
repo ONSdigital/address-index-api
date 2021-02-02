@@ -56,6 +56,14 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(queryValues, FromSourceInvalidError)
   }
 
+  def PartialCountryBoostsInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, CountryBoostsInvalidError)
+  }
+
+  def PartialCountryDeprecation(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, CountryDeprecationError)
+  }
+
   def FailedRequestToEsPartialAddress(detail: String, queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code, FailedRequestToEsPartialAddressError.message.replace("see logs", detail))
     AddressByPartialAddressResponseContainer(
@@ -91,10 +99,13 @@ trait PartialAddressControllerResponse extends AddressResponse {
       total = 0,
       maxScore = 0f,
       verbose = queryValues.verboseOrDefault,
-      fromsource = queryValues.fromSourceOrDefault,
       highlight = queryValues.highlightOrDefault,
       favourpaf = queryValues.favourPafOrDefault,
-      favourwelsh = queryValues.favourWelshOrDefault
+      favourwelsh = queryValues.favourWelshOrDefault,
+      eboost = queryValues.eboostOrDefault,
+      nboost = queryValues.nboostOrDefault,
+      sboost = queryValues.sboostOrDefault,
+      wboost = queryValues.wboostOrDefault
     )
   }
 

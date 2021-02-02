@@ -14,7 +14,7 @@ import scala.util.{Failure, Success, Try}
 class AddressControllerValidation @Inject()(implicit conf: ConfigModule, versionProvider: VersionModule)
   extends AddressValidation with AddressControllerResponse {
   val matchThreshold: Float = conf.config.elasticSearch.matchThreshold
-  private val addressFilterRegex = raw"""\b(residential|commercial|workplace|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
+  private val addressFilterRegex = raw"""\b(residential|commercial|workplace|educational|[CcLlMmOoPpRrUuXxZz]\w*)\b.*""".r
 
   // override error message with named length
   object EpochNotAvailableErrorCustom extends AddressResponseError(
@@ -122,4 +122,23 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
         Some(futureJsonBadRequest(FromSourceInvalid(queryValues)))
     }
   }
+
+  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(99D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(99D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(99D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
+
+    if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
+      logger.systemLog(badRequestMessage = CountryBoostsInvalidError.message)
+      Some(futureJsonBadRequest(CountryBoostsInvalid(queryValues)))
+    } else None
+
+  }
+
 }

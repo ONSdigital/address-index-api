@@ -38,11 +38,13 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     offset: Option[String] = None,
                     limit: Option[String] = None,
                     classificationfilter: Option[String] = None,
-                    historical: Option[String] = None,
-                    verbose: Option[String] = None,
                     favourpaf: Option[String] = None,
                     favourwelsh: Option[String] = None,
-                    epoch: Option[String] = None
+                    epoch: Option[String] = None,
+                    eboost: Option[String] = None,
+                    nboost: Option[String] = None,
+                    sboost: Option[String] = None,
+                    wboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -58,12 +60,22 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "postcode"
 
-    val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val hist = false
+    val verb = false
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -92,7 +104,11 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
       offset = Some(offsetInt),
       verbose = Some(verb),
       favourpaf = Some(favourPaf),
-      favourwelsh = Some(favourWelsh)
+      favourwelsh = Some(favourWelsh),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -120,7 +136,11 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
           epoch = epochVal,
           skinny = !verb,
           favourpaf = favourPaf,
-          favourwelsh = favourWelsh
+          favourwelsh = favourWelsh,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =
@@ -145,13 +165,11 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                   postcode = postcode,
                   addresses = addresses,
                   filter = filterString,
-                  historical = hist,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
                   total = total,
-                  maxScore = maxScore,
-                  verbose = verb
+                  maxScore = maxScore
                 ),
                 status = OkAddressResponseStatus
               )

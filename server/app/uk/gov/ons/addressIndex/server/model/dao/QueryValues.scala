@@ -22,11 +22,18 @@ case class QueryValues(input: Option[String] = None,
                        highlight: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
-                       addressType: Option[String] = None)
+                       addressType: Option[String] = None,
+                       includeAuxiliarySearch: Option[Boolean] = None,
+                       eboost: Option[Double] = None,
+                       nboost: Option[Double] = None,
+                       sboost: Option[Double] = None,
+                       wboost: Option[Double] = None,
+                       groupFullPostcodes: Option[String] = None
+                      )
 {
   def inputOrDefault: String = this.input.getOrElse("")
 
-  def fallbackOrDefault: Boolean = this.fallback.getOrElse(true)
+  def fallbackOrDefault: Boolean = this.fallback.getOrElse(false)
 
   def postcodeOrDefault: String = this.postcode.getOrElse("")
 
@@ -62,6 +69,14 @@ case class QueryValues(input: Option[String] = None,
 
   def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
 
+  def eboostOrDefault: Double = this.eboost.getOrElse(1.0D)
+
+  def nboostOrDefault: Double = this.nboost.getOrElse(1.0D)
+
+  def sboostOrDefault: Double = this.sboost.getOrElse(1.0D)
+
+  def wboostOrDefault: Double = this.wboost.getOrElse(1.0D)
+
   def highlightOrDefault: String = this.highlight.getOrElse("on")
 
   def favourPafOrDefault: Boolean = this.favourpaf.getOrElse(true)
@@ -69,4 +84,8 @@ case class QueryValues(input: Option[String] = None,
   def favourWelshOrDefault: Boolean = this.favourwelsh.getOrElse(false)
 
   def addressTypeOrDefault: String = this.addressType.getOrElse("")
+
+  def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearch.getOrElse(false)
+
+  def groupFullPostcodesOrDefault: String = this.groupFullPostcodes.getOrElse("no")
 }

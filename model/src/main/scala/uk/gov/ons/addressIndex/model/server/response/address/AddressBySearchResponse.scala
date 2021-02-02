@@ -26,7 +26,11 @@ case class AddressBySearchResponse(tokens: Map[String, String],
                                    maxScore: Double,
                                    matchthreshold: Float,
                                    verbose: Boolean,
-                                   fromsource: String)
+                                   includeauxiliarysearch: Boolean = false,
+                                   eboost: Double,
+                                   nboost: Double,
+                                   sboost: Double,
+                                   wboost: Double)
 
 object AddressBySearchResponse {
   implicit lazy val addressBySearchResponseFormat: Format[AddressBySearchResponse] = Json.format[AddressBySearchResponse]

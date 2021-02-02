@@ -58,15 +58,42 @@
             Optional
         </td>
     </tr>
-    <tr class="table--row">
-          <td class="table--cell">fromsource</td>
-          <td class="table--cell">string</td>
-          <td class="table--cell">Set to nionly or ewonly to filter Northern Ireland addresses (Census index only)</td>
-          <td class="table--cell">
-              Optional
-              <br>Default: all
-          </td>
-     /tr>
+            <tr class="table--row">
+               <td class="table--cell">eboost</td>
+               <td class="table--cell">string</td>
+               <td class="table--cell">Set to 0 to exclude addresses in England</td>
+               <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">nboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Northern Ireland</td>
+                <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">sboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Scotland</td>
+                <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">wboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Wales</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
   </tbody>
 </table>
 
@@ -117,9 +144,11 @@
           "northing": 93540
         },
         "classificationCode": "RD06",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 100,
         "underlyingScore": 0.999169111251831
@@ -129,8 +158,7 @@
     "historical": true,
     "epoch": "",
     "limit": 1,
-    "verbose": false,
-    "fromsource": "all"
+    "verbose": false
   },
   "status": {
     "code": 200,

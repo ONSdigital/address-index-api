@@ -24,15 +24,15 @@ case class AddressResponseAddress(uprn: String,
                                   formattedAddressNisra: String,
                                   welshFormattedAddressNag: String,
                                   welshFormattedAddressPaf: String,
+                                  formattedAddressAuxiliary: String,
                                   highlights: Option[AddressResponseHighlight],
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
                                   nisra: Option[AddressResponseNisra],
+                                  auxiliary: Option[AddressResponseAuxiliary],
                                   geo: Option[AddressResponseGeo],
                                   classificationCode: String,
-                                  censusAddressType: String,
-                                  censusEstabType: String,
-                                  countryCode: String,
+                                  census: AddressResponseCensus,
                                   lpiLogicalStatus: String,
                                   confidenceScore: Double,
                                   underlyingScore: Float
@@ -73,7 +73,18 @@ object AddressResponseAddress {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
+    val chosenAuxiliary = other.auxiliary.headOption
+    val formattedAddressAuxiliary = chosenAuxiliary.map(_.addressAll).getOrElse("")
+
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
+
+    val formattedAddress = if (chosenNisra.isDefined) removeConcatenatedPostcode(formattedAddressNisra)
+                           else if (chosenAuxiliary.isDefined) removeConcatenatedPostcode(formattedAddressAuxiliary)
+                           else removeConcatenatedPostcode(formattedAddressNag)
+
+    val geo = if (chosenNisra.isDefined) chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
+              else if (chosenAuxiliary.isDefined) chosenAuxiliary.flatMap(AddressResponseGeo.fromAuxiliaryAddress)
+              else chosenNag.flatMap(AddressResponseGeo.fromNagAddress)
 
     AddressResponseAddress(
       uprn = other.uprn,
@@ -84,15 +95,23 @@ object AddressResponseAddress {
       crossRefs = {
         if (verbose) other.crossRefs.map(_.map(AddressResponseCrossRef.fromCrossRef)) else None
       },
-      formattedAddress = {
-        if (chosenNisra.isEmpty) removeConcatenatedPostcode(formattedAddressNag) else removeConcatenatedPostcode(formattedAddressNisra)
-      },
+      formattedAddress = formattedAddress,
       formattedAddressNag = removeConcatenatedPostcode(formattedAddressNag),
       formattedAddressPaf = removeConcatenatedPostcode(formattedAddressPaf),
       formattedAddressNisra = removeConcatenatedPostcode(formattedAddressNisra),
       welshFormattedAddressNag = removeConcatenatedPostcode(welshFormattedAddressNag),
       welshFormattedAddressPaf = removeConcatenatedPostcode(welshFormattedAddressPaf),
-      highlights = if (testHigh) None else AddressResponseHighlight.fromHighlight("formattedAddress",other.highlights.headOption.getOrElse(Map())),
+      formattedAddressAuxiliary = removeConcatenatedPostcode(formattedAddressAuxiliary),
+      highlights = if (testHigh) None
+      else
+        AddressResponseHighlight.fromCombinedHighlight("formattedAddress",
+          other.highlights.headOption.getOrElse(Map()),
+          formattedAddressPaf,
+          welshFormattedAddressPaf,
+          formattedAddressNag,
+          welshFormattedAddressNag,
+          formattedAddressNisra
+        ),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
       },
@@ -102,13 +121,12 @@ object AddressResponseAddress {
       nisra = {
         if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None
       },
-      geo = {
-        if (chosenNisra.isEmpty) chosenNag.flatMap(AddressResponseGeo.fromNagAddress) else chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
+      auxiliary = {
+        if (verbose) chosenAuxiliary.map(AddressResponseAuxiliary.fromAuxiliaryAddress) else None
       },
+      geo = geo,
       classificationCode = other.classificationCode,
-      censusAddressType = other.censusAddressType,
-      censusEstabType = other.censusEstabType,
-      countryCode = other.countryCode,
+      census = AddressResponseCensus(other.censusAddressType.trim,other.censusEstabType, other.countryCode),
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat

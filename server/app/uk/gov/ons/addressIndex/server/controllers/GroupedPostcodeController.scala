@@ -40,7 +40,11 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
                     classificationfilter: Option[String] = None,
                     historical: Option[String] = None,
                     verbose: Option[String] = None,
-                    epoch: Option[String] = None
+                    epoch: Option[String] = None,
+                    eboost: Option[String] = None,
+                    nboost: Option[String] = None,
+                    sboost: Option[String] = None,
+                    wboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -60,6 +64,16 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -88,6 +102,10 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -115,6 +133,10 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =

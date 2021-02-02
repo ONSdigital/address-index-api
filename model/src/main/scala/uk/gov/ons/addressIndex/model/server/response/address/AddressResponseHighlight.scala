@@ -19,6 +19,37 @@ object AddressResponseHighlight {
      hitList.headOption.map(hit => hit.lang).getOrElse(""),
      optList))
  }
+
+  def fromCombinedHighlight(bestMatchAddress: String,
+                            other: Map[String,Seq[String]],
+                            formattedAddressPaf: String,
+                            welshFormattedAddressPaf: String,
+                            formattedAddressNag: String,
+                            welshFormattedAddressNag: String,
+                            formattedAddressNisra: String): Option[AddressResponseHighlight] = {
+    val hitList1 = if (formattedAddressPaf.isEmpty) List.empty else other.flatMap{hit =>
+      hit._2.flatMap {lin =>
+        AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"formattedAddressPaf",formattedAddressPaf)}}
+    val hitList2 = if (welshFormattedAddressPaf.isEmpty) List.empty else other.flatMap{hit =>
+      hit._2.flatMap {lin =>
+        AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"welshFormattedAddressPaf",welshFormattedAddressPaf)}}
+    val hitList3 = if (formattedAddressNag.isEmpty) List.empty else other.flatMap{hit =>
+      hit._2.flatMap {lin =>
+        AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"formattedAddressNag",formattedAddressNag)}}
+    val hitList4 = if (welshFormattedAddressNag.isEmpty) List.empty else other.flatMap{hit =>
+      hit._2.flatMap {lin =>
+        AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"welshFormattedAddressNag",welshFormattedAddressNag)}}
+    val hitList5 = if (formattedAddressNisra.isEmpty) List.empty else other.flatMap{hit =>
+      hit._2.flatMap {lin =>
+        AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"formattedAddressNisra",formattedAddressNisra)}}
+
+    val hitList = hitList1 ++ hitList2 ++ hitList3 ++ hitList4 ++ hitList5
+    val optList = Option(hitList.toSeq)
+    Some(AddressResponseHighlight(bestMatchAddress,
+      hitList.headOption.map(hit => hit.source).getOrElse(""),
+      hitList.headOption.map(hit => hit.lang).getOrElse(""),
+      optList))
+  }
 }
 
 

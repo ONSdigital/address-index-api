@@ -1,7 +1,6 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.http.JavaClient
-import com.sksamuel.elastic4s.requests.analysis.{Analysis, CustomAnalyzer}
 import com.sksamuel.elastic4s.requests.analyzers.{CustomAnalyzerDefinition, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
@@ -451,19 +450,22 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
 
-  // new analysis object, doesn't seem to work
-  val customAnalyzer: CustomAnalyzer = CustomAnalyzer ("welsh_split_synonyms_analyzer","myTokenizer1",List(),List())
-  val testAnalysis: Analysis = Analysis(
-    List(customAnalyzer))
-
   // todo get it to work with new analysis package
   testClient.execute {
     createIndex(hybridIndexName)
-//      .analysis(testAnalysis)
       .analysis(Some(CustomAnalyzerDefinition("welsh_split_synonyms_analyzer",
         StandardTokenizer("myTokenizer1"))
      ))
   }.await
+
+  def blockUntilCountLocal(expected: Long, index: String): Unit = {
+    blockUntil(s"Expected count of $expected") { () =>
+      val result = testClient.execute {
+        search(index).matchAllQuery().size(0)
+      }.await
+      expected <= result.toOption.getOrElse(null).totalHits
+    }
+  }
 
   testClient.execute {
     bulk(
@@ -471,7 +473,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  blockUntilCount(1, hybridIndexName)
+  blockUntilCountLocal(1, hybridIndexName)
 
   // todo get it to work with new analysis package
   testClient.execute {
@@ -490,7 +492,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  blockUntilCount(2, hybridIndexHistoricalName)
+  blockUntilCountLocal(2, hybridIndexHistoricalName)
 
   // The following documents are added separately as the blocking action on 5 documents was timing out the test
   testClient.execute {
@@ -501,7 +503,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     )
   }.await
 
-  blockUntilCount(3, hybridIndexHistoricalName)
+  blockUntilCountLocal(3, hybridIndexHistoricalName)
 
   testClient.execute{
     addAlias("index_full_nohist_current",hybridIndexName)
@@ -617,6 +619,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     hybridNisraSubBuildingName,
     hybridNisraBuildingName,
     hybridNisraBuildingNumber,
+    Nil,
     hybridNotUsed,
     hybridNotUsed,
     hybridNotUsed,
@@ -695,6 +698,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(expectedNag),
     paf = Seq(expectedPaf),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -714,6 +718,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(expectedDateNag),
     paf = Seq(),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -733,6 +738,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(expectedSecondDateNag, expectedThirdDateNag),
     paf = Seq(expectedDatePaf),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -752,6 +758,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     lpi = Seq(),
     paf = Seq(expectedSecondDatePaf),
     nisra = Seq(),
+    auxiliary = Seq(),
     score = 1.0f,
     classificationCode = hybridFirstClassificationCode,
     censusAddressType = "NA",
@@ -821,7 +828,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"h4","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"h4","inputshort":"h4"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"h4","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"H4","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"H4","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"H4","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"H4","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"H4","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """.stripMargin
       )
 
@@ -830,7 +837,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = "h4",
         filters = "residential",
         limit = 1,
-        fromsource = "all"
       )
       val query = repository.makeQuery(args)
       val result = Json.parse(SearchBodyBuilderFn(query).string())
@@ -844,7 +850,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"h4","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"h4","inputshort":"h4"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"h4","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"H4","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"H4","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"H4","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"H4","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"H4","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """.stripMargin
       )
 
@@ -853,8 +859,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = "h4",
         fallback = true,
         filters = "residential",
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val query = repository.makePartialSearch(args, fallback = true)
       val result = Json.parse(SearchBodyBuilderFn(query).string())
@@ -886,75 +891,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-          {
-
-             "query":{
-                "bool":{
-                   "must":[
-                      {
-                         "term":{
-                            "postcode":{
-                               "value":" H4"
-                            }
-                         }
-                      }
-                   ],
-                   "filter":[
-                      {
-                         "prefix":{
-                            "classificationCode":{
-                               "value":"R"
-                            }
-                         }
-                      }
-                   ]
-                }
-             },
-             "from":0,
-             "size":1,
-             "sort":[
-                {
-                   "lpi.streetDescriptor.keyword":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "lpi.paoStartNumber":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "lpi.paoStartSuffix.keyword":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "lpi.secondarySort":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "nisra.thoroughfare.keyword":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "nisra.paoStartNumber":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "nisra.secondarySort":{
-                      "order":"asc"
-                   }
-                },
-                {
-                   "uprn":{
-                      "order":"asc"
-                   }
-                }
-             ]
-          }
+          {"query":{"bool":{"must":[{"bool":{"must":[{"term":{"postcode":{"value":" H4"}}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}}]}},"from":0,"size":1,"sort":[{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}]}
          """.stripMargin
       )
 
@@ -975,7 +912,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val expected = Json.parse(
         s"""
-         {"query":{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"postcodeStreetTown","size":1000,"order":{"_key":"asc"}},"aggs":{"uprns":{"terms":{"field":"uprn","size":1}},"paftowns":{"terms":{"field":"postTown","size":1}}}}}}
+          {"query":{"bool":{"must":[{"bool":{"must":[{"prefix":{"postcode":{"value":"H4"}}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}}]}},"from":0,"size":1,"aggs":{"uniquepostcodes":{"terms":{"field":"postcodeStreetTown","size":1000,"order":{"_key":"asc"}},"aggs":{"uprns":{"terms":{"field":"uprn","size":1}},"paftowns":{"terms":{"field":"postTown","size":1}}}}}}
          """.stripMargin
       )
 
@@ -1070,6 +1007,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackAuxBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -1102,6 +1048,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackAuxBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
                     "match":{
                       "lpi.nagAll.bigram":{
                         "query":"",
@@ -1160,6 +1114,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     }
 
     "generate valid query for search by tokens" in {
+
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
       val tokens: Map[String, String] = Map(
@@ -1184,1261 +1139,9 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.townName -> hybridNagTownName
       )
 
-
       val expected = Json.parse(
         s"""
-{
-
-"query":{
-"dis_max":{
-"tie_breaker":1,
-"queries":[
-{
-"bool":{
-"should":[
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.subBuildingName":{
-"query":"h4",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":1.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.subBuildingName":{
-"query":"h4",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":1.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"h4",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":1.5
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartNumber":{
-"query":"15"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.subBuildingName":{
-"query":"15"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.subBuildingName":{
-"query":"15"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"15"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartSuffix":{
-"query":"h16"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.subBuildingName":{
-"query":"h16"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.subBuildingName":{
-"query":"h16"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"h16"
-}
-}
-},
-"boost":1
-}
-}
-]
-}
-}
-]
-}
-},
- {
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.thoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.thoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshThoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.dependentThoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshDependentThoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.dependentThoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.altThoroughfare":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.streetDescriptor":{
-"query":"h7",
-"fuzziness":"1"
-}
-}
-},
-"boost":2
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.postcode":{
-"query":"h10"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.postcode":{
-"query":"h10"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.postcodeLocator":{
-"query":"h10"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"bool":{
-"must":[
-{
-"match":{
-"postcodeOut":{
-"query":"h02p",
-"fuzziness":"1"
-}
-}
-},
-{
-"match":{
-"postcodeIn":{
-"query":"h01p",
-"fuzziness":"2"
-}
-}
-}
-]
-}
-},
-"boost":0.5
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.buildingName":{
-"query":"h5",
-"fuzziness":"1"
-}
-}
-},
-"boost":2.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.buildingName":{
-"query":"h5",
-"fuzziness":"1"
-}
-}
-},
-"boost":2.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoText":{
-"query":"h5",
-"fuzziness":"1",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":2.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"bool":{
-"must":[
-{
-"match":{
-"lpi.paoStartNumber":{
-"query":"13"
-}
-}
-},
-{
-"match":{
-"lpi.paoStartSuffix":{
-"query":"h11"
-}
-}
-}
-]
-}
-},
-"boost":3
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"dis_max":{
-"tie_breaker":0,
-"boost":0.5,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.subBuildingName":{
-"query":"h5",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":1.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.subBuildingName":{
-"query":"h5",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":1.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"h5",
-"minimum_should_match":"-45%"
-}
-}
-},
-"boost":1.5
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartNumber":{
-"query":"13"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.subBuildingName":{
-"query":"13"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
- "filter":{
-"match":{
-"nisra.subBuildingName":{
-"query":"13"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"13"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartSuffix":{
-"query":"h11"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.subBuildingName":{
-"query":"h11"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.subBuildingName":{
-"query":"h11"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"h11"
-}
-}
-},
-"boost":1
-}
-}
-]
-}
-}
-]
-}
-}
-]
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.organisationName":{
-"query":"h2",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.organisationName":{
-"query":"h2",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.organisation":{
-"query":"h2",
-"minimum_should_match":"30%"
- }
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoText":{
-"query":"h2",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.legalName":{
-"query":"h2",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoText":{
-"query":"h2",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":0.5
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.departmentName":{
-"query":"h3",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.legalName":{
-"query":"h3",
-"minimum_should_match":"30%"
-}
-}
-},
-"boost":0.5
-}
-}
-]
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.postTown":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshPostTown":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.townName":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.townName":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.dependentLocality":{
-"query":"h8",
-"fuzziness":"1"
-}
- }
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshDependentLocality":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.locality":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.5
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.doubleDependentLocality":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.2}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshDoubleDependentLocality":{
-"query":"h8",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.2
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.postTown":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.townName":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshPostTown":{
-"query":"h20",
-"fuzziness":"1"
- }
-}
-},
-"boost":0.2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.townName":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.dependentLocality":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.6
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshDependentLocality":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.6
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.locality":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.6
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.locality":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.6
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.doubleDependentLocality":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.3
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.welshDoubleDependentLocality":{
-"query":"h20",
-"fuzziness":"1"
-}
-}
-},
-"boost":0.3
-}
-}
-]
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoStartNumber":{
-"query":"13"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoStartSuffix":{
-"query":"h11"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoEndNumber":{
-"query":"12"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoEndSuffix":{
-"query":"h14"
-}
-}
-},
-"boost":2
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.paoStartNumber":{
-"query":"12"
- }
-}
-},
-"boost":0.1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.buildingNumber":{
-"query":"12"
-}
-}
-},
-"boost":0.1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"paf.buildingNumber":{
-"query":"13"
-}
-}
-},
-"boost":0.1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.paoStartNumber":{
-"query":"12"
-}
-}
-},
-"boost":0.1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"nisra.paoStartNumber":{
-"query":"13"
-}
-}
-},
-"boost":0.1
-}
-}
-]
-}
-},
-{
-"dis_max":{
-"tie_breaker":0.5,
-"queries":[
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartNumber":{
-"query":"15"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartSuffix":{
-"query":"h16"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoEndNumber":{
-"query":"17"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoEndSuffix":{
-"query":"h18"
-}
-}
-},
-"boost":1
-}
-},
-{
-"constant_score":{
-"filter":{
-"match":{
-"lpi.saoStartNumber":{
-"query":"17"
-}
-}
-},
-"boost":0.1
-}
-}
-]
-}
-}
-],
-"minimum_should_match":"-40%"
-}
-},
-{
-"bool":{
-"must":[
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"match":{
-"lpi.nagAll":{
-"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"analyzer":"welsh_split_synonyms_analyzer",
-"boost":1,
-"minimum_should_match":"-40%"
-}
-}
-},
-{
-"match":{
-"nisra.nisraAll":{
-"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"analyzer":"welsh_split_synonyms_analyzer",
-"boost":1,
-"minimum_should_match":"-40%"
-}
-}
-},
-{
-"match":{
-"paf.pafAll":{
-"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"analyzer":"welsh_split_synonyms_analyzer",
-"boost":1,
-"minimum_should_match":"-40%"
-}
-}
-}
-]
-}
-}
-],
-"should":[
-{
-"dis_max":{
-"tie_breaker":0,
-"queries":[
-{
-"match":{
-"lpi.nagAll.bigram":{
-"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.4,
-"fuzziness":"${queryParams.fallback.bigramFuzziness}"
-}
-}
-},
-{
-"match":{
-"nisra.nisraAll.bigram":{
-"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.4,
-"fuzziness":"${queryParams.fallback.bigramFuzziness}"
-}
-}
-},
-{
-"match":{
-"paf.pafAll.bigram":{
-"query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-"boost":0.4,
-"fuzziness":"${queryParams.fallback.bigramFuzziness}"
-}
-}
-}
-]
-}
-}
-],
-"boost":0.5
-}
-}
-]
-}
-},
-"from":0,
-"size":1,
-"sort":[
-{
-"_score":{
-"order":"desc"
-}
-},
-{
-"uprn":{
-"order":"asc"
-}
-}
-],
-"track_scores":true
-        }
+          {"query":{"dis_max":{"tie_breaker":1,"queries":[{"bool":{"should":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.subBuildingName":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1.5}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.subBuildingName":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"tokens.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h16"}}},"boost":1}}]}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.streetName":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"paf.thoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"nisra.thoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"paf.welshThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"paf.dependentThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"paf.welshDependentThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"nisra.dependentThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"nisra.altThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"lpi.streetDescriptor":{"query":"h7","fuzziness":"1"}}},"boost":2}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"postcode":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.postcode":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.postcode":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.postcodeLocator":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"bool":{"must":[{"match":{"postcodeOut":{"query":"h02p","fuzziness":"1"}}},{"match":{"postcodeIn":{"query":"h01p","fuzziness":"2"}}}]}},"boost":0.5}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.buildingName":{"query":"h5","fuzziness":"1"}}},"boost":2.5}},{"constant_score":{"filter":{"match":{"paf.buildingName":{"query":"h5","fuzziness":"1"}}},"boost":2.5}},{"constant_score":{"filter":{"match":{"nisra.buildingName":{"query":"h5","fuzziness":"1"}}},"boost":2.5}},{"constant_score":{"filter":{"match":{"lpi.paoText":{"query":"h5","fuzziness":"1","minimum_should_match":"-45%"}}},"boost":2.5}},{"constant_score":{"filter":{"bool":{"must":[{"match":{"lpi.paoStartNumber":{"query":"13"}}},{"match":{"lpi.paoStartSuffix":{"query":"h11"}}}]}},"boost":3}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"dis_max":{"tie_breaker":0,"boost":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.buildingName":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1.5}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.paoStartNumber":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"tokens.paoStartSuffix":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartSuffix":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h11"}}},"boost":1}}]}}]}}]}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.organisationName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.organisationName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.organisationName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.organisation":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.paoText":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.legalName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h2","minimum_should_match":"30%"}}},"boost":0.5}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.departmentName":{"query":"h3","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.departmentName":{"query":"h3","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.legalName":{"query":"h3","minimum_should_match":"30%"}}},"boost":0.5}}]}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.townName":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.postTown":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.welshPostTown":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.townName":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.townName":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.dependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"paf.welshDependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"lpi.locality":{"query":"h8","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"paf.doubleDependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"paf.welshDoubleDependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.2}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.locality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"paf.postTown":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"nisra.townName":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"paf.welshPostTown":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"lpi.townName":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"paf.dependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"paf.welshDependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"nisra.locality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"lpi.locality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"paf.doubleDependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.3}},{"constant_score":{"filter":{"match":{"paf.welshDoubleDependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.3}}]}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.paoStartNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"tokens.paoStartNumber":{"query":"13"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"lpi.paoStartNumber":{"query":"13"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoStartSuffix":{"query":"h11"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoEndNumber":{"query":"12"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoEndSuffix":{"query":"h14"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoStartNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"paf.buildingNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"paf.buildingNumber":{"query":"13"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"nisra.paoStartNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"nisra.paoStartNumber":{"query":"13"}}},"boost":0.1}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoEndNumber":{"query":"17"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoEndSuffix":{"query":"h18"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"17"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"token.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoEndSuffix":{"query":"h18"}}},"boost":1}}]}}],"minimum_should_match":"-40%"}},{"bool":{"must":[{"dis_max":{"tie_breaker":0,"queries":[{"match":{"tokens.addressAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":8,"minimum_should_match":"-40%"}}},{"match":{"lpi.nagAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}},{"match":{"nisra.nisraAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}},{"match":{"paf.pafAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}}]}}],"should":[{"dis_max":{"tie_breaker":0,"queries":[{"match":{"tokens.addressAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":2,"fuzziness":"0"}}},{"match":{"lpi.nagAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":0.4,"fuzziness":"0"}}},{"match":{"nisra.nisraAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":0.4,"fuzziness":"0"}}},{"match":{"paf.pafAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":0.4,"fuzziness":"0"}}}]}}],"boost":0.5}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"uprn":{"order":"asc"}}],"track_scores":true}
          """.stripMargin)
 
       // When
@@ -2553,6 +1256,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackAuxBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2586,6 +1298,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackAuxBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
+                    "match":{
                       "lpi.nagAll.bigram":{
                         "query":"",
                           "boost":${queryParams.fallback.fallbackLpiBigramBoost},
@@ -2611,15 +1331,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                       }]
                     }
                   }],
-                  "filter": [
-                    {
-                      "prefix": {
-                        "classificationCode": {
-                          "value": "R"
-                        }
-                      }
-                    }
-                  ],
+                  "filter": [{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}],
                   "boost":0.5
                 }
               },
@@ -2670,6 +1382,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackAuxBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2702,6 +1423,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackAuxBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
                     "match":{
                       "lpi.nagAll.bigram":{
                         "query":"",
@@ -2787,6 +1516,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackAuxBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2819,6 +1557,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackAuxBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
                     "match":{
                       "lpi.nagAll.bigram":{
                         "query":"",
@@ -2902,6 +1648,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackAuxBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -2934,6 +1689,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackAuxBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
                     "match":{
                       "lpi.nagAll.bigram":{
                         "query":"",
@@ -3017,6 +1780,15 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                   "tie_breaker":0,
                   "queries":[{
                     "match":{
+                      "tokens.addressAll":{
+                        "query":"",
+                        "analyzer":"welsh_split_synonyms_analyzer",
+                        "boost":${queryParams.fallback.fallbackAuxBoost},
+                        "minimum_should_match":"${queryParams.fallback.fallbackMinimumShouldMatch}"
+                      }
+                    }
+                  },{
+                    "match":{
                       "lpi.nagAll":{
                         "query":"",
                         "analyzer":"welsh_split_synonyms_analyzer",
@@ -3049,6 +1821,14 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
                 "dis_max":{
                   "tie_breaker":0,
                   "queries":[{
+                    "match":{
+                      "tokens.addressAll.bigram":{
+                        "query":"",
+                          "boost":${queryParams.fallback.fallbackAuxBigramBoost},
+                          "fuzziness":"${queryParams.fallback.bigramFuzziness}"
+                        }
+                      }
+                    },{
                     "match":{
                       "lpi.nagAll.bigram":{
                         "query":"",
@@ -3119,7 +1899,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate Re","inputshort":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"7 Gate Re","boost":1.25}}}]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
          """
       )
 
@@ -3127,8 +1907,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val args = PartialArgs(
         input = partialInput,
         filters = partialFilterNone,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3142,7 +1921,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-            {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate Ret","inputshort":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"7 Gate Ret","boost":1.25}}}]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
            """
       )
 
@@ -3151,8 +1930,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputFallback,
         fallback = true,
         filters = partialFilterNone,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3166,7 +1944,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate Re","inputshort":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"Gate Re","boost":1.25}}}]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3174,8 +1952,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val args = PartialArgs(
         input = partialInputWithout,
         filters = partialFilterNone,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3189,7 +1966,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate Ret","inputshort":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"Gate Ret","boost":1.25}}}]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3198,8 +1975,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputWithoutFallback,
         fallback = true,
         filters = partialFilterNone,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3214,7 +1990,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate Re","inputshort":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"7 Gate Re","boost":1.25}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3222,8 +1998,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val args = PartialArgs(
         input = partialInput,
         filters = partialFilterCode,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
+
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3238,7 +2014,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate Ret","inputshort":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"7 Gate Ret","boost":1.25}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3247,8 +2023,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputFallback,
         fallback = true,
         filters = partialFilterCode,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3262,7 +2037,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate Re","inputshort":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Re","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"7 Gate Re","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"7 Gate Re","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
           """
       )
 
@@ -3270,8 +2045,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val args = PartialArgs(
         input = partialInput,
         filters = partialFilterPrefix,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3285,7 +2059,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"7 Gate Ret","inputshort":"7 Gate"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"7 Gate Ret","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"7","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"7","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"7 Gate Ret","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"7 Gate Ret","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3294,8 +2068,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputFallback,
         fallback = true,
         filters = partialFilterPrefix,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3309,7 +2082,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate Re","inputshort":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"Gate Re","boost":1.25}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3317,8 +2090,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       val args = PartialArgs(
         input = partialInputWithout,
         filters = partialFilterCode,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3332,7 +2104,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate Ret","inputshort":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"Gate Ret","boost":1.25}}}]}}],"filter":[{"terms":{"classificationCode":["RD"]}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
          """
       )
 
@@ -3341,8 +2113,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputWithoutFallback,
         fallback = true,
         filters = partialFilterCode,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3356,7 +2127,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"phrase","slop":12}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate Re","inputshort":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Re","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"Gate Re","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"Gate Re","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
         """
       )
 
@@ -3365,7 +2136,6 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputWithout,
         filters = partialFilterPrefix,
         limit = 1,
-        fromsource = "all"
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = false)).string())
 
@@ -3379,7 +2149,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse(
         """
-          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["lpi.mixedNag.partial","lpi.mixedWelshNag.partial","paf.mixedPaf.partial","paf.mixedWelshPaf.partial","nisra.mixedNisra.partial^0.8"],"type":"best_fields"}}],"filter":[{"prefix":{"classificationCode":{"value":"R"}}}]}},"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round((_score + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.input.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 3 : 0)) + Math.max(((doc['lpi.mixedNagStart'].size() > 0 && doc['lpi.mixedNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedNagStart'].size() > 1 && doc['lpi.mixedNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 1 : 0), + ((doc['lpi.mixedWelshNagStart'].size() > 0 && doc['lpi.mixedWelshNagStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()) || doc['lpi.mixedWelshNagStart'].size() > 1 && doc['lpi.mixedWelshNagStart'].get(1).toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0)) + Math.max(((doc['paf.mixedPafStart'].size() > 0 && doc['paf.mixedPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 2 : 0), + ((doc['paf.mixedWelshPafStart'].size() > 0 && doc['paf.mixedWelshPafStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 3 : 0)) + ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.input.toLowerCase()))? 4 : 0)+ ((doc['nisra.mixedNisraStart'].size() > 0 && doc['nisra.mixedNisraStart'].value.toLowerCase().startsWith(params.inputshort.toLowerCase()))? 4 : 0)) /2)","params":{"input":"Gate Ret","inputshort":"Gate R"}}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"lpi.postcodeLocator.keyword":{"order":"asc"}},{"lpi.streetDescriptor.keyword":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.thoroughfare.keyword":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"lpi.mixedNag.partial":{},"lpi.mixedWelshNag.partial":{},"paf.mixedPaf.partial":{},"paf.mixedWelshPaf.partial":{},"nisra.mixedNisra.partial":{}}}}
+           {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"Gate Ret","fields":["mixedPartial"],"type":"best_fields"}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"Gate Ret","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"Gate Ret","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
          """
       )
 
@@ -3388,8 +2158,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         input = partialInputWithoutFallback,
         fallback = true,
         filters = partialFilterPrefix,
-        limit = 1,
-        fromsource = "all"
+        limit = 1
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makePartialSearch(args, fallback = true)).string())
 
@@ -3427,1277 +2196,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
       val expected = Json.parse (
         s"""
-           {
-
-            "query":{
-           "dis_max":{
-            "tie_breaker":1,
-            "queries":[
-           {
-            "bool":{
-           "should":[
-            {
-           "dis_max":{
-            "tie_breaker":0,
-            "queries":[
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.subBuildingName":{
-            "query":"h4",
-            "minimum_should_match":"-45%"
-           }
-            }
-           },
-           "boost":1.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.subBuildingName":{
-            "query":"h4",
-            "minimum_should_match":"-45%"
-           }
-            }
-           },
-           "boost":1.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoText":{
-            "query":"h4",
-            "minimum_should_match":"-45%"
-           }
-            }
-           },
-           "boost":1.5
-            }
-           },
-           {
-            "dis_max":{
-           "tie_breaker":0.5,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoStartNumber":{
-           "query":"15"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.subBuildingName":{
-           "query":"15"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.subBuildingName":{
-           "query":"15"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoText":{
-           "query":"15"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoStartSuffix":{
-           "query":"h16"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.subBuildingName":{
-           "query":"h16"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.subBuildingName":{
-           "query":"h16"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoText":{
-           "query":"h16"
-            }
-           }
-            },
-            "boost":1
-           }
-            }
-           ]
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0,
-            "queries":[
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.thoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.thoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.welshThoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.dependentThoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":0.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.welshDependentThoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":0.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.dependentThoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":0.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.altThoroughfare":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":0.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.streetDescriptor":{
-            "query":"h7",
-            "fuzziness":"1"
-           }
-            }
-           },
-           "boost":2
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0,
-            "queries":[
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.postcode":{
-            "query":"h10"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.postcode":{
-            "query":"h10"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.postcodeLocator":{
-            "query":"h10"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "bool":{
-           "must":[
-            {
-           "match":{
-            "postcodeOut":{
-           "query":"h02p",
-           "fuzziness":"1"
-            }
-           }
-            },
-            {
-           "match":{
-            "postcodeIn":{
-           "query":"h01p",
-           "fuzziness":"2"
-            }
-           }
-            }
-           ]
-            }
-           },
-           "boost":0.5
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0.5,
-            "queries":[
-           {
-            "dis_max":{
-           "tie_breaker":0,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.buildingName":{
-           "query":"h5",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":2.5
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.buildingName":{
-           "query":"h5",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":2.5
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.paoText":{
-           "query":"h5",
-           "fuzziness":"1",
-           "minimum_should_match":"-45%"
-            }
-           }
-            },
-            "boost":2.5
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "bool":{
-            "must":[
-           {
-            "match":{
-           "lpi.paoStartNumber":{
-            "query":"13"
-           }
-            }
-           },
-           {
-            "match":{
-           "lpi.paoStartSuffix":{
-            "query":"h11"
-           }
-            }
-           }
-            ]
-           }
-            },
-            "boost":3
-           }
-            }
-           ]
-            }
-           },
-           {
-            "dis_max":{
-           "tie_breaker":0,
-           "queries":[
-            {
-           "dis_max":{
-            "tie_breaker":0,
-            "boost":0.5,
-            "queries":[
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.subBuildingName":{
-            "query":"h5",
-            "minimum_should_match":"-45%"
-           }
-            }
-           },
-           "boost":1.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.subBuildingName":{
-            "query":"h5",
-            "minimum_should_match":"-45%"
-           }
-            }
-           },
-           "boost":1.5
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoText":{
-            "query":"h5",
-            "minimum_should_match":"-45%"
-           }
-            }
-           },
-           "boost":1.5
-            }
-           },
-           {
-            "dis_max":{
-           "tie_breaker":0.5,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoStartNumber":{
-           "query":"13"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.subBuildingName":{
-           "query":"13"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.subBuildingName":{
-           "query":"13"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoText":{
-           "query":"13"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoStartSuffix":{
-           "query":"h11"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.subBuildingName":{
-           "query":"h11"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.subBuildingName":{
-           "query":"h11"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoText":{
-           "query":"h11"
-            }
-           }
-            },
-            "boost":1
-           }
-            }
-           ]
-            }
-           }
-            ]
-           }
-            }
-           ]
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0.5,
-            "queries":[
-           {
-            "dis_max":{
-           "tie_breaker":0,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.organisationName":{
-           "query":"h2",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.organisationName":{
-           "query":"h2",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.organisation":{
-           "query":"h2",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.paoText":{
-           "query":"h2",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.legalName":{
-           "query":"h2",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.saoText":{
-           "query":"h2",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":0.5
-           }
-            }
-           ]
-            }
-           },
-           {
-            "dis_max":{
-           "tie_breaker":0,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.departmentName":{
-           "query":"h3",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.legalName":{
-           "query":"h3",
-           "minimum_should_match":"30%"
-            }
-           }
-            },
-            "boost":0.5
-           }
-            }
-           ]
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0.5,
-            "queries":[
-           {
-            "dis_max":{
-           "tie_breaker":0,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.postTown":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.welshPostTown":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.townName":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.townName":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":1
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.dependentLocality":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.5
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.welshDependentLocality":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.5
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.locality":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.5
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.doubleDependentLocality":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.2           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.welshDoubleDependentLocality":{
-           "query":"h8",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.2
-           }
-            }
-           ]
-            }
-           },
-           {
-            "dis_max":{
-           "tie_breaker":0,
-           "queries":[
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.postTown":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.2
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.townName":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.2
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.welshPostTown":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.2
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.townName":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.2
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.dependentLocality":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.6
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.welshDependentLocality":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.6
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "nisra.locality":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.6
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "lpi.locality":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.6
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.doubleDependentLocality":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.3
-           }
-            },
-            {
-           "constant_score":{
-            "filter":{
-           "match":{
-            "paf.welshDoubleDependentLocality":{
-           "query":"h20",
-           "fuzziness":"1"
-            }
-           }
-            },
-            "boost":0.3
-           }
-            }
-           ]
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0.5,
-            "queries":[
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.paoStartNumber":{
-            "query":"13"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.paoStartSuffix":{
-            "query":"h11"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.paoEndNumber":{
-            "query":"12"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.paoEndSuffix":{
-            "query":"h14"
-           }
-            }
-           },
-           "boost":2
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.paoStartNumber":{
-            "query":"12"
-           }
-            }
-           },
-           "boost":0.1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.buildingNumber":{
-            "query":"12"
-           }
-            }
-           },
-           "boost":0.1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "paf.buildingNumber":{
-            "query":"13"
-           }
-            }
-           },
-           "boost":0.1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.paoStartNumber":{
-            "query":"12"
-           }
-            }
-           },
-           "boost":0.1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "nisra.paoStartNumber":{
-            "query":"13"
-           }
-            }
-           },
-           "boost":0.1
-            }
-           }
-            ]
-           }
-            },
-            {
-           "dis_max":{
-            "tie_breaker":0.5,
-            "queries":[
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoStartNumber":{
-            "query":"15"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoStartSuffix":{
-            "query":"h16"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoEndNumber":{
-            "query":"17"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoEndSuffix":{
-            "query":"h18"
-           }
-            }
-           },
-           "boost":1
-            }
-           },
-           {
-            "constant_score":{
-           "filter":{
-            "match":{
-           "lpi.saoStartNumber":{
-            "query":"17"
-           }
-            }
-           },
-           "boost":0.1
-            }
-           }
-            ]
-           }
-            }
-           ],
-           "filter":[
-            {
-           "terms":{
-            "classificationCode":[
-           "RD06"
-            ]
-           }
-            }
-           ],
-           "minimum_should_match":"-40%"
-            }
-           },
-           {
-            "bool":{
-           "must":[
-            {
-           "dis_max":{
-            "tie_breaker":0,
-            "queries":[
-           {
-            "match":{
-           "lpi.nagAll":{
-            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "analyzer":"welsh_split_synonyms_analyzer",
-            "boost":1,
-            "minimum_should_match":"-40%"
-           }
-            }
-           },
-           {
-            "match":{
-           "nisra.nisraAll":{
-            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "analyzer":"welsh_split_synonyms_analyzer",
-            "boost":1,
-            "minimum_should_match":"-40%"
-           }
-            }
-           },
-           {
-            "match":{
-           "paf.pafAll":{
-            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "analyzer":"welsh_split_synonyms_analyzer",
-            "boost":1,
-            "minimum_should_match":"-40%"
-           }
-            }
-           }
-            ]
-           }
-            }
-           ],
-           "should":[
-            {
-           "dis_max":{
-            "tie_breaker":0,
-            "queries":[
-           {
-            "match":{
-           "lpi.nagAll.bigram":{
-            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.4,
-            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
-           }
-            }
-           },
-           {
-            "match":{
-           "nisra.nisraAll.bigram":{
-            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.4,
-            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
-           }
-            }
-           },
-           {
-            "match":{
-           "paf.pafAll.bigram":{
-            "query":"h2 h3 h4 h5 6 h7 h20 h8 h10",
-            "boost":0.4,
-            "fuzziness":"${queryParams.fallback.bigramFuzziness}"
-           }
-            }
-           }
-            ]
-           }
-            }
-           ],
-           "filter":[
-            {
-           "terms":{
-            "classificationCode":[
-           "RD06"
-            ]
-           }
-            }
-           ],
-           "boost":0.5
-            }
-           }
-            ]
-           }
-            },
-            "from":0,
-            "size":1,
-            "sort":[
-           {
-            "_score":{
-           "order":"desc"
-            }
-           },
-           {
-            "uprn":{
-           "order":"asc"
-            }
-           }
-            ],
-            "track_scores":true
-           }
-      """.stripMargin)
+          {"query":{"dis_max":{"tie_breaker":1,"queries":[{"bool":{"should":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.subBuildingName":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h4","minimum_should_match":"-45%"}}},"boost":1.5}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.subBuildingName":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"tokens.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h16"}}},"boost":1}}]}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.streetName":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"paf.thoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"nisra.thoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"paf.welshThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":2}},{"constant_score":{"filter":{"match":{"paf.dependentThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"paf.welshDependentThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"nisra.dependentThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"nisra.altThoroughfare":{"query":"h7","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"lpi.streetDescriptor":{"query":"h7","fuzziness":"1"}}},"boost":2}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"postcode":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.postcode":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.postcode":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.postcodeLocator":{"query":"h10"}}},"boost":1}},{"constant_score":{"filter":{"bool":{"must":[{"match":{"postcodeOut":{"query":"h02p","fuzziness":"1"}}},{"match":{"postcodeIn":{"query":"h01p","fuzziness":"2"}}}]}},"boost":0.5}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.buildingName":{"query":"h5","fuzziness":"1"}}},"boost":2.5}},{"constant_score":{"filter":{"match":{"paf.buildingName":{"query":"h5","fuzziness":"1"}}},"boost":2.5}},{"constant_score":{"filter":{"match":{"nisra.buildingName":{"query":"h5","fuzziness":"1"}}},"boost":2.5}},{"constant_score":{"filter":{"match":{"lpi.paoText":{"query":"h5","fuzziness":"1","minimum_should_match":"-45%"}}},"boost":2.5}},{"constant_score":{"filter":{"bool":{"must":[{"match":{"lpi.paoStartNumber":{"query":"13"}}},{"match":{"lpi.paoStartSuffix":{"query":"h11"}}}]}},"boost":3}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"dis_max":{"tie_breaker":0,"boost":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.buildingName":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1.5}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h5","minimum_should_match":"-45%"}}},"boost":1.5}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.paoStartNumber":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"13"}}},"boost":1}},{"constant_score":{"filter":{"match":{"tokens.paoStartSuffix":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartSuffix":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.subBuildingName":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.subBuildingName":{"query":"h11"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h11"}}},"boost":1}}]}}]}}]}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.organisationName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.organisationName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.organisationName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.organisation":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.paoText":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.legalName":{"query":"h2","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoText":{"query":"h2","minimum_should_match":"30%"}}},"boost":0.5}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.departmentName":{"query":"h3","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.departmentName":{"query":"h3","minimum_should_match":"30%"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.legalName":{"query":"h3","minimum_should_match":"30%"}}},"boost":0.5}}]}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.townName":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.postTown":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.welshPostTown":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"nisra.townName":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.townName":{"query":"h8","fuzziness":"1"}}},"boost":1}},{"constant_score":{"filter":{"match":{"paf.dependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"paf.welshDependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"lpi.locality":{"query":"h8","fuzziness":"1"}}},"boost":0.5}},{"constant_score":{"filter":{"match":{"paf.doubleDependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"paf.welshDoubleDependentLocality":{"query":"h8","fuzziness":"1"}}},"boost":0.2}}]}},{"dis_max":{"tie_breaker":0,"queries":[{"constant_score":{"filter":{"match":{"tokens.locality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"paf.postTown":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"nisra.townName":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"paf.welshPostTown":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"lpi.townName":{"query":"h20","fuzziness":"1"}}},"boost":0.2}},{"constant_score":{"filter":{"match":{"paf.dependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"paf.welshDependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"nisra.locality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"lpi.locality":{"query":"h20","fuzziness":"1"}}},"boost":0.6}},{"constant_score":{"filter":{"match":{"paf.doubleDependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.3}},{"constant_score":{"filter":{"match":{"paf.welshDoubleDependentLocality":{"query":"h20","fuzziness":"1"}}},"boost":0.3}}]}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"tokens.paoStartNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"tokens.paoStartNumber":{"query":"13"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"lpi.paoStartNumber":{"query":"13"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoStartSuffix":{"query":"h11"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoEndNumber":{"query":"12"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoEndSuffix":{"query":"h14"}}},"boost":2}},{"constant_score":{"filter":{"match":{"lpi.paoStartNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"paf.buildingNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"paf.buildingNumber":{"query":"13"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"nisra.paoStartNumber":{"query":"12"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"nisra.paoStartNumber":{"query":"13"}}},"boost":0.1}}]}},{"dis_max":{"tie_breaker":0.5,"queries":[{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"15"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoEndNumber":{"query":"17"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoEndSuffix":{"query":"h18"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoStartNumber":{"query":"17"}}},"boost":0.1}},{"constant_score":{"filter":{"match":{"token.saoStartSuffix":{"query":"h16"}}},"boost":1}},{"constant_score":{"filter":{"match":{"lpi.saoEndSuffix":{"query":"h18"}}},"boost":1}}]}}],"filter":[{"terms":{"classificationCode":["RD06"]}}],"minimum_should_match":"-40%"}},{"bool":{"must":[{"dis_max":{"tie_breaker":0,"queries":[{"match":{"tokens.addressAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":8,"minimum_should_match":"-40%"}}},{"match":{"lpi.nagAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}},{"match":{"nisra.nisraAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}},{"match":{"paf.pafAll":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","analyzer":"welsh_split_synonyms_analyzer","boost":1,"minimum_should_match":"-40%"}}}]}}],"should":[{"dis_max":{"tie_breaker":0,"queries":[{"match":{"tokens.addressAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":2,"fuzziness":"0"}}},{"match":{"lpi.nagAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":0.4,"fuzziness":"0"}}},{"match":{"nisra.nisraAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":0.4,"fuzziness":"0"}}},{"match":{"paf.pafAll.bigram":{"query":"h2 h3 h4 h5 6 h7 h20 h8 h10","boost":0.4,"fuzziness":"0"}}}]}}],"filter":[{"terms":{"classificationCode":["RD06"]}}],"boost":0.5}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"uprn":{"order":"asc"}}],"track_scores":true}
+        """.stripMargin)
 
       // When
       val args = AddressArgs(

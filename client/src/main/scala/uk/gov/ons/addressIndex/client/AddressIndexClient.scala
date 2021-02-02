@@ -64,7 +64,6 @@ trait AddressIndexClient {
         "lon" -> request.lon,
         "limit" -> request.limit,
         "offset" -> request.offset,
-        "fromsource" -> request.fromsource,
         "verbose" -> request.verbose.toString,
         "epoch" -> request.epoch.toString
       )
@@ -138,8 +137,8 @@ trait AddressIndexClient {
         "limit" -> request.limit,
         "offset" -> request.offset,
         "verbose" -> request.verbose.toString,
-        "fromsource" -> request.fromsource.toString,
-        "epoch" -> request.epoch.toString
+        "epoch" -> request.epoch.toString,
+        "fallback" -> request.fallback.toString
       )
   }
 
@@ -149,7 +148,8 @@ trait AddressIndexClient {
       .withQueryStringParameters(
         "input" -> request.partial,
         "classificationfilter" -> request.filter,
-        "limit" -> request.limit
+        "limit" -> request.limit,
+        "fallback" -> request.fallback.toString
       )
   }
 

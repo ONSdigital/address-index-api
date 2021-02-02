@@ -46,7 +46,10 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
                  lon: Option[String] = None,
                  historical: Option[String] = None,
                  epoch: Option[String],
-                 fromsource: Option[String]
+                 eboost: Option[String] = None,
+                 nboost: Option[String] = None,
+                 sboost: Option[String] = None,
+                 wboost: Option[String] = None
                 ): Action[AnyContent] = Action { implicit req =>
     val tokens = parser.parse(input)
 
@@ -61,7 +64,16 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = fromsource.getOrElse("")
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     val args = AddressArgs(
       input = "",
@@ -74,7 +86,10 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
       filterDateRange = DateRange(startDateVal, endDateVal),
       limit = 0,
       queryParamsConfig = None,
-      fromsource = fromsourceVal
+      eboost = eboostDouble,
+      nboost = nboostDouble,
+      sboost = sboostDouble,
+      wboost = wboostDouble
     )
 
     val query = esRepo.makeQuery(args)

@@ -51,7 +51,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
-                   fromsource: Option[String] = None
+                   includeauxiliarysearch: Option[String] = None,
+                   eboost: Option[String] = None,
+                   nboost: Option[String] = None,
+                   sboost: Option[String] = None,
+                   wboost: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -74,6 +78,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+
+    val sigmoidScaleFactor = conf.config.elasticSearch.scaleFactor
 
     // validate radius parameters
     val rangeVal = rangekm.getOrElse("")
@@ -81,7 +88,16 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val lonVal = lon.getOrElse("")
 
     val epochVal = epoch.getOrElse("")
-    val fromsourceVal = {if (fromsource.getOrElse("all").isEmpty) "all" else fromsource.getOrElse("all")}
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val authVal = req.headers.get("authorization").getOrElse("Anon")
@@ -94,11 +110,30 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
-        verbose = verb, endpoint = endpointType, activity = activity, clusterid = clusterId)
+        verbose = verb, eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
+        endpoint = endpointType, activity = activity, clusterid = clusterId, includeAuxiliary = auxiliary)
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
+      fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None, auxiliary = None) }
+    }
+
+    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
+      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
+      if (extractedAuxiliaryAddresses.isEmpty) addresses
+      else {
+        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
+        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
+        else {
+          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
+          val auxIndexMinUnderlyingScore = extractedAuxiliaryAddresses.minBy(_.underlyingScore).underlyingScore.toInt
+          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map { auxAddress =>
+            val increase = ((mainIndexMaxUnderlyingScore + auxAddress.underlyingScore) - auxIndexMinUnderlyingScore) / 1000
+            auxAddress.copy(underlyingScore = mainIndexMaxUnderlyingScore + increase)
+          }
+          extractedMainAddresses ++ adjustedAuxAddresses
+        }
+      }
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
@@ -116,7 +151,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       latitude = Some(latVal),
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
-      fromsource = Some(fromsourceVal)
+      includeAuxiliarySearch = Some(auxiliary),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val args = AddressArgs(
@@ -130,7 +169,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
-      fromsource = fromsourceVal
+      includeAuxiliarySearch = auxiliary,
+      eboost = eboostDouble,
+      nboost = nboostDouble,
+      sboost = sboostDouble,
+      wboost = wboostDouble
     )
 
     val result: Option[Future[Result]] =
@@ -144,7 +187,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateInput(input, queryValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
         .orElse(addressValidation.validateEpoch(queryValues))
-        .orElse(addressValidation.validateFromSource(queryValues))
+        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
         .orElse(None)
 
     result match {
@@ -160,7 +203,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
         val minimumSample = conf.config.elasticSearch.minimumSample
-        val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
+        val limitExpanded = if (auxiliary) 100 else max(offsetInt + (limitInt * 2), minimumSample)
 
         val finalArgs = args.copy(
           tokens = tokens,
@@ -178,12 +221,15 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
 
+            // ensure that auxiliary index results are scored appropriately
+            val auxAdjustedAddresses =  adjustWithAuxiliaryResults(addresses)
+
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator =
-              Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
+              Try(ConfidenceScoreHelper.calculateElasticDenominator(auxAdjustedAddresses.map(_.underlyingScore))).getOrElse(1D)
 
             // calculate the Hopper and hybrid scores for each  address
-            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addresses, tokens, elasticDenominator)
+            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(auxAdjustedAddresses, tokens, elasticDenominator,sigmoidScaleFactor)
 
             // work out the threshold for accepting matches (default 5% -> 0.05)
             val threshold = Try(thresholdFloat.toDouble).getOrElse(5.0D)
@@ -191,14 +237,19 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // filter out scores below threshold, sort the resultant collection, highest score first
             val sortedAddresses =
                // for range / classification only filter sort by nearest first (underlying score contains distance) and set confidence score to 1
-              if (finalArgs.isBlank) addresses.filter(_.confidenceScore >= threshold).sortBy(_.underlyingScore)(Ordering[Float])
+              if (finalArgs.isBlank) auxAdjustedAddresses.filter(_.confidenceScore >= threshold).sortBy(_.underlyingScore)(Ordering[Float])
               else scoredAddresses.filter(_.confidenceScore >= threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
             // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
 
             // trim the result list according to offset and limit paramters
-            val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
+            val limitedSortedAddresses = if (!auxiliary) {
+              sortedAddresses.slice(offsetInt, offsetInt + limitInt)
+            } else {
+              sortedAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
+                sortedAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
+            }
 
             // if verbose is false, strip out full address details (these are needed for score so must be
             // removed retrospectively)
@@ -226,7 +277,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
                   verbose = verb,
-                  fromsource = fromsourceVal
+                  includeauxiliarysearch = auxiliary,
+                  eboost = eboostDouble,
+                  nboost = nboostDouble,
+                  sboost = sboostDouble,
+                  wboost = wboostDouble
                 ),
                 status = OkAddressResponseStatus
               )

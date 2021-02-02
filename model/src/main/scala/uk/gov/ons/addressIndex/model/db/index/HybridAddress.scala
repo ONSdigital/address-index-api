@@ -14,6 +14,7 @@ case class HybridAddress(uprn: String,
                          lpi: Seq[NationalAddressGazetteerAddress],
                          paf: Seq[PostcodeAddressFileAddress],
                          nisra: Seq[NisraAddress],
+                         auxiliary: Seq[AuxiliaryAddress],
                          score: Float,
                          classificationCode: String,
                          censusAddressType: String,
@@ -37,6 +38,7 @@ object HybridAddress {
     lpi = Seq.empty,
     paf = Seq.empty,
     nisra = Seq.empty,
+    auxiliary = Seq.empty,
     score = 0,
     classificationCode = "",
     censusAddressType = "",
@@ -77,6 +79,10 @@ object HybridAddress {
         hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
+      val auxiliary: Map[String, AnyRef] = Try {
+        hit.sourceAsMap("tokens").asInstanceOf[Map[String, AnyRef]]
+      }.getOrElse(Map.empty)
+
       val sorts = hit.asInstanceOf[SearchHit].sort
       val slist = sorts.getOrElse(Seq())
       val centimetre = if (slist.isEmpty) 0 else 0.01
@@ -94,7 +100,7 @@ object HybridAddress {
 
       Try(HybridAddress(
         uprn = hit.sourceAsMap("uprn").toString,
-        parentUprn = hit.sourceAsMap("parentUprn").toString,
+        parentUprn = Try(hit.sourceAsMap("parentUprn").toString).getOrElse(""),
         relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),
         crossRefs = Some(cRefs.map(CrossRef.fromEsMap)),
         postcodeIn = if (Try(hit.sourceAsMap("postcodeIn").toString).isFailure) None else Some(hit.sourceAsMap("postcodeIn").toString),
@@ -102,9 +108,10 @@ object HybridAddress {
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
         nisra = nisras.map(NisraAddress.fromEsMap),
+        auxiliary = if (auxiliary.isEmpty) Seq.empty else Seq(AuxiliaryAddress.fromEsMap(auxiliary)),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
-        censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString).getOrElse(""),
+        censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString.trim).getOrElse(""),
         censusEstabType = Try(hit.sourceAsMap("censusEstabType").toString).getOrElse(""),
         fromSource = Try(hit.sourceAsMap("fromSource").toString).getOrElse("EW"),
         countryCode = Try(hit.sourceAsMap("countryCode").toString).getOrElse("E"),

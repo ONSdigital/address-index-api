@@ -48,7 +48,7 @@
         <tr class="table--row">
             <td class="table--cell">classificationfilter</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace</td>
+            <td class="table--cell">Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, workplace or educational</td>
             <td class="table--cell">
                 Optional
             </td>
@@ -112,15 +112,51 @@
                 Optional
             </td>
         </tr>
-         <tr class="table--row">
-            <td class="table--cell">fromsource</td>
+        <tr class="table--row">
+            <td class="table--cell">includeauxiliarysearch</td>
             <td class="table--cell">string</td>
-            <td class="table--cell">Set to niboost to favour Northern Ireland results, nionly or ewonly to filter (Census index only)</td>
+            <td class="table--cell">Search in the auxiliary index, if available</td>
             <td class="table--cell">
                 Optional
-                <br>Default: all
+                <br>Default: false
             </td>
         </tr>
+            <tr class="table--row">
+               <td class="table--cell">eboost</td>
+               <td class="table--cell">string</td>
+               <td class="table--cell">Set to 0 to exclude addresses in England</td>
+               <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">nboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Northern Ireland</td>
+                <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">sboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Scotland</td>
+                <td class="table--cell">
+                    Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>
+            <tr class="table--row">
+                <td class="table--cell">wboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Wales</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr>        
      </tbody>
   </table>
     
@@ -186,9 +222,11 @@
           "northing": 90677
         },
         "classificationCode": "RD",
-        "censusAddressType": "HH",
-        "censusEstabType": "Household",
-        "countryCode": "E",
+        "census": {
+          "addressType": "HH",
+          "estabType": "Household",
+          "countryCode": "E"
+        },
         "lpiLogicalStatus": "1",
         "confidenceScore": 98.0764,
         "underlyingScore": 27.280841827392578
@@ -207,7 +245,6 @@
     "maxScore": 27.280842,
     "matchthreshold": 5,
     "verbose": false,
-    "fromsource": "all"
   },
   "status": {
     "code": 200,
@@ -339,9 +376,11 @@
             "northing": 90677
           },
           "classificationCode": "RD",
-          "censusAddressType": "HH",
-          "censusEstabType": "Household",
-          "countryCode": "E",
+          "census": {
+            "addressType": "HH",
+            "estabType": "Household",
+            "countryCode": "E"
+          },
           "lpiLogicalStatus": "1",
           "confidenceScore": 98.0764,
           "underlyingScore": 27.280841827392578
@@ -360,7 +399,6 @@
       "maxScore": 27.280842,
       "matchthreshold": 5,
       "verbose": true,
-      "fromsource": "all"
     },
     "status": {
       "code": 200,

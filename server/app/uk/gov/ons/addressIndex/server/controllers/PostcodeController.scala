@@ -40,7 +40,12 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     classificationfilter: Option[String] = None,
                     historical: Option[String] = None,
                     verbose: Option[String] = None,
-                    epoch: Option[String] = None
+                    epoch: Option[String] = None,
+                    includeauxiliarysearch: Option[String] = None,
+                    eboost: Option[String] = None,
+                    nboost: Option[String] = None,
+                    sboost: Option[String] = None,
+                    wboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -58,8 +63,19 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
+
+    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
+    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
+    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
+    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
+    val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
+    val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -72,7 +88,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
-        endpoint = endpointType, activity = activity, clusterid = clusterId
+        endpoint = endpointType, activity = activity, clusterid = clusterId,
+        includeAuxiliary = auxiliary
       )
     }
 
@@ -87,6 +104,11 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       limit = Some(limitInt),
       offset = Some(offsetInt),
       verbose = Some(verb),
+      includeAuxiliarySearch = Some(auxiliary),
+      eboost = Some(eboostDouble),
+      nboost = Some(nboostDouble),
+      sboost = Some(sboostDouble),
+      wboost = Some(wboostDouble)
     )
 
     val result: Option[Future[Result]] =
@@ -113,6 +135,11 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           verbose = verb,
           epoch = epochVal,
           skinny = !verb,
+          includeAuxiliarySearch = auxiliary,
+          eboost = eboostDouble,
+          nboost = nboostDouble,
+          sboost = sboostDouble,
+          wboost = wboostDouble
         )
 
         val request: Future[HybridAddressCollection] =
@@ -143,7 +170,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                   offset = offsetInt,
                   total = total,
                   maxScore = maxScore,
-                  verbose = verb
+                  verbose = verb,
+                  includeauxiliarysearch = auxiliary
                 ),
                 status = OkAddressResponseStatus
               )
