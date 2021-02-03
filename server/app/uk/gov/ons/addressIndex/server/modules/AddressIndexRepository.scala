@@ -1165,7 +1165,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         lazy val fallbackQuery = makePartialSearch(partialArgs, fallback = true)
  //       val searchString = SearchBodyBuilderFn(fallbackQuery).string()
   //      println(searchString)
-        val partResult = if ((gcp && args.verboseOrDefault) || partialFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        val partResult = if ((gcp && args.verboseOrDefault) || (gcp && args.includeAuxiliarySearchOrDefault) || partialFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
         // if there are no results for the "phrase" query, delegate to an alternative "best fields" query
         partResult.map { adds =>
@@ -1173,7 +1173,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             logger.info(s"minimumFallback: $minimumFallback")
             logger.info(s"tokenCount: $tokenCount")
             logger.info(s"Partial query is empty and fall back is on. Input length: ${args.inputOpt.get.length}. Run fallback query.")
-            if ((gcp && args.verboseOrDefault) || partialFull) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromResponse) else
+            if ((gcp && args.verboseOrDefault) || (gcp && args.includeAuxiliarySearchOrDefault) || partialFull) clientFullmatch.execute(fallbackQuery).map(HybridAddressCollection.fromResponse) else
             client.execute(fallbackQuery).map(HybridAddressCollection.fromResponse)}
           else partResult
         }.flatten

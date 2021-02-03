@@ -247,6 +247,8 @@ final case class PartialArgs(input: String,
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+
   def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.nonEmpty).toList
 }
 

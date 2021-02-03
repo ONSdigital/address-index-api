@@ -14,7 +14,6 @@ import uk.gov.ons.addressIndex.server.utils.HighlightFuncs.boostAddress
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.math.round
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -105,26 +104,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterid
+        endpoint = endpointType, activity = activity, clusterid = clusterid, includeAuxiliary = auxiliary
       )
-    }
-
-    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
-      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
-      if (extractedAuxiliaryAddresses.isEmpty) addresses
-      else {
-        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
-        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
-        else {
-          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
-          val auxIndexMinUnderlyingScore = extractedAuxiliaryAddresses.minBy(_.underlyingScore).underlyingScore.toInt
-          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map { auxAddress =>
-            val increase = ((mainIndexMaxUnderlyingScore + auxAddress.underlyingScore) - auxIndexMinUnderlyingScore) / 1000
-            auxAddress.copy(underlyingScore = mainIndexMaxUnderlyingScore + increase)
-          }
-          extractedMainAddresses ++ adjustedAuxAddresses
-        }
-      }
     }
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
@@ -196,18 +177,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
               AddressResponseAddress.fromHybridAddress(_, verb)
             )
 
-            // ensure that auxiliary index results are scored appropriately
-            val auxAdjustedAddresses =  adjustWithAuxiliaryResults(addresses)
-
-            val sortAddresses = if (startboost > 0) boostAtStart(auxAdjustedAddresses, inputVal, favourPaf, favourWelsh, highVerbose) else auxAdjustedAddresses
-
-            // trim the result list according to offset and limit paramters
-            val auxAdjustedSortedAddresses = if (!auxiliary) {
-              sortAddresses
-            } else {
-              sortAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
-                sortAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
-            }
+            val sortAddresses = if (startboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
 
             writeLog(activity = "partial_request")
 
@@ -217,7 +187,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 dataVersion = dataVersion,
                 response = AddressByPartialAddressResponse(
                   input = inputVal,
-                  addresses = auxAdjustedSortedAddresses,
+                  addresses = sortAddresses,
                   filter = filterString,
                   fallback = fall,
                   historical = hist,
