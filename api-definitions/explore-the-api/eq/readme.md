@@ -198,6 +198,7 @@
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "NA",
+  "termsAndConditions": "https://census.gov.uk/terms-and-conditions",
   "response": {
     "input": "Corn Exc",
     "addresses": [
@@ -241,6 +242,7 @@
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "NA",
+  "termsAndConditions": "https://census.gov.uk/terms-and-conditions",
   "response": {
     "input": "3 EX26GA",
     "addresses": [
@@ -291,6 +293,7 @@
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "NA",
+  "termsAndConditions": "https://census.gov.uk/terms-and-conditions",
   "response": {
     "partpostcode": "EX4 3",
     "postcodes": [
