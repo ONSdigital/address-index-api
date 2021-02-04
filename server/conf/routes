@@ -545,11 +545,11 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    - name: offset
 #      description: Specifies the offset from zero, used for pagination.
 #      default: 0
-#      maximum: 1000
+#      maximum: 5000
 #    - name: limit
 #      description: Specifies the number of addresses to return.
-#      default: 10
-#      maximum: 100
+#      default: 100
+#      maximum: 5000
 #    - name: classificationfilter
 #      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial, educational or workplace
 #    - name: epoch
