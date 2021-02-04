@@ -14,6 +14,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseErr
   */
 case class AddressByEQPostcodeResponseContainer(apiVersion: String,
                                                 dataVersion: String,
+                                                termsAndConditions: String,
                                                 response: AddressByEQPostcodeResponse,
                                                 status: AddressResponseStatus,
                                                 errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])

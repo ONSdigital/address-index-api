@@ -58,7 +58,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     }
 
     val epochVal = epoch.getOrElse("")
-
+    val tocLink = conf.config.termsAndConditionsLink
     val startingTime = System.currentTimeMillis()
 
     def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
@@ -121,6 +121,7 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
               AddressByEQUprnResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
+                termsAndConditions = tocLink,
                 response = AddressByEQUprnResponse(
                   address = Some(address),
                   addressType = addressType,

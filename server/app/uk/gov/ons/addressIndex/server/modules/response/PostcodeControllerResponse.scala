@@ -116,6 +116,7 @@ trait PostcodeControllerResponse extends Response {
     AddressByEQBucketResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
+      termsAndConditions = termsAndConditions,
       response = ErrorBucket(queryValues),
       status = BadRequestAddressResponseStatus,
       errors = errors

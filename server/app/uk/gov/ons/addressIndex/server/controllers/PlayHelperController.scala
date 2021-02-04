@@ -9,5 +9,6 @@ abstract class PlayHelperController(versionProvider: VersionModule) extends Base
   // lazy to avoid application crash at startup if ES is down
   override lazy val dataVersion: String = versionProvider.dataVersion
   override lazy val apiVersion: String = versionProvider.apiVersion
+  override lazy val termsAndConditions = versionProvider.termsAndConditions
 
 }
