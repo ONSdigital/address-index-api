@@ -47,7 +47,7 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
                     wboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
-
+    val tocLink = conf.config.termsAndConditionsLink
     val clusterId = conf.config.elasticSearch.clusterPolicies.postcode
 
     // get the defaults and maxima for the paging parameters from the config
@@ -155,6 +155,7 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
               AddressByGroupedPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
+                termsAndConditions = tocLink,
                 response = AddressByGroupedPostcodeResponse(
                   partpostcode = postcode,
                   postcodes = pagedAggregations,

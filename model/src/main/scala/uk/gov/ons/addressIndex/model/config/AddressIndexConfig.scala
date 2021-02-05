@@ -8,6 +8,7 @@ case class AddressIndexConfig(apiKeyRequired: Boolean,
                               sourceKey: String,
                               parserLibPath: String,
                               pathToResources: String,
+                              termsAndConditionsLink: String,
                               elasticSearch: ElasticSearchConfig,
                               bulk: BulkConfig)
 

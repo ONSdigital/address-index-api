@@ -24,7 +24,7 @@
         <td class="table--cell">
             Optional
             <br>Default: 0
-            <br>Maximum: 1000
+            <br>Maximum: 5000
         </td>
     </tr>
     <tr class="table--row">
@@ -33,8 +33,8 @@
         <td class="table--cell">Specifies the number of addresses to return.</td>
         <td class="table--cell">
             Optional
-            <br>Default: 10
-            <br>Maximum: 100
+            <br>Default: 100
+            <br>Maximum: 5000
         </td>
     </tr>
     <tr class="table--row">

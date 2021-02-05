@@ -51,7 +51,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     wboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
-
+    val tocLink = conf.config.termsAndConditionsLink
     val clusterId = conf.config.elasticSearch.clusterPolicies.postcode
 
     // get the defaults and maxima for the paging parameters from the config
@@ -170,6 +170,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
               AddressByEQPostcodeResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
+                termsAndConditions = tocLink,
                 response = AddressByEQPostcodeResponse(
                   postcode = postcode,
                   postcodes = aggsOrEmpty,
