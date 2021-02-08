@@ -340,7 +340,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
     streetName = "11",
     locality = "12",
     townName = "13",
-    location = AuxiliaryAddressLocation("14", "15"),
+    location = AuxiliaryAddressLocation("50.7341677", "-3.540302"),
     addressLevel = "16",
     addressAll = "mixedAuxiliary",
     addressLine1 = "17",
@@ -547,7 +547,7 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         parentUprn = givenPaf.uprn,
         relatives = Some(Seq(givenRelativeResponse)),
         crossRefs = Some(Seq(givenCrossRefResponse)),
-        formattedAddress = "mixedNisra",
+        formattedAddress = "mixedAuxiliary",
         formattedAddressNag = "mixedNag",
         formattedAddressPaf = "mixedPaf",
         formattedAddressNisra = "mixedNisra",
@@ -561,8 +561,8 @@ class AddressResponseAddressSpec extends WordSpec with Matchers {
         geo = Some(AddressResponseGeo(
           latitude = 50.7341677,
           longitude = -3.540302,
-          easting = 291398,
-          northing = 93861
+          easting = 0,
+          northing = 0
         )),
         classificationCode = "classificationCode",
         lpiLogicalStatus = givenNag.lpiLogicalStatus,

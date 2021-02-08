@@ -70,16 +70,22 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
-    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(if (auxiliary) true else false)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val favourPaf = favourpaf.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val favourWelsh = favourwelsh.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     // values are off, on and debug - off will be the default later (eQ set to on)
     val highVal = highlight.getOrElse("on")
     val highVerbose: Boolean = highVal == "debug"
+
     val inputVal = input.replaceAll("'","")
+      .split("\\s+|,\\s*")
+      .filter(_.nonEmpty)
+      .distinct
+      .mkString(" ")
+
     val epochVal = epoch.getOrElse("")
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
