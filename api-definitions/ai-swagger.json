@@ -614,6 +614,15 @@
 						"required": false
 					},
 					{
+						"in": "query",
+						"name": "includeauxiliarysearch",
+						"description": "Include search of Auxiliary index.",
+						"schema": {
+							"type": "string"
+						},
+						"required": false
+					},
+					{
 						"default": 1,
 						"in": "query",
 						"name": "eboost",
