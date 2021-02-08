@@ -135,6 +135,7 @@
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "19",
+  "termsAndConditions": "https://census.gov.uk/terms-and-conditions",
   "response": {
     "postcode": "EX4 1AA",
     "streetname": "Cowick Street",

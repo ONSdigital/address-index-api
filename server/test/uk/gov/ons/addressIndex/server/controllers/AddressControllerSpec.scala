@@ -394,10 +394,12 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val apiVersionExpected = "testApi"
   val dataVersionExpected = "testData"
+  val termsAndConditionsExpected = "https://census.gov.uk/terms-and-conditions"
 
   val versions: VersionModule = new VersionModule {
     val apiVersion: String = apiVersionExpected
     val dataVersion: String = dataVersionExpected
+    val termsAndConditions: String = termsAndConditionsExpected
   }
 
   val overloadProtection: APIThrottle = new APIThrottle(tweakedCBConfig)
@@ -613,6 +615,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4",
           postcodes = validBuckets,
@@ -755,6 +758,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByEQPartialAddressResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByEQPartialAddressResponse(
           input = "some query",
           addresses = AddressByEQPartialAddressResponse.toEQAddressByPartialResponse(sortAddresses),
@@ -791,6 +795,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByEQPostcodeResponse(
           postcode = "PO155RR",
           postcodes = None,
@@ -822,6 +827,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4 1AA",
           postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
@@ -855,6 +861,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4",
           postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
@@ -886,6 +893,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4 1",
           postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
@@ -917,6 +925,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByEQBucketResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByEQBucketResponse(
           postcode = "EX4 1A*",
           streetname = "Aardvark Avenue",
@@ -939,6 +948,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         val expected = Json.toJson(AddressByEQBucketResponseContainer(
           apiVersion = apiVersionExpected,
           dataVersion = dataVersionExpected,
+          termsAndConditions = termsAndConditionsExpected,
           response = AddressByEQBucketResponse(
             postcode = "*",
             streetname = "*",
@@ -971,6 +981,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByGroupedPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByGroupedPostcodeResponse(
           partpostcode = "EX4 1A",
           postcodes = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter")),
@@ -1002,6 +1013,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       val expected = Json.toJson(AddressByEQPostcodeResponseContainer(
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
+        termsAndConditions = termsAndConditionsExpected,
         response = AddressByEQPostcodeResponse(
           postcode = "EX41AA",
           addresses = Seq(AddressResponseAddressPostcodeEQ.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),

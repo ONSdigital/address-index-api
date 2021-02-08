@@ -70,6 +70,7 @@
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "NA",
+  "termsAndConditions": "https://census.gov.uk/terms-and-conditions",
   "response": {
     "address": {
       "uprn": "10013049457",

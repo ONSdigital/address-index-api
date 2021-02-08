@@ -14,6 +14,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseErr
   */
 case class AddressByEQUprnResponseContainer(apiVersion: String,
                                             dataVersion: String,
+                                            termsAndConditions: String,
                                             response: AddressByEQUprnResponse,
                                             status: AddressResponseStatus,
                                             errors: Seq[AddressResponseError] = Seq.empty[AddressResponseError])

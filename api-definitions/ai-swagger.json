@@ -38,16 +38,16 @@
 						"in": "query",
 						"name": "offset",
 						"description": "Specifies the offset from zero, used for pagination.",
-						"maximum": 1000,
+						"maximum": 5000,
 						"type": "string",
 						"required": false
 					},
 					{
-						"default": 10,
+						"default": 100,
 						"in": "query",
 						"name": "limit",
 						"description": "Specifies the number of addresses to return.",
-						"maximum": 100,
+						"maximum": 5000,
 						"type": "string",
 						"required": false
 					},
