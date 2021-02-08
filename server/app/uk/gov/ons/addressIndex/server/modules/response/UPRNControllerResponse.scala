@@ -140,6 +140,7 @@ trait UPRNControllerResponse extends Response {
     AddressByEQUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,
+      termsAndConditions = termsAndConditions,
       response = AddressByEQUprnResponse(
         address = None,
         addressType = queryValues.addressTypeOrDefault,

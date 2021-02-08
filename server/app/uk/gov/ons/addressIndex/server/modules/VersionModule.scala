@@ -4,4 +4,6 @@ trait VersionModule {
   def apiVersion: String
 
   def dataVersion: String
+
+  def termsAndConditions: String
 }

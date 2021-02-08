@@ -13,6 +13,7 @@ trait Response {
 
   val dataVersion: String
   val apiVersion: String
+  val termsAndConditions: String
 
   def BadRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(
