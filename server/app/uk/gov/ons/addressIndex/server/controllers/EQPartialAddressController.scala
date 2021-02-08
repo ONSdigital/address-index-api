@@ -77,6 +77,11 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     val highVal = highlight.getOrElse("on")
     val highVerbose: Boolean = highVal == "debug"
     val inputVal = input.replaceAll("'","")
+      .split("\\s+|,\\s*")
+      .filter(_.nonEmpty)
+      .distinct
+      .mkString(" ")
+
     val epochVal = epoch.getOrElse("")
 
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}

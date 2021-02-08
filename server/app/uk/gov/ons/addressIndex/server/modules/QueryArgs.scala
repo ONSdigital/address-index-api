@@ -231,6 +231,7 @@ final case class PartialArgs(input: String,
                              highlight: String = "on",
                              favourpaf: Boolean = true,
                              favourwelsh: Boolean = true,
+                             includeAuxiliarySearch: Boolean = false,
                              eboost: Double = 1.0,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
@@ -245,6 +246,8 @@ final case class PartialArgs(input: String,
   override def startOpt: Option[Int] = Some(start)
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
+
+  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 
   def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.nonEmpty).toList
 }
