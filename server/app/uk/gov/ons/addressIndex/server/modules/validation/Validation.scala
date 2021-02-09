@@ -18,6 +18,7 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
   // lazy to avoid application crash at startup if ES is down
   override lazy val dataVersion: String = versionProvider.dataVersion
   override lazy val apiVersion: String = versionProvider.apiVersion
+  override lazy val termsAndConditions: String = versionProvider.termsAndConditions
 
   lazy val logger = AddressAPILogger("address-index-server:Validation")
 

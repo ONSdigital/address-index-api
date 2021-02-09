@@ -20,6 +20,7 @@ class AddressIndexVersionModule @Inject()
   private val gcp : Boolean = Try(configProvider.config.elasticSearch.gcp.toBoolean).getOrElse(false)
   val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
   val client: ElasticClient = elasticClientProvider.client
+  val termsAndConditions = configProvider.config.termsAndConditionsLink
 
   lazy val apiVersion: String = {
     val filename = "version.app"

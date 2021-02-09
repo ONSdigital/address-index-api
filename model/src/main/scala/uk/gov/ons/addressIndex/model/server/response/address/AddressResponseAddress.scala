@@ -78,12 +78,12 @@ object AddressResponseAddress {
 
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
-    val formattedAddress = if (chosenNisra.isDefined) removeConcatenatedPostcode(formattedAddressNisra)
-                           else if (chosenAuxiliary.isDefined) removeConcatenatedPostcode(formattedAddressAuxiliary)
+    val formattedAddress = if (chosenAuxiliary.isDefined) removeConcatenatedPostcode(formattedAddressAuxiliary)
+                           else if (chosenNisra.isDefined) removeConcatenatedPostcode(formattedAddressNisra)
                            else removeConcatenatedPostcode(formattedAddressNag)
 
-    val geo = if (chosenNisra.isDefined) chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
-              else if (chosenAuxiliary.isDefined) chosenAuxiliary.flatMap(AddressResponseGeo.fromAuxiliaryAddress)
+    val geo = if (chosenAuxiliary.isDefined) chosenAuxiliary.flatMap(AddressResponseGeo.fromAuxiliaryAddress)
+              else if (chosenNisra.isDefined) chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
               else chosenNag.flatMap(AddressResponseGeo.fromNagAddress)
 
     AddressResponseAddress(

@@ -146,6 +146,7 @@
 {
   "apiVersion": "1.0.0-SNAPSHOT",
   "dataVersion": "NA",
+  "termsAndConditions": "https://census.gov.uk/terms-and-conditions",
   "response": {
     "partpostcode": "EX4 3",
     "postcodes": [

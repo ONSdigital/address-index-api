@@ -563,6 +563,15 @@
           },
           {
             "in": "query",
+            "name": "includeauxiliarysearch",
+            "description": "Include search of Auxiliary index.",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
             "name": "eboost",
             "description": "Set to 0 to exclude addresses in England",
             "schema": {

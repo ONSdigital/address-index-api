@@ -74,6 +74,11 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
     val highVal = "on"
     val highVerbose: Boolean = (highVal == "debug")
     val inputVal = input.replaceAll("'","")
+      .split("\\s+|,\\s*")
+      .filter(_.nonEmpty)
+      .distinct
+      .mkString(" ")
+
     val epochVal = epoch.getOrElse("")
 
     val fromsourceVal = "all"
