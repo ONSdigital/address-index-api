@@ -69,6 +69,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   val client: ElasticClient = elasticClientProvider.client
 // clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
   val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
+  val clientSpecialCensus: ElasticClient = elasticClientProvider.clientSpecialCensus
   lazy val logger: GenericLogger = GenericLogger("AddressIndexRepository")
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)

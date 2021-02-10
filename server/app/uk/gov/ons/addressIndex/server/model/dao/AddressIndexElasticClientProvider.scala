@@ -36,6 +36,8 @@ class AddressIndexElasticClientProvider @Inject()
   val basicAuth: String = esConf.basicAuth
   val searchUser: String = esConf.searchUser
   val searchPassword: String = esConf.searchPassword
+  val searchUserCen: String = esConf.searchUserCen
+  val searchPasswordCen: String = esConf.searchPasswordCen
   val connectionTimeout: Int = esConf.connectionTimeout
   val connectionRequestTimeout: Int = esConf.connectionRequestTimeout
   val socketTimeout: Int = esConf.connectionRequestTimeout
@@ -49,6 +51,18 @@ class AddressIndexElasticClientProvider @Inject()
 
     val provider = new BasicCredentialsProvider
     val credentials = new UsernamePasswordCredentials(searchUser, searchPassword)
+
+    provider.setCredentials(AuthScope.ANY, credentials)
+    provider
+  }
+
+  /* This code is used when authentication is setup on the ES cluster */
+  val providerCen: BasicCredentialsProvider = {
+
+    logger info "Connecting to Elasticsearch"
+
+    val provider = new BasicCredentialsProvider
+    val credentials = new UsernamePasswordCredentials(searchUserCen, searchPasswordCen)
 
     provider.setCredentials(AuthScope.ANY, credentials)
     provider
@@ -75,6 +89,8 @@ class AddressIndexElasticClientProvider @Inject()
 
   val clientFullmatch: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
 
+  val clientSpecialCensus: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
+
   def clientBuilder(eProps: ElasticProperties): ElasticClient = ElasticClient(JavaClient(eProps, new RequestConfigCallback {
 
     override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
@@ -94,6 +110,29 @@ class AddressIndexElasticClientProvider @Inject()
      httpClientBuilder
       .setMaxConnTotal(maxESConnections)
       .setSSLContext(context)
+    }
+  }
+  ))
+
+  def clientBuilderCen(eProps: ElasticProperties): ElasticClient = ElasticClient(JavaClient(eProps, new RequestConfigCallback {
+
+    override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
+      requestConfigBuilder.setConnectTimeout(connectionTimeout)
+        .setSocketTimeout(socketTimeout)
+        .setConnectionRequestTimeout(connectionRequestTimeout)
+        .setContentCompressionEnabled(true)
+      requestConfigBuilder
+    }
+  }, (httpClientBuilder: HttpAsyncClientBuilder) => {
+    if (basicAuth == "true") {
+      httpClientBuilder
+        .setDefaultCredentialsProvider(providerCen)
+        .setMaxConnTotal(maxESConnections)
+        .setSSLContext(context)
+    } else {
+      httpClientBuilder
+        .setMaxConnTotal(maxESConnections)
+        .setSSLContext(context)
     }
   }
   ))

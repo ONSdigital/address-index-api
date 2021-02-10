@@ -173,7 +173,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       eboost = eboostDouble,
       nboost = nboostDouble,
       sboost = sboostDouble,
-      wboost = wboostDouble
+      wboost = wboostDouble,
+      auth = req.headers.get("authorization").getOrElse("Anon")
     )
 
     val result: Option[Future[Result]] =
