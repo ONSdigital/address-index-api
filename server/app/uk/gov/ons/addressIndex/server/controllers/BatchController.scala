@@ -319,7 +319,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                          epoch: String,
                          matchThreshold: Float,
                          includeFullAddress: Boolean = false,
-                         auth: String): Future[BulkAddresses] = {
+                         auth: String = ""): Future[BulkAddresses] = {
 
     val bulkArgs = BulkArgs(
       requestsData = inputs,
