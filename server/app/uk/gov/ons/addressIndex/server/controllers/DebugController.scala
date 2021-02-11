@@ -89,7 +89,8 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
       eboost = eboostDouble,
       nboost = nboostDouble,
       sboost = sboostDouble,
-      wboost = wboostDouble
+      wboost = wboostDouble,
+      auth = req.headers.get("authorization").getOrElse("Anon")
     )
 
     val query = esRepo.makeQuery(args)

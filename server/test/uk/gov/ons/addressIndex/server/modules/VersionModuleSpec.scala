@@ -32,6 +32,7 @@ class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider
     override def client: ElasticClient = testClient
     /* Not currently used in tests as it doesn't look like you can have two test ES instances */
     override def clientFullmatch: ElasticClient = testClient
+    override def clientSpecialCensus: ElasticClient = testClient
   }
 
   val invalidConfig: ConfigModule = new ConfigModule {

@@ -22,4 +22,12 @@ trait ElasticClientProvider {
     * @return
     */
   def clientFullmatch: ElasticClient
+
+  /**
+    * Defines a getter for Elastic limited access Census client
+    * Available on network only if key matches
+    *
+    * @return
+    */
+  def clientSpecialCensus: ElasticClient
 }

@@ -69,14 +69,15 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   val client: ElasticClient = elasticClientProvider.client
 // clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
   val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
+  val clientSpecialCensus: ElasticClient = elasticClientProvider.clientSpecialCensus
   lazy val logger: GenericLogger = GenericLogger("AddressIndexRepository")
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   private def makeUprnQuery(args: UPRNArgs): SearchRequest = {
     val query = termQuery("uprn", args.uprn)
-
-    val source = (if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn) + args.epochParam
+    val special = if (args.epochParam == "80C") "special_" else ""
+    val source = special + (if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn) + args.epochParam
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
 
@@ -1085,8 +1086,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
            .tieBreaker(queryParams.topDisMaxTieBreaker)
        }
      }
-
-    val source = (if (args.historical) {
+    val special = if (args.epochParam == "80C") "special_" else ""
+    val source = special + (if (args.historical) {
       if (args.isBulk) hybridIndexHistoricalBulk else hybridIndexHistoricalAddress
     } else {
       if (args.isBulk) hybridIndexBulk else hybridIndexAddress
@@ -1148,6 +1149,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
+    val specialCen = (args.auth == conf.config.masterKey)
+    if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
     if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
   }
@@ -1178,6 +1181,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           else partResult
         }.flatten
       case addressArgs: AddressArgs =>
+        val specialCen = (addressArgs.auth == conf.config.masterKey)
+        if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
         if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: PostcodeArgs =>
@@ -1219,7 +1224,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         eboost = 1.0,
         nboost = 1.0,
         sboost = 1.0,
-        wboost = 1.0
+        wboost = 1.0,
+        auth = args.auth
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
