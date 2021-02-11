@@ -89,7 +89,7 @@ class AddressIndexElasticClientProvider @Inject()
 
   val clientFullmatch: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
 
-  val clientSpecialCensus: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
+  val clientSpecialCensus: ElasticClient = clientBuilderCen(propsBuilder(hostFullmatch, port, ssl))
 
   def clientBuilder(eProps: ElasticProperties): ElasticClient = ElasticClient(JavaClient(eProps, new RequestConfigCallback {
 

@@ -197,7 +197,8 @@ sealed abstract class QueryArgs {
 final case class UPRNArgs(uprn: String,
                           historical: Boolean = true,
                           epoch: String = "",
-                          includeAuxiliarySearch: Boolean = false
+                          includeAuxiliarySearch: Boolean = false,
+                          auth: String = "",
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
 
@@ -377,7 +378,7 @@ final case class AddressArgs(input: String,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
                              wboost: Double = 1.0,
-                             auth: String
+                             auth: String = ""
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -408,6 +409,7 @@ final case class BulkArgs(requestsData: Stream[BulkAddressRequestData],
                           limit: Int,
                           filterDateRange: DateRange = DateRange(),
                           queryParamsConfig: Option[QueryParamsConfig] = None,
+                          auth: String = ""
                          ) extends QueryArgs with Limitable with DateFilterable with Configurable {
   override def requestsDataOpt: Option[Stream[BulkAddressRequestData]] = Some(requestsData)
 

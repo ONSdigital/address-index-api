@@ -1149,6 +1149,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
+    val specialCen = (args.auth == conf.config.masterKey)
+    if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
     if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
   }
@@ -1179,6 +1181,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           else partResult
         }.flatten
       case addressArgs: AddressArgs =>
+        val specialCen = (addressArgs.auth == conf.config.masterKey)
+        if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
         if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
       case _: PostcodeArgs =>
@@ -1220,7 +1224,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         eboost = 1.0,
         nboost = 1.0,
         sboost = 1.0,
-        wboost = 1.0
+        wboost = 1.0,
+        auth = args.auth
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
