@@ -76,7 +76,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   private def makeUprnQuery(args: UPRNArgs): SearchRequest = {
     val query = termQuery("uprn", args.uprn)
-    val special = if (args.epochParam == "_80C") "special_" else ""
+    val special = if (args.epochParam == "_80N") "special_" else ""
     val source = special + (if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn) + args.epochParam
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
@@ -1086,7 +1086,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
            .tieBreaker(queryParams.topDisMaxTieBreaker)
        }
      }
-    val special = if (args.epochParam == "_80C") "special_" else ""
+    val special = if (args.epochParam == "_80N") "special_" else ""
     val source = special + (if (args.historical) {
       if (args.isBulk) hybridIndexHistoricalBulk else hybridIndexHistoricalAddress
     } else {
